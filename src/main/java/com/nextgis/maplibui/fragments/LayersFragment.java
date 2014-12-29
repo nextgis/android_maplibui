@@ -27,18 +27,12 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.view.Display;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
-import com.nextgis.maplib.map.MapEventSource;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.mapui.MapView;
 
@@ -47,12 +41,10 @@ import com.nextgis.maplibui.mapui.MapView;
  */
 public class LayersFragment extends Fragment implements IFragmentBase {
 	protected ActionBarDrawerToggle mDrawerToggle;
-
     protected DrawerLayout mDrawerLayout;
     protected ListView mLayersListView;
     protected View mFragmentContainerView;
     protected LayersListAdapter mListAdapter;
-
 	protected MapView mMap;
 
     @Override
