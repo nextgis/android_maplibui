@@ -23,5 +23,5 @@ package com.nextgis.maplibui.fragments;
 import com.nextgis.maplibui.mapui.MapView;
 
 public interface IFragmentBase {
-    boolean onInit(String title, MapView map);
+    boolean onInit(MapView map);
 }

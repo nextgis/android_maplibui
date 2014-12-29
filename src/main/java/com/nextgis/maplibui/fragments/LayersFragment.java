@@ -54,7 +54,6 @@ public class LayersFragment extends Fragment implements IFragmentBase {
     protected LayersListAdapter mListAdapter;
 
 	protected MapView mMap;
-    protected String mTitle;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -100,7 +99,8 @@ public class LayersFragment extends Fragment implements IFragmentBase {
         }
 
         ViewGroup.LayoutParams params = mFragmentContainerView.getLayoutParams();
-        params.width = (int) (displayWidth * 0.8);
+        if(params.width < displayWidth)
+            params.width = (int) (displayWidth * 0.8);
         mFragmentContainerView.setLayoutParams(params);
 
         mLayersListView = (ListView) mFragmentContainerView.findViewById(R.id.layer_list);
@@ -113,12 +113,9 @@ public class LayersFragment extends Fragment implements IFragmentBase {
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         // set up the drawer's list view with items and click listener
 
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
-
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the navigation drawer and the action bar app icon.
+
         mDrawerToggle = new ActionBarDrawerToggle(
                 getActivity(),                    // host Activity
                 mDrawerLayout,                    // DrawerLayout object
@@ -158,35 +155,6 @@ public class LayersFragment extends Fragment implements IFragmentBase {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
     }
 
-    protected ActionBar getActionBar() {
-        return ((ActionBarActivity) getActivity()).getSupportActionBar();
-    }
-    
-    private void showGlobalContextActionBar() {
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setTitle(mTitle);
-    }
-
-    
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // If the drawer is open, show the global app actions in the action bar. See also
-        // showGlobalContextActionBar, which controls the top-left area of the action bar.
-        if (mDrawerLayout != null && isDrawerOpen()) {
-            //inflater.inflate(R.menu.global, menu);
-            showGlobalContextActionBar();
-        }
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
-
-    }
-    
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -195,9 +163,8 @@ public class LayersFragment extends Fragment implements IFragmentBase {
     }
 
     @Override
-    public boolean onInit(String title, MapView map) {
+    public boolean onInit(MapView map) {
         mMap = map;
-        mTitle = title;
         return true;
     }
 }
