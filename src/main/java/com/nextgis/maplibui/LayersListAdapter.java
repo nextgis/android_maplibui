@@ -18,7 +18,7 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-package com.nextgis.maplibui.fragments;
+package com.nextgis.maplibui;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -33,7 +33,6 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.MapEventListener;
 import com.nextgis.maplib.map.MapEventSource;
-import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.mapui.ILayerUI;
 
 import static com.nextgis.maplib.util.Constants.*;
@@ -51,6 +50,12 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
         mContext = context;
 
         mMap.addListener(this);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        mMap.removeListener(this);
     }
 
     @Override
@@ -112,7 +117,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 
         ImageButton btShow = (ImageButton)v.findViewById(R.id.btShow);
         //Log.d(TAG, "Layer #" + id + " is visible " + layer.isVisible());
-        btShow.setBackgroundResource(layer.isVisible() ? R.drawable.ic_brightness_high : R.drawable.ic_bightness_low);
+        btShow.setBackgroundResource(layer.isVisible() ? R.drawable.ic_action_visibility_on : R.drawable.ic_action_visibility_off);
         //btShow.refreshDrawableState();
         btShow.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {

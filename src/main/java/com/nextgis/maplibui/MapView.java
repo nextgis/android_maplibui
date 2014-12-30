@@ -18,7 +18,7 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-package com.nextgis.maplibui.mapui;
+package com.nextgis.maplibui;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -33,6 +33,7 @@ import android.widget.Toast;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.MapEventListener;
+import com.nextgis.maplibui.mapui.LayerFactoryUI;
 
 import java.io.File;
 
