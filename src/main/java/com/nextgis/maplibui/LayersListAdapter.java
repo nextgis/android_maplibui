@@ -173,4 +173,9 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
     public void onLayersReordered() {
         notifyDataSetChanged();
     }
+
+    @Override
+    public void onLayerDrawFinished(int id, float percent) {
+
+    }
 }

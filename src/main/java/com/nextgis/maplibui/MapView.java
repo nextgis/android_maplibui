@@ -133,4 +133,9 @@ public class MapView extends View {
     public void zoomOut() {
         setZoomAndCenter((float)Math.floor(getZoomLevel() - 0.5), getMapCenter());
     }
+
+    public void addRemoteLayer(){
+        if(mMap != null)
+            mMap.getLayerFactory().createNewRemoteTMSLayer(getContext(), mMap);
+    }
 }

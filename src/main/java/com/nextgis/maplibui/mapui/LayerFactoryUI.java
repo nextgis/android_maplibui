@@ -33,11 +33,14 @@ import android.widget.Toast;
 
 import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.LayerFactory;
+import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplibui.R;
 
 import org.json.JSONException;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -45,7 +48,12 @@ import static com.nextgis.maplib.util.GeoConstants.*;
 
 public class LayerFactoryUI extends LayerFactory{
 
-    public static void createNewRemoteTMSLayer(Context context, MapBase map) {
+
+    public LayerFactoryUI(File mapPath) {
+        super(mapPath);
+    }
+
+    public void createNewRemoteTMSLayer(final Context context, final LayerGroup groupLayer) {
         final LinearLayout linearLayout = new LinearLayout(context);
         final EditText input = new EditText(context);
         input.setText(context.getResources().getText(R.string.osm));
@@ -99,9 +107,18 @@ public class LayerFactoryUI extends LayerFactory{
                         String layerURL = url.getText().toString();
 
                         //check if {x}, {y} or {z} present
+                        if (!layerURL.contains("{x}") || !layerURL.contains("{y}") || !layerURL.contains("{z}")) {
+                            Toast.makeText(context, R.string.error_invalid_url, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
                         //create new layer and store it and add it to the map
-                        //map.addLayer();
+                        RemoteTMSLayer layer = new RemoteTMSLayer(context, cretateLayerStorage());
+                        layer.setName(layerName);
+                        layer.setURL(layerURL);
+                        layer.setTMSType(tmsType);
+
+                        groupLayer.addLayer(layer);
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
