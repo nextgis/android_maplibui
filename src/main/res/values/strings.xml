@@ -20,4 +20,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <resources>
     <string name="layers_drawer_open">Open layers list</string>
     <string name="layers_drawer_close">Close layers list</string>
+    <string name="ok">OK</string>
+    <string name="create">Create</string>
+    <string name="cancel">Cancel</string>
+    <string name="osm">OpenStreetMap</string>
+    <string name="layer_name">Name</string>
+    <string name="layer_url">URL</string>
+    <string name="layer_type">TMS type</string>
+    <string name="create_layer">Create layer</string>
+    <string name="create_tms_layer">Create TMS layer</string>
+    <string name="tmstype_osm">XYZ (OSM)</string>
+    <string name="tmstype_normal">TMS (OSGeo spec.)</string>
+    <string name="osm_url">http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png</string>
 </resources>

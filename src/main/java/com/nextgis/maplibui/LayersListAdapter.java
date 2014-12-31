@@ -29,11 +29,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.Layer;
-import com.nextgis.maplib.map.MapEventListener;
+import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.map.MapEventSource;
-import com.nextgis.maplibui.mapui.ILayerUI;
+import com.nextgis.maplibui.api.ILayerUI;
 
 import static com.nextgis.maplib.util.Constants.*;
 
@@ -60,13 +61,13 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 
     @Override
     public int getCount() {
-        return mMap.getLayers().size();
+        return mMap.getLayerCount();
     }
 
     @Override
     public Object getItem(int i) {
         int nIndex = getCount() - 1 - i;
-        return mMap.getLayers().get(nIndex);
+        return mMap.getLayer(nIndex);
     }
 
     @Override
@@ -141,7 +142,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
         ImageButton btDelete = (ImageButton)v.findViewById(R.id.btDelete);
         btDelete.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
-                mMap.deleteLayerById(layer.getId());//.deleteLayerById(id);
+                mMap.deleteLayer(layer);
             }
         });
 
@@ -149,7 +150,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
     }
 
     @Override
-    public void onLayerAdded(Layer layer) {
+    public void onLayerAdded(ILayer layer) {
         notifyDataSetChanged();
     }
 
@@ -159,7 +160,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
     }
 
     @Override
-    public void onLayerChanged(Layer layer) {
+    public void onLayerChanged(ILayer layer) {
         notifyDataSetChanged();
     }
 

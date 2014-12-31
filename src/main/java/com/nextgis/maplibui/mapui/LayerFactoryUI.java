@@ -21,6 +21,7 @@
 package com.nextgis.maplibui.mapui;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -32,46 +33,44 @@ import android.widget.Toast;
 
 import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.LayerFactory;
+import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplibui.R;
 
 import org.json.JSONException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import static com.nextgis.maplib.util.GeoConstants.*;
+
 public class LayerFactoryUI extends LayerFactory{
 
-    public static Layer createNewRemoteTMSLayer(){
-        final LinearLayout linearLayout = new LinearLayout(map.getContext());
-        final EditText input = new EditText(map.getContext());
-        input.setText(layerName);
+    public static void createNewRemoteTMSLayer(Context context, MapBase map) {
+        final LinearLayout linearLayout = new LinearLayout(context);
+        final EditText input = new EditText(context);
+        input.setText(context.getResources().getText(R.string.osm));
 
-        final EditText url = new EditText(map.getContext());
-        url.setText(layerUrl);
+        final EditText url = new EditText(context);
+        url.setText(context.getResources().getText(R.string.osm_url));
 
-        final TextView stLayerName = new TextView(map.getContext());
-        stLayerName.setText(map.getContext().getString(R.string.layer_name) + ":");
+        final TextView stLayerName = new TextView(context);
+        stLayerName.setText(context.getString(R.string.layer_name) + ":");
 
-        final TextView stLayerUrl = new TextView(map.getContext());
-        stLayerUrl.setText(map.getContext().getString(R.string.layer_url) + ":");
+        final TextView stLayerUrl = new TextView(context);
+        stLayerUrl.setText(context.getString(R.string.layer_url) + ":");
 
-        final TextView stLayerType = new TextView(map.getContext());
-        stLayerType.setText(map.getContext().getString(R.string.layer_type) + ":");
+        final TextView stLayerType = new TextView(context);
+        stLayerType.setText(context.getString(R.string.layer_type) + ":");
 
         final ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(
-                map.getContext(), android.R.layout.simple_spinner_item);
-        final Spinner spinner = new Spinner(map.getContext());
+                context, android.R.layout.simple_spinner_item);
+        final Spinner spinner = new Spinner(context);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
-        adapter.add(map.getContext().getString(R.string.tmstype_osm));
-        adapter.add(map.getContext().getString(R.string.tmstype_normal));
-        adapter.add(map.getContext().getString(R.string.tmstype_ngw));
-
-        if (type == TMSTYPE_OSM) {
-            spinner.setSelection(0);
-        } else {
-            spinner.setSelection(1);
-        }
+        adapter.add(context.getString(R.string.tmstype_osm));
+        adapter.add(context.getString(R.string.tmstype_normal));
+        spinner.setSelection(0);
 
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         linearLayout.addView(stLayerName);
@@ -81,60 +80,33 @@ public class LayerFactoryUI extends LayerFactory{
         linearLayout.addView(stLayerType);
         linearLayout.addView(spinner);
 
-        new AlertDialog.Builder(map.getContext())
-                .setTitle(bCreate
-                        ? R.string.input_layer_properties
-                        : R.string.change_layer_properties)
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.create_tms_layer)
 //                .setMessage(message)
                 .setView(linearLayout)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         int tmsType = 0;
                         switch (spinner.getSelectedItemPosition()) {
                             case 0:
-                            case 1:
                                 tmsType = TMSTYPE_OSM;
                                 break;
-                            case 2:
-                            case 3:
+                            case 1:
                                 tmsType = TMSTYPE_NORMAL;
                                 break;
                         }
+                        String layerName = input.getText().toString();
+                        String layerURL = url.getText().toString();
 
-                        if (bCreate) {
-                            String sErr = map.getContext().getString(R.string.error_occurred);
+                        //check if {x}, {y} or {z} present
 
-                            try {
-                                create(map, input.getText().toString(),
-                                        url.getText().toString(), tmsType);
-                                return;
-
-                            } catch (FileNotFoundException e) {
-                                Log.d(TAG, "Exception: " + e.getLocalizedMessage());
-                                sErr += ": " + e.getLocalizedMessage();
-                            } catch (JSONException e) {
-                                Log.d(TAG, "Exception: " + e.getLocalizedMessage());
-                                sErr += ": " + e.getLocalizedMessage();
-                            } catch (IOException e) {
-                                Log.d(TAG, "Exception: " + e.getLocalizedMessage());
-                                sErr += ": " + e.getLocalizedMessage();
-                            }
-
-                            //if we here something wrong occurred
-                            Toast.makeText(map.getContext(), sErr, Toast.LENGTH_SHORT).show();
-
-                        } else {
-                            layer.setName(input.getText().toString());
-                            layer.setTMSType(tmsType);
-                            map.onLayerChanged(layer);
-                        }
+                        //create new layer and store it and add it to the map
+                        //map.addLayer();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         // Do nothing.
-                        Toast.makeText(map.getContext(), R.string.error_cancel_by_user,
-                                Toast.LENGTH_SHORT).show();
                     }
                 })
                 .show();

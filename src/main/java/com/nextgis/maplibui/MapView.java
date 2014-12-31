@@ -32,7 +32,7 @@ import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
-import com.nextgis.maplib.map.MapEventListener;
+import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplibui.mapui.LayerFactoryUI;
 
 import java.io.File;
@@ -43,19 +43,12 @@ public class MapView extends View {
 
     protected MapDrawable mMap;
 
-    public MapView(Context context) {
+    public MapView(Context context, MapDrawable map) {
         super(context);
 
+        mMap = map;
+
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        File defaultPath = context.getExternalFilesDir(PREFS_MAP);
-        String mapPath = sharedPreferences.getString(KEY_PREF_MAP_PATH, defaultPath.getPath());
-        String mapName = sharedPreferences.getString(KEY_PREF_MAP_NAME, "default.ngm");
-
-        File mapFullPath = new File(mapPath, mapName);
-
-        final Bitmap bkBitmap = BitmapFactory.decodeResource(context.getResources(), com.nextgis.maplibui.R.drawable.bk_tile);
-        mMap = new MapDrawable(bkBitmap, mapFullPath, new LayerFactoryUI());
-
         if(sharedPreferences.getBoolean(KEY_PREF_KEEPSCREENON, false))
             setKeepScreenOn(true);
     }
@@ -75,7 +68,7 @@ public class MapView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         if(mMap != null){
-            canvas.drawBitmap(mMap.getMap(), 0, 0, null);
+            canvas.drawBitmap(mMap.getView(), 0, 0, null);
         }
         else{
             super.onDraw(canvas);
@@ -86,7 +79,15 @@ public class MapView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         if(mMap != null){
-            mMap.setSize(w, h);
+            mMap.setViewSize(w, h);
+        }
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        if(mMap != null){
+            mMap.setViewSize(right - left, bottom - top);
         }
     }
 
@@ -101,11 +102,11 @@ public class MapView extends View {
     }
 
     public boolean canZoomIn(){
-        return mMap != null && mMap.getZoomLevel() < mMap.getMaxZoomLevel();
+        return mMap != null && mMap.getZoomLevel() < mMap.getMaxZoom();
     }
 
     public boolean canZoomOut(){
-        return mMap != null && mMap.getZoomLevel() > mMap.getMinZoomLevel();
+        return mMap != null && mMap.getZoomLevel() > mMap.getMinZoom();
     }
 
     public final double getZoomLevel(){
@@ -120,7 +121,7 @@ public class MapView extends View {
         return new GeoPoint();
     }
 
-    public void setZoomAndCenter(final double zoom, final GeoPoint center){
+    public void setZoomAndCenter(float zoom, GeoPoint center){
         if(mMap != null)
             mMap.setZoomAndCenter(zoom, center);
     }
@@ -131,9 +132,5 @@ public class MapView extends View {
 
     public void zoomOut() {
         setZoomAndCenter((float)Math.floor(getZoomLevel() - 0.5), getMapCenter());
-    }
-
-    public MapDrawable getMap() {
-        return mMap;
     }
 }
