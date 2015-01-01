@@ -22,120 +22,151 @@ package com.nextgis.maplibui;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.api.MapEventListener;
-import com.nextgis.maplibui.mapui.LayerFactoryUI;
-
-import java.io.File;
 
 import static com.nextgis.maplib.util.Constants.*;
 
-public class MapView extends View {
+
+public class MapView
+        extends View
+{
 
     protected MapDrawable mMap;
 
-    public MapView(Context context, MapDrawable map) {
+
+    public MapView(
+            Context context,
+            MapDrawable map)
+    {
         super(context);
 
         mMap = map;
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        if(sharedPreferences.getBoolean(KEY_PREF_KEEPSCREENON, false))
+        SharedPreferences sharedPreferences =
+                PreferenceManager.getDefaultSharedPreferences(context);
+        if (sharedPreferences.getBoolean(KEY_PREF_KEEPSCREENON, false)) {
             setKeepScreenOn(true);
+        }
     }
 
-    public void addListener(MapEventListener listener){
-        if(mMap != null){
+
+    public void addListener(MapEventListener listener)
+    {
+        if (mMap != null) {
             mMap.addListener(listener);
         }
     }
 
-    public void removeListener(MapEventListener listener){
-        if(mMap != null){
+
+    public void removeListener(MapEventListener listener)
+    {
+        if (mMap != null) {
             mMap.removeListener(listener);
         }
     }
 
+
     @Override
-    protected void onDraw(Canvas canvas) {
-        if(mMap != null){
+    protected void onDraw(Canvas canvas)
+    {
+        if (mMap != null) {
             canvas.drawBitmap(mMap.getView(), 0, 0, null);
-        }
-        else{
+        } else {
             super.onDraw(canvas);
         }
     }
 
+
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+    protected void onSizeChanged(
+            int w,
+            int h,
+            int oldw,
+            int oldh)
+    {
         super.onSizeChanged(w, h, oldw, oldh);
-        if(mMap != null){
+        if (mMap != null) {
             mMap.setViewSize(w, h);
         }
     }
 
+
     @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    protected void onLayout(
+            boolean changed,
+            int left,
+            int top,
+            int right,
+            int bottom)
+    {
         super.onLayout(changed, left, top, right, bottom);
-        if(mMap != null){
+        if (mMap != null) {
             mMap.setViewSize(right - left, bottom - top);
         }
     }
 
-    /**
-     * Standard error report function
-     *
-     * @param errMsg An error message
-     */
-    protected void reportError(String errMsg){
-        Log.d(TAG, errMsg);
-        Toast.makeText(getContext(), errMsg, Toast.LENGTH_SHORT).show();
-    }
-
-    public boolean canZoomIn(){
+    public boolean canZoomIn()
+    {
         return mMap != null && mMap.getZoomLevel() < mMap.getMaxZoom();
     }
 
-    public boolean canZoomOut(){
+
+    public boolean canZoomOut()
+    {
         return mMap != null && mMap.getZoomLevel() > mMap.getMinZoom();
     }
 
-    public final double getZoomLevel(){
-        if(mMap == null)
+
+    public final double getZoomLevel()
+    {
+        if (mMap == null) {
             return 0;
+        }
         return mMap.getZoomLevel();
     }
 
-    public final GeoPoint getMapCenter(){
-        if(mMap != null)
+
+    public final GeoPoint getMapCenter()
+    {
+        if (mMap != null) {
             return mMap.getMapCenter();
+        }
         return new GeoPoint();
     }
 
-    public void setZoomAndCenter(float zoom, GeoPoint center){
-        if(mMap != null)
+
+    public void setZoomAndCenter(
+            float zoom,
+            GeoPoint center)
+    {
+        if (mMap != null) {
             mMap.setZoomAndCenter(zoom, center);
+        }
     }
 
-    public void zoomIn() {
-        setZoomAndCenter((float)Math.ceil(getZoomLevel() + 0.5), getMapCenter());
+
+    public void zoomIn()
+    {
+        setZoomAndCenter((float) Math.ceil(getZoomLevel() + 0.5), getMapCenter());
     }
 
-    public void zoomOut() {
-        setZoomAndCenter((float)Math.floor(getZoomLevel() - 0.5), getMapCenter());
+
+    public void zoomOut()
+    {
+        setZoomAndCenter((float) Math.floor(getZoomLevel() - 0.5), getMapCenter());
     }
 
-    public void addRemoteLayer(){
-        if(mMap != null)
+
+    public void addRemoteLayer()
+    {
+        if (mMap != null) {
             mMap.getLayerFactory().createNewRemoteTMSLayer(getContext(), mMap);
+        }
     }
 }

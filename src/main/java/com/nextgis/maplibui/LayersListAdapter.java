@@ -38,48 +38,70 @@ import com.nextgis.maplibui.api.ILayerUI;
 
 import static com.nextgis.maplib.util.Constants.*;
 
+
 /**
  * An adapter to show layers as list
  */
-public class LayersListAdapter extends BaseAdapter implements MapEventListener {
+public class LayersListAdapter
+        extends BaseAdapter
+        implements MapEventListener
+{
 
     protected final MapEventSource mMap;
-    protected final Context mContext;
+    protected final Context        mContext;
 
-    public LayersListAdapter(Context context, MapEventSource map) {
+
+    public LayersListAdapter(
+            Context context,
+            MapEventSource map)
+    {
         mMap = map;
         mContext = context;
 
         mMap.addListener(this);
     }
 
+
     @Override
-    protected void finalize() throws Throwable {
+    protected void finalize()
+            throws Throwable
+    {
         super.finalize();
         mMap.removeListener(this);
     }
 
+
     @Override
-    public int getCount() {
+    public int getCount()
+    {
         return mMap.getLayerCount();
     }
 
+
     @Override
-    public Object getItem(int i) {
+    public Object getItem(int i)
+    {
         int nIndex = getCount() - 1 - i;
         return mMap.getLayer(nIndex);
     }
 
+
     @Override
-    public long getItemId(int i) {
+    public long getItemId(int i)
+    {
         Layer layer = (Layer) getItem(i);
         return layer.getId();
     }
 
+
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
+    public View getView(
+            int i,
+            View view,
+            ViewGroup viewGroup)
+    {
         final Layer layer = (Layer) getItem(i);
-        switch (layer.getType()){
+        switch (layer.getType()) {
             case LAYERTYPE_LOCAL_TMS:
             case LAYERTYPE_LOCAL_RASTER:
             case LAYERTYPE_LOCAL_GEOJSON:
@@ -92,56 +114,68 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
         }
     }
 
-    protected View getStandardLayerView(final Layer layer, View view){
+
+    protected View getStandardLayerView(
+            final Layer layer,
+            View view)
+    {
         View v = view;
-        if(v == null){
+        if (v == null) {
             LayoutInflater inflater = LayoutInflater.from(mContext);
             v = inflater.inflate(R.layout.layer_row_layout, null);
         }
 
         final ILayerUI layerui;
-        if (layer instanceof ILayerUI)
-            layerui = (ILayerUI)layer;
-        else
+        if (layer instanceof ILayerUI) {
+            layerui = (ILayerUI) layer;
+        } else {
             layerui = null;
+        }
 
 
-        if(layerui != null) {
+        if (layerui != null) {
             ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
             ivIcon.setImageDrawable(layerui.getIcon());
         }
 
-        TextView tvPaneName = (TextView)v.findViewById(R.id.tvLayerName);
+        TextView tvPaneName = (TextView) v.findViewById(R.id.tvLayerName);
         tvPaneName.setText(layer.getName());
 
         //final int id = layer.getId();
 
-        ImageButton btShow = (ImageButton)v.findViewById(R.id.btShow);
+        ImageButton btShow = (ImageButton) v.findViewById(R.id.btShow);
         //Log.d(TAG, "Layer #" + id + " is visible " + layer.isVisible());
-        btShow.setBackgroundResource(layer.isVisible() ? R.drawable.ic_action_visibility_on : R.drawable.ic_action_visibility_off);
+        btShow.setBackgroundResource(layer.isVisible()
+                                     ? R.drawable.ic_action_visibility_on
+                                     : R.drawable.ic_action_visibility_off);
         //btShow.refreshDrawableState();
-        btShow.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View arg0) {
+        btShow.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View arg0)
+            {
                 //Layer layer = mMap.getLayerById(id);
                 layer.setVisible(!layer.isVisible());
             }
         });
 
-        ImageButton btSettings = (ImageButton)v.findViewById(R.id.btSettings);
-        if(layerui != null) {
-            btSettings.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View arg0) {
+        ImageButton btSettings = (ImageButton) v.findViewById(R.id.btSettings);
+        if (layerui != null) {
+            btSettings.setOnClickListener(new View.OnClickListener()
+            {
+                public void onClick(View arg0)
+                {
                     //Layer layer = mMap.getLayerById(id);
                     layerui.changeProperties();
                 }
             });
-        }
-        else{
+        } else {
             btSettings.setEnabled(false);
         }
-        ImageButton btDelete = (ImageButton)v.findViewById(R.id.btDelete);
-        btDelete.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View arg0) {
+        ImageButton btDelete = (ImageButton) v.findViewById(R.id.btDelete);
+        btDelete.setOnClickListener(new View.OnClickListener()
+        {
+            public void onClick(View arg0)
+            {
                 mMap.deleteLayer(layer);
             }
         });
@@ -149,33 +183,49 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
         return v;
     }
 
+
     @Override
-    public void onLayerAdded(ILayer layer) {
+    public void onLayerAdded(ILayer layer)
+    {
         notifyDataSetChanged();
     }
 
+
     @Override
-    public void onLayerDeleted(int id) {
+    public void onLayerDeleted(int id)
+    {
         notifyDataSetChanged();
     }
 
+
     @Override
-    public void onLayerChanged(ILayer layer) {
+    public void onLayerChanged(ILayer layer)
+    {
         notifyDataSetChanged();
     }
 
+
     @Override
-    public void onExtentChanged(int zoom, GeoPoint center) {
+    public void onExtentChanged(
+            int zoom,
+            GeoPoint center)
+    {
 
     }
 
+
     @Override
-    public void onLayersReordered() {
+    public void onLayersReordered()
+    {
         notifyDataSetChanged();
     }
 
+
     @Override
-    public void onLayerDrawFinished(int id, float percent) {
+    public void onLayerDrawFinished(
+            int id,
+            float percent)
+    {
 
     }
 }

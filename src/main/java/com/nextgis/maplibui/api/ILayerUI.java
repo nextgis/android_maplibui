@@ -22,7 +22,10 @@ package com.nextgis.maplibui.api;
 
 import android.graphics.drawable.Drawable;
 
-public interface ILayerUI {
+
+public interface ILayerUI
+{
     Drawable getIcon();
+
     void changeProperties();
 }
