@@ -21,152 +21,113 @@
 package com.nextgis.maplibui;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.Canvas;
-import android.preference.PreferenceManager;
-import android.view.View;
-
-import com.nextgis.maplib.datasource.GeoPoint;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import com.nextgis.maplib.map.MapDrawable;
-import com.nextgis.maplib.api.MapEventListener;
-
-import static com.nextgis.maplib.util.Constants.*;
 
 
 public class MapView
-        extends View
+        extends MapViewBase
+        implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener,  ScaleGestureDetector.OnScaleGestureListener
 {
-
-    protected MapDrawable mMap;
-
 
     public MapView(
             Context context,
             MapDrawable map)
     {
-        super(context);
-
-        mMap = map;
-
-        SharedPreferences sharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(context);
-        if (sharedPreferences.getBoolean(KEY_PREF_KEEPSCREENON, false)) {
-            setKeepScreenOn(true);
-        }
-    }
-
-
-    public void addListener(MapEventListener listener)
-    {
-        if (mMap != null) {
-            mMap.addListener(listener);
-        }
-    }
-
-
-    public void removeListener(MapEventListener listener)
-    {
-        if (mMap != null) {
-            mMap.removeListener(listener);
-        }
+        super(context, map);
     }
 
 
     @Override
-    protected void onDraw(Canvas canvas)
+    public boolean onSingleTapConfirmed(MotionEvent motionEvent)
     {
-        if (mMap != null) {
-            canvas.drawBitmap(mMap.getView(), 0, 0, null);
-        } else {
-            super.onDraw(canvas);
-        }
+        return false;
     }
 
 
     @Override
-    protected void onSizeChanged(
-            int w,
-            int h,
-            int oldw,
-            int oldh)
+    public boolean onDoubleTap(MotionEvent motionEvent)
     {
-        super.onSizeChanged(w, h, oldw, oldh);
-        if (mMap != null) {
-            mMap.setViewSize(w, h);
-        }
+        return false;
     }
 
 
     @Override
-    protected void onLayout(
-            boolean changed,
-            int left,
-            int top,
-            int right,
-            int bottom)
+    public boolean onDoubleTapEvent(MotionEvent motionEvent)
     {
-        super.onLayout(changed, left, top, right, bottom);
-        if (mMap != null) {
-            mMap.setViewSize(right - left, bottom - top);
-        }
-    }
-
-    public boolean canZoomIn()
-    {
-        return mMap != null && mMap.getZoomLevel() < mMap.getMaxZoom();
+        return false;
     }
 
 
-    public boolean canZoomOut()
+    @Override
+    public boolean onDown(MotionEvent motionEvent)
     {
-        return mMap != null && mMap.getZoomLevel() > mMap.getMinZoom();
+        return false;
     }
 
 
-    public final double getZoomLevel()
+    @Override
+    public void onShowPress(MotionEvent motionEvent)
     {
-        if (mMap == null) {
-            return 0;
-        }
-        return mMap.getZoomLevel();
+
     }
 
 
-    public final GeoPoint getMapCenter()
+    @Override
+    public boolean onSingleTapUp(MotionEvent motionEvent)
     {
-        if (mMap != null) {
-            return mMap.getMapCenter();
-        }
-        return new GeoPoint();
+        return false;
     }
 
 
-    public void setZoomAndCenter(
-            float zoom,
-            GeoPoint center)
+    @Override
+    public boolean onScroll(
+            MotionEvent motionEvent,
+            MotionEvent motionEvent2,
+            float v,
+            float v2)
     {
-        if (mMap != null) {
-            mMap.setZoomAndCenter(zoom, center);
-        }
+        return false;
     }
 
 
-    public void zoomIn()
+    @Override
+    public void onLongPress(MotionEvent motionEvent)
     {
-        setZoomAndCenter((float) Math.ceil(getZoomLevel() + 0.5), getMapCenter());
+
     }
 
 
-    public void zoomOut()
+    @Override
+    public boolean onFling(
+            MotionEvent motionEvent,
+            MotionEvent motionEvent2,
+            float v,
+            float v2)
     {
-        setZoomAndCenter((float) Math.floor(getZoomLevel() - 0.5), getMapCenter());
+        return false;
     }
 
 
-    public void addRemoteLayer()
+    @Override
+    public boolean onScale(ScaleGestureDetector scaleGestureDetector)
     {
-        if (mMap != null) {
-            mMap.getLayerFactory().createNewRemoteTMSLayer(getContext(), mMap);
-        }
+        return false;
+    }
+
+
+    @Override
+    public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector)
+    {
+        return false;
+    }
+
+
+    @Override
+    public void onScaleEnd(ScaleGestureDetector scaleGestureDetector)
+    {
+
     }
 }
