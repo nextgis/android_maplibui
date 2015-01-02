@@ -23,6 +23,7 @@ package com.nextgis.maplibui.mapui;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -30,13 +31,19 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.RemoteTMSLayer;
+import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 
+import static com.nextgis.maplib.util.Constants.*;
 import static com.nextgis.maplib.util.GeoConstants.*;
 
 
@@ -138,4 +145,50 @@ public class LayerFactoryUI
                 })
                 .show();
     }
+
+
+
+    public ILayer createLayer(
+            Context context,
+            File path)
+    {
+        File config_file = new File(path, LAYER_CONFIG);
+        ILayer layer = null;
+
+        try {
+            String sData = FileUtil.readFromFile(config_file);
+            JSONObject rootObject = new JSONObject(sData);
+            int nType = rootObject.getInt(JSON_TYPE_KEY);
+
+            switch (nType) {
+                case LAYERTYPE_LOCAL_TMS:
+                    //layer = new LocalTMSLayer(this, path, rootObject);
+                    break;
+                case LAYERTYPE_LOCAL_GEOJSON:
+                    //layer = new LocalGeoJsonLayer(this, path, rootObject);
+                    break;
+                case LAYERTYPE_LOCAL_RASTER:
+                    break;
+                case LAYERTYPE_REMOTE_TMS:
+                    layer = new RemoteTMSLayerUI(context, path);
+                    break;
+                case LAYERTYPE_NDW_VECTOR:
+                    //layer = new NgwVectorLayer(this, path, rootObject);
+                    break;
+                case LAYERTYPE_NDW_RASTER:
+                    //layer = new NgwRasterLayer(this, path, rootObject);
+                    break;
+                case LAYERTYPE_LOCAL_NGFP:
+                    //layer = new LocalNgfpLayer(this, path, rootObject);
+                    break;
+                case LAYERTYPE_NGW:
+                    break;
+            }
+        } catch (IOException | JSONException e) {
+            Log.d(TAG, e.getLocalizedMessage());
+        }
+
+        return layer;
+    }
+
 }
