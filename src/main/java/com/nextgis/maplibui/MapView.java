@@ -125,9 +125,6 @@ public class MapView
                     break;
 
                 default: // mDrawingState == DRAW_SATE_none
-                    if (mDrawingState == DRAW_SATE_double_tap) {
-                        mDrawingState = DRAW_SATE_drawing;
-                    }
                     break;
             }
 
@@ -193,8 +190,6 @@ public class MapView
             GeoPoint newCenterPtMap = mMap.screenToMap(newCenterPt);
 
             mMap.setZoomAndCenter(zoom, newCenterPtMap);
-
-            //invalidate();
         }
     }
 
@@ -239,6 +234,7 @@ public class MapView
 
     protected void panStop(){
         if(mDrawingState == DRAW_SATE_panning && mMap != null) {
+            mDrawingState = DRAW_SATE_drawing_noclearbk;
 
             float x = mCurrentMouseLocation.x;
             float y = mCurrentMouseLocation.y;
@@ -254,13 +250,7 @@ public class MapView
             //Log.d(TAG, "panStop. x: " + x + ", y:" + y + ", sx:" + screenPt.getX() + ", sy:" + screenPt.getY());
             //mDisplay.panStop((float) screenPt.getX(), (float) screenPt.getY());
 
-            mDrawingState = DRAW_SATE_drawing_noclearbk;
-
             mMap.setZoomAndCenter(mMap.getZoomLevel(), pt);
-
-            //mMap.runDraw(null);
-
-            //invalidate();
         }
     }
 
@@ -374,13 +364,25 @@ public class MapView
         if(mMap == null)
             return false;
 
-        GeoPoint newCenter = new GeoPoint(e.getX(), e.getY());
-        mDrawingState = DRAW_SATE_double_tap;
-        final GeoPoint pt = mMap.screenToMap(newCenter);
-        if(mMap.getCurrentBounds().contains(pt)){
-            //Log.d(TAG, "onDoubleTap " + newCenter + " geo: " + pt);
-            setZoomAndCenter((float)Math.ceil(getZoomLevel() + 0.5), pt);
-        }
+        mDrawingState = DRAW_SATE_zooming;
+        mScaleFactor = 2;
+        mCurrentFocusLocation.set(-e.getX(), -e.getY());
+        invalidate();
+
+        GeoEnvelope env = mMap.getFullBounds();
+        GeoPoint focusPt = new GeoPoint(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y);
+
+        double invertScale = 1 / mScaleFactor;
+
+        double offX = (1 - invertScale) * focusPt.getX();
+        double offY = (1 - invertScale) * focusPt.getY();
+        env.scale(invertScale);
+        env.offset(offX, offY);
+
+        GeoPoint newCenterPt = env.getCenter();
+        GeoPoint newCenterPtMap = mMap.screenToMap(newCenterPt);
+
+        setZoomAndCenter((float)Math.ceil(getZoomLevel() + 0.5), newCenterPtMap);
         return true;
     }
 
@@ -394,14 +396,23 @@ public class MapView
         return false;
     }
 
+
+    @Override
     public void zoomIn() {
-        mDrawingState = DRAW_SATE_drawing;
-        setZoomAndCenter((float)Math.ceil(getZoomLevel() + 0.5), getMapCenter());
+        mDrawingState = DRAW_SATE_zooming;
+        mScaleFactor = 2;
+        mCurrentFocusLocation.set(-getWidth() / 2, -getHeight() / 2);
+        invalidate();
+        super.zoomIn();
     }
 
+    @Override
     public void zoomOut() {
-        mDrawingState = DRAW_SATE_drawing;
-        setZoomAndCenter((float)Math.floor(getZoomLevel() - 0.5), getMapCenter());
+        mDrawingState = DRAW_SATE_zooming;
+        mScaleFactor = 0.5;
+        mCurrentFocusLocation.set(-getWidth() / 2, -getHeight() / 2);
+        invalidate();
+        super.zoomOut();
     }
 
     @Override
@@ -483,6 +494,7 @@ public class MapView
             int id,
             float percent)
     {
+        mDrawingState = DRAW_SATE_drawing_noclearbk;
         if(System.currentTimeMillis() - mStartDrawTime > DISPLAY_REDRAW_TIMEOUT){
             mStartDrawTime = System.currentTimeMillis();
             invalidate();
