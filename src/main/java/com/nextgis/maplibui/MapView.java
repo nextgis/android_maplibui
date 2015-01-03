@@ -172,7 +172,7 @@ public class MapView
 
     protected void zoomStop(){
         if(mDrawingState == DRAW_SATE_zooming && mMap != null) {
-            mDrawingState = DRAW_SATE_drawing_noclearbk;
+            //mDrawingState = DRAW_SATE_none;
 
             float zoom = getZoomForScaleFactor(mScaleFactor);
 
@@ -198,12 +198,10 @@ public class MapView
             || mDrawingState == DRAW_SATE_panning)
             return;
 
-        if(mDrawingState == DRAW_SATE_drawing || mDrawingState == DRAW_SATE_drawing_noclearbk) {
-            mStartMouseLocation.set(e.getX(), e.getY());
-            mCurrentMouseLocation.set(e.getX(), e.getY());
-            mMap.cancelDraw();
-            mDrawingState = DRAW_SATE_panning;
-        }
+        mStartMouseLocation.set(e.getX(), e.getY());
+        mCurrentMouseLocation.set(e.getX(), e.getY());
+        mMap.cancelDraw();
+        mDrawingState = DRAW_SATE_panning;
     }
 
     protected void panMoveTo(final MotionEvent e){
@@ -234,7 +232,7 @@ public class MapView
 
     protected void panStop(){
         if(mDrawingState == DRAW_SATE_panning && mMap != null) {
-            mDrawingState = DRAW_SATE_drawing_noclearbk;
+            //mDrawingState = DRAW_SATE_none;
 
             float x = mCurrentMouseLocation.x;
             float y = mCurrentMouseLocation.y;
