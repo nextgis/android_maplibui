@@ -34,7 +34,6 @@ import android.widget.Toast;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
-import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
 import org.json.JSONException;
@@ -134,6 +133,7 @@ public class LayerFactoryUI
                         layer.setVisible(true);
 
                         groupLayer.addLayer(layer);
+                        groupLayer.save();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
@@ -154,7 +154,7 @@ public class LayerFactoryUI
             Context context,
             File path)
     {
-        File config_file = new File(path, LAYER_CONFIG);
+        File config_file = new File(path, CONFIG);
         ILayer layer = null;
 
         try {

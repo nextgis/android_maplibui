@@ -51,7 +51,7 @@ public class MapView
     protected long mStartDrawTime;
 
     //display redraw timeout ms
-    public static final int   DISPLAY_REDRAW_TIMEOUT    = 550;
+    public static final int   DISPLAY_REDRAW_TIMEOUT    = 850;
 
     public MapView(
             Context context,
@@ -194,7 +194,7 @@ public class MapView
 
             mMap.setZoomAndCenter(zoom, newCenterPtMap);
 
-            invalidate();
+            //invalidate();
         }
     }
 
@@ -258,9 +258,13 @@ public class MapView
 
             mMap.setZoomAndCenter(mMap.getZoomLevel(), pt);
 
-            invalidate();
+            //mMap.runDraw(null);
+
+            //invalidate();
         }
     }
+
+
 
     // delegate the event to the gesture detector
     @Override

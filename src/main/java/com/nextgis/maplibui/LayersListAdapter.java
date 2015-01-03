@@ -176,6 +176,7 @@ public class LayersListAdapter
             public void onClick(View arg0)
             {
                 layer.delete();
+                mMap.save();
             }
         });
 
