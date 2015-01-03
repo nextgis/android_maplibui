@@ -42,7 +42,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Comparator;
 
 import static com.nextgis.maplib.util.Constants.*;
 import static com.nextgis.maplib.util.GeoConstants.*;
@@ -60,9 +59,10 @@ public class LayerFactoryUI
 
 
     public void createNewRemoteTMSLayer(
+            final Context context,
             final LayerGroup groupLayer)
     {
-        final Context context = groupLayer.getContext();
+        final Context appContext = groupLayer.getContext();
         final LinearLayout linearLayout = new LinearLayout(context);
         final EditText input = new EditText(context);
         input.setText(context.getResources().getText(R.string.osm));
@@ -127,10 +127,11 @@ public class LayerFactoryUI
                         }
 
                         //create new layer and store it and add it to the map
-                        RemoteTMSLayer layer = new RemoteTMSLayer(context, cretateLayerStorage());
+                        RemoteTMSLayerUI layer = new RemoteTMSLayerUI(appContext, cretateLayerStorage());
                         layer.setName(layerName);
                         layer.setURL(layerURL);
                         layer.setTMSType(tmsType);
+                        layer.setVisible(true);
 
                         groupLayer.addLayer(layer);
                     }

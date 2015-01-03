@@ -29,7 +29,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.api.MapEventListener;
@@ -176,7 +175,7 @@ public class LayersListAdapter
         {
             public void onClick(View arg0)
             {
-                mMap.deleteLayer(layer);
+                layer.delete();
             }
         });
 
@@ -185,7 +184,7 @@ public class LayersListAdapter
 
 
     @Override
-    public void onLayerAdded(ILayer layer)
+    public void onLayerAdded(int id)
     {
         notifyDataSetChanged();
     }
@@ -199,7 +198,7 @@ public class LayersListAdapter
 
 
     @Override
-    public void onLayerChanged(ILayer layer)
+    public void onLayerChanged(int id)
     {
         notifyDataSetChanged();
     }
@@ -207,7 +206,7 @@ public class LayersListAdapter
 
     @Override
     public void onExtentChanged(
-            int zoom,
+            float zoom,
             GeoPoint center)
     {
 

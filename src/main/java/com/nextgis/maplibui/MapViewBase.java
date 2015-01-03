@@ -76,7 +76,7 @@ public class MapViewBase
     protected void onDraw(Canvas canvas)
     {
         if (mMap != null) {
-            canvas.drawBitmap(mMap.getView(), 0, 0, null);
+            canvas.drawBitmap(mMap.getView(true), 0, 0, null);
         } else {
             super.onDraw(canvas);
         }
@@ -166,7 +166,7 @@ public class MapViewBase
     public void addRemoteLayer()
     {
         if (mMap != null) {
-            mMap.getLayerFactory().createNewRemoteTMSLayer(mMap);
+            mMap.getLayerFactory().createNewRemoteTMSLayer(getContext(), mMap);
         }
     }
 }
