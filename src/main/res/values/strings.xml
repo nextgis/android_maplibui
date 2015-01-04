@@ -33,4 +33,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="tmstype_normal">TMS (OSGeo spec.)</string>
     <string name="osm_url">http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png</string>
     <string name="error_invalid_url">The URL is invalid</string>
+    <string name="nextgis_web">NextGIS Web</string>
 </resources>
