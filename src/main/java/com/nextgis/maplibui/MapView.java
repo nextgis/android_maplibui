@@ -39,19 +39,20 @@ public class MapView
         implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener,  ScaleGestureDetector.OnScaleGestureListener,
                    MapEventListener
 {
-    protected final GestureDetector mGestureDetector;
+    protected final GestureDetector      mGestureDetector;
     protected final ScaleGestureDetector mScaleGestureDetector;
-    protected PointF mStartMouseLocation;
-    protected PointF mCurrentMouseLocation;
-    protected PointF mCurrentFocusLocation;
-    protected int mDrawingState;
-    protected double mScaleFactor;
-    protected double mCurrentSpan;
-    protected Scroller mScroller;
-    protected long mStartDrawTime;
+    protected       PointF               mStartMouseLocation;
+    protected       PointF               mCurrentMouseOffset;
+    protected       PointF               mCurrentFocusLocation;
+    protected       int                  mDrawingState;
+    protected       double               mScaleFactor;
+    protected       double               mCurrentSpan;
+    protected       Scroller             mScroller;
+    protected       long                 mStartDrawTime;
 
     //display redraw timeout ms
-    public static final int   DISPLAY_REDRAW_TIMEOUT    = 850;
+    public static final int DISPLAY_REDRAW_TIMEOUT = 850;
+
 
     public MapView(
             Context context,
@@ -67,7 +68,7 @@ public class MapView
         mScroller = new Scroller(context);
 
         mStartMouseLocation = new PointF();
-        mCurrentMouseLocation = new PointF();
+        mCurrentMouseOffset = new PointF();
         mCurrentFocusLocation = new PointF();
 
         mDrawingState = DRAW_SATE_drawing;
@@ -97,8 +98,9 @@ public class MapView
 
 
     @Override
-    protected void onDraw(Canvas canvas) {
-        //Log.d(TAG, "state: " + mDrawingState + ", current loc: " +  mCurrentMouseLocation.toString() + " current focus: " + mCurrentFocusLocation.toString() + " scale: "  + mScaleFactor);
+    protected void onDraw(Canvas canvas)
+    {
+        //Log.d(TAG, "state: " + mDrawingState + ", current loc: " +  mCurrentMouseOffset.toString() + " current focus: " + mCurrentFocusLocation.toString() + " scale: "  + mScaleFactor);
 
         if (mMap != null) {
 
@@ -106,8 +108,9 @@ public class MapView
 
                 case DRAW_SATE_panning:
                 case DRAW_SATE_panning_fling:
-                    canvas.drawBitmap(mMap.getView(-mCurrentMouseLocation.x,
-                                                   -mCurrentMouseLocation.y, true), 0, 0, null);
+                    canvas.drawBitmap(
+                            mMap.getView(-mCurrentMouseOffset.x, -mCurrentMouseOffset.y, true), 0,
+                            0, null);
                     break;
 
                 case DRAW_SATE_zooming:
@@ -199,7 +202,7 @@ public class MapView
             return;
 
         mStartMouseLocation.set(e.getX(), e.getY());
-        mCurrentMouseLocation.set(e.getX(), e.getY());
+        mCurrentMouseOffset.set(0, 0);
         mMap.cancelDraw();
         mDrawingState = DRAW_SATE_panning;
     }
@@ -217,15 +220,15 @@ public class MapView
 
             GeoEnvelope limits = mMap.getLimits();
 
-            if (bounds.getMinY() < limits.getMinY() || bounds.getMaxY() > limits.getMaxY()) {
-                y = mCurrentMouseLocation.y;
+            if (bounds.getMinY() <= limits.getMinY() || bounds.getMaxY() >= limits.getMaxY()) {
+                y = mCurrentMouseOffset.y;
             }
 
-            if(bounds.getMinX() < limits.getMinX() || bounds.getMaxX() > limits.getMaxX()) {
-                x = mCurrentMouseLocation.x;
+            if (bounds.getMinX() <= limits.getMinX() || bounds.getMaxX() >= limits.getMaxX()) {
+                x = mCurrentMouseOffset.x;
             }
 
-            mCurrentMouseLocation.set(x, y);
+            mCurrentMouseOffset.set(x, y);
             invalidate();
         }
     }
@@ -234,8 +237,8 @@ public class MapView
         if(mDrawingState == DRAW_SATE_panning && mMap != null) {
             //mDrawingState = DRAW_SATE_none;
 
-            float x = mCurrentMouseLocation.x;
-            float y = mCurrentMouseLocation.y;
+            float x = mCurrentMouseOffset.x;
+            float y = mCurrentMouseOffset.y;
 
             //Log.d(TAG, "panStop x - " + x + " y - " + y);
 
@@ -292,8 +295,8 @@ public class MapView
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         if(mMap == null)
             return false;
-        float x = mCurrentMouseLocation.x;
-        float y = mCurrentMouseLocation.y;
+        float x = mCurrentMouseOffset.x;
+        float y = mCurrentMouseOffset.y;
         GeoEnvelope bounds = mMap.getLimits();
         mDrawingState = DRAW_SATE_panning_fling;
 
@@ -314,15 +317,15 @@ public class MapView
 
             GeoEnvelope limits = mMap.getLimits();
 
-            if (bounds.getMinY() < limits.getMinY() || bounds.getMaxY() > limits.getMaxY()) {
-                y = mCurrentMouseLocation.y;
+            if (bounds.getMinY() <= limits.getMinY() || bounds.getMaxY() >= limits.getMaxY()) {
+                y = mCurrentMouseOffset.y;
             }
 
-            if(bounds.getMinX() < limits.getMinX() || bounds.getMaxX() > limits.getMaxX()) {
-                x = mCurrentMouseLocation.x;
+            if (bounds.getMinX() <= limits.getMinX() || bounds.getMaxX() >= limits.getMaxX()) {
+                x = mCurrentMouseOffset.x;
             }
 
-            mCurrentMouseLocation.set(x, y);
+            mCurrentMouseOffset.set(x, y);
 
             postInvalidate();
         }

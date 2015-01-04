@@ -26,14 +26,12 @@ public interface Constants
     /**
      * Draw state
      */
-
     public static final int DRAW_SATE_none = 0;
     public static final int DRAW_SATE_drawing = 1;
     public static final int DRAW_SATE_drawing_noclearbk = 2;
     public static final int DRAW_SATE_panning = 3;
     public static final int DRAW_SATE_zooming = 4;
-    public static final int DRAW_SATE_double_tap = 5;
-    public static final int DRAW_SATE_edit_drawing = 6;
-    public static final int DRAW_SATE_panning_fling = 7;
+    public static final int DRAW_SATE_edit_drawing = 5;
+    public static final int DRAW_SATE_panning_fling = 6;
 
 }
