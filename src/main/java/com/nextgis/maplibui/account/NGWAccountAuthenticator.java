@@ -18,22 +18,28 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-package com.nextgis.maplibui.datasource;
+package com.nextgis.maplibui.account;
 
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
 import android.accounts.NetworkErrorException;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import com.nextgis.maplibui.NGWLoginActivity;
 
 
 public class NGWAccountAuthenticator extends AbstractAccountAuthenticator
 {
+    protected Context mContext;
+    public static final String EXTRA_TOKEN_TYPE = "nextgis.com";
 
     public NGWAccountAuthenticator(Context context)
     {
         super(context);
+        mContext = context;
     }
 
 
@@ -49,13 +55,21 @@ public class NGWAccountAuthenticator extends AbstractAccountAuthenticator
     @Override
     public Bundle addAccount(
             AccountAuthenticatorResponse accountAuthenticatorResponse,
-            String s,
-            String s2,
-            String[] strings,
-            Bundle bundle)
+            String accountType,
+            String authTokenType,
+            String[] requiredFeatures,
+            Bundle options)
             throws NetworkErrorException
     {
-        return null;
+        final Intent intent = new Intent(mContext, NGWLoginActivity.class);
+        intent.putExtra(EXTRA_TOKEN_TYPE, accountType);
+        intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, accountAuthenticatorResponse);
+        final Bundle bundle = new Bundle();
+        if (options != null) {
+            bundle.putAll(options);
+        }
+        bundle.putParcelable(AccountManager.KEY_INTENT, intent);
+        return bundle;
     }
 
 

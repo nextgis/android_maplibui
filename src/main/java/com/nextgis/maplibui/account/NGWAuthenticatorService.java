@@ -18,12 +18,12 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
-package com.nextgis.maplibui.services;
+package com.nextgis.maplibui.account;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import com.nextgis.maplibui.datasource.NGWAccountAuthenticator;
+import com.nextgis.maplibui.account.NGWAccountAuthenticator;
 
 
 public class NGWAuthenticatorService extends Service

@@ -34,4 +34,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="osm_url">http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png</string>
     <string name="error_invalid_url">The URL is invalid</string>
     <string name="nextgis_web">NextGIS Web</string>
+    <string name="ngw_login_title">NextGIS Web account</string>
+    <string name="ngw_login_description">Input NextGIS Web server URL, your login and password</string>
+    <string name="ngw_url">NextGIS Web URL</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="canceled">Canceled</string>
+    <string name="account_already_exists">Account already exist</string>
+    <string name="error_login">Login failed</string>
+    <string name="account_setup">Account setup</string>
 </resources>
