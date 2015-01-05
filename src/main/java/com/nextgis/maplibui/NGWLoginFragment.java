@@ -127,12 +127,15 @@ public class NGWLoginFragment extends Fragment implements LoaderManager.LoaderCa
             if(token != null && token.length() > 0) {
                 String name = "";
                 try {
-                    URI uri = new URI(mURL.getText().toString());
-                    if (uri.getHost().length() > 0)
+                    String url = mURL.getText().toString();
+                    if(!url.startsWith("http"))
+                        url = "http://" + url;
+                    URI uri = new URI(url);
+                    if (uri.getHost() != null && uri.getHost().length() > 0)
                         name += uri.getHost();
-                    if (uri.getPort() != 80)
+                    if (uri.getPort() != 80 && uri.getPort() > 0)
                         name += ":" + uri.getPort();
-                    if (uri.getPath().length() > 0)
+                    if (uri.getPath() != null && uri.getPath().length() > 0)
                         name += uri.getPath();
                 } catch (URISyntaxException e) {
                     name = mURL.getText().toString();
