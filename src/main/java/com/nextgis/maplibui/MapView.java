@@ -502,7 +502,7 @@ public class MapView
             mStartDrawTime = System.currentTimeMillis();
             invalidate();
         }
-        else if(percent >= 1){
+        else if(percent >= 0.95){
             invalidate();
         }
     }
