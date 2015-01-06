@@ -1,4 +1,3 @@
-
 /*
  * Project:  NextGIS Mobile
  * Purpose:  Mobile GIS for Android.
@@ -20,31 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui.account;
+package com.nextgis.maplibui.util;
 
-import android.app.Service;
-import android.content.Intent;
-import android.os.IBinder;
-import com.nextgis.maplibui.account.NGWAccountAuthenticator;
-
-
-public class NGWAuthenticatorService extends Service
+public interface SettingsConstants
 {
-    protected NGWAccountAuthenticator mAuthenticator;
-
-
-    @Override
-    public void onCreate()
-    {
-        super.onCreate();
-        mAuthenticator = new NGWAccountAuthenticator(this);
-    }
-
-
-    @Override
-    public IBinder onBind(Intent intent)
-    {
-        return mAuthenticator.getIBinder();
-
-    }
+    public static final String KEY_PREF_KEEPSCREENON         = "keep_screen_on";
 }
