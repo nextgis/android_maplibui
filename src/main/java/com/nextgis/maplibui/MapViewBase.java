@@ -32,6 +32,7 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.api.MapEventListener;
 
+import static com.nextgis.maplib.util.GeoConstants.*;
 import static com.nextgis.maplibui.util.SettingsConstants.*;
 
 
@@ -125,7 +126,7 @@ public class MapViewBase
     }
 
 
-    public final double getZoomLevel()
+    public final float getZoomLevel()
     {
         if (mMap == null) {
             return 0;
@@ -133,6 +134,21 @@ public class MapViewBase
         return mMap.getZoomLevel();
     }
 
+    public final float getMaxZoom()
+    {
+        if (mMap == null) {
+            return DEFAULT_MAX_ZOOM;
+        }
+        return mMap.getMaxZoom();
+    }
+
+    public final float getMinZoom()
+    {
+        if (mMap == null) {
+            return 0;
+        }
+        return mMap.getMinZoom();
+    }
 
     public final GeoPoint getMapCenter()
     {
