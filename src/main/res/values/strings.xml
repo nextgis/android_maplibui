@@ -46,4 +46,9 @@
     <string name="account_already_exists">Account already exist</string>
     <string name="error_login">Login failed</string>
     <string name="account_setup">Account setup</string>
+    <string name="ngw_settings">NextGIS Web settings</string>
+    <string name="add_account">Add account</string>
+    <string name="add_account_summary">Add NextGIS Web account</string>
+    <string name="delete_account">Delete account</string>
+    <string name="delete_account_summary">Delete account. All layers connected with this account will be deleted too.</string>
 </resources>
