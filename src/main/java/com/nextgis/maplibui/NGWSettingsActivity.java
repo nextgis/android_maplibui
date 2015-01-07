@@ -27,7 +27,6 @@ import android.accounts.AccountManager;
 import android.accounts.OnAccountsUpdateListener;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -40,10 +39,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import com.nextgis.maplibui.account.NGWAccountAuthenticator;
 
 import java.util.List;
 
+import static com.nextgis.maplib.util.Constants.*;
 
 public class NGWSettingsActivity extends PreferenceActivity implements OnAccountsUpdateListener
 {
@@ -114,7 +113,7 @@ public class NGWSettingsActivity extends PreferenceActivity implements OnAccount
     {
         if (null != mAccountManager) {
             for (Account account : mAccountManager.getAccountsByType(
-                    NGWAccountAuthenticator.EXTRA_TOKEN_TYPE)) {
+                    NGW_ACCOUNT_TYPE)) {
                 Preference preference = new Preference(this);
                 preference.setTitle(account.name);
 
@@ -160,7 +159,7 @@ public class NGWSettingsActivity extends PreferenceActivity implements OnAccount
 
         if(null != mAccountManager){
             for(Account account : mAccountManager.getAccountsByType(
-                    NGWAccountAuthenticator.EXTRA_TOKEN_TYPE)){
+                    NGW_ACCOUNT_TYPE)){
                 Header header = new Header();
                 header.title = account.name;
                 header.fragment = com.nextgis.maplibui.NGWSettingsFragment.class.getName();

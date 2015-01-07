@@ -36,12 +36,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import com.nextgis.maplibui.account.NGWAccountAuthenticator;
 import com.nextgis.maplibui.services.HTTPLoader;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static com.nextgis.maplib.util.Constants.*;
 
 public class NGWLoginFragment extends Fragment implements LoaderManager.LoaderCallbacks<String>, View.OnClickListener
 {
@@ -143,7 +143,7 @@ public class NGWLoginFragment extends Fragment implements LoaderManager.LoaderCa
                     name = mURL.getText().toString();
                 }
 
-                ((NGWLoginActivity) getActivity()).onTokenReceived(new Account(name, NGWAccountAuthenticator.EXTRA_TOKEN_TYPE),
+                ((NGWLoginActivity) getActivity()).onTokenReceived(new Account(name, NGW_ACCOUNT_TYPE),
                                                                    mLogin.getText().toString(),
                                                                    mPassword.getText().toString(),
                                                                    mURL.getText().toString(), token);

@@ -32,11 +32,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import com.nextgis.maplibui.NGWLoginActivity;
 
+import static com.nextgis.maplib.util.Constants.*;
 
 public class NGWAccountAuthenticator extends AbstractAccountAuthenticator
 {
     protected Context mContext;
-    public static final String EXTRA_TOKEN_TYPE = "nextgis.com";
 
     public NGWAccountAuthenticator(Context context)
     {
@@ -64,7 +64,7 @@ public class NGWAccountAuthenticator extends AbstractAccountAuthenticator
             throws NetworkErrorException
     {
         final Intent intent = new Intent(mContext, NGWLoginActivity.class);
-        intent.putExtra(EXTRA_TOKEN_TYPE, accountType);
+        intent.putExtra(NGW_ACCOUNT_TYPE, accountType);
         intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, accountAuthenticatorResponse);
         final Bundle bundle = new Bundle();
         if (options != null) {

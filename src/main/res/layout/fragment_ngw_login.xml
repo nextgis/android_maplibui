@@ -94,6 +94,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_weight="0"
         android:enabled="false"
+        android:layout_margin="10dp"
         />
 
 </LinearLayout>
