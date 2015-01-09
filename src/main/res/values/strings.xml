@@ -51,4 +51,14 @@
     <string name="add_account_summary">Add NextGIS Web account</string>
     <string name="delete_account">Delete account</string>
     <string name="delete_account_summary">Delete account. All layers connected with this account will be deleted too.</string>
+    <string name="select">Select</string>
+    <string name="select_ngw_layer">Select NextGIS Web Layer</string>
+    <string name="connections">Connections</string>
+    <string name="ngw_account">NextGIS Web account</string>
+    <string name="loading">Loading...</string>
+    <string name="loading_summary">Wait a little. The data is loading</string>
+    <string name="up_dots">..</string>
+    <string name="up">Up</string>
+    <string name="error_connect_failed">Connect failed</string>
+    <string name="resource_group">Resource group</string>
 </resources>

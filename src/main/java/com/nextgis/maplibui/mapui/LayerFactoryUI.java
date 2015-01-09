@@ -22,6 +22,7 @@
 
 package com.nextgis.maplibui.mapui;
 
+import android.support.v4.app.FragmentActivity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -37,7 +38,9 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.util.FileUtil;
+import com.nextgis.maplibui.CreateRemoteTMSLayerDialog;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.SelectNGWResourceDialog;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -45,8 +48,6 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.nextgis.maplib.util.Constants.*;
-import static com.nextgis.maplib.util.GeoConstants.*;
-
 
 public class LayerFactoryUI
         extends LayerFactory
@@ -58,96 +59,30 @@ public class LayerFactoryUI
         super(mapPath);
     }
 
+    public void createNewNGWLayer(
+            final Context context,
+            final LayerGroup groupLayer)
+    {
+        if(context instanceof FragmentActivity) {
+            FragmentActivity fragmentActivity = (FragmentActivity)context;
+            SelectNGWResourceDialog newFragment = new SelectNGWResourceDialog();
+            newFragment.setTitle(context.getString(R.string.select_ngw_layer))
+                       .setLayerGroup(groupLayer)
+                       .show(fragmentActivity.getSupportFragmentManager(), "create_ngw_layer");
+        }
+    }
 
     public void createNewRemoteTMSLayer(
             final Context context,
             final LayerGroup groupLayer)
     {
-        final Context appContext = groupLayer.getContext();
-        final LinearLayout linearLayout = new LinearLayout(context);
-        final EditText input = new EditText(context);
-        input.setText(context.getResources().getText(R.string.osm));
-
-        final EditText url = new EditText(context);
-        url.setText(context.getResources().getText(R.string.osm_url));
-
-        final TextView stLayerName = new TextView(context);
-        stLayerName.setText(context.getString(R.string.layer_name) + ":");
-
-        final TextView stLayerUrl = new TextView(context);
-        stLayerUrl.setText(context.getString(R.string.layer_url) + ":");
-
-        final TextView stLayerType = new TextView(context);
-        stLayerType.setText(context.getString(R.string.layer_type) + ":");
-
-        final ArrayAdapter<CharSequence> adapter =
-                new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
-        final Spinner spinner = new Spinner(context);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-
-        adapter.add(context.getString(R.string.tmstype_osm));
-        adapter.add(context.getString(R.string.tmstype_normal));
-        spinner.setSelection(0);
-
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-        linearLayout.addView(stLayerName);
-        linearLayout.addView(input);
-        linearLayout.addView(stLayerUrl);
-        linearLayout.addView(url);
-        linearLayout.addView(stLayerType);
-        linearLayout.addView(spinner);
-
-        new AlertDialog.Builder(context).setTitle(R.string.create_tms_layer)
-//                .setMessage(message)
-                .setView(linearLayout)
-                .setPositiveButton(R.string.create, new DialogInterface.OnClickListener()
-                {
-                    public void onClick(
-                            DialogInterface dialog,
-                            int whichButton)
-                    {
-                        int tmsType = 0;
-                        switch (spinner.getSelectedItemPosition()) {
-                            case 0:
-                                tmsType = TMSTYPE_OSM;
-                                break;
-                            case 1:
-                                tmsType = TMSTYPE_NORMAL;
-                                break;
-                        }
-                        String layerName = input.getText().toString();
-                        String layerURL = url.getText().toString();
-
-                        //check if {x}, {y} or {z} present
-                        if (!layerURL.contains("{x}") || !layerURL.contains("{y}") ||
-                            !layerURL.contains("{z}")) {
-                            Toast.makeText(context, R.string.error_invalid_url, Toast.LENGTH_SHORT)
-                                 .show();
-                            return;
-                        }
-
-                        //create new layer and store it and add it to the map
-                        RemoteTMSLayerUI layer = new RemoteTMSLayerUI(appContext, cretateLayerStorage());
-                        layer.setName(layerName);
-                        layer.setURL(layerURL);
-                        layer.setTMSType(tmsType);
-                        layer.setVisible(true);
-
-                        groupLayer.addLayer(layer);
-                        groupLayer.save();
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
-                {
-                    public void onClick(
-                            DialogInterface dialog,
-                            int whichButton)
-                    {
-                        // Do nothing.
-                    }
-                })
-                .show();
+        if(context instanceof FragmentActivity) {
+            FragmentActivity fragmentActivity = (FragmentActivity)context;
+            CreateRemoteTMSLayerDialog newFragment = new CreateRemoteTMSLayerDialog();
+            newFragment.setTitle(context.getString(R.string.create_tms_layer))
+                       .setLayerGroup(groupLayer)
+                       .show(fragmentActivity.getSupportFragmentManager(), "create_tms_layer");
+        }
     }
 
 
@@ -165,27 +100,8 @@ public class LayerFactoryUI
             int nType = rootObject.getInt(JSON_TYPE_KEY);
 
             switch (nType) {
-                case LAYERTYPE_LOCAL_TMS:
-                    //layer = new LocalTMSLayer(this, path, rootObject);
-                    break;
-                case LAYERTYPE_LOCAL_GEOJSON:
-                    //layer = new LocalGeoJsonLayer(this, path, rootObject);
-                    break;
-                case LAYERTYPE_LOCAL_RASTER:
-                    break;
                 case LAYERTYPE_REMOTE_TMS:
                     layer = new RemoteTMSLayerUI(context, path);
-                    break;
-                case LAYERTYPE_NDW_VECTOR:
-                    //layer = new NgwVectorLayer(this, path, rootObject);
-                    break;
-                case LAYERTYPE_NDW_RASTER:
-                    //layer = new NgwRasterLayer(this, path, rootObject);
-                    break;
-                case LAYERTYPE_LOCAL_NGFP:
-                    //layer = new LocalNgfpLayer(this, path, rootObject);
-                    break;
-                case LAYERTYPE_NGW:
                     break;
             }
         } catch (IOException | JSONException e) {

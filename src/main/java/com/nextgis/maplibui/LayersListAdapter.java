@@ -1,4 +1,3 @@
-
 /*
  * Project:  NextGIS Mobile
  * Purpose:  Mobile GIS for Android.
@@ -67,8 +66,8 @@ public class LayersListAdapter
     protected void finalize()
             throws Throwable
     {
-        super.finalize();
         mMap.removeListener(this);
+        super.finalize();
     }
 
 
@@ -103,13 +102,7 @@ public class LayersListAdapter
     {
         final Layer layer = (Layer) getItem(i);
         switch (layer.getType()) {
-            case LAYERTYPE_LOCAL_TMS:
-            case LAYERTYPE_LOCAL_RASTER:
-            case LAYERTYPE_LOCAL_GEOJSON:
             case LAYERTYPE_REMOTE_TMS:
-            case LAYERTYPE_NDW_VECTOR:
-            case LAYERTYPE_NDW_RASTER:
-            case LAYERTYPE_LOCAL_NGFP:
             default:
                 return getStandardLayerView(layer, view);
         }

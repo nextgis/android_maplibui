@@ -187,4 +187,12 @@ public class MapViewBase
             mMap.getLayerFactory().createNewRemoteTMSLayer(getContext(), mMap);
         }
     }
+
+    public void addNGWLayer()
+    {
+        if (mMap != null) {
+            mMap.getLayerFactory().createNewNGWLayer(getContext(), mMap);
+        }
+    }
+
 }
