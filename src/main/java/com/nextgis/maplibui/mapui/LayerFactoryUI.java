@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nextgis.maplib.api.ILayer;
+import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.util.FileUtil;
@@ -68,6 +69,7 @@ public class LayerFactoryUI
             SelectNGWResourceDialog newFragment = new SelectNGWResourceDialog();
             newFragment.setTitle(context.getString(R.string.select_ngw_layer))
                        .setLayerGroup(groupLayer)
+                       .setTypeMask(Connection.NGWResourceTypePostgisLayer | Connection.NGWResourceTypeVectorLayer | Connection.NGWResourceTypeRasterLayer)
                        .show(fragmentActivity.getSupportFragmentManager(), "create_ngw_layer");
         }
     }

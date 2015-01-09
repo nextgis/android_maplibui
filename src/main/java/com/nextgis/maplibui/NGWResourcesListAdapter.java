@@ -39,6 +39,7 @@ import android.widget.Toast;
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.datasource.ngw.Connections;
 import com.nextgis.maplib.datasource.ngw.INGWResource;
+import com.nextgis.maplib.datasource.ngw.LayerWithStyles;
 import com.nextgis.maplib.datasource.ngw.Resource;
 import com.nextgis.maplib.datasource.ngw.ResourceGroup;
 
@@ -54,12 +55,18 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
     protected SelectNGWResourceDialog mSelectNGWResourceDialog;
     protected boolean                 mLoading;
     protected PathView mPathView;
+    protected int mTypeMask;
 
 
     public NGWResourcesListAdapter(SelectNGWResourceDialog dialog)
     {
         mSelectNGWResourceDialog = dialog;
         mLoading = false;
+    }
+
+    public void setTypeMask(int typeMask)
+    {
+        mTypeMask = typeMask;
     }
 
 
@@ -229,9 +236,10 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
                 LayoutInflater inflater = LayoutInflater.from(context);
                 v = inflater.inflate(R.layout.layout_resourcegroup_row, null);
                 v.setId(R.id.resourcegroup_row);
+
+                ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+                ivIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_ngw_folder));
             }
-            ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-            ivIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_ngw_folder));
 
             TextView tvText = (TextView) v.findViewById(R.id.tvName);
             tvText.setText(context.getString(R.string.up_dots));
@@ -239,19 +247,103 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
             TextView tvDesc = (TextView) v.findViewById(R.id.tvDesc);
             tvDesc.setText(context.getString(R.string.up));
         } else {
-            if (null == v || v.getId() != R.id.resourcegroup_row) {
-                LayoutInflater inflater = LayoutInflater.from(context);
-                v = inflater.inflate(R.layout.layout_resourcegroup_row, null);
-                v.setId(R.id.resourcegroup_row);
+            ImageView ivIcon;
+            TextView tvDesc;
+
+            int resourceType = resource.getType();
+            if(0 == ( mTypeMask & resourceType ) && resourceType != Connection.NGWResourceTypeResourceGroup) {
+                if (null == v || v.getId() != R.id.empty_row) {
+                    LayoutInflater inflater = LayoutInflater.from(context);
+                    v = inflater.inflate(R.layout.layout_empty_row, null);
+                    v.setId(R.id.empty_row);
+                }
+                return v;
             }
-            ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-            ivIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_ngw_folder));
+
+            switch (resourceType){
+                case Connection.NGWResourceTypeResourceGroup:
+                    if (null == v || v.getId() != R.id.resourcegroup_row) {
+                        LayoutInflater inflater = LayoutInflater.from(context);
+                        v = inflater.inflate(R.layout.layout_resourcegroup_row, null);
+                        v.setId(R.id.resourcegroup_row);
+
+                        ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+                        ivIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_ngw_folder));
+                    }
+
+                    tvDesc = (TextView) v.findViewById(R.id.tvDesc);
+                    tvDesc.setText(context.getString(R.string.resource_group));
+                    break;
+                case Connection.NGWResourceTypeRasterLayer:
+                    if (null == v || v.getId() != R.id.ngw_layer_check_row) {
+                        LayoutInflater inflater = LayoutInflater.from(context);
+                        v = inflater.inflate(R.layout.layout_ngwlayer_check_row, null);
+                        v.setId(R.id.ngw_layer_check_row);
+                    }
+                    ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+                    ivIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_ngw_raster));
+
+                    tvDesc = (TextView) v.findViewById(R.id.tvDesc);
+                    tvDesc.setText(context.getString(R.string.raster_layer));
+                    break;
+                case Connection.NGWResourceTypeVectorLayer:
+                    LayerWithStyles layer = (LayerWithStyles)resource;
+                    if(layer.getStyleCount() > 0){
+                        if (null == v || v.getId() != R.id.ngw_layer_doublecheck_row) {
+                            LayoutInflater inflater = LayoutInflater.from(context);
+                            v = inflater.inflate(R.layout.layout_ngwlayer_doublecheck_row, null);
+                            v.setId(R.id.ngw_layer_doublecheck_row);
+                        }
+                    }
+                    else{
+                        if (null == v || v.getId() != R.id.ngw_layer_check_row) {
+                            LayoutInflater inflater = LayoutInflater.from(context);
+                            v = inflater.inflate(R.layout.layout_ngwlayer_check_row, null);
+                            v.setId(R.id.ngw_layer_check_row);
+                        }
+
+                        TextView tvType = (TextView) v.findViewById(R.id.type1);
+                        tvType.setText(context.getString(R.string.vector));
+                    }
+
+                    ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+                    ivIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_ngw_vector));
+
+                    tvDesc = (TextView) v.findViewById(R.id.tvDesc);
+                    tvDesc.setText(context.getString(R.string.vector_layer));
+                    break;
+                case Connection.NGWResourceTypePostgisLayer:
+                    LayerWithStyles pglayer = (LayerWithStyles)resource;
+                    if(pglayer.getStyleCount() > 0){
+                        if (null == v || v.getId() != R.id.ngw_layer_doublecheck_row) {
+                            LayoutInflater inflater = LayoutInflater.from(context);
+                            v = inflater.inflate(R.layout.layout_ngwlayer_doublecheck_row, null);
+                            v.setId(R.id.ngw_layer_doublecheck_row);
+                        }
+                    }
+                    else{
+                        if (null == v || v.getId() != R.id.ngw_layer_check_row) {
+                            LayoutInflater inflater = LayoutInflater.from(context);
+                            v = inflater.inflate(R.layout.layout_ngwlayer_check_row, null);
+                            v.setId(R.id.ngw_layer_check_row);
+                        }
+
+                        TextView tvType = (TextView) v.findViewById(R.id.type1);
+                        tvType.setText(context.getString(R.string.vector));
+                    }
+
+                    ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+                    ivIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_pg_vector));
+
+                    tvDesc = (TextView) v.findViewById(R.id.tvDesc);
+                    tvDesc.setText(context.getString(R.string.pg_layer));
+                    break;
+                default:
+                    return null;
+            }
 
             TextView tvText = (TextView) v.findViewById(R.id.tvName);
             tvText.setText(resource.getName());
-
-            TextView tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-            tvDesc.setText(context.getString(R.string.resource_group));
         }
 
         return v;

@@ -114,6 +114,7 @@ public class SelectNGWResourceDialog extends DialogFragment
 
         View view = inflater.inflate(R.layout.layout_ngw_resources, null);
         ListView dialogListView = (ListView) view.findViewById(R.id.listView);
+        mListAdapter.setTypeMask(mTypeMask);
         dialogListView.setAdapter(mListAdapter);
         dialogListView.setOnItemClickListener(mListAdapter);
 
@@ -160,7 +161,7 @@ public class SelectNGWResourceDialog extends DialogFragment
     }
 
     protected Connections fillConnections(){
-        Connections connections = new Connections(getString(R.string.connections));
+        Connections connections = new Connections(getString(R.string.accounts));
         final AccountManager accountManager = AccountManager.get(getActivity());
         for (Account account : accountManager.getAccountsByType(
                 NGW_ACCOUNT_TYPE)) {
