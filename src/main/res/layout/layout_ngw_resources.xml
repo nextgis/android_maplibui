@@ -25,23 +25,31 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
+    <HorizontalScrollView
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/path"
-        android:layout_margin="5dp"
-        >
+        android:scrollbars="none">
 
-        <TextView
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Small Text"
-            android:id="@+id/textView4"
-            android:textStyle="bold"
-            />
-    </LinearLayout>
+            android:id="@+id/path"
+            android:layout_margin="5dp"
+            android:gravity="center_vertical"
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:textStyle="bold"
+                />
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
 
     <View
         android:layout_height="1dp"
@@ -57,4 +65,5 @@
         android:focusable="false"
         android:id="@+id/listView"
         />
+
 </LinearLayout>

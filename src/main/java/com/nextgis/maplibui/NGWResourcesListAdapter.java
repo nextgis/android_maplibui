@@ -22,13 +22,18 @@
 package com.nextgis.maplibui;
 
 import android.content.Context;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.nextgis.maplib.datasource.ngw.Connection;
@@ -38,6 +43,8 @@ import com.nextgis.maplib.datasource.ngw.Resource;
 import com.nextgis.maplib.datasource.ngw.ResourceGroup;
 
 import static com.nextgis.maplib.util.Constants.*;
+import static com.nextgis.maplibui.R.attr;
+
 
 public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.OnItemClickListener
 {
@@ -46,6 +53,7 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
     protected INGWResource            mCurrentResource;
     protected SelectNGWResourceDialog mSelectNGWResourceDialog;
     protected boolean                 mLoading;
+    protected PathView mPathView;
 
 
     public NGWResourcesListAdapter(SelectNGWResourceDialog dialog)
@@ -79,9 +87,15 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
         mCurrentResource = mConnections.getResourceById(id);
         if (null != mCurrentResource) {
             notifyDataSetChanged();
+            if(null != mPathView)
+                mPathView.onUpdate(mCurrentResource);
         }
     }
 
+    public void setPathLayout(LinearLayout linearLayout){
+        mPathView = new PathView(linearLayout);
+        mPathView.onUpdate(mCurrentResource);
+    }
 
     @Override
     public int getCount()
@@ -291,8 +305,75 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
                 }
             }
         }
+        mPathView.onUpdate(mCurrentResource);
     }
 
+
+    /**
+     * A path view class. the path is a resources names divide by arrows in head of dialog.
+     * If user click on name, the dialog follow the specified path.
+     */
+    protected class PathView{
+        protected LinearLayout mLinearLayout;
+
+
+        public PathView(LinearLayout linearLayout)
+        {
+            mLinearLayout = linearLayout;
+        }
+
+        public void onUpdate(INGWResource mCurrentResource){
+            if(null == mLinearLayout || null == mCurrentResource)
+                return;
+            mLinearLayout.removeAllViewsInLayout();
+            INGWResource parent = mCurrentResource;
+            while (null != parent){
+                //skip root resource
+                if(parent instanceof Resource){
+                    Resource resource = (Resource)parent;
+                    if(resource.getRemoteId() == 0){
+                        parent = parent.getParent();
+                        continue;
+                    }
+                }
+
+                final int id = parent.getId();
+                TextView name = new TextView(mSelectNGWResourceDialog.getActivity());
+                String sName = parent.getName();
+                name.setText(sName);
+                name.setTypeface(name.getTypeface(), Typeface.BOLD);
+                name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+                name.setSingleLine(true);
+                name.setMaxLines(1);
+                name.setBackgroundResource(android.R.drawable.list_selector_background);
+                name.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        setCurrentResourceId(id);
+                    }
+                });
+
+                mLinearLayout.addView(name, 0);
+
+                parent = parent.getParent();
+
+                if(null != parent){
+                    ImageView image = new ImageView(mSelectNGWResourceDialog.getActivity());
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(30,30);
+                    image.setLayoutParams(params);
+                    image.setImageDrawable(mSelectNGWResourceDialog.getActivity().getResources().getDrawable(R.drawable.ic_next));
+                    mLinearLayout.addView(image, 0);
+                }
+            }
+        }
+    }
+
+
+    /**
+     * A async task to execute resources functions (connect, loadChildren, etc.) asynchronously.
+     */
     protected class NGWResourceAsyncTask
             extends AsyncTask<Void, Void, Void>
     {

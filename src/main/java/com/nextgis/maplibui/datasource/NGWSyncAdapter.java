@@ -31,6 +31,19 @@ import android.content.SyncResult;
 import android.os.Build;
 import android.os.Bundle;
 
+/*
+https://udinic.wordpress.com/2013/07/24/write-your-own-android-sync-adapter/#more-507
+http://www.fussylogic.co.uk/blog/?p=1031
+http://www.fussylogic.co.uk/blog/?p=1035
+http://www.fussylogic.co.uk/blog/?p=1037
+http://developer.android.com/training/sync-adapters/creating-sync-adapter.html
+https://github.com/elegion/ghsync
+http://habrahabr.ru/company/e-Legion/blog/206210/
+http://habrahabr.ru/company/e-Legion/blog/216857/
+http://stackoverflow.com/questions/5486228/how-do-we-control-an-android-sync-adapter-preference
+https://books.google.ru/books?id=SXlMAQAAQBAJ&pg=PA158&lpg=PA158&dq=android:syncAdapterSettingsAction&source=bl&ots=T832S7VvKb&sig=vgNNDHfwyMzvINeHfdfDhu9tREs&hl=ru&sa=X&ei=YviqVIPMF9DgaPOUgOgP&ved=0CFUQ6AEwBw#v=onepage&q=android%3AsyncAdapterSettingsAction&f=false
+
+ */
 
 public class NGWSyncAdapter extends AbstractThreadedSyncAdapter
 {

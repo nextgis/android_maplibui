@@ -33,6 +33,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
@@ -50,6 +51,7 @@ public class SelectNGWResourceDialog extends DialogFragment
     protected int mTypeMask;
 
     protected NGWResourcesListAdapter mListAdapter;
+    protected AlertDialog mDialog;
 
     protected final static String KEY_TITLE = "title";
     protected final static String KEY_MASK = "mask";
@@ -115,6 +117,9 @@ public class SelectNGWResourceDialog extends DialogFragment
         dialogListView.setAdapter(mListAdapter);
         dialogListView.setOnItemClickListener(mListAdapter);
 
+        LinearLayout pathView = (LinearLayout) view.findViewById(R.id.path);
+        mListAdapter.setPathLayout(pathView);
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(mTitle)
                .setIcon(R.drawable.ic_ngw)
@@ -138,7 +143,8 @@ public class SelectNGWResourceDialog extends DialogFragment
                    }
                });
         // Create the AlertDialog object and return it
-        return builder.create();
+        mDialog = builder.create();
+        return mDialog;
     }
 
 
@@ -207,5 +213,13 @@ public class SelectNGWResourceDialog extends DialogFragment
         }
         else
             super.onActivityResult(requestCode, resultCode, data);
+    }
+
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
     }
 }
