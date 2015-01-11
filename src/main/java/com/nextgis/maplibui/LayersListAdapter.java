@@ -81,8 +81,7 @@ public class LayersListAdapter
     @Override
     public Object getItem(int i)
     {
-        int nIndex = getCount() - 1 - i;
-        return mMap.getLayer(nIndex);
+        return mMap.getLayer(i);
     }
 
 
