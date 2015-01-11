@@ -31,6 +31,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -38,10 +39,19 @@ import android.widget.ListView;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.datasource.ngw.Connections;
+import com.nextgis.maplib.datasource.ngw.INGWResource;
+import com.nextgis.maplib.datasource.ngw.LayerWithStyles;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
+import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
+import com.nextgis.maplibui.util.CheckState;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
+import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
 
 
 public class SelectNGWResourceDialog extends DialogFragment
@@ -58,6 +68,7 @@ public class SelectNGWResourceDialog extends DialogFragment
     protected final static String KEY_ID = "id";
     protected final static String KEY_CONNECTIONS = "connections";
     protected final static String KEY_RESOURCEID = "resource_id";
+    protected final static String KEY_STATES = "states";
 
     protected final static int ADDACCOUNT_CODE = 777;
 
@@ -95,6 +106,7 @@ public class SelectNGWResourceDialog extends DialogFragment
             Connections connections = fillConnections();
             mListAdapter.setConnections(connections);
             mListAdapter.setCurrentResourceId(connections.getId());
+            mListAdapter.setCheckState(new ArrayList<CheckState>());
         }
         else{
             mTitle = savedInstanceState.getString(KEY_TITLE);
@@ -110,6 +122,8 @@ public class SelectNGWResourceDialog extends DialogFragment
             mListAdapter.setConnections(
                     (Connections) savedInstanceState.getParcelable(KEY_CONNECTIONS));
             mListAdapter.setCurrentResourceId(savedInstanceState.getInt(KEY_RESOURCEID));
+            mListAdapter.setCheckState(savedInstanceState.<CheckState> getParcelableArrayList(
+                    KEY_STATES));
         }
 
         View view = inflater.inflate(R.layout.layout_ngw_resources, null);
@@ -131,7 +145,7 @@ public class SelectNGWResourceDialog extends DialogFragment
                            DialogInterface dialog,
                            int id)
                    {
-
+                        createLayers();
                    }
                })
                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
@@ -157,6 +171,8 @@ public class SelectNGWResourceDialog extends DialogFragment
         outState.putShort(KEY_ID, mGroupLayer.getId());
         outState.putInt(KEY_RESOURCEID, mListAdapter.getCurrentResourceId());
         outState.putParcelable(KEY_CONNECTIONS, mListAdapter.getConnections());
+        outState.putParcelableArrayList(KEY_STATES,
+                                        (ArrayList<? extends android.os.Parcelable>) mListAdapter.getCheckState());
         super.onSaveInstanceState(outState);
     }
 
@@ -221,6 +237,73 @@ public class SelectNGWResourceDialog extends DialogFragment
     public void onStart()
     {
         super.onStart();
-        mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        updateSelectButton();
+    }
+
+    public void updateSelectButton()
+    {
+        mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(mListAdapter.getCheckState().size() > 0);
+    }
+
+    public void createLayers()
+    {
+        List<CheckState> checkStates = mListAdapter.getCheckState();
+        Connections connections = mListAdapter.getConnections();
+        for(CheckState checkState : checkStates){
+            if(checkState.isCheckState1()) { //create raster
+
+                INGWResource resource = connections.getResourceById(checkState.getId());
+                if(resource instanceof LayerWithStyles){
+                    LayerWithStyles layer = (LayerWithStyles)resource;
+                    //1. get first style
+                    Connection connection = layer.getConnection();
+                    //2. create tiles url
+                    String layerURL = layer.getTMSUrl(0);
+
+                    if(!layerURL.startsWith("http"))
+                        layerURL = "http://" + layerURL;
+                    //3. create layer
+                    String layerName = layer.getName();
+
+                    NGWRasterLayerUI newLayer = new NGWRasterLayerUI(mGroupLayer.getContext(), mGroupLayer.cretateLayerStorage());
+                    newLayer.setName(layerName);
+                    newLayer.setURL(layerURL);
+                    newLayer.setTMSType(TMSTYPE_OSM);
+                    newLayer.setVisible(true);
+                    newLayer.setAccount(connection.getName());
+                    newLayer.setLogin(connection.getLogin());
+                    newLayer.setPassword(connection.getPassword());
+
+                    mGroupLayer.addLayer(newLayer);
+                    mGroupLayer.save();
+                }
+            }
+
+            if(checkState.isCheckState2()){ //create vector
+                INGWResource resource = connections.getResourceById(checkState.getId());
+                if(resource instanceof LayerWithStyles){
+                    LayerWithStyles layer = (LayerWithStyles)resource;
+                    //1. get first style
+                    Connection connection = layer.getConnection();
+                    //2. create tiles url
+                    String layerURL = layer.getGeoJSONUrl();
+
+                    if(!layerURL.startsWith("http"))
+                        layerURL = "http://" + layerURL;
+                    //3. create layer
+                    String layerName = layer.getName();
+
+                    /*NGWRasterLayerUI layer = new NGWRasterLayerUI(mGroupLayer.getContext(), mGroupLayer.cretateLayerStorage());
+                    layer.setName(layerName);
+                    layer.setURL(layerURL);
+                    layer.setTMSType(TMSTYPE_OSM);
+                    layer.setVisible(true);
+                    layer.setAccount(connection.getName());
+
+                    mGroupLayer.addLayer(layer);
+                    mGroupLayer.save();*/
+                }
+            }
+        }
     }
 }

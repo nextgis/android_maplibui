@@ -26,12 +26,17 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -42,6 +47,9 @@ import com.nextgis.maplib.datasource.ngw.INGWResource;
 import com.nextgis.maplib.datasource.ngw.LayerWithStyles;
 import com.nextgis.maplib.datasource.ngw.Resource;
 import com.nextgis.maplib.datasource.ngw.ResourceGroup;
+import com.nextgis.maplibui.util.CheckState;
+
+import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.*;
 import static com.nextgis.maplibui.R.attr;
@@ -50,12 +58,12 @@ import static com.nextgis.maplibui.R.attr;
 public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.OnItemClickListener
 {
     protected Connections             mConnections;
-    protected int                     mCurrentResourceId;
     protected INGWResource            mCurrentResource;
     protected SelectNGWResourceDialog mSelectNGWResourceDialog;
     protected boolean                 mLoading;
-    protected PathView mPathView;
-    protected int mTypeMask;
+    protected PathView                mPathView;
+    protected int                     mTypeMask;
+    protected List<CheckState>        mCheckState;
 
 
     public NGWResourcesListAdapter(SelectNGWResourceDialog dialog)
@@ -63,6 +71,7 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
         mSelectNGWResourceDialog = dialog;
         mLoading = false;
     }
+
 
     public void setTypeMask(int typeMask)
     {
@@ -84,25 +93,39 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
 
     public int getCurrentResourceId()
     {
-        return mCurrentResourceId;
+        return mCurrentResource.getId();
     }
 
 
     public void setCurrentResourceId(int id)
     {
-        mCurrentResourceId = id;
         mCurrentResource = mConnections.getResourceById(id);
         if (null != mCurrentResource) {
             notifyDataSetChanged();
-            if(null != mPathView)
+            if (null != mPathView)
                 mPathView.onUpdate(mCurrentResource);
         }
     }
 
-    public void setPathLayout(LinearLayout linearLayout){
+
+    public void setPathLayout(LinearLayout linearLayout)
+    {
         mPathView = new PathView(linearLayout);
         mPathView.onUpdate(mCurrentResource);
     }
+
+
+    public List<CheckState> getCheckState()
+    {
+        return mCheckState;
+    }
+
+
+    public void setCheckState(List<CheckState> checkState)
+    {
+        mCheckState = checkState;
+    }
+
 
     @Override
     public int getCount()
@@ -260,6 +283,9 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
                 return v;
             }
 
+            final int id = resource.getId();
+            CheckBox checkBox1, checkBox2;
+
             switch (resourceType){
                 case Connection.NGWResourceTypeResourceGroup:
                     if (null == v || v.getId() != R.id.resourcegroup_row) {
@@ -285,6 +311,10 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
                     tvDesc.setText(context.getString(R.string.raster_layer));
+
+                    //add check listener
+                    checkBox1 = (CheckBox)v.findViewById(R.id.checkBox1);
+                    setCheckBox(checkBox1, id, 1);
                     break;
                 case Connection.NGWResourceTypeVectorLayer:
                     LayerWithStyles layer = (LayerWithStyles)resource;
@@ -294,6 +324,13 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
                             v = inflater.inflate(R.layout.layout_ngwlayer_doublecheck_row, null);
                             v.setId(R.id.ngw_layer_doublecheck_row);
                         }
+
+                        //add check listener
+                        checkBox1 = (CheckBox)v.findViewById(R.id.checkBox1);
+                        setCheckBox(checkBox1, id, 1);
+
+                        checkBox2 = (CheckBox)v.findViewById(R.id.checkBox2);
+                        setCheckBox(checkBox2, id, 2);
                     }
                     else{
                         if (null == v || v.getId() != R.id.ngw_layer_check_row) {
@@ -304,6 +341,10 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
 
                         TextView tvType = (TextView) v.findViewById(R.id.type1);
                         tvType.setText(context.getString(R.string.vector));
+
+                        //add check listener
+                        checkBox1 = (CheckBox)v.findViewById(R.id.checkBox1);
+                        setCheckBox(checkBox1, id, 2);
                     }
 
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
@@ -320,6 +361,14 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
                             v = inflater.inflate(R.layout.layout_ngwlayer_doublecheck_row, null);
                             v.setId(R.id.ngw_layer_doublecheck_row);
                         }
+
+
+                        //add check listener
+                        checkBox1 = (CheckBox)v.findViewById(R.id.checkBox1);
+                        setCheckBox(checkBox1, id, 1);
+
+                        checkBox2 = (CheckBox)v.findViewById(R.id.checkBox2);
+                        setCheckBox(checkBox2, id, 2);
                     }
                     else{
                         if (null == v || v.getId() != R.id.ngw_layer_check_row) {
@@ -330,6 +379,10 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
 
                         TextView tvType = (TextView) v.findViewById(R.id.type1);
                         tvType.setText(context.getString(R.string.vector));
+
+                        //add check listener
+                        checkBox1 = (CheckBox)v.findViewById(R.id.checkBox1);
+                        setCheckBox(checkBox1, id, 2);
                     }
 
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
@@ -347,6 +400,71 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
         }
 
         return v;
+    }
+
+    public void setCheckBox(final CheckBox checkBox, final int id, final int checkNo)
+    {
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(
+                    CompoundButton compoundButton,
+                    boolean b)
+            {
+                if(b){
+                    boolean exist = false;
+                    for(CheckState state : mCheckState){
+                        if(state.getId() == id){
+                            exist = true;
+                            if(checkNo == 1)
+                                state.setCheckState1(b);
+                            else if(checkNo == 2)
+                                state.setCheckState2(b);
+                        }
+                    }
+
+                    if(!exist) {
+                        if (checkNo == 1)
+                            mCheckState.add(new CheckState(id, b, false));
+                        else if (checkNo == 2)
+                            mCheckState.add(new CheckState(id, false, b));
+                    }
+                }
+                else{
+                    for(CheckState state : mCheckState){
+                        if(state.getId() == id){
+                            if(checkNo == 1) {
+                                if (!state.isCheckState1()) {
+                                    mCheckState.remove(state);
+                                } else {
+                                    state.setCheckState2(b);
+                                }
+                            }
+                            else if(checkNo == 2){
+                                if (!state.isCheckState2()) {
+                                    mCheckState.remove(state);
+                                } else {
+                                    state.setCheckState1(b);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+                mSelectNGWResourceDialog.updateSelectButton();
+            }
+        });
+
+        for(CheckState state : mCheckState){
+            if(checkNo == 1) {
+                if (state.getId() == id && state.isCheckState1())
+                    checkBox.setChecked(true);
+            }
+            else if(checkNo == 2){
+                if (state.getId() == id && state.isCheckState2())
+                    checkBox.setChecked(true);
+            }
+        }
     }
 
     @Override

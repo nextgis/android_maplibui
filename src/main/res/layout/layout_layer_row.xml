@@ -30,9 +30,9 @@
 
     <ImageView
         android:id="@+id/ivIcon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginRight="5dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginRight="2dp"
         android:layout_gravity="center"
         />
 

@@ -27,8 +27,9 @@
     <string name="create">Create</string>
     <string name="cancel">Cancel</string>
     <string name="osm">OpenStreetMap</string>
-    <string name="layer_name">Name</string>
-    <string name="layer_url">URL</string>
+    <string name="layer_name">Layer name</string>
+    <string name="layer_url">Layer URL</string>
+    <string name="layer_url_hint">For example: http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png</string>
     <string name="layer_type">TMS type</string>
     <string name="create_layer">Create layer</string>
     <string name="create_tms_layer">Create TMS layer</string>
@@ -66,4 +67,6 @@
     <string name="raster_layer">Raster layer</string>
     <string name="vector_layer">Vector layer</string>
     <string name="pg_layer">PostGIS layer</string>
+    <string name="credentials_opt">Credentials (optional)</string>
+    <string name="layer_type_optional">Tile layer type (optional)</string>
 </resources>

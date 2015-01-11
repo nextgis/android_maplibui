@@ -38,6 +38,7 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
+import com.nextgis.maplib.map.NGWRasterLayer;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.CreateRemoteTMSLayerDialog;
 import com.nextgis.maplibui.R;
@@ -104,6 +105,9 @@ public class LayerFactoryUI
             switch (nType) {
                 case LAYERTYPE_REMOTE_TMS:
                     layer = new RemoteTMSLayerUI(context, path);
+                    break;
+                case LAYERTYPE_NGW_RASTER:
+                    layer = new NGWRasterLayerUI(context, path);
                     break;
             }
         } catch (IOException | JSONException e) {
