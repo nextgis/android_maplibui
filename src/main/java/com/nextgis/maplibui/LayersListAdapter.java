@@ -81,13 +81,16 @@ public class LayersListAdapter
     @Override
     public Object getItem(int i)
     {
-        return mMap.getLayer(i);
+        int nIndex = getCount() - 1 - i;
+        return mMap.getLayer(nIndex);
     }
 
 
     @Override
     public long getItemId(int i)
     {
+        if(i < 0 || i >= mMap.getLayerCount())
+            return NOT_FOUND;
         Layer layer = (Layer) getItem(i);
         return layer.getId();
     }
@@ -221,5 +224,12 @@ public class LayersListAdapter
             float percent)
     {
 
+    }
+
+    public void swapElements(
+            int originalPosition,
+            int newPosition)
+    {
+        mMap.moveLayer(newPosition, mMap.getLayer(originalPosition));
     }
 }

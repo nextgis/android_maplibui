@@ -26,6 +26,7 @@
     android:orientation="horizontal"
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
+    android:descendantFocusability="blocksDescendants"
     >
 
     <ImageView
