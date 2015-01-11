@@ -29,6 +29,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.widget.Scroller;
+import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
@@ -53,7 +54,7 @@ public class MapView
     protected       long                 mStartDrawTime;
 
     //display redraw timeout ms
-    public static final int DISPLAY_REDRAW_TIMEOUT = 850;
+    public static final int DISPLAY_REDRAW_TIMEOUT = 1850;
 
 
     public MapView(
@@ -120,7 +121,7 @@ public class MapView
                             mMap.getView(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y,
                                          (float) mScaleFactor), 0, 0, null);
                     break;
-
+//TODO: add invalidate rect to prevent flicker
                 case DRAW_SATE_drawing_noclearbk:
                     canvas.drawBitmap(mMap.getView(false), 0, 0, null);
                     break;
@@ -502,8 +503,10 @@ public class MapView
             mStartDrawTime = System.currentTimeMillis();
             invalidate();
         }
-        else if(percent >= 0.95){
-            invalidate();
+        else if(percent >= 1){
+            ILayer layer = mMap.getLastLayer();
+            if(null != layer && layer.getId() == id)
+                invalidate();
         }
     }
 }
