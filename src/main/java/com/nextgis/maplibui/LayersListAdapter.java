@@ -22,6 +22,7 @@
 package com.nextgis.maplibui;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -230,6 +231,9 @@ public class LayersListAdapter
             int originalPosition,
             int newPosition)
     {
-        mMap.moveLayer(newPosition, mMap.getLayer(originalPosition));
+        Log.d(TAG,
+              "Original position: " + originalPosition + " Destination position: " + newPosition);
+        int newPositionFixed = getCount() - 1 - newPosition;
+        mMap.moveLayer(newPositionFixed, (com.nextgis.maplib.api.ILayer) getItem(originalPosition));
     }
 }

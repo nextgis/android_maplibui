@@ -156,7 +156,7 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
      * size. The hover cell's BitmapDrawable is drawn on top of the bitmap every
      * single time an invalidate call is made.
      */
-    private BitmapDrawable getAndAddHoverView(View v) {
+    protected BitmapDrawable getAndAddHoverView(View v) {
 
         int w = v.getWidth();
         int h = v.getHeight();
@@ -177,7 +177,7 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
 
 
     /** Draws a black border over the screenshot of the view passed in. */
-    private Bitmap getBitmapWithBorder(View v) {
+    protected Bitmap getBitmapWithBorder(View v) {
         Bitmap bitmap = getBitmapFromView(v);
         Canvas canvas = new Canvas(bitmap);
 
@@ -195,7 +195,7 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
     }
 
     /** Returns a bitmap showing a screenshot of the view passed in. */
-    private Bitmap getBitmapFromView(View v) {
+    protected Bitmap getBitmapFromView(View v) {
         Bitmap bitmap = Bitmap.createBitmap(v.getWidth(), v.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas (bitmap);
 
@@ -215,7 +215,7 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
      * item is either at the top or bottom of the list, mAboveItemId or mBelowItemId
      * may be invalid.
      */
-    private void updateNeighborViewsForID(long itemID) {
+    protected void updateNeighborViewsForID(long itemID) {
         int position = getPositionForID(itemID);
         ListAdapter adapter = getAdapter();
         mAboveItemId = adapter.getItemId(position - 1);
@@ -281,9 +281,7 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
 
                 if (mCellIsMobile) {
                     int top = mHoverCellOriginalBounds.top + deltaY + mTotalOffset;
-                    if(top >= 0)
-                        mHoverCellCurrentBounds.offsetTo(mHoverCellOriginalBounds.left,
-                                                     mHoverCellOriginalBounds.top + deltaY + mTotalOffset);
+                    mHoverCellCurrentBounds.offsetTo(mHoverCellOriginalBounds.left, top);
                     mHoverCell.setBounds(mHoverCellCurrentBounds);
                     invalidate();
 
@@ -329,7 +327,7 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
      * offset the cell being swapped to where it previously was and then animate it to
      * its new position.
      */
-    private void handleCellSwitch() {
+    protected void handleCellSwitch() {
         final int deltaY = mLastEventY - mDownY;
         int deltaYTotal = mHoverCellOriginalBounds.top + mTotalOffset + deltaY;
 
@@ -346,10 +344,10 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
             View switchView = isBelow ? belowView : aboveView;
             final int originalItem = getPositionForView(mobileView);
 
-            /*if (switchView == null) {
+            if (switchView == null) {
                 updateNeighborViewsForID(mMobileItemId);
                 return;
-            }*/
+            }
 
             LayersListAdapter adapter = (LayersListAdapter)getAdapter();
             if(null != adapter)
@@ -357,43 +355,19 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
 
             mDownY = mLastEventY;
 
-            final int switchViewStartTop = switchView.getTop();
-
             mobileView.setVisibility(View.VISIBLE);
             switchView.setVisibility(View.INVISIBLE);
 
             updateNeighborViewsForID(mMobileItemId);
-/*
-            final ViewTreeObserver observer = getViewTreeObserver();
-            observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                public boolean onPreDraw() {
-                    observer.removeOnPreDrawListener(this);
 
-                    View switchView = getViewForID(switchItemID);
-
-                    mTotalOffset += deltaY;
-
-                    int switchViewNewTop = switchView.getTop();
-                    int delta = switchViewStartTop - switchViewNewTop;
-
-                    switchView.setTranslationY(delta);
-
-                    ObjectAnimator animator = ObjectAnimator.ofFloat(switchView,
-                                                                     View.TRANSLATION_Y, 0);
-                    animator.setDuration(MOVE_DURATION);
-                    animator.start();
-
-                    return true;
-                }
-            });
-*/        }
+        }
     }
 
     /**
      * Resets all the appropriate fields to a default state while also animating
      * the hover cell back to its correct location.
      */
-    private void touchEventsEnded () {
+    protected void touchEventsEnded () {
         final View mobileView = getViewForID(mMobileItemId);
         if (mCellIsMobile|| mIsWaitingForScrollFinish) {
             mCellIsMobile = false;
@@ -418,33 +392,7 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
             mHoverCell = null;
 
             invalidate();
-/*
-            ObjectAnimator hoverViewAnimator = ObjectAnimator.ofObject(mHoverCell, "bounds",
-                                                                       sBoundEvaluator, mHoverCellCurrentBounds);
-            hoverViewAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                    invalidate();
-                }
-            });
-            hoverViewAnimator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationStart(Animator animation) {
-                    setEnabled(false);
-                }
 
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mAboveItemId = INVALID_ID;
-                    mMobileItemId = INVALID_ID;
-                    mBelowItemId = INVALID_ID;
-                    mobileView.setVisibility(VISIBLE);
-                    mHoverCell = null;
-                    setEnabled(true);
-                    invalidate();
-                }
-            });
-            hoverViewAnimator.start();*/
         } else {
             touchEventsCancelled();
         }
@@ -453,7 +401,7 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
     /**
      * Resets all the appropriate fields to a default state.
      */
-    private void touchEventsCancelled () {
+    protected void touchEventsCancelled () {
         View mobileView = getViewForID(mMobileItemId);
         if (mCellIsMobile) {
             mAboveItemId = NOT_FOUND;
