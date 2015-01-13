@@ -166,7 +166,7 @@ public class CreateRemoteTMSLayerDialog extends DialogFragment
                         layer.setTMSType(tmsType);
                         layer.setVisible(true);
 
-                        mGroupLayer.insertLayer(0, layer);
+                        mGroupLayer.addLayer(layer);
                         mGroupLayer.save();
                     }
                 })

@@ -274,7 +274,7 @@ public class SelectNGWResourceDialog extends DialogFragment
                     newLayer.setLogin(connection.getLogin());
                     newLayer.setPassword(connection.getPassword());
 
-                    mGroupLayer.insertLayer(0, newLayer);
+                    mGroupLayer.addLayer(newLayer);
                     mGroupLayer.save();
                 }
             }

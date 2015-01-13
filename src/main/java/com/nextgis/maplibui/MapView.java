@@ -503,7 +503,7 @@ public class MapView
             mStartDrawTime = System.currentTimeMillis();
             invalidate();
         }
-        else if(percent >= 1){
+        else if(percent >= 0.95){
             ILayer layer = mMap.getLastLayer();
             if(null != layer && layer.getId() == id)
                 invalidate();
