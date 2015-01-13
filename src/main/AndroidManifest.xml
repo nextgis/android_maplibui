@@ -56,10 +56,9 @@
 
         <provider
             android:name=".datasource.NGWLayerContentProvider"
-            android:authorities="com.nextgis.ngw.provider"
+            android:authorities="${GisApplicationId}.ngw.provider"
             android:exported="false"
             android:syncable="true"/>
-
 
     </application>
 
