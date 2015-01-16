@@ -585,11 +585,10 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
      * A async task to execute resources functions (connect, loadChildren, etc.) asynchronously.
      */
     protected class NGWResourceAsyncTask
-            extends AsyncTask<Void, Void, Void>
+            extends AsyncTask<Void, Void, String>
     {
         protected INGWResource mINGWResource;
         protected Context mContext;
-        protected String mError;
 
         public NGWResourceAsyncTask(Context context, INGWResource INGWResource)
         {
@@ -607,28 +606,28 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
 
 
         @Override
-        protected Void doInBackground(Void... voids)
+        protected String doInBackground(Void... voids)
         {
             if(mINGWResource instanceof Connection){
                 Connection connection = (Connection)mINGWResource;
                 if(connection.connect())
                     connection.loadChildren();
                 else
-                    mError = mContext.getString(R.string.error_connect_failed);
+                    return mContext.getString(R.string.error_connect_failed);
             }
             else if(mINGWResource instanceof ResourceGroup){
                 ResourceGroup resourceGroup = (ResourceGroup)mINGWResource;
                 resourceGroup.loadChildren();
             }
-            return null;
+            return "";
         }
 
 
         @Override
-        protected void onPostExecute(Void aVoid)
+        protected void onPostExecute(String error)
         {
-            if(null != mError && mError.length() > 0){
-                Toast.makeText(mContext, mError, Toast.LENGTH_SHORT)
+            if(null != error && error.length() > 0){
+                Toast.makeText(mContext, error, Toast.LENGTH_SHORT)
                      .show();
             }
             mLoading = false;
