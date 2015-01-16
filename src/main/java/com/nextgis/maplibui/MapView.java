@@ -24,6 +24,7 @@ package com.nextgis.maplibui;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.PointF;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -35,6 +36,7 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
 
 import static com.nextgis.maplibui.util.Constants.*;
+import static com.nextgis.maplib.util.Constants.*;
 
 public class MapView
         extends MapViewBase
@@ -122,12 +124,13 @@ public class MapView
                     break;
 //TODO: add invalidate rect to prevent flicker
                 case DRAW_SATE_drawing_noclearbk:
+                case DRAW_SATE_drawing:
                     canvas.drawBitmap(mMap.getView(false), 0, 0, null);
                     break;
 
-                case DRAW_SATE_drawing:
-                    canvas.drawBitmap(mMap.getView(true), 0, 0, null);
-                    break;
+
+                   // canvas.drawBitmap(mMap.getView(true), 0, 0, null);
+                   // break;
 
                 default: // mDrawingState == DRAW_SATE_none
                     break;
@@ -502,7 +505,8 @@ public class MapView
             mStartDrawTime = System.currentTimeMillis();
             invalidate();
         }
-        else if(percent >= 0.95){
+        else if(percent >= 1.0){
+            Log.d(TAG, "LayerDrawFinished: id - " + id + ", percent - " + percent);
             ILayer layer = mMap.getLastLayer();
             if(null != layer && layer.getId() == id)
                 invalidate();

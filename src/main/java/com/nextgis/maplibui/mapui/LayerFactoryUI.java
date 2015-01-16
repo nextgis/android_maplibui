@@ -109,6 +109,9 @@ public class LayerFactoryUI
                 case LAYERTYPE_NGW_RASTER:
                     layer = new NGWRasterLayerUI(context, path);
                     break;
+                case LAYERTYPE_NGW_VECTOR:
+                    layer = new NGWVectorLayerUI(context, path);
+                    break;
             }
         } catch (IOException | JSONException e) {
             Log.d(TAG, e.getLocalizedMessage());
