@@ -4,7 +4,6 @@ android {
     compileSdkVersion 21
     buildToolsVersion "21.1.0"
     defaultConfig {
-        manifestPlaceholders = [ GisApplicationId:rootProject.GisApplicationId]
         minSdkVersion 8
         targetSdkVersion 21
         versionCode 7
