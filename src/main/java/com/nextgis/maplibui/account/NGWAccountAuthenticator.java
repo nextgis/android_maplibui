@@ -34,7 +34,8 @@ import com.nextgis.maplibui.NGWLoginActivity;
 
 import static com.nextgis.maplib.util.Constants.*;
 
-public class NGWAccountAuthenticator extends AbstractAccountAuthenticator
+public class
+        NGWAccountAuthenticator extends AbstractAccountAuthenticator
 {
     protected Context mContext;
 
