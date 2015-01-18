@@ -20,7 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui.services;
+package com.nextgis.maplibui.service;
 
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;

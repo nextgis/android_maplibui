@@ -31,12 +31,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.datasource.ngw.Connections;
@@ -46,7 +44,6 @@ import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.NGWVectorLayerUI;
-import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
 import com.nextgis.maplibui.util.CheckState;
 
 import java.util.ArrayList;
@@ -272,7 +269,7 @@ public class SelectNGWResourceDialog extends DialogFragment
                     newLayer.setURL(layerURL);
                     newLayer.setTMSType(TMSTYPE_OSM);
                     newLayer.setVisible(true);
-                    newLayer.setAccount(connection.getName());
+                    newLayer.setAccountName(connection.getName());
                     newLayer.setLogin(connection.getLogin());
                     newLayer.setPassword(connection.getPassword());
 
@@ -298,7 +295,7 @@ public class SelectNGWResourceDialog extends DialogFragment
                     newLayer.setName(layerName);
                     newLayer.setURL(layerURL);
                     newLayer.setVisible(true);
-                    newLayer.setAccount(connection.getName());
+                    newLayer.setAccountName(connection.getName());
                     newLayer.setLogin(connection.getLogin());
                     newLayer.setPassword(connection.getPassword());
 

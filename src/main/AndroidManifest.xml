@@ -23,17 +23,6 @@
                 android:resource="@xml/authenticator" />
         </service>
 
-        <service
-            android:name=".services.NGWSyncService"
-            android:exported="true"
-            android:process=":sync">
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter"/>
-            </intent-filter>
-            <meta-data android:name="android.content.SyncAdapter"
-                       android:resource="@xml/syncadapter" />
-        </service>
-
     </application>
 
 </manifest>

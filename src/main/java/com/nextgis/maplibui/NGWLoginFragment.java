@@ -36,7 +36,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import com.nextgis.maplibui.services.HTTPLoader;
+import com.nextgis.maplibui.service.HTTPLoader;
 
 import java.net.URI;
 import java.net.URISyntaxException;
