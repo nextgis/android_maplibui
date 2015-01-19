@@ -152,6 +152,7 @@ public class LayersListAdapter
             {
                 //Layer layer = mMap.getLayerById(id);
                 layer.setVisible(!layer.isVisible());
+                layer.save();
             }
         });
 

@@ -78,7 +78,7 @@ public class MapViewBase
     protected void onDraw(Canvas canvas)
     {
         if (mMap != null) {
-            canvas.drawBitmap(mMap.getView(true), 0, 0, null);
+            canvas.drawBitmap(mMap.getView(false), 0, 0, null);
         } else {
             super.onDraw(canvas);
         }
