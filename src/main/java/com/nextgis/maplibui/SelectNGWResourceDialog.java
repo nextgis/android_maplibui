@@ -281,19 +281,16 @@ public class SelectNGWResourceDialog extends DialogFragment
                 INGWResource resource = connections.getResourceById(checkState.getId());
                 if(resource instanceof LayerWithStyles){
                     LayerWithStyles layer = (LayerWithStyles)resource;
-                    //1. get first style
+                    //1. get connection for url
                     Connection connection = layer.getConnection();
-                    //2. create tiles url
-                    String layerURL = layer.getGeoJSONUrl();
 
-                    if(!layerURL.startsWith("http"))
-                        layerURL = "http://" + layerURL;
                     //3. create layer
                     String layerName = layer.getName();
 
                     final NGWVectorLayerUI newLayer = new NGWVectorLayerUI(mGroupLayer.getContext(), mGroupLayer.cretateLayerStorage());
                     newLayer.setName(layerName);
-                    newLayer.setURL(layerURL);
+                    newLayer.setURL(connection.getURL());
+                    newLayer.setRemoteId(layer.getRemoteId());
                     newLayer.setVisible(true);
                     newLayer.setAccountName(connection.getName());
                     newLayer.setLogin(connection.getLogin());
