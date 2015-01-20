@@ -316,6 +316,22 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
                     checkBox1 = (CheckBox)v.findViewById(R.id.checkBox1);
                     setCheckBox(checkBox1, id, 1);
                     break;
+                case Connection.NGWResourceTypeWMSClient:
+                    if (null == v || v.getId() != R.id.ngw_layer_check_row) {
+                        LayoutInflater inflater = LayoutInflater.from(context);
+                        v = inflater.inflate(R.layout.layout_ngwlayer_check_row, null);
+                        v.setId(R.id.ngw_layer_check_row);
+                    }
+                    ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+                    ivIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_ngw_raster));
+
+                    tvDesc = (TextView) v.findViewById(R.id.tvDesc);
+                    tvDesc.setText(context.getString(R.string.raster_layer));
+
+                    //add check listener
+                    checkBox1 = (CheckBox)v.findViewById(R.id.checkBox1);
+                    setCheckBox(checkBox1, id, 1);
+                    break;
                 case Connection.NGWResourceTypeVectorLayer:
                     LayerWithStyles layer = (LayerWithStyles)resource;
                     if(layer.getStyleCount() > 0){

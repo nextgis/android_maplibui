@@ -70,7 +70,7 @@ public class LayerFactoryUI
             SelectNGWResourceDialog newFragment = new SelectNGWResourceDialog();
             newFragment.setTitle(context.getString(R.string.select_ngw_layer))
                        .setLayerGroup(groupLayer)
-                       .setTypeMask(Connection.NGWResourceTypePostgisLayer | Connection.NGWResourceTypeVectorLayer | Connection.NGWResourceTypeRasterLayer)
+                       .setTypeMask(Connection.NGWResourceTypePostgisLayer | Connection.NGWResourceTypeVectorLayer | Connection.NGWResourceTypeRasterLayer | Connection.NGWResourceTypeWMSClient)
                        .show(fragmentActivity.getSupportFragmentManager(), "create_ngw_layer");
         }
     }
