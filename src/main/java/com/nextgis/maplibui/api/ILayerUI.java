@@ -22,6 +22,7 @@
 
 package com.nextgis.maplibui.api;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 
@@ -30,4 +31,6 @@ public interface ILayerUI
     Drawable getIcon();
 
     void changeProperties();
+
+    void showEditForm(Context context);
 }

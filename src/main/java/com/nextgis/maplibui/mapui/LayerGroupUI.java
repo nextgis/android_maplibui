@@ -36,4 +36,11 @@ public class LayerGroupUI extends LayerGroup implements ILayerUI
     {
 
     }
+
+
+    @Override
+    public void showEditForm(Context context)
+    {
+
+    }
 }

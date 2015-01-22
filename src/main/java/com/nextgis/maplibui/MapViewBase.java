@@ -27,9 +27,14 @@ import android.graphics.Canvas;
 import android.preference.PreferenceManager;
 import android.view.View;
 
+import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoPoint;
+import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.api.MapEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.nextgis.maplib.util.GeoConstants.*;
 import static com.nextgis.maplibui.util.SettingsConstants.*;
@@ -192,6 +197,26 @@ public class MapViewBase
         if (mMap != null) {
             mMap.getLayerFactory().createNewNGWLayer(getContext(), mMap);
         }
+    }
+
+    public List<ILayer> getLayersByType(int types){
+        List<ILayer> ret = new ArrayList<>();
+
+        if (mMap != null) {
+            LayerGroup.getLayersByType(mMap, types, ret);
+        }
+
+        return ret;
+    }
+
+    public List<ILayer> getVectorLayersByType(int types){
+        List<ILayer> ret = new ArrayList<>();
+
+        if (mMap != null) {
+            LayerGroup.getVectorLayersByType(mMap, types, ret);
+        }
+
+        return ret;
     }
 
 }

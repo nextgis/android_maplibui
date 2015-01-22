@@ -56,6 +56,13 @@ public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
 
 
     @Override
+    public void showEditForm(Context context)
+    {
+
+    }
+
+
+    @Override
     protected void reportError(String error)
     {
         if (null != error && error.length() > 0) {
