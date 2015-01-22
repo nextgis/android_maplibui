@@ -122,4 +122,19 @@ public class LayerFactoryUI
         return layer;
     }
 
+    public static String getLayerTypeString(Context context, int type){
+        switch (type){
+            case LAYERTYPE_GROUP:
+                return context.getString(R.string.layer_group);
+            case LAYERTYPE_NGW_RASTER:
+                return context.getString(R.string.layer_ngw_raster);
+            case LAYERTYPE_NGW_VECTOR:
+                return context.getString(R.string.layer_ngw_vector);
+            case LAYERTYPE_REMOTE_TMS:
+                return context.getString(R.string.layer_tms);
+            default:
+                return context.getString(R.string.layer_na);
+        }
+    }
+
 }

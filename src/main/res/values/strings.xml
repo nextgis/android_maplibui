@@ -75,4 +75,9 @@
     <string name="actions">Actions</string>
     <string name="sync_layers">Layers</string>
     <string name="sync_layers_summary">Check layers to synchronize with server</string>
+    <string name="layer_group">Group</string>
+    <string name="layer_ngw_raster">NGW Raster</string>
+    <string name="layer_ngw_vector">NGW Layer</string>
+    <string name="layer_tms">Tile Raster</string>
+    <string name="layer_na">Not available</string>
 </resources>
