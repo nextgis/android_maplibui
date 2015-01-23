@@ -30,12 +30,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:id="@+id/controls_list"
+        >
+
     <TableLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:stretchColumns="0,1,2"
+        android:layout_weight="1"
         >
 
         <TableRow
@@ -90,6 +98,23 @@
 
     </TableLayout>
 
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/refresh"
+            android:background="@drawable/ic_action_refresh"
+            android:layout_margin="5dp"
+            />
+
+
+    </LinearLayout>
+
+    <View
+        android:layout_height="1dp"
+        android:layout_width="wrap_content"
+        android:background="@android:color/darker_gray"
+        android:layout_margin="2dp"
+        />
 
 
 </LinearLayout>

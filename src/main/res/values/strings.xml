@@ -80,4 +80,9 @@
     <string name="layer_ngw_vector">NGW Layer</string>
     <string name="layer_tms">Tile Raster</string>
     <string name="layer_na">Not available</string>
+    <string name="latitude_caption">Latitude</string>
+    <string name="longitude_caption">Longtitude</string>
+    <string name="altitude_caption">Altitude</string>
+    <string name="unit_meter">m</string>
+    <string name="accuracy_caption">Accuracy</string>
 </resources>

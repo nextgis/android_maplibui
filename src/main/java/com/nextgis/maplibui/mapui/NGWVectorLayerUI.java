@@ -22,9 +22,12 @@
 package com.nextgis.maplibui.mapui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.widget.Toast;
 import com.nextgis.maplib.map.NGWVectorLayer;
+import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplibui.ModifyAttributesActivity;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
 
@@ -61,7 +64,10 @@ public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
         //check custom form
 
         //if not exist show standard form
-
+        Intent intent = new Intent(context, ModifyAttributesActivity.class);
+        intent.putExtra(ModifyAttributesActivity.KEY_LAYER_ID, getId());
+        intent.putExtra(ModifyAttributesActivity.KEY_FEATURE_ID, (long)Constants.NOT_FOUND);
+        context.startActivity(intent);
     }
 
 
