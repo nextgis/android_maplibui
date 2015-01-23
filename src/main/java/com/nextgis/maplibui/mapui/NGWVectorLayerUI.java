@@ -58,6 +58,9 @@ public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
     @Override
     public void showEditForm(Context context)
     {
+        //check custom form
+
+        //if not exist show standard form
 
     }
 
