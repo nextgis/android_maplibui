@@ -85,4 +85,13 @@
     <string name="altitude_caption">Altitude</string>
     <string name="unit_meter">m</string>
     <string name="accuracy_caption">Accuracy</string>
+    <string name="set_attributes">Set attributes</string>
+    <string name="latitude_caption_short">Lat</string>
+    <string name="longitude_caption_short">Long</string>
+    <string name="altitude_caption_short">Alt</string>
+    <string name="accuracy_caption_short">Acc</string>
+    <string name="action_settings">Settings</string>
+    <string name="apply">Apply</string>
+    <string name="error_db_insert">Insert feature failed</string>
+    <string name="error_db_update">Update feature failed</string>
 </resources>
