@@ -34,4 +34,7 @@ public interface Constants
     public static final int DRAW_SATE_edit_drawing = 5;
     public static final int DRAW_SATE_panning_fling = 6;
 
+    public static final String KEY_ERROR = "error";
+    public static final String MESSAGE_INTENT = "com.nextgis.malibui.MESSAGE";
+
 }

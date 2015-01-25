@@ -21,10 +21,10 @@
 
 package com.nextgis.maplibui.mapui;
 
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.widget.Toast;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.ModifyAttributesActivity;
@@ -32,7 +32,6 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
 
 import java.io.File;
-
 
 public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
 {
@@ -72,10 +71,11 @@ public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
 
 
     @Override
-    protected void reportError(String error)
+    protected void reportError(final String error)
     {
-        if (null != error && error.length() > 0) {
-            Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show();
-        }
+        Intent msg = new Intent(com.nextgis.maplibui.util.Constants.MESSAGE_INTENT);
+        msg.putExtra(com.nextgis.maplibui.util.Constants.KEY_ERROR, error);
+        getContext().sendBroadcast(msg);
+        super.reportError(error);
     }
 }

@@ -142,13 +142,15 @@ public class CreateRemoteTMSLayerDialog extends DialogFragment
                                 break;
                         }
                         String layerName = mInput.getText().toString();
-                        String layerURL = mUrl.getText().toString();
+                        String layerURL = mUrl.getText().toString().trim();
                         String layerLogin = mLogin.getText().toString();
                         String layerPassword = mPassword.getText().toString();
 
                         //check if {x}, {y} or {z} present
                         if (!layerURL.contains("{x}") || !layerURL.contains("{y}") ||
-                            !layerURL.contains("{z}")) {
+                            !layerURL.contains("{z}") || !layerURL.endsWith("png") ||
+                            !layerURL.endsWith("jpeg") || !layerURL.endsWith("jpg") ||
+                            !layerURL.endsWith("{y}")    ) {
                             Toast.makeText(context, R.string.error_invalid_url, Toast.LENGTH_SHORT)
                                  .show();
                             return;

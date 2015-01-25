@@ -100,30 +100,36 @@ public class HTTPLoader extends AsyncTaskLoader<String>
 
     protected String signIn() throws IOException {
         //1. fix url
-        String url;
-        if(mUrl.startsWith("http"))
-            url = mUrl + "/login";
+        String url = mUrl.trim();
+        if(url.startsWith("http"))
+            url = url + "/login";
         else
-            url = "http://" + mUrl + "/login";
+            url = "http://" + url + "/login";
 
-        HttpPost httppost = new HttpPost(url);
-        List<NameValuePair> nameValuePairs = new ArrayList<>(2);
-        nameValuePairs.add(new BasicNameValuePair("login", mLogin));
-        nameValuePairs.add(new BasicNameValuePair("password", mPassword));
-        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+        try {
+            HttpPost httppost = new HttpPost(url);
+            List<NameValuePair> nameValuePairs = new ArrayList<>(2);
+            nameValuePairs.add(new BasicNameValuePair("login", mLogin));
+            nameValuePairs.add(new BasicNameValuePair("password", mPassword));
+            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
-        HttpClient httpclient = new DefaultHttpClient();
-        httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT, APP_USER_AGENT);
-        httpclient.getParams()
-                  .setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, TIMEOUT_CONNECTION);
-        httpclient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, TIMEOUT_SOKET);
-        httpclient.getParams().setParameter(ClientPNames.HANDLE_REDIRECTS, Boolean.FALSE);
+            HttpClient httpclient = new DefaultHttpClient();
+            httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT, APP_USER_AGENT);
+            httpclient.getParams()
+                      .setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, TIMEOUT_CONNECTION);
+            httpclient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, TIMEOUT_SOKET);
+            httpclient.getParams().setParameter(ClientPNames.HANDLE_REDIRECTS, Boolean.FALSE);
 
-        HttpResponse response = httpclient.execute(httppost);
-        //2 get cookie
-        Header head = response.getFirstHeader("Set-Cookie");
-        if(head == null)
+            HttpResponse response = httpclient.execute(httppost);
+            //2 get cookie
+            Header head = response.getFirstHeader("Set-Cookie");
+            if (head == null)
+                return null;
+            return head.getValue();
+        }
+        catch (IllegalArgumentException e){
+            e.printStackTrace();
             return null;
-        return head.getValue();
+        }
     }
 }
