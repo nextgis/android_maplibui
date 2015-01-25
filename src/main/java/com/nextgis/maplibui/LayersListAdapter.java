@@ -236,5 +236,19 @@ public class LayersListAdapter
               "Original position: " + originalPosition + " Destination position: " + newPosition);
         int newPositionFixed = getCount() - 1 - newPosition;
         mMap.moveLayer(newPositionFixed, (com.nextgis.maplib.api.ILayer) getItem(originalPosition));
+        notifyDataSetChanged();
+    }
+
+
+    public void endDrag()
+    {
+        mMap.thaw();
+        mMap.runDraw(null);
+    }
+
+
+    public void beginDrag()
+    {
+        mMap.freeze();
     }
 }
