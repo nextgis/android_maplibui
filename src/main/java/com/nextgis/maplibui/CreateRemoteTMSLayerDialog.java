@@ -32,9 +32,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.LayerGroup;
@@ -160,7 +158,7 @@ public class CreateRemoteTMSLayerDialog extends DialogFragment
                             layerURL = "http://" + layerURL;
 
                         //create new layer and store it and add it to the map
-                        RemoteTMSLayerUI layer = new RemoteTMSLayerUI(mGroupLayer.getContext(), mGroupLayer.cretateLayerStorage());
+                        RemoteTMSLayerUI layer = new RemoteTMSLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
                         layer.setName(layerName);
                         layer.setURL(layerURL);
                         layer.setLogin(layerLogin);

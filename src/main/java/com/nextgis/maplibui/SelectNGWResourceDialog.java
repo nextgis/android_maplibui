@@ -264,7 +264,7 @@ public class SelectNGWResourceDialog extends DialogFragment
                     //3. create layer
                     String layerName = layer.getName();
 
-                    NGWRasterLayerUI newLayer = new NGWRasterLayerUI(mGroupLayer.getContext(), mGroupLayer.cretateLayerStorage());
+                    NGWRasterLayerUI newLayer = new NGWRasterLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
                     newLayer.setName(layerName);
                     newLayer.setURL(layerURL);
                     newLayer.setTMSType(TMSTYPE_OSM);
@@ -287,7 +287,7 @@ public class SelectNGWResourceDialog extends DialogFragment
                     //3. create layer
                     String layerName = layer.getName();
 
-                    final NGWVectorLayerUI newLayer = new NGWVectorLayerUI(mGroupLayer.getContext(), mGroupLayer.cretateLayerStorage());
+                    final NGWVectorLayerUI newLayer = new NGWVectorLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
                     newLayer.setName(layerName);
                     newLayer.setURL(connection.getURL());
                     newLayer.setRemoteId(layer.getRemoteId());
