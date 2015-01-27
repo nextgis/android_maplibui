@@ -148,9 +148,16 @@ public class CreateRemoteTMSLayerDialog extends DialogFragment
 
                         //check if {x}, {y} or {z} present
                         if (!layerURL.contains("{x}") || !layerURL.contains("{y}") ||
-                            !layerURL.contains("{z}") || !layerURL.endsWith("png") ||
-                            !layerURL.endsWith("jpeg") || !layerURL.endsWith("jpg") ||
-                            !layerURL.endsWith("{y}")    ) {
+                            !layerURL.contains("{z}")   ) {
+                            Toast.makeText(context, R.string.error_invalid_url, Toast.LENGTH_SHORT)
+                                 .show();
+                            return;
+                        }
+
+                        boolean endValid = layerURL.endsWith("png") || layerURL.endsWith("jpeg") ||
+                                           layerURL.endsWith("jpg") || layerURL.endsWith("{y}");
+
+                        if (!endValid) {
                             Toast.makeText(context, R.string.error_invalid_url, Toast.LENGTH_SHORT)
                                  .show();
                             return;
