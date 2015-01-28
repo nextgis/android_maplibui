@@ -20,35 +20,26 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/loading_row"
-              android:orientation="horizontal"
-              android:layout_width="fill_parent"
-              android:layout_height="?android:attr/listPreferredItemHeight"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
     >
 
-
-    <ProgressBar
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_margin="5dp"
-        android:id="@+id/progressBar"
-        android:indeterminate="true"
-        android:indeterminateOnly="true"
-        android:gravity="center"
-        />
+        >
 
-    <TextView
-        android:id="@+id/tvName"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:ellipsize="marquee"
-        android:textStyle="bold"
-        android:layout_margin="2dp"
-        android:text="@string/message_loading"
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/layer_name"
+        android:hint="@string/layer_name"
+        android:singleLine="true"
+        android:inputType="text"
         />
-</LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

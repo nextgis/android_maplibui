@@ -22,6 +22,7 @@
 
 package com.nextgis.maplibui.mapui;
 
+import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -38,9 +39,11 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
+import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.NGWRasterLayer;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.CreateRemoteTMSLayerDialog;
+import com.nextgis.maplibui.CreateVectorLayerDialog;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.SelectNGWResourceDialog;
 import org.json.JSONException;
@@ -74,6 +77,61 @@ public class LayerFactoryUI
                        .show(fragmentActivity.getSupportFragmentManager(), "create_ngw_layer");
         }
     }
+
+
+    @Override
+    public void createNewLocalTMSLayer(
+            final Context context,
+            final LayerGroup groupLayer,
+            final Uri uri)
+    {
+        //TODO:
+    }
+
+
+    @Override
+    public void createNewVectorLayer(
+            final Context context,
+            final LayerGroup groupLayer,
+            final Uri uri)
+    {
+        String layerName = FileUtil.getFileNameByUri(context, uri, context.getString(R.string.new_layer));
+        final int lastPeriodPos = layerName.lastIndexOf('.');
+        if (lastPeriodPos > 0)
+        {
+            layerName = layerName.substring(0, lastPeriodPos);
+        }
+        if(context instanceof FragmentActivity) {
+            FragmentActivity fragmentActivity = (FragmentActivity)context;
+            CreateVectorLayerDialog newFragment = new CreateVectorLayerDialog();
+            newFragment.setTitle(context.getString(R.string.create_vector_layer))
+                       .setLayerGroup(groupLayer)
+                       .setLayerType(CreateVectorLayerDialog.VECTOR_LAYER)
+                       .setUri(uri)
+                       .setLayerName(layerName)
+                       .show(fragmentActivity.getSupportFragmentManager(), "create_vector_layer");
+        }
+    }
+
+
+    @Override
+    public void createNewVectorLayerWithForm(
+            final Context context,
+            final LayerGroup groupLayer,
+            final Uri uri)
+    {
+        //1. show dialog to pick name
+        if(context instanceof FragmentActivity) {
+            FragmentActivity fragmentActivity = (FragmentActivity)context;
+            CreateVectorLayerDialog newFragment = new CreateVectorLayerDialog();
+            newFragment.setTitle(context.getString(R.string.create_vector_layer))
+                       .setLayerGroup(groupLayer)
+                       .setLayerType(CreateVectorLayerDialog.VECTOR_LAYER_WITH_FORM)
+                       .setUri(uri)
+                       .show(fragmentActivity.getSupportFragmentManager(), "create_vector_with_form_layer");
+        }
+    }
+
 
     public void createNewRemoteTMSLayer(
             final Context context,

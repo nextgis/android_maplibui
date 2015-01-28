@@ -24,6 +24,7 @@ package com.nextgis.maplibui;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.view.View;
 
@@ -219,4 +220,27 @@ public class MapViewBase
         return ret;
     }
 
+
+    public void addLocalTMSLayer(Uri uri)
+    {
+        if (mMap != null) {
+            mMap.getLayerFactory().createNewLocalTMSLayer(getContext(), mMap, uri);
+        }
+    }
+
+
+    public void addLocalVectorLayer(Uri uri)
+    {
+        if (mMap != null) {
+            mMap.getLayerFactory().createNewVectorLayer(getContext(), mMap, uri);
+        }
+    }
+
+
+    public void addLocalVectorLayerWithForm(Uri uri)
+    {
+        if (mMap != null) {
+            mMap.getLayerFactory().createNewVectorLayerWithForm(getContext(), mMap, uri);
+        }
+    }
 }
