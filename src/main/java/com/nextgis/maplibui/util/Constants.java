@@ -35,6 +35,14 @@ public interface Constants
     public static final int DRAW_SATE_panning_fling = 6;
 
     public static final String KEY_ERROR = "error";
+    public static final String KEY_LAYER_ID = "layer_id";
+    public static final String KEY_FEATURE_ID = "feature_id";
+    public static final String KEY_GEOMETRY = "geometry";
+    public static final String KEY_FORM_PATH = "form_path";
+
     public static final String MESSAGE_INTENT = "com.nextgis.malibui.MESSAGE";
+
+    public final static String FILE_FORM = "form.json";
+
 
 }

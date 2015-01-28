@@ -16,6 +16,9 @@
         <activity android:name=".ModifyAttributesActivity"
                   android:label="@string/set_attributes"/>
 
+        <activity android:name=".CustomModifyAttributesActivity"
+                  android:label="@string/set_attributes"/>
+
         <service
             android:name=".account.NGWAuthenticatorService">
             <intent-filter>

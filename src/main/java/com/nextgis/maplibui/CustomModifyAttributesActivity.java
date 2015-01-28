@@ -57,10 +57,15 @@ import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplibui.util.SettingsConstants;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -77,24 +82,16 @@ import static com.nextgis.maplib.util.Constants.*;
 /**
  * Activity to add or modify vector layer attributes
  */
-public class ModifyAttributesActivity
-        extends ActionBarActivity implements GpsEventListener
+public class CustomModifyAttributesActivity
+        extends ModifyAttributesActivity
 {
-    protected TextView mLatView;
-    protected TextView mLongView;
-    protected TextView mAltView;
-    protected TextView mAccView;
-    protected Location mLocation;
-    protected VectorLayer mLayer;
-    protected long mFeatureId;
-    protected Map<String, TextView> mFields;
-    protected GeoGeometry mGeometry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
+        //TODO: add location control via fragment only defined by user space
         setContentView(R.layout.activity_standard_attributes);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
@@ -114,11 +111,12 @@ public class ModifyAttributesActivity
             short layerId = extras.getShort(KEY_LAYER_ID);
             mFeatureId = extras.getLong(KEY_FEATURE_ID);
             mGeometry = (GeoGeometry) extras.getSerializable(KEY_GEOMETRY);
+            File form = (File) extras.getSerializable(KEY_FORM_PATH);
 
             MapBase map = app.getMap();
             mLayer = (VectorLayer) map.getLayerById(layerId);
             if(null != mLayer){
-                createAndFillControls(layout);
+                createAndFillControls(layout, form);
             }
         }
 
@@ -148,16 +146,56 @@ public class ModifyAttributesActivity
         }
     }
 
-    protected void createAndFillControls(LinearLayout layout){
+    protected void createAndFillControls(JSONArray elements)
+            throws JSONException
+    {
+        for(int i = 0; i < elements.length(); i++){
+            JSONObject element = elements.getJSONObject(i);
+            String type = element.getString("type");
+            switch(type){
+                case "text_edit":
+                    break;
+                case "text_label":
+                    break;
+                case "date_time":
+                    break;
+                case "radio_group":
+                    break;
+                case "combobox":
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    protected void createAndFillControls(LinearLayout layout, File form){
 
         Cursor cursor = null;
-        if(mFeatureId != Constants.NOT_FOUND)
+        if(mFeatureId != NOT_FOUND)
             cursor = mLayer.query(null, VectorLayer.FIELD_ID + " = " + mFeatureId, null, null);
 
         float height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
                                   getResources().getDisplayMetrics());
 
+        try {
+            JSONObject jsonFormContents = new JSONObject(FileUtil.readFromFile(form));
+            JSONArray tabs = jsonFormContents.getJSONArray("tabs");
+            //TODO: add support more than one tab
+            JSONObject tab0 = tabs.getJSONObject(0);
+            //get layout - portrait/landscape
+            if(landscape && tab0.has("album_elements") && tab0.getJSONArray("album_elements")){
+                createAndFillControls(tab0.getJSONArray("album_elements"));
+            }
+            else{
+                createAndFillControls(tab0.getJSONArray("portrait_elements"));
+            }
 
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+//
+        /*
         mFields = new HashMap<>();
         List<Field> fields = mLayer.getFields();
         for(Field field : fields){
@@ -237,226 +275,6 @@ public class ModifyAttributesActivity
                     break;
             }
         }
-    }
-
-
-    @Override
-    protected void onPause()
-    {
-        IGISApplication app = (IGISApplication) getApplication();
-        if(null != app){
-            GpsEventSource gpsEventSource = app.getGpsEventSource();
-            gpsEventSource.removeListener(this);
-        }
-        super.onPause();
-    }
-
-
-    @Override
-    protected void onResume()
-    {
-        IGISApplication app = (IGISApplication) getApplication();
-        if(null != app){
-            GpsEventSource gpsEventSource = app.getGpsEventSource();
-            gpsEventSource.addListener(this);
-            setLocationText(gpsEventSource.getLastKnownLocation(LocationManager.GPS_PROVIDER));
-        }
-        super.onResume();
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if(id == R.id.menu_cancel || id == android.R.id.home) {
-            finish();
-            return true;
-        }
-        else if(id == R.id.menu_settings) {
-            final IGISApplication app = (IGISApplication) getApplication();
-            app.showSettings();
-            return true;
-        }
-        else if(id == R.id.menu_apply) {
-            //create new row or modify existing
-            List<Field> fields = mLayer.getFields();
-            ContentValues values = new ContentValues();
-            for(Field field : fields){
-                TextView textView = mFields.get(field.getName());
-                Editable editText = textView.getEditableText();
-                if(null == editText)
-                    continue;
-                String stringVal = editText.toString();
-                if(field.getType() == GeoConstants.FTDateTime){
-                    SimpleDateFormat dateFormat = new SimpleDateFormat();
-                    try {
-                        Date date = dateFormat.parse(stringVal);
-                        values.put(field.getName(), date.getTime());
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                }
-                else {
-                    values.put(field.getName(), stringVal);
-                }
-            }
-
-            if(mFeatureId == Constants.NOT_FOUND){
-                if(mGeometry == null) {
-                    //create point geometry
-                    GeoGeometry geometry = null;
-                    GeoPoint pt;
-                    switch (mLayer.getGeometryType()) {
-                        case GeoConstants.GTPoint:
-                            pt = new GeoPoint(mLocation.getLongitude(), mLocation.getLatitude());
-                            pt.setCRS(GeoConstants.CRS_WGS84);
-                            pt.project(GeoConstants.CRS_WEB_MERCATOR);
-                            geometry = pt;
-                            break;
-                        case GeoConstants.GTMultiPoint:
-                            GeoMultiPoint mpt = new GeoMultiPoint();
-                            pt = new GeoPoint(mLocation.getLongitude(), mLocation.getLatitude());
-                            pt.setCRS(GeoConstants.CRS_WGS84);
-                            pt.project(GeoConstants.CRS_WEB_MERCATOR);
-                            mpt.add(pt);
-                            geometry = mpt;
-                            break;
-                    }
-                    if(null != geometry) {
-                        try {
-                            values.put(VectorLayer.FIELD_GEOM, geometry.toBlob());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                else{
-                    try {
-                        values.put(VectorLayer.FIELD_GEOM, mGeometry.toBlob());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                IGISApplication app = (IGISApplication) getApplication();
-                if(null == app) {
-                    throw new IllegalArgumentException("Not a IGISApplication");
-                }
-                Uri uri = Uri.parse("content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
-
-                if(getContentResolver().insert(uri, values) == null){
-                    Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-            }
-            else{
-                IGISApplication app = (IGISApplication) getApplication();
-                if(null == app) {
-                    throw new IllegalArgumentException("Not a IGISApplication");
-                }
-                Uri uri = Uri.parse("content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
-                Uri updateUri = ContentUris.withAppendedId(uri, mFeatureId);
-
-                if(getContentResolver().update(updateUri, values, null, null) == 0){
-                    Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-            }
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    protected void setLocationText(Location location)
-    {
-        if(null == location || null == mLatView || null == mLongView || null == mAccView || null == mAltView)
-            return;
-
-        mLocation = location;
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
-        int nFormat = prefs.getInt(SettingsConstants.KEY_PREF_COORD_FORMAT + "_int",
-                                   Location.FORMAT_SECONDS);
-        DecimalFormat df = new DecimalFormat("0.0");
-
-        mLatView.setText(getString(R.string.latitude_caption_short) + ": " +
-                         LocationUtil.formatLatitude(location.getLatitude(), nFormat,
-                                                     getResources()));
-        mLongView.setText(getString(R.string.longitude_caption_short) + ": " +
-                          LocationUtil.formatLongitude(location.getLongitude(), nFormat, getResources()));
-
-        double altitude = location.getAltitude();
-        mAltView.setText(getString(R.string.altitude_caption_short) + ": " + df.format(altitude) + " " +
-                   getString(R.string.unit_meter));
-
-        float accuracy = location.getAccuracy();
-        mAccView.setText(getString(R.string.accuracy_caption_short) + ": " + df.format(accuracy) + " " +
-                   getString(R.string.unit_meter));
-
-    }
-
-
-    @Override
-    public void onLocationChanged(Location location)
-    {
-
-    }
-
-
-    @Override
-    public void onGpsStatusChanged(int event)
-    {
-
-    }
-
-    protected View.OnClickListener getDateUpdateWatcher(final TextView dateEdit){
-        View.OnClickListener out = new View.OnClickListener() {
-            protected Calendar calendar = Calendar.getInstance();
-
-            DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener()
-            {
-
-                @Override
-                public void onDateSet(
-                        DatePicker view,
-                        int year,
-                        int monthOfYear,
-                        int dayOfMonth)
-                {
-                    calendar.set(Calendar.YEAR, year);
-                    calendar.set(Calendar.MONTH, monthOfYear);
-                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-
-                    updateLabel();
-                }
-
-            };
-
-            protected void updateLabel() {
-                SimpleDateFormat sdf = new SimpleDateFormat();
-                dateEdit.setText(sdf.format(calendar.getTime()));
-            }
-
-
-            @Override
-            public void onClick(View view)
-            {
-                new DatePickerDialog(ModifyAttributesActivity.this, date, calendar.get(Calendar.YEAR),
-                                     calendar.get(Calendar.MONTH),
-                                     calendar.get(Calendar.DAY_OF_MONTH)).show();
-            }
-        };
-
-        return out;
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        getMenuInflater().inflate(R.menu.standard_attributes, menu);
-
-        return true;
+        */
     }
 }
