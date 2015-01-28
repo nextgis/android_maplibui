@@ -21,12 +21,15 @@
 
 package com.nextgis.maplibui;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -36,11 +39,17 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.nextgis.maplib.api.ILayer;
+import com.nextgis.maplib.datasource.Feature;
+import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.datasource.GeoGeometryFactory;
+import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.FileUtil;
+import com.nextgis.maplibui.mapui.NGWVectorLayerUI;
 import com.nextgis.maplibui.mapui.VectorLayerUI;
-import com.nextgis.maplibui.util.Constants;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -50,8 +59,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
+import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FEATURES;
 
 
 /**
@@ -156,13 +172,7 @@ public class CreateVectorLayerDialog
                                               int whichButton)
                                       {
                                           mLayerName = layerName.getText().toString();
-                                          if (mLayerType == VECTOR_LAYER) {
-                                              //create local layer from json
-                                              createVectorLayer(mLayerName);
-                                          } else if (mLayerType == VECTOR_LAYER_WITH_FORM) {
-                                              //create local layer from ngfb
-                                              createVectorLayerWithForm(mLayerName);
-                                          }
+                                          new CreateTask(getActivity()).execute(mLayerName);
                                       }
                                   }
 
@@ -194,15 +204,10 @@ public class CreateVectorLayerDialog
         super.onSaveInstanceState(outState);
     }
 
-    protected void createVectorLayer(String name){
+    protected String createVectorLayer(String name, ProgressDialog progressDialog){
         try {
             InputStream inputStream = getActivity().getContentResolver().openInputStream(mUri);
             if (inputStream != null) {
-                ProgressDialog progressDialog = new ProgressDialog(getActivity());
-                progressDialog.setMessage(getString(R.string.message_loading));
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                progressDialog.setCancelable(true);
-                progressDialog.show();
                 int nSize = inputStream.available();
                 int nIncrement = 0;
                 progressDialog.setMax(nSize);
@@ -211,12 +216,14 @@ public class CreateVectorLayerDialog
                         new InputStreamReader(inputStream, "UTF-8"));
                 StringBuilder responseStrBuilder = new StringBuilder();
                 String inputStr;
+                progressDialog.show();
                 while ((inputStr = streamReader.readLine()) != null) {
                     nIncrement += inputStr.length();
                     progressDialog.setProgress(nIncrement);
                     responseStrBuilder.append(inputStr);
                 }
-                progressDialog.setMessage(getString(R.string.message_opening));
+                progressDialog.setMessage(mGroupLayer.getContext().getString(
+                        R.string.message_opening));
 
                 VectorLayerUI layer = new VectorLayerUI(mGroupLayer.getContext(),
                                                         mGroupLayer.createLayerStorage());
@@ -229,31 +236,22 @@ public class CreateVectorLayerDialog
                     mGroupLayer.addLayer(layer);
                     mGroupLayer.save();
                 }
-                else{
-                    Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
-                }
 
-                progressDialog.dismiss();
-
-                return;
+                return errorMessage;
             }
         } catch (JSONException | IOException e) {
             e.printStackTrace();
-            Toast.makeText(getActivity(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-            return;
+            return e.getLocalizedMessage();
         }
-        Toast.makeText(getActivity(), getString(R.string.error_layer_create), Toast.LENGTH_SHORT).show();
+
+        return mGroupLayer.getContext().getString(R.string.error_layer_create);
     }
 
-    protected void createVectorLayerWithForm(String name){
+    protected String createVectorLayerWithForm(String name, ProgressDialog progressDialog){
         try {
             InputStream inputStream = getActivity().getContentResolver().openInputStream(mUri);
             if (inputStream != null) {
-                ProgressDialog progressDialog = new ProgressDialog(getActivity());
-                progressDialog.setMessage(getString(R.string.message_loading));
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                progressDialog.setCancelable(true);
-                progressDialog.show();
+
                 int nSize = inputStream.available();
                 int nIncrement = 0;
                 progressDialog.setMax(nSize);
@@ -270,23 +268,138 @@ public class CreateVectorLayerDialog
                 }
                 zis.close();
 
-                //1. read meta.json
+                //read meta.json
                 File meta = new File(outputPath, FILE_META);
                 String jsonText = FileUtil.readFromFile(meta);
                 JSONObject metaJson = new JSONObject(jsonText);
 
-                //1.1 read if this local o remote source
+                //read if this local o remote source
+                boolean isNgwConnection = metaJson.has("ngw_connection");
+                if(isNgwConnection){
+                    File dataFile = new File(outputPath, FILE_DATA);
+                    FileUtil.deleteRecursive(dataFile);
 
-                //2. if meta said that GeoJSON available
+                    JSONObject connection = metaJson.getJSONObject("ngw_connection");
+                    //read url
+                    String url = connection.getString("url");
+                    if(!url.startsWith("http"))
+                        url = "http://" + url;
 
-                //3. form not read at all
+                    //read login
+                    String login = connection.getString("login");
+                    //read password
+                    String password = connection.getString("password");
+                    //read id
+                    long resourceId = connection.getLong("id");
+                    //check account exist and try to create
+
+                    FileUtil.deleteRecursive(meta);
+
+                    String accountName = "";
+                    try {
+                        URI uri = new URI(url);
+
+                        if (uri.getHost() != null && uri.getHost().length() > 0)
+                            accountName += uri.getHost();
+                        if (uri.getPort() != 80 && uri.getPort() > 0)
+                            accountName += ":" + uri.getPort();
+                        if (uri.getPath() != null && uri.getPath().length() > 0)
+                            accountName += uri.getPath();
+
+                    } catch (URISyntaxException e) {
+                        e.printStackTrace();
+                    }
+
+                    Account account = LayerFactory.getAccountByName(getActivity(), accountName);
+                    final AccountManager am = AccountManager.get(getActivity());
+                    if(null == account) {
+                        //create account
+                        Bundle userData = new Bundle();
+                        userData.putString("url", url);
+                        userData.putString("login", login);
+                        account = new Account(accountName, NGW_ACCOUNT_TYPE);
+                        if (!am.addAccountExplicitly(account, password, userData)) {
+                            return mGroupLayer.getContext().getString(
+                                    R.string.account_already_exists);
+                        }
+                    }
+                    /*else{
+                        //TODO: compare login/password and report differences
+                        boolean same = am.getPassword(account).equals(password) &&
+                                       am.getUserData(account, "login").equals(login);
+                        if(!same)
+                            report
+
+                    }*/
+
+                    //create NGWVectorLayer
+                    NGWVectorLayerUI layer = new NGWVectorLayerUI(mGroupLayer.getContext(),
+                                                                  outputPath);
+                    layer.setName(name);
+                    layer.setURL(url);
+                    layer.setRemoteId(resourceId);
+                    layer.setVisible(true);
+                    layer.setAccountName(accountName);
+                    layer.setLogin(am.getUserData(account, "login"));
+                    layer.setPassword(am.getPassword(account));
+
+                    mGroupLayer.addLayer(layer);
+                    mGroupLayer.save();
+
+                    progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    progressDialog.setIndeterminate(true);
+
+                    return layer.download();
+                }
+                else{
+                    VectorLayerUI layer = new VectorLayerUI(mGroupLayer.getContext(),
+                                                            outputPath);
+                    layer.setName(name);
+                    layer.setVisible(true);
+
+                    File dataFile = new File(outputPath, FILE_DATA);
+                    String jsonContent = FileUtil.readFromFile(dataFile);
+
+                    FileUtil.deleteRecursive(dataFile);
+
+                    JSONObject geoJSONObject = new JSONObject(jsonContent);
+                    JSONArray geoJSONFeatures = geoJSONObject.getJSONArray(GEOJSON_TYPE_FEATURES);
+                    if (0 == geoJSONFeatures.length()){
+                        //create empty layer
+
+                        //read fields
+                        List<Field> fields = NGWVectorLayer.getFieldsFromJson(metaJson.getJSONArray("fields"));
+                        //read geometry type
+                        String geomTypeString = metaJson.getString("geometry_type");
+                        int geomType = GeoGeometryFactory.typeFromString(geomTypeString);
+                        if(geomType < 4)
+                            geomType += 3;
+
+                        //read SRS -- not need as we will be fill layer with 3857
+                        //JSONObject srs = metaJson.getJSONObject("srs");
+                        //int nSRS = srs.getInt("id");
+
+                        FileUtil.deleteRecursive(meta);
+
+                        return layer.initialize(fields, new ArrayList<Feature>(), geomType);
+                    }
+                    else{
+                        FileUtil.deleteRecursive(meta);
+                        String errorMessage = layer.createFromGeoJSON(geoJSONObject);
+                        if(TextUtils.isEmpty(errorMessage)) {
+                            mGroupLayer.addLayer(layer);
+                            mGroupLayer.save();
+                        }
+                        return errorMessage;
+                    }
+                }
             }
         } catch (JSONException | IOException e) {
             e.printStackTrace();
-            Toast.makeText(getActivity(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-            return;
+            return e.getLocalizedMessage();
         }
-        Toast.makeText(getActivity(), getString(R.string.error_layer_create), Toast.LENGTH_SHORT).show();
+
+        return mGroupLayer.getContext().getString(R.string.error_layer_create);
     }
 
     protected void unzipEntry(ZipInputStream zis, ZipEntry entry, File outputDir) throws IOException {
@@ -316,5 +429,56 @@ public class CreateVectorLayerDialog
         }
         //fout.flush();
         fout.close();
+    }
+
+    protected class CreateTask
+            extends AsyncTask<String, Void, String>
+    {
+        protected ProgressDialog mProgressDialog;
+        protected Context mContext;
+
+
+        public CreateTask(Context context)
+        {
+            mContext = context;
+        }
+
+
+        @Override
+        protected void onPreExecute()
+        {
+            mProgressDialog = new ProgressDialog(getActivity());
+            mProgressDialog.setMessage(mGroupLayer.getContext().getString(R.string.message_loading));
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            mProgressDialog.setCancelable(true);
+            mProgressDialog.show();
+        }
+
+
+        @Override
+        protected String doInBackground(String... names)
+        {
+            if (mLayerType == VECTOR_LAYER) {
+                //create local layer from json
+                return createVectorLayer(names[0], mProgressDialog);
+            } else if (mLayerType == VECTOR_LAYER_WITH_FORM) {
+                //create local layer from ngfb
+                return createVectorLayerWithForm(names[0], mProgressDialog);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String error)
+        {
+            mProgressDialog.dismiss();
+            if(null != error && error.length() > 0){
+                Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show();
+            }
+            else{
+                Toast.makeText(mContext, mContext.getString(R.string.message_layer_created),
+                               Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

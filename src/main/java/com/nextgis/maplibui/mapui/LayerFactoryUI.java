@@ -120,7 +120,12 @@ public class LayerFactoryUI
             final LayerGroup groupLayer,
             final Uri uri)
     {
-        //1. show dialog to pick name
+        String layerName = FileUtil.getFileNameByUri(context, uri, context.getString(R.string.new_layer));
+        final int lastPeriodPos = layerName.lastIndexOf('.');
+        if (lastPeriodPos > 0)
+        {
+            layerName = layerName.substring(0, lastPeriodPos);
+        }
         if(context instanceof FragmentActivity) {
             FragmentActivity fragmentActivity = (FragmentActivity)context;
             CreateVectorLayerDialog newFragment = new CreateVectorLayerDialog();
@@ -128,6 +133,7 @@ public class LayerFactoryUI
                        .setLayerGroup(groupLayer)
                        .setLayerType(CreateVectorLayerDialog.VECTOR_LAYER_WITH_FORM)
                        .setUri(uri)
+                       .setLayerName(layerName)
                        .show(fragmentActivity.getSupportFragmentManager(), "create_vector_with_form_layer");
         }
     }
