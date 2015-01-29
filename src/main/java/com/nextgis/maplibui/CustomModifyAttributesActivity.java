@@ -37,6 +37,7 @@ import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -244,236 +245,406 @@ public class CustomModifyAttributesActivity
             JSONObject element = elements.getJSONObject(i);
             String type = element.getString(JSON_TYPE_KEY);
             Log.d(TAG, "form type: " + type);
-            JSONObject attributes;
-            JSONArray values;
-            String field;
-            boolean last;
-            String lastVal;
-            Map<String, String> keyValueMap;
-            String cursorVal = null;
-            View greyLine;
-            ViewGroup.LayoutParams params;
             switch(type){
                 case "text_edit":
-                    attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
-                    field = attributes.getString(JSON_FIELD_KEY);
-                    last = false;
-                    if(attributes.has(JSON_FILLLAST_KEY))
-                        last = attributes.getBoolean(JSON_FILLLAST_KEY);
-
-                    boolean onlyFigures = attributes.getBoolean(JSON_ONLYFIGURES_KEY);
-                    int maxLines = attributes.getInt(JSON_MAXSTRINGCOUNT_KEY);
-                    lastVal = mLastValues.get(field);
-                    if(TextUtils.isEmpty(lastVal))
-                        lastVal = attributes.getString(JSON_TEXT_KEY);
-
-                    if(last){
-                        mLastValues.put(field, lastVal);
-                    }
-
-                    //let's create control
-                    EditText stringEdit = new EditText(this);
-                    if(maxLines < 2)
-                        stringEdit.setSingleLine(true);
-                    else
-                        stringEdit.setMaxLines(maxLines);
-                    if(onlyFigures)
-                        stringEdit.setInputType(InputType.TYPE_CLASS_NUMBER);
-                    layout.addView(stringEdit);
-                    if(null == cursor) {
-                        stringEdit.setText(lastVal);
-                    }
-                    else{
-                        String stringVal = cursor.getString(cursor.getColumnIndex(field));
-                        stringEdit.setText(stringVal);
-                    }
-                    mFields.put(field, stringEdit);
+                    addEditText(layout, element, cursor);
                     break;
                 case "text_label":
-                    attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
-                    //create static text with alias
-                    TextView aliasText = new TextView(this);
-                    aliasText.setText(attributes.getString(JSON_TEXT_KEY));
-                    aliasText.setEllipsize(TextUtils.TruncateAt.END);
-                    aliasText.setTextAppearance(this, android.R.style.TextAppearance_Medium);
-                    aliasText.setTextColor(getResources().getColor(android.R.color.darker_gray));
-                    layout.addView(aliasText);
+                    addLabel(layout, element);
                     break;
                 case "date_time":
-                    attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
-                    field = attributes.getString(JSON_FIELD_KEY);
-                    last = false;
-                    if(attributes.has(JSON_FILLLAST_KEY))
-                        last = attributes.getBoolean(JSON_FILLLAST_KEY);
-
-                    TextView dateEdit = (TextView)getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
-                    //TextView dateEdit = new TextView(this);
-                    dateEdit.setSingleLine(true);
-                    dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit));
-                    dateEdit.setFocusable(false);
-                    SimpleDateFormat dateText = new SimpleDateFormat();
-                    String pattern = dateText.toLocalizedPattern();
-                    dateEdit.setHint(pattern);
-
-                    lastVal = mLastValues.get(field);
-                    if(TextUtils.isEmpty(lastVal) && attributes.has(JSON_TEXT_KEY))
-                        lastVal = attributes.getString(JSON_TEXT_KEY);
-
-                    if(last){
-                        mLastValues.put(field, lastVal);
-                    }
-
-                    layout.addView(dateEdit);
-                    if(null == cursor) {
-                        dateEdit.setText(lastVal);
-                    }
-                    else{
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.setTimeInMillis(cursor.getLong(cursor.getColumnIndex(field)));
-                        dateEdit.setText(dateText.format(calendar.getTime()));
-                    }
-                    mFields.put(field, dateEdit);
-
-                    //add grey view here
-                    greyLine = new View(this);
-                    greyLine.setBackgroundResource(android.R.color.darker_gray);
-                    layout.addView(greyLine);
-                    params = greyLine.getLayoutParams();
-                    params.height = (int) height;
-                    greyLine.setLayoutParams(params);
+                    addDateTime(layout, element, cursor);
                     break;
                 case "radio_group":
-                    attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
-                    field = attributes.getString(JSON_FIELD_KEY);
-                    last = false;
-                    if(attributes.has(JSON_FILLLAST_KEY))
-                        last = attributes.getBoolean(JSON_FILLLAST_KEY);
-                    values = attributes.getJSONArray(JSON_VALUES_KEY);
-
-                    lastVal = mLastValues.get(field);
-
-                    RadioGroup rg = new RadioGroup(this);
-                    rg.setOrientation(RadioGroup.VERTICAL);
-
-                    keyValueMap = new HashMap<>();
-                    if(null != cursor) {
-                        cursorVal = cursor.getString(cursor.getColumnIndex(field));
-                    }
-
-                    int index = 0;
-                    for(int j = 0; j < values.length(); j++){
-                        JSONObject keyValue = values.getJSONObject(j);
-                        String key = keyValue.getString(JSON_NAME_KEY);
-                        String value = keyValue.getString(JSON_ALIAS_KEY);
-
-                        RadioButton rb = new RadioButton(this);
-                        rb.setText(value);
-
-                        if(j == 0) {
-                            lastVal = key;
-                            index = j;
-                        }
-
-                        if(null != cursorVal && cursorVal.equals(value)){ //if modify data
-                            lastVal = key;
-                            index = j;
-                        }
-                        else if(!last && keyValue.has("default") && keyValue.getBoolean("default")){
-                            lastVal = key;
-                            index = j;
-                        }
-
-                        rg.addView(rb);
-                        keyValueMap.put(value, key);
-                    }
-
-                    rg.check(rg.getChildAt(index).getId());
-
-                    if(last){
-                        mLastValues.put(field, lastVal);
-                    }
-
-                    layout.addView(rg);
-
-                    mFields.put(field, rg);
-
-                    //add grey view here
-                    //add grey view here
-                    greyLine = new View(this);
-                    greyLine.setBackgroundResource(android.R.color.darker_gray);
-                    layout.addView(greyLine);
-                    params = greyLine.getLayoutParams();
-                    params.height = (int) height;
-                    greyLine.setLayoutParams(params);
+                    addRadio(layout, element, cursor);
                     break;
                 case "double_combobox":
+                    addDoubleCombobox(layout, element, cursor);
                     break;
                 case "combobox":
-                    attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
-                    field = attributes.getString(JSON_FIELD_KEY);
-                    last = false;
-                    if(attributes.has(JSON_FILLLAST_KEY))
-                        last = attributes.getBoolean(JSON_FILLLAST_KEY);
-                    values = attributes.getJSONArray(JSON_VALUES_KEY);
-
-                    keyValueMap = new HashMap<>();
-                    List<String> valuesArray = new ArrayList<>();
-
-                    lastVal = mLastValues.get(field);
-
-                    if(null != cursor) {
-                        cursorVal = cursor.getString(cursor.getColumnIndex(field));
-                    }
-
-                    for(int j = 0; j < values.length(); j++){
-                        JSONObject keyValue = values.getJSONObject(j);
-                        String key = keyValue.getString(JSON_NAME_KEY);
-                        String value = keyValue.getString(JSON_ALIAS_KEY);
-
-                        if(j == 0)
-                            lastVal = key;
-
-                        if(null != cursorVal && cursorVal.equals(value)){ //if modify data
-                            lastVal = key;
-                        }
-                        else if(!last && keyValue.has("default") && keyValue.getBoolean("default")){
-                            lastVal = key;
-                        }
-
-                        valuesArray.add(value);
-                        keyValueMap.put(value, key);
-                    }
-
-                    if(last){
-                        mLastValues.put(field, lastVal);
-                    }
-
-                    mKeyValuesForField.put(field, keyValueMap);
-                    Spinner spinner = new Spinner(this); //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
-                    ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(this,
-                        android.R.layout.simple_spinner_item, valuesArray);
-                    spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item); // The drop down view
-                    spinner.setAdapter(spinnerArrayAdapter);
-
-                    int spinnerPostion = spinnerArrayAdapter.getPosition(lastVal);
-                    spinner.setSelection(spinnerPostion);
-
-                    layout.addView(spinner);
-
-                    mFields.put(field, spinner);
-
-                    //add grey view here
-                    greyLine = new View(this);
-                    greyLine.setBackgroundResource(android.R.color.darker_gray);
-                    layout.addView(greyLine);
-                    params = greyLine.getLayoutParams();
-                    params.height = (int) height;
-                    greyLine.setLayoutParams(params);
+                    addCombobox(layout, element, cursor);
                     break;
                 default:
                     break;
             }
         }
+    }
+
+    protected void addDoubleCombobox(LinearLayout layout, JSONObject element, Cursor cursor)
+            throws JSONException
+    {
+        JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+        String field1 = attributes.getString("field_level1");
+        String field2 = attributes.getString("field_level2");
+        boolean last = false;
+        if(attributes.has(JSON_FILLLAST_KEY))
+            last = attributes.getBoolean(JSON_FILLLAST_KEY);
+        JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
+
+        Map<String, String> keyValueMap1 = new HashMap<>();
+        Map<String, String> keyValueMap2 = new HashMap<>();
+        final Map<String, ArrayList<String>> categoriesMap = new HashMap<>();
+
+        String lastVal1 = mLastValues.get(field1);
+        String lastSubVal2 = mLastValues.get(field2);
+        if(TextUtils.isEmpty(lastVal1) || TextUtils.isEmpty(lastSubVal2))
+            last = false;
+
+        String cursorVal1 = null;
+        String cursorVal2 = null;
+        if(null != cursor) {
+            cursorVal1 = cursor.getString(cursor.getColumnIndex(field1));
+            cursorVal2 = cursor.getString(cursor.getColumnIndex(field1));
+        }
+
+        final ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
+
+
+        for(int j = 0; j < values.length(); j++){
+            JSONObject keyValue = values.getJSONObject(j);
+            String value = keyValue.getString(JSON_NAME_KEY);
+            String key = keyValue.getString(JSON_ALIAS_KEY);
+
+            boolean isDefault = false;
+
+            if(j == 0) {
+                lastVal1 = key;
+                isDefault = true;
+            }
+
+            if(null != cursorVal1 && cursorVal1.equals(value)){ //if modify data
+                lastVal1 = key;
+                isDefault= true;
+            }
+            else if(!last && keyValue.has("default") && keyValue.getBoolean("default")){
+                lastVal1 = key;
+                isDefault = true;
+            }
+
+            adapter.add(key);
+            keyValueMap1.put(key, value);
+
+            categoriesMap.put(key, new ArrayList<String>());
+            JSONArray subValues = keyValue.getJSONArray(JSON_VALUES_KEY);
+            for(int k = 0; k < subValues.length(); k++){
+                JSONObject keyValue2 = subValues.getJSONObject(k);
+                String value2 = keyValue2.getString(JSON_NAME_KEY);
+                String key2 = keyValue2.getString(JSON_ALIAS_KEY);
+
+                if(isDefault) {
+                    if (k == 0)
+                        lastSubVal2 = key2;
+
+                    if (null != cursorVal2 && cursorVal2.equals(value2)) { //if modify data
+                        lastSubVal2 = key2;
+                    } else if (!last && keyValue2.has("default") &&
+                               keyValue2.getBoolean("default")) {
+                        lastSubVal2 = key2;
+                    }
+                }
+
+                keyValueMap2.put(key + "->" + key2, value2);
+                categoriesMap.get(key).add(key2);
+            }
+        }
+
+        if(last){
+            mLastValues.put(field1, lastVal1);
+            mLastValues.put(field2, lastSubVal2);
+        }
+
+        mKeyValuesForField.put(field1, keyValueMap1);
+        mKeyValuesForField.put(field2, keyValueMap2);
+
+        Spinner spinner = new Spinner(this); //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item); // The drop down view
+        spinner.setAdapter(adapter);
+        float minHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14,
+                                                    getResources().getDisplayMetrics());
+        spinner.setPadding(0, (int) minHeight, 0, (int) minHeight);
+
+        int spinnerPosition = adapter.getPosition(lastVal1);
+        spinner.setSelection(spinnerPosition);
+
+        final Spinner subspinner = new Spinner(this);
+        subspinner.setPadding(0, (int) minHeight, 0, (int) minHeight);
+        final String lastVal2 = lastSubVal2;
+
+        layout.addView(spinner);
+        mFields.put(field1, spinner);
+        layout.addView(subspinner);
+        mFields.put(field2, subspinner);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                String sCat = adapter.getItem(arg2).toString();
+                List<String> subCatList = categoriesMap.get(sCat);
+                ArrayAdapter<String> subadapter = new ArrayAdapter<>(CustomModifyAttributesActivity.this,
+                                                                     android.R.layout.simple_spinner_item, subCatList);
+                subadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                subspinner.setAdapter(subadapter);
+
+                int spinnerPosition2 = subadapter.getPosition(lastVal2);
+                if(spinnerPosition2 < 0)
+                    subspinner.setSelection(0);
+                else
+                    subspinner.setSelection(spinnerPosition2);
+            }
+
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
+
+
+        //add grey view here
+        View greyLine = new View(this);
+        greyLine.setBackgroundResource(android.R.color.darker_gray);
+        layout.addView(greyLine);
+        ViewGroup.LayoutParams params = greyLine.getLayoutParams();
+        float height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
+                                                 getResources().getDisplayMetrics());
+        params.height = (int) height;
+        greyLine.setLayoutParams(params);
+    }
+
+    protected void addRadio(LinearLayout layout, JSONObject element, Cursor cursor)
+            throws JSONException
+    {
+        JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+        String field = attributes.getString(JSON_FIELD_KEY);
+        boolean last = false;
+        if(attributes.has(JSON_FILLLAST_KEY))
+            last = attributes.getBoolean(JSON_FILLLAST_KEY);
+        JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
+
+        String lastVal = mLastValues.get(field);
+        if(TextUtils.isEmpty(lastVal))
+            last = false;
+
+        RadioGroup rg = new RadioGroup(this);
+        rg.setOrientation(RadioGroup.VERTICAL);
+
+        Map<String, String> keyValueMap = new HashMap<>();
+        String cursorVal = null;
+        if(null != cursor) {
+            cursorVal = cursor.getString(cursor.getColumnIndex(field));
+        }
+
+        int index = 0;
+        for(int j = 0; j < values.length(); j++){
+            JSONObject keyValue = values.getJSONObject(j);
+            String value = keyValue.getString(JSON_NAME_KEY);
+            String key = keyValue.getString(JSON_ALIAS_KEY);
+
+            RadioButton rb = new RadioButton(this);
+            rb.setText(value);
+
+            if(j == 0) {
+                lastVal = key;
+                index = j;
+            }
+
+            if(null != cursorVal && cursorVal.equals(value)){ //if modify data
+                lastVal = key;
+                index = j;
+            }
+            else if(!last && keyValue.has("default") && keyValue.getBoolean("default")){
+                lastVal = key;
+                index = j;
+            }
+
+            rg.addView(rb);
+            keyValueMap.put(key, value);
+        }
+
+        rg.check(rg.getChildAt(index).getId());
+
+        if(last){
+            mLastValues.put(field, lastVal);
+        }
+
+        mKeyValuesForField.put(field, keyValueMap);
+
+        layout.addView(rg);
+
+        mFields.put(field, rg);
+
+        //add grey view here
+        View greyLine = new View(this);
+        greyLine.setBackgroundResource(android.R.color.darker_gray);
+        layout.addView(greyLine);
+        ViewGroup.LayoutParams params = greyLine.getLayoutParams();
+        float height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
+                                                 getResources().getDisplayMetrics());
+        params.height = (int) height;
+        greyLine.setLayoutParams(params);
+    }
+
+    protected void addCombobox(LinearLayout layout, JSONObject element, Cursor cursor)
+            throws JSONException
+    {
+        JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+        String field = attributes.getString(JSON_FIELD_KEY);
+        boolean last = false;
+        if(attributes.has(JSON_FILLLAST_KEY))
+            last = attributes.getBoolean(JSON_FILLLAST_KEY);
+        JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
+
+        Map<String, String> keyValueMap = new HashMap<>();
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
+        String lastVal = mLastValues.get(field);
+        if(TextUtils.isEmpty(lastVal))
+            last = false;
+        String cursorVal = null;
+        if(null != cursor) {
+            cursorVal = cursor.getString(cursor.getColumnIndex(field));
+        }
+
+        for(int j = 0; j < values.length(); j++){
+            JSONObject keyValue = values.getJSONObject(j);
+            String value = keyValue.getString(JSON_NAME_KEY);
+            String key = keyValue.getString(JSON_ALIAS_KEY);
+
+            if(j == 0)
+                lastVal = key;
+
+            if(null != cursorVal && cursorVal.equals(value)){ //if modify data
+                lastVal = key;
+            }
+            else if(!last && keyValue.has("default") && keyValue.getBoolean("default")){
+                lastVal = key;
+            }
+
+            spinnerArrayAdapter.add(key);
+            keyValueMap.put(key, value);
+        }
+
+        if(last){
+            mLastValues.put(field, lastVal);
+        }
+
+        mKeyValuesForField.put(field, keyValueMap);
+        Spinner spinner = new Spinner(this); //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item); // The drop down view
+        spinner.setAdapter(spinnerArrayAdapter);
+        float minHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14,
+                                                 getResources().getDisplayMetrics());
+        spinner.setPadding(0, (int) minHeight, 0, (int) minHeight);
+
+        int spinnerPosition = spinnerArrayAdapter.getPosition(lastVal);
+        spinner.setSelection(spinnerPosition);
+
+        layout.addView(spinner);
+        mFields.put(field, spinner);
+
+        //add grey view here
+        View greyLine = new View(this);
+        greyLine.setBackgroundResource(android.R.color.darker_gray);
+        layout.addView(greyLine);
+        ViewGroup.LayoutParams params = greyLine.getLayoutParams();
+        float height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
+                                                 getResources().getDisplayMetrics());
+        params.height = (int) height;
+        greyLine.setLayoutParams(params);
+    }
+
+    protected void addDateTime(LinearLayout layout, JSONObject element, Cursor cursor)
+            throws JSONException
+    {
+        JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+        String field = attributes.getString(JSON_FIELD_KEY);
+        boolean last = false;
+        if(attributes.has(JSON_FILLLAST_KEY))
+            last = attributes.getBoolean(JSON_FILLLAST_KEY);
+
+        TextView dateEdit = (TextView)getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
+        //TextView dateEdit = new TextView(this);
+        dateEdit.setSingleLine(true);
+        dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit));
+        dateEdit.setFocusable(false);
+        SimpleDateFormat dateText = new SimpleDateFormat();
+        String pattern = dateText.toLocalizedPattern();
+        dateEdit.setHint(pattern);
+
+        String lastVal = mLastValues.get(field);
+        if(TextUtils.isEmpty(lastVal) && attributes.has(JSON_TEXT_KEY))
+            lastVal = attributes.getString(JSON_TEXT_KEY);
+
+        if(last){
+            mLastValues.put(field, lastVal);
+        }
+
+        layout.addView(dateEdit);
+        if(null == cursor) {
+            dateEdit.setText(lastVal);
+        }
+        else{
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(cursor.getLong(cursor.getColumnIndex(field)));
+            dateEdit.setText(dateText.format(calendar.getTime()));
+        }
+        mFields.put(field, dateEdit);
+
+        //add grey view here
+        View greyLine = new View(this);
+        greyLine.setBackgroundResource(android.R.color.darker_gray);
+        layout.addView(greyLine);
+        ViewGroup.LayoutParams params = greyLine.getLayoutParams();
+        float height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
+                                                 getResources().getDisplayMetrics());
+        params.height = (int) height;
+        greyLine.setLayoutParams(params);
+    }
+
+    protected void addLabel(LinearLayout layout, JSONObject element)
+            throws JSONException
+    {
+        JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+        //create static text with alias
+        TextView aliasText = new TextView(this);
+        aliasText.setText(attributes.getString(JSON_TEXT_KEY));
+        aliasText.setEllipsize(TextUtils.TruncateAt.END);
+        aliasText.setTextAppearance(this, android.R.style.TextAppearance_Medium);
+        aliasText.setTextColor(getResources().getColor(android.R.color.darker_gray));
+        layout.addView(aliasText);
+    }
+
+    protected void addEditText(LinearLayout layout, JSONObject element, Cursor cursor)
+            throws JSONException
+    {
+        JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+        String field = attributes.getString(JSON_FIELD_KEY);
+        boolean last = false;
+        if(attributes.has(JSON_FILLLAST_KEY))
+            last = attributes.getBoolean(JSON_FILLLAST_KEY);
+
+        boolean onlyFigures = attributes.getBoolean(JSON_ONLYFIGURES_KEY);
+        int maxLines = attributes.getInt(JSON_MAXSTRINGCOUNT_KEY);
+        String lastVal = mLastValues.get(field);
+        if(TextUtils.isEmpty(lastVal))
+            lastVal = attributes.getString(JSON_TEXT_KEY);
+
+        if(last){
+            mLastValues.put(field, lastVal);
+        }
+
+        //let's create control
+        EditText stringEdit = new EditText(this);
+        if(maxLines < 2)
+            stringEdit.setSingleLine(true);
+        else
+            stringEdit.setMaxLines(maxLines);
+        if(onlyFigures)
+            stringEdit.setInputType(InputType.TYPE_CLASS_NUMBER);
+        layout.addView(stringEdit);
+        if(null == cursor) {
+            stringEdit.setText(lastVal);
+        }
+        else{
+            String stringVal = cursor.getString(cursor.getColumnIndex(field));
+            stringEdit.setText(stringVal);
+        }
+        mFields.put(field, stringEdit);
     }
 
     protected void createAndFillControls(LinearLayout layout, File form, boolean isLand){
@@ -519,6 +690,9 @@ public class CustomModifyAttributesActivity
             ContentValues values = new ContentValues();
             for(Field field : fields){
                 View v = mFields.get(field.getName());
+                if(null == v)
+                    continue;
+
                 String stringVal = null;
                 if(v instanceof Spinner){
                     Spinner sp = (Spinner)v;
