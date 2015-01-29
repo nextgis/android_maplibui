@@ -251,6 +251,8 @@ public class CustomModifyAttributesActivity
             String lastVal;
             Map<String, String> keyValueMap;
             String cursorVal = null;
+            View greyLine;
+            ViewGroup.LayoutParams params;
             switch(type){
                 case "text_edit":
                     attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
@@ -333,10 +335,10 @@ public class CustomModifyAttributesActivity
                     mFields.put(field, dateEdit);
 
                     //add grey view here
-                    View greyLine = new View(this);
+                    greyLine = new View(this);
                     greyLine.setBackgroundResource(android.R.color.darker_gray);
                     layout.addView(greyLine);
-                    ViewGroup.LayoutParams params = greyLine.getLayoutParams();
+                    params = greyLine.getLayoutParams();
                     params.height = (int) height;
                     greyLine.setLayoutParams(params);
                     break;
@@ -395,6 +397,14 @@ public class CustomModifyAttributesActivity
 
                     mFields.put(field, rg);
 
+                    //add grey view here
+                    //add grey view here
+                    greyLine = new View(this);
+                    greyLine.setBackgroundResource(android.R.color.darker_gray);
+                    layout.addView(greyLine);
+                    params = greyLine.getLayoutParams();
+                    params.height = (int) height;
+                    greyLine.setLayoutParams(params);
                     break;
                 case "double_combobox":
                     break;
@@ -452,6 +462,13 @@ public class CustomModifyAttributesActivity
 
                     mFields.put(field, spinner);
 
+                    //add grey view here
+                    greyLine = new View(this);
+                    greyLine.setBackgroundResource(android.R.color.darker_gray);
+                    layout.addView(greyLine);
+                    params = greyLine.getLayoutParams();
+                    params.height = (int) height;
+                    greyLine.setLayoutParams(params);
                     break;
                 default:
                     break;
