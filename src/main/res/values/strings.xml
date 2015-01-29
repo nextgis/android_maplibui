@@ -99,4 +99,5 @@
     <string name="message_opening">Openning…</string>
     <string name="error_layer_create">Create layer failed</string>
     <string name="message_layer_created">Layer created</string>
+    <string name="error_form_create">Form create failed</string>
 </resources>

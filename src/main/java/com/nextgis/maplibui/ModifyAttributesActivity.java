@@ -87,7 +87,7 @@ public class ModifyAttributesActivity
     protected Location mLocation;
     protected VectorLayer mLayer;
     protected long mFeatureId;
-    protected Map<String, TextView> mFields;
+    protected Map<String, View> mFields;
     protected GeoGeometry mGeometry;
 
     @Override
@@ -282,7 +282,7 @@ public class ModifyAttributesActivity
             List<Field> fields = mLayer.getFields();
             ContentValues values = new ContentValues();
             for(Field field : fields){
-                TextView textView = mFields.get(field.getName());
+                TextView textView = (TextView) mFields.get(field.getName());
                 Editable editText = textView.getEditableText();
                 if(null == editText)
                     continue;
