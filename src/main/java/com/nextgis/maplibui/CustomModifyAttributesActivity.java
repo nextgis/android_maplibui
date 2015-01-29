@@ -34,7 +34,6 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +41,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -165,7 +166,7 @@ public class CustomModifyAttributesActivity
     }
 
 
-    private void serializeLast(boolean store)
+    protected void serializeLast(boolean store)
     {
         if(store){
             JSONArray lastJsonArray = new JSONArray();
@@ -173,24 +174,30 @@ public class CustomModifyAttributesActivity
                 String field = entry.getKey();
 
                 View v = mFields.get(field);
-                String value;
+                String key;
                 if(v instanceof Spinner){
                     Spinner sp = (Spinner)v;
-                    value = (String) sp.getSelectedItem();
-                } else {
+                    key = (String) sp.getSelectedItem();
+                } else if(v instanceof RadioGroup) {
+                    RadioGroup rg = (RadioGroup)v;
+                    RadioButton radioButton =
+                            (RadioButton) rg.findViewById(rg.getCheckedRadioButtonId());
+                    key = (String) radioButton.getText();
+                }
+                else {
                     TextView tv = (TextView) v;
                     Editable editText = tv.getEditableText();
                     if (null == editText)
                         continue;
 
                     //String value = entry.getValue();
-                    value = editText.toString();
+                    key = editText.toString();
                 }
 
                 JSONObject lastValue = new JSONObject();
                 try {
                     lastValue.put(JSON_NAME_KEY, field);
-                    lastValue.put(JSON_VALUE_KEY, value);
+                    lastValue.put(JSON_VALUE_KEY, key);
                     lastJsonArray.put(lastValue);
                 } catch (JSONException e) {
                     //skip broken field/value
@@ -242,11 +249,16 @@ public class CustomModifyAttributesActivity
             String field;
             boolean last;
             String lastVal;
+            Map<String, String> keyValueMap;
+            String cursorVal = null;
             switch(type){
                 case "text_edit":
                     attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
                     field = attributes.getString(JSON_FIELD_KEY);
-                    last = attributes.getBoolean(JSON_FILLLAST_KEY);
+                    last = false;
+                    if(attributes.has(JSON_FILLLAST_KEY))
+                        last = attributes.getBoolean(JSON_FILLLAST_KEY);
+
                     boolean onlyFigures = attributes.getBoolean(JSON_ONLYFIGURES_KEY);
                     int maxLines = attributes.getInt(JSON_MAXSTRINGCOUNT_KEY);
                     lastVal = mLastValues.get(field);
@@ -288,7 +300,9 @@ public class CustomModifyAttributesActivity
                 case "date_time":
                     attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
                     field = attributes.getString(JSON_FIELD_KEY);
-                    last = attributes.getBoolean(JSON_FILLLAST_KEY);
+                    last = false;
+                    if(attributes.has(JSON_FILLLAST_KEY))
+                        last = attributes.getBoolean(JSON_FILLLAST_KEY);
 
                     TextView dateEdit = (TextView)getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
                     //TextView dateEdit = new TextView(this);
@@ -300,7 +314,7 @@ public class CustomModifyAttributesActivity
                     dateEdit.setHint(pattern);
 
                     lastVal = mLastValues.get(field);
-                    if(TextUtils.isEmpty(lastVal))
+                    if(TextUtils.isEmpty(lastVal) && attributes.has(JSON_TEXT_KEY))
                         lastVal = attributes.getString(JSON_TEXT_KEY);
 
                     if(last){
@@ -327,21 +341,76 @@ public class CustomModifyAttributesActivity
                     greyLine.setLayoutParams(params);
                     break;
                 case "radio_group":
+                    attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+                    field = attributes.getString(JSON_FIELD_KEY);
+                    last = false;
+                    if(attributes.has(JSON_FILLLAST_KEY))
+                        last = attributes.getBoolean(JSON_FILLLAST_KEY);
+                    values = attributes.getJSONArray(JSON_VALUES_KEY);
+
+                    lastVal = mLastValues.get(field);
+
+                    RadioGroup rg = new RadioGroup(this);
+                    rg.setOrientation(RadioGroup.VERTICAL);
+
+                    keyValueMap = new HashMap<>();
+                    if(null != cursor) {
+                        cursorVal = cursor.getString(cursor.getColumnIndex(field));
+                    }
+
+                    int index = 0;
+                    for(int j = 0; j < values.length(); j++){
+                        JSONObject keyValue = values.getJSONObject(j);
+                        String key = keyValue.getString(JSON_NAME_KEY);
+                        String value = keyValue.getString(JSON_ALIAS_KEY);
+
+                        RadioButton rb = new RadioButton(this);
+                        rb.setText(value);
+
+                        if(j == 0) {
+                            lastVal = key;
+                            index = j;
+                        }
+
+                        if(null != cursorVal && cursorVal.equals(value)){ //if modify data
+                            lastVal = key;
+                            index = j;
+                        }
+                        else if(!last && keyValue.has("default") && keyValue.getBoolean("default")){
+                            lastVal = key;
+                            index = j;
+                        }
+
+                        rg.addView(rb);
+                        keyValueMap.put(value, key);
+                    }
+
+                    rg.check(rg.getChildAt(index).getId());
+
+                    if(last){
+                        mLastValues.put(field, lastVal);
+                    }
+
+                    layout.addView(rg);
+
+                    mFields.put(field, rg);
+
                     break;
                 case "double_combobox":
                     break;
                 case "combobox":
                     attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
                     field = attributes.getString(JSON_FIELD_KEY);
-                    last = attributes.getBoolean(JSON_FILLLAST_KEY);
+                    last = false;
+                    if(attributes.has(JSON_FILLLAST_KEY))
+                        last = attributes.getBoolean(JSON_FILLLAST_KEY);
                     values = attributes.getJSONArray(JSON_VALUES_KEY);
 
-                    Map<String, String> keyValueMap = new HashMap<>();
+                    keyValueMap = new HashMap<>();
                     List<String> valuesArray = new ArrayList<>();
 
                     lastVal = mLastValues.get(field);
 
-                    String cursorVal = null;
                     if(null != cursor) {
                         cursorVal = cursor.getString(cursor.getColumnIndex(field));
                     }
@@ -370,7 +439,7 @@ public class CustomModifyAttributesActivity
                     }
 
                     mKeyValuesForField.put(field, keyValueMap);
-                    Spinner spinner = new Spinner(this); //TODO: add mode_dialod if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
+                    Spinner spinner = new Spinner(this); //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
                     ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(this,
                         android.R.layout.simple_spinner_item, valuesArray);
                     spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item); // The drop down view
@@ -437,6 +506,16 @@ public class CustomModifyAttributesActivity
                 if(v instanceof Spinner){
                     Spinner sp = (Spinner)v;
                     String key = (String) sp.getSelectedItem();
+                    Map<String, String> keyValue = mKeyValuesForField.get(field.getName());
+                    if(null != keyValue){
+                        stringVal = keyValue.get(key);
+                    }
+                }
+                else if(v instanceof RadioGroup) {
+                    RadioGroup rg = (RadioGroup)v;
+                    RadioButton radioButton =
+                            (RadioButton) rg.findViewById(rg.getCheckedRadioButtonId());
+                    String key = (String) radioButton.getText();
                     Map<String, String> keyValue = mKeyValuesForField.get(field.getName());
                     if(null != keyValue){
                         stringVal = keyValue.get(key);
