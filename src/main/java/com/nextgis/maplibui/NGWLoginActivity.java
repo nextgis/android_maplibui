@@ -75,7 +75,7 @@ public class NGWLoginActivity extends ActionBarActivity
         final AccountManager am = AccountManager.get(this);
         final Bundle result = new Bundle();
         Bundle userData = new Bundle();
-        userData.putString("url", url);
+        userData.putString("url", url.trim());
         userData.putString("login", login);
         if (am.addAccountExplicitly(account, password, userData)) {
             result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);

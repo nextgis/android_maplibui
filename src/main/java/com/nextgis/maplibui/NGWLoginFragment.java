@@ -111,7 +111,7 @@ public class NGWLoginFragment extends Fragment implements LoaderManager.LoaderCa
         if (id == R.id.auth_token_loader) {
             return new HTTPLoader(
                     getActivity().getApplicationContext(),
-                    mURL.getText().toString(),
+                    mURL.getText().toString().trim(),
                     mLogin.getText().toString(),
                     mPassword.getText().toString()
             );
@@ -129,7 +129,7 @@ public class NGWLoginFragment extends Fragment implements LoaderManager.LoaderCa
             if(token != null && token.length() > 0) {
                 String name = "";
                 try {
-                    String url = mURL.getText().toString();
+                    String url = mURL.getText().toString().trim();
                     if(!url.startsWith("http"))
                         url = "http://" + url;
                     URI uri = new URI(url);

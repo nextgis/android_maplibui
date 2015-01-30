@@ -51,9 +51,12 @@ import com.nextgis.maplib.datasource.ngw.SyncAdapter;
 import com.nextgis.maplib.map.MapContentProviderHelper;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.api.ILayerUI;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.*;
@@ -115,7 +118,10 @@ public class NGWSettingsActivity extends PreferenceActivity implements OnAccount
         //add auto sync property
         CheckBoxPreference enablePeriodicSync = new CheckBoxPreference(activity);
         enablePeriodicSync.setTitle(R.string.auto_sync);
-        enablePeriodicSync.setSummary(R.string.auto_sync_summary);
+
+        SharedPreferences sharedPreferences = activity.getSharedPreferences(
+                Constants.PREFERENCES, Context.MODE_MULTI_PROCESS);
+
         final IGISApplication application = (IGISApplication)activity.getApplicationContext();
         boolean isAccountSyncEnabled = ContentResolver.getSyncAutomatically(account, application.getAuthority());
         enablePeriodicSync.setChecked(isAccountSyncEnabled);
@@ -132,6 +138,13 @@ public class NGWSettingsActivity extends PreferenceActivity implements OnAccount
                 return true;
             }
         });
+        long timeStamp = sharedPreferences.getLong(SettingsConstants.KEY_PREF_LAST_SYNC_TIMESTAMP, 0);
+        if(isAccountSyncEnabled && timeStamp > 0){
+            enablePeriodicSync.setSummary(activity.getString(R.string.last_sync_time) + ": " + new SimpleDateFormat().format(new Date(timeStamp)));
+        }
+        else{
+            enablePeriodicSync.setSummary(R.string.auto_sync_summary);
+        }
         syncCategory.addPreference(enablePeriodicSync);
 
         //add time for periodic sync
@@ -149,7 +162,7 @@ public class NGWSettingsActivity extends PreferenceActivity implements OnAccount
         timeInterval.setDefaultValue(activity.getString(R.string.system_default));
         timeInterval.setKey(KEY_PREF_SYNC_PERIOD);
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity);
         String value = sharedPreferences.getString(KEY_PREF_SYNC_PERIOD, "" + NOT_FOUND);
         for(int i = 0; i < 6; i++){
             if(values[i].equals(value)) {
