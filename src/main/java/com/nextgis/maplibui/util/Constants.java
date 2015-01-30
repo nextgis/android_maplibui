@@ -35,6 +35,7 @@ public interface Constants
     public static final int DRAW_SATE_panning_fling = 6;
 
     public static final String KEY_ERROR = "error";
+    public static final String KEY_WARNING = "warning";
     public static final String KEY_LAYER_ID = "layer_id";
     public static final String KEY_FEATURE_ID = "feature_id";
     public static final String KEY_GEOMETRY = "geometry";

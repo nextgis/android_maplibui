@@ -28,6 +28,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -161,7 +162,7 @@ public class CreateVectorLayerDialog
         final EditText layerName = (EditText) view.findViewById(R.id.layer_name);
         layerName.setText(mLayerName);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(mTitle)
                .setIcon(R.drawable.ic_local_vector)
                .setView(view)
@@ -172,7 +173,7 @@ public class CreateVectorLayerDialog
                                               int whichButton)
                                       {
                                           mLayerName = layerName.getText().toString();
-                                          new CreateTask(getActivity()).execute(mLayerName);
+                                          new CreateTask(context).execute(mLayerName);
                                       }
                                   }
 
@@ -204,9 +205,12 @@ public class CreateVectorLayerDialog
         super.onSaveInstanceState(outState);
     }
 
-    protected String createVectorLayer(String name, ProgressDialog progressDialog){
+    protected String createVectorLayer(
+            Context context,
+            String name,
+            ProgressDialog progressDialog){
         try {
-            InputStream inputStream = getActivity().getContentResolver().openInputStream(mUri);
+            InputStream inputStream = context.getContentResolver().openInputStream(mUri);
             if (inputStream != null) {
                 int nSize = inputStream.available();
                 int nIncrement = 0;
@@ -247,9 +251,12 @@ public class CreateVectorLayerDialog
         return mGroupLayer.getContext().getString(R.string.error_layer_create);
     }
 
-    protected String createVectorLayerWithForm(String name, ProgressDialog progressDialog){
+    protected String createVectorLayerWithForm(
+            Context context,
+            String name,
+            ProgressDialog progressDialog){
         try {
-            InputStream inputStream = getActivity().getContentResolver().openInputStream(mUri);
+            InputStream inputStream = context.getContentResolver().openInputStream(mUri);
             if (inputStream != null) {
 
                 int nSize = inputStream.available();
@@ -310,8 +317,8 @@ public class CreateVectorLayerDialog
                         e.printStackTrace();
                     }
 
-                    Account account = LayerFactory.getAccountByName(getActivity(), accountName);
-                    final AccountManager am = AccountManager.get(getActivity());
+                    Account account = LayerFactory.getAccountByName(context, accountName);
+                    final AccountManager am = AccountManager.get(context);
                     if(null == account) {
                         //create account
                         Bundle userData = new Bundle();
@@ -323,14 +330,16 @@ public class CreateVectorLayerDialog
                                     R.string.account_already_exists);
                         }
                     }
-                    /*else{
-                        //TODO: compare login/password and report differences
+                    else{
+                        //compare login/password and report differences
                         boolean same = am.getPassword(account).equals(password) &&
                                        am.getUserData(account, "login").equals(login);
-                        if(!same)
-                            report
-
-                    }*/
+                        if(!same){
+                            Intent msg = new Intent(com.nextgis.maplibui.util.Constants.MESSAGE_INTENT);
+                            msg.putExtra(com.nextgis.maplibui.util.Constants.KEY_WARNING, getString(R.string.warning_different_credentials));
+                            context.sendBroadcast(msg);
+                        }
+                    }
 
                     //create NGWVectorLayer
                     NGWVectorLayerUI layer = new NGWVectorLayerUI(mGroupLayer.getContext(),
@@ -447,7 +456,7 @@ public class CreateVectorLayerDialog
         @Override
         protected void onPreExecute()
         {
-            mProgressDialog = new ProgressDialog(getActivity());
+            mProgressDialog = new ProgressDialog(mContext);
             mProgressDialog.setMessage(mGroupLayer.getContext().getString(R.string.message_loading));
             mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             mProgressDialog.setCancelable(true);
@@ -460,10 +469,10 @@ public class CreateVectorLayerDialog
         {
             if (mLayerType == VECTOR_LAYER) {
                 //create local layer from json
-                return createVectorLayer(names[0], mProgressDialog);
+                return createVectorLayer(mContext, names[0], mProgressDialog);
             } else if (mLayerType == VECTOR_LAYER_WITH_FORM) {
                 //create local layer from ngfb
-                return createVectorLayerWithForm(names[0], mProgressDialog);
+                return createVectorLayerWithForm(mContext, names[0], mProgressDialog);
             }
             return null;
         }

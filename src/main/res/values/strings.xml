@@ -108,4 +108,5 @@
     <string name="two_hours">2 hours</string>
     <string name="sync_set_interval">Set synchronization interval</string>
     <string name="last_sync_time">Last sync time</string>
+    <string name="warning_different_credentials">Existing account differs the one from form. The existing account will be used</string>
 </resources>
