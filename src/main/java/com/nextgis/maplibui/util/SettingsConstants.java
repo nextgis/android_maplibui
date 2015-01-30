@@ -25,4 +25,6 @@ public interface SettingsConstants
 {
     public static final String KEY_PREF_KEEPSCREENON = "keep_screen_on";
     public static final String KEY_PREF_COORD_FORMAT = "coordinates_format";
+    public static final String KEY_PREF_SYNC_PERIODICALLY = "sync_periodically";
+    public static final String KEY_PREF_SYNC_PERIOD       = "sync_period";
 }

@@ -30,6 +30,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -38,6 +39,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -45,6 +47,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import com.nextgis.maplib.api.IGISApplication;
+import com.nextgis.maplib.datasource.ngw.SyncAdapter;
 import com.nextgis.maplib.map.MapContentProviderHelper;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.Constants;
@@ -54,6 +57,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.*;
+import static com.nextgis.maplibui.util.SettingsConstants.*;
 
 public class NGWSettingsActivity extends PreferenceActivity implements OnAccountsUpdateListener
 {
@@ -112,16 +116,76 @@ public class NGWSettingsActivity extends PreferenceActivity implements OnAccount
         CheckBoxPreference enablePeriodicSync = new CheckBoxPreference(activity);
         enablePeriodicSync.setTitle(R.string.auto_sync);
         enablePeriodicSync.setSummary(R.string.auto_sync_summary);
-        //IGISApplication application = (IGISApplication)activity.getApplicationContext();
-        //boolean isYourAccountSyncEnabled = ContentResolver.getSyncAutomatically(account, application.getAuthority());
-        //TODO: enablePeriodicSync.setChecked();
-        //TODO: enablePeriodicSync.setKey();
+        final IGISApplication application = (IGISApplication)activity.getApplicationContext();
+        boolean isAccountSyncEnabled = ContentResolver.getSyncAutomatically(account, application.getAuthority());
+        enablePeriodicSync.setChecked(isAccountSyncEnabled);
+        enablePeriodicSync.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
+        {
+            @Override
+            public boolean onPreferenceChange(
+                    Preference preference,
+                    Object o)
+            {
+                boolean isChecked = (boolean) o;
+                ContentResolver.setSyncAutomatically(account, application.getAuthority(),
+                                                     isChecked);
+                return true;
+            }
+        });
         syncCategory.addPreference(enablePeriodicSync);
-        //add time for auto sync
-        ListPreference timeInterval = new ListPreference(activity);
+
+        //add time for periodic sync
+        final ListPreference timeInterval = new ListPreference(activity);
         timeInterval.setTitle(R.string.sync_interval);
-        //TODO: timeInterval.setSummary(); //set a time from properties
-        //TODO: timeInterval.setKey();
+        final CharSequence[] values = {"-1", "600" , "900", "1800", "3600", "7200"};
+        final CharSequence[] keys = {activity.getString(R.string.system_default),
+                                 activity.getString(R.string.ten_minutes),
+                                 activity.getString(R.string.fifteen_minutes),
+                                 activity.getString(R.string.thirty_minutes),
+                                 activity.getString(R.string.one_hour),
+                                 activity.getString(R.string.two_hours)};
+        timeInterval.setEntries(keys);
+        timeInterval.setEntryValues(values);
+        timeInterval.setDefaultValue(activity.getString(R.string.system_default));
+        timeInterval.setKey(KEY_PREF_SYNC_PERIOD);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity);
+        String value = sharedPreferences.getString(KEY_PREF_SYNC_PERIOD, "" + NOT_FOUND);
+        for(int i = 0; i < 6; i++){
+            if(values[i].equals(value)) {
+                timeInterval.setValueIndex(i);
+                //timeInterval.setValue((String) values[i]);
+                timeInterval.setSummary(keys[i]);
+                break;
+            }
+        }
+        timeInterval.setDialogTitle(R.string.sync_set_interval);
+        timeInterval.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
+        {
+            @Override
+            public boolean onPreferenceChange(
+                    Preference preference,
+                    Object o)
+            {
+                long interval = Long.parseLong((String) o);
+                for(int i = 0; i < 6; i++){
+                    if(values[i].equals(o)) {
+                        timeInterval.setSummary(keys[i]);
+                        break;
+                    }
+                }
+
+                if(interval == NOT_FOUND){
+                    ContentResolver.removePeriodicSync(account, application.getAuthority(), Bundle.EMPTY);
+                }
+                else{
+                    ContentResolver.addPeriodicSync(account, application.getAuthority(), Bundle.EMPTY,
+                            interval);
+
+                }
+                return true;
+            }
+        });
         syncCategory.addPreference(timeInterval);
 
         List<NGWVectorLayer> layers = getLayersForAccount(activity, account);
@@ -132,16 +196,36 @@ public class NGWSettingsActivity extends PreferenceActivity implements OnAccount
             screen.addPreference(layersCategory);
 
 
-            for (NGWVectorLayer layer : layers) {
+            for (final NGWVectorLayer layer : layers) {
                 CheckBoxPreference layerSync = new CheckBoxPreference(activity);
                 layerSync.setTitle(layer.getName());
                 layerSync.setChecked(0 == (layer.getSyncType() & Constants.SYNC_NONE));
-                layerSync.setKey("" + layer.getId());
+                //layerSync.setKey("" + layer.getId());
 
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && layer instanceof ILayerUI) {
                     ILayerUI layerUI = (ILayerUI) layer;
                     layerSync.setIcon(layerUI.getIcon());
                 }
+
+                layerSync.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
+                {
+                    @Override
+                    public boolean onPreferenceChange(
+                            Preference preference,
+                            Object o)
+                    {
+                        boolean isChecked = (boolean) o;
+                        if(isChecked){
+                            layer.setSyncType(Constants.SYNC_ALL);
+
+                        }
+                        else{
+                            layer.setSyncType(Constants.SYNC_NONE);
+                        }
+                        layer.save();
+                        return true;
+                    }
+                });
 
                 layersCategory.addPreference(layerSync);
             }

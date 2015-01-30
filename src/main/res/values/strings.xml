@@ -96,8 +96,15 @@
     <string name="error_db_update">Update feature failed</string>
     <string name="create_vector_layer">Create vector layer</string>
     <string name="new_layer">New layer</string>
-    <string name="message_opening">Openning…</string>
+    <string name="message_opening">Opening…</string>
     <string name="error_layer_create">Create layer failed</string>
     <string name="message_layer_created">Layer created</string>
     <string name="error_form_create">Form create failed</string>
+    <string name="system_default">System default</string>
+    <string name="ten_minutes">10 minutes</string>
+    <string name="fifteen_minutes">15 minutes</string>
+    <string name="thirty_minutes">30 minutes</string>
+    <string name="one_hour">1 hour</string>
+    <string name="two_hours">2 hours</string>
+    <string name="sync_set_interval">Set synchronization interval</string>
 </resources>
