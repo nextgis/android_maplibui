@@ -25,6 +25,7 @@ package com.nextgis.maplibui.mapui;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.widget.Toast;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.CustomModifyAttributesActivity;
@@ -65,6 +66,11 @@ public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
     @Override
     public void showEditForm(Context context)
     {
+        if(!mIsInitialized)
+        {
+            Toast.makeText(context, context.getString(R.string.error_layer_not_inited), Toast.LENGTH_SHORT).show();
+            return;
+        }
         //check custom form
         File form = new File(mPath, com.nextgis.maplibui.util.Constants.FILE_FORM);
         if(form.exists()){
@@ -89,7 +95,7 @@ public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
     protected void reportError(final String error)
     {
         Intent msg = new Intent(com.nextgis.maplibui.util.Constants.MESSAGE_INTENT);
-        msg.putExtra(com.nextgis.maplibui.util.Constants.KEY_ERROR, error);
+        msg.putExtra(com.nextgis.maplibui.util.Constants.KEY_MESSAGE, error);
         getContext().sendBroadcast(msg);
         super.reportError(error);
     }

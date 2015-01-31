@@ -336,7 +336,7 @@ public class CreateVectorLayerDialog
                                        am.getUserData(account, "login").equals(login);
                         if(!same){
                             Intent msg = new Intent(com.nextgis.maplibui.util.Constants.MESSAGE_INTENT);
-                            msg.putExtra(com.nextgis.maplibui.util.Constants.KEY_WARNING, getString(R.string.warning_different_credentials));
+                            msg.putExtra(com.nextgis.maplibui.util.Constants.KEY_MESSAGE, getString(R.string.warning_different_credentials));
                             context.sendBroadcast(msg);
                         }
                     }

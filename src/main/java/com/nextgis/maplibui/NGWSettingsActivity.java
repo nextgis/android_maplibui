@@ -162,8 +162,8 @@ public class NGWSettingsActivity extends PreferenceActivity implements OnAccount
         timeInterval.setDefaultValue(activity.getString(R.string.system_default));
         timeInterval.setKey(KEY_PREF_SYNC_PERIOD);
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity);
-        String value = sharedPreferences.getString(KEY_PREF_SYNC_PERIOD, "" + NOT_FOUND);
+        final SharedPreferences sharedPreferencesA = PreferenceManager.getDefaultSharedPreferences(activity);
+        String value = "" + sharedPreferencesA.getLong(KEY_PREF_SYNC_PERIOD_LONG, NOT_FOUND);
         for(int i = 0; i < 6; i++){
             if(values[i].equals(value)) {
                 timeInterval.setValueIndex(i);
@@ -194,9 +194,10 @@ public class NGWSettingsActivity extends PreferenceActivity implements OnAccount
                 else{
                     ContentResolver.addPeriodicSync(account, application.getAuthority(), Bundle.EMPTY,
                             interval);
-
                 }
-                return true;
+
+                //set KEY_PREF_SYNC_PERIOD_LONG
+                return sharedPreferencesA.edit().putLong(KEY_PREF_SYNC_PERIOD_LONG, interval).commit();
             }
         });
         syncCategory.addPreference(timeInterval);
@@ -209,7 +210,7 @@ public class NGWSettingsActivity extends PreferenceActivity implements OnAccount
             screen.addPreference(layersCategory);
 
 
-            for (final NGWVectorLayer layer : layers) {
+            for (NGWVectorLayer layer : layers) {
                 CheckBoxPreference layerSync = new CheckBoxPreference(activity);
                 layerSync.setTitle(layer.getName());
                 layerSync.setChecked(0 == (layer.getSyncType() & Constants.SYNC_NONE));
@@ -220,6 +221,7 @@ public class NGWSettingsActivity extends PreferenceActivity implements OnAccount
                     layerSync.setIcon(layerUI.getIcon());
                 }
 
+                final NGWVectorLayer layerForCheck = layer;
                 layerSync.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
                 {
                     @Override
@@ -228,14 +230,13 @@ public class NGWSettingsActivity extends PreferenceActivity implements OnAccount
                             Object o)
                     {
                         boolean isChecked = (boolean) o;
-                        if(isChecked){
-                            layer.setSyncType(Constants.SYNC_ALL);
+                        if (isChecked) {
+                            layerForCheck.setSyncType(Constants.SYNC_ALL);
 
+                        } else {
+                            layerForCheck.setSyncType(Constants.SYNC_NONE);
                         }
-                        else{
-                            layer.setSyncType(Constants.SYNC_NONE);
-                        }
-                        layer.save();
+                        layerForCheck.save();
                         return true;
                     }
                 });

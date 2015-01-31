@@ -25,6 +25,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -98,6 +99,7 @@ public class CustomModifyAttributesActivity
 
     protected Map<String, String> mLastValues;
     protected Map<String, Map<String, String>> mKeyValuesForField;
+    protected Map<View, String> mDoubleComboFirstKeys;
 
     protected static final String FILE_LAST = "last.json";
 
@@ -107,6 +109,7 @@ public class CustomModifyAttributesActivity
         super.onCreate(savedInstanceState);
 
         mKeyValuesForField = new HashMap<>();
+        mDoubleComboFirstKeys = new HashMap<>();
 
         //TODO: add location control via fragment only defined by user space
         setContentView(R.layout.activity_standard_attributes);
@@ -154,7 +157,12 @@ public class CustomModifyAttributesActivity
                 {
                     if (null != app) {
                         GpsEventSource gpsEventSource = app.getGpsEventSource();
-                        setLocationText(gpsEventSource.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+                        //TODO: check settings of location source
+                        Location location = gpsEventSource.getLastKnownLocation(
+                                LocationManager.GPS_PROVIDER);
+                        if(null == location)
+                            location = gpsEventSource.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        setLocationText(location);
                     }
                 }
             });
@@ -238,13 +246,9 @@ public class CustomModifyAttributesActivity
         if(mFeatureId != NOT_FOUND)
             cursor = mLayer.query(null, VectorLayer.FIELD_ID + " = " + mFeatureId, null, null);
 
-        float height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
-                                                 getResources().getDisplayMetrics());
-
         for(int i = 0; i < elements.length(); i++){
             JSONObject element = elements.getJSONObject(i);
             String type = element.getString(JSON_TYPE_KEY);
-            Log.d(TAG, "form type: " + type);
             switch(type){
                 case "text_edit":
                     addEditText(layout, element, cursor);
@@ -356,7 +360,7 @@ public class CustomModifyAttributesActivity
         mKeyValuesForField.put(field1, keyValueMap1);
         mKeyValuesForField.put(field2, keyValueMap2);
 
-        Spinner spinner = new Spinner(this); //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
+        final Spinner spinner = new Spinner(this); //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item); // The drop down view
         spinner.setAdapter(adapter);
         float minHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14,
@@ -389,6 +393,9 @@ public class CustomModifyAttributesActivity
                     subspinner.setSelection(0);
                 else
                     subspinner.setSelection(spinnerPosition2);
+
+                String firstKey = (String) spinner.getSelectedItem();
+                mDoubleComboFirstKeys.put(subspinner, firstKey);
             }
 
             public void onNothingSelected(AdapterView<?> arg0) {
@@ -437,7 +444,7 @@ public class CustomModifyAttributesActivity
             String key = keyValue.getString(JSON_ALIAS_KEY);
 
             RadioButton rb = new RadioButton(this);
-            rb.setText(value);
+            rb.setText(key);
 
             if(j == 0) {
                 lastVal = key;
@@ -634,8 +641,20 @@ public class CustomModifyAttributesActivity
             stringEdit.setSingleLine(true);
         else
             stringEdit.setMaxLines(maxLines);
-        if(onlyFigures)
-            stringEdit.setInputType(InputType.TYPE_CLASS_NUMBER);
+        if(onlyFigures) {
+            List<Field> layerFields = mLayer.getFields();
+            int fieldType = NOT_FOUND;
+            for(Field layerField : layerFields){
+                if(layerField.getName().equals(field)){
+                    fieldType = layerField.getType();
+                }
+            }
+            //check field type
+            if(fieldType == GeoConstants.FTInteger)
+                stringEdit.setInputType(InputType.TYPE_CLASS_NUMBER);
+            else if(fieldType == GeoConstants.FTReal)
+                stringEdit.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        }
         layout.addView(stringEdit);
         if(null == cursor) {
             stringEdit.setText(lastVal);
@@ -683,6 +702,10 @@ public class CustomModifyAttributesActivity
             return true;
         }
         else if(id == R.id.menu_apply) {
+            if(null == mLocation){
+                Toast.makeText(this, getText(R.string.error_no_location), Toast.LENGTH_SHORT).show();
+                return false;
+            }
             serializeLast(true);
 
             //create new row or modify existing
@@ -697,6 +720,9 @@ public class CustomModifyAttributesActivity
                 if(v instanceof Spinner){
                     Spinner sp = (Spinner)v;
                     String key = (String) sp.getSelectedItem();
+                    String firstKey = mDoubleComboFirstKeys.get(sp);
+                    if(!TextUtils.isEmpty(firstKey))
+                        key = firstKey + "->" + key;
                     Map<String, String> keyValue = mKeyValuesForField.get(field.getName());
                     if(null != keyValue){
                         stringVal = keyValue.get(key);
@@ -715,11 +741,15 @@ public class CustomModifyAttributesActivity
                 else {
                     TextView textView = (TextView) v;
                     Editable editText = textView.getEditableText();
-                    if (null == editText)
-                        continue;
-                    stringVal = editText.toString();
+                    if (null == editText) {
+                        stringVal = (String) textView.getText();
+                    }
+                    else {
+                        stringVal = editText.toString();
+                    }
                 }
 
+                Log.d(TAG, "field: " + field.getName() + " value: " + stringVal);
                 if(!TextUtils.isEmpty(stringVal)) {
                     if (field.getType() == GeoConstants.FTDateTime) {
                         SimpleDateFormat dateFormat = new SimpleDateFormat();
@@ -777,6 +807,7 @@ public class CustomModifyAttributesActivity
                 }
                 Uri uri = Uri.parse("content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
 
+                values.put(VectorLayer.FIELD_ID, 1000 + mLayer.getCount());
                 if(getContentResolver().insert(uri, values) == null){
                     Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT).show();
                     return true;

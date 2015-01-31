@@ -136,7 +136,11 @@ public class ModifyAttributesActivity
                 {
                     if (null != app) {
                         GpsEventSource gpsEventSource = app.getGpsEventSource();
-                        setLocationText(gpsEventSource.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+                        Location location = gpsEventSource.getLastKnownLocation(
+                                LocationManager.GPS_PROVIDER);
+                        if(null == location)
+                            location = gpsEventSource.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        setLocationText(location);
                     }
                 }
             });
