@@ -111,4 +111,5 @@
     <string name="warning_different_credentials">Existing account differs the one from form. The existing account will be used</string>
     <string name="error_no_location">The coordinates not defined</string>
     <string name="error_layer_not_inited">Layer is not initialized. Abort</string>
+    <string name="n_a">n/a</string>
 </resources>

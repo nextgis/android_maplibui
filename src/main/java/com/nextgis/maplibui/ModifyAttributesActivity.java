@@ -136,10 +136,7 @@ public class ModifyAttributesActivity
                 {
                     if (null != app) {
                         GpsEventSource gpsEventSource = app.getGpsEventSource();
-                        Location location = gpsEventSource.getLastKnownLocation(
-                                LocationManager.GPS_PROVIDER);
-                        if(null == location)
-                            location = gpsEventSource.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        Location location = gpsEventSource.getLastKnownLocation();
                         setLocationText(location);
                     }
                 }
@@ -263,7 +260,7 @@ public class ModifyAttributesActivity
         if(null != app){
             GpsEventSource gpsEventSource = app.getGpsEventSource();
             gpsEventSource.addListener(this);
-            setLocationText(gpsEventSource.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+            setLocationText(gpsEventSource.getLastKnownLocation());
         }
         super.onResume();
     }
@@ -373,8 +370,13 @@ public class ModifyAttributesActivity
 
     protected void setLocationText(Location location)
     {
-        if(null == location || null == mLatView || null == mLongView || null == mAccView || null == mAltView)
+        if(null == location || null == mLatView || null == mLongView || null == mAccView || null == mAltView) {
+            mLatView.setText(getString(R.string.latitude_caption_short) + ": " + getString(R.string.n_a));
+            mLongView.setText(getString(R.string.longitude_caption_short) + ": " + getString(R.string.n_a));
+            mAltView.setText(getString(R.string.altitude_caption_short) + ": " + getString(R.string.n_a));
+            mAccView.setText(getString(R.string.accuracy_caption_short) + ": " + getString(R.string.n_a));
             return;
+        }
 
         mLocation = location;
 

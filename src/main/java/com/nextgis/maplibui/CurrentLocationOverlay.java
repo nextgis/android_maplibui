@@ -69,11 +69,7 @@ public class CurrentLocationOverlay
         mGpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
 
         double longitude = 0, latitude = 0;
-        Location location = mGpsEventSource.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-        if (location == null) {
-            location = mGpsEventSource.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        }
+        Location location = mGpsEventSource.getLastKnownLocation();
 
         if (location != null) {
             mCurrentLocation = location;
