@@ -55,7 +55,7 @@ public class MapView
     protected       long                 mStartDrawTime;
 
     //display redraw timeout ms
-    public static final int DISPLAY_REDRAW_TIMEOUT = 1850;
+    public static final int DISPLAY_REDRAW_TIMEOUT = 450;
 
 
     public MapView(
@@ -506,9 +506,9 @@ public class MapView
             invalidate();
         }
         else if(percent >= 1.0){
-            Log.d(TAG, "LayerDrawFinished: id - " + id + ", percent - " + percent);
-            ILayer layer = mMap.getLastLayer();
-            if(null != layer && layer.getId() == id)
+            //Log.d(TAG, "LayerDrawFinished: id - " + id + ", percent - " + percent);
+            //ILayer layer = mMap.getLastLayer();
+            //if(null != layer && layer.getId() == id)
                 invalidate();
         }
     }
