@@ -41,7 +41,7 @@ public class OverlayItem
     private PointF      mScreenCoordinates;
     private Bitmap      mMarker;
     private MapDrawable mMapDrawable;
-    private int         mOffsetX, mOffsetY;
+    private float       mOffsetX, mOffsetY;
     private Gravity mMarkerGravity;
 
 
@@ -144,10 +144,22 @@ public class OverlayItem
         if (mMarker != null) {
             switch (mMarkerGravity) {
                 case CENTER:
-                    mOffsetX = mMarker.getWidth() / 2;
-                    mOffsetY = mMarker.getHeight() / 2;
+                    mOffsetX = mMarker.getWidth() / 2f;
+                    mOffsetY = mMarker.getHeight() / 2f;
                     break;
             }
         }
+    }
+
+
+    public float getOffsetX()
+    {
+        return mOffsetX;
+    }
+
+
+    public float getOffsetY()
+    {
+        return mOffsetY;
     }
 }

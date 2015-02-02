@@ -33,7 +33,6 @@ import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.location.Location;
-import android.location.LocationManager;
 import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.GeoEnvelope;
@@ -49,24 +48,31 @@ public class CurrentLocationOverlay
         extends Overlay
         implements GpsEventListener
 {
+    public static final long LOCATION_FORCE_UPDATE_TIMEOUT = 15000;
+
     private Context        mContext;
     private GpsEventSource mGpsEventSource;
     private Location       mCurrentLocation;
     private boolean        mIsInBounds;
     private boolean mIsAccuracyEnabled = true;
     private boolean mIsAccuracyMarkerBiggest;
-    private Bitmap  mStandingMarker, mMovingMarker;
+    private boolean mIsStandingMarkerCustom, mIsMovingMarkerCustom;
+    private int mStandingMarkerRes = R.drawable.abc_btn_switch_to_on_mtrl_00001, mMovingMarkerRes =
+            R.drawable.abc_ic_ab_back_mtrl_am_alpha;
     private int         mMarkerColor;
     private OverlayItem mMarker, mAccuracy;
+    private MapViewOverlays mMapViewOverlays;
 
 
     public CurrentLocationOverlay(
             Context context,
-            MapDrawable mapDrawable)
+            MapViewOverlays mapViewOverlays)
     {
         mContext = context;
         Activity parent = (Activity) context;
         mGpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
+        mMapViewOverlays = mapViewOverlays;
+        mMarkerColor = mContext.getResources().getColor(R.color.accent);
 
         double longitude = 0, latitude = 0;
         Location location = mGpsEventSource.getLastKnownLocation();
@@ -77,11 +83,9 @@ public class CurrentLocationOverlay
             latitude = location.getLatitude();
         }
 
-        mStandingMarker = getDefaultMarker(true);
-        mMovingMarker = getDefaultMarker(false);
-
-        mMarker = new OverlayItem(mapDrawable, longitude, latitude, mStandingMarker);
-        mAccuracy = new OverlayItem(mapDrawable, longitude, latitude, null);
+        mMarker =
+                new OverlayItem(mapViewOverlays.getMap(), longitude, latitude, getDefaultMarker());
+        mAccuracy = new OverlayItem(mapViewOverlays.getMap(), longitude, latitude, null);
     }
 
 
@@ -124,6 +128,7 @@ public class CurrentLocationOverlay
         if (mCurrentLocation != null) {
             double lat = mCurrentLocation.getLatitude();
             double lon = mCurrentLocation.getLongitude();
+            mMarker.setMarker(getDefaultMarker());
             mMarker.setCoordinates(lon, lat);
 
             double accuracy = mCurrentLocation.getAccuracy();
@@ -134,7 +139,7 @@ public class CurrentLocationOverlay
             accuracyEdgePoint.project(GeoConstants.CRS_WEB_MERCATOR);
             accuracyEdgePoint = mapDrawable.mapToScreen(accuracyEdgePoint);
 
-            int radius = (int) Math.abs(accuracyEdgePoint.getY() - mMarker.getScreenY());
+            int radius = (int) (mMarker.getScreenY() - accuracyEdgePoint.getY());
             mAccuracy.setMarker(getAccuracyMarker(radius));
             mAccuracy.setCoordinates(lon, lat);
 
@@ -142,6 +147,12 @@ public class CurrentLocationOverlay
 
             GeoEnvelope bounds = mapDrawable.getCurrentBounds();
             mIsInBounds = bounds.contains(mMarker.getCoordinates(GeoConstants.CRS_WEB_MERCATOR));
+
+//            Paint p = new Paint();
+//            p.setColor(mMarkerColor);
+//            p.setAlpha(60);
+//            GeoPoint c = mAccuracy.getCoordinates(GeoConstants.CRS_WEB_MERCATOR);
+//            mapDrawable.getDisplay().drawCircle((float) c.getX(), (float) c.getY(), radius, p);
 
             if (mIsInBounds) {
                 if (mIsAccuracyEnabled && mIsAccuracyMarkerBiggest) {
@@ -153,8 +164,13 @@ public class CurrentLocationOverlay
         }
     }
 
+
     private boolean compareMarkers()
     {
+        if (mAccuracy.getMarker() == null) {
+            return false;
+        }
+
         int accuracySize = mAccuracy.getMarker().getWidth();
         int markerSize = Math.min(mMarker.getMarker().getWidth(), mMarker.getMarker().getHeight());
 
@@ -192,26 +208,49 @@ public class CurrentLocationOverlay
     }
 
 
-    public void setStandingMarker(Bitmap standingMarker)
+    public void setStandingMarker(int standingMarkerResource)
     {
-        mStandingMarker = standingMarker;
+        mStandingMarkerRes = standingMarkerResource;
+        mIsStandingMarkerCustom = true;
     }
 
 
-    public void setMovingMarker(Bitmap movingMarker)
+    public void setMovingMarker(int movingMarkerResource)
     {
-        mMovingMarker = movingMarker;
+        mMovingMarkerRes = movingMarkerResource;
+        mIsMovingMarkerCustom = true;
     }
 
 
+    /**
+     * Set default markers overlay color and accuracy marker color
+     *
+     * @param color
+     *         new color
+     */
+    public void setColor(int color)
+    {
+        mMarkerColor = color;
+    }
+
+
+    // TODO proper provider / invalidate rect
     @Override
     public void onLocationChanged(Location location)
     {
-//        if (location.getProvider()
-//                    .equals(LocationManager.GPS_PROVIDER)) {
-// TODO update accuracy / proper provider / invalidate rect
-        if (location.getAccuracy() < mCurrentLocation.getAccuracy() ||
-            location.getTime() > mCurrentLocation.getTime()) {
+        String provider = location.getProvider();
+        boolean update = mCurrentLocation == null;
+
+        if (!update) {
+            update = mCurrentLocation.getProvider().equals(provider) ||
+                     location.getAccuracy() < mCurrentLocation.getAccuracy() ||
+                     location.getTime() - mCurrentLocation.getTime() >
+                     LOCATION_FORCE_UPDATE_TIMEOUT;
+        }
+
+        if (update) {
+            mMapViewOverlays.postInvalidate();
+//            mMapViewOverlays.getMap().runDraw(mMapViewOverlays.getMap().getDisplay());
             mCurrentLocation = location;
         }
     }
@@ -224,50 +263,79 @@ public class CurrentLocationOverlay
     }
 
 
-    private Bitmap getDefaultMarker(boolean isStanding)
+    private Bitmap getDefaultMarker()
     {
-        int resource = isStanding
-                       ? R.drawable.abc_btn_switch_to_on_mtrl_00001
-                       : R.drawable.abc_ic_ab_back_mtrl_am_alpha;
+        boolean isStanding = mCurrentLocation == null || !mCurrentLocation.hasBearing() ||
+                             !mCurrentLocation.hasSpeed() || mCurrentLocation.getSpeed() == 0;
 
+        int resource = isStanding ? mStandingMarkerRes : mMovingMarkerRes;
         Bitmap marker = BitmapFactory.decodeResource(mContext.getResources(), resource);
         marker = marker.copy(Bitmap.Config.ARGB_8888, true);
-        Canvas canvas = new Canvas(marker);
 
-        mMarkerColor = mContext.getResources().getColor(R.color.accent);
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        ColorFilter filter = new PorterDuffColorFilter(mMarkerColor, PorterDuff.Mode.SRC_ATOP);
-        paint.setColorFilter(filter);
-
-        canvas.drawBitmap(marker, 0, 0, paint);
-
-        if (!isStanding) {  // FIXME remove on default marker set
+        if (isStanding) {
+            if (!mIsStandingMarkerCustom) {
+                applyColorFilter(marker);
+            }
+        } else {
             Matrix matrix = new Matrix();
-            matrix.setRotate(90, canvas.getWidth() / 2, canvas.getHeight() / 2);
-            return Bitmap.createBitmap(marker, 0, 0, marker.getWidth(), marker.getHeight(), matrix,
-                                       true);
+            int arrowRotate = 0;
+
+            if (!mIsMovingMarkerCustom) {
+                applyColorFilter(marker);
+                arrowRotate += 90;
+            }
+
+            if (mCurrentLocation.hasBearing()) {
+                arrowRotate += mCurrentLocation.getBearing();
+            }
+
+            matrix.setRotate(arrowRotate);
+
+            int w = marker.getWidth();
+            int h = marker.getHeight();
+            marker = Bitmap.createBitmap(marker, 0, 0, w, h, matrix, true);
         }
 
         return marker;
     }
 
 
+    private Bitmap applyColorFilter(Bitmap marker)
+    {
+        Canvas canvas = new Canvas(marker);
+
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        ColorFilter filter = new PorterDuffColorFilter(mMarkerColor, PorterDuff.Mode.SRC_ATOP);
+        paint.setColorFilter(filter);
+
+        canvas.drawBitmap(marker, 0, 0, paint);
+
+        return marker;
+    }
+
+
+    // TODO huge radius > possible out of memory
     private Bitmap getAccuracyMarker(int accuracy)
     {
-//        int max = 2 * Math.max(mContext.getResources().getDisplayMetrics().widthPixels,
-//                               mContext.getResources().getDisplayMetrics().heightPixels);
-//          // TODO huge radius > possible out of memory
-//        if (accuracy > max) {
-//            accuracy = (int) (max * Constants.OFFSCREEN_EXTRASIZE_RATIO);
-//        }
+        int max = Math.max(mContext.getResources().getDisplayMetrics().widthPixels,
+                           mContext.getResources().getDisplayMetrics().heightPixels);
 
-        Bitmap result = Bitmap.createBitmap(accuracy * 2, accuracy * 2, Bitmap.Config.ARGB_8888);
+        if (accuracy * 2 > max) {
+            accuracy = max / 2; // temp fix
+        }
+
+        if (accuracy <= 0) {
+            accuracy = 1;
+        }
+
+        Bitmap result = Bitmap.createBitmap(accuracy * 2, accuracy * 2, Bitmap.Config.ARGB_4444);
 
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         Canvas canvas = new Canvas(result);
         paint.setColor(mMarkerColor);
         paint.setAlpha(64);
         canvas.drawCircle(accuracy, accuracy, accuracy, paint);
+//        canvas.drawArc(0, 0, accuracy*2, accuracy*2, 0, 180, false, paint);
         paint.setAlpha(255);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(2);
