@@ -264,6 +264,12 @@ public class SelectNGWResourceDialog extends DialogFragment
                     //2. create tiles url
                     String layerURL = layer.getTMSUrl(0);
 
+                    if(layerURL == null){
+                        Toast.makeText(getActivity(), getString(R.string.error_layer_create),
+                                       Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     if(!layerURL.startsWith("http"))
                         layerURL = "http://" + layerURL;
                     //3. create layer
