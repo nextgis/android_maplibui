@@ -55,12 +55,19 @@ public class MapViewBase
         super(context);
 
         mMap = map;
+    }
+
+
+    @Override
+    protected void onVisibilityChanged(
+            View changedView,
+            int visibility)
+    {
+        super.onVisibilityChanged(changedView, visibility);
 
         SharedPreferences sharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(context);
-        if (sharedPreferences.getBoolean(KEY_PREF_KEEPSCREENON, false)) {
-            setKeepScreenOn(true);
-        }
+                PreferenceManager.getDefaultSharedPreferences(changedView.getContext());
+        setKeepScreenOn(sharedPreferences.getBoolean(KEY_PREF_KEEPSCREENON, false));
     }
 
 
