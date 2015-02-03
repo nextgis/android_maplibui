@@ -28,8 +28,10 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.webkit.URLUtil;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -38,6 +40,8 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
+
+import java.util.regex.Pattern;
 
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_NORMAL;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
@@ -152,17 +156,16 @@ public class CreateRemoteTMSLayerDialog extends DialogFragment
                             return;
                         }
 
-                        boolean endValid = layerURL.endsWith("png") || layerURL.endsWith("jpeg") ||
-                                           layerURL.endsWith("jpg") || layerURL.endsWith("{y}");
+                        if(!layerURL.startsWith("http"))
+                            layerURL = "http://" + layerURL;
 
-                        if (!endValid) {
+                        boolean isURL = URLUtil.isValidUrl(layerURL);
+
+                        if (!isURL) {
                             Toast.makeText(context, R.string.error_invalid_url, Toast.LENGTH_SHORT)
                                  .show();
                             return;
                         }
-
-                        if(!layerURL.startsWith("http"))
-                            layerURL = "http://" + layerURL;
 
                         //create new layer and store it and add it to the map
                         RemoteTMSLayerUI layer = new RemoteTMSLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());

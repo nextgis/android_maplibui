@@ -29,14 +29,13 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.widget.Scroller;
-import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
+import com.nextgis.maplib.util.Constants;
 
 import static com.nextgis.maplibui.util.Constants.*;
-import static com.nextgis.maplib.util.Constants.*;
 
 public class MapView
         extends MapViewBase
@@ -75,7 +74,7 @@ public class MapView
         mCurrentMouseOffset = new PointF();
         mCurrentFocusLocation = new PointF();
 
-        mDrawingState = DRAW_SATE_drawing;
+        mDrawingState = DRAW_SATE_drawing_noclearbk;
     }
 
 
@@ -102,7 +101,7 @@ public class MapView
 
 
     @Override
-    protected void onDraw(Canvas canvas)
+    protected synchronized void onDraw(Canvas canvas)
     {
         //Log.d(TAG, "state: " + mDrawingState + ", current loc: " +  mCurrentMouseOffset.toString() + " current focus: " + mCurrentFocusLocation.toString() + " scale: "  + mScaleFactor);
 
@@ -201,7 +200,7 @@ public class MapView
             GeoPoint newCenterPt = env.getCenter();
             GeoPoint newCenterPtMap = mMap.screenToMap(newCenterPt);
 
-            mMap.setZoomAndCenter(zoom, newCenterPtMap);
+            setZoomAndCenter(zoom, newCenterPtMap);
         }
     }
 
@@ -210,10 +209,10 @@ public class MapView
             || mDrawingState == DRAW_SATE_panning)
             return;
 
-        mStartMouseLocation.set(e.getX(), e.getY());
-        mCurrentMouseOffset.set(0, 0);
         mMap.cancelDraw();
         mDrawingState = DRAW_SATE_panning;
+        mStartMouseLocation.set(e.getX(), e.getY());
+        mCurrentMouseOffset.set(0, 0);
     }
 
     protected void panMoveTo(final MotionEvent e){
@@ -262,7 +261,7 @@ public class MapView
             //Log.d(TAG, "panStop. x: " + x + ", y:" + y + ", sx:" + screenPt.getX() + ", sy:" + screenPt.getY());
             //mDisplay.panStop((float) screenPt.getX(), (float) screenPt.getY());
 
-            mMap.setZoomAndCenter(mMap.getZoomLevel(), pt);
+            setZoomAndCenter(mMap.getZoomLevel(), pt);
         }
     }
 
@@ -304,7 +303,7 @@ public class MapView
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        if(mMap == null)
+        if(mMap == null || e2.getEventTime() - e1.getEventTime() < 195) //fling not always exec panStop
             return false;
         float x = mCurrentMouseOffset.x;
         float y = mCurrentMouseOffset.y;
@@ -367,7 +366,7 @@ public class MapView
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
-//        Log.d(TAG, "onSingleTapUp: " + e.toString());
+        //Log.d(Constants.TAG, "onSingleTapUp: " + e.toString());
         return false;
     }
 
