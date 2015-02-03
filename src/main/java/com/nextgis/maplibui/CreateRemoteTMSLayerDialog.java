@@ -84,7 +84,7 @@ public class CreateRemoteTMSLayerDialog extends DialogFragment
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
         final Context context = getActivity();
-        //fix: http://stackoverflow.com/questions/25684940/buttons-not-displayed-on-copy-paste-action-bar-associated-with-a-textview-in-dia/25703569
+        //fix: http://stackoverflow.com/q/25684940
         context.setTheme(android.R.style.Theme_Holo_Light);
 
         LayoutInflater inflater = getActivity().getLayoutInflater();

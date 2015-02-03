@@ -176,6 +176,9 @@ public class LayerFactoryUI
                 case LAYERTYPE_NGW_VECTOR:
                     layer = new NGWVectorLayerUI(context, path);
                     break;
+                case LAYERTYPE_LOCAL_VECTOR:
+                    layer = new VectorLayerUI(context, path);
+                    break;
                 case LAYERTYPE_GROUP:
                     layer = new LayerGroupUI(context, path, this);
             }

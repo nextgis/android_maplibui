@@ -22,12 +22,21 @@
 package com.nextgis.maplibui.mapui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.widget.Toast;
 import com.nextgis.maplib.map.VectorLayer;
+import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplibui.CustomModifyAttributesActivity;
+import com.nextgis.maplibui.ModifyAttributesActivity;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
 
 import java.io.File;
+
+import static com.nextgis.maplibui.util.Constants.KEY_FEATURE_ID;
+import static com.nextgis.maplibui.util.Constants.KEY_FORM_PATH;
+import static com.nextgis.maplibui.util.Constants.KEY_LAYER_ID;
 
 
 /**
@@ -60,6 +69,28 @@ public class VectorLayerUI extends VectorLayer implements ILayerUI
     @Override
     public void showEditForm(Context context)
     {
-
+        if(!mIsInitialized)
+        {
+            Toast.makeText(context, context.getString(R.string.error_layer_not_inited),
+                           Toast.LENGTH_SHORT).show();
+            return;
+        }
+        //check custom form
+        File form = new File(mPath, com.nextgis.maplibui.util.Constants.FILE_FORM);
+        if(form.exists()){
+            //show custom form
+            Intent intent = new Intent(context, CustomModifyAttributesActivity.class);
+            intent.putExtra(KEY_LAYER_ID, getId());
+            intent.putExtra(KEY_FEATURE_ID, (long) Constants.NOT_FOUND);
+            intent.putExtra(KEY_FORM_PATH, form);
+            context.startActivity(intent);
+        }
+        else {
+            //if not exist show standard form
+            Intent intent = new Intent(context, ModifyAttributesActivity.class);
+            intent.putExtra(KEY_LAYER_ID, getId());
+            intent.putExtra(KEY_FEATURE_ID, (long) Constants.NOT_FOUND);
+            context.startActivity(intent);
+        }
     }
 }
