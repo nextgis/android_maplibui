@@ -137,6 +137,9 @@ public class CreateVectorLayerDialog
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
         final Context context = getActivity();
+        //fix: http://stackoverflow.com/q/25684940
+        context.setTheme(android.R.style.Theme_Holo_Light);
+
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
         View view = inflater.inflate(R.layout.layout_create_vector_layer, null);
