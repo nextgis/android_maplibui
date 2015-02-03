@@ -153,8 +153,12 @@ public class MapView
     }
 
     protected void zoom(ScaleGestureDetector scaleGestureDetector){
+        if(mDrawingState != DRAW_SATE_zooming)
+            zoomStart(scaleGestureDetector);
+
+
         if(mDrawingState == DRAW_SATE_zooming && mMap != null) {
-            double scaleFactor = scaleGestureDetector.getCurrentSpan() / mCurrentSpan;
+            double scaleFactor = scaleGestureDetector.getScaleFactor() * scaleGestureDetector.getCurrentSpan() / mCurrentSpan;
             double zoom = getZoomForScaleFactor(scaleFactor);
             if(zoom < mMap.getMinZoom() || zoom > mMap.getMaxZoom())
                 return;
@@ -213,6 +217,8 @@ public class MapView
     }
 
     protected void panMoveTo(final MotionEvent e){
+        if(mDrawingState == DRAW_SATE_zooming)
+            return;
 
         if(mDrawingState == DRAW_SATE_panning && mMap != null){
             float x = mStartMouseLocation.x - e.getX();
@@ -423,6 +429,7 @@ public class MapView
 
     @Override
     public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
+        //Log.d(TAG, "onScale");
         zoom(scaleGestureDetector);
         return true;
     }

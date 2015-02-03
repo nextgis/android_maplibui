@@ -35,7 +35,7 @@ import static com.nextgis.maplibui.util.Constants.*;
 public class MapViewOverlays
         extends MapView
 {
-    private List<Overlay> mOverlays;
+    protected List<Overlay> mOverlays;
 
 
     public MapViewOverlays(
