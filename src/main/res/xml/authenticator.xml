@@ -20,10 +20,10 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<account-authenticator
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accountType="@string/gis_auth_account_type"
-    android:label="@string/gis_auth_account_label"
-    android:icon="@drawable/ic_ngw"
-    android:smallIcon="@drawable/ic_ngw"
-    />
+<account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
+                       android:accountType="com.nextgis.account"
+                       android:icon="@drawable/ic_ngw"
+                       android:smallIcon="@drawable/ic_ngw"
+                       android:label="@string/nextgis_web">
+
+</account-authenticator>

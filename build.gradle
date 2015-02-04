@@ -8,9 +8,6 @@ android {
         targetSdkVersion 21
         versionCode 7
         versionName '2.1'
-
-        resValue "string", "gis_auth_account_type", rootProject.extensions.GisAuthAccountType
-        resValue "string", "gis_auth_account_label", rootProject.extensions.GisAuthAccountLabel
     }
     buildTypes {
         release {
