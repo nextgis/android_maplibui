@@ -112,4 +112,5 @@
     <string name="error_no_location">The coordinates not defined</string>
     <string name="error_layer_not_inited">Layer is not initialized. Abort</string>
     <string name="n_a">n/a</string>
+    <string name="layer_vector">Vector layer</string>
 </resources>

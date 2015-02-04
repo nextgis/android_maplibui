@@ -199,6 +199,8 @@ public class LayerFactoryUI
                 return context.getString(R.string.layer_ngw_vector);
             case LAYERTYPE_REMOTE_TMS:
                 return context.getString(R.string.layer_tms);
+            case LAYERTYPE_LOCAL_VECTOR:
+                return context.getString(R.string.layer_vector);
             default:
                 return context.getString(R.string.layer_na);
         }

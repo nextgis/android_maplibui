@@ -211,26 +211,25 @@ public class CreateVectorLayerDialog
     protected String createVectorLayer(
             Context context,
             String name,
-            ProgressDialog progressDialog){
+            CreateTask task){
         try {
             InputStream inputStream = context.getContentResolver().openInputStream(mUri);
             if (inputStream != null) {
                 int nSize = inputStream.available();
                 int nIncrement = 0;
-                progressDialog.setMax(nSize);
+                task.setMax(nSize);
                 //read all geojson
                 BufferedReader streamReader = new BufferedReader(
                         new InputStreamReader(inputStream, "UTF-8"));
                 StringBuilder responseStrBuilder = new StringBuilder();
                 String inputStr;
-                progressDialog.show();
+                task.show();
                 while ((inputStr = streamReader.readLine()) != null) {
                     nIncrement += inputStr.length();
-                    progressDialog.setProgress(nIncrement);
+                    task.setProgress(nIncrement);
                     responseStrBuilder.append(inputStr);
                 }
-                progressDialog.setMessage(mGroupLayer.getContext().getString(
-                        R.string.message_opening));
+                task.setMessage(mGroupLayer.getContext().getString(R.string.message_opening));
 
                 VectorLayerUI layer = new VectorLayerUI(mGroupLayer.getContext(),
                                                         mGroupLayer.createLayerStorage());
@@ -257,14 +256,14 @@ public class CreateVectorLayerDialog
     protected String createVectorLayerWithForm(
             Context context,
             String name,
-            ProgressDialog progressDialog){
+            CreateTask task){
         try {
             InputStream inputStream = context.getContentResolver().openInputStream(mUri);
             if (inputStream != null) {
 
                 int nSize = inputStream.available();
                 int nIncrement = 0;
-                progressDialog.setMax(nSize);
+                task.setMax(nSize);
 
                 File outputPath = mGroupLayer.createLayerStorage();
                 ZipInputStream zis = new ZipInputStream(inputStream);
@@ -274,7 +273,7 @@ public class CreateVectorLayerDialog
                     unzipEntry(zis, ze, outputPath);
                     nIncrement += ze.getSize();
                     zis.closeEntry();
-                    progressDialog.setProgress(nIncrement);
+                    task.setProgress(nIncrement);
                 }
                 zis.close();
 
@@ -358,8 +357,8 @@ public class CreateVectorLayerDialog
                     mGroupLayer.addLayer(layer);
                     mGroupLayer.save();
 
-                    progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                    progressDialog.setIndeterminate(true);
+                    task.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    task.setIndeterminate(true);
 
                     return layer.download();
                 }
@@ -444,7 +443,7 @@ public class CreateVectorLayerDialog
     }
 
     protected class CreateTask
-            extends AsyncTask<String, Void, String>
+            extends AsyncTask<String, String, String>
     {
         protected ProgressDialog mProgressDialog;
         protected Context mContext;
@@ -472,10 +471,10 @@ public class CreateVectorLayerDialog
         {
             if (mLayerType == VECTOR_LAYER) {
                 //create local layer from json
-                return createVectorLayer(mContext, names[0], mProgressDialog);
+                return createVectorLayer(mContext, names[0], this);
             } else if (mLayerType == VECTOR_LAYER_WITH_FORM) {
                 //create local layer from ngfb
-                return createVectorLayerWithForm(mContext, names[0], mProgressDialog);
+                return createVectorLayerWithForm(mContext, names[0], this);
             }
             return null;
         }
@@ -491,6 +490,49 @@ public class CreateVectorLayerDialog
                 Toast.makeText(mContext, mContext.getString(R.string.message_layer_created),
                                Toast.LENGTH_SHORT).show();
             }
+        }
+
+
+        @Override
+        protected void onProgressUpdate(String... values)
+        {
+            mProgressDialog.setMessage(values[0]);
+        }
+
+
+        public void setMax(int max)
+        {
+            mProgressDialog.setMax(max);
+        }
+
+
+        public void setProgress(int increment)
+        {
+            mProgressDialog.setProgress(increment);
+        }
+
+
+        public void show()
+        {
+            mProgressDialog.show();
+        }
+
+
+        public void setMessage(String string)
+        {
+            publishProgress(string);
+        }
+
+
+        public void setProgressStyle(int styleSpinner)
+        {
+            mProgressDialog.setProgressStyle(styleSpinner);
+        }
+
+
+        public void setIndeterminate(boolean b)
+        {
+            mProgressDialog.setIndeterminate(b);
         }
     }
 }
