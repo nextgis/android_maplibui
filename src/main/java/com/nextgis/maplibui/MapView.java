@@ -206,7 +206,8 @@ public class MapView
 
     protected void panStart(final MotionEvent e){
         if (mDrawingState == DRAW_SATE_zooming
-            || mDrawingState == DRAW_SATE_panning)
+            || mDrawingState == DRAW_SATE_panning
+            || mDrawingState == DRAW_SATE_panning_fling)
             return;
 
         mMap.cancelDraw();
@@ -216,7 +217,7 @@ public class MapView
     }
 
     protected void panMoveTo(final MotionEvent e){
-        if(mDrawingState == DRAW_SATE_zooming)
+        if(mDrawingState == DRAW_SATE_zooming || mDrawingState == DRAW_SATE_drawing_noclearbk)
             return;
 
         if(mDrawingState == DRAW_SATE_panning && mMap != null){
@@ -244,6 +245,7 @@ public class MapView
     }
 
     protected void panStop(){
+        Log.d(Constants.TAG, "panStop state: " + mDrawingState);
         if(mDrawingState == DRAW_SATE_panning && mMap != null) {
             //mDrawingState = DRAW_SATE_none;
 
@@ -284,6 +286,9 @@ public class MapView
                     break;
 
                 case MotionEvent.ACTION_UP:
+                    if (!mScroller.isFinished()){
+                        mScroller.abortAnimation();
+                    }
                     panStop();
                     break;
 
@@ -310,7 +315,11 @@ public class MapView
         GeoEnvelope bounds = mMap.getLimits();
         mDrawingState = DRAW_SATE_panning_fling;
 
+        mScroller.abortAnimation();
+
         mScroller.fling((int)x, (int)y, -(int)velocityX, -(int)velocityY, (int)bounds.getMinX(), (int)bounds.getMaxX(), (int)bounds.getMinY(), (int)bounds.getMaxY());
+
+        Log.d(Constants.TAG, "Fling");
         return true;
     }
 
@@ -319,25 +328,31 @@ public class MapView
     {
         if (mScroller.computeScrollOffset() && mMap != null)
         {
-            float x = mScroller.getCurrX();
-            float y = mScroller.getCurrY();
-
-            GeoEnvelope bounds = mMap.getFullBounds();
-            bounds.offset(x, y);
-
-            GeoEnvelope limits = mMap.getLimits();
-
-            if (bounds.getMinY() <= limits.getMinY() || bounds.getMaxY() >= limits.getMaxY()) {
-                y = mCurrentMouseOffset.y;
+            if(mScroller.isFinished()){
+                mDrawingState = DRAW_SATE_panning;
+                panStop();
             }
+            else {
+                float x = mScroller.getCurrX();
+                float y = mScroller.getCurrY();
 
-            if (bounds.getMinX() <= limits.getMinX() || bounds.getMaxX() >= limits.getMaxX()) {
-                x = mCurrentMouseOffset.x;
+                GeoEnvelope bounds = mMap.getFullBounds();
+                bounds.offset(x, y);
+
+                GeoEnvelope limits = mMap.getLimits();
+
+                if (bounds.getMinY() <= limits.getMinY() || bounds.getMaxY() >= limits.getMaxY()) {
+                    y = mCurrentMouseOffset.y;
+                }
+
+                if (bounds.getMinX() <= limits.getMinX() || bounds.getMaxX() >= limits.getMaxX()) {
+                    x = mCurrentMouseOffset.x;
+                }
+
+                mCurrentMouseOffset.set(x, y);
+
+                postInvalidate();
             }
-
-            mCurrentMouseOffset.set(x, y);
-
-            postInvalidate();
         }
         else if(mDrawingState == DRAW_SATE_panning_fling && mScroller.isFinished()){
             mDrawingState = DRAW_SATE_panning;
