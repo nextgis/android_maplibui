@@ -37,7 +37,9 @@ import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.Feature;
@@ -48,8 +50,10 @@ import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.FileUtil;
+import com.nextgis.maplibui.mapui.LocalTMSLayerUI;
 import com.nextgis.maplibui.mapui.NGWVectorLayerUI;
 import com.nextgis.maplibui.mapui.VectorLayerUI;
+import com.nextgis.maplibui.util.Constants;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -68,23 +72,26 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FEATURES;
+import static com.nextgis.maplib.util.GeoConstants.*;
 
 
 /**
  * The dialog to pick layer name and create the vector layer by input Uri
  */
-public class CreateVectorLayerDialog
+public class CreateLocalLayerDialog
         extends DialogFragment
 {
     public final static    int    VECTOR_LAYER           = 1;
     public final static    int    VECTOR_LAYER_WITH_FORM = 2;
+    public final static    int    TMS_LAYER = 3;
 
     protected final static String KEY_TITLE      = "title";
     protected final static String KEY_NAME       = "name";
     protected final static String KEY_ID         = "id";
     protected final static String KEY_URI        = "uri";
     protected final static String KEY_LAYER_TYPE = "layer_type";
+    protected final static String KEY_TMS_TYPE = "tms_type";
+    protected final static String KEY_POSITION   = "pos";
 
     protected final static String FILE_META = "meta.json";
     protected final static String FILE_DATA = "data.geojson";
@@ -95,37 +102,37 @@ public class CreateVectorLayerDialog
     protected LayerGroup mGroupLayer;
     protected int        mLayerType;
     protected String     mLayerName;
+    protected Spinner mSpinner;
 
-
-    public CreateVectorLayerDialog setTitle(String title)
+    public CreateLocalLayerDialog setTitle(String title)
     {
         mTitle = title;
         return this;
     }
 
 
-    public CreateVectorLayerDialog setLayerName(String layerName)
+    public CreateLocalLayerDialog setLayerName(String layerName)
     {
         mLayerName = layerName;
         return this;
     }
 
 
-    public CreateVectorLayerDialog setUri(Uri uri)
+    public CreateLocalLayerDialog setUri(Uri uri)
     {
         mUri = uri;
         return this;
     }
 
 
-    public CreateVectorLayerDialog setLayerType(int layerType)
+    public CreateLocalLayerDialog setLayerType(int layerType)
     {
         mLayerType = layerType;
         return this;
     }
 
 
-    public CreateVectorLayerDialog setLayerGroup(LayerGroup groupLayer)
+    public CreateLocalLayerDialog setLayerGroup(LayerGroup groupLayer)
     {
         mGroupLayer = groupLayer;
         return this;
@@ -142,9 +149,7 @@ public class CreateVectorLayerDialog
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
-        View view = inflater.inflate(R.layout.layout_create_vector_layer, null);
-
-
+        int tmsType = 0;
         if (null == savedInstanceState) {
             //nothing to do
         } else {
@@ -153,6 +158,8 @@ public class CreateVectorLayerDialog
             mUri = savedInstanceState.getParcelable(KEY_URI);
             short id = savedInstanceState.getShort(KEY_ID);
             mLayerType = savedInstanceState.getShort(KEY_LAYER_TYPE);
+            tmsType = savedInstanceState.getShort(KEY_TMS_TYPE);
+
             MapBase map = MapBase.getInstance();
             if (null != map) {
                 ILayer iLayer = map.getLayerById(id);
@@ -162,12 +169,32 @@ public class CreateVectorLayerDialog
             }
 
         }
+
+        View view;
+        if(mLayerType < 3) {
+            view = inflater.inflate(R.layout.layout_create_vector_layer, null);
+        }
+        else{
+            view = inflater.inflate(R.layout.layout_create_local_tms, null);
+
+            final ArrayAdapter<CharSequence> adapter =
+                    new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
+            mSpinner = (Spinner) view.findViewById(R.id.layer_type);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mSpinner.setAdapter(adapter);
+
+            adapter.add(context.getString(R.string.tmstype_osm));
+            adapter.add(context.getString(R.string.tmstype_normal));
+
+            mSpinner.setSelection(tmsType);
+        }
+
         final EditText layerName = (EditText) view.findViewById(R.id.layer_name);
         layerName.setText(mLayerName);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(mTitle)
-               .setIcon(R.drawable.ic_local_vector)
+               .setIcon(mLayerType < 3 ? R.drawable.ic_local_vector : R.drawable.ic_local_tms)
                .setView(view)
                .setPositiveButton(R.string.create, new DialogInterface.OnClickListener()
                                   {
@@ -176,7 +203,13 @@ public class CreateVectorLayerDialog
                                               int whichButton)
                                       {
                                           mLayerName = layerName.getText().toString();
-                                          new CreateTask(context).execute(mLayerName);
+                                          if (mLayerType < 3)
+                                              new CreateTask(context).execute(mLayerName);
+                                          else {
+                                              int nType = mSpinner.getSelectedItemPosition();
+                                              String sTmsType = nType == 0 ? "XYZ" : "TMS";
+                                              new CreateTask(context).execute(mLayerName, sTmsType);
+                                          }
                                       }
                                   }
 
@@ -204,9 +237,109 @@ public class CreateVectorLayerDialog
         outState.putString(KEY_NAME, mLayerName);
         outState.putParcelable(KEY_URI, mUri);
         outState.putInt(KEY_LAYER_TYPE, mLayerType);
+        if(null != mSpinner)
+            outState.putInt(KEY_POSITION, mSpinner.getSelectedItemPosition());
 
         super.onSaveInstanceState(outState);
     }
+
+    protected String createTMSLayer(
+            Context context,
+            String name,
+            String type,
+            CreateTask task){
+        try {
+            InputStream inputStream = context.getContentResolver().openInputStream(mUri);
+            if (inputStream != null) {
+
+                int nSize = inputStream.available();
+                int nIncrement = 0;
+                task.setMax(nSize);
+
+                File outputPath = mGroupLayer.createLayerStorage();
+                ZipInputStream zis = new ZipInputStream(inputStream);
+
+                ZipEntry ze;
+                while ((ze = zis.getNextEntry()) != null) {
+                    unzipEntry(zis, ze, outputPath);
+                    nIncrement += ze.getSize();
+                    zis.closeEntry();
+                    task.setProgress(nIncrement);
+                }
+
+                //create Layer
+                LocalTMSLayerUI layer = new LocalTMSLayerUI(mGroupLayer.getContext(),
+                                                            outputPath);
+                layer.setName(name);
+                layer.setVisible(true);
+                layer.setTMSType(type.equals("TMS") ? TMSTYPE_NORMAL : TMSTYPE_OSM);
+
+                int nMaxLevel = 0;
+                int nMinLevel = 512;
+                File[] zoomLevels = outputPath.listFiles();
+
+                task.setMessage(mGroupLayer.getContext().getString(R.string.message_opening));
+                task.setMax(zoomLevels.length);
+                int counter = 0;
+
+                for (File zoomLevel : zoomLevels) {
+
+                    task.setProgress(counter++);
+                    int nMaxX = 0;
+                    int nMinX = 10000000;
+                    int nMaxY = 0;
+                    int nMinY = 10000000;
+                    //Log.d(TAG, zoomLevel.getName());
+                    int nLevelZ = Integer.parseInt(zoomLevel.getName());
+                    if (nLevelZ > nMaxLevel)
+                        nMaxLevel = nLevelZ;
+                    if (nLevelZ < nMinLevel)
+                        nMinLevel = nLevelZ;
+                    File[] levelsX = zoomLevel.listFiles();
+
+                    boolean bFirstTurn = true;
+                    for (File inLevelX : levelsX) {
+                        //Log.d(TAG, inLevelX.getName());
+                        int nX = Integer.parseInt(inLevelX.getName());
+                        if (nX > nMaxX)
+                            nMaxX = nX;
+                        if (nX < nMinX)
+                            nMinX = nX;
+
+                        File[] levelsY = inLevelX.listFiles();
+
+                        if (bFirstTurn) {
+                            for (File inLevelY : levelsY) {
+                                String sLevelY = inLevelY.getName();
+
+                                //Log.d(TAG, sLevelY);
+                                int nY = Integer.parseInt(sLevelY.replace(com.nextgis.maplib.util.Constants.TILE_EXT, ""));
+                                if (nY > nMaxY)
+                                    nMaxY = nY;
+                                if (nY < nMinY)
+                                    nMinY = nY;
+                            }
+                            bFirstTurn = false;
+                        }
+                    }
+
+
+                    layer.addLimits(nLevelZ, nMaxX, nMaxY, nMinX, nMinY);
+                }
+
+                mGroupLayer.addLayer(layer);
+                mGroupLayer.save();
+
+                return null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return e.getLocalizedMessage();
+        }
+
+        return mGroupLayer.getContext().getString(R.string.error_layer_create);
+    }
+
 
     protected String createVectorLayer(
             Context context,
@@ -223,7 +356,6 @@ public class CreateVectorLayerDialog
                         new InputStreamReader(inputStream, "UTF-8"));
                 StringBuilder responseStrBuilder = new StringBuilder();
                 String inputStr;
-                task.show();
                 while ((inputStr = streamReader.readLine()) != null) {
                     nIncrement += inputStr.length();
                     task.setProgress(nIncrement);
@@ -475,6 +607,9 @@ public class CreateVectorLayerDialog
             } else if (mLayerType == VECTOR_LAYER_WITH_FORM) {
                 //create local layer from ngfb
                 return createVectorLayerWithForm(mContext, names[0], this);
+            } else if (mLayerType == TMS_LAYER) {
+                //create local TMS layer
+                return createTMSLayer(mContext, names[0], names[1], this);
             }
             return null;
         }
@@ -510,13 +645,6 @@ public class CreateVectorLayerDialog
         {
             mProgressDialog.setProgress(increment);
         }
-
-
-        public void show()
-        {
-            mProgressDialog.show();
-        }
-
 
         public void setMessage(String string)
         {

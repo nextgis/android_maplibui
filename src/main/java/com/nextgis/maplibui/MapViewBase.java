@@ -29,6 +29,7 @@ import android.preference.PreferenceManager;
 import android.view.View;
 
 import com.nextgis.maplib.api.ILayer;
+import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapDrawable;
@@ -250,4 +251,5 @@ public class MapViewBase
             mMap.getLayerFactory().createNewVectorLayerWithForm(getContext(), mMap, uri);
         }
     }
+
 }

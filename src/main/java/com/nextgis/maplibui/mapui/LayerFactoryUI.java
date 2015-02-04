@@ -24,26 +24,16 @@ package com.nextgis.maplibui.mapui;
 
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
-import com.nextgis.maplib.map.MapDrawable;
-import com.nextgis.maplib.map.NGWRasterLayer;
 import com.nextgis.maplib.util.FileUtil;
+import com.nextgis.maplibui.CreateLocalLayerDialog;
 import com.nextgis.maplibui.CreateRemoteTMSLayerDialog;
-import com.nextgis.maplibui.CreateVectorLayerDialog;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.SelectNGWResourceDialog;
 import org.json.JSONException;
@@ -85,7 +75,22 @@ public class LayerFactoryUI
             final LayerGroup groupLayer,
             final Uri uri)
     {
-        //TODO:
+        String layerName = FileUtil.getFileNameByUri(context, uri, context.getString(R.string.new_layer));
+        final int lastPeriodPos = layerName.lastIndexOf('.');
+        if (lastPeriodPos > 0)
+        {
+            layerName = layerName.substring(0, lastPeriodPos);
+        }
+        if(context instanceof FragmentActivity) {
+            FragmentActivity fragmentActivity = (FragmentActivity)context;
+            CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
+            newFragment.setTitle(context.getString(R.string.create_tms_layer))
+                       .setLayerGroup(groupLayer)
+                       .setLayerType(CreateLocalLayerDialog.TMS_LAYER)
+                       .setUri(uri)
+                       .setLayerName(layerName)
+                       .show(fragmentActivity.getSupportFragmentManager(), "create_tms_layer");
+        }
     }
 
 
@@ -103,10 +108,10 @@ public class LayerFactoryUI
         }
         if(context instanceof FragmentActivity) {
             FragmentActivity fragmentActivity = (FragmentActivity)context;
-            CreateVectorLayerDialog newFragment = new CreateVectorLayerDialog();
+            CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
             newFragment.setTitle(context.getString(R.string.create_vector_layer))
                        .setLayerGroup(groupLayer)
-                       .setLayerType(CreateVectorLayerDialog.VECTOR_LAYER)
+                       .setLayerType(CreateLocalLayerDialog.VECTOR_LAYER)
                        .setUri(uri)
                        .setLayerName(layerName)
                        .show(fragmentActivity.getSupportFragmentManager(), "create_vector_layer");
@@ -128,10 +133,10 @@ public class LayerFactoryUI
         }
         if(context instanceof FragmentActivity) {
             FragmentActivity fragmentActivity = (FragmentActivity)context;
-            CreateVectorLayerDialog newFragment = new CreateVectorLayerDialog();
+            CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
             newFragment.setTitle(context.getString(R.string.create_vector_layer))
                        .setLayerGroup(groupLayer)
-                       .setLayerType(CreateVectorLayerDialog.VECTOR_LAYER_WITH_FORM)
+                       .setLayerType(CreateLocalLayerDialog.VECTOR_LAYER_WITH_FORM)
                        .setUri(uri)
                        .setLayerName(layerName)
                        .show(fragmentActivity.getSupportFragmentManager(), "create_vector_with_form_layer");
@@ -201,6 +206,8 @@ public class LayerFactoryUI
                 return context.getString(R.string.layer_tms);
             case LAYERTYPE_LOCAL_VECTOR:
                 return context.getString(R.string.layer_vector);
+            case LAYERTYPE_LOCAL_TMS:
+                return context.getString(R.string.layer_tms);
             default:
                 return context.getString(R.string.layer_na);
         }

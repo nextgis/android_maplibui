@@ -54,7 +54,7 @@ public class MapView
     protected       long                 mStartDrawTime;
 
     //display redraw timeout ms
-    public static final int DISPLAY_REDRAW_TIMEOUT = 450;
+    public static final int DISPLAY_REDRAW_TIMEOUT = 1050;
 
 
     public MapView(
@@ -98,6 +98,7 @@ public class MapView
             mMap.removeListener(this);
         }
     }
+
 
 
     @Override
@@ -144,7 +145,6 @@ public class MapView
         if(mDrawingState == DRAW_SATE_zooming)
             return;
 
-        mMap.cancelDraw();
         mDrawingState = DRAW_SATE_zooming;
         mCurrentSpan = scaleGestureDetector.getCurrentSpan();
         mCurrentFocusLocation.set(-scaleGestureDetector.getFocusX(), -scaleGestureDetector.getFocusY());
@@ -163,7 +163,7 @@ public class MapView
                 return;
 
             mScaleFactor = scaleFactor;
-            invalidate();
+            postInvalidate();
         }
     }
 
@@ -210,7 +210,6 @@ public class MapView
             || mDrawingState == DRAW_SATE_panning_fling)
             return;
 
-        mMap.cancelDraw();
         mDrawingState = DRAW_SATE_panning;
         mStartMouseLocation.set(e.getX(), e.getY());
         mCurrentMouseOffset.set(0, 0);
@@ -240,7 +239,7 @@ public class MapView
             }
 
             mCurrentMouseOffset.set(x, y);
-            invalidate();
+            postInvalidate();
         }
     }
 
@@ -268,7 +267,6 @@ public class MapView
     }
 
 
-
     // delegate the event to the gesture detector
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -278,7 +276,7 @@ public class MapView
             switch (event.getAction()) { //TODO: get action can be more complicated: if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN)
                 case MotionEvent.ACTION_DOWN:
                     if (!mScroller.isFinished()){
-                        mScroller.abortAnimation();
+                        mScroller.forceFinished(true);
                     }
                     break;
 
@@ -286,9 +284,6 @@ public class MapView
                     break;
 
                 case MotionEvent.ACTION_UP:
-                    if (!mScroller.isFinished()){
-                        mScroller.abortAnimation();
-                    }
                     panStop();
                     break;
 
@@ -308,24 +303,28 @@ public class MapView
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        if(mMap == null || e2.getEventTime() - e1.getEventTime() < 195) //fling not always exec panStop
+        if(mMap == null) //fling not always exec panStop
             return false;
         float x = mCurrentMouseOffset.x;
         float y = mCurrentMouseOffset.y;
         GeoEnvelope bounds = mMap.getLimits();
         mDrawingState = DRAW_SATE_panning_fling;
 
-        mScroller.abortAnimation();
+        mScroller.forceFinished(true);
 
         mScroller.fling((int)x, (int)y, -(int)velocityX, -(int)velocityY, (int)bounds.getMinX(), (int)bounds.getMaxX(), (int)bounds.getMinY(), (int)bounds.getMaxY());
 
         Log.d(Constants.TAG, "Fling");
+
+        postInvalidate();
+
         return true;
     }
 
     @Override
     public void computeScroll()
     {
+        super.computeScroll();
         if (mScroller.computeScrollOffset() && mMap != null)
         {
             if(mScroller.isFinished()){
@@ -393,7 +392,7 @@ public class MapView
         mDrawingState = DRAW_SATE_zooming;
         mScaleFactor = 2;
         mCurrentFocusLocation.set(-e.getX(), -e.getY());
-        invalidate();
+        postInvalidate();
 
         GeoEnvelope env = mMap.getFullBounds();
         GeoPoint focusPt = new GeoPoint(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y);
@@ -428,7 +427,7 @@ public class MapView
         mDrawingState = DRAW_SATE_zooming;
         mScaleFactor = 2;
         mCurrentFocusLocation.set(-getWidth() / 2, -getHeight() / 2);
-        invalidate();
+        postInvalidate();
         super.zoomIn();
     }
 
@@ -437,7 +436,7 @@ public class MapView
         mDrawingState = DRAW_SATE_zooming;
         mScaleFactor = 0.5;
         mCurrentFocusLocation.set(-getWidth() / 2, -getHeight() / 2);
-        invalidate();
+        postInvalidate();
         super.zoomOut();
     }
 
@@ -524,7 +523,7 @@ public class MapView
         mDrawingState = DRAW_SATE_drawing_noclearbk;
         if(System.currentTimeMillis() - mStartDrawTime > DISPLAY_REDRAW_TIMEOUT){
             mStartDrawTime = System.currentTimeMillis();
-            invalidate();
+            postInvalidate();
         }
         else if(percent >= 1.0){
             //Log.d(TAG, "LayerDrawFinished: id - " + id + ", percent - " + percent);
