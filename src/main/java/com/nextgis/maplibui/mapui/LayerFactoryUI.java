@@ -31,6 +31,7 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
+import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.CreateLocalLayerDialog;
 import com.nextgis.maplibui.CreateRemoteTMSLayerDialog;
@@ -183,6 +184,9 @@ public class LayerFactoryUI
                     break;
                 case LAYERTYPE_LOCAL_VECTOR:
                     layer = new VectorLayerUI(context, path);
+                    break;
+                case LAYERTYPE_LOCAL_TMS:
+                    layer = new LocalTMSLayerUI(context, path);
                     break;
                 case LAYERTYPE_GROUP:
                     layer = new LayerGroupUI(context, path, this);

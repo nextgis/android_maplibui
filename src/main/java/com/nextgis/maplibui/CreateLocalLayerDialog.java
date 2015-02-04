@@ -35,6 +35,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -72,6 +73,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
+import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplib.util.GeoConstants.*;
 
 
@@ -289,7 +291,7 @@ public class CreateLocalLayerDialog
                     int nMinX = 10000000;
                     int nMaxY = 0;
                     int nMinY = 10000000;
-                    //Log.d(TAG, zoomLevel.getName());
+                    Log.d(com.nextgis.maplib.util.Constants.TAG, zoomLevel.getName());
                     int nLevelZ = Integer.parseInt(zoomLevel.getName());
                     if (nLevelZ > nMaxLevel)
                         nMaxLevel = nLevelZ;
@@ -299,7 +301,7 @@ public class CreateLocalLayerDialog
 
                     boolean bFirstTurn = true;
                     for (File inLevelX : levelsX) {
-                        //Log.d(TAG, inLevelX.getName());
+                        Log.d(com.nextgis.maplib.util.Constants.TAG, inLevelX.getName());
                         int nX = Integer.parseInt(inLevelX.getName());
                         if (nX > nMaxX)
                             nMaxX = nX;
@@ -322,8 +324,6 @@ public class CreateLocalLayerDialog
                             bFirstTurn = false;
                         }
                     }
-
-
                     layer.addLimits(nLevelZ, nMaxX, nMaxY, nMinX, nMinY);
                 }
 
@@ -332,7 +332,7 @@ public class CreateLocalLayerDialog
 
                 return null;
             }
-        } catch (IOException e) {
+        } catch (NumberFormatException | IOException e) {
             e.printStackTrace();
             return e.getLocalizedMessage();
         }
@@ -549,8 +549,11 @@ public class CreateLocalLayerDialog
         String entryName = entry.getName();
 
         //for backward capability where the zip haz root directory named "mapnik"
-        entryName = entryName.replace("Mapnik/", "");
-        entryName = entryName.replace("mapnik/", "");
+        if(!TextUtils.isDigitsOnly(entryName.substring(0, 1))) {
+            int pos = entryName.indexOf('/');
+            if(pos != NOT_FOUND)
+                entryName = entryName.substring(pos, entryName.length());
+        }
 
         //for prevent searching by media library
         entryName = entryName.replace(".png", com.nextgis.maplib.util.Constants.TILE_EXT);
