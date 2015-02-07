@@ -1,4 +1,3 @@
-
 /*
  * Project:  NextGIS Mobile
  * Purpose:  Mobile GIS for Android.
@@ -29,8 +28,11 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 
+import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
 
-public class NGWLoginActivity extends ActionBarActivity
+
+public class NGWLoginActivity
+        extends ActionBarActivity
 {
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
     private Bundle                       mResultBundle                 = null;
@@ -53,38 +55,55 @@ public class NGWLoginActivity extends ActionBarActivity
         }
     }
 
-    public final void setAccountAuthenticatorResult(Bundle result) {
+
+    public final void setAccountAuthenticatorResult(Bundle result)
+    {
         mResultBundle = result;
     }
 
-    public void finish() {
+
+    public void finish()
+    {
         if (mAccountAuthenticatorResponse != null) {
-        // send the result bundle back if set, otherwise send an error.
+            // send the result bundle back if set, otherwise send an error.
             if (mResultBundle != null) {
                 mAccountAuthenticatorResponse.onResult(mResultBundle);
             } else {
-                mAccountAuthenticatorResponse.onError(AccountManager.ERROR_CODE_CANCELED,
-                                                      getString(R.string.canceled));
+                mAccountAuthenticatorResponse.onError(
+                        AccountManager.ERROR_CODE_CANCELED, getString(R.string.canceled));
             }
             mAccountAuthenticatorResponse = null;
         }
         super.finish();
     }
 
-    public void onTokenReceived(Account account, String login, String password, String url, String token) {
+
+    public void onTokenReceived(
+            String accountName,
+            String url,
+            String login,
+            String password,
+            String token)
+    {
         final AccountManager am = AccountManager.get(this);
-        final Bundle result = new Bundle();
+        final Account account = new Account(accountName, NGW_ACCOUNT_TYPE);
+
         Bundle userData = new Bundle();
         userData.putString("url", url.trim());
         userData.putString("login", login);
+
+        final Bundle result = new Bundle();
+
         if (am.addAccountExplicitly(account, password, userData)) {
             result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
             result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
             result.putString(AccountManager.KEY_AUTHTOKEN, token);
             am.setAuthToken(account, account.type, token);
         } else {
-            result.putString(AccountManager.KEY_ERROR_MESSAGE, getString(R.string.account_already_exists));
+            result.putString(
+                    AccountManager.KEY_ERROR_MESSAGE, getString(R.string.account_already_exists));
         }
+
         setAccountAuthenticatorResult(result);
         setResult(RESULT_OK);
         finish();
