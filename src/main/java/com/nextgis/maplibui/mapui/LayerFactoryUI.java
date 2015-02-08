@@ -190,6 +190,10 @@ public class LayerFactoryUI
                     break;
                 case LAYERTYPE_GROUP:
                     layer = new LayerGroupUI(context, path, this);
+                    break;
+                case LAYERTYPE_TRACKS:
+                    layer = new TrackLayerUI(context, path);
+                    break;
             }
         } catch (IOException | JSONException e) {
             Log.d(TAG, e.getLocalizedMessage());

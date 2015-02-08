@@ -113,4 +113,10 @@
     <string name="error_layer_not_inited">Layer is not initialized. Abort</string>
     <string name="n_a">n/a</string>
     <string name="layer_vector">Vector layer</string>
+    <string name="tracks">Tracks</string>
+    <string name="layer_permanent">It\'s permanent layer</string>
+    <string name="empty_tracks">There are no recorded tracks yet.</string>
+    <string name="menu_delete">Delete</string>
+    <string name="menu_select_all">Select all</string>
+    <string name="nothing_selected">Nothing is selected</string>
 </resources>
