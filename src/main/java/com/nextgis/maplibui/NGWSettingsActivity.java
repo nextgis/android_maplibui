@@ -47,7 +47,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import com.nextgis.maplib.api.IGISApplication;
-import com.nextgis.maplib.datasource.ngw.SyncAdapter;
+import com.nextgis.maplib.api.INGWLayer;
+import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.MapContentProviderHelper;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.Constants;
@@ -202,26 +203,31 @@ public class NGWSettingsActivity extends PreferenceActivity implements OnAccount
         });
         syncCategory.addPreference(timeInterval);
 
-        List<NGWVectorLayer> layers = getLayersForAccount(activity, account);
+        List<INGWLayer> layers = getLayersForAccount(activity, account);
         if(!layers.isEmpty()) {
             PreferenceCategory layersCategory = new PreferenceCategory(activity);
             layersCategory.setTitle(R.string.sync_layers);
             layersCategory.setSummary(R.string.sync_layers_summary);
             screen.addPreference(layersCategory);
 
+            for (INGWLayer layer : layers) {
 
-            for (NGWVectorLayer layer : layers) {
+                if (!(layer instanceof NGWVectorLayer)) {
+                    continue;
+                }
+
+                final NGWVectorLayer ngwLayer = (NGWVectorLayer) layer;
+
                 CheckBoxPreference layerSync = new CheckBoxPreference(activity);
-                layerSync.setTitle(layer.getName());
-                layerSync.setChecked(0 == (layer.getSyncType() & Constants.SYNC_NONE));
-                //layerSync.setKey("" + layer.getId());
+                layerSync.setTitle(ngwLayer.getName());
+                layerSync.setChecked(0 == (ngwLayer.getSyncType() & Constants.SYNC_NONE));
+                //layerSync.setKey("" + ngwLayer.getId());
 
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && layer instanceof ILayerUI) {
-                    ILayerUI layerUI = (ILayerUI) layer;
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && ngwLayer instanceof ILayerUI) {
+                    ILayerUI layerUI = (ILayerUI) ngwLayer;
                     layerSync.setIcon(layerUI.getIcon());
                 }
 
-                final NGWVectorLayer layerForCheck = layer;
                 layerSync.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
                 {
                     @Override
@@ -231,12 +237,12 @@ public class NGWSettingsActivity extends PreferenceActivity implements OnAccount
                     {
                         boolean isChecked = (boolean) o;
                         if (isChecked) {
-                            layerForCheck.setSyncType(Constants.SYNC_ALL);
+                            ngwLayer.setSyncType(Constants.SYNC_ALL);
 
                         } else {
-                            layerForCheck.setSyncType(Constants.SYNC_NONE);
+                            ngwLayer.setSyncType(Constants.SYNC_NONE);
                         }
-                        layerForCheck.save();
+                        ngwLayer.save();
                         return true;
                     }
                 });
@@ -260,9 +266,12 @@ public class NGWSettingsActivity extends PreferenceActivity implements OnAccount
                     final AccountManager accountManager = AccountManager.get(activity);
                     accountManager.removeAccount(account, null, new Handler());
 
-                    List<NGWVectorLayer> layers = getLayersForAccount(activity, account);
-                    for (NGWVectorLayer layer : layers)
-                        layer.delete();
+                    List<INGWLayer> layers = getLayersForAccount(activity, account);
+
+                    for (INGWLayer layer : layers) {
+                        ((Layer) layer).delete();
+                    }
+
                     IGISApplication application = (IGISApplication)activity.getApplicationContext();
                     application.getMap().save();
 
@@ -273,9 +282,9 @@ public class NGWSettingsActivity extends PreferenceActivity implements OnAccount
         }
     }
 
-    protected static List<NGWVectorLayer> getLayersForAccount(Context context, Account account)
+    protected static List<INGWLayer> getLayersForAccount(Context context, Account account)
     {
-        List<NGWVectorLayer> out = new ArrayList<>();
+        List<INGWLayer> out = new ArrayList<>();
 
         IGISApplication application = (IGISApplication)context.getApplicationContext();
         MapContentProviderHelper.getLayersByAccount(application.getMap(), account.name, out);
