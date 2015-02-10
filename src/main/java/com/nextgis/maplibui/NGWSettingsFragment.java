@@ -27,8 +27,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 
+
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class NGWSettingsFragment extends PreferenceFragment
+public class NGWSettingsFragment
+        extends PreferenceFragment
 {
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -38,7 +40,7 @@ public class NGWSettingsFragment extends PreferenceFragment
         addPreferencesFromResource(R.xml.preferences_empty);
 
         Account account = getArguments().getParcelable("account");
-        NGWSettingsActivity.fillAccountPreferences(getActivity(), getPreferenceScreen(), account);
-
+        NGWSettingsActivity activity = (NGWSettingsActivity) getActivity();
+        activity.fillAccountPreferences(getPreferenceScreen(), account);
     }
 }
