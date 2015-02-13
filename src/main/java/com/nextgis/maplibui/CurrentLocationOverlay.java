@@ -23,7 +23,6 @@ package com.nextgis.maplibui;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -34,8 +33,6 @@ import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.location.Location;
-import android.location.LocationManager;
-import android.preference.PreferenceManager;
 import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.GeoEnvelope;
@@ -43,7 +40,7 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.util.GeoConstants;
-import com.nextgis.maplib.util.SettingsConstants;
+import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.api.OverlayItem;
 
@@ -243,10 +240,11 @@ public class CurrentLocationOverlay
     public void onLocationChanged(Location location)
     {
         String provider = location.getProvider();
-        boolean update = isProviderEnabled(provider) && mCurrentLocation == null;
+        boolean update = LocationUtil.isProviderEnabled(mContext, provider, false) &&
+                         mCurrentLocation == null;
 
         if (!update) {
-            update = isProviderEnabled(provider) &&
+            update = LocationUtil.isProviderEnabled(mContext, provider, false) &&
                      (mCurrentLocation.getProvider().equals(provider) ||
                       location.getAccuracy() < mCurrentLocation.getAccuracy() ||
                       location.getTime() - mCurrentLocation.getTime() >
@@ -265,29 +263,6 @@ public class CurrentLocationOverlay
     public void onGpsStatusChanged(int event)
     {
 
-    }
-
-
-    private boolean isProviderEnabled(String provider)
-    {
-        int currentProvider = 0;
-
-        switch (provider) {
-            case LocationManager.GPS_PROVIDER:
-                currentProvider = GpsEventSource.GPS_PROVIDER;
-                break;
-            case LocationManager.NETWORK_PROVIDER:
-                currentProvider = GpsEventSource.NETWORK_PROVIDER;
-                break;
-        }
-
-        SharedPreferences sharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(mContext);
-        int providers = sharedPreferences.getInt(SettingsConstants.KEY_PREF_LOCATION_SOURCE,
-                                                 GpsEventSource.GPS_PROVIDER |
-                                                 GpsEventSource.NETWORK_PROVIDER);
-
-        return 0 != (providers & currentProvider);
     }
 
 
