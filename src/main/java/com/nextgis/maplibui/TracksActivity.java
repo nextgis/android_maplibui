@@ -221,11 +221,13 @@ public class TracksActivity
             }
             return true;
         } else if (id == R.id.menu_select_all) {
-            int childrenCount = mTracks.getChildCount();
+            int childrenCount = mTracks.getCount();
 
             for (int i = 0; i < childrenCount; i++) {
-                mTracks.getChildAt(i).findViewById(R.id.cb_item).performClick();
+                mTracks.getAdapter().getView(i, null, mTracks).findViewById(R.id.cb_item).performClick();
             }
+
+            mTracks.invalidateViews();
             return true;
         } else {
             return super.onOptionsItemSelected(item);
