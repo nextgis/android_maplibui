@@ -22,6 +22,7 @@
 package com.nextgis.maplibui;
 
 import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -51,6 +52,8 @@ public class NGWLoginFragment
     protected EditText mLogin;
     protected EditText mPassword;
     protected Button   mSignInButton;
+
+    protected OnResultListener mOnResultListener;
 
 
     @Override
@@ -156,12 +159,35 @@ public class NGWLoginFragment
                     accountName = mURL.getText().toString();
                 }
 
-                ((NGWLoginActivity) getActivity()).onTokenReceived(
-                        accountName, mURL.getText().toString(), mLogin.getText().toString(),
-                        mPassword.getText().toString(), token);
+                onTokenReceived(accountName, token);
             } else {
                 Toast.makeText(getActivity(), R.string.error_login, Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+
+    public void onTokenReceived(
+            String accountName,
+            String token)
+    {
+        final AccountManager am = AccountManager.get(getActivity());
+        final Account account = new Account(accountName, NGW_ACCOUNT_TYPE);
+
+        Bundle userData = new Bundle();
+        userData.putString("url", mURL.getText().toString().trim());
+        userData.putString("login", mLogin.getText().toString());
+
+        boolean accountAlreadyExists = false;
+
+        if (am.addAccountExplicitly(account, mPassword.getText().toString(), userData)) {
+            am.setAuthToken(account, account.type, token);
+        } else {
+            accountAlreadyExists = true;
+        }
+
+        if (null != mOnResultListener) {
+            mOnResultListener.OnResult(account, token, accountAlreadyExists);
         }
     }
 
@@ -198,5 +224,20 @@ public class NGWLoginFragment
                 int count)
         {
         }
+    }
+
+
+    public void setOnResultListener(OnResultListener onResultListener)
+    {
+        mOnResultListener = onResultListener;
+    }
+
+
+    public interface OnResultListener
+    {
+        public void OnResult(
+                Account account,
+                String token,
+                boolean accountAlreadyExists);
     }
 }

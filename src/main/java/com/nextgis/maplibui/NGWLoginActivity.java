@@ -25,14 +25,15 @@ import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-
-import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
 
 
 public class NGWLoginActivity
         extends ActionBarActivity
+        implements NGWLoginFragment.OnResultListener
 {
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
     private Bundle                       mResultBundle                 = null;
@@ -42,23 +43,37 @@ public class NGWLoginActivity
     protected void onCreate(Bundle icicle)
     {
         super.onCreate(icicle);
-        setContentView(R.layout.activity_ngw_login);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        toolbar.getBackground().setAlpha(255);
-        setSupportActionBar(toolbar);
 
         mAccountAuthenticatorResponse =
                 getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
         if (mAccountAuthenticatorResponse != null) {
             mAccountAuthenticatorResponse.onRequestContinued();
         }
+
+        createView();
     }
 
 
-    public final void setAccountAuthenticatorResult(Bundle result)
+    protected void createView()
     {
-        mResultBundle = result;
+        setContentView(R.layout.activity_ngw_login);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        toolbar.getBackground().setAlpha(255);
+        setSupportActionBar(toolbar);
+
+        FragmentManager fm = getSupportFragmentManager();
+        NGWLoginFragment ngwLoginFragment = (NGWLoginFragment) fm.findFragmentByTag("NGWLogin");
+
+        if (ngwLoginFragment == null) {
+            ngwLoginFragment = new NGWLoginFragment();
+        }
+
+        ngwLoginFragment.setOnResultListener(this);
+
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.add(R.id.login_frame, ngwLoginFragment, "NGWLogin");
+        ft.commit();
     }
 
 
@@ -78,35 +93,24 @@ public class NGWLoginActivity
     }
 
 
-    public void onTokenReceived(
-            String accountName,
-            String url,
-            String login,
-            String password,
-            String token)
+    @Override
+    public void OnResult(
+            Account account,
+            String token,
+            boolean accountAlreadyExists)
     {
-        final AccountManager am = AccountManager.get(this);
-        final Account account = new Account(accountName, NGW_ACCOUNT_TYPE);
+        mResultBundle = new Bundle();
 
-        Bundle userData = new Bundle();
-        userData.putString("url", url.trim());
-        userData.putString("login", login);
-
-        final Bundle result = new Bundle();
-
-        if (am.addAccountExplicitly(account, password, userData)) {
-            result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
-            result.putString(AccountManager.KEY_AUTHTOKEN, token);
-            am.setAuthToken(account, account.type, token);
-        } else {
-            result.putString(
+        if (accountAlreadyExists) {
+            mResultBundle.putString(
                     AccountManager.KEY_ERROR_MESSAGE, getString(R.string.account_already_exists));
+        } else {
+            mResultBundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+            mResultBundle.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
+            mResultBundle.putString(AccountManager.KEY_AUTHTOKEN, token);
         }
 
-        setAccountAuthenticatorResult(result);
         setResult(RESULT_OK);
         finish();
     }
-
 }
