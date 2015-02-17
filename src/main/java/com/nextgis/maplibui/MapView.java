@@ -532,4 +532,10 @@ public class MapView
                 invalidate();
         }
     }
+
+
+    public void panTo(GeoPoint center)
+    {
+        setZoomAndCenter(getZoomLevel(), center);
+    }
 }

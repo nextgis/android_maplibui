@@ -52,24 +52,26 @@ public class MapViewOverlays
     {
         super.onDraw(canvas);
 
-        switch (mDrawingState) {
-            case DRAW_SATE_drawing:
-            case DRAW_SATE_drawing_noclearbk:
-                for (Overlay overlay : mOverlays) {
-                    overlay.draw(canvas, mMap);
-                }
-                break;
-            case DRAW_SATE_panning:
-            case DRAW_SATE_panning_fling:
-                for (Overlay overlay : mOverlays) {
-                    overlay.drawOnPanning(canvas, mCurrentMouseOffset);
-                }
-                break;
-            case DRAW_SATE_zooming:
-                for (Overlay overlay : mOverlays) {
-                    overlay.drawOnZooming(canvas, mCurrentFocusLocation, (float) mScaleFactor);
-                }
-                break;
+        if (mMap != null) {
+            switch (mDrawingState) {
+                case DRAW_SATE_drawing:
+                case DRAW_SATE_drawing_noclearbk:
+                    for (Overlay overlay : mOverlays) {
+                        overlay.draw(canvas, mMap);
+                    }
+                    break;
+                case DRAW_SATE_panning:
+                case DRAW_SATE_panning_fling:
+                    for (Overlay overlay : mOverlays) {
+                        overlay.drawOnPanning(canvas, mCurrentMouseOffset);
+                    }
+                    break;
+                case DRAW_SATE_zooming:
+                    for (Overlay overlay : mOverlays) {
+                        overlay.drawOnZooming(canvas, mCurrentFocusLocation, (float) mScaleFactor);
+                    }
+                    break;
+            }
         }
     }
 
