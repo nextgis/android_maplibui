@@ -33,7 +33,7 @@ import android.support.v7.widget.Toolbar;
 
 public class NGWLoginActivity
         extends ActionBarActivity
-        implements NGWLoginFragment.OnResultListener
+        implements NGWLoginFragment.OnAddAccountListener
 {
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
     private Bundle                       mResultBundle                 = null;
@@ -69,7 +69,7 @@ public class NGWLoginActivity
             ngwLoginFragment = new NGWLoginFragment();
         }
 
-        ngwLoginFragment.setOnResultListener(this);
+        ngwLoginFragment.setOnAddAccountListener(this);
 
         FragmentTransaction ft = fm.beginTransaction();
         ft.add(R.id.login_frame, ngwLoginFragment, "NGWLogin");
@@ -94,7 +94,7 @@ public class NGWLoginActivity
 
 
     @Override
-    public void OnResult(
+    public void OnAddAccount(
             Account account,
             String token,
             boolean accountAdded)
