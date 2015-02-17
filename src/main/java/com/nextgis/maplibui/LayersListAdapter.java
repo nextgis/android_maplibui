@@ -59,7 +59,8 @@ public class LayersListAdapter
         mMap = map;
         mContext = context;
 
-        mMap.addListener(this);
+        if(null != mMap)
+            mMap.addListener(this);
     }
 
 
@@ -67,7 +68,8 @@ public class LayersListAdapter
     protected void finalize()
             throws Throwable
     {
-        mMap.removeListener(this);
+        if(null != mMap)
+            mMap.removeListener(this);
         super.finalize();
     }
 
@@ -75,7 +77,9 @@ public class LayersListAdapter
     @Override
     public int getCount()
     {
-        return mMap.getLayerCount();
+        if(null != mMap)
+            return mMap.getLayerCount();
+        return 0;
     }
 
 
@@ -83,7 +87,9 @@ public class LayersListAdapter
     public Object getItem(int i)
     {
         int nIndex = getCount() - 1 - i;
-        return mMap.getLayer(nIndex);
+        if(null != mMap)
+            return mMap.getLayer(nIndex);
+        return null;
     }
 
 
@@ -93,7 +99,9 @@ public class LayersListAdapter
         if(i < 0 || i >= mMap.getLayerCount())
             return NOT_FOUND;
         Layer layer = (Layer) getItem(i);
-        return layer.getId();
+        if(null != layer)
+            return layer.getId();
+        return NOT_FOUND;
     }
 
 
@@ -232,8 +240,10 @@ public class LayersListAdapter
             int originalPosition,
             int newPosition)
     {
-        Log.d(TAG,
-              "Original position: " + originalPosition + " Destination position: " + newPosition);
+        //Log.d(TAG,
+        //      "Original position: " + originalPosition + " Destination position: " + newPosition);
+        if(null == mMap)
+            return;
         int newPositionFixed = getCount() - 1 - newPosition;
         mMap.moveLayer(newPositionFixed, (com.nextgis.maplib.api.ILayer) getItem(originalPosition));
         notifyDataSetChanged();
@@ -242,6 +252,8 @@ public class LayersListAdapter
 
     public void endDrag()
     {
+        if(null == mMap)
+            return;
         mMap.thaw();
         mMap.runDraw(null);
     }
@@ -249,6 +261,8 @@ public class LayersListAdapter
 
     public void beginDrag()
     {
+        if(null == mMap)
+            return;
         mMap.freeze();
     }
 }
