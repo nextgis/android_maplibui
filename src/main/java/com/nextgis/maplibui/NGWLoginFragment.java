@@ -53,7 +53,7 @@ public class NGWLoginFragment
     protected EditText mPassword;
     protected Button   mSignInButton;
 
-    protected OnResultListener mOnResultListener;
+    protected OnAddAccountListener mOnAddAccountListener;
 
 
     @Override
@@ -185,8 +185,8 @@ public class NGWLoginFragment
             am.setAuthToken(account, account.type, token);
         }
 
-        if (null != mOnResultListener) {
-            mOnResultListener.OnResult(account, token, accountAdded);
+        if (null != mOnAddAccountListener) {
+            mOnAddAccountListener.OnAddAccount(account, token, accountAdded);
         }
     }
 
@@ -226,15 +226,15 @@ public class NGWLoginFragment
     }
 
 
-    public void setOnResultListener(OnResultListener onResultListener)
+    public void setOnAddAccountListener(OnAddAccountListener onAddAccountListener)
     {
-        mOnResultListener = onResultListener;
+        mOnAddAccountListener = onAddAccountListener;
     }
 
 
-    public interface OnResultListener
+    public interface OnAddAccountListener
     {
-        public void OnResult(
+        public void OnAddAccount(
                 Account account,
                 String token,
                 boolean accountAdded);
