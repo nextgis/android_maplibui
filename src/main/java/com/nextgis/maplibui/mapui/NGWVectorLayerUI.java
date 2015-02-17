@@ -32,12 +32,13 @@ import com.nextgis.maplibui.CustomModifyAttributesActivity;
 import com.nextgis.maplibui.ModifyAttributesActivity;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
+import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.io.File;
 
 
-import static com.nextgis.maplibui.util.Constants.*;
-import static com.nextgis.maplib.util.Constants.*;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
+
 
 public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
 {
@@ -72,7 +73,7 @@ public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
             return;
         }
         //check custom form
-        File form = new File(mPath, com.nextgis.maplibui.util.Constants.FILE_FORM);
+        File form = new File(mPath, ConstantsUI.FILE_FORM);
         if(form.exists()){
             //show custom form
             Intent intent = new Intent(context, CustomModifyAttributesActivity.class);
@@ -94,8 +95,8 @@ public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
     @Override
     protected void reportError(final String error)
     {
-        Intent msg = new Intent(com.nextgis.maplibui.util.Constants.MESSAGE_INTENT);
-        msg.putExtra(com.nextgis.maplibui.util.Constants.KEY_MESSAGE, error);
+        Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT);
+        msg.putExtra(ConstantsUI.KEY_MESSAGE, error);
         getContext().sendBroadcast(msg);
         super.reportError(error);
     }

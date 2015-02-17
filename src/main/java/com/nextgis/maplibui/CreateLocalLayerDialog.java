@@ -54,7 +54,7 @@ import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.mapui.LocalTMSLayerUI;
 import com.nextgis.maplibui.mapui.NGWVectorLayerUI;
 import com.nextgis.maplibui.mapui.VectorLayerUI;
-import com.nextgis.maplibui.util.Constants;
+import com.nextgis.maplibui.util.ConstantsUI;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -469,8 +469,8 @@ public class CreateLocalLayerDialog
                         boolean same = am.getPassword(account).equals(password) &&
                                        am.getUserData(account, "login").equals(login);
                         if(!same){
-                            Intent msg = new Intent(com.nextgis.maplibui.util.Constants.MESSAGE_INTENT);
-                            msg.putExtra(com.nextgis.maplibui.util.Constants.KEY_MESSAGE, getString(R.string.warning_different_credentials));
+                            Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT);
+                            msg.putExtra(ConstantsUI.KEY_MESSAGE, getString(R.string.warning_different_credentials));
                             context.sendBroadcast(msg);
                         }
                     }

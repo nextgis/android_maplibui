@@ -60,7 +60,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.*;
-import static com.nextgis.maplibui.util.SettingsConstants.*;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.*;
 
 
 public class NGWSettingsActivity
@@ -298,7 +298,7 @@ public class NGWSettingsActivity
                             application.getMap().save();
 
                             if (null != mOnDeleteAccountListener) {
-                                mOnDeleteAccountListener.OnDeleteAccount(account);
+                                mOnDeleteAccountListener.onDeleteAccount(account);
                             }
 
                             onBackPressed();
@@ -320,7 +320,7 @@ public class NGWSettingsActivity
 
     public interface OnDeleteAccountListener
     {
-        public void OnDeleteAccount(Account account);
+        public void onDeleteAccount(Account account);
     }
 
 

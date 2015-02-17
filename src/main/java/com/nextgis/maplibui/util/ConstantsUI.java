@@ -21,7 +21,7 @@
 package com.nextgis.maplibui.util;
 
 
-public interface Constants
+public interface ConstantsUI
 {
     /**
      * Draw state

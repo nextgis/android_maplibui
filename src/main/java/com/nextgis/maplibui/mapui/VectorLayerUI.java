@@ -31,12 +31,13 @@ import com.nextgis.maplibui.CustomModifyAttributesActivity;
 import com.nextgis.maplibui.ModifyAttributesActivity;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
+import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.io.File;
 
-import static com.nextgis.maplibui.util.Constants.KEY_FEATURE_ID;
-import static com.nextgis.maplibui.util.Constants.KEY_FORM_PATH;
-import static com.nextgis.maplibui.util.Constants.KEY_LAYER_ID;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_LAYER_ID;
 
 
 /**
@@ -76,7 +77,7 @@ public class VectorLayerUI extends VectorLayer implements ILayerUI
             return;
         }
         //check custom form
-        File form = new File(mPath, com.nextgis.maplibui.util.Constants.FILE_FORM);
+        File form = new File(mPath, ConstantsUI.FILE_FORM);
         if(form.exists()){
             //show custom form
             Intent intent = new Intent(context, CustomModifyAttributesActivity.class);

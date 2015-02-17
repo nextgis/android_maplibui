@@ -21,7 +21,7 @@
 
 package com.nextgis.maplibui.util;
 
-public interface SettingsConstants
+public interface SettingsConstantsUI
 {
     public static final String KEY_PREF_KEEPSCREENON = "keep_screen_on";
     public static final String KEY_PREF_COORD_FORMAT = "coordinates_format";

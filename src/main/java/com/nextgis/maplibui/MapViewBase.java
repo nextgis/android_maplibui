@@ -29,7 +29,6 @@ import android.preference.PreferenceManager;
 import android.view.View;
 
 import com.nextgis.maplib.api.ILayer;
-import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapDrawable;
@@ -39,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.nextgis.maplib.util.GeoConstants.*;
-import static com.nextgis.maplibui.util.SettingsConstants.*;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.*;
 
 
 public class MapViewBase

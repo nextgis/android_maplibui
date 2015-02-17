@@ -29,7 +29,7 @@ import com.nextgis.maplibui.api.Overlay;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.nextgis.maplibui.util.Constants.*;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
 public class MapViewOverlays
