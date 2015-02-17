@@ -26,7 +26,6 @@ import android.content.ContentValues;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -74,7 +73,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.nextgis.maplibui.util.Constants.*;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
 import static com.nextgis.maplib.util.Constants.*;
 
 /**

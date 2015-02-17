@@ -27,7 +27,6 @@ import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -59,7 +58,7 @@ import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
-import com.nextgis.maplibui.util.SettingsConstants;
+import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -71,7 +70,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.nextgis.maplibui.util.Constants.*;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
 import static com.nextgis.maplib.util.Constants.*;
 
 /**
@@ -382,7 +381,7 @@ public class ModifyAttributesActivity
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        int nFormat = prefs.getInt(SettingsConstants.KEY_PREF_COORD_FORMAT + "_int",
+        int nFormat = prefs.getInt(SettingsConstantsUI.KEY_PREF_COORD_FORMAT + "_int",
                                    Location.FORMAT_SECONDS);
         DecimalFormat df = new DecimalFormat("0.0");
 

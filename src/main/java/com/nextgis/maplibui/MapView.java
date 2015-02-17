@@ -35,7 +35,7 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.util.Constants;
 
-import static com.nextgis.maplibui.util.Constants.*;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 public class MapView
         extends MapViewBase

@@ -60,7 +60,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.*;
-import static com.nextgis.maplibui.util.SettingsConstants.*;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.*;
 
 
 public class NGWSettingsActivity
