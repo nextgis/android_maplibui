@@ -94,7 +94,7 @@ public class NGWLoginActivity
 
 
     @Override
-    public void OnAddAccount(
+    public void onAddAccount(
             Account account,
             String token,
             boolean accountAdded)

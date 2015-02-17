@@ -298,7 +298,7 @@ public class NGWSettingsActivity
                             application.getMap().save();
 
                             if (null != mOnDeleteAccountListener) {
-                                mOnDeleteAccountListener.OnDeleteAccount(account);
+                                mOnDeleteAccountListener.onDeleteAccount(account);
                             }
 
                             onBackPressed();
@@ -320,7 +320,7 @@ public class NGWSettingsActivity
 
     public interface OnDeleteAccountListener
     {
-        public void OnDeleteAccount(Account account);
+        public void onDeleteAccount(Account account);
     }
 
 

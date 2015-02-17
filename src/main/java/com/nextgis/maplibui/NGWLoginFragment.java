@@ -186,7 +186,7 @@ public class NGWLoginFragment
         }
 
         if (null != mOnAddAccountListener) {
-            mOnAddAccountListener.OnAddAccount(account, token, accountAdded);
+            mOnAddAccountListener.onAddAccount(account, token, accountAdded);
         }
     }
 
@@ -234,7 +234,7 @@ public class NGWLoginFragment
 
     public interface OnAddAccountListener
     {
-        public void OnAddAccount(
+        public void onAddAccount(
                 Account account,
                 String token,
                 boolean accountAdded);
