@@ -97,17 +97,17 @@ public class NGWLoginActivity
     public void OnResult(
             Account account,
             String token,
-            boolean accountAlreadyExists)
+            boolean accountAdded)
     {
         mResultBundle = new Bundle();
 
-        if (accountAlreadyExists) {
-            mResultBundle.putString(
-                    AccountManager.KEY_ERROR_MESSAGE, getString(R.string.account_already_exists));
-        } else {
+        if (accountAdded) {
             mResultBundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
             mResultBundle.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
             mResultBundle.putString(AccountManager.KEY_AUTHTOKEN, token);
+        } else {
+            mResultBundle.putString(
+                    AccountManager.KEY_ERROR_MESSAGE, getString(R.string.account_already_exists));
         }
 
         setResult(RESULT_OK);

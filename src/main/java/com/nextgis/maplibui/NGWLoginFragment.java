@@ -178,16 +178,15 @@ public class NGWLoginFragment
         userData.putString("url", mURL.getText().toString().trim());
         userData.putString("login", mLogin.getText().toString());
 
-        boolean accountAlreadyExists = false;
+        boolean accountAdded =
+                am.addAccountExplicitly(account, mPassword.getText().toString(), userData);
 
-        if (am.addAccountExplicitly(account, mPassword.getText().toString(), userData)) {
+        if (accountAdded) {
             am.setAuthToken(account, account.type, token);
-        } else {
-            accountAlreadyExists = true;
         }
 
         if (null != mOnResultListener) {
-            mOnResultListener.OnResult(account, token, accountAlreadyExists);
+            mOnResultListener.OnResult(account, token, accountAdded);
         }
     }
 
@@ -238,6 +237,6 @@ public class NGWLoginFragment
         public void OnResult(
                 Account account,
                 String token,
-                boolean accountAlreadyExists);
+                boolean accountAdded);
     }
 }
