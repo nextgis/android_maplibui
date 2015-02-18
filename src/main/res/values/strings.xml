@@ -84,6 +84,7 @@
     <string name="longitude_caption">Longitude</string>
     <string name="altitude_caption">Altitude</string>
     <string name="unit_meter">m</string>
+    <string name="unit_second">s</string>
     <string name="accuracy_caption">Accuracy</string>
     <string name="set_attributes">Set attributes</string>
     <string name="latitude_caption_short">Lat</string>
@@ -119,4 +120,5 @@
     <string name="menu_delete">Delete</string>
     <string name="menu_select_all">Select all</string>
     <string name="nothing_selected">Nothing is selected</string>
+    <string name="unclosed_track_deleted">Current track is deleted too</string>
 </resources>
