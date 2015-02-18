@@ -36,6 +36,7 @@ import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.util.Constants;
 
 import static com.nextgis.maplibui.util.ConstantsUI.*;
+import static com.nextgis.maplib.util.Constants.*;
 
 public class MapView
         extends MapViewBase
@@ -239,7 +240,7 @@ public class MapView
             }
 
             mCurrentMouseOffset.set(x, y);
-            postInvalidate();
+            invalidate();
         }
     }
 
@@ -262,7 +263,7 @@ public class MapView
             //Log.d(TAG, "panStop. x: " + x + ", y:" + y + ", sx:" + screenPt.getX() + ", sy:" + screenPt.getY());
             //mDisplay.panStop((float) screenPt.getX(), (float) screenPt.getY());
 
-            setZoomAndCenter(mMap.getZoomLevel(), pt);
+            setZoomAndCenter(getZoomLevel(), pt);
         }
     }
 
@@ -499,8 +500,8 @@ public class MapView
             GeoPoint center)
     {
         if(mMap != null) {
-            mMap.runDraw(null);
             mStartDrawTime = System.currentTimeMillis();
+            mMap.runDraw(null);
         }
     }
 
