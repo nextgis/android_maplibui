@@ -220,6 +220,51 @@ public class NGWSettingsActivity
                 });
         syncCategory.addPreference(timeInterval);
 
+        addAccountLayers(screen, account);
+
+        PreferenceCategory actionCategory = new PreferenceCategory(this);
+        actionCategory.setTitle(R.string.actions);
+        screen.addPreference(actionCategory);
+
+        Preference preferenceDelete = new Preference(this);
+        preferenceDelete.setTitle(R.string.delete_account);
+        preferenceDelete.setSummary(R.string.delete_account_summary);
+        if (actionCategory.addPreference(preferenceDelete)) {
+            preferenceDelete.setOnPreferenceClickListener(
+                    new Preference.OnPreferenceClickListener()
+                    {
+                        public boolean onPreferenceClick(Preference preference)
+                        {
+                            final AccountManager accountManager =
+                                    AccountManager.get(NGWSettingsActivity.this);
+                            accountManager.removeAccount(account, null, new Handler());
+
+                            List<INGWLayer> layers =
+                                    getLayersForAccount(NGWSettingsActivity.this, account);
+
+                            for (INGWLayer layer : layers) {
+                                ((Layer) layer).delete();
+                            }
+
+                            IGISApplication application = (IGISApplication) getApplicationContext();
+                            application.getMap().save();
+
+                            if (null != mOnDeleteAccountListener) {
+                                mOnDeleteAccountListener.onDeleteAccount(account);
+                            }
+
+                            onBackPressed();
+                            return true;
+                        }
+                    });
+        }
+    }
+
+
+    protected void addAccountLayers(
+            PreferenceScreen screen,
+            Account account)
+    {
         List<INGWLayer> layers = getLayersForAccount(this, account);
         if (!layers.isEmpty()) {
             PreferenceCategory layersCategory = new PreferenceCategory(this);
@@ -268,43 +313,6 @@ public class NGWSettingsActivity
 
                 layersCategory.addPreference(layerSync);
             }
-        }
-
-        PreferenceCategory actionCategory = new PreferenceCategory(this);
-        actionCategory.setTitle(R.string.actions);
-        screen.addPreference(actionCategory);
-
-        Preference preferenceDelete = new Preference(this);
-        preferenceDelete.setTitle(R.string.delete_account);
-        preferenceDelete.setSummary(R.string.delete_account_summary);
-        if (actionCategory.addPreference(preferenceDelete)) {
-            preferenceDelete.setOnPreferenceClickListener(
-                    new Preference.OnPreferenceClickListener()
-                    {
-                        public boolean onPreferenceClick(Preference preference)
-                        {
-                            final AccountManager accountManager =
-                                    AccountManager.get(NGWSettingsActivity.this);
-                            accountManager.removeAccount(account, null, new Handler());
-
-                            List<INGWLayer> layers =
-                                    getLayersForAccount(NGWSettingsActivity.this, account);
-
-                            for (INGWLayer layer : layers) {
-                                ((Layer) layer).delete();
-                            }
-
-                            IGISApplication application = (IGISApplication) getApplicationContext();
-                            application.getMap().save();
-
-                            if (null != mOnDeleteAccountListener) {
-                                mOnDeleteAccountListener.onDeleteAccount(account);
-                            }
-
-                            onBackPressed();
-                            return true;
-                        }
-                    });
         }
     }
 
