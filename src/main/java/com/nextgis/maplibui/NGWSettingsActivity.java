@@ -59,8 +59,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.nextgis.maplib.util.Constants.*;
-import static com.nextgis.maplibui.util.SettingsConstantsUI.*;
+import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
+import static com.nextgis.maplib.util.Constants.NOT_FOUND;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_LONG;
 
 
 public class NGWSettingsActivity
@@ -235,6 +237,9 @@ public class NGWSettingsActivity
                     {
                         public boolean onPreferenceClick(Preference preference)
                         {
+                            IGISApplication application = (IGISApplication) getApplicationContext();
+                            ContentResolver.cancelSync(account, application.getAuthority());
+
                             final AccountManager accountManager =
                                     AccountManager.get(NGWSettingsActivity.this);
                             accountManager.removeAccount(account, null, new Handler());
@@ -246,7 +251,6 @@ public class NGWSettingsActivity
                                 ((Layer) layer).delete();
                             }
 
-                            IGISApplication application = (IGISApplication) getApplicationContext();
                             application.getMap().save();
 
                             if (null != mOnDeleteAccountListener) {
