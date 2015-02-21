@@ -21,7 +21,10 @@
 
 package com.nextgis.maplibui;
 
+import android.app.ActivityManager;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,6 +47,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.map.TrackLayer;
+import com.nextgis.maplib.service.TrackerService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -187,7 +191,8 @@ public class TracksActivity
             String id)
     {
         if (isChecked) {
-            mIds.add(id);
+            if (!mIds.contains(id))
+                mIds.add(id);
         } else {
             mIds.remove(id);
         }
@@ -212,6 +217,13 @@ public class TracksActivity
             return true;
         } else if (id == R.id.menu_delete) {
             if (mIds.size() > 0) {
+                Intent trackerService = new Intent(this, TrackerService.class);
+
+                if (isTrackerServiceRunning(this)) {
+                    stopService(trackerService);
+                    Toast.makeText(this, R.string.unclosed_track_deleted, Toast.LENGTH_SHORT).show();
+                }
+
                 String selection = TrackLayer.FIELD_ID + " IN (" + makePlaceholders() + ")";
                 String[] args = mIds.toArray(new String[mIds.size()]);
                 getContentResolver().delete(mContentUriTracks, selection, args);
@@ -256,10 +268,10 @@ public class TracksActivity
     {
         String[] proj = new String[] {
                 TrackLayer.FIELD_ID, TrackLayer.FIELD_NAME, TrackLayer.FIELD_VISIBLE};
-        String selection =
-                TrackLayer.FIELD_END + " IS NOT NULL AND " + TrackLayer.FIELD_END + " != ''";
+//        String selection =
+//                TrackLayer.FIELD_END + " IS NOT NULL AND " + TrackLayer.FIELD_END + " != ''";
 
-        return new CursorLoader(this, mContentUriTracks, proj, selection, null, null);
+        return new CursorLoader(this, mContentUriTracks, proj, null, null, null);
     }
 
 
@@ -283,4 +295,18 @@ public class TracksActivity
     {
         mSimpleCursorAdapter.swapCursor(null);
     }
+
+
+    public static boolean isTrackerServiceRunning(Context context) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (TrackerService.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }
