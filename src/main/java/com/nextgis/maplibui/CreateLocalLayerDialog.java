@@ -29,6 +29,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -537,7 +538,7 @@ public class CreateLocalLayerDialog
                     }
                 }
             }
-        } catch (JSONException | IOException e) {
+        } catch (JSONException | IOException | SQLiteException e) {
             e.printStackTrace();
             return e.getLocalizedMessage();
         }
