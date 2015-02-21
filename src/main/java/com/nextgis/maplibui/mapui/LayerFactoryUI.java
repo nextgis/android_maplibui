@@ -49,12 +49,6 @@ public class LayerFactoryUI
         extends LayerFactory
 {
 
-
-    public LayerFactoryUI(File mapPath)
-    {
-        super(mapPath);
-    }
-
     public void createNewNGWLayer(
             final Context context,
             final LayerGroup groupLayer)

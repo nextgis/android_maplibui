@@ -23,12 +23,7 @@ package com.nextgis.maplibui;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Pair;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,8 +46,7 @@ import com.nextgis.maplibui.util.CheckState;
 
 import java.util.List;
 
-import static com.nextgis.maplib.util.Constants.*;
-import static com.nextgis.maplibui.R.attr;
+import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 
 
 public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.OnItemClickListener
@@ -420,6 +414,18 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
 
     public void setCheckBox(final CheckBox checkBox, final int id, final int checkNo)
     {
+        checkBox.setOnCheckedChangeListener(null);
+        for(CheckState state : mCheckState){
+            if(checkNo == 1) {
+                if (state.getId() == id && state.isCheckState1())
+                    checkBox.setChecked(true);
+            }
+            else if(checkNo == 2){
+                if (state.getId() == id && state.isCheckState2())
+                    checkBox.setChecked(true);
+            }
+        }
+
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
             @Override
@@ -471,16 +477,7 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
             }
         });
 
-        for(CheckState state : mCheckState){
-            if(checkNo == 1) {
-                if (state.getId() == id && state.isCheckState1())
-                    checkBox.setChecked(true);
-            }
-            else if(checkNo == 2){
-                if (state.getId() == id && state.isCheckState2())
-                    checkBox.setChecked(true);
-            }
-        }
+
     }
 
     @Override

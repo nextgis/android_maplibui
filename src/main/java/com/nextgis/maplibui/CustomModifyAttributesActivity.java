@@ -156,7 +156,6 @@ public class CustomModifyAttributesActivity
                 {
                     if (null != app) {
                         GpsEventSource gpsEventSource = app.getGpsEventSource();
-                        //TODO: check settings of location source
                         Location location = gpsEventSource.getLastKnownLocation();
                         setLocationText(location);
                     }

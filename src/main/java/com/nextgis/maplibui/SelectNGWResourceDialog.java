@@ -26,11 +26,8 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -46,7 +43,6 @@ import com.nextgis.maplib.datasource.ngw.INGWResource;
 import com.nextgis.maplib.datasource.ngw.LayerWithStyles;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
-import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.NGWVectorLayerUI;
 import com.nextgis.maplibui.util.CheckState;
@@ -130,7 +126,7 @@ public class SelectNGWResourceDialog extends DialogFragment
                     KEY_STATES));
         }
 
-        View view = inflater.inflate(R.layout.layout_ngw_resources, null);
+        View view = inflater.inflate(R.layout.layout_resources, null);
         ListView dialogListView = (ListView) view.findViewById(R.id.listView);
         mListAdapter.setTypeMask(mTypeMask);
         dialogListView.setAdapter(mListAdapter);
