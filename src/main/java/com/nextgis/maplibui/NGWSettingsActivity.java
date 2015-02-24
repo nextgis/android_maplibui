@@ -57,6 +57,7 @@ import com.nextgis.maplib.datasource.ngw.SyncAdapter;
 import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.MapContentProviderHelper;
 import com.nextgis.maplib.map.NGWVectorLayer;
+import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.api.ILayerUI;
@@ -194,7 +195,8 @@ public class NGWSettingsActivity
     }
 
 
-    protected boolean isAccountSyncEnabled(  // for overriding in child class
+    // for overriding in child class
+    protected boolean isAccountSyncEnabled(
             Account account,
             String authority)
     {
@@ -202,7 +204,8 @@ public class NGWSettingsActivity
     }
 
 
-    protected void setAccountSyncEnabled(  // for overriding in child class
+    // for overriding in child class
+    protected void setAccountSyncEnabled(
             Account account,
             String authority,
             boolean isEnabled)
@@ -211,7 +214,8 @@ public class NGWSettingsActivity
     }
 
 
-    protected void addPeriodicSyncTime(  // for overriding in child class
+    // for overriding in child class
+    protected void addPeriodicSyncTime(
             final Account account,
             final IGISApplication application,
             PreferenceCategory syncCategory)
@@ -281,7 +285,8 @@ public class NGWSettingsActivity
     }
 
 
-    protected void addAccountLayers(  // for overriding in child class
+    // for overriding in child class
+    protected void addAccountLayers(
             PreferenceScreen screen,
             Account account)
     {
@@ -341,6 +346,7 @@ public class NGWSettingsActivity
             final Account account,
             PreferenceCategory actionCategory)
     {
+        final boolean[] warCurrentSyncActive = {false};
         final IGISApplication application = (IGISApplication) getApplicationContext();
 
         final BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
@@ -364,11 +370,16 @@ public class NGWSettingsActivity
                     mProgressDialog.show();
                 }
 
-                if (null == intent) {
-                    return;
-                }
+                String action;
+                if (warCurrentSyncActive[0]) {
+                    if (null == intent) {
+                        return;
+                    }
+                    action = intent.getAction();
 
-                String action = intent.getAction();
+                } else {
+                    action = SyncAdapter.SYNC_CANCELED;
+                }
 
                 switch (action) {
                     case SyncAdapter.SYNC_START:
@@ -378,15 +389,16 @@ public class NGWSettingsActivity
                         break;
 
                     case SyncAdapter.SYNC_CANCELED:
-                        Log.d(Constants.TAG, "NGWSettingsActivity - SYNC_CANCELED is received");
                         Log.d(Constants.TAG, "NGWSettingsActivity - sync status - NO active");
+
+                        warCurrentSyncActive[0] = false;
 
                         AccountManager accountManager = AccountManager.get(
                                 NGWSettingsActivity.this);
                         accountManager.removeAccount(
                                 account, null, new Handler());
 
-                        Log.d(Constants.TAG, "NGWSettingsActivity - Account is removed");
+                        Log.d(Constants.TAG, "NGWSettingsActivity - account is removed");
 
                         deleteAccountLayers(application, account);
                         Log.d(Constants.TAG, "NGWSettingsActivity - account layers are deleted");
@@ -419,17 +431,17 @@ public class NGWSettingsActivity
                             {
                                 Log.d(Constants.TAG, "NGWSettingsActivity - OK pressed");
 
+                                IntentFilter intentFilter = new IntentFilter();
+                                intentFilter.addAction(SyncAdapter.SYNC_CANCELED);
+                                registerReceiver(broadcastReceiver, intentFilter);
+
+                                warCurrentSyncActive[0] = AccountUtil.isSyncActive(
+                                        account, application.getAuthority());
+
                                 ContentResolver.removePeriodicSync(
                                         account, application.getAuthority(), Bundle.EMPTY);
                                 ContentResolver.setSyncAutomatically(
                                         account, application.getAuthority(), false);
-
-                                IntentFilter intentFilter = new IntentFilter();
-                                intentFilter.addAction(SyncAdapter.SYNC_START);
-                                intentFilter.addAction(SyncAdapter.SYNC_FINISH);
-                                intentFilter.addAction(SyncAdapter.SYNC_CANCELED);
-                                intentFilter.addAction(SyncAdapter.SYNC_CHANGES);
-                                registerReceiver(broadcastReceiver, intentFilter);
 
                                 ContentResolver.cancelSync(account, application.getAuthority());
 
