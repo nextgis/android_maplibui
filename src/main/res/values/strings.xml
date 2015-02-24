@@ -102,6 +102,7 @@
     <string name="message_layer_created">Layer created</string>
     <string name="error_form_create">Form create failed</string>
     <string name="system_default">System default</string>
+    <string name="five_minutes">5 minutes</string>
     <string name="ten_minutes">10 minutes</string>
     <string name="fifteen_minutes">15 minutes</string>
     <string name="thirty_minutes">30 minutes</string>

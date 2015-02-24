@@ -23,9 +23,9 @@ package com.nextgis.maplibui.util;
 
 public interface SettingsConstantsUI
 {
-    public static final String KEY_PREF_KEEPSCREENON = "keep_screen_on";
-    public static final String KEY_PREF_COORD_FORMAT = "coordinates_format";
-    public static final String KEY_PREF_SYNC_PERIODICALLY = "sync_periodically";
-    public static final String KEY_PREF_SYNC_PERIOD       = "sync_period";
-    public static final String KEY_PREF_SYNC_PERIOD_LONG  = "sync_period_long";
+    public static final String KEY_PREF_KEEPSCREENON         = "keep_screen_on";
+    public static final String KEY_PREF_COORD_FORMAT         = "coordinates_format";
+    public static final String KEY_PREF_SYNC_PERIODICALLY    = "sync_periodically";
+    public static final String KEY_PREF_SYNC_PERIOD          = "sync_period";
+    public static final String KEY_PREF_SYNC_PERIOD_SEC_LONG = "sync_period_long";
 }
