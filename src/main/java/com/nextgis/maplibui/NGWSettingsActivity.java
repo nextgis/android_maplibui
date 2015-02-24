@@ -26,9 +26,14 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.OnAccountsUpdateListener;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -41,12 +46,14 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.INGWLayer;
+import com.nextgis.maplib.datasource.ngw.SyncAdapter;
 import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.MapContentProviderHelper;
 import com.nextgis.maplib.map.NGWVectorLayer;
@@ -69,7 +76,7 @@ public class NGWSettingsActivity
         extends PreferenceActivity
         implements OnAccountsUpdateListener
 {
-    protected static final String  ACCOUNT_ACTION = "com.nextgis.maplibui.ACCOUNT";
+    protected static final String ACCOUNT_ACTION = "com.nextgis.maplibui.ACCOUNT";
 
     protected AccountManager mAccountManager;
     protected final Handler mHandler = new Handler();
@@ -187,19 +194,24 @@ public class NGWSettingsActivity
     }
 
 
-    protected boolean isAccountSyncEnabled(Account account, String authority)
+    protected boolean isAccountSyncEnabled(  // for overriding in child class
+            Account account,
+            String authority)
     {
         return ContentResolver.getSyncAutomatically(account, authority);
     }
 
 
-    protected void setAccountSyncEnabled(Account account, String authority, boolean isEnabled)
+    protected void setAccountSyncEnabled(  // for overriding in child class
+            Account account,
+            String authority,
+            boolean isEnabled)
     {
         ContentResolver.setSyncAutomatically(account, authority, isEnabled);
     }
 
 
-    protected void addPeriodicSyncTime(
+    protected void addPeriodicSyncTime(  // for overriding in child class
             final Account account,
             final IGISApplication application,
             PreferenceCategory syncCategory)
@@ -224,11 +236,9 @@ public class NGWSettingsActivity
         timeInterval.setDialogTitle(R.string.sync_set_interval);
         timeInterval.setEntries(keys);
         timeInterval.setEntryValues(values);
-//        timeInterval.setDefaultValue(getString(R.string.system_default));
 
         for (int i = 0; i < values.length; i++) {
             if (values[i].equals(prefValue)) {
-                //timeInterval.setValue((String) values[i]);
                 timeInterval.setValueIndex(i);
                 timeInterval.setSummary(keys[i]);
                 break;
@@ -271,7 +281,7 @@ public class NGWSettingsActivity
     }
 
 
-    protected void addAccountLayers(
+    protected void addAccountLayers(  // for overriding in child class
             PreferenceScreen screen,
             Account account)
     {
@@ -331,39 +341,138 @@ public class NGWSettingsActivity
             final Account account,
             PreferenceCategory actionCategory)
     {
+        final IGISApplication application = (IGISApplication) getApplicationContext();
+
+        final BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
+        {
+            final ProgressDialog mProgressDialog = new ProgressDialog(NGWSettingsActivity.this);
+
+
+            @Override
+            public void onReceive(
+                    Context context,
+                    Intent intent)
+            {
+                Log.d(Constants.TAG, "NGWSettingsActivity - broadcastReceiver.onReceive()");
+
+                if (!mProgressDialog.isShowing()) {
+                    Log.d(Constants.TAG, "NGWSettingsActivity - show ProgressDialog");
+
+                    mProgressDialog.setTitle(R.string.waiting);
+                    mProgressDialog.setMessage(getString(R.string.wait_sync_stopping));
+                    mProgressDialog.setIndeterminate(true);
+                    mProgressDialog.show();
+                }
+
+                if (null == intent) {
+                    return;
+                }
+
+                String action = intent.getAction();
+
+                switch (action) {
+                    case SyncAdapter.SYNC_START:
+                        break;
+
+                    case SyncAdapter.SYNC_FINISH:
+                        break;
+
+                    case SyncAdapter.SYNC_CANCELED:
+                        Log.d(Constants.TAG, "NGWSettingsActivity - SYNC_CANCELED is received");
+                        Log.d(Constants.TAG, "NGWSettingsActivity - sync status - NO active");
+
+                        AccountManager accountManager = AccountManager.get(
+                                NGWSettingsActivity.this);
+                        accountManager.removeAccount(
+                                account, null, new Handler());
+
+                        Log.d(Constants.TAG, "NGWSettingsActivity - Account is removed");
+
+                        deleteAccountLayers(application, account);
+                        Log.d(Constants.TAG, "NGWSettingsActivity - account layers are deleted");
+
+                        unregisterReceiver(this);
+                        mProgressDialog.dismiss();
+
+                        finish();
+
+                        break;
+
+                    case SyncAdapter.SYNC_CHANGES:
+                        break;
+                }
+            }
+        };
+
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(NGWSettingsActivity.this);
+        dialogBuilder.setIcon(R.drawable.ic_action_warning)
+                .setTitle(R.string.delete_account_ask)
+                .setMessage(R.string.delete_account_warn_msg)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(
+                        R.string.ok, new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(
+                                    DialogInterface dialog,
+                                    int which)
+                            {
+                                Log.d(Constants.TAG, "NGWSettingsActivity - OK pressed");
+
+                                ContentResolver.removePeriodicSync(
+                                        account, application.getAuthority(), Bundle.EMPTY);
+                                ContentResolver.setSyncAutomatically(
+                                        account, application.getAuthority(), false);
+
+                                IntentFilter intentFilter = new IntentFilter();
+                                intentFilter.addAction(SyncAdapter.SYNC_START);
+                                intentFilter.addAction(SyncAdapter.SYNC_FINISH);
+                                intentFilter.addAction(SyncAdapter.SYNC_CANCELED);
+                                intentFilter.addAction(SyncAdapter.SYNC_CHANGES);
+                                registerReceiver(broadcastReceiver, intentFilter);
+
+                                ContentResolver.cancelSync(account, application.getAuthority());
+
+                                Log.d(
+                                        Constants.TAG,
+                                        "NGWSettingsActivity - ContentResolver.cancelSync() is performed");
+
+                                broadcastReceiver.onReceive(NGWSettingsActivity.this, null);
+                            }
+                        });
+
         Preference preferenceDelete = new Preference(this);
         preferenceDelete.setTitle(R.string.delete_account);
         preferenceDelete.setSummary(R.string.delete_account_summary);
+
         if (actionCategory.addPreference(preferenceDelete)) {
             preferenceDelete.setOnPreferenceClickListener(
                     new Preference.OnPreferenceClickListener()
                     {
                         public boolean onPreferenceClick(Preference preference)
                         {
-                            IGISApplication application = (IGISApplication) getApplicationContext();
-                            ContentResolver.cancelSync(account, application.getAuthority());
-
-                            final AccountManager accountManager =
-                                    AccountManager.get(NGWSettingsActivity.this);
-                            accountManager.removeAccount(account, null, new Handler());
-
-                            List<INGWLayer> layers =
-                                    getLayersForAccount(NGWSettingsActivity.this, account);
-
-                            for (INGWLayer layer : layers) {
-                                ((Layer) layer).delete();
-                            }
-
-                            application.getMap().save();
-
-                            if (null != mOnDeleteAccountListener) {
-                                mOnDeleteAccountListener.onDeleteAccount(account);
-                            }
-
-                            onBackPressed();
+                            dialogBuilder.show();
                             return true;
                         }
                     });
+        }
+    }
+
+
+    protected void deleteAccountLayers(
+            IGISApplication application,
+            Account account)
+    {
+        List<INGWLayer> layers = getLayersForAccount(this, account);
+
+        for (INGWLayer layer : layers) {
+            ((Layer) layer).delete();
+        }
+
+        application.getMap().save();
+
+        if (null != mOnDeleteAccountListener) {
+            mOnDeleteAccountListener.onDeleteAccount(account);
         }
     }
 
