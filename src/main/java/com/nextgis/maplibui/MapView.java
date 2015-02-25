@@ -34,6 +34,7 @@ import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplibui.api.MapViewEventListener;
 
 import static com.nextgis.maplibui.util.ConstantsUI.*;
 import static com.nextgis.maplib.util.Constants.*;
@@ -362,7 +363,10 @@ public class MapView
 
     @Override
     public void onLongPress(MotionEvent event) {
-
+        for (MapViewEventListener listener : mListeners){
+            if(null != listener)
+                listener.onLongPress(event);
+        }
     }
 
     @Override

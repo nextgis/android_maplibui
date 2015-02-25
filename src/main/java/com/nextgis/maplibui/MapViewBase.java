@@ -29,10 +29,12 @@ import android.preference.PreferenceManager;
 import android.view.View;
 
 import com.nextgis.maplib.api.ILayer;
+import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.api.MapEventListener;
+import com.nextgis.maplibui.api.MapViewEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +48,7 @@ public class MapViewBase
 {
 
     protected MapDrawable mMap;
+    protected List<MapViewEventListener> mListeners;
 
 
     public MapViewBase(
@@ -55,6 +58,7 @@ public class MapViewBase
         super(context);
 
         mMap = map;
+        mListeners = new ArrayList<>();
     }
 
 
@@ -71,19 +75,25 @@ public class MapViewBase
     }
 
 
-    public void addListener(MapEventListener listener)
+    public void addListener(MapViewEventListener listener)
     {
         if (mMap != null) {
             mMap.addListener(listener);
         }
+
+        if (!mListeners.contains(listener)) {
+            mListeners.add(listener);
+        }
     }
 
 
-    public void removeListener(MapEventListener listener)
+    public void removeListener(MapViewEventListener listener)
     {
         if (mMap != null) {
             mMap.removeListener(listener);
         }
+
+        mListeners.remove(listener);
     }
 
 
@@ -251,4 +261,13 @@ public class MapViewBase
         }
     }
 
+
+    public GeoEnvelope screenToMap(GeoEnvelope envelope)
+    {
+        if(mMap != null){
+            return mMap.screenToMap(envelope);
+        }
+
+        return null;
+    }
 }

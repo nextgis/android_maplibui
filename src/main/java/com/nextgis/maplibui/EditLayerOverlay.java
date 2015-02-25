@@ -21,24 +21,43 @@
 
 package com.nextgis.maplibui;
 
-import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.PointF;
 import com.nextgis.maplib.map.MapDrawable;
+import com.nextgis.maplibui.api.Overlay;
 
 
 /**
  * The class for edit vector features
  */
-public class MapViewEditable extends MapViewOverlays
+public class EditLayerOverlay
+        extends Overlay
 {
-    protected static final int mToleranceDP = 20;
-    protected final float mTolerancePX;
 
-
-    public MapViewEditable(
-            Context context,
-            MapDrawable map)
+    @Override
+    public void draw(
+            Canvas canvas,
+            MapDrawable mapDrawable)
     {
-        super(context, map);
-        mTolerancePX = getContext().getResources().getDisplayMetrics().density * mToleranceDP;
+
+    }
+
+
+    @Override
+    public void drawOnPanning(
+            Canvas canvas,
+            PointF mCurrentMouseOffset)
+    {
+
+    }
+
+
+    @Override
+    public void drawOnZooming(
+            Canvas canvas,
+            PointF mCurrentFocusLocation,
+            float scale)
+    {
+
     }
 }
