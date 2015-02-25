@@ -50,7 +50,11 @@
     <string name="add_account">Add account</string>
     <string name="add_account_summary">Add NextGIS Web account</string>
     <string name="delete_account">Delete account</string>
-    <string name="delete_account_summary">Delete account. All layers connected with this account will be deleted too.</string>
+    <string name="delete_account_ask">Delete account?</string>
+    <string name="delete_account_summary">Delete account. All layers connected with this account will be deleted too. Active synchronization will be stopped.</string>
+    <string name="delete_account_warn_msg">Account will be deleted!\nAll account layers will be deleted!\nCurrent sync will be stopped!</string>
+    <string name="waiting">Waiting</string>
+    <string name="wait_sync_stopping">Waiting of synchronization stopping</string>
     <string name="select">Select</string>
     <string name="select_ngw_layer">Select NextGIS Web Layer</string>
     <string name="ngw_account">NextGIS Web account</string>
@@ -102,6 +106,7 @@
     <string name="message_layer_created">Layer created</string>
     <string name="error_form_create">Form create failed</string>
     <string name="system_default">System default</string>
+    <string name="five_minutes">5 minutes</string>
     <string name="ten_minutes">10 minutes</string>
     <string name="fifteen_minutes">15 minutes</string>
     <string name="thirty_minutes">30 minutes</string>

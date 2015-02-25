@@ -26,9 +26,14 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.OnAccountsUpdateListener;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -41,15 +46,18 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.INGWLayer;
+import com.nextgis.maplib.datasource.ngw.SyncAdapter;
 import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.MapContentProviderHelper;
 import com.nextgis.maplib.map.NGWVectorLayer;
+import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.api.ILayerUI;
@@ -62,14 +70,14 @@ import java.util.List;
 import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
-import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_LONG;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
 
 
 public class NGWSettingsActivity
         extends PreferenceActivity
         implements OnAccountsUpdateListener
 {
-    protected static final String  ACCOUNT_ACTION = "com.nextgis.maplibui.ACCOUNT";
+    protected static final String ACCOUNT_ACTION = "com.nextgis.maplibui.ACCOUNT";
 
     protected AccountManager mAccountManager;
     protected final Handler mHandler = new Handler();
@@ -121,21 +129,44 @@ public class NGWSettingsActivity
             PreferenceScreen screen,
             final Account account)
     {
-        //add sync settings group
+        final IGISApplication application = (IGISApplication) getApplicationContext();
+
+        // add sync settings group
         PreferenceCategory syncCategory = new PreferenceCategory(this);
         syncCategory.setTitle(R.string.sync);
         screen.addPreference(syncCategory);
 
-        //add auto sync property
-        CheckBoxPreference enablePeriodicSync = new CheckBoxPreference(this);
-        enablePeriodicSync.setTitle(R.string.auto_sync);
+        // add auto sync property
+        addAutoSyncProperty(account, application, syncCategory);
 
+        // add time for periodic sync
+        addPeriodicSyncTime(account, application, syncCategory);
+
+        // add account layers
+        addAccountLayers(screen, account);
+
+        // add actions group
+        PreferenceCategory actionCategory = new PreferenceCategory(this);
+        actionCategory.setTitle(R.string.actions);
+        screen.addPreference(actionCategory);
+
+        // add delete account action
+        addDeleteAccountAction(account, actionCategory);
+    }
+
+
+    protected void addAutoSyncProperty(
+            final Account account,
+            final IGISApplication application,
+            PreferenceCategory syncCategory)
+    {
         SharedPreferences sharedPreferences = getSharedPreferences(
                 Constants.PREFERENCES, Context.MODE_MULTI_PROCESS);
 
-        final IGISApplication application = (IGISApplication) getApplicationContext();
-        boolean isAccountSyncEnabled =
-                ContentResolver.getSyncAutomatically(account, application.getAuthority());
+        CheckBoxPreference enablePeriodicSync = new CheckBoxPreference(this);
+        enablePeriodicSync.setTitle(R.string.auto_sync);
+
+        boolean isAccountSyncEnabled = isAccountSyncEnabled(account, application.getAuthority());
         enablePeriodicSync.setChecked(isAccountSyncEnabled);
         enablePeriodicSync.setOnPreferenceChangeListener(
                 new Preference.OnPreferenceChangeListener()
@@ -143,14 +174,14 @@ public class NGWSettingsActivity
                     @Override
                     public boolean onPreferenceChange(
                             Preference preference,
-                            Object o)
+                            Object newValue)
                     {
-                        boolean isChecked = (boolean) o;
-                        ContentResolver.setSyncAutomatically(
-                                account, application.getAuthority(), isChecked);
+                        boolean isChecked = (boolean) newValue;
+                        setAccountSyncEnabled(account, application.getAuthority(), isChecked);
                         return true;
                     }
                 });
+
         long timeStamp =
                 sharedPreferences.getLong(SettingsConstants.KEY_PREF_LAST_SYNC_TIMESTAMP, 0);
         if (isAccountSyncEnabled && timeStamp > 0) {
@@ -161,46 +192,75 @@ public class NGWSettingsActivity
             enablePeriodicSync.setSummary(R.string.auto_sync_summary);
         }
         syncCategory.addPreference(enablePeriodicSync);
+    }
 
-        //add time for periodic sync
-        final ListPreference timeInterval = new ListPreference(this);
-        timeInterval.setTitle(R.string.sync_interval);
-        final CharSequence[] values = {"-1", "600", "900", "1800", "3600", "7200"};
+
+    // for overriding in child class
+    protected boolean isAccountSyncEnabled(
+            Account account,
+            String authority)
+    {
+        return ContentResolver.getSyncAutomatically(account, authority);
+    }
+
+
+    // for overriding in child class
+    protected void setAccountSyncEnabled(
+            Account account,
+            String authority,
+            boolean isEnabled)
+    {
+        ContentResolver.setSyncAutomatically(account, authority, isEnabled);
+    }
+
+
+    // for overriding in child class
+    protected void addPeriodicSyncTime(
+            final Account account,
+            final IGISApplication application,
+            PreferenceCategory syncCategory)
+    {
+        final SharedPreferences sharedPreferences =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        String prefValue = "" + sharedPreferences.getLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, NOT_FOUND);
+
         final CharSequence[] keys = {
                 getString(R.string.system_default),
+                getString(R.string.five_minutes),
                 getString(R.string.ten_minutes),
                 getString(R.string.fifteen_minutes),
                 getString(R.string.thirty_minutes),
                 getString(R.string.one_hour),
                 getString(R.string.two_hours)};
+        final CharSequence[] values = {"" + NOT_FOUND, "300", "600", "900", "1800", "3600", "7200"};
+
+        final ListPreference timeInterval = new ListPreference(this);
+        timeInterval.setKey(KEY_PREF_SYNC_PERIOD);
+        timeInterval.setTitle(R.string.sync_interval);
+        timeInterval.setDialogTitle(R.string.sync_set_interval);
         timeInterval.setEntries(keys);
         timeInterval.setEntryValues(values);
-        timeInterval.setDefaultValue(getString(R.string.system_default));
-        timeInterval.setKey(KEY_PREF_SYNC_PERIOD);
 
-        final SharedPreferences sharedPreferencesA =
-                PreferenceManager.getDefaultSharedPreferences(this);
-        String value = "" + sharedPreferencesA.getLong(KEY_PREF_SYNC_PERIOD_LONG, NOT_FOUND);
-        for (int i = 0; i < 6; i++) {
-            if (values[i].equals(value)) {
+        for (int i = 0; i < values.length; i++) {
+            if (values[i].equals(prefValue)) {
                 timeInterval.setValueIndex(i);
-                //timeInterval.setValue((String) values[i]);
                 timeInterval.setSummary(keys[i]);
                 break;
             }
         }
-        timeInterval.setDialogTitle(R.string.sync_set_interval);
+
         timeInterval.setOnPreferenceChangeListener(
                 new Preference.OnPreferenceChangeListener()
                 {
                     @Override
                     public boolean onPreferenceChange(
                             Preference preference,
-                            Object o)
+                            Object newValue)
                     {
-                        long interval = Long.parseLong((String) o);
-                        for (int i = 0; i < 6; i++) {
-                            if (values[i].equals(o)) {
+                        long interval = Long.parseLong((String) newValue);
+
+                        for (int i = 0; i < values.length; i++) {
+                            if (values[i].equals(newValue)) {
                                 timeInterval.setSummary(keys[i]);
                                 break;
                             }
@@ -214,57 +274,18 @@ public class NGWSettingsActivity
                                     account, application.getAuthority(), Bundle.EMPTY, interval);
                         }
 
-                        //set KEY_PREF_SYNC_PERIOD_LONG
-                        return sharedPreferencesA.edit()
-                                .putLong(KEY_PREF_SYNC_PERIOD_LONG, interval)
+                        //set KEY_PREF_SYNC_PERIOD_SEC_LONG
+                        return sharedPreferences.edit()
+                                .putLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, interval)
                                 .commit();
                     }
                 });
+
         syncCategory.addPreference(timeInterval);
-
-        addAccountLayers(screen, account);
-
-        PreferenceCategory actionCategory = new PreferenceCategory(this);
-        actionCategory.setTitle(R.string.actions);
-        screen.addPreference(actionCategory);
-
-        Preference preferenceDelete = new Preference(this);
-        preferenceDelete.setTitle(R.string.delete_account);
-        preferenceDelete.setSummary(R.string.delete_account_summary);
-        if (actionCategory.addPreference(preferenceDelete)) {
-            preferenceDelete.setOnPreferenceClickListener(
-                    new Preference.OnPreferenceClickListener()
-                    {
-                        public boolean onPreferenceClick(Preference preference)
-                        {
-                            IGISApplication application = (IGISApplication) getApplicationContext();
-                            ContentResolver.cancelSync(account, application.getAuthority());
-
-                            final AccountManager accountManager =
-                                    AccountManager.get(NGWSettingsActivity.this);
-                            accountManager.removeAccount(account, null, new Handler());
-
-                            List<INGWLayer> layers =
-                                    getLayersForAccount(NGWSettingsActivity.this, account);
-
-                            for (INGWLayer layer : layers) {
-                                ((Layer) layer).delete();
-                            }
-
-                            application.getMap().save();
-
-                            if (null != mOnDeleteAccountListener) {
-                                mOnDeleteAccountListener.onDeleteAccount(account);
-                            }
-
-                            onBackPressed();
-                            return true;
-                        }
-                    });
-        }
     }
 
 
+    // for overriding in child class
     protected void addAccountLayers(
             PreferenceScreen screen,
             Account account)
@@ -301,9 +322,9 @@ public class NGWSettingsActivity
                             @Override
                             public boolean onPreferenceChange(
                                     Preference preference,
-                                    Object o)
+                                    Object newValue)
                             {
-                                boolean isChecked = (boolean) o;
+                                boolean isChecked = (boolean) newValue;
                                 if (isChecked) {
                                     ngwLayer.setSyncType(Constants.SYNC_ALL);
 
@@ -317,6 +338,153 @@ public class NGWSettingsActivity
 
                 layersCategory.addPreference(layerSync);
             }
+        }
+    }
+
+
+    protected void addDeleteAccountAction(
+            final Account account,
+            PreferenceCategory actionCategory)
+    {
+        final boolean[] warCurrentSyncActive = {false};
+        final IGISApplication application = (IGISApplication) getApplicationContext();
+
+        final BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
+        {
+            final ProgressDialog mProgressDialog = new ProgressDialog(NGWSettingsActivity.this);
+
+
+            @Override
+            public void onReceive(
+                    Context context,
+                    Intent intent)
+            {
+                Log.d(Constants.TAG, "NGWSettingsActivity - broadcastReceiver.onReceive()");
+
+                if (!mProgressDialog.isShowing()) {
+                    Log.d(Constants.TAG, "NGWSettingsActivity - show ProgressDialog");
+
+                    mProgressDialog.setTitle(R.string.waiting);
+                    mProgressDialog.setMessage(getString(R.string.wait_sync_stopping));
+                    mProgressDialog.setIndeterminate(true);
+                    mProgressDialog.show();
+                }
+
+                String action;
+                if (warCurrentSyncActive[0]) {
+                    if (null == intent) {
+                        return;
+                    }
+                    action = intent.getAction();
+
+                } else {
+                    action = SyncAdapter.SYNC_CANCELED;
+                }
+
+                switch (action) {
+                    case SyncAdapter.SYNC_START:
+                        break;
+
+                    case SyncAdapter.SYNC_FINISH:
+                        break;
+
+                    case SyncAdapter.SYNC_CANCELED:
+                        Log.d(Constants.TAG, "NGWSettingsActivity - sync status - NO active");
+
+                        warCurrentSyncActive[0] = false;
+
+                        AccountManager accountManager = AccountManager.get(
+                                NGWSettingsActivity.this);
+                        accountManager.removeAccount(
+                                account, null, new Handler());
+
+                        Log.d(Constants.TAG, "NGWSettingsActivity - account is removed");
+
+                        deleteAccountLayers(application, account);
+                        Log.d(Constants.TAG, "NGWSettingsActivity - account layers are deleted");
+
+                        unregisterReceiver(this);
+                        mProgressDialog.dismiss();
+
+                        finish();
+
+                        break;
+
+                    case SyncAdapter.SYNC_CHANGES:
+                        break;
+                }
+            }
+        };
+
+        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(NGWSettingsActivity.this);
+        dialogBuilder.setIcon(R.drawable.ic_action_warning)
+                .setTitle(R.string.delete_account_ask)
+                .setMessage(R.string.delete_account_warn_msg)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(
+                        R.string.ok, new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(
+                                    DialogInterface dialog,
+                                    int which)
+                            {
+                                Log.d(Constants.TAG, "NGWSettingsActivity - OK pressed");
+
+                                IntentFilter intentFilter = new IntentFilter();
+                                intentFilter.addAction(SyncAdapter.SYNC_CANCELED);
+                                registerReceiver(broadcastReceiver, intentFilter);
+
+                                warCurrentSyncActive[0] = AccountUtil.isSyncActive(
+                                        account, application.getAuthority());
+
+                                ContentResolver.removePeriodicSync(
+                                        account, application.getAuthority(), Bundle.EMPTY);
+                                ContentResolver.setSyncAutomatically(
+                                        account, application.getAuthority(), false);
+
+                                ContentResolver.cancelSync(account, application.getAuthority());
+
+                                Log.d(
+                                        Constants.TAG,
+                                        "NGWSettingsActivity - ContentResolver.cancelSync() is performed");
+
+                                broadcastReceiver.onReceive(NGWSettingsActivity.this, null);
+                            }
+                        });
+
+        Preference preferenceDelete = new Preference(this);
+        preferenceDelete.setTitle(R.string.delete_account);
+        preferenceDelete.setSummary(R.string.delete_account_summary);
+
+        if (actionCategory.addPreference(preferenceDelete)) {
+            preferenceDelete.setOnPreferenceClickListener(
+                    new Preference.OnPreferenceClickListener()
+                    {
+                        public boolean onPreferenceClick(Preference preference)
+                        {
+                            dialogBuilder.show();
+                            return true;
+                        }
+                    });
+        }
+    }
+
+
+    protected void deleteAccountLayers(
+            IGISApplication application,
+            Account account)
+    {
+        List<INGWLayer> layers = getLayersForAccount(this, account);
+
+        for (INGWLayer layer : layers) {
+            ((Layer) layer).delete();
+        }
+
+        application.getMap().save();
+
+        if (null != mOnDeleteAccountListener) {
+            mOnDeleteAccountListener.onDeleteAccount(account);
         }
     }
 
