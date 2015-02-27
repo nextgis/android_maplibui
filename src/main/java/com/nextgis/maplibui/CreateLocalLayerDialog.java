@@ -51,6 +51,7 @@ import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.NGWVectorLayer;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.mapui.LocalTMSLayerUI;
 import com.nextgis.maplibui.mapui.NGWVectorLayerUI;
@@ -569,12 +570,8 @@ public class CreateLocalLayerDialog
             FileUtil.createDir(outputFile.getParentFile());
         }
         FileOutputStream fout = new FileOutputStream(outputFile);
-        int nCount;
-        byte[] buffer = new byte[1024];
-        while ((nCount = zis.read(buffer)) > 0) {
-            fout.write(buffer, 0, nCount);
-        }
-        //fout.flush();
+        byte[] buffer = new byte[Constants.IO_BUFFER_SIZE];
+        FileUtil.copyStream(zis, fout, buffer, Constants.IO_BUFFER_SIZE);
         fout.close();
     }
 
