@@ -386,6 +386,10 @@ public class MapView
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
         //Log.d(Constants.TAG, "onSingleTapUp: " + e.toString());
+        for (MapViewEventListener listener : mListeners){
+            if(null != listener)
+                listener.onSingleTapUp(e);
+        }
         return false;
     }
 

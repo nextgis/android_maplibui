@@ -21,10 +21,21 @@
 
 package com.nextgis.maplibui;
 
+import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.PointF;
+import com.nextgis.maplib.datasource.GeoGeometry;
+import com.nextgis.maplib.datasource.GeoLineString;
+import com.nextgis.maplib.datasource.GeoMultiPoint;
+import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
+import com.nextgis.maplib.map.VectorLayer;
+import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplib.util.VectorCacheItem;
 import com.nextgis.maplibui.api.Overlay;
+
+import java.util.List;
 
 
 /**
@@ -33,12 +44,89 @@ import com.nextgis.maplibui.api.Overlay;
 public class EditLayerOverlay
         extends Overlay
 {
+    public final static int MODE_HIGHLIGHT = 1;
+    public final static int MODE_EDIT = 2;
+    protected VectorLayer mLayer;
+    protected VectorCacheItem mItem;
+    protected int mMode;
+    protected Paint mPaint;
+
+    public EditLayerOverlay(
+            Context context,
+            MapViewOverlays mapViewOverlays)
+    {
+        super(context, mapViewOverlays);
+        mLayer = null;
+        mItem = null;
+        mMode = MODE_HIGHLIGHT;
+
+        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeCap(Paint.Cap.ROUND);
+        mPaint.setColor(mContext.getResources().getColor(R.color.accent));
+        mPaint.setAlpha(190);
+        mPaint.setStrokeWidth(8);
+    }
+
+
+    public void setMode(int mode)
+    {
+        mMode = mode;
+    }
+
+
+    public void setFeature(VectorLayer layer, VectorCacheItem item){
+        mLayer = layer;
+        mItem = item;
+
+        mMapViewOverlays.postInvalidate();
+    }
 
     @Override
     public void draw(
             Canvas canvas,
             MapDrawable mapDrawable)
     {
+        if(null == mItem)
+            return;
+        GeoGeometry geom = mItem.getGeoGeometry();
+        if(null == geom)
+            return;
+
+        GeoPoint[] geoPoints = null;
+        float[] points = null;
+        switch (geom.getType()){
+            case GeoConstants.GTPoint:
+                geoPoints = new GeoPoint[1];
+                geoPoints[0] = (GeoPoint) geom;
+                points = mapDrawable.mapToScreen(geoPoints);
+                mPaint.setStrokeWidth(30);
+                canvas.drawPoints(points, mPaint);
+                break;
+            case GeoConstants.GTMultiPoint:
+                GeoMultiPoint geoMultiPoint = (GeoMultiPoint) geom;
+                geoPoints = new GeoPoint[geoMultiPoint.size()];
+                for(int i = 0; i < geoMultiPoint.size(); i++){
+                    geoPoints[i] = geoMultiPoint.get(i);
+                }
+                points = mapDrawable.mapToScreen(geoPoints);
+                mPaint.setStrokeWidth(30);
+                canvas.drawPoints(points, mPaint);
+                break;
+            case GeoConstants.GTLineString:
+                GeoLineString lineString = (GeoLineString)geom;
+                geoPoints = lineString.getPoints().toArray(new GeoPoint[lineString.getPoints().size()]);
+                points = mapDrawable.mapToScreen(geoPoints);
+                mPaint.setStrokeWidth(10);
+                canvas.drawLines(points, mPaint);
+                break;
+            case GeoConstants.GTMultiLineString:
+            case GeoConstants.GTPolygon:
+            case GeoConstants.GTMultiPolygon:
+            case GeoConstants.GTGeometryCollection:
+                break;
+        }
+
 
     }
 
@@ -48,7 +136,11 @@ public class EditLayerOverlay
             Canvas canvas,
             PointF mCurrentMouseOffset)
     {
-
+        if(null == mItem)
+            return;
+        GeoGeometry geom = mItem.getGeoGeometry();
+        if(null == geom)
+            return;
     }
 
 
@@ -58,6 +150,11 @@ public class EditLayerOverlay
             PointF mCurrentFocusLocation,
             float scale)
     {
-
+        if(null == mItem)
+            return;
+        GeoGeometry geom = mItem.getGeoGeometry();
+        if(null == geom)
+            return;
     }
+
 }

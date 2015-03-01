@@ -46,9 +46,7 @@ public class CurrentTrackOverlay
 {
     private       Cursor          mCursor;
     private final Uri             mContentUriTracks;
-    private       Context         mContext;
     private       Paint           mPaint;
-    private       MapViewOverlays mMapViewOverlays;
     private       List<GeoPoint>  mTrackpoints;
 
     String[] mProjection = new String[] {TrackLayer.FIELD_ID};
@@ -61,9 +59,9 @@ public class CurrentTrackOverlay
             Context context,
             MapViewOverlays mapViewOverlays)
     {
-        mContext = context;
+        super(context, mapViewOverlays);
+
         Activity parent = (Activity) context;
-        mMapViewOverlays = mapViewOverlays;
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.STROKE);

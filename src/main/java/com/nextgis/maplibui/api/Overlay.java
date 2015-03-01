@@ -21,16 +21,29 @@
 
 package com.nextgis.maplibui.api;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
+import com.nextgis.maplibui.MapViewOverlays;
 
 
 public abstract class Overlay
 {
-    private boolean mIsVisible = true;
+    protected boolean mIsVisible = true;
+
+    protected Context mContext;
+    protected MapViewOverlays mMapViewOverlays;
+
+    public Overlay(
+            Context context,
+            MapViewOverlays mapViewOverlays)
+    {
+        mContext = context;
+        mMapViewOverlays = mapViewOverlays;
+    }
 
 
     public abstract void draw(

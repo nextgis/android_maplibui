@@ -51,7 +51,6 @@ public class CurrentLocationOverlay
 {
     public static final long LOCATION_FORCE_UPDATE_TIMEOUT = 15000;
 
-    private Context        mContext;
     private GpsEventSource mGpsEventSource;
     private Location       mCurrentLocation;
     private boolean        mIsInBounds;
@@ -62,17 +61,15 @@ public class CurrentLocationOverlay
             R.drawable.abc_ic_ab_back_mtrl_am_alpha;
     private int         mMarkerColor;
     private OverlayItem mMarker, mAccuracy;
-    private MapViewOverlays mMapViewOverlays;
 
 
     public CurrentLocationOverlay(
             Context context,
             MapViewOverlays mapViewOverlays)
     {
-        mContext = context;
+        super(context, mapViewOverlays);
         Activity parent = (Activity) context;
         mGpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
-        mMapViewOverlays = mapViewOverlays;
         mMarkerColor = mContext.getResources().getColor(R.color.accent);
 
         double longitude = 0, latitude = 0;

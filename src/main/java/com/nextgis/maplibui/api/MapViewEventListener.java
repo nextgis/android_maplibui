@@ -31,4 +31,6 @@ import com.nextgis.maplib.api.MapEventListener;
 public interface MapViewEventListener extends MapEventListener
 {
     public void onLongPress(MotionEvent event);
+
+    public void onSingleTapUp(MotionEvent event);
 }
