@@ -132,4 +132,8 @@
     <string name="zip">ZIP file</string>
     <string name="formbuilder">FormBuilder file</string>
     <string name="geojson">GeoJSON file</string>
+    <string name="add_point">Add point</string>
+    <string name="edit_attributes">Edit attributes</string>
+    <string name="move_point_to_current_location">Point to current location</string>
+    <string name="delete_point">Delete point</string>
 </resources>
