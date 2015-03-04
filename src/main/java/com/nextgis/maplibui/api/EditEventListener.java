@@ -19,29 +19,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'com.android.library'
+package com.nextgis.maplibui.api;
 
-android {
-    compileSdkVersion 21
-    buildToolsVersion '21.1.2'
-    defaultConfig {
-        minSdkVersion 8
-        targetSdkVersion 21
-        versionCode 7
-        versionName '2.1'
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    productFlavors {
-    }
-}
+/**
+ * Edit events
+ */
+public interface EditEventListener
+{
+    /**
+     * event on starts edit session
+     */
+    public void onStartEditSession();
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:21.0.3'
-    compile project(':maplib')
+    /**
+     * event on finished edit session
+     */
+    public void onFinishEditSession();
 }

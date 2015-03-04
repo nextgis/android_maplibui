@@ -26,6 +26,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoLineString;
 import com.nextgis.maplib.datasource.GeoMultiLineString;
@@ -38,9 +41,11 @@ import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.VectorCacheItem;
+import com.nextgis.maplibui.api.EditEventListener;
 import com.nextgis.maplibui.api.Overlay;
 
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.List;
 
 
@@ -54,8 +59,8 @@ public class EditLayerOverlay
     public final static int MODE_EDIT      = 2;
 
     protected final static int VERTEX_RADIUS = 20;
-    protected final static int EDGE_RADIUS = 12;
-    protected final static int LINE_WIDTH = 4;
+    protected final static int EDGE_RADIUS   = 12;
+    protected final static int LINE_WIDTH    = 4;
 
     protected VectorLayer mLayer;
     protected VectorCacheItem mItem;
@@ -65,6 +70,8 @@ public class EditLayerOverlay
     protected int mOutlineColor;
     protected int mSelectColor;
     protected DrawItems mDrawItems;
+
+    protected List<EditEventListener> mListeners;
 
 
     public EditLayerOverlay(
@@ -87,12 +94,19 @@ public class EditLayerOverlay
         //mPaint.setAlpha(190);
 
         mDrawItems = new DrawItems();
+
+        mListeners = new ArrayList<>();
     }
 
 
     public void setMode(int mode)
     {
         mMode = mode;
+        if(mMode == MODE_EDIT){
+            for(EditEventListener listener : mListeners){
+                listener.onStartEditSession();
+            }
+        }
     }
 
 
@@ -120,7 +134,7 @@ public class EditLayerOverlay
 
         fillDrawItems(geom, mapDrawable);
 
-        switch (geom.getType()){
+        switch (geom.getType()) {
             case GeoConstants.GTPoint:
             case GeoConstants.GTMultiPoint:
                 mDrawItems.drawPoints(canvas);
@@ -136,7 +150,11 @@ public class EditLayerOverlay
         }
     }
 
-    protected void fillDrawItems(GeoGeometry geom, MapDrawable mapDrawable){
+
+    protected void fillDrawItems(
+            GeoGeometry geom,
+            MapDrawable mapDrawable)
+    {
         mDrawItems.clear();
 
         GeoPoint[] geoPoints = null;
@@ -226,7 +244,64 @@ public class EditLayerOverlay
         GeoGeometry geom = mItem.getGeoGeometry();
         if(null == geom)
             return;
+
+
     }
+
+    public void addListener(EditEventListener listener)
+    {
+        if (mListeners != null && !mListeners.contains(listener)) {
+            mListeners.add(listener);
+        }
+    }
+
+    public void removeListener(EditEventListener listener)
+    {
+        if (mListeners != null) {
+            mListeners.remove(listener);
+        }
+    }
+
+
+    public void setToolbar(Toolbar toolbar)
+    {
+        if(null == toolbar || null == mLayer)
+            return;
+
+        switch (mLayer.getGeometryType()) {
+            case GeoConstants.GTPoint:
+                toolbar.inflateMenu(R.menu.edit_point);
+                break;
+            case GeoConstants.GTMultiPoint:
+                break;
+            case GeoConstants.GTLineString:
+                break;
+            case GeoConstants.GTMultiLineString:
+                break;
+            case GeoConstants.GTPolygon:
+                break;
+            case GeoConstants.GTMultiPolygon:
+                break;
+            case GeoConstants.GTGeometryCollection:
+            default:
+                break;
+        }
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener()
+        {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem)
+            {
+                if(menuItem.getItemId() == R.id.menu_edit_apply){
+                    for(EditEventListener listener : mListeners){
+                        listener.onFinishEditSession();
+                    }
+                }
+                return true;
+            }
+        });
+
+    }
+
 
     protected class DrawItems{
         List<float[]> mDrawItemsVertex;
