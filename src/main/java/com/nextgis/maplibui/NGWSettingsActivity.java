@@ -46,6 +46,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -81,6 +82,7 @@ public class NGWSettingsActivity
 
     protected AccountManager mAccountManager;
     protected final Handler mHandler = new Handler();
+    protected String mAction;
 
 
     @Override
@@ -93,20 +95,20 @@ public class NGWSettingsActivity
         }
 
         ViewGroup root = ((ViewGroup) findViewById(android.R.id.content));
-        LinearLayout content = (LinearLayout) root.getChildAt(0);
-        LinearLayout toolbarContainer =
-                (LinearLayout) View.inflate(this, R.layout.activity_settings, null);
+        if(null != root) {
+            View content = root.getChildAt(0);
+            if (null != content) {
+                LinearLayout toolbarContainer = (LinearLayout) View.inflate(this, R.layout.activity_settings, null);
 
-        root.removeAllViews();
-        toolbarContainer.addView(content);
-        root.addView(toolbarContainer);
+                root.removeAllViews();
+                toolbarContainer.addView(content);
+                root.addView(toolbarContainer);
 
-        Toolbar toolbar = (Toolbar) toolbarContainer.findViewById(R.id.main_toolbar);
-        toolbar.getBackground().setAlpha(255);
-        toolbar.setTitle(getTitle());
-        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-        toolbar.setNavigationOnClickListener(
-                new View.OnClickListener()
+                Toolbar toolbar = (Toolbar) toolbarContainer.findViewById(R.id.main_toolbar);
+                toolbar.getBackground().setAlpha(255);
+                toolbar.setTitle(getTitle());
+                toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+                toolbar.setNavigationOnClickListener(new View.OnClickListener()
                 {
                     @Override
                     public void onClick(View v)
@@ -114,14 +116,19 @@ public class NGWSettingsActivity
                         NGWSettingsActivity.this.finish();
                     }
                 });
-
-        String action = getIntent().getAction();
-        if (action != null && action.equals(ACCOUNT_ACTION)) {
-            Account account = getIntent().getParcelableExtra("account");
-            fillAccountPreferences(getPreferenceScreen(), account);
-        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            fillPreferences();
+            }
         }
+
+        PreferenceScreen screen = getPreferenceManager().createPreferenceScreen(this);
+        mAction = getIntent().getAction();
+        if (mAction != null && mAction.equals(ACCOUNT_ACTION)) {
+            Account account = getIntent().getParcelableExtra("account");
+            fillAccountPreferences(screen, account);
+        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            fillPreferences(screen);
+        }
+
+        setPreferenceScreen(screen);
     }
 
 
@@ -517,7 +524,7 @@ public class NGWSettingsActivity
     }
 
 
-    protected void fillPreferences()
+    protected void fillPreferences(PreferenceScreen screen)
     {
         if (null != mAccountManager) {
             for (Account account : mAccountManager.getAccountsByType(
@@ -533,7 +540,9 @@ public class NGWSettingsActivity
 
                 preference.setIntent(intent);
 
-                getPreferenceScreen().addPreference(preference);
+                if(null != screen) {
+                    screen.addPreference(preference);
+                }
             }
             //add "Add account" preference
             Preference preference = new Preference(this);
@@ -542,7 +551,9 @@ public class NGWSettingsActivity
             Intent intent = new Intent(this, NGWLoginActivity.class);
             preference.setIntent(intent);
 
-            getPreferenceScreen().addPreference(preference);
+            if(null != screen) {
+                screen.addPreference(preference);
+            }
         }
     }
 
@@ -614,9 +625,14 @@ public class NGWSettingsActivity
     public void onAccountsUpdated(Account[] accounts)
     {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            getPreferenceScreen().removeAll();
-            fillPreferences();
-            //onContentChanged();
+            if(TextUtils.isEmpty(mAction)) {
+                PreferenceScreen screen = getPreferenceScreen();
+                if (null != screen) {
+                    screen.removeAll();
+                    fillPreferences(screen);
+                    //onContentChanged();
+                }
+            }
         } else {
             invalidateHeaders();
         }
