@@ -95,7 +95,7 @@ public class NGWSettingsActivity
         }
 
         ViewGroup root = ((ViewGroup) findViewById(android.R.id.content));
-        if(null != root) {
+        if (null != root) {
             View content = root.getChildAt(0);
             if (null != content) {
                 LinearLayout toolbarContainer = (LinearLayout) View.inflate(this, R.layout.activity_settings, null);
@@ -119,16 +119,18 @@ public class NGWSettingsActivity
             }
         }
 
-        PreferenceScreen screen = getPreferenceManager().createPreferenceScreen(this);
-        mAction = getIntent().getAction();
-        if (mAction != null && mAction.equals(ACCOUNT_ACTION)) {
-            Account account = getIntent().getParcelableExtra("account");
-            fillAccountPreferences(screen, account);
-        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            fillPreferences(screen);
-        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB){
+            PreferenceScreen screen = getPreferenceManager().createPreferenceScreen(this);
+            mAction = getIntent().getAction();
+            if (mAction != null && mAction.equals(ACCOUNT_ACTION)) {
+                Account account = getIntent().getParcelableExtra("account");
+                fillAccountPreferences(screen, account);
+            } else {
+                fillPreferences(screen);
+            }
 
-        setPreferenceScreen(screen);
+            setPreferenceScreen(screen);
+        }
     }
 
 
