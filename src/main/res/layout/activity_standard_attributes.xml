@@ -27,9 +27,7 @@
               android:layout_height="match_parent">
 
     <include
-        layout="@layout/actionbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        layout="@layout/actionbar"/>
 
     <LinearLayout
         android:id="@+id/location_panel"
