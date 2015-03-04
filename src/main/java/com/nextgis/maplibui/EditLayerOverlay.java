@@ -303,6 +303,15 @@ public class EditLayerOverlay
     }
 
 
+    public void deleteItem() {
+        mLayer.deleteCacheItem((int) mItem.getId());
+        mMapViewOverlays.onLayerChanged(mLayer.getId());
+
+        // TODO move delete to Undo Toast listener
+        mLayer.delete(VectorLayer.FIELD_ID + " = ?", new String[]{mItem.getId() + ""});
+    }
+
+
     protected class DrawItems{
         List<float[]> mDrawItemsVertex;
         List<float[]> mDrawItemsEdge;
