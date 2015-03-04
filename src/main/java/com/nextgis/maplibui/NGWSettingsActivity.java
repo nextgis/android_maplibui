@@ -627,7 +627,7 @@ public class NGWSettingsActivity
     public void onAccountsUpdated(Account[] accounts)
     {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            if(TextUtils.isEmpty(mAction)) {
+            if(mAction == null || !mAction.equals(ACCOUNT_ACTION)) {
                 PreferenceScreen screen = getPreferenceScreen();
                 if (null != screen) {
                     screen.removeAll();
