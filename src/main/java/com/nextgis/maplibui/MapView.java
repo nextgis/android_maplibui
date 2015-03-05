@@ -529,16 +529,17 @@ public class MapView
             int id,
             float percent)
     {
+        //Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent);
         mDrawingState = DRAW_SATE_drawing_noclearbk;
-        if(System.currentTimeMillis() - mStartDrawTime > DISPLAY_REDRAW_TIMEOUT){
-            mStartDrawTime = System.currentTimeMillis();
-            postInvalidate();
-        }
-        else if(percent >= 1.0){
+        if(percent >= 1.0){
             //Log.d(TAG, "LayerDrawFinished: id - " + id + ", percent - " + percent);
             //ILayer layer = mMap.getLastLayer();
             //if(null != layer && layer.getId() == id)
-                invalidate();
+            invalidate();
+        }
+        else if(System.currentTimeMillis() - mStartDrawTime > DISPLAY_REDRAW_TIMEOUT){
+            mStartDrawTime = System.currentTimeMillis();
+            postInvalidate();
         }
     }
 
