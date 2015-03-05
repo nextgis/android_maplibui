@@ -23,6 +23,10 @@ package com.nextgis.maplibui;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplibui.api.Overlay;
 
@@ -97,5 +101,103 @@ public class MapViewOverlays
     public List<Overlay> getOverlays()
     {
         return mOverlays;
+    }
+
+
+    @Override
+    protected Parcelable onSaveInstanceState()
+    {
+        Parcelable superState = super.onSaveInstanceState();
+        SavedState savedState = new SavedState(superState);
+
+        for(Overlay overlay : mOverlays) {
+            savedState.add(overlay.onSaveState());
+        }
+
+        return savedState;
+    }
+
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state)
+    {
+        if (state instanceof SavedState) {
+            SavedState savedState = (SavedState) state;
+
+            int counter = 0;
+            for(Overlay overlay : mOverlays) {
+                overlay.onRestoreState(savedState.get(counter++));
+            }
+
+            super.onRestoreInstanceState(savedState.getSuperState());
+        } else {
+            super.onRestoreInstanceState(state);
+        }
+    }
+
+    public static class SavedState
+            extends BaseSavedState
+    {
+        protected List<Bundle> mBundles;
+
+
+        public SavedState(Parcelable parcel)
+        {
+            super(parcel);
+            mBundles = new ArrayList<>();
+        }
+
+
+        private SavedState(Parcel in)
+        {
+            super(in);
+
+            mBundles = new ArrayList<>();
+            int size = in.readInt();
+            for(int i = 0; i < size; i++){
+                Bundle bundle = in.readBundle();
+                mBundles.add(bundle);
+            }
+        }
+
+        public void add(Bundle bundle){
+            mBundles.add(bundle);
+        }
+
+        public Bundle get(int index){
+            return mBundles.get(index);
+        }
+
+        @Override
+        public void writeToParcel(
+                @NonNull
+                Parcel out,
+                int flags)
+        {
+            super.writeToParcel(out, flags);
+
+            out.writeInt(mBundles.size());
+            for(Bundle bundle : mBundles) {
+                out.writeBundle(bundle);
+            }
+        }
+
+
+        public static final Creator<SavedState> CREATOR = new Creator<SavedState>()
+        {
+
+            @Override
+            public SavedState createFromParcel(Parcel in)
+            {
+                return new SavedState(in);
+            }
+
+
+            @Override
+            public SavedState[] newArray(int size)
+            {
+                return new SavedState[size];
+            }
+        };
     }
 }

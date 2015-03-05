@@ -25,6 +25,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.PointF;
+import android.os.Bundle;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplibui.MapViewOverlays;
@@ -33,6 +34,9 @@ import com.nextgis.maplibui.MapViewOverlays;
 public abstract class Overlay
 {
     protected boolean mIsVisible = true;
+
+    protected static final String BUNDLE_KEY_TYPE = "type";
+    protected static final String BUNDLE_KEY_VISIBLE = "is_visible";
 
     protected Context mContext;
     protected MapViewOverlays mMapViewOverlays;
@@ -142,4 +146,17 @@ public abstract class Overlay
         return mIsVisible;
     }
 
+
+    public Bundle onSaveState()
+    {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(BUNDLE_KEY_VISIBLE, mIsVisible);
+        return bundle;
+    }
+
+
+    public void onRestoreState(Bundle bundle)
+    {
+        mIsVisible = bundle.getBoolean(BUNDLE_KEY_VISIBLE);
+    }
 }

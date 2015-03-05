@@ -25,7 +25,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.view.View;
 
 import com.nextgis.maplib.api.ILayer;
@@ -227,6 +230,13 @@ public class MapViewBase
         return ret;
     }
 
+    public ILayer getLayerById(int id){
+        if(mMap != null){
+            return mMap.getLayerById(id);
+        }
+        return null;
+    }
+
     public List<ILayer> getVectorLayersByType(int types){
         List<ILayer> ret = new ArrayList<>();
 
@@ -270,4 +280,6 @@ public class MapViewBase
 
         return null;
     }
+
+
 }
