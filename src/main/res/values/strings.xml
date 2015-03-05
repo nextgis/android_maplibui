@@ -136,4 +136,6 @@
     <string name="edit_attributes">Edit attributes</string>
     <string name="move_point_to_current_location">Point to current location</string>
     <string name="delete_point">Delete point</string>
+    <string name="add_multipoint">Add multipoint</string>
+    <string name="delete_multipoint">Delete multipoint</string>
 </resources>

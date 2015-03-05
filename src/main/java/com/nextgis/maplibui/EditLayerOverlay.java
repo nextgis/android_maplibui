@@ -26,6 +26,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import com.nextgis.maplib.api.MapEventListener;
@@ -73,6 +74,11 @@ public class EditLayerOverlay
 
     protected List<EditEventListener> mListeners;
 
+    protected static final int mType = 3;
+
+    protected static final String BUNDLE_KEY_MODE = "mode";
+    protected static final String BUNDLE_KEY_LAYER = "layer";
+    protected static final String BUNDLE_KEY_FEATURE = "feature";
 
     public EditLayerOverlay(
             Context context,
@@ -273,6 +279,7 @@ public class EditLayerOverlay
                 toolbar.inflateMenu(R.menu.edit_point);
                 break;
             case GeoConstants.GTMultiPoint:
+                toolbar.inflateMenu(R.menu.edit_multipoint);
                 break;
             case GeoConstants.GTLineString:
                 break;
@@ -300,6 +307,56 @@ public class EditLayerOverlay
             }
         });
 
+    }
+
+
+    @Override
+    public Bundle onSaveState()
+    {
+        Bundle bundle = super.onSaveState();
+        bundle.putInt(BUNDLE_KEY_TYPE, mType);
+        bundle.putInt(BUNDLE_KEY_MODE, mMode);
+        if(null == mLayer){
+            bundle.putInt(BUNDLE_KEY_LAYER, Constants.NOT_FOUND);
+        }
+        else {
+            bundle.putInt(BUNDLE_KEY_LAYER, mLayer.getId());
+        }
+
+        if(null == mItem){
+            bundle.putLong(BUNDLE_KEY_FEATURE, Constants.NOT_FOUND);
+        }
+        else{
+            bundle.putLong(BUNDLE_KEY_FEATURE, mItem.getId());
+        }
+        return bundle;
+    }
+
+
+    @Override
+    public void onRestoreState(Bundle bundle)
+    {
+        if(null != bundle){
+            int type = bundle.getInt(BUNDLE_KEY_TYPE);
+            if(mType == type){
+                mMode = bundle.getInt(BUNDLE_KEY_MODE);
+                int layerId = bundle.getInt(BUNDLE_KEY_LAYER);
+                mLayer = (VectorLayer) mMapViewOverlays.getLayerById(layerId);
+                if(null != mLayer) {
+                    long featureId = bundle.getLong(BUNDLE_KEY_FEATURE);
+                    for (VectorCacheItem item : mLayer.getVectorCache()) {
+                        if (item.getId() == featureId) {
+                            mItem = item;
+                            break;
+                        }
+                    }
+                }
+                else{
+                    mItem = null;
+                }
+            }
+        }
+        super.onRestoreState(bundle);
     }
 
 
