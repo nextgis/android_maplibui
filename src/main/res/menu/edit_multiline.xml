@@ -30,7 +30,7 @@
         android:title="@string/apply"
         />
     <item
-        android:id="@+id/menu_edit_add_new_multipoint"
+        android:id="@+id/menu_edit_add_new_nultipoint"
         app:showAsAction="always"
         android:icon="@drawable/ic_action_add_points"
         android:title="@string/add_multipoint"

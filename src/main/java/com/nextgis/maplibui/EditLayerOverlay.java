@@ -282,17 +282,22 @@ public class EditLayerOverlay
                 toolbar.inflateMenu(R.menu.edit_multipoint);
                 break;
             case GeoConstants.GTLineString:
+                toolbar.inflateMenu(R.menu.edit_line);
                 break;
             case GeoConstants.GTMultiLineString:
+                toolbar.inflateMenu(R.menu.edit_multiline);
                 break;
             case GeoConstants.GTPolygon:
+                toolbar.inflateMenu(R.menu.edit_polygon);
                 break;
             case GeoConstants.GTMultiPolygon:
+                toolbar.inflateMenu(R.menu.edit_multipolygon);
                 break;
             case GeoConstants.GTGeometryCollection:
             default:
                 break;
         }
+
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener()
         {
             @Override
