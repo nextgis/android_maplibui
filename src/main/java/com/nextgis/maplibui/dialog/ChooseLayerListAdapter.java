@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui;
+package com.nextgis.maplibui.dialog;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +29,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.nextgis.maplib.api.ILayer;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerSelector;
 import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.mapui.LayerFactoryUI;

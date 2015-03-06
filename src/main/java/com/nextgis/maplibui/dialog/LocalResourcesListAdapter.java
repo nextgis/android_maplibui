@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui;
+package com.nextgis.maplibui.dialog;
 
 import android.graphics.Typeface;
 import android.util.TypedValue;
@@ -34,6 +34,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ISelectResourceDialog;
 
 import java.io.File;

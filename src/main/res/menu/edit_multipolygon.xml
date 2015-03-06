@@ -24,12 +24,6 @@
       xmlns:app="http://schemas.android.com/apk/res-auto"
     >
     <item
-        android:id="@+id/menu_edit_apply"
-        app:showAsAction="always|withText"
-        android:icon="@drawable/ic_action_apply"
-        android:title="@string/apply"
-        />
-    <item
         android:id="@+id/menu_edit_add_new_nultipoint"
         app:showAsAction="always"
         android:icon="@drawable/ic_action_add_points"

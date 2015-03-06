@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui;
+package com.nextgis.maplibui.overlay;
 
 import android.app.Activity;
 import android.content.Context;
@@ -35,6 +35,8 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplibui.MapViewOverlays;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.Overlay;
 
 import java.util.ArrayList;

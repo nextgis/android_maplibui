@@ -31,12 +31,11 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
-import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplib.util.FileUtil;
-import com.nextgis.maplibui.CreateLocalLayerDialog;
-import com.nextgis.maplibui.CreateRemoteTMSLayerDialog;
+import com.nextgis.maplibui.dialog.CreateLocalLayerDialog;
+import com.nextgis.maplibui.dialog.CreateRemoteTMSLayerDialog;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.SelectNGWResourceDialog;
+import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
 import org.json.JSONException;
 import org.json.JSONObject;
 

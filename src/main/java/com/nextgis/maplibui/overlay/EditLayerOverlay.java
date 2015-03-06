@@ -19,8 +19,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui;
+package com.nextgis.maplibui.overlay;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -30,9 +31,15 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.internal.view.SupportMenuInflater;
+import android.support.v7.internal.view.menu.MenuBuilder;
+import android.support.v7.widget.ActionMenuPresenter;
+import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import com.cocosw.undobar.UndoBarController;
 import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoGeometry;
@@ -47,6 +54,9 @@ import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.VectorCacheItem;
+import com.nextgis.maplibui.BottomToolbar;
+import com.nextgis.maplibui.MapViewOverlays;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.EditEventListener;
 import com.nextgis.maplibui.api.Overlay;
 
@@ -61,6 +71,8 @@ import java.util.List;
 public class EditLayerOverlay
         extends Overlay
 {
+
+    public final static int MODE_NONE = 0;
     public final static int MODE_HIGHLIGHT = 1;
     public final static int MODE_EDIT      = 2;
 
@@ -92,7 +104,7 @@ public class EditLayerOverlay
         super(context, mapViewOverlays);
         mLayer = null;
         mItem = null;
-        mMode = MODE_HIGHLIGHT;
+        mMode = MODE_NONE;
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.STROKE);
@@ -118,6 +130,14 @@ public class EditLayerOverlay
                 listener.onStartEditSession();
             }
         }
+        else if(mMode == MODE_NONE){
+            mLayer = null;
+            mItem = null;
+            mMapViewOverlays.postInvalidate();
+        }
+        else if(mMode == MODE_HIGHLIGHT){
+            mMapViewOverlays.postInvalidate();
+        }
     }
 
 
@@ -128,7 +148,7 @@ public class EditLayerOverlay
         mLayer = layer;
         mItem = item;
 
-        mMapViewOverlays.postInvalidate();
+        setMode(MODE_HIGHLIGHT);
     }
 
 
@@ -274,10 +294,25 @@ public class EditLayerOverlay
     }
 
 
-    public void setToolbar(Toolbar toolbar)
+    public void setToolbar(BottomToolbar toolbar)
     {
         if(null == toolbar || null == mLayer)
             return;
+
+        toolbar.setNavigationIcon(R.drawable.ic_action_apply);
+        toolbar.setNavigationContentDescription(R.string.apply);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                for(EditEventListener listener : mListeners){
+                    listener.onFinishEditSession();
+                }
+
+                setMode(MODE_NONE);
+            }
+        });
 
         switch (mLayer.getGeometryType()) {
             case GeoConstants.GTPoint:
@@ -303,16 +338,15 @@ public class EditLayerOverlay
                 break;
         }
 
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener()
+        toolbar.setOnMenuItemClickListener(new BottomToolbar.OnMenuItemClickListener()
         {
             @Override
             public boolean onMenuItemClick(MenuItem menuItem)
             {
-                if(menuItem.getItemId() == R.id.menu_edit_apply){
-                    for(EditEventListener listener : mListeners){
-                        listener.onFinishEditSession();
-                    }
-                }
+                /*if(menuItem.getItemId() == R.id.menu_edit_apply){
+
+
+                }*/
                 return true;
             }
         });
@@ -533,6 +567,51 @@ public class EditLayerOverlay
                     canvas.drawPoint(items[mSelectedPoint], items[mSelectedPoint + 1], mPaint);
                 }
             }
+        }
+    }
+
+
+    private Toolbar.OnMenuItemClickListener mOnMenuItemClickListener;
+    private MenuBuilder.Callback mMenuBuilderCallback;
+
+    private class MenuBuilderCallback
+            implements MenuBuilder.Callback
+    {
+        @Override
+        public boolean onMenuItemSelected(
+                MenuBuilder menu,
+                MenuItem item)
+        {
+            return mOnMenuItemClickListener != null &&
+                   mOnMenuItemClickListener.onMenuItemClick(item);
+        }
+
+
+        @Override
+        public void onMenuModeChange(MenuBuilder menu)
+        {
+            if (mMenuBuilderCallback != null) {
+                mMenuBuilderCallback.onMenuModeChange(menu);
+            }
+        }
+    }
+
+
+    private class ActionMenuPresenterCallback
+            implements ActionMenuPresenter.Callback
+    {
+        @Override
+        public void onCloseMenu(
+                MenuBuilder menu,
+                boolean allMenusAreClosing)
+        {
+        }
+
+
+        @Override
+        public boolean onOpenSubMenu(MenuBuilder subMenu)
+        {
+            return false;
         }
     }
 }
