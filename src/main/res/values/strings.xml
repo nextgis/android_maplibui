@@ -138,4 +138,5 @@
     <string name="delete_point">Delete point</string>
     <string name="add_multipoint">Add multipoint</string>
     <string name="delete_multipoint">Delete multipoint</string>
+    <string name="delete_done">Item deleted</string>
 </resources>

@@ -27,8 +27,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
+import com.cocosw.undobar.UndoBarController;
 import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoLineString;
@@ -362,6 +367,49 @@ public class EditLayerOverlay
             }
         }
         super.onRestoreState(bundle);
+    }
+
+
+    public void deleteItem() {
+        final long itemId = mItem.getId();
+        mLayer.deleteCacheItem(itemId);
+        mMapViewOverlays.onLayerChanged(mLayer.getId());
+        setFeature(mLayer, null);
+        mMapViewOverlays.postInvalidate();
+
+        new UndoBarController.UndoBar((android.app.Activity) mContext)
+                .message(mContext.getString(R.string.delete_done))
+                .listener(new UndoBarController.AdvancedUndoListener()
+        {
+            @Override
+            public void onHide(
+                    @Nullable
+                    Parcelable parcelable)
+            {
+                mLayer.delete(VectorLayer.FIELD_ID + " = ?", new String[]{itemId + ""});
+                setFeature(null, null);
+            }
+
+
+            @Override
+            public void onClear(
+                    @NonNull
+                    Parcelable[] parcelables)
+            {
+
+            }
+
+
+            @Override
+            public void onUndo(
+                    @Nullable
+                    Parcelable parcelable)
+            {
+                mLayer.restoreCacheItem();
+                mMapViewOverlays.onLayerChanged(mLayer.getId());
+                setFeature(null, null);
+            }
+        }).show();
     }
 
 
