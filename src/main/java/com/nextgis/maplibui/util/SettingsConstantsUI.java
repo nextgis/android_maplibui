@@ -28,4 +28,5 @@ public interface SettingsConstantsUI
     public static final String KEY_PREF_SYNC_PERIODICALLY    = "sync_periodically";
     public static final String KEY_PREF_SYNC_PERIOD          = "sync_period";
     public static final String KEY_PREF_SYNC_PERIOD_SEC_LONG = "sync_period_sec_long";
+    public static final String KEY_PREF_SHOW_STATUS_PANEL    = "show_status_panel";
 }
