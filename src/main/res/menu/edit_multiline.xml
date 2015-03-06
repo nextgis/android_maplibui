@@ -24,28 +24,40 @@
       xmlns:app="http://schemas.android.com/apk/res-auto"
     >
     <item
-        android:id="@+id/menu_edit_add_new_nultipoint"
+        android:id="@+id/menu_edit_add_new_multiline"
         app:showAsAction="always"
-        android:icon="@drawable/ic_action_add_points"
-        android:title="@string/add_multipoint"
+        android:icon="@drawable/ic_action_add_multiline"
+        android:title="@string/add_multilinestring"
         />
     <item
-        android:id="@+id/menu_edit_add_new_point"
+        android:id="@+id/menu_edit_add_new_line"
         app:showAsAction="always"
-        android:icon="@drawable/ic_action_add_point"
-        android:title="@string/add_point"
+        android:icon="@drawable/ic_action_add_line"
+        android:title="@string/add_line"
         />
     <item
-        android:id="@+id/menu_edit_delete_multipoint"
+        android:id="@+id/menu_edit_delete_multiline"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_delete_multiline"
+        android:title="@string/delete_multilinestring"
+        />
+    <item
+        android:id="@+id/menu_edit_delete_line"
         app:showAsAction="always"
-        android:icon="@drawable/ic_action_delete_points"
-        android:title="@string/delete_multipoint"
+        android:icon="@drawable/ic_action_delete_line"
+        android:title="@string/delete_line"
         />
     <item
         android:id="@+id/menu_edit_delete_point"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_delete_point"
         android:title="@string/delete_point"
+        />
+    <item
+        android:id="@+id/menu_edit_track"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_maps_directions_walk"
+        android:title="@string/write_track"
         />
     <item
         android:id="@+id/menu_edit_move_point_to_current_location"

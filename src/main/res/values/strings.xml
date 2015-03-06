@@ -142,4 +142,12 @@
     <string name="add_line">Add line</string>
     <string name="delete_line">Delete line</string>
     <string name="write_track">Write track</string>
+    <string name="add_multilinestring">Add multilinestring</string>
+    <string name="delete_multilinestring">Delete multilinestring</string>
+    <string name="add_polygon">Add polygon</string>
+    <string name="add_hole">Add hole</string>
+    <string name="delete_polygon">Delete polygon</string>
+    <string name="delete_hole">Delete hole</string>
+    <string name="add_multipolygon">Add multipolygon</string>
+    <string name="delete_multipolygon">Delete multipolygon</string>
 </resources>

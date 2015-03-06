@@ -37,9 +37,13 @@ import android.view.View;
  */
 public class BottomToolbar extends Toolbar {
 
+    protected boolean mIsMenuInitialized;
+
+
     public BottomToolbar(Context context)
     {
         super(context);
+        mIsMenuInitialized = false;
     }
 
 
@@ -48,6 +52,7 @@ public class BottomToolbar extends Toolbar {
             AttributeSet attrs)
     {
         super(context, attrs);
+        mIsMenuInitialized = false;
     }
 
 
@@ -57,6 +62,7 @@ public class BottomToolbar extends Toolbar {
             int defStyleAttr)
     {
         super(context, attrs, defStyleAttr);
+        mIsMenuInitialized = false;
     }
 
 
@@ -64,27 +70,30 @@ public class BottomToolbar extends Toolbar {
     public Menu getMenu()
     {
         MenuBuilder menuBuilder = (MenuBuilder) super.getMenu();
-        ActionMenuPresenter presenter = new ActionMenuPresenter(getContext());
-        presenter.setWidthLimit(getContext().getResources().getDisplayMetrics().widthPixels, true);
-        presenter.setItemLimit(Integer.MAX_VALUE);
-        menuBuilder.addMenuPresenter(presenter, new ContextThemeWrapper(getContext(), getPopupTheme()));
+        if(!mIsMenuInitialized) {
+            ActionMenuPresenter presenter = new ActionMenuPresenter(getContext());
+            presenter.setWidthLimit(getContext().getResources().getDisplayMetrics().widthPixels,
+                                    true);
+            presenter.setItemLimit(Integer.MAX_VALUE);
+            menuBuilder.addMenuPresenter(presenter, new ContextThemeWrapper(getContext(), getPopupTheme()));
 
-        ActionMenuView menuView = null;
-        for(int i = 0; i < getChildCount(); i++) {
-            View view = getChildAt(i);
-            if (view instanceof ActionMenuView) {
-                menuView = (ActionMenuView)view;
-                break;
+            ActionMenuView menuView = null;
+            for (int i = 0; i < getChildCount(); i++) {
+                View view = getChildAt(i);
+                if (view instanceof ActionMenuView) {
+                    menuView = (ActionMenuView) view;
+                    break;
+                }
             }
+            presenter.setMenuView(menuView);
+
+            /* center menu buttons in toolbar
+            ViewGroup.LayoutParams params = menuView.getLayoutParams();
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            menuView.setLayoutParams(params);
+            */
+            mIsMenuInitialized = true;
         }
-        presenter.setMenuView(menuView);
-
-        /* center menu buttons in toolbar
-        ViewGroup.LayoutParams params = menuView.getLayoutParams();
-        params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        menuView.setLayoutParams(params);
-        */
-
         return menuBuilder;
     }
 }
