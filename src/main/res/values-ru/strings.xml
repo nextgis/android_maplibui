@@ -99,8 +99,8 @@
     <string name="accuracy_caption_short">Т.</string>
     <string name="action_settings">Настройки</string>
     <string name="apply">Применить</string>
-    <string name="error_db_insert">Ошибка Insert объекта</string>
-    <string name="error_db_update">Ошибка Update объекта</string>
+    <string name="error_db_insert">Ошибка добавления объекта</string>
+    <string name="error_db_update">Ошибка обновления объекта</string>
     <string name="create_vector_layer">Создать векторный слой</string>
     <string name="new_layer">Новый слой</string>
     <string name="message_opening">Открывается…</string>
@@ -115,11 +115,11 @@
     <string name="one_hour">1 час</string>
     <string name="two_hours">2 час</string>
     <string name="sync_set_interval">Установить интервал синхронизации</string>
-    <string name="last_sync_time">Время последней синхронизации</string>
+    <string name="last_sync_time">Последняя синхронизация</string>
     <string name="warning_different_credentials">Существующая учетная запись отличается от введенных параметров. Бует использоваться существующая учетная запись.</string>
     <string name="error_no_location">Координаты не определены</string>
     <string name="error_layer_not_inited">Слой не инициализирован. Отмена</string>
-    <string name="n_a">n/a</string>
+    <string name="n_a">н/д</string>
     <string name="layer_vector">Векторный слой</string>
     <string name="tracks">Треки</string>
     <string name="layer_permanent">Это постоянный слой</string>
