@@ -32,13 +32,11 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.internal.view.menu.MenuBuilder;
-import android.support.v7.widget.ActionMenuPresenter;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import com.cocosw.undobar.UndoBarController;
+import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoLineString;
 import com.nextgis.maplib.datasource.GeoMultiLineString;
@@ -143,6 +141,8 @@ public class EditLayerOverlay
         } else if (mMode == MODE_NONE) {
             mLayer = null;
             mItem = null;
+            mDrawItems.setSelectedPoint(Constants.NOT_FOUND);
+            mDrawItems.setSelectedRing(Constants.NOT_FOUND);
             mMapViewOverlays.postInvalidate();
         } else if (mMode == MODE_HIGHLIGHT) {
             mMapViewOverlays.postInvalidate();
@@ -391,11 +391,13 @@ public class EditLayerOverlay
     {
         if(null != bundle){
             int type = bundle.getInt(BUNDLE_KEY_TYPE);
-            if(mType == type){
+            if(mType == type) {
                 mMode = bundle.getInt(BUNDLE_KEY_MODE);
                 int layerId = bundle.getInt(BUNDLE_KEY_LAYER);
-                mLayer = (VectorLayer) mMapViewOverlays.getLayerById(layerId);
-                if(null != mLayer) {
+                ILayer layer = mMapViewOverlays.getLayerById(layerId);
+                mLayer = null;
+                if (null != layer && layer instanceof VectorLayer) {
+                    mLayer = (VectorLayer)layer;
                     long featureId = bundle.getLong(BUNDLE_KEY_FEATURE);
                     for (VectorCacheItem item : mLayer.getVectorCache()) {
                         if (item.getId() == featureId) {
@@ -404,7 +406,7 @@ public class EditLayerOverlay
                         }
                     }
                 }
-                else{
+                else {
                     mItem = null;
                 }
             }
