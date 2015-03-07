@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Project:  NextGIS Mobile
-  ~ Purpose:  Mobile GIS for Android.
-  ~ Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
+  ~ Purpose:  Mobile GIS for Android
+  ~ Author:   Maxim Dubinin (sim@gis-lab.info)
   ~ ******************************************************************************
   ~ Copyright (c) 2012-2015. NextGIS, info@nextgis.com
   ~
@@ -21,4 +20,134 @@
   -->
 
 <resources>
+    <string name="layers_drawer_open">Открыть список слоёв</string>
+    <string name="layers_drawer_close">Закрыть список слоёв</string>
+    <string name="ok">OK</string>
+    <string name="create">Создать</string>
+    <string name="cancel">Отменить</string>
+    <string name="osm">OpenStreetMap</string>
+    <string name="layer_name">Имя слоя</string>
+    <string name="layer_url">URL слоя</string>
+    <string name="layer_url_hint">Пример: http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png</string>
+    <string name="layer_type">Тип TMS</string>
+    <string name="create_layer">Создать слой</string>
+    <string name="create_tms_layer">Создать слой TMS</string>
+    <string name="tmstype_osm">XYZ (OSM)</string>
+    <string name="tmstype_normal">TMS (OSGeo)</string>
+    <string name="osm_url">http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png</string>
+    <string name="error_invalid_url">Неправильный URL</string>
+    <string name="nextgis_web">NextGIS Web</string>
+    <string name="ngw_login_title">Учетная запись в NextGIS Web</string>
+    <string name="ngw_login_description">Введите URL сервера NextGIS Web, имя пользователя и пароль</string>
+    <string name="ngw_url">NextGIS Web URL</string>
+    <string name="password">Пароль</string>
+    <string name="login">Имя пользователя</string>
+    <string name="canceled">Отменено</string>
+    <string name="account_already_exists">Учетная запись уже существует</string>
+    <string name="error_login">Ошибка входа</string>
+    <string name="account_setup">Настройки учетной записи</string>
+    <string name="ngw_settings">Настройки NextGIS Web</string>
+    <string name="add_account">Добавить учетную запись</string>
+    <string name="add_account_summary">Добавить учетную запись NextGIS Web</string>
+    <string name="delete_account">Удалить учетную запись</string>
+    <string name="delete_account_ask">Удалить учетную запись?</string>
+    <string name="delete_account_summary">Удаление учетной записи. Все слои связанные с этой учетной записью тоже будут удалены. Синхронизация будет остановлена.</string>
+    <string name="delete_account_warn_msg">Учетная запись будет удалена!\nВсе слои будут удалены!\nСинхронизация будет остановлена!</string>
+    <string name="waiting">Ожидание</string>
+    <string name="wait_sync_stopping">Ожидание остановки синхронизации</string>
+    <string name="select">Выбор</string>
+    <string name="select_ngw_layer">Выбрать слой NextGIS Web</string>
+    <string name="ngw_account">Учетная запись NextGIS Web</string>
+    <string name="message_loading">Загрузка…</string>
+    <string name="loading_summary">Подождите, идет загрузка данных</string>
+    <string name="up_dots">..</string>
+    <string name="up">Вверх</string>
+    <string name="error_connect_failed">Ошибка, соединение не установлено</string>
+    <string name="resource_group">Группа ресурсов</string>
+    <string name="accounts">Учетные записи</string>
+    <string name="raster">Растр</string>
+    <string name="vector">Вектор</string>
+    <string name="raster_layer">Растровый слой</string>
+    <string name="vector_layer">Векторный слой</string>
+    <string name="pg_layer">Слой PostGIS</string>
+    <string name="credentials_opt">Имя/пароль (опционально)</string>
+    <string name="layer_type_optional">Тип тайлового слоя (опционально)</string>
+    <string name="sync">Синхронизация</string>
+    <string name="auto_sync">Автоматическая синхронизация</string>
+    <string name="auto_sync_summary">Синхронизация через заданный интервал</string>
+    <string name="sync_interval">Интервал синхронизации</string>
+    <string name="actions">Действия</string>
+    <string name="sync_layers">Слои</string>
+    <string name="sync_layers_summary">Проверка слоёв для синхронизации</string>
+    <string name="layer_group">Группа</string>
+    <string name="layer_ngw_raster">Растр NGW</string>
+    <string name="layer_ngw_vector">Слой NGW</string>
+    <string name="layer_tms">Тайловый растр</string>
+    <string name="layer_na">Недоступно</string>
+    <string name="latitude_caption">Широта</string>
+    <string name="longitude_caption">Долгота</string>
+    <string name="altitude_caption">Высота</string>
+    <string name="unit_meter">м</string>
+    <string name="unit_kilometer">км</string>
+    <string name="unit_second">с</string>
+    <string name="unit_hour">ч</string>
+    <string name="accuracy_caption">Точность</string>
+    <string name="set_attributes">Установить атрибуты</string>
+    <string name="latitude_caption_short">Ш.</string>
+    <string name="longitude_caption_short">Д.</string>
+    <string name="altitude_caption_short">В.</string>
+    <string name="accuracy_caption_short">Т.</string>
+    <string name="action_settings">Настройки</string>
+    <string name="apply">Применить</string>
+    <string name="error_db_insert">Ошибка Insert объекта</string>
+    <string name="error_db_update">Ошибка Update объекта</string>
+    <string name="create_vector_layer">Создать векторный слой</string>
+    <string name="new_layer">Новый слой</string>
+    <string name="message_opening">Открывается…</string>
+    <string name="error_layer_create">Не удалось создать слой</string>
+    <string name="message_layer_created">Слой создан</string>
+    <string name="error_form_create">Не удалось создать форму</string>
+    <string name="system_default">Системная настройка по умолчанию</string>
+    <string name="five_minutes">5 минут</string>
+    <string name="ten_minutes">10 минут</string>
+    <string name="fifteen_minutes">15 минут</string>
+    <string name="thirty_minutes">30 минут</string>
+    <string name="one_hour">1 час</string>
+    <string name="two_hours">2 час</string>
+    <string name="sync_set_interval">Установить интервал синхронизации</string>
+    <string name="last_sync_time">Время последней синхронизации</string>
+    <string name="warning_different_credentials">Существующая учетная запись отличается от введенных параметров. Бует использоваться существующая учетная запись.</string>
+    <string name="error_no_location">Координаты не определены</string>
+    <string name="error_layer_not_inited">Слой не инициализирован. Отмена</string>
+    <string name="n_a">n/a</string>
+    <string name="layer_vector">Векторный слой</string>
+    <string name="tracks">Треки</string>
+    <string name="layer_permanent">Это постоянный слой</string>
+    <string name="empty_tracks">Треков пока нет</string>
+    <string name="menu_delete">Удалить</string>
+    <string name="menu_select_all">Выбрать все</string>
+    <string name="nothing_selected">Ничего не выбрано</string>
+    <string name="unclosed_track_deleted">Текущий трек тоже удален</string>
+    <string name="folder">Папка</string>
+    <string name="zip">zip-архив</string>
+    <string name="formbuilder">Файл FormBuilder</string>
+    <string name="geojson">Файл GeoJSON</string>
+    <string name="add_point">Добавить точку</string>
+    <string name="edit_attributes">Редактировать атрибуты</string>
+    <string name="move_point_to_current_location">Переместить точку в текущее местоположение</string>
+    <string name="delete_point">Удалить точку</string>
+    <string name="add_multipoint">Добавить мультиточку</string>
+    <string name="delete_multipoint">Удалить мультиточку</string>
+    <string name="delete_done">Запись удалена</string>
+    <string name="add_line">Добавить линию</string>
+    <string name="delete_line">Удалить линию</string>
+    <string name="write_track">Записать трек</string>
+    <string name="add_multilinestring">Добавить мультилинию</string>
+    <string name="delete_multilinestring">Удалить мультилинию</string>
+    <string name="add_polygon">Добавить полигон</string>
+    <string name="add_hole">Добавить дырку</string>
+    <string name="delete_polygon">Удалить полигон</string>
+    <string name="delete_hole">Удалить дырку</string>
+    <string name="add_multipolygon">Добавить мультиполигон</string>
+    <string name="delete_multipolygon">Удалить мультиполигон</string>
 </resources>
