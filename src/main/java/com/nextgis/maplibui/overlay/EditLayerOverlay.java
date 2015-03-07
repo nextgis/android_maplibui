@@ -23,6 +23,8 @@ package com.nextgis.maplibui.overlay;
 
 import android.app.ActionBar;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -72,7 +74,7 @@ public class EditLayerOverlay
         extends Overlay
 {
 
-    public final static int MODE_NONE = 0;
+    public final static int MODE_NONE      = 0;
     public final static int MODE_HIGHLIGHT = 1;
     public final static int MODE_EDIT      = 2;
 
@@ -80,22 +82,26 @@ public class EditLayerOverlay
     protected final static int EDGE_RADIUS   = 12;
     protected final static int LINE_WIDTH    = 4;
 
-    protected VectorLayer mLayer;
+    protected VectorLayer     mLayer;
     protected VectorCacheItem mItem;
-    protected int mMode;
-    protected Paint mPaint;
-    protected int mFillColor;
-    protected int mOutlineColor;
-    protected int mSelectColor;
+    protected int             mMode;
+    protected Paint           mPaint;
+    protected int             mFillColor;
+    protected int             mOutlineColor;
+    protected int             mSelectColor;
+    protected Bitmap          mAnchor;
+    protected float           mAnchorRectOffsetX, mAnchorRectOffsetY;
+    protected float mAnchorCenterX, mAnchorCenterY;
     protected DrawItems mDrawItems;
 
     protected List<EditEventListener> mListeners;
 
     protected static final int mType = 3;
 
-    protected static final String BUNDLE_KEY_MODE = "mode";
-    protected static final String BUNDLE_KEY_LAYER = "layer";
+    protected static final String BUNDLE_KEY_MODE    = "mode";
+    protected static final String BUNDLE_KEY_LAYER   = "layer";
     protected static final String BUNDLE_KEY_FEATURE = "feature";
+
 
     public EditLayerOverlay(
             Context context,
@@ -114,7 +120,12 @@ public class EditLayerOverlay
         mOutlineColor = Color.BLACK;
         mSelectColor = Color.RED;
 
-        //mPaint.setAlpha(190);
+        mAnchor =
+                BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_action_anchor);
+        mAnchorRectOffsetX = -mAnchor.getWidth() * 0.1f;
+        mAnchorRectOffsetY = -mAnchor.getHeight() * 0.1f;
+        mAnchorCenterX = mAnchor.getWidth() * 0.75f;
+        mAnchorCenterY = mAnchor.getHeight() * 0.75f;
 
         mDrawItems = new DrawItems();
 
@@ -125,17 +136,18 @@ public class EditLayerOverlay
     public void setMode(int mode)
     {
         mMode = mode;
-        if(mMode == MODE_EDIT){
-            for(EditEventListener listener : mListeners){
+        if (mMode == MODE_EDIT) {
+            for (EditEventListener listener : mListeners) {
                 listener.onStartEditSession();
             }
-        }
-        else if(mMode == MODE_NONE){
+            mDrawItems.setSelectedPoint(0);
+            mDrawItems.setSelectedRing(0);
+            mMapViewOverlays.postInvalidate();
+        } else if (mMode == MODE_NONE) {
             mLayer = null;
             mItem = null;
             mMapViewOverlays.postInvalidate();
-        }
-        else if(mMode == MODE_HIGHLIGHT){
+        } else if (mMode == MODE_HIGHLIGHT) {
             mMapViewOverlays.postInvalidate();
         }
     }
@@ -520,6 +532,10 @@ public class EditLayerOverlay
                     mPaint.setStrokeWidth(VERTEX_RADIUS);
 
                     canvas.drawPoint(items[mSelectedPoint], items[mSelectedPoint + 1], mPaint);
+
+                    float anchorX = items[mSelectedPoint] + mAnchorRectOffsetX;
+                    float anchorY = items[mSelectedPoint + 1] + mAnchorRectOffsetY;
+                    canvas.drawBitmap(mAnchor, anchorX, anchorY, null);
                 }
             }
         }
