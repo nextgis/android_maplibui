@@ -138,7 +138,7 @@
     <string name="delete_point">Удалить точку</string>
     <string name="add_multipoint">Добавить мультиточку</string>
     <string name="delete_multipoint">Удалить мультиточку</string>
-    <string name="delete_done">Запись удалена</string>
+    <string name="delete_done">Объект удален</string>
     <string name="add_line">Добавить линию</string>
     <string name="delete_line">Удалить линию</string>
     <string name="write_track">Записать трек</string>
