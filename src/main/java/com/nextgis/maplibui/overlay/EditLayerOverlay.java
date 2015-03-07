@@ -21,7 +21,6 @@
 
 package com.nextgis.maplibui.overlay;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,17 +32,13 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.internal.view.SupportMenuInflater;
 import android.support.v7.internal.view.menu.MenuBuilder;
 import android.support.v7.widget.ActionMenuPresenter;
-import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import com.cocosw.undobar.UndoBarController;
-import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoLineString;
 import com.nextgis.maplib.datasource.GeoMultiLineString;
@@ -60,10 +55,10 @@ import com.nextgis.maplibui.BottomToolbar;
 import com.nextgis.maplibui.MapViewOverlays;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.EditEventListener;
+import com.nextgis.maplibui.api.MapViewEventListener;
 import com.nextgis.maplibui.api.Overlay;
 
 import java.util.ArrayList;
-import java.util.EventListener;
 import java.util.List;
 
 
@@ -71,7 +66,7 @@ import java.util.List;
  * The class for edit vector features
  */
 public class EditLayerOverlay
-        extends Overlay
+        extends Overlay implements MapViewEventListener
 {
 
     public final static int MODE_NONE      = 0;
@@ -130,6 +125,8 @@ public class EditLayerOverlay
         mDrawItems = new DrawItems();
 
         mListeners = new ArrayList<>();
+
+        mMapViewOverlays.addListener(this);
     }
 
 
@@ -459,6 +456,95 @@ public class EditLayerOverlay
     }
 
 
+    @Override
+    public void onLongPress(MotionEvent event)
+    {
+
+    }
+
+
+    @Override
+    public void onSingleTapUp(MotionEvent event)
+    {
+
+    }
+
+
+    @Override
+    public void panStart(MotionEvent e)
+    {
+        if(mMode == MODE_EDIT) {
+            //if pan current selected point
+            mMapViewOverlays.setLockMap(true);
+        }
+    }
+
+
+    @Override
+    public void panMoveTo(MotionEvent e)
+    {
+        if(mMode == MODE_EDIT) {
+        }
+    }
+
+
+    @Override
+    public void panStop()
+    {
+        if(mMode == MODE_EDIT) {
+            mMapViewOverlays.setLockMap(false);
+        }
+
+        mMapViewOverlays.postInvalidate();
+    }
+
+
+    @Override
+    public void onLayerAdded(int id)
+    {
+
+    }
+
+
+    @Override
+    public void onLayerDeleted(int id)
+    {
+
+    }
+
+
+    @Override
+    public void onLayerChanged(int id)
+    {
+
+    }
+
+
+    @Override
+    public void onExtentChanged(
+            float zoom,
+            GeoPoint center)
+    {
+
+    }
+
+
+    @Override
+    public void onLayersReordered()
+    {
+
+    }
+
+
+    @Override
+    public void onLayerDrawFinished(
+            int id,
+            float percent)
+    {
+
+    }
+
+
     protected class DrawItems{
         List<float[]> mDrawItemsVertex;
         List<float[]> mDrawItemsEdge;
@@ -583,51 +669,6 @@ public class EditLayerOverlay
                     canvas.drawPoint(items[mSelectedPoint], items[mSelectedPoint + 1], mPaint);
                 }
             }
-        }
-    }
-
-
-    private Toolbar.OnMenuItemClickListener mOnMenuItemClickListener;
-    private MenuBuilder.Callback mMenuBuilderCallback;
-
-    private class MenuBuilderCallback
-            implements MenuBuilder.Callback
-    {
-        @Override
-        public boolean onMenuItemSelected(
-                MenuBuilder menu,
-                MenuItem item)
-        {
-            return mOnMenuItemClickListener != null &&
-                   mOnMenuItemClickListener.onMenuItemClick(item);
-        }
-
-
-        @Override
-        public void onMenuModeChange(MenuBuilder menu)
-        {
-            if (mMenuBuilderCallback != null) {
-                mMenuBuilderCallback.onMenuModeChange(menu);
-            }
-        }
-    }
-
-
-    private class ActionMenuPresenterCallback
-            implements ActionMenuPresenter.Callback
-    {
-        @Override
-        public void onCloseMenu(
-                MenuBuilder menu,
-                boolean allMenusAreClosing)
-        {
-        }
-
-
-        @Override
-        public boolean onOpenSubMenu(MenuBuilder subMenu)
-        {
-            return false;
         }
     }
 }

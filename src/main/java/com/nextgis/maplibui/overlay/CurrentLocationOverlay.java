@@ -94,6 +94,11 @@ public class CurrentLocationOverlay
             Canvas canvas,
             PointF mCurrentMouseOffset)
     {
+        if(mMapViewOverlays.isLockMap()){
+            draw(canvas, null);
+            return;
+        }
+
         if (mIsInBounds) {
             if (mIsAccuracyEnabled && mIsAccuracyMarkerBiggest) {
                 drawOnPanning(canvas, mCurrentMouseOffset, mAccuracy);
@@ -110,6 +115,11 @@ public class CurrentLocationOverlay
             PointF mCurrentFocusLocation,
             float scale)
     {
+        if(mMapViewOverlays.isLockMap()){
+            draw(canvas, null);
+            return;
+        }
+
         if (mIsInBounds) {
             if (mIsAccuracyEnabled && mIsAccuracyMarkerBiggest) {
                 drawOnZooming(canvas, mCurrentFocusLocation, scale, mAccuracy, true);
@@ -131,35 +141,41 @@ public class CurrentLocationOverlay
             mMarker.setMarker(getDefaultMarker());
             mMarker.setCoordinates(lon, lat);
 
-            double accuracy = mCurrentLocation.getAccuracy();
-            accuracy = getAccuracyRadius(lat, accuracy);
+            if(null != mapDrawable) {
 
-            GeoPoint accuracyEdgePoint = new GeoPoint(lon, accuracy);
-            accuracyEdgePoint.setCRS(GeoConstants.CRS_WGS84);
-            accuracyEdgePoint.project(GeoConstants.CRS_WEB_MERCATOR);
-            accuracyEdgePoint = mapDrawable.mapToScreen(accuracyEdgePoint);
+                double accuracy = mCurrentLocation.getAccuracy();
+                accuracy = getAccuracyRadius(lat, accuracy);
 
-            int radius = (int) (mMarker.getScreenY() - accuracyEdgePoint.getY());
-            mAccuracy.setMarker(getAccuracyMarker(radius));
-            mAccuracy.setCoordinates(lon, lat);
+                GeoPoint accuracyEdgePoint = new GeoPoint(lon, accuracy);
+                accuracyEdgePoint.setCRS(GeoConstants.CRS_WGS84);
+                accuracyEdgePoint.project(GeoConstants.CRS_WEB_MERCATOR);
+                accuracyEdgePoint = mapDrawable.mapToScreen(accuracyEdgePoint);
 
-            mIsAccuracyMarkerBiggest = compareMarkers();
+                int radius = (int) (mMarker.getScreenY() - accuracyEdgePoint.getY());
+                mAccuracy.setMarker(getAccuracyMarker(radius));
+                mAccuracy.setCoordinates(lon, lat);
 
-            GeoEnvelope bounds = mapDrawable.getCurrentBounds();
-            mIsInBounds = bounds.contains(mMarker.getCoordinates(GeoConstants.CRS_WEB_MERCATOR));
+                mIsAccuracyMarkerBiggest = compareMarkers();
+
+                GeoEnvelope bounds = mapDrawable.getCurrentBounds();
+                mIsInBounds = bounds.contains(mMarker.getCoordinates(GeoConstants.CRS_WEB_MERCATOR));
 
 //            Paint p = new Paint();
 //            p.setColor(mMarkerColor);
 //            p.setAlpha(60);
 //            GeoPoint c = mAccuracy.getCoordinates(GeoConstants.CRS_WEB_MERCATOR);
 //            mapDrawable.getDisplay().drawCircle((float) c.getX(), (float) c.getY(), radius, p);
+            }
+            else{
+                mIsAccuracyMarkerBiggest = false;
+            }
 
             if (mIsInBounds) {
                 if (mIsAccuracyEnabled && mIsAccuracyMarkerBiggest) {
-                    draw(canvas, mAccuracy);
+                    drawOverlayItem(canvas, mAccuracy);
                 }
 
-                draw(canvas, mMarker);
+                drawOverlayItem(canvas, mMarker);
             }
         }
     }

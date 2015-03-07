@@ -91,6 +91,9 @@ public class CurrentTrackOverlay
             Canvas canvas,
             PointF mCurrentMouseOffset)
     {
+        if(mMapViewOverlays.isLockMap())
+            return;
+
         if (mTrackpoints.size() < 2) {
             return;
         }
@@ -113,6 +116,9 @@ public class CurrentTrackOverlay
             PointF mCurrentFocusLocation,
             float scale)
     {
+        if(mMapViewOverlays.isLockMap())
+            return;
+
         float x0, y0, x1, y1;
         double dx, dy;
 

@@ -64,7 +64,7 @@ public abstract class Overlay
             float scale);
 
 
-    protected void draw(
+    protected void drawOverlayItem(
             Canvas canvas,
             OverlayItem overlayItem)
     {

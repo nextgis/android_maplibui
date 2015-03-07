@@ -33,4 +33,8 @@ public interface MapViewEventListener extends MapEventListener
     public void onLongPress(MotionEvent event);
 
     public void onSingleTapUp(MotionEvent event);
+
+    public void panStart(final MotionEvent e);
+    public void panMoveTo(final MotionEvent e);
+    public void panStop();
 }

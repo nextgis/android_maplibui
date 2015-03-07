@@ -212,6 +212,11 @@ public class MapView
             || mDrawingState == DRAW_SATE_panning_fling)
             return;
 
+        for (MapViewEventListener listener : mListeners){
+            if(null != listener)
+                listener.panStart(e);
+        }
+
         mDrawingState = DRAW_SATE_panning;
         mStartMouseLocation.set(e.getX(), e.getY());
         mCurrentMouseOffset.set(0, 0);
@@ -222,6 +227,11 @@ public class MapView
             return;
 
         if(mDrawingState == DRAW_SATE_panning && mMap != null){
+            for (MapViewEventListener listener : mListeners){
+                if(null != listener)
+                    listener.panMoveTo(e);
+            }
+
             float x = mStartMouseLocation.x - e.getX();
             float y = mStartMouseLocation.y - e.getY();
 
@@ -246,8 +256,10 @@ public class MapView
     }
 
     protected void panStop(){
-        Log.d(Constants.TAG, "panStop state: " + mDrawingState);
+        //Log.d(Constants.TAG, "panStop state: " + mDrawingState);
+
         if(mDrawingState == DRAW_SATE_panning && mMap != null) {
+
             //mDrawingState = DRAW_SATE_none;
 
             float x = mCurrentMouseOffset.x;
@@ -265,6 +277,11 @@ public class MapView
             //mDisplay.panStop((float) screenPt.getX(), (float) screenPt.getY());
 
             setZoomAndCenter(getZoomLevel(), pt);
+
+            for (MapViewEventListener listener : mListeners){
+                if(null != listener)
+                    listener.panStop();
+            }
         }
     }
 

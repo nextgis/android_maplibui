@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplibui.api.Overlay;
 
@@ -40,6 +41,7 @@ public class MapViewOverlays
         extends MapView
 {
     protected List<Overlay> mOverlays;
+    protected boolean mLockMap;
 
 
     public MapViewOverlays(
@@ -48,13 +50,29 @@ public class MapViewOverlays
     {
         super(context, map);
         mOverlays = new ArrayList<>();
+        mLockMap = false;
+    }
+
+
+    public boolean isLockMap()
+    {
+        return mLockMap;
+    }
+
+
+    public void setLockMap(boolean lockMap)
+    {
+        mLockMap = lockMap;
     }
 
 
     @Override
     protected void onDraw(Canvas canvas)
     {
-        super.onDraw(canvas);
+        if(isLockMap())
+            canvas.drawBitmap(mMap.getView(false), 0, 0, null);
+        else
+            super.onDraw(canvas);
 
         if (mMap != null) {
             switch (mDrawingState) {
@@ -134,6 +152,20 @@ public class MapViewOverlays
             super.onRestoreInstanceState(state);
         }
     }
+
+
+    @Override
+    public void setZoomAndCenter(
+            float zoom,
+            GeoPoint center)
+    {
+        if(isLockMap()){
+            mDrawingState = DRAW_SATE_drawing_noclearbk;
+            return;
+        }
+        super.setZoomAndCenter(zoom, center);
+    }
+
 
     public static class SavedState
             extends BaseSavedState
