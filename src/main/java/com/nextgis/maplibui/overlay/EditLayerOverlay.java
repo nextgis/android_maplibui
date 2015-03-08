@@ -295,7 +295,7 @@ public class EditLayerOverlay
     @Override
     public void drawOnZooming(
             Canvas canvas,
-            PointF mCurrentFocusLocation,
+            PointF currentFocusLocation,
             float scale)
     {
         if(null == mItem)
@@ -304,7 +304,22 @@ public class EditLayerOverlay
         if(null == geom)
             return;
 
+        DrawItems drawItems = mDrawItems.zoom(currentFocusLocation, scale);
 
+        switch (geom.getType()) {
+            case GeoConstants.GTPoint:
+            case GeoConstants.GTMultiPoint:
+                drawItems.drawPoints(canvas);
+                break;
+            case GeoConstants.GTLineString:
+            case GeoConstants.GTMultiLineString:
+            case GeoConstants.GTPolygon:
+            case GeoConstants.GTMultiPolygon:
+                drawItems.drawLines(canvas);
+                break;
+            default:
+                break;
+        }
     }
 
     public void addListener(EditEventListener listener)
@@ -614,6 +629,34 @@ public class EditLayerOverlay
         {
             mDrawItemsVertex.clear();
             mDrawItemsEdge.clear();
+        }
+
+        public DrawItems zoom(PointF location, float scale){
+            DrawItems drawItems = new DrawItems();
+            drawItems.setSelectedRing(mSelectedRing);
+            drawItems.setSelectedPoint(mSelectedPoint);
+
+            int count = 0;
+            for (float[] items : mDrawItemsVertex) {
+                float[] newItems = new float[items.length];
+                for(int i = 0; i < items.length - 1; i += 2){
+                    newItems[i] = items[i] - (1 - scale) * (items[i] + location.x);
+                    newItems[i + 1] = items[i + 1] - (1 - scale) * (items[i + 1] + location.y);
+                }
+                drawItems.addItems(count++, newItems, TYPE_VERTEX);
+            }
+
+            count = 0;
+            for (float[] items : mDrawItemsEdge) {
+                float[] newItems = new float[items.length];
+                for(int i = 0; i < items.length - 1; i += 2){
+                    newItems[i] = items[i] - (1 - scale) * (items[i] + location.x);
+                    newItems[i + 1] = items[i + 1] - (1 - scale) * (items[i + 1] + location.y);
+                }
+                drawItems.addItems(count++, newItems, TYPE_EDGE);
+            }
+
+            return drawItems;
         }
 
         public DrawItems pan(PointF offset){
