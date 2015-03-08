@@ -37,6 +37,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import com.cocosw.undobar.UndoBarController;
 import com.nextgis.maplib.api.ILayer;
+import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoLineString;
 import com.nextgis.maplib.datasource.GeoMultiLineString;
@@ -55,6 +56,7 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.EditEventListener;
 import com.nextgis.maplibui.api.MapViewEventListener;
 import com.nextgis.maplibui.api.Overlay;
+import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,6 +99,7 @@ public class EditLayerOverlay
     protected static final String BUNDLE_KEY_LAYER   = "layer";
     protected static final String BUNDLE_KEY_FEATURE = "feature";
 
+    protected float mTolerancePX;
 
     public EditLayerOverlay(
             Context context,
@@ -106,6 +109,9 @@ public class EditLayerOverlay
         mLayer = null;
         mItem = null;
         mMode = MODE_NONE;
+
+
+        mTolerancePX = context.getResources().getDisplayMetrics().density * ConstantsUI.TOLERANCE_DP;
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.STROKE);
@@ -500,11 +506,36 @@ public class EditLayerOverlay
     }
 
 
+    /**
+     * Select point in current geometry or new geometry from current layer
+     * @param event Motion event
+     */
     @Override
     public void onSingleTapUp(MotionEvent event)
     {
-        //TODO: select geometry or point in geometry
+        double dMinX = event.getX() - mTolerancePX;
+        double dMaxX = event.getX() + mTolerancePX;
+        double dMinY = event.getY() - mTolerancePX;
+        double dMaxY = event.getY() + mTolerancePX;
+        GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
+        //1. search current geometry point
+        if(mDrawItems.intersects(screenEnv)) {
+            return;
+        }
 
+        //2 select another geometry
+        GeoEnvelope mapEnv = mMapViewOverlays.screenToMap(screenEnv);
+        if(null == mapEnv)
+            return;
+        List<VectorCacheItem> items = mLayer.query(mapEnv);
+        if(items.isEmpty()){
+            return;
+        }
+        mItem = items.get(0);
+        mDrawItems.setSelectedPoint(0);
+        mDrawItems.setSelectedRing(0);
+
+        mMapViewOverlays.postInvalidate();
     }
 
 
@@ -761,6 +792,44 @@ public class EditLayerOverlay
                     canvas.drawPoint(items[mSelectedPoint], items[mSelectedPoint + 1], mPaint);
                 }
             }
+        }
+
+
+        public boolean intersects(GeoEnvelope screenEnv)
+        {
+            int ring = 0;
+            int point = 0;
+            for (float[] items : mDrawItemsVertex) {
+                for(int i = 0; i < items.length - 1; i += 2){
+                    if(screenEnv.contains(new GeoPoint(items[i], items[i + 1]))){
+                        mSelectColor = ring;
+                        mSelectedPoint = point;
+                        return true;
+                    }
+                    point++;
+
+                }
+                ring++;
+            }
+
+            if(mMode == MODE_EDIT) {
+                ring = 0;
+                point = 0;
+                for (float[] items : mDrawItemsEdge) {
+                    for (int i = 0; i < items.length - 1; i += 2) {
+                        if(screenEnv.contains(new GeoPoint(items[i], items[i + 1]))){
+                            //mSelectColor = ring;
+                            //mSelectedPoint = point;
+                            //TODO: store PointF and on pan this point add it to the vertex array
+                            //and on pan stop add new edge points
+                            return true;
+                        }
+                        point++;
+                    }
+                    ring++;
+                }
+            }
+            return false;
         }
     }
 }

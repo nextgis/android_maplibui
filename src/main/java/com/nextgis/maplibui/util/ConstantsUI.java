@@ -31,8 +31,7 @@ public interface ConstantsUI
     public static final int DRAW_SATE_drawing_noclearbk = 2;
     public static final int DRAW_SATE_panning = 3;
     public static final int DRAW_SATE_zooming = 4;
-    public static final int DRAW_SATE_edit_drawing = 5;
-    public static final int DRAW_SATE_panning_fling = 6;
+    public static final int DRAW_SATE_panning_fling = 5;
 
     public static final String KEY_MESSAGE = "msg";
     public static final String KEY_LAYER_ID = "layer_id";
@@ -44,5 +43,5 @@ public interface ConstantsUI
 
     public final static String FILE_FORM = "form.json";
 
-
+    public static final int TOLERANCE_DP = 20;
 }
