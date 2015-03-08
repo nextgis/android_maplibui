@@ -92,7 +92,7 @@ public class CurrentLocationOverlay
     @Override
     public void drawOnPanning(
             Canvas canvas,
-            PointF mCurrentMouseOffset)
+            PointF currentMouseOffset)
     {
         if(mMapViewOverlays.isLockMap()){
             draw(canvas, null);
@@ -101,10 +101,10 @@ public class CurrentLocationOverlay
 
         if (mIsInBounds) {
             if (mIsAccuracyEnabled && mIsAccuracyMarkerBiggest) {
-                drawOnPanning(canvas, mCurrentMouseOffset, mAccuracy);
+                drawOnPanning(canvas, currentMouseOffset, mAccuracy);
             }
 
-            drawOnPanning(canvas, mCurrentMouseOffset, mMarker);
+            drawOnPanning(canvas, currentMouseOffset, mMarker);
         }
     }
 
@@ -112,7 +112,7 @@ public class CurrentLocationOverlay
     @Override
     public void drawOnZooming(
             Canvas canvas,
-            PointF mCurrentFocusLocation,
+            PointF currentFocusLocation,
             float scale)
     {
         if(mMapViewOverlays.isLockMap()){
@@ -122,10 +122,10 @@ public class CurrentLocationOverlay
 
         if (mIsInBounds) {
             if (mIsAccuracyEnabled && mIsAccuracyMarkerBiggest) {
-                drawOnZooming(canvas, mCurrentFocusLocation, scale, mAccuracy, true);
+                drawOnZooming(canvas, currentFocusLocation, scale, mAccuracy, true);
             }
 
-            drawOnZooming(canvas, mCurrentFocusLocation, scale, mMarker, false);
+            drawOnZooming(canvas, currentFocusLocation, scale, mMarker, false);
         }
     }
 

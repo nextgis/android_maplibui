@@ -56,11 +56,11 @@ public abstract class Overlay
 
     public abstract void drawOnPanning(
             Canvas canvas,
-            PointF mCurrentMouseOffset);
+            PointF currentMouseOffset);
 
     public abstract void drawOnZooming(
             Canvas canvas,
-            PointF mCurrentFocusLocation,
+            PointF currentFocusLocation,
             float scale);
 
 

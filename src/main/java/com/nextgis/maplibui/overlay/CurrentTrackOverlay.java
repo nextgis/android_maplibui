@@ -89,7 +89,7 @@ public class CurrentTrackOverlay
     @Override
     public void drawOnPanning(
             Canvas canvas,
-            PointF mCurrentMouseOffset)
+            PointF currentMouseOffset)
     {
         if(mMapViewOverlays.isLockMap())
             return;
@@ -101,10 +101,10 @@ public class CurrentTrackOverlay
         float x0, y0, x1, y1;
 
         for (int i = 1; i < mTrackpoints.size(); i++) {
-            x0 = (float) mTrackpoints.get(i - 1).getX() - mCurrentMouseOffset.x;
-            y0 = (float) mTrackpoints.get(i - 1).getY() - mCurrentMouseOffset.y;
-            x1 = (float) mTrackpoints.get(i).getX() - mCurrentMouseOffset.x;
-            y1 = (float) mTrackpoints.get(i).getY() - mCurrentMouseOffset.y;
+            x0 = (float) mTrackpoints.get(i - 1).getX() - currentMouseOffset.x;
+            y0 = (float) mTrackpoints.get(i - 1).getY() - currentMouseOffset.y;
+            x1 = (float) mTrackpoints.get(i).getX() - currentMouseOffset.x;
+            y1 = (float) mTrackpoints.get(i).getY() - currentMouseOffset.y;
             canvas.drawLine(x0, y0, x1, y1, mPaint);
         }
     }
@@ -113,7 +113,7 @@ public class CurrentTrackOverlay
     @Override
     public void drawOnZooming(
             Canvas canvas,
-            PointF mCurrentFocusLocation,
+            PointF currentFocusLocation,
             float scale)
     {
         if(mMapViewOverlays.isLockMap())
@@ -125,15 +125,15 @@ public class CurrentTrackOverlay
         if (mTrackpoints.size() < 2) {
             return;
         } else {
-            dx = mTrackpoints.get(0).getX() + mCurrentFocusLocation.x;
-            dy = mTrackpoints.get(0).getY() + mCurrentFocusLocation.y;
+            dx = mTrackpoints.get(0).getX() + currentFocusLocation.x;
+            dy = mTrackpoints.get(0).getY() + currentFocusLocation.y;
             x0 = (float) (mTrackpoints.get(0).getX() - (1 - scale) * dx);
             y0 = (float) (mTrackpoints.get(0).getY() - (1 - scale) * dy);
         }
 
         for (int i = 1; i < mTrackpoints.size(); i++) {
-            dx = mTrackpoints.get(i).getX() + mCurrentFocusLocation.x;
-            dy = mTrackpoints.get(i).getY() + mCurrentFocusLocation.y;
+            dx = mTrackpoints.get(i).getX() + currentFocusLocation.x;
+            dy = mTrackpoints.get(i).getY() + currentFocusLocation.y;
             x1 = (float) (mTrackpoints.get(i).getX() - (1 - scale) * dx);
             y1 = (float) (mTrackpoints.get(i).getY() - (1 - scale) * dy);
 

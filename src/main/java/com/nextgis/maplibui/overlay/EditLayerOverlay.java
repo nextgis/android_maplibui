@@ -265,13 +265,30 @@ public class EditLayerOverlay
     @Override
     public void drawOnPanning(
             Canvas canvas,
-            PointF mCurrentMouseOffset)
+            PointF currentMouseOffset)
     {
         if(null == mItem)
             return;
         GeoGeometry geom = mItem.getGeoGeometry();
         if(null == geom)
             return;
+
+        DrawItems drawItems = mDrawItems.pan(currentMouseOffset);
+
+        switch (geom.getType()) {
+            case GeoConstants.GTPoint:
+            case GeoConstants.GTMultiPoint:
+                drawItems.drawPoints(canvas);
+                break;
+            case GeoConstants.GTLineString:
+            case GeoConstants.GTMultiLineString:
+            case GeoConstants.GTPolygon:
+            case GeoConstants.GTMultiPolygon:
+                drawItems.drawLines(canvas);
+                break;
+            default:
+                break;
+        }
     }
 
 
@@ -597,6 +614,34 @@ public class EditLayerOverlay
         {
             mDrawItemsVertex.clear();
             mDrawItemsEdge.clear();
+        }
+
+        public DrawItems pan(PointF offset){
+            DrawItems drawItems = new DrawItems();
+            drawItems.setSelectedRing(mSelectedRing);
+            drawItems.setSelectedPoint(mSelectedPoint);
+
+            int count = 0;
+            for (float[] items : mDrawItemsVertex) {
+                float[] newItems = new float[items.length];
+                for(int i = 0; i < items.length - 1; i += 2){
+                    newItems[i] = items[i] - offset.x;
+                    newItems[i + 1] = items[i + 1] - offset.y;
+                }
+                drawItems.addItems(count++, newItems, TYPE_VERTEX);
+            }
+
+            count = 0;
+            for (float[] items : mDrawItemsEdge) {
+                float[] newItems = new float[items.length];
+                for(int i = 0; i < items.length - 1; i += 2){
+                    newItems[i] = items[i] - offset.x;
+                    newItems[i + 1] = items[i + 1] - offset.y;
+                }
+                drawItems.addItems(count++, newItems, TYPE_EDGE);
+            }
+
+            return drawItems;
         }
 
 
