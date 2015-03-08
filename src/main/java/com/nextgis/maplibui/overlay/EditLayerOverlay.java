@@ -75,6 +75,8 @@ public class EditLayerOverlay
     protected final static int EDGE_RADIUS   = 12;
     protected final static int LINE_WIDTH    = 4;
 
+    public final static long DELAY      = 750;
+
     protected VectorLayer     mLayer;
     protected VectorCacheItem mItem;
     protected int             mMode;
@@ -417,10 +419,10 @@ public class EditLayerOverlay
 
     public void deleteItem() {
         final long itemId = mItem.getId();
+        mMapViewOverlays.setDelay(DELAY);
         mLayer.deleteCacheItem(itemId);
-        mMapViewOverlays.onLayerChanged(mLayer.getId());
         setFeature(mLayer, null);
-        mMapViewOverlays.postInvalidate();
+        //mMapViewOverlays.postInvalidate(); //remove selection the object still exist
 
         new UndoBarController.UndoBar((android.app.Activity) mContext)
                 .message(mContext.getString(R.string.delete_done))
@@ -431,6 +433,7 @@ public class EditLayerOverlay
                     @Nullable
                     Parcelable parcelable)
             {
+                mMapViewOverlays.setSkipNextDraw(true);
                 mLayer.delete(VectorLayer.FIELD_ID + " = ?", new String[]{itemId + ""});
                 setFeature(null, null);
             }
@@ -450,8 +453,8 @@ public class EditLayerOverlay
                     @Nullable
                     Parcelable parcelable)
             {
+                mMapViewOverlays.setDelay(DELAY);
                 mLayer.restoreCacheItem();
-                mMapViewOverlays.onLayerChanged(mLayer.getId());
                 setFeature(null, null);
             }
         }).show();
@@ -461,13 +464,14 @@ public class EditLayerOverlay
     @Override
     public void onLongPress(MotionEvent event)
     {
-
+        //TODO: do we need some actions on long press on point or geometry?
     }
 
 
     @Override
     public void onSingleTapUp(MotionEvent event)
     {
+        //TODO: select geometry or point in geometry
 
     }
 
@@ -496,8 +500,6 @@ public class EditLayerOverlay
         if(mMode == MODE_EDIT) {
             mMapViewOverlays.setLockMap(false);
         }
-
-        mMapViewOverlays.postInvalidate();
     }
 
 
@@ -511,7 +513,7 @@ public class EditLayerOverlay
     @Override
     public void onLayerDeleted(int id)
     {
-
+        //TODO: if delete edited layer cancel edit session
     }
 
 

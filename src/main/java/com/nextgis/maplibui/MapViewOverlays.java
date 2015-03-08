@@ -24,6 +24,8 @@ package com.nextgis.maplibui;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -42,7 +44,8 @@ public class MapViewOverlays
 {
     protected List<Overlay> mOverlays;
     protected boolean mLockMap;
-
+    protected boolean mSkipNextDraw;
+    protected long mDelay;
 
     public MapViewOverlays(
             Context context,
@@ -51,6 +54,8 @@ public class MapViewOverlays
         super(context, map);
         mOverlays = new ArrayList<>();
         mLockMap = false;
+        mSkipNextDraw = false;
+        mDelay = 0;
     }
 
 
@@ -231,5 +236,43 @@ public class MapViewOverlays
                 return new SavedState[size];
             }
         };
+    }
+
+
+    public void setSkipNextDraw(boolean skipNextDraw)
+    {
+        mSkipNextDraw = skipNextDraw;
+    }
+
+
+    @Override
+    public void onLayerChanged(int id)
+    {
+        if(mSkipNextDraw){
+            mSkipNextDraw = false;
+            return;
+        }
+        //delay execution
+        if(mDelay > 0){
+            final int thisId = id;
+            Handler handler = new Handler(Looper.getMainLooper());
+            final Runnable r = new Runnable() {
+                public void run() {
+                    //do your stuff here after DELAY sec
+                    onLayerChanged(thisId);
+                }
+            };
+            handler.postDelayed(r, mDelay);
+            mDelay = 0;
+        }
+        else{
+            super.onLayerChanged(id);
+        }
+    }
+
+
+    public void setDelay(long delay)
+    {
+        mDelay = delay;
     }
 }
