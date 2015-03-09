@@ -497,10 +497,9 @@ public class EditLayerOverlay
 
     public void deleteItem() {
         final long itemId = mItem.getId();
-        mMapViewOverlays.setDelay(DELAY);
+        //mMapViewOverlays.setDelay(DELAY);
         mLayer.deleteCacheItem(itemId);
         setFeature(mLayer, null);
-        //mMapViewOverlays.postInvalidate(); //remove selection the object still exist
 
         new UndoBarController.UndoBar((android.app.Activity) mContext)
                 .message(mContext.getString(R.string.delete_done))
@@ -531,7 +530,7 @@ public class EditLayerOverlay
                     @Nullable
                     Parcelable parcelable)
             {
-                mMapViewOverlays.setDelay(DELAY);
+                //mMapViewOverlays.setDelay(DELAY);
                 mLayer.restoreCacheItem();
                 setFeature(null, null);
             }
@@ -553,6 +552,9 @@ public class EditLayerOverlay
     @Override
     public void onSingleTapUp(MotionEvent event)
     {
+        if(null == mLayer)
+            return;
+
         if(mHasEdits)
         {
             //TODO: Ask to save current changes

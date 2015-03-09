@@ -33,7 +33,6 @@ import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
-import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.api.MapViewEventListener;
 
 import static com.nextgis.maplibui.util.ConstantsUI.*;
@@ -106,7 +105,7 @@ public class MapView
     @Override
     protected synchronized void onDraw(Canvas canvas)
     {
-        //Log.d(TAG, "state: " + mDrawingState + ", current loc: " +  mCurrentMouseOffset.toString() + " current focus: " + mCurrentFocusLocation.toString() + " scale: "  + mScaleFactor);
+        // Log.d(TAG, "state: " + mDrawingState + ", current loc: " +  mCurrentMouseOffset.toString() + " current focus: " + mCurrentFocusLocation.toString() + " scale: "  + mScaleFactor);
 
         if (mMap != null) {
 
@@ -165,7 +164,7 @@ public class MapView
                 return;
 
             mScaleFactor = scaleFactor;
-            postInvalidate();
+            invalidate();
         }
     }
 
@@ -333,7 +332,7 @@ public class MapView
 
         mScroller.fling((int)x, (int)y, -(int)velocityX, -(int)velocityY, (int)bounds.getMinX(), (int)bounds.getMaxX(), (int)bounds.getMinY(), (int)bounds.getMaxY());
 
-        Log.d(Constants.TAG, "Fling");
+        //Log.d(Constants.TAG, "Fling");
 
         postInvalidate();
 
@@ -388,8 +387,10 @@ public class MapView
 
     @Override
     public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX, float distanceY) {
+        if(event2.getPointerCount() > 1)
+            return false;
         //Log.d(TAG, "onScroll: " + event1.toString() + ", " + event2.toString() + ", "
-        //        + distanceX + ", " + distanceY);
+        //           + distanceX + ", " + distanceY);
 
         panStart(event1);
         panMoveTo(event2);
