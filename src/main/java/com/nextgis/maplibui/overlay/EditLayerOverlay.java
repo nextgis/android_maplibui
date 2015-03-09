@@ -32,7 +32,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -41,6 +40,7 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoLineString;
+import com.nextgis.maplib.datasource.GeoLinearRing;
 import com.nextgis.maplib.datasource.GeoMultiLineString;
 import com.nextgis.maplib.datasource.GeoMultiPoint;
 import com.nextgis.maplib.datasource.GeoMultiPolygon;
@@ -104,10 +104,11 @@ public class EditLayerOverlay
     protected float mTolerancePX;
     protected float mAnchorTolerancePX;
 
-    protected GeoGeometry mChangedGeometry;
-    protected PointF mTempPointOffset;
-    protected boolean mHasEdits;
+    protected GeoGeometry   mOriginalGeometry; //For restore
+    protected PointF        mTempPointOffset;
+    protected boolean       mHasEdits;
     protected BottomToolbar mCurrentToolbar;
+
 
     public EditLayerOverlay(
             Context context,
@@ -119,7 +120,8 @@ public class EditLayerOverlay
         mMode = MODE_NONE;
 
 
-        mTolerancePX = context.getResources().getDisplayMetrics().density * ConstantsUI.TOLERANCE_DP;
+        mTolerancePX =
+                context.getResources().getDisplayMetrics().density * ConstantsUI.TOLERANCE_DP;
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.STROKE);
@@ -157,7 +159,7 @@ public class EditLayerOverlay
             mDrawItems.setSelectedRing(0);
             mMapViewOverlays.postInvalidate();
         } else if (mMode == MODE_NONE) {
-            if(mHasEdits){
+            if (mHasEdits) {
                 //TODO: Ask to save
                 mHasEdits = false;
             }
@@ -194,10 +196,7 @@ public class EditLayerOverlay
         if (null == geom)
             return;
 
-        if(mHasEdits && null != mChangedGeometry)
-            fillDrawItems(mChangedGeometry, mapDrawable);
-        else
-            fillDrawItems(geom, mapDrawable);
+        fillDrawItems(geom, mapDrawable);
 
         switch (geom.getType()) {
             case GeoConstants.GTPoint:
@@ -378,6 +377,9 @@ public class EditLayerOverlay
                     mHasEdits = false;
                     mMode = MODE_EDIT;
                     setToolbar(mCurrentToolbar);
+                    mItem.setGeoGeometry(mOriginalGeometry); //restore original geometry
+                    mOriginalGeometry = null;
+                    mMapViewOverlays.onLayerChanged(mLayer.getId());
                 }
                 else {
                     for (EditEventListener listener : mListeners) {
@@ -431,7 +433,8 @@ public class EditLayerOverlay
             {
                 if(menuItem.getItemId() == R.id.menu_edit_save){
                     mHasEdits = false;
-                    //TODO: save changes and show attributes edit activity
+                    mOriginalGeometry = null;
+                    //TODO: show attributes edit activity
                 }
                 return true;
             }
@@ -596,12 +599,10 @@ public class EditLayerOverlay
             if(mDrawItems.intersects(screenEnv)) {
                 PointF tempPoint = mDrawItems.getSelectedPoint();
                 mTempPointOffset = new PointF(tempPoint.x - event.getX(), tempPoint.y - event.getY());
-                mChangedGeometry = mItem.getGeoGeometry().clone();
+                if(null == mOriginalGeometry)
+                    mOriginalGeometry = mItem.getGeoGeometry().copy();
                 mMapViewOverlays.setLockMap(true);
                 mMode = MODE_CHANGE;
-            }
-            else if(mHasEdits){
-                //TODO: transfer changes from mDrawItems to mChangedGeometry
             }
         }
     }
@@ -622,10 +623,12 @@ public class EditLayerOverlay
         if(mMode == MODE_CHANGE) {
             mMapViewOverlays.setLockMap(false);
             mHasEdits = true;
-
+            //create new toolbar with save and cancel buttons
             setToolbar(mCurrentToolbar);
             mMode = MODE_EDIT;
-            //TODO: create new toolbar with save and cancel buttons
+            mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mMapViewOverlays.getMap());
+
+            mMapViewOverlays.onLayerChanged(mLayer.getId()); // redraw the map
         }
     }
 
@@ -911,6 +914,76 @@ public class EditLayerOverlay
                 points[mSelectedPoint] = x;
                 points[mSelectedPoint + 1] = y;
             }
+        }
+
+        public GeoGeometry fillGeometry(int ring, GeoGeometry geometry, MapDrawable mapDrawable){
+            GeoPoint[] points;
+            switch (geometry.getType()) {
+                case GeoConstants.GTPoint:
+                    if(mDrawItemsVertex.isEmpty())
+                        return null;
+                    points = mapDrawable.screenToMap(mDrawItemsVertex.get(ring));
+                    GeoPoint point = (GeoPoint) geometry;
+                    point.setCoordinates(points[0].getX(), points[0].getY());
+                    break;
+                case GeoConstants.GTMultiPoint:
+                    if(mDrawItemsVertex.isEmpty())
+                        return null;
+                    points = mapDrawable.screenToMap(mDrawItemsVertex.get(ring));
+                    GeoMultiPoint multiPoint = (GeoMultiPoint)geometry;
+                    multiPoint.clear();
+                    for (GeoPoint geoPoint : points) {
+                        multiPoint.add(geoPoint);
+                    }
+                    break;
+                case GeoConstants.GTLineString:
+                    if(mDrawItemsVertex.isEmpty())
+                        return null;
+                    points = mapDrawable.screenToMap(mDrawItemsVertex.get(ring));
+                    GeoLineString lineString = (GeoLineString)geometry;
+                    lineString.clear();
+                    for (GeoPoint geoPoint : points) {
+                        lineString.add(geoPoint);
+                    }
+                    break;
+                case GeoConstants.GTMultiLineString:
+                    GeoMultiLineString multiLineString = (GeoMultiLineString) geometry;
+
+                    //  the geometry should be correspond the vertex list
+
+                    for(int currentRing = 0; currentRing < multiLineString.size(); currentRing++){
+                        fillGeometry(ring + currentRing, multiLineString.get(currentRing), mapDrawable);
+                    }
+                    break;
+                case GeoConstants.GTPolygon:
+                    if(mDrawItemsVertex.isEmpty())
+                        return null;
+                    GeoPolygon polygon = (GeoPolygon) geometry;
+                    fillGeometry(ring, polygon.getOuterRing(), mapDrawable);
+
+                    //  the geometry should be correspond the vertex list
+
+                    for(int currentRing = 0; currentRing < polygon.getInnerRingCount(); currentRing++){
+                        fillGeometry(ring + currentRing + 1, polygon.getInnerRing(currentRing), mapDrawable);
+                    }
+                    break;
+                case GeoConstants.GTMultiPolygon:
+                    GeoMultiPolygon multiPolygon = (GeoMultiPolygon)geometry;
+
+                    //  the geometry should be correspond the vertex list
+
+                    int currentRing = 0;
+                    for(int i = 0; i < multiPolygon.size(); i++){
+                        GeoPolygon geoPolygon = multiPolygon.get(i);
+                        fillGeometry(ring + currentRing, geoPolygon, mapDrawable);
+                        currentRing += 1 + geoPolygon.getInnerRingCount();
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            return geometry;
         }
     }
 }
