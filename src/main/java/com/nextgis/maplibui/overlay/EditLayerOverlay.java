@@ -40,7 +40,6 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoLineString;
-import com.nextgis.maplib.datasource.GeoLinearRing;
 import com.nextgis.maplib.datasource.GeoMultiLineString;
 import com.nextgis.maplib.datasource.GeoMultiPoint;
 import com.nextgis.maplib.datasource.GeoMultiPolygon;
@@ -55,6 +54,7 @@ import com.nextgis.maplibui.BottomToolbar;
 import com.nextgis.maplibui.MapViewOverlays;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.EditEventListener;
+import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.api.MapViewEventListener;
 import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.util.ConstantsUI;
@@ -434,7 +434,18 @@ public class EditLayerOverlay
                 if(menuItem.getItemId() == R.id.menu_edit_save){
                     mHasEdits = false;
                     mOriginalGeometry = null;
-                    //TODO: show attributes edit activity
+                    //show attributes edit activity
+                    ILayerUI vectorLayerUI = (ILayerUI)mLayer;
+                    if(null != vectorLayerUI) {
+                        //TODO: solve the new geometry and new feature id
+                        vectorLayerUI.showEditForm(mContext, mItem.getId());
+                    }
+                }
+                else if(menuItem.getItemId() == R.id.menu_edit_attributes){
+                    ILayerUI vectorLayerUI = (ILayerUI)mLayer;
+                    if(null != vectorLayerUI) {
+                        vectorLayerUI.showEditForm(mContext, mItem.getId());
+                    }
                 }
                 return true;
             }

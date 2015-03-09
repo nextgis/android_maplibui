@@ -60,7 +60,9 @@ public class LocalTMSLayerUI extends LocalTMSLayer
 
 
     @Override
-    public void showEditForm(Context context)
+    public void showEditForm(
+            Context context,
+            long featureId)
     {
 
     }

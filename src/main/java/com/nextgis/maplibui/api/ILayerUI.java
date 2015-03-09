@@ -32,5 +32,7 @@ public interface ILayerUI
 
     void changeProperties();
 
-    void showEditForm(Context context);
+    void showEditForm(
+            Context context,
+            long featureId);
 }

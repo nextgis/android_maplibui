@@ -34,6 +34,7 @@ import android.widget.ListView;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerSelector;
 import com.nextgis.maplibui.api.ILayerUI;
@@ -130,7 +131,7 @@ public class ChooseLayerDialog extends DialogFragment implements ILayerSelector
     {
         if(layer instanceof ILayerUI ) {
             ILayerUI layerUI = (ILayerUI) layer;
-            layerUI.showEditForm(getActivity());
+            layerUI.showEditForm(getActivity(), Constants.NOT_FOUND);
         }
 
         dismiss();

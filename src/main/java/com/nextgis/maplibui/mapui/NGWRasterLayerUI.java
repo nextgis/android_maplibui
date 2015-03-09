@@ -56,7 +56,9 @@ public class NGWRasterLayerUI extends NGWRasterLayer
 
 
     @Override
-    public void showEditForm(Context context)
+    public void showEditForm(
+            Context context,
+            long featureId)
     {
 
     }

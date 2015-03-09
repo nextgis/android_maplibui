@@ -56,7 +56,9 @@ public class RemoteTMSLayerUI extends RemoteTMSLayer implements ILayerUI
 
 
     @Override
-    public void showEditForm(Context context)
+    public void showEditForm(
+            Context context,
+            long featureId)
     {
 
     }

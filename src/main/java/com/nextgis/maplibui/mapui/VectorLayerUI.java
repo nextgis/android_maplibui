@@ -25,8 +25,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.widget.Toast;
+import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.VectorCacheItem;
 import com.nextgis.maplibui.CustomModifyAttributesActivity;
 import com.nextgis.maplibui.ModifyAttributesActivity;
 import com.nextgis.maplibui.R;
@@ -35,9 +37,7 @@ import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.io.File;
 
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_LAYER_ID;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
 /**
@@ -68,7 +68,9 @@ public class VectorLayerUI extends VectorLayer implements ILayerUI
 
 
     @Override
-    public void showEditForm(Context context)
+    public void showEditForm(
+            Context context,
+            long featureId)
     {
         if(!mIsInitialized)
         {
@@ -76,21 +78,36 @@ public class VectorLayerUI extends VectorLayer implements ILayerUI
                            Toast.LENGTH_SHORT).show();
             return;
         }
+
+        //get geometry
+        GeoGeometry geometry = null;
+        if(featureId != Constants.NOT_FOUND){
+            for(VectorCacheItem item : mVectorCacheItems){
+                if(item.getId() == featureId){
+                    geometry = item.getGeoGeometry();
+                }
+            }
+        }
+
         //check custom form
         File form = new File(mPath, ConstantsUI.FILE_FORM);
         if(form.exists()){
             //show custom form
             Intent intent = new Intent(context, CustomModifyAttributesActivity.class);
             intent.putExtra(KEY_LAYER_ID, getId());
-            intent.putExtra(KEY_FEATURE_ID, (long) Constants.NOT_FOUND);
+            intent.putExtra(KEY_FEATURE_ID, featureId);
             intent.putExtra(KEY_FORM_PATH, form);
+            if(null != geometry)
+                intent.putExtra(KEY_GEOMETRY, geometry);
             context.startActivity(intent);
         }
         else {
             //if not exist show standard form
             Intent intent = new Intent(context, ModifyAttributesActivity.class);
             intent.putExtra(KEY_LAYER_ID, getId());
-            intent.putExtra(KEY_FEATURE_ID, (long) Constants.NOT_FOUND);
+            intent.putExtra(KEY_FEATURE_ID, featureId);
+            if(null != geometry)
+                intent.putExtra(KEY_GEOMETRY, geometry);
             context.startActivity(intent);
         }
     }

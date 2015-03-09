@@ -151,9 +151,10 @@ public class ModifyAttributesActivity
     protected void createAndFillControls(LinearLayout layout){
 
         Cursor cursor = null;
-        if(mFeatureId != Constants.NOT_FOUND)
+        if(mFeatureId != Constants.NOT_FOUND) {
             cursor = mLayer.query(null, VectorLayer.FIELD_ID + " = " + mFeatureId, null, null);
-
+            cursor.moveToFirst();
+        }
         float height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
                                   getResources().getDisplayMetrics());
 
@@ -173,7 +174,7 @@ public class ModifyAttributesActivity
             switch (field.getType()){
                 case GeoConstants.FTString:
                     EditText stringEdit = new EditText(this);
-                    stringEdit.setSingleLine(true);
+                    //stringEdit.setSingleLine(true);
                     layout.addView(stringEdit);
                     if(null != cursor){
                         String stringVal = cursor.getString(cursor.getColumnIndex(field.getName()));
@@ -243,10 +244,12 @@ public class ModifyAttributesActivity
     @Override
     protected void onPause()
     {
-        IGISApplication app = (IGISApplication) getApplication();
-        if(null != app){
-            GpsEventSource gpsEventSource = app.getGpsEventSource();
-            gpsEventSource.removeListener(this);
+        if(null != findViewById(R.id.location_panel)) {
+            IGISApplication app = (IGISApplication) getApplication();
+            if (null != app) {
+                GpsEventSource gpsEventSource = app.getGpsEventSource();
+                gpsEventSource.removeListener(this);
+            }
         }
         super.onPause();
     }
@@ -255,11 +258,13 @@ public class ModifyAttributesActivity
     @Override
     protected void onResume()
     {
-        IGISApplication app = (IGISApplication) getApplication();
-        if(null != app){
-            GpsEventSource gpsEventSource = app.getGpsEventSource();
-            gpsEventSource.addListener(this);
-            setLocationText(gpsEventSource.getLastKnownLocation());
+        if(null != findViewById(R.id.location_panel)) {
+            IGISApplication app = (IGISApplication) getApplication();
+            if (null != app) {
+                GpsEventSource gpsEventSource = app.getGpsEventSource();
+                gpsEventSource.addListener(this);
+                setLocationText(gpsEventSource.getLastKnownLocation());
+            }
         }
         super.onResume();
     }
@@ -269,6 +274,7 @@ public class ModifyAttributesActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.menu_cancel || id == android.R.id.home) {
+            //super.onBackPressed();
             finish();
             return true;
         }

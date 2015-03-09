@@ -25,17 +25,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.widget.Toast;
-import com.nextgis.maplib.display.TrackRenderer;
-import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.TrackLayer;
-import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.TracksActivity;
 import com.nextgis.maplibui.api.ILayerUI;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class TrackLayerUI
@@ -67,7 +62,9 @@ public class TrackLayerUI
 
 
     @Override
-    public void showEditForm(Context context)
+    public void showEditForm(
+            Context context,
+            long featureId)
     {
 
     }

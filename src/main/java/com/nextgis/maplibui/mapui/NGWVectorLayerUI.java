@@ -65,7 +65,9 @@ public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
 
 
     @Override
-    public void showEditForm(Context context)
+    public void showEditForm(
+            Context context,
+            long featureId)
     {
         if(!mIsInitialized)
         {
@@ -78,7 +80,7 @@ public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
             //show custom form
             Intent intent = new Intent(context, CustomModifyAttributesActivity.class);
             intent.putExtra(KEY_LAYER_ID, getId());
-            intent.putExtra(KEY_FEATURE_ID, (long) Constants.NOT_FOUND);
+            intent.putExtra(KEY_FEATURE_ID, featureId);
             intent.putExtra(KEY_FORM_PATH, form);
             context.startActivity(intent);
         }
@@ -86,7 +88,7 @@ public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
             //if not exist show standard form
             Intent intent = new Intent(context, ModifyAttributesActivity.class);
             intent.putExtra(KEY_LAYER_ID, getId());
-            intent.putExtra(KEY_FEATURE_ID, (long) Constants.NOT_FOUND);
+            intent.putExtra(KEY_FEATURE_ID, featureId);
             context.startActivity(intent);
         }
     }
