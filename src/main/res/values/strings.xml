@@ -150,4 +150,5 @@
     <string name="delete_hole">Delete hole</string>
     <string name="add_multipolygon">Add multipolygon</string>
     <string name="delete_multipolygon">Delete multipolygon</string>
+    <string name="save">Save</string>
 </resources>

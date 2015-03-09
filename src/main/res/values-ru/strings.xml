@@ -150,4 +150,5 @@
     <string name="delete_hole">Удалить дырку</string>
     <string name="add_multipolygon">Добавить мультиполигон</string>
     <string name="delete_multipolygon">Удалить мультиполигон</string>
+    <string name="save">Save</string>
 </resources>
