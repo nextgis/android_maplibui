@@ -274,7 +274,6 @@ public class ModifyAttributesActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.menu_cancel || id == android.R.id.home) {
-            //super.onBackPressed();
             finish();
             return true;
         }

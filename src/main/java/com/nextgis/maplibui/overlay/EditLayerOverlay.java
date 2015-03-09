@@ -21,6 +21,7 @@
 
 package com.nextgis.maplibui.overlay;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -28,6 +29,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -36,6 +38,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import com.cocosw.undobar.UndoBarController;
+import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoGeometry;
@@ -45,6 +48,7 @@ import com.nextgis.maplib.datasource.GeoMultiPoint;
 import com.nextgis.maplib.datasource.GeoMultiPolygon;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.datasource.GeoPolygon;
+import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
@@ -446,6 +450,28 @@ public class EditLayerOverlay
                     if(null != vectorLayerUI) {
                         vectorLayerUI.showEditForm(mContext, mItem.getId());
                     }
+                }
+                else if(menuItem.getItemId() == R.id.menu_edit_move_point_to_current_location){
+                    Activity parent = (Activity) mContext;
+                    GpsEventSource gpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
+                    Location location = gpsEventSource.getLastKnownLocation();
+                    if(null != location){
+                        //change to screen coordinates
+                        MapDrawable mapDrawable = mMapViewOverlays.getMap();
+                        GeoPoint pt = new GeoPoint(location.getLongitude(), location.getLatitude());
+                        pt.setCRS(GeoConstants.CRS_WGS84);
+                        pt.project(GeoConstants.CRS_WEB_MERCATOR);
+                        GeoPoint screenPt = mapDrawable.mapToScreen(pt);
+                        mDrawItems.setSelectedPointValue((float)screenPt.getX(), (float)screenPt.getY());
+                        mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mapDrawable);
+                        mMapViewOverlays.postInvalidate();
+                    }
+                }
+                else if(menuItem.getItemId() == R.id.menu_edit_add_new_point){
+
+                }
+                else if(menuItem.getItemId() == R.id.menu_edit_delete_point){
+
                 }
                 return true;
             }
