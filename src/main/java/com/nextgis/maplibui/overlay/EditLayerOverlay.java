@@ -22,7 +22,10 @@
 package com.nextgis.maplibui.overlay;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -37,6 +40,7 @@ import android.support.annotation.Nullable;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 import com.cocosw.undobar.UndoBarController;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
@@ -63,6 +67,7 @@ import com.nextgis.maplibui.api.MapViewEventListener;
 import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.util.ConstantsUI;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -378,12 +383,7 @@ public class EditLayerOverlay
             public void onClick(View view)
             {
                 if(mHasEdits){
-                    mHasEdits = false;
-                    mMode = MODE_EDIT;
-                    setToolbar(mCurrentToolbar);
-                    mItem.setGeoGeometry(mOriginalGeometry); //restore original geometry
-                    mOriginalGeometry = null;
-                    mMapViewOverlays.onLayerChanged(mLayer.getId());
+                    saveEdits();
                 }
                 else {
                     for (EditEventListener listener : mListeners) {
@@ -395,39 +395,30 @@ public class EditLayerOverlay
             }
         });
 
-        toolbar.getMenu().clear();
-
-        if(mHasEdits){
-            toolbar.setNavigationIcon(R.drawable.ic_action_cancel);
-            toolbar.setNavigationContentDescription(R.string.cancel);
-            toolbar.inflateMenu(R.menu.save_edits);
-        }
-        else {
-            toolbar.setNavigationIcon(R.drawable.ic_action_apply);
-            toolbar.setNavigationContentDescription(R.string.apply);
-            switch (mLayer.getGeometryType()) {
-                case GeoConstants.GTPoint:
-                    toolbar.inflateMenu(R.menu.edit_point);
-                    break;
-                case GeoConstants.GTMultiPoint:
-                    toolbar.inflateMenu(R.menu.edit_multipoint);
-                    break;
-                case GeoConstants.GTLineString:
-                    toolbar.inflateMenu(R.menu.edit_line);
-                    break;
-                case GeoConstants.GTMultiLineString:
-                    //toolbar.inflateMenu(R.menu.edit_multiline);
-                    break;
-                case GeoConstants.GTPolygon:
-                    toolbar.inflateMenu(R.menu.edit_polygon);
-                    break;
-                case GeoConstants.GTMultiPolygon:
-                    //toolbar.inflateMenu(R.menu.edit_multipolygon);
-                    break;
-                case GeoConstants.GTGeometryCollection:
-                default:
-                    break;
-            }
+        toolbar.setNavigationIcon(R.drawable.ic_action_apply);
+        toolbar.setNavigationContentDescription(R.string.apply);
+        switch (mLayer.getGeometryType()) {
+            case GeoConstants.GTPoint:
+                toolbar.inflateMenu(R.menu.edit_point);
+                break;
+            case GeoConstants.GTMultiPoint:
+                toolbar.inflateMenu(R.menu.edit_multipoint);
+                break;
+            case GeoConstants.GTLineString:
+                toolbar.inflateMenu(R.menu.edit_line);
+                break;
+            case GeoConstants.GTMultiLineString:
+                //toolbar.inflateMenu(R.menu.edit_multiline);
+                break;
+            case GeoConstants.GTPolygon:
+                toolbar.inflateMenu(R.menu.edit_polygon);
+                break;
+            case GeoConstants.GTMultiPolygon:
+                //toolbar.inflateMenu(R.menu.edit_multipolygon);
+                break;
+            case GeoConstants.GTGeometryCollection:
+            default:
+                break;
         }
 
         toolbar.setOnMenuItemClickListener(new BottomToolbar.OnMenuItemClickListener()
@@ -435,17 +426,7 @@ public class EditLayerOverlay
             @Override
             public boolean onMenuItemClick(MenuItem menuItem)
             {
-                if(menuItem.getItemId() == R.id.menu_edit_save){
-                    mHasEdits = false;
-                    mOriginalGeometry = null;
-                    //show attributes edit activity
-                    ILayerUI vectorLayerUI = (ILayerUI)mLayer;
-                    if(null != vectorLayerUI) {
-                        //TODO: solve the new geometry and new feature id
-                        vectorLayerUI.showEditForm(mContext, mItem.getId());
-                    }
-                }
-                else if(menuItem.getItemId() == R.id.menu_edit_attributes){
+                if(menuItem.getItemId() == R.id.menu_edit_attributes){
                     ILayerUI vectorLayerUI = (ILayerUI)mLayer;
                     if(null != vectorLayerUI) {
                         vectorLayerUI.showEditForm(mContext, mItem.getId());
@@ -462,7 +443,16 @@ public class EditLayerOverlay
                         pt.setCRS(GeoConstants.CRS_WGS84);
                         pt.project(GeoConstants.CRS_WEB_MERCATOR);
                         GeoPoint screenPt = mapDrawable.mapToScreen(pt);
+
+                        mHasEdits = true;
+                        mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_save);
+                        //store original geometry for cancel operation
+                        if(null == mOriginalGeometry){
+                            mOriginalGeometry = mItem.getGeoGeometry().copy();
+                        }
+
                         mDrawItems.setSelectedPointValue((float)screenPt.getX(), (float)screenPt.getY());
+
                         mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mapDrawable);
                         mMapViewOverlays.postInvalidate();
                     }
@@ -471,12 +461,69 @@ public class EditLayerOverlay
 
                 }
                 else if(menuItem.getItemId() == R.id.menu_edit_delete_point){
+                    mHasEdits = true;
+                    mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_save);
 
+                    //store original geometry for cancel operation
+                    if(null == mOriginalGeometry){
+                        mOriginalGeometry = mItem.getGeoGeometry().copy();
+                    }
+
+                    mDrawItems.deleteSelectedPoint();
+                    GeoGeometry geom = mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mMapViewOverlays.getMap());
+                    if(null == geom)
+                        mItem.setGeoGeometry(geom);
+
+                    //do we need map refresh?
+                    mMapViewOverlays.onLayerChanged(mLayer.getId()); // redraw the map
+                    //or just overlay
+                    //mMapViewOverlays.postInvalidate();
                 }
                 return true;
             }
         });
 
+    }
+
+    protected void cancelEdits(){
+        // restore
+        mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_apply);
+        mHasEdits = false;
+        mMode = MODE_EDIT;
+        mItem.setGeoGeometry(mOriginalGeometry); //restore original geometry
+        mOriginalGeometry = null;
+        mMapViewOverlays.onLayerChanged(mLayer.getId());
+    }
+
+    protected void saveEdits()
+    {
+        mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_apply);
+        mHasEdits = false;
+        mMode = MODE_EDIT;
+        mOriginalGeometry = null;
+
+        if(mItem.getGeoGeometry() == null && mItem.getId() != Constants.NOT_FOUND){
+            mLayer.delete(VectorLayer.FIELD_ID + " = ?", new String[]{mItem.getId() + ""});
+            return;
+        }
+        else if(mItem.getGeoGeometry() != null && mItem.getId() == Constants.NOT_FOUND){
+            //create new
+            ContentValues values = new ContentValues();
+            try {
+                values.put(VectorLayer.FIELD_GEOM, mItem.getGeoGeometry().toBlob());
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(mContext, mContext.getString(R.string.error_create_feature), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            long id = mLayer.insert(values);
+            mItem.setId(id);
+        }
+        //show attributes edit activity
+        ILayerUI vectorLayerUI = (ILayerUI)mLayer;
+        if(null != vectorLayerUI) {
+            vectorLayerUI.showEditForm(mContext, mItem.getId());
+        }
     }
 
 
@@ -594,24 +641,50 @@ public class EditLayerOverlay
 
         if(mHasEdits)
         {
-            //TODO: Ask to save current changes
+            final float xCoord = event.getX();
+            final float yCoord = event.getY();
+            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+            builder.setMessage(mContext.getString(R.string.has_edits));
+            builder.setCancelable(true);
+            builder.setPositiveButton(mContext.getString(R.string.yes),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        saveEdits();
+                        dialog.cancel();
+                    }
+                });
+            builder.setNegativeButton(mContext.getString(R.string.no),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        cancelEdits();
+                        selectGeometryInScreenCoordinates(xCoord, yCoord);
+                        dialog.cancel();
+                    }
+                });
+            builder.create().show();
         }
-        double dMinX = event.getX() - mTolerancePX;
-        double dMaxX = event.getX() + mTolerancePX;
-        double dMinY = event.getY() - mTolerancePX;
-        double dMaxY = event.getY() + mTolerancePX;
+        else {
+            selectGeometryInScreenCoordinates(event.getX(), event.getY());
+        }
+    }
+
+    protected void selectGeometryInScreenCoordinates(float x, float y){
+        double dMinX = x - mTolerancePX;
+        double dMaxX = x + mTolerancePX;
+        double dMinY = y - mTolerancePX;
+        double dMaxY = y + mTolerancePX;
         GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
         //1. search current geometry point
-        if(mDrawItems.intersects(screenEnv)) {
+        if (mDrawItems.intersects(screenEnv)) {
             return;
         }
 
         //2 select another geometry
         GeoEnvelope mapEnv = mMapViewOverlays.screenToMap(screenEnv);
-        if(null == mapEnv)
+        if (null == mapEnv)
             return;
         List<VectorCacheItem> items = mLayer.query(mapEnv);
-        if(items.isEmpty()){
+        if (items.isEmpty()) {
             return;
         }
         mItem = items.get(0);
@@ -662,8 +735,8 @@ public class EditLayerOverlay
         if(mMode == MODE_CHANGE) {
             mMapViewOverlays.setLockMap(false);
             mHasEdits = true;
-            //create new toolbar with save and cancel buttons
-            setToolbar(mCurrentToolbar);
+            //change end edit session icon to save icon
+            mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_save);
             mMode = MODE_EDIT;
             mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mMapViewOverlays.getMap());
 
@@ -945,6 +1018,42 @@ public class EditLayerOverlay
             if(null == points)
                 return null;
             return new PointF(points[mSelectedPoint], points[mSelectedPoint + 1]);
+        }
+
+        protected int getMinPointCount(){
+            switch (mLayer.getGeometryType()){
+                case GeoConstants.GTPoint:
+                case GeoConstants.GTMultiPoint:
+                    return 2;
+                case GeoConstants.GTLineString:
+                case GeoConstants.GTMultiLineString:
+                    return 4;
+                case GeoConstants.GTPolygon:
+                case GeoConstants.GTMultiPolygon:
+                    return 6;
+                default:
+                    return 2;
+            }
+        }
+
+        public void deleteSelectedPoint(){
+            float[] points = mDrawItemsVertex.get(mSelectedRing);
+            if(null == points)
+                return;
+            if(points.length <= getMinPointCount()){
+                mDrawItemsVertex.remove(mSelectedRing);
+                mSelectedRing--;
+                return;
+            }
+            float[] newPoints = new float[points.length - 2];
+            int counter = 0;
+            for(int i = 0; i < points.length; i++){
+                if(i == mSelectedPoint || i == mSelectedPoint + 1)
+                    continue;
+                newPoints[counter++] = points[i];
+            }
+
+            mDrawItemsVertex.set(mSelectedRing, newPoints);
         }
 
         public void setSelectedPointValue(float x, float y){

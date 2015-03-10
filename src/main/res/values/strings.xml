@@ -151,4 +151,8 @@
     <string name="add_multipolygon">Add multipolygon</string>
     <string name="delete_multipolygon">Delete multipolygon</string>
     <string name="save">Save</string>
+    <string name="error_create_feature">Create feature failed</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="has_edits">There are unsaved edits. Do you want to save them?</string>
 </resources>
