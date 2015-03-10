@@ -402,16 +402,16 @@ public class EditLayerOverlay
                 toolbar.inflateMenu(R.menu.edit_point);
                 break;
             case GeoConstants.GTMultiPoint:
-                toolbar.inflateMenu(R.menu.edit_multipoint);
+                //TODO: toolbar.inflateMenu(R.menu.edit_multipoint);
                 break;
             case GeoConstants.GTLineString:
-                toolbar.inflateMenu(R.menu.edit_line);
+                //TODO: toolbar.inflateMenu(R.menu.edit_line);
                 break;
             case GeoConstants.GTMultiLineString:
                 //toolbar.inflateMenu(R.menu.edit_multiline);
                 break;
             case GeoConstants.GTPolygon:
-                toolbar.inflateMenu(R.menu.edit_polygon);
+                //TODO: toolbar.inflateMenu(R.menu.edit_polygon);
                 break;
             case GeoConstants.GTMultiPolygon:
                 //toolbar.inflateMenu(R.menu.edit_multipolygon);
@@ -454,11 +454,29 @@ public class EditLayerOverlay
                         mDrawItems.setSelectedPointValue((float)screenPt.getX(), (float)screenPt.getY());
 
                         mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mapDrawable);
-                        mMapViewOverlays.postInvalidate();
+                        updateMap();
                     }
                 }
                 else if(menuItem.getItemId() == R.id.menu_edit_add_new_point){
+                    mHasEdits = true;
+                    mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_save);
 
+                    MapDrawable mapDrawable = mMapViewOverlays.getMap();
+                    if(null == mapDrawable)
+                        return false;
+
+                    GeoPoint center = mapDrawable.getFullBounds().getCenter();
+                    if(mLayer.getGeometryType() == GeoConstants.GTPoint){
+                        mItem = new VectorCacheItem(new GeoPoint(), Constants.NOT_FOUND);
+                        mDrawItems.setSelectedPointValue((float)center.getX(), (float) center.getY());
+                        //set new coordinates to GeoPoint from screen coordinates
+                        mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mapDrawable);
+                    }
+                    else{
+                        //TODO: insert point in appropriate position
+                    }
+
+                    updateMap();
                 }
                 else if(menuItem.getItemId() == R.id.menu_edit_delete_point){
                     mHasEdits = true;
@@ -474,15 +492,19 @@ public class EditLayerOverlay
                     if(null == geom)
                         mItem.setGeoGeometry(geom);
 
-                    //do we need map refresh?
-                    mMapViewOverlays.onLayerChanged(mLayer.getId()); // redraw the map
-                    //or just overlay
-                    //mMapViewOverlays.postInvalidate();
+                    updateMap();
                 }
                 return true;
             }
         });
 
+    }
+
+    protected void updateMap(){
+        //do we need map refresh?
+        mMapViewOverlays.onLayerChanged(mLayer.getId()); // redraw the map
+        //or just overlay
+        //mMapViewOverlays.postInvalidate();
     }
 
     protected void cancelEdits(){
@@ -517,7 +539,7 @@ public class EditLayerOverlay
                 return;
             }
             long id = mLayer.insert(values);
-            mItem.setId(id);
+            mItem = mLayer.getCacheItem(id);
         }
         //show attributes edit activity
         ILayerUI vectorLayerUI = (ILayerUI)mLayer;
@@ -1034,6 +1056,18 @@ public class EditLayerOverlay
                 default:
                     return 2;
             }
+        }
+
+        public void addNewPoint(float x, float y){
+            float[] points = mDrawItemsVertex.get(mSelectedRing);
+            if(null == points)
+                return;
+            float[] newPoints = new float[points.length + 2];
+            System.arraycopy(points, 0, newPoints, 0, points.length);
+            newPoints[points.length] = x;
+            newPoints[points.length + 1] = y;
+
+            mDrawItemsVertex.set(mSelectedRing, newPoints);
         }
 
         public void deleteSelectedPoint(){
