@@ -168,10 +168,6 @@ public class EditLayerOverlay
             mDrawItems.setSelectedRing(0);
             mMapViewOverlays.postInvalidate();
         } else if (mMode == MODE_NONE) {
-            if (mHasEdits) {
-                //TODO: Ask to save
-                mHasEdits = false;
-            }
             mLayer = null;
             mItem = null;
             mDrawItems.setSelectedPoint(Constants.NOT_FOUND);
@@ -785,7 +781,11 @@ public class EditLayerOverlay
     @Override
     public void onLayerDeleted(int id)
     {
-        //TODO: if delete edited layer cancel edit session
+        //if delete edited layer cancel edit session
+        if(null != mLayer && mLayer.getId() == id){
+            mHasEdits = false;
+            setMode(MODE_NONE);
+        }
     }
 
 
