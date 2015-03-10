@@ -88,7 +88,7 @@ public class EditLayerOverlay
     protected final static int EDGE_RADIUS   = 12;
     protected final static int LINE_WIDTH    = 4;
 
-    public final static long DELAY      = 750;
+    public final static long DELAY = 750;
 
     protected VectorLayer     mLayer;
     protected VectorCacheItem mItem;
@@ -250,24 +250,32 @@ public class EditLayerOverlay
                 mDrawItems.addItems(0, points, DrawItems.TYPE_VERTEX);
                 break;
             case GeoConstants.GTLineString:
+                /*TODO:
                 lineString = (GeoLineString)geom;
                 fillDrawLine(0, lineString, mapDrawable);
+                */
                 break;
             case GeoConstants.GTMultiLineString:
+                /*TODO:
                 GeoMultiLineString multiLineString = (GeoMultiLineString)geom;
                 for(int i = 0; i < multiLineString.size(); i++){
                     fillDrawLine(i, multiLineString.get(i), mapDrawable);
                 }
+                 */
                 break;
             case GeoConstants.GTPolygon:
+                /*TODO:
                 GeoPolygon polygon = (GeoPolygon)geom;
                 fillDrawPolygon(polygon, mapDrawable);
+                */
                 break;
             case GeoConstants.GTMultiPolygon:
+                /*TODO:
                 GeoMultiPolygon multiPolygon = (GeoMultiPolygon)geom;
                 for(int i = 0; i < multiPolygon.size(); i++){
                     fillDrawPolygon(multiPolygon.get(i), mapDrawable);
                 }
+                */
                 break;
             case GeoConstants.GTGeometryCollection:
             default:
@@ -287,8 +295,8 @@ public class EditLayerOverlay
         float[] points = mapDrawable.mapToScreen(geoPoints);
         mDrawItems.addItems(ring, points, DrawItems.TYPE_VERTEX);
         float[] edgePoints = new float[points.length - 1];
-        for(int i = 0; i < points.length - 1; i++){
-            edgePoints[i] = (points[i] + points[i + 1]) * .5f;
+        for(int i = 0; i < points.length - 2; i++){
+            edgePoints[i] = (points[i] + points[i + 2]) * .5f;
         }
         mDrawItems.addItems(ring, edgePoints, DrawItems.TYPE_EDGE);
     }
@@ -956,7 +964,10 @@ public class EditLayerOverlay
 
                 mPaint.setColor(mFillColor);
                 mPaint.setStrokeWidth(LINE_WIDTH);
-                canvas.drawLines(items, mPaint);
+
+                for(int i = 0; i < items.length - 3; i+= 2) {
+                    canvas.drawLine(items[i], items[i + 1], items[i + 2], items[i + 3], mPaint);
+                }
 
                 if(mMode == MODE_EDIT) {
                     mPaint.setColor(mOutlineColor);
@@ -984,9 +995,10 @@ public class EditLayerOverlay
 
             //draw selected point
             if(mSelectedRing != Constants.NOT_FOUND && mSelectedPoint != Constants.NOT_FOUND) {
-
+                if(mDrawItemsVertex.isEmpty() || mDrawItemsVertex.size() <= mSelectedRing)
+                    return;
                 float[] items = mDrawItemsVertex.get(mSelectedRing);
-                if(null != items) {
+                if(null != items && mSelectedPoint + 1 < items.length) {
                     mPaint.setColor(mSelectColor);
                     mPaint.setStrokeWidth(VERTEX_RADIUS);
 
@@ -1125,6 +1137,8 @@ public class EditLayerOverlay
                     GeoLineString lineString = (GeoLineString)geometry;
                     lineString.clear();
                     for (GeoPoint geoPoint : points) {
+                        if(null == geoPoint)
+                            continue;
                         lineString.add(geoPoint);
                     }
                     break;

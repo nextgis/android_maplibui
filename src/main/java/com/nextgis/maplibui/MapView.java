@@ -29,9 +29,12 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.widget.Scroller;
+import com.nextgis.maplib.api.ILayer;
+import com.nextgis.maplib.api.ILayerView;
 import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
+import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplibui.api.MapViewEventListener;
 
@@ -53,6 +56,7 @@ public class MapView
     protected       double               mCurrentSpan;
     protected       Scroller             mScroller;
     protected       long                 mStartDrawTime;
+    protected long mTopVisibleLayerId;
 
     //display redraw timeout ms
     public static final int DISPLAY_REDRAW_TIMEOUT = 1050;
@@ -76,6 +80,24 @@ public class MapView
         mCurrentFocusLocation = new PointF();
 
         mDrawingState = DRAW_SATE_drawing_noclearbk;
+
+        findTopVisibleLayer(mMap);
+    }
+
+    protected boolean findTopVisibleLayer(LayerGroup group){
+        for(int i = group.getLayerCount() - 1; i >= 0; i--){
+            ILayer layer = group.getLayer(i);
+            if(layer instanceof LayerGroup){
+                if(findTopVisibleLayer((LayerGroup) layer))
+                    return true;
+            }
+            ILayerView view = (ILayerView)group.getLayer(i);
+            if(view.isVisible()){
+                mTopVisibleLayerId = layer.getId();
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -364,7 +386,7 @@ public class MapView
 
                 if (bounds.getMinX() <= limits.getMinX() || bounds.getMaxX() >= limits.getMaxX()) {
                     x = mCurrentMouseOffset.x;
-                }
+                }findTopVisibleLayer(mMap);
 
                 mCurrentMouseOffset.set(x, y);
 
@@ -494,6 +516,7 @@ public class MapView
     public void onLayerAdded(int id)
     {
         if(mMap != null) {
+            findTopVisibleLayer(mMap);
             mMap.runDraw(null);
             mStartDrawTime = System.currentTimeMillis();
         }
@@ -504,6 +527,7 @@ public class MapView
     public void onLayerDeleted(int id)
     {
         if(mMap != null) {
+            findTopVisibleLayer(mMap);
             mMap.runDraw(null);
             mStartDrawTime = System.currentTimeMillis();
         }
@@ -514,6 +538,7 @@ public class MapView
     public void onLayerChanged(int id)
     {
         if(mMap != null) {
+            findTopVisibleLayer(mMap);
             mMap.runDraw(null);
             mStartDrawTime = System.currentTimeMillis();
         }
@@ -536,6 +561,7 @@ public class MapView
     public void onLayersReordered()
     {
         if(mMap != null) {
+            findTopVisibleLayer(mMap);
             mMap.runDraw(null);
             mStartDrawTime = System.currentTimeMillis();
         }
@@ -549,7 +575,7 @@ public class MapView
     {
         //Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent);
         mDrawingState = DRAW_SATE_drawing_noclearbk;
-        if(percent >= 1.0){
+        if(percent >= 1.0 && id == mTopVisibleLayerId){
             //Log.d(TAG, "LayerDrawFinished: id - " + id + ", percent - " + percent);
             //ILayer layer = mMap.getLastLayer();
             //if(null != layer && layer.getId() == id)
