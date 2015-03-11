@@ -36,6 +36,7 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.api.IChooseLayerResult;
 import com.nextgis.maplibui.api.ILayerSelector;
 import com.nextgis.maplibui.api.ILayerUI;
 
@@ -51,9 +52,11 @@ public class ChooseLayerDialog extends DialogFragment implements ILayerSelector
     protected String       mTitle;
     protected List<ILayer> mLayers;
     protected ChooseLayerListAdapter mListAdapter;
+    protected int mCode;
 
     protected final static String KEY_TITLE = "title";
     protected final static String KEY_LAYERS_IDS = "ids";
+    protected final static String KEY_CODE = "code";
 
     public ChooseLayerDialog setTitle(String title)
     {
@@ -64,6 +67,13 @@ public class ChooseLayerDialog extends DialogFragment implements ILayerSelector
     public ChooseLayerDialog setLayerList(List<ILayer> list)
     {
         mLayers = list;
+        return this;
+    }
+
+
+    public ChooseLayerDialog setCode(int code)
+    {
+        mCode = code;
         return this;
     }
 
@@ -89,6 +99,7 @@ public class ChooseLayerDialog extends DialogFragment implements ILayerSelector
                 ILayer layer = map.getLayerById(id);
                 mLayers.add(layer);
             }
+            mCode = savedInstanceState.getInt(KEY_CODE);
         }
 
         View view = inflater.inflate(R.layout.layout_layers, null);
@@ -122,6 +133,7 @@ public class ChooseLayerDialog extends DialogFragment implements ILayerSelector
             ids.add((int) layer.getId());
         }
         outState.putIntegerArrayList(KEY_LAYERS_IDS, ids);
+        outState.putInt(KEY_CODE, mCode);
         super.onSaveInstanceState(outState);
     }
 
@@ -129,9 +141,9 @@ public class ChooseLayerDialog extends DialogFragment implements ILayerSelector
     @Override
     public void onLayerSelect(ILayer layer)
     {
-        if(layer instanceof ILayerUI ) {
-            ILayerUI layerUI = (ILayerUI) layer;
-            layerUI.showEditForm(getActivity(), Constants.NOT_FOUND);
+        IChooseLayerResult activity = (IChooseLayerResult) getActivity();
+        if(null != activity) {
+            activity.onFinishChooseLayerDialog(mCode, layer);
         }
 
         dismiss();
