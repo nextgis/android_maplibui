@@ -26,15 +26,36 @@
     <item
         android:id="@+id/menu_select_all"
         android:title="@string/menu_select_all"
-        android:orderInCategory="100"
+        android:orderInCategory="0"
         app:showAsAction="always"
         android:icon="@drawable/abc_ic_menu_selectall_mtrl_alpha"/>
+
+    <!--<item-->
+        <!--android:id="@+id/menu_share"-->
+        <!--android:title="@string/menu_share"-->
+        <!--android:orderInCategory="1"-->
+        <!--app:showAsAction="always"-->
+        <!--android:icon="@drawable/abc_ic_menu_share_mtrl_alpha"/>-->
+
+    <item
+        android:id="@+id/menu_visibility_on"
+        android:title="@string/menu_visibility_on"
+        android:orderInCategory="2"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_visibility_white_24dp"/>
+
+    <item
+        android:id="@+id/menu_visibility_off"
+        android:title="@string/menu_visibility_off"
+        android:orderInCategory="3"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_visibility_off_white_24dp"/>
 
     <item
         android:id="@+id/menu_delete"
         android:title="@string/menu_delete"
-        android:orderInCategory="100"
-        app:showAsAction="always"
+        android:orderInCategory="4"
+        app:showAsAction="never"
         android:icon="@drawable/ic_action_delete_light"/>
 
 </menu>

@@ -34,10 +34,14 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
+import android.util.SparseBooleanArray;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -59,10 +63,12 @@ public class TracksActivity
 {
     private static final int TRACKS_ID = 0;
 
-    private Uri mContentUriTracks;
+    private Uri                 mContentUriTracks;
     private SimpleCursorAdapter mSimpleCursorAdapter;
     private List<String>        mIds;
     private ListView            mTracks;
+    private ActionMode          mActionMode;
+    private ActionMode.Callback mActionCallback;
     private boolean mSelectState = false;
 
 
@@ -156,7 +162,97 @@ public class TracksActivity
         });
 
         mTracks = (ListView) findViewById(R.id.lv_tracks);
+        mTracks.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
+        mTracks.setItemsCanFocus(false);
+
         mTracks.setAdapter(mSimpleCursorAdapter);
+
+        mActionCallback = new ActionMode.Callback()
+        {
+            @Override
+            public boolean onCreateActionMode(
+                    ActionMode actionMode,
+                    Menu menu)
+            {
+                MenuInflater inflater = actionMode.getMenuInflater();
+                inflater.inflate(R.menu.menu_tracks, menu);
+                getSupportActionBar().hide();
+                return true;
+            }
+
+
+            @Override
+            public boolean onPrepareActionMode(
+                    ActionMode actionMode,
+                    Menu menu)
+            {
+                return false;
+            }
+
+
+            @Override
+            public boolean onActionItemClicked(
+                    ActionMode actionMode,
+                    MenuItem menuItem)
+            {
+                int id = menuItem.getItemId();
+
+                if (id == R.id.menu_delete) {
+                    if (mIds.size() > 0) {
+                        Intent trackerService = new Intent(getApplicationContext(), TrackerService.class);
+
+                        if (isTrackerServiceRunning(getApplicationContext())) {
+                            stopService(trackerService);
+                            Toast.makeText(getApplicationContext(), R.string.unclosed_track_deleted, Toast.LENGTH_SHORT).show();
+                        }
+
+                        String selection = TrackLayer.FIELD_ID + " IN (" + makePlaceholders() + ")";
+                        String[] args = mIds.toArray(new String[mIds.size()]);
+                        getContentResolver().delete(mContentUriTracks, selection, args);
+                        mIds.clear();
+                    } else {
+                        Toast.makeText(getApplicationContext(), R.string.nothing_selected, Toast.LENGTH_SHORT).show();
+                    }
+
+                    actionMode.finish();
+                } else if (id == R.id.menu_select_all) {
+                    mSelectState = !mSelectState;
+                    setSelection();
+                } else if (id == R.id.menu_visibility_on || id == R.id.menu_visibility_off) {
+                    boolean isShow = id == R.id.menu_visibility_on;
+                    SparseBooleanArray checkedItems = mTracks.getCheckedItemPositions();
+
+                    for (int i = 0; i < mTracks.getAdapter().getCount(); i++) {
+                        if (checkedItems.get(i)) {
+                            ImageView view =
+                                    (ImageView) mTracks.getAdapter().getView(i, null, mTracks).findViewById(R.id.iv_visibility);
+
+                            if (isShow) {
+                                if (!(boolean) view.getTag())
+                                    view.performClick();
+                            } else {
+                                if ((boolean) view.getTag())
+                                    view.performClick();
+                            }
+                        }
+                    }
+
+                    actionMode.finish();
+                }
+
+                return true;
+            }
+
+
+            @Override
+            public void onDestroyActionMode(ActionMode actionMode)
+            {
+                mSelectState = false;
+                setSelection();
+                mActionMode = null;
+                getSupportActionBar().show();
+            }
+        };
 
         mTracks.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
@@ -167,13 +263,33 @@ public class TracksActivity
                     int position,
                     long id)
             {
+                if (mActionMode == null)
+                    mActionMode = getSupportActionBar().startActionMode(mActionCallback);
+
                 CheckBox cb = (CheckBox) view.findViewById(R.id.cb_item);
                 boolean isChecked = !cb.isChecked();
                 cb.setChecked(isChecked);
+                mTracks.setItemChecked(position, isChecked);
             }
         });
 
         getSupportLoaderManager().initLoader(TRACKS_ID, null, this);
+    }
+
+
+    private void setSelection()
+    {
+        int childrenCount = mTracks.getCount();
+
+        for (int i = 0; i < childrenCount; i++) {
+            View parent = mTracks.getAdapter().getView(i, null, mTracks);
+            CheckBox view = (CheckBox) parent.findViewById(R.id.cb_item);
+
+            if (mSelectState != view.isChecked())
+                mTracks.performItemClick(parent, i, i);
+        }
+
+        mTracks.invalidateViews();
     }
 
 
@@ -197,14 +313,13 @@ public class TracksActivity
         } else {
             mIds.remove(id);
         }
-    }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        getMenuInflater().inflate(R.menu.menu_tracks, menu);
-        return true;
+        if (mActionMode != null) {
+            if (mIds.size() == 0)
+                mActionMode.finish();
+            else
+                mActionMode.setTitle(mIds.size() + getString(R.string.cab_selected));
+        }
     }
 
 
@@ -216,40 +331,9 @@ public class TracksActivity
         if (id == android.R.id.home) {
             finish();
             return true;
-        } else if (id == R.id.menu_delete) {
-            if (mIds.size() > 0) {
-                Intent trackerService = new Intent(this, TrackerService.class);
-
-                if (isTrackerServiceRunning(this)) {
-                    stopService(trackerService);
-                    Toast.makeText(this, R.string.unclosed_track_deleted, Toast.LENGTH_SHORT).show();
-                }
-
-                String selection = TrackLayer.FIELD_ID + " IN (" + makePlaceholders() + ")";
-                String[] args = mIds.toArray(new String[mIds.size()]);
-                getContentResolver().delete(mContentUriTracks, selection, args);
-                mIds.clear();
-            } else {
-                Toast.makeText(this, R.string.nothing_selected, Toast.LENGTH_SHORT).show();
-            }
-            return true;
-        } else if (id == R.id.menu_select_all) {
-            int childrenCount = mTracks.getCount();
-            mSelectState = !mSelectState;
-
-            for (int i = 0; i < childrenCount; i++) {
-                CheckBox view =
-                        (CheckBox) mTracks.getAdapter().getView(i, null, mTracks).findViewById(R.id.cb_item);
-
-                if (mSelectState != view.isChecked())
-                    view.performClick();
-            }
-
-            mTracks.invalidateViews();
-            return true;
-        } else {
-            return super.onOptionsItemSelected(item);
         }
+
+        return super.onOptionsItemSelected(item);
     }
 
 
