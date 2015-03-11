@@ -63,6 +63,7 @@ public class TracksActivity
     private SimpleCursorAdapter mSimpleCursorAdapter;
     private List<String>        mIds;
     private ListView            mTracks;
+    private boolean mSelectState = false;
 
 
     @Override
@@ -234,9 +235,14 @@ public class TracksActivity
             return true;
         } else if (id == R.id.menu_select_all) {
             int childrenCount = mTracks.getCount();
+            mSelectState = !mSelectState;
 
             for (int i = 0; i < childrenCount; i++) {
-                mTracks.getAdapter().getView(i, null, mTracks).findViewById(R.id.cb_item).performClick();
+                CheckBox view =
+                        (CheckBox) mTracks.getAdapter().getView(i, null, mTracks).findViewById(R.id.cb_item);
+
+                if (mSelectState != view.isChecked())
+                    view.performClick();
             }
 
             mTracks.invalidateViews();
