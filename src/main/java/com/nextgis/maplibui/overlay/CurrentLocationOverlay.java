@@ -23,6 +23,7 @@ package com.nextgis.maplibui.overlay;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -33,6 +34,7 @@ import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.location.Location;
+import android.preference.PreferenceManager;
 import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.GeoEnvelope;
@@ -45,6 +47,7 @@ import com.nextgis.maplibui.MapViewOverlays;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.api.OverlayItem;
+import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 
 public class CurrentLocationOverlay
@@ -52,6 +55,9 @@ public class CurrentLocationOverlay
         implements GpsEventListener
 {
     public static final long LOCATION_FORCE_UPDATE_TIMEOUT = 15000;
+
+    public static final int WITH_MARKER   = 1;
+    public static final int WITH_ACCURACY = 1 << 1;
 
     private GpsEventSource mGpsEventSource;
     private Location       mCurrentLocation;
@@ -63,6 +69,7 @@ public class CurrentLocationOverlay
             R.drawable.abc_ic_ab_back_mtrl_am_alpha;
     private int         mMarkerColor;
     private OverlayItem mMarker, mAccuracy;
+    private int mShowMode;
 
 
     public CurrentLocationOverlay(
@@ -86,6 +93,10 @@ public class CurrentLocationOverlay
         mMarker =
                 new OverlayItem(mapViewOverlays.getMap(), longitude, latitude, getDefaultMarker());
         mAccuracy = new OverlayItem(mapViewOverlays.getMap(), longitude, latitude, null);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        mShowMode = Integer.parseInt(preferences.getString(SettingsConstantsUI.KEY_PREF_SHOW_CURRENT_LOC, "3"));
+        setShowAccuracy(0 != (mShowMode & WITH_ACCURACY));
     }
 
 
@@ -94,12 +105,12 @@ public class CurrentLocationOverlay
             Canvas canvas,
             PointF currentMouseOffset)
     {
-        if(mMapViewOverlays.isLockMap()){
+        if (mMapViewOverlays.isLockMap()) {
             draw(canvas, null);
             return;
         }
 
-        if (mIsInBounds) {
+        if (mIsInBounds && isMarkerEnabled()) {
             if (mIsAccuracyEnabled && mIsAccuracyMarkerBiggest) {
                 drawOnPanning(canvas, currentMouseOffset, mAccuracy);
             }
@@ -115,12 +126,12 @@ public class CurrentLocationOverlay
             PointF currentFocusLocation,
             float scale)
     {
-        if(mMapViewOverlays.isLockMap()){
+        if (mMapViewOverlays.isLockMap()) {
             draw(canvas, null);
             return;
         }
 
-        if (mIsInBounds) {
+        if (mIsInBounds && isMarkerEnabled()) {
             if (mIsAccuracyEnabled && mIsAccuracyMarkerBiggest) {
                 drawOnZooming(canvas, currentFocusLocation, scale, mAccuracy, true);
             }
@@ -135,7 +146,7 @@ public class CurrentLocationOverlay
             Canvas canvas,
             MapDrawable mapDrawable)
     {
-        if (mCurrentLocation != null) {
+        if (mCurrentLocation != null && isMarkerEnabled()) {
             double lat = mCurrentLocation.getLatitude();
             double lon = mCurrentLocation.getLongitude();
             mMarker.setMarker(getDefaultMarker());
@@ -215,6 +226,18 @@ public class CurrentLocationOverlay
     public void stopShowingCurrentLocation()
     {
         mGpsEventSource.removeListener(this);
+    }
+
+
+    public void updateMode(String newMode)
+    {
+        mShowMode = Integer.parseInt(newMode);
+        setShowAccuracy(0 != (mShowMode & WITH_ACCURACY));
+    }
+
+    private boolean isMarkerEnabled()
+    {
+        return 0 != (mShowMode & WITH_MARKER);
     }
 
 

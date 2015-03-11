@@ -29,4 +29,5 @@ public interface SettingsConstantsUI
     public static final String KEY_PREF_SYNC_PERIOD          = "sync_period";
     public static final String KEY_PREF_SYNC_PERIOD_SEC_LONG = "sync_period_sec_long";
     public static final String KEY_PREF_SHOW_STATUS_PANEL    = "show_status_panel";
+    public static final String KEY_PREF_SHOW_CURRENT_LOC     = "show_current_location";
 }

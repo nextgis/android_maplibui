@@ -91,4 +91,14 @@
         <item>1800</item>
         <item>2700</item>
     </string-array>
+    <string-array name="current_location_mode">
+        <item>Do not show current location</item>
+        <item>Show marker only</item>
+        <item>Show marker and accuracy radius</item>
+    </string-array>
+    <string-array name="current_location_mode_val"  translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>3</item>
+    </string-array>
 </resources>
