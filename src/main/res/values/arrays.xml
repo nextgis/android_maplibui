@@ -31,4 +31,64 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+    <string-array name="tracker_min_dist_update">
+        <item>0 m</item>
+        <item>1 m</item>
+        <item>5 m</item>
+        <item>10 m</item>
+        <item>25 m</item>
+        <item>50 m</item>
+        <item>75 m</item>
+        <item>100 m</item>
+        <item>150 m</item>
+        <item>200 m</item>
+        <item>300 m</item>
+    </string-array>
+    <string-array name="tracker_min_dist_update_val"  translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>5</item>
+        <item>10</item>
+        <item>25</item>
+        <item>50</item>
+        <item>75</item>
+        <item>100</item>
+        <item>150</item>
+        <item>200</item>
+        <item>300</item>
+    </string-array>
+    <string-array name="tracker_min_time_between_updates">
+        <item>0 sec</item>
+        <item>1 sec</item>
+        <item>2 sec</item>
+        <item>5 sec</item>
+        <item>10 sec</item>
+        <item>20 sec</item>
+        <item>30 sec</item>
+        <item>45 sec</item>
+        <item>1 min</item>
+        <item>2 min</item>
+        <item>5 min</item>
+        <item>10 min</item>
+        <item>20 min</item>
+        <item>30 min</item>
+        <item>45 min</item>
+    </string-array>
+    <string-array name="tracker_min_time_between_updates_val"  translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>5</item>
+        <item>10</item>
+        <item>20</item>
+        <item>30</item>
+        <item>45</item>
+        <item>60</item>
+        <item>120</item>
+        <item>300</item>
+        <item>600</item>
+        <item>1200</item>
+        <item>1800</item>
+        <item>2700</item>
+    </string-array>
 </resources>
