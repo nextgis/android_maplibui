@@ -441,7 +441,7 @@ public class MapView
         mDrawingState = DRAW_SATE_zooming;
         mScaleFactor = 2;
         mCurrentFocusLocation.set(-e.getX(), -e.getY());
-        postInvalidate();
+        invalidate();
 
         GeoEnvelope env = mMap.getFullBounds();
         GeoPoint focusPt = new GeoPoint(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y);
