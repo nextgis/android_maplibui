@@ -263,7 +263,7 @@ public class CustomModifyAttributesActivity
                 case "combobox":
                     addCombobox(layout, element, cursor);
                     break;
-                //todo:
+                //TODO: add controls
                 //checkbox
                 //button
                 //group

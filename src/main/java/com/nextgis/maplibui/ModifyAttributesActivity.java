@@ -234,7 +234,7 @@ public class ModifyAttributesActivity
                 case GeoConstants.FTStringList:
                 case GeoConstants.FTRealList:
                 default:
-                    //TODO:
+                    //TODO: add support for this types
                     break;
             }
         }
