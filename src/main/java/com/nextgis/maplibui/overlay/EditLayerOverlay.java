@@ -37,6 +37,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -431,12 +432,19 @@ public class EditLayerOverlay
             public boolean onMenuItemClick(MenuItem menuItem)
             {
                 if(menuItem.getItemId() == R.id.menu_edit_attributes){
-                    ILayerUI vectorLayerUI = (ILayerUI)mLayer;
-                    if(null != vectorLayerUI) {
-                        vectorLayerUI.showEditForm(mContext, mItem.getId());
+                    if(null == mItem || null == mItem.getGeoGeometry())
+                        return false;
+                    if(null != mLayer && mLayer instanceof  ILayerUI) {
+                        ILayerUI vectorLayerUI = (ILayerUI) mLayer;
+                        if (null != vectorLayerUI) {
+                            vectorLayerUI.showEditForm(mContext, mItem.getId());
+                        }
                     }
                 }
                 else if(menuItem.getItemId() == R.id.menu_edit_move_point_to_current_location){
+                    if(null == mItem || null == mItem.getGeoGeometry())
+                        return false;
+
                     Activity parent = (Activity) mContext;
                     GpsEventSource gpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
                     Location location = gpsEventSource.getLastKnownLocation();
@@ -462,6 +470,9 @@ public class EditLayerOverlay
                     }
                 }
                 else if(menuItem.getItemId() == R.id.menu_edit_add_new_point){
+                    if(null == mLayer)
+                        return false;
+
                     mHasEdits = true;
                     mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_save);
 
@@ -472,7 +483,13 @@ public class EditLayerOverlay
                     GeoPoint center = mapDrawable.getFullBounds().getCenter();
                     if(mLayer.getGeometryType() == GeoConstants.GTPoint){
                         mItem = new VectorCacheItem(new GeoPoint(), Constants.NOT_FOUND);
-                        mDrawItems.setSelectedPointValue((float)center.getX(), (float) center.getY());
+                        mDrawItems.clear();
+                        float[] geoPoints = new float[2];
+                        geoPoints[0] = (float)center.getX();
+                        geoPoints[1] = (float)center.getY();
+                        mDrawItems.addItems(0, geoPoints, DrawItems.TYPE_VERTEX);
+                        mDrawItems.setSelectedRing(0);
+                        mDrawItems.setSelectedPoint(0);
                         //set new coordinates to GeoPoint from screen coordinates
                         mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mapDrawable);
                     }
@@ -483,6 +500,9 @@ public class EditLayerOverlay
                     updateMap();
                 }
                 else if(menuItem.getItemId() == R.id.menu_edit_delete_point){
+                    if(null == mItem || null == mItem.getGeoGeometry())
+                        return false;
+
                     mHasEdits = true;
                     mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_save);
 
@@ -606,8 +626,18 @@ public class EditLayerOverlay
 
 
     public void deleteItem() {
+        if(null == mItem){
+            Log.d(Constants.TAG, "delete null item");
+            return;
+        }
         final long itemId = mItem.getId();
         //mMapViewOverlays.setDelay(DELAY);
+
+        if(null == mLayer){
+            Log.d(Constants.TAG, "delete from null layer");
+            return;
+        }
+
         mLayer.deleteCacheItem(itemId);
         setFeature(mLayer, null);
 
@@ -843,6 +873,8 @@ public class EditLayerOverlay
 
         public void setSelectedRing(int selectedRing)
         {
+            if(selectedRing >= mDrawItemsVertex.size())
+                return;
             mSelectedRing = selectedRing;
         }
 
@@ -942,9 +974,9 @@ public class EditLayerOverlay
             }
 
             //draw selected point
-            if(mSelectedRing != Constants.NOT_FOUND && mSelectedPoint != Constants.NOT_FOUND) {
+            if(mSelectedPoint != Constants.NOT_FOUND) {
 
-                float[] items = mDrawItemsVertex.get(mSelectedRing);
+                float[] items = getSelectedRing();
                 if(null != items) {
                     mPaint.setColor(mSelectColor);
                     mPaint.setStrokeWidth(VERTEX_RADIUS);
@@ -994,10 +1026,8 @@ public class EditLayerOverlay
             }
 
             //draw selected point
-            if(mSelectedRing != Constants.NOT_FOUND && mSelectedPoint != Constants.NOT_FOUND) {
-                if(mDrawItemsVertex.isEmpty() || mDrawItemsVertex.size() <= mSelectedRing)
-                    return;
-                float[] items = mDrawItemsVertex.get(mSelectedRing);
+            if(mSelectedPoint != Constants.NOT_FOUND) {
+                float[] items = getSelectedRing();
                 if(null != items && mSelectedPoint + 1 < items.length) {
                     mPaint.setColor(mSelectColor);
                     mPaint.setStrokeWidth(VERTEX_RADIUS);
@@ -1048,8 +1078,8 @@ public class EditLayerOverlay
 
         public PointF getSelectedPoint()
         {
-            float[] points = mDrawItemsVertex.get(mSelectedRing);
-            if(null == points)
+            float[] points = getSelectedRing();
+            if(null == points || mSelectedPoint < 0 || points.length <= mSelectedPoint)
                 return null;
             return new PointF(points[mSelectedPoint], points[mSelectedPoint + 1]);
         }
@@ -1071,7 +1101,7 @@ public class EditLayerOverlay
         }
 
         public void addNewPoint(float x, float y){
-            float[] points = mDrawItemsVertex.get(mSelectedRing);
+            float[] points = getSelectedRing();
             if(null == points)
                 return;
             float[] newPoints = new float[points.length + 2];
@@ -1082,13 +1112,20 @@ public class EditLayerOverlay
             mDrawItemsVertex.set(mSelectedRing, newPoints);
         }
 
+        protected float[] getSelectedRing(){
+            if(mDrawItemsVertex.isEmpty() || mSelectedRing < 0 || mSelectedRing >= mDrawItemsVertex.size())
+                return null;
+            return mDrawItemsVertex.get(mSelectedRing);
+        }
+
         public void deleteSelectedPoint(){
-            float[] points = mDrawItemsVertex.get(mSelectedRing);
-            if(null == points)
+            float[] points = getSelectedRing();
+            if(null == points || mSelectedPoint < 0)
                 return;
             if(points.length <= getMinPointCount()){
                 mDrawItemsVertex.remove(mSelectedRing);
                 mSelectedRing--;
+                mSelectedPoint = Constants.NOT_FOUND;
                 return;
             }
             float[] newPoints = new float[points.length - 2];
@@ -1099,18 +1136,24 @@ public class EditLayerOverlay
                 newPoints[counter++] = points[i];
             }
 
+            if(mSelectedPoint >= newPoints.length)
+                mSelectedPoint = 0;
+
             mDrawItemsVertex.set(mSelectedRing, newPoints);
         }
 
         public void setSelectedPointValue(float x, float y){
-            float[] points = mDrawItemsVertex.get(mSelectedRing);
-            if(null != points){
+            float[] points = getSelectedRing();
+            if(null != points && mSelectedPoint > Constants.NOT_FOUND){
                 points[mSelectedPoint] = x;
                 points[mSelectedPoint + 1] = y;
             }
         }
 
         public GeoGeometry fillGeometry(int ring, GeoGeometry geometry, MapDrawable mapDrawable){
+            if(null == geometry || null == mapDrawable || ring < 0 || ring >= mDrawItemsVertex.size() )
+                return null;
+
             GeoPoint[] points;
             switch (geometry.getType()) {
                 case GeoConstants.GTPoint:

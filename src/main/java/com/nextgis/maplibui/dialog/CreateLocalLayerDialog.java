@@ -335,7 +335,7 @@ public class CreateLocalLayerDialog
 
                 return null;
             }
-        } catch (NumberFormatException | IOException e) {
+        } catch (NumberFormatException | IOException | SecurityException e) {
             e.printStackTrace();
             return e.getLocalizedMessage();
         }
@@ -380,7 +380,7 @@ public class CreateLocalLayerDialog
 
                 return errorMessage;
             }
-        } catch (JSONException | IOException e) {
+        } catch (JSONException | IOException | SecurityException e) {
             e.printStackTrace();
             return e.getLocalizedMessage();
         }
@@ -540,7 +540,7 @@ public class CreateLocalLayerDialog
                     }
                 }
             }
-        } catch (JSONException | IOException | SQLiteException e) {
+        } catch (JSONException | IOException | SQLiteException | SecurityException e) {
             e.printStackTrace();
             return e.getLocalizedMessage();
         }
