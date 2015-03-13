@@ -375,6 +375,16 @@ public class EditLayerOverlay
         }
     }
 
+    protected void setToolbarSaveState(boolean save){
+        if(save){
+            mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_save);
+            mCurrentToolbar.setNavigationContentDescription(R.string.save);
+        }
+        else{
+            mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_apply);
+            mCurrentToolbar.setNavigationContentDescription(R.string.apply);
+        }
+    }
 
     public void setToolbar(BottomToolbar toolbar)
     {
@@ -400,14 +410,13 @@ public class EditLayerOverlay
             }
         });
 
-        toolbar.setNavigationIcon(R.drawable.ic_action_apply);
-        toolbar.setNavigationContentDescription(R.string.apply);
+        setToolbarSaveState(false);
         switch (mLayer.getGeometryType()) {
             case GeoConstants.GTPoint:
                 toolbar.inflateMenu(R.menu.edit_point);
                 break;
             case GeoConstants.GTMultiPoint:
-                //TODO: toolbar.inflateMenu(R.menu.edit_multipoint);
+                toolbar.inflateMenu(R.menu.edit_multipoint);
                 break;
             case GeoConstants.GTLineString:
                 //TODO: toolbar.inflateMenu(R.menu.edit_line);
@@ -431,6 +440,9 @@ public class EditLayerOverlay
             @Override
             public boolean onMenuItemClick(MenuItem menuItem)
             {
+                if(null == mLayer)
+                    return false;
+
                 if(menuItem.getItemId() == R.id.menu_edit_attributes){
                     if(null == mItem || null == mItem.getGeoGeometry())
                         return false;
@@ -457,7 +469,7 @@ public class EditLayerOverlay
                         GeoPoint screenPt = mapDrawable.mapToScreen(pt);
 
                         mHasEdits = true;
-                        mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_save);
+                        setToolbarSaveState(true);
                         //store original geometry for cancel operation
                         if(null == mOriginalGeometry){
                             mOriginalGeometry = mItem.getGeoGeometry().copy();
@@ -469,12 +481,32 @@ public class EditLayerOverlay
                         updateMap();
                     }
                 }
-                else if(menuItem.getItemId() == R.id.menu_edit_add_new_point){
-                    if(null == mLayer)
+                else if(menuItem.getItemId() == R.id.menu_edit_add_new_multipoint){
+                    mHasEdits = true;
+                    setToolbarSaveState(true);
+
+                    MapDrawable mapDrawable = mMapViewOverlays.getMap();
+                    if(null == mapDrawable)
                         return false;
 
+                    GeoPoint center = mapDrawable.getFullBounds().getCenter();
+
+                    mItem = new VectorCacheItem(new GeoPoint(), Constants.NOT_FOUND);
+                    mDrawItems.clear();
+                    float[] geoPoints = new float[2];
+                    geoPoints[0] = (float)center.getX();
+                    geoPoints[1] = (float)center.getY();
+                    mDrawItems.addItems(0, geoPoints, DrawItems.TYPE_VERTEX);
+                    mDrawItems.setSelectedRing(0);
+                    mDrawItems.setSelectedPoint(0);
+                    //set new coordinates to GeoPoint from screen coordinates
+                    mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mapDrawable);
+
+                    updateMap();
+                }
+                else if(menuItem.getItemId() == R.id.menu_edit_add_new_point){
                     mHasEdits = true;
-                    mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_save);
+                    setToolbarSaveState(true);
 
                     MapDrawable mapDrawable = mMapViewOverlays.getMap();
                     if(null == mapDrawable)
@@ -499,12 +531,24 @@ public class EditLayerOverlay
 
                     updateMap();
                 }
+                else if(menuItem.getItemId() == R.id.menu_edit_delete_multipoint){
+                    if(null == mItem || null == mItem.getGeoGeometry())
+                        return false;
+
+                    mHasEdits = true;
+                    setToolbarSaveState(true);
+
+                    mDrawItems.clear();
+                    mItem.setGeoGeometry(null);
+
+                    updateMap();
+                }
                 else if(menuItem.getItemId() == R.id.menu_edit_delete_point){
                     if(null == mItem || null == mItem.getGeoGeometry())
                         return false;
 
                     mHasEdits = true;
-                    mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_save);
+                    setToolbarSaveState(true);
 
                     //store original geometry for cancel operation
                     if(null == mOriginalGeometry){
@@ -533,7 +577,7 @@ public class EditLayerOverlay
 
     protected void cancelEdits(){
         // restore
-        mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_apply);
+        setToolbarSaveState(false);
         mHasEdits = false;
         mMode = MODE_EDIT;
         mItem.setGeoGeometry(mOriginalGeometry); //restore original geometry
@@ -543,7 +587,7 @@ public class EditLayerOverlay
 
     protected void saveEdits()
     {
-        mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_apply);
+        setToolbarSaveState(false);
         mHasEdits = false;
         mMode = MODE_EDIT;
         mOriginalGeometry = null;
@@ -792,7 +836,7 @@ public class EditLayerOverlay
             mMapViewOverlays.setLockMap(false);
             mHasEdits = true;
             //change end edit session icon to save icon
-            mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_save);
+            setToolbarSaveState(true);
             mMode = MODE_EDIT;
             mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mMapViewOverlays.getMap());
 
