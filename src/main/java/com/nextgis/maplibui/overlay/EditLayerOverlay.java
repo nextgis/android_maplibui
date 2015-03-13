@@ -398,6 +398,13 @@ public class EditLayerOverlay
                 geoPoints[1] = (float)screenCenter.getY();
                 return geoPoints;
             case GeoConstants.GTLineString:
+                geoPoints = new float[4];
+                float add = mTolerancePX * 4;
+                geoPoints[0] = (float)screenCenter.getX() - add;
+                geoPoints[1] = (float)screenCenter.getY() - add;
+                geoPoints[2] = (float)screenCenter.getX() + add;
+                geoPoints[3] = (float)screenCenter.getY() + add;
+                return geoPoints;
             case GeoConstants.GTMultiLineString:
             case GeoConstants.GTPolygon:
             case GeoConstants.GTMultiPolygon:
@@ -441,7 +448,7 @@ public class EditLayerOverlay
                 toolbar.inflateMenu(R.menu.edit_multipoint);
                 break;
             case GeoConstants.GTLineString:
-                //TODO: toolbar.inflateMenu(R.menu.edit_line);
+                toolbar.inflateMenu(R.menu.edit_line);
                 break;
             case GeoConstants.GTMultiLineString:
                 //toolbar.inflateMenu(R.menu.edit_multiline);
@@ -504,7 +511,8 @@ public class EditLayerOverlay
                         updateMap();
                     }
                 }
-                else if(menuItem.getItemId() == R.id.menu_edit_add_new_multipoint){
+                else if(menuItem.getItemId() == R.id.menu_edit_add_new_multipoint ||
+                        menuItem.getItemId() == R.id.menu_edit_add_new_line){
 
                     mHasEdits = true;
                     setToolbarSaveState(true);
@@ -521,6 +529,8 @@ public class EditLayerOverlay
                     int geomType = GeoConstants.GTNone;
                     if(menuItem.getItemId() == R.id.menu_edit_add_new_multipoint)
                         geomType = GeoConstants.GTMultiPoint;
+                    else if(menuItem.getItemId() == R.id.menu_edit_add_new_line)
+                        geomType = GeoConstants.GTLineString;
 
                     float[] geoPoints = getNewGeometry(geomType, center);
 
@@ -569,7 +579,8 @@ public class EditLayerOverlay
 
                     updateMap();
                 }
-                else if(menuItem.getItemId() == R.id.menu_edit_delete_multipoint){
+                else if(menuItem.getItemId() == R.id.menu_edit_delete_multipoint ||
+                        menuItem.getItemId() == R.id.menu_edit_delete_line){
                     if(null == mItem || null == mItem.getGeoGeometry())
                         return false;
 
@@ -599,6 +610,14 @@ public class EditLayerOverlay
                         mItem.setGeoGeometry(geom);
 
                     updateMap();
+                }
+                else if(menuItem.getItemId() == R.id.menu_edit_track){
+                    if(mLayer.getGeometryType() == GeoConstants.GTPoint ||
+                       mLayer.getGeometryType() == GeoConstants.GTMultiPoint)
+                        return false;
+                    //only support for lines and polygons
+
+                    //TODO: release this
                 }
                 return true;
             }
