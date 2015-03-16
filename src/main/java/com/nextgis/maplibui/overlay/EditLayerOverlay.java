@@ -247,10 +247,8 @@ public class EditLayerOverlay
                 mDrawItems.addItems(0, points, DrawItems.TYPE_VERTEX);
                 break;
             case GeoConstants.GTLineString:
-                /*TODO:
                 lineString = (GeoLineString)geom;
                 fillDrawLine(0, lineString, mapDrawable);
-                */
                 break;
             case GeoConstants.GTMultiLineString:
                 /*TODO:
@@ -399,7 +397,7 @@ public class EditLayerOverlay
                 return geoPoints;
             case GeoConstants.GTLineString:
                 geoPoints = new float[4];
-                float add = mTolerancePX * 4;
+                float add = mTolerancePX * 2;
                 geoPoints[0] = (float)screenCenter.getX() - add;
                 geoPoints[1] = (float)screenCenter.getY() - add;
                 geoPoints[2] = (float)screenCenter.getX() + add;
@@ -512,7 +510,8 @@ public class EditLayerOverlay
                     }
                 }
                 else if(menuItem.getItemId() == R.id.menu_edit_add_new_multipoint ||
-                        menuItem.getItemId() == R.id.menu_edit_add_new_line){
+                        menuItem.getItemId() == R.id.menu_edit_add_new_line ||
+                        menuItem.getItemId() == R.id.menu_edit_add_new_polygon){
 
                     mHasEdits = true;
                     setToolbarSaveState(true);
@@ -523,18 +522,24 @@ public class EditLayerOverlay
 
                     GeoPoint center = mapDrawable.getFullBounds().getCenter();
 
-                    mItem = new VectorCacheItem(new GeoMultiPoint(), Constants.NOT_FOUND);
                     mDrawItems.clear();
 
-                    int geomType = GeoConstants.GTNone;
-                    if(menuItem.getItemId() == R.id.menu_edit_add_new_multipoint)
-                        geomType = GeoConstants.GTMultiPoint;
-                    else if(menuItem.getItemId() == R.id.menu_edit_add_new_line)
-                        geomType = GeoConstants.GTLineString;
+                    if(menuItem.getItemId() == R.id.menu_edit_add_new_multipoint) {
+                        mItem = new VectorCacheItem(new GeoMultiPoint(), Constants.NOT_FOUND);
+                        float[] geoPoints = getNewGeometry(GeoConstants.GTMultiPoint, center);
+                        mDrawItems.addItems(0, geoPoints, DrawItems.TYPE_VERTEX);
+                    }
+                    else if(menuItem.getItemId() == R.id.menu_edit_add_new_line) {
+                        mItem = new VectorCacheItem(new GeoLineString(), Constants.NOT_FOUND);
+                        float[] geoPoints = getNewGeometry(GeoConstants.GTLineString, center);
+                        mDrawItems.addItems(0, geoPoints, DrawItems.TYPE_VERTEX);
+                    }
+                    else if(menuItem.getItemId() == R.id.menu_edit_add_new_polygon) {
+                        mItem = new VectorCacheItem(new GeoPolygon(), Constants.NOT_FOUND);
+                        float[] geoPoints = getNewGeometry(GeoConstants.GTPolygon, center);
+                        mDrawItems.addItems(0, geoPoints, DrawItems.TYPE_VERTEX);
+                    }
 
-                    float[] geoPoints = getNewGeometry(geomType, center);
-
-                    mDrawItems.addItems(0, geoPoints, DrawItems.TYPE_VERTEX);
                     mDrawItems.setSelectedRing(0);
                     mDrawItems.setSelectedPointIndex(0);
                     //set new coordinates to GeoPoint from screen coordinates
@@ -580,7 +585,8 @@ public class EditLayerOverlay
                     updateMap();
                 }
                 else if(menuItem.getItemId() == R.id.menu_edit_delete_multipoint ||
-                        menuItem.getItemId() == R.id.menu_edit_delete_line){
+                        menuItem.getItemId() == R.id.menu_edit_delete_line ||
+                        menuItem.getItemId() == R.id.menu_edit_delete_polygon){
                     if(null == mItem || null == mItem.getGeoGeometry())
                         return false;
 
@@ -607,7 +613,7 @@ public class EditLayerOverlay
                     mDrawItems.deleteSelectedPoint();
                     GeoGeometry geom = mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mMapViewOverlays.getMap());
                     if(null == geom)
-                        mItem.setGeoGeometry(geom);
+                        mItem.setGeoGeometry(null);
 
                     updateMap();
                 }
@@ -1129,7 +1135,7 @@ public class EditLayerOverlay
                     canvas.drawLine(items[i], items[i + 1], items[i + 2], items[i + 3], mPaint);
                 }
 
-                if (mMode == MODE_EDIT) {
+                if (mMode == MODE_EDIT || mMode == MODE_CHANGE) {
                     mPaint.setColor(mOutlineColor);
                     mPaint.setStrokeWidth(VERTEX_RADIUS + 2);
                     canvas.drawPoints(items, mPaint);
@@ -1162,6 +1168,10 @@ public class EditLayerOverlay
 
                     canvas.drawPoint(items[mSelectedPointIndex], items[mSelectedPointIndex + 1],
                                      mPaint);
+
+                    float anchorX = items[mSelectedPointIndex] + mAnchorRectOffsetX;
+                    float anchorY = items[mSelectedPointIndex + 1] + mAnchorRectOffsetY;
+                    canvas.drawBitmap(mAnchor, anchorX, anchorY, null);
                 }
             }
         }
