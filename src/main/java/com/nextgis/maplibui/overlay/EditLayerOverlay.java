@@ -119,7 +119,6 @@ public class EditLayerOverlay
     protected boolean       mHasEdits;
     protected BottomToolbar mCurrentToolbar;
 
-
     public EditLayerOverlay(
             Context context,
             MapViewOverlays mapViewOverlays)
@@ -196,7 +195,7 @@ public class EditLayerOverlay
             Canvas canvas,
             MapDrawable mapDrawable)
     {
-        if (null == mItem)
+        if (null == mItem || mMode == MODE_CHANGE)
             return;
         GeoGeometry geom = mItem.getGeoGeometry();
         if (null == geom)
@@ -643,9 +642,15 @@ public class EditLayerOverlay
         setToolbarSaveState(false);
         mHasEdits = false;
         mMode = MODE_EDIT;
-        mItem.setGeoGeometry(mOriginalGeometry); //restore original geometry
+        if(mItem.getId() == Constants.NOT_FOUND) {
+            mItem.setGeoGeometry(null);
+            mMapViewOverlays.postInvalidate();
+        }
+        else {
+            mItem.setGeoGeometry(mOriginalGeometry); //restore original geometry
+            mMapViewOverlays.onLayerChanged(mLayer.getId());
+        }
         mOriginalGeometry = null;
-        mMapViewOverlays.onLayerChanged(mLayer.getId());
     }
 
     protected void saveEdits()
@@ -809,6 +814,7 @@ public class EditLayerOverlay
         GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
         //1. search current geometry point
         if (mDrawItems.intersects(screenEnv)) {
+            mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mMapViewOverlays.getMap());
             mMapViewOverlays.postInvalidate();
             return;
         }
@@ -821,12 +827,27 @@ public class EditLayerOverlay
             builder.setMessage(mContext.getString(R.string.has_edits));
             builder.setCancelable(true);
             builder.setPositiveButton(mContext.getString(R.string.yes),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        saveEdits();
-                        dialog.cancel();
-                    }
-                });
+                                      new DialogInterface.OnClickListener()
+                                      {
+                                          public void onClick(
+                                                  DialogInterface dialog,
+                                                  int id)
+                                          {
+                                              saveEdits();
+                                              dialog.cancel();
+                                          }
+                                      });
+            builder.setNeutralButton(mContext.getString(R.string.cancel), new DialogInterface.OnClickListener()
+                                     {
+                                         @Override
+                                         public void onClick(
+                                                 DialogInterface dialog,
+                                                 int which)
+                                         {
+                                             dialog.cancel();
+                                         }
+                                     }
+                                     );
             builder.setNegativeButton(mContext.getString(R.string.no),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -875,15 +896,14 @@ public class EditLayerOverlay
     {
         if(mMode == MODE_EDIT) {
 
-            //if pan current selected point
-
+            //check if we are near selected point
             double dMinX = event.getX() - mTolerancePX * 2 - mAnchorTolerancePX;
             double dMaxX = event.getX() + mTolerancePX;
             double dMinY = event.getY() - mTolerancePX * 2 - mAnchorTolerancePX;
             double dMaxY = event.getY() + mTolerancePX;
             GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
-            //1. search current geometry point
-            if(mDrawItems.intersects(screenEnv)) {
+
+            if(mDrawItems.isTapNearSelectedPoint(screenEnv)){
                 PointF tempPoint = mDrawItems.getSelectedPoint();
                 mTempPointOffset = new PointF(tempPoint.x - event.getX(), tempPoint.y - event.getY());
                 if(null == mOriginalGeometry)
@@ -1200,10 +1220,9 @@ public class EditLayerOverlay
                 for (float[] items : mDrawItemsEdge) {
                     for (int i = 0; i < items.length - 1; i += 2) {
                         if (screenEnv.contains(new GeoPoint(items[i], items[i + 1]))) {
-                            //mSelectedRing = ring;
-                            //mSelectedPoint = point;
-                            //TODO: store PointF and on pan this point add it to the vertex array
-                            //and on pan stop add new edge points
+                            mSelectedPointIndex = i + 2;
+                            mSelectedRing = ring;
+                            insertNewPoint(mSelectedPointIndex, items[i], items[i + 1]);
                             return true;
                         }
                         point++;
@@ -1253,6 +1272,30 @@ public class EditLayerOverlay
             System.arraycopy(points, 0, newPoints, 0, points.length);
             newPoints[points.length] = x;
             newPoints[points.length + 1] = y;
+
+            mDrawItemsVertex.set(mSelectedRing, newPoints);
+        }
+
+        public void insertNewPoint(
+                int insertPositon,
+                float x,
+                float y)
+        {
+            float[] points = getSelectedRing();
+            if (null == points)
+                return;
+            float[] newPoints = new float[points.length + 2];
+            int count = 0;
+            for(int i = 0; i < newPoints.length - 1; i += 2){
+                if(i == insertPositon){
+                    newPoints[i] = x;
+                    newPoints[i + 1] = y;
+                }
+                else{
+                    newPoints[i] = points[count++];
+                    newPoints[i + 1] = points[count++];
+                }
+            }
 
             mDrawItemsVertex.set(mSelectedRing, newPoints);
         }
@@ -1398,6 +1441,18 @@ public class EditLayerOverlay
             if(points.length < 2)
                 return Constants.NOT_FOUND;
             return points.length - 2;
+        }
+
+
+        public boolean isTapNearSelectedPoint(GeoEnvelope screenEnv)
+        {
+            float[] points = getSelectedRing();
+            if (null != points && mSelectedPointIndex > Constants.NOT_FOUND) {
+                if(screenEnv.contains(new GeoPoint(points[mSelectedPointIndex], points[mSelectedPointIndex + 1]))){
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
