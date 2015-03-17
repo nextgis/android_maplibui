@@ -419,11 +419,11 @@ public class CreateLocalLayerDialog
 
                 //read if this local o remote source
                 boolean isNgwConnection = metaJson.has("ngw_connection");
-                if(isNgwConnection){
+                if(isNgwConnection && !metaJson.isNull("ngw_connection")){
                     File dataFile = new File(outputPath, FILE_DATA);
                     FileUtil.deleteRecursive(dataFile);
-
                     JSONObject connection = metaJson.getJSONObject("ngw_connection");
+
                     //read url
                     String url = connection.getString("url");
                     if(!url.startsWith("http"))
@@ -526,6 +526,9 @@ public class CreateLocalLayerDialog
                         //int nSRS = srs.getInt("id");
 
                         FileUtil.deleteRecursive(meta);
+
+                        mGroupLayer.addLayer(layer);
+                        mGroupLayer.save();
 
                         return layer.initialize(fields, new ArrayList<Feature>(), geomType);
                     }
