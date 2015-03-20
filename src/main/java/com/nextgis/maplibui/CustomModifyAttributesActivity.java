@@ -238,8 +238,10 @@ public class CustomModifyAttributesActivity
             throws JSONException
     {
         Cursor cursor = null;
-        if(mFeatureId != NOT_FOUND)
+        if(mFeatureId != NOT_FOUND) {
             cursor = mLayer.query(null, VectorLayer.FIELD_ID + " = " + mFeatureId, null, null);
+            cursor.moveToFirst();
+        }
 
         for(int i = 0; i < elements.length(); i++){
             JSONObject element = elements.getJSONObject(i);
@@ -496,7 +498,7 @@ public class CustomModifyAttributesActivity
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         String field = attributes.getString(JSON_FIELD_KEY);
         boolean last = false;
-        if(attributes.has(JSON_FILLLAST_KEY))
+        if(attributes.has(JSON_FILLLAST_KEY) && !attributes.isNull(JSON_FILLLAST_KEY))
             last = attributes.getBoolean(JSON_FILLLAST_KEY);
         JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
 
@@ -590,8 +592,15 @@ public class CustomModifyAttributesActivity
         }
         else{
             Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(cursor.getLong(cursor.getColumnIndex(field)));
-            dateEdit.setText(dateText.format(calendar.getTime()));
+            int column = cursor.getColumnIndex(field);
+            long millis = cursor.getLong(column);
+            if(millis >= 0) {
+                calendar.setTimeInMillis(cursor.getLong(column));
+                dateEdit.setText(dateText.format(calendar.getTime()));
+            }
+            else {
+                dateEdit.setText(lastVal);
+            }
         }
         mFields.put(field, dateEdit);
 

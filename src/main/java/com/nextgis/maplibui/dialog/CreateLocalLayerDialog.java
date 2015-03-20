@@ -518,8 +518,6 @@ public class CreateLocalLayerDialog
                         //read geometry type
                         String geomTypeString = metaJson.getString("geometry_type");
                         int geomType = GeoGeometryFactory.typeFromString(geomTypeString);
-                        if(geomType < 4)
-                            geomType += 3;
 
                         //read SRS -- not need as we will be fill layer with 3857
                         //JSONObject srs = metaJson.getJSONObject("srs");
