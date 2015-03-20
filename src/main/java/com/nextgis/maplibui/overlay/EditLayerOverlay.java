@@ -190,6 +190,19 @@ public class EditLayerOverlay
     }
 
 
+    public long getSelectedItemId() {
+        if (mItem == null)
+            return -1;
+
+        return mItem.getId();
+    }
+
+
+    public VectorLayer getSelectedLayer() {
+        return mLayer;
+    }
+
+
     @Override
     public void draw(
             Canvas canvas,
