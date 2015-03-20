@@ -258,10 +258,8 @@ public class EditLayerOverlay
                  */
                 break;
             case GeoConstants.GTPolygon:
-                /*TODO:
                 GeoPolygon polygon = (GeoPolygon)geom;
                 fillDrawPolygon(polygon, mapDrawable);
-                */
                 break;
             case GeoConstants.GTMultiPolygon:
                 /*TODO:
@@ -385,10 +383,9 @@ public class EditLayerOverlay
 
     protected float[] getNewGeometry(int geometryType, GeoPoint screenCenter){
         float[] geoPoints;
-
+        float add = mTolerancePX * 2;
         switch (geometryType){
             case GeoConstants.GTPoint:
-
             case GeoConstants.GTMultiPoint:
                 geoPoints = new float[2];
                 geoPoints[0] = (float)screenCenter.getX();
@@ -396,14 +393,22 @@ public class EditLayerOverlay
                 return geoPoints;
             case GeoConstants.GTLineString:
                 geoPoints = new float[4];
-                float add = mTolerancePX * 2;
                 geoPoints[0] = (float)screenCenter.getX() - add;
                 geoPoints[1] = (float)screenCenter.getY() - add;
                 geoPoints[2] = (float)screenCenter.getX() + add;
                 geoPoints[3] = (float)screenCenter.getY() + add;
                 return geoPoints;
             case GeoConstants.GTMultiLineString:
+                break;
             case GeoConstants.GTPolygon:
+                geoPoints = new float[6];
+                geoPoints[0] = (float)screenCenter.getX() - add;
+                geoPoints[1] = (float)screenCenter.getY() - add;
+                geoPoints[2] = (float)screenCenter.getX() + add;
+                geoPoints[3] = (float)screenCenter.getY() - add;
+                geoPoints[4] = (float)screenCenter.getX() + add;
+                geoPoints[5] = (float)screenCenter.getY() + add;
+                return geoPoints;
             case GeoConstants.GTMultiPolygon:
                 break;
             default:
@@ -451,7 +456,7 @@ public class EditLayerOverlay
                 //toolbar.inflateMenu(R.menu.edit_multiline);
                 break;
             case GeoConstants.GTPolygon:
-                //TODO: toolbar.inflateMenu(R.menu.edit_polygon);
+                toolbar.inflateMenu(R.menu.edit_polygon);
                 break;
             case GeoConstants.GTMultiPolygon:
                 //toolbar.inflateMenu(R.menu.edit_multipolygon);
