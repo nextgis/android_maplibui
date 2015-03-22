@@ -48,6 +48,7 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoLineString;
+import com.nextgis.maplib.datasource.GeoLinearRing;
 import com.nextgis.maplib.datasource.GeoMultiLineString;
 import com.nextgis.maplib.datasource.GeoMultiPoint;
 import com.nextgis.maplib.datasource.GeoMultiPolygon;
@@ -114,7 +115,7 @@ public class EditLayerOverlay
     protected float mTolerancePX;
     protected float mAnchorTolerancePX;
 
-    protected GeoGeometry   mOriginalGeometry; //For restore
+    protected GeoGeometry   mOriginalGeometry; //For undo
     protected PointF        mTempPointOffset;
     protected boolean       mHasEdits;
     protected BottomToolbar mCurrentToolbar;
@@ -289,9 +290,9 @@ public class EditLayerOverlay
     }
 
     protected void fillDrawPolygon(GeoPolygon polygon, MapDrawable mapDrawable){
-        fillDrawLine(0, polygon.getOuterRing(), mapDrawable);
+        fillDrawRing(0, polygon.getOuterRing(), mapDrawable);
         for(int i = 0; i < polygon.getInnerRingCount(); i++){
-            fillDrawLine(i + 1, polygon.getInnerRing(i), mapDrawable);
+            fillDrawRing(i + 1, polygon.getInnerRing(i), mapDrawable);
         }
     }
 
@@ -299,10 +300,23 @@ public class EditLayerOverlay
         GeoPoint[] geoPoints = lineString.getPoints().toArray(new GeoPoint[lineString.getPoints().size()]);
         float[] points = mapDrawable.mapToScreen(geoPoints);
         mDrawItems.addItems(ring, points, DrawItems.TYPE_VERTEX);
-        float[] edgePoints = new float[points.length - 1];
+        float[] edgePoints = new float[points.length - 2];
         for(int i = 0; i < points.length - 2; i++){
             edgePoints[i] = (points[i] + points[i + 2]) * .5f;
         }
+        mDrawItems.addItems(ring, edgePoints, DrawItems.TYPE_EDGE);
+    }
+
+    protected void fillDrawRing(int ring, GeoLinearRing geoLinearRing, MapDrawable mapDrawable){
+        GeoPoint[] geoPoints = geoLinearRing.getPoints().toArray(new GeoPoint[geoLinearRing.getPoints().size()]);
+        float[] points = mapDrawable.mapToScreen(geoPoints);
+        mDrawItems.addItems(ring, points, DrawItems.TYPE_VERTEX);
+        float[] edgePoints = new float[points.length];
+        for(int i = 0; i < points.length - 2; i++){
+            edgePoints[i] = (points[i] + points[i + 2]) * .5f;
+        }
+        edgePoints[edgePoints.length - 2] = (points[0] + points[points.length - 2]) * .5f;
+        edgePoints[edgePoints.length - 1] = (points[1] + points[points.length - 1]) * .5f;
         mDrawItems.addItems(ring, edgePoints, DrawItems.TYPE_EDGE);
     }
 
@@ -1171,6 +1185,11 @@ public class EditLayerOverlay
 
                 for (int i = 0; i < items.length - 3; i += 2) {
                     canvas.drawLine(items[i], items[i + 1], items[i + 2], items[i + 3], mPaint);
+                }
+
+                if(mItem.getGeoGeometry().getType() == GeoConstants.GTPolygon ||
+                   mItem.getGeoGeometry().getType() == GeoConstants.GTMultiPolygon){
+                    canvas.drawLine(items[0], items[1], items[items.length - 2], items[items.length - 1], mPaint);
                 }
 
                 if (mMode == MODE_EDIT || mMode == MODE_CHANGE) {
