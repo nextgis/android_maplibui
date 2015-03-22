@@ -1242,9 +1242,10 @@ public class EditLayerOverlay
 
         public boolean intersects(GeoEnvelope screenEnv)
         {
-            int ring = 0;
-            int point = 0;
-            for (float[] items : mDrawItemsVertex) {
+            int point;
+            for (int ring = 0; ring < mDrawItemsVertex.size(); ring++) {
+                point = 0;
+                float[] items = mDrawItemsVertex.get(ring);
                 for (int i = 0; i < items.length - 1; i += 2) {
                     if (screenEnv.contains(new GeoPoint(items[i], items[i + 1]))) {
                         mSelectedRing = ring;
@@ -1254,13 +1255,12 @@ public class EditLayerOverlay
                     point += 2;
 
                 }
-                ring++;
             }
 
             if (mMode == MODE_EDIT) {
-                ring = 0;
-                point = 0;
-                for (float[] items : mDrawItemsEdge) {
+                for (int ring = 0; ring < mDrawItemsVertex.size(); ring++) {
+                    point = 0;
+                    float[] items = mDrawItemsVertex.get(ring);
                     for (int i = 0; i < items.length - 1; i += 2) {
                         if (screenEnv.contains(new GeoPoint(items[i], items[i + 1]))) {
                             mSelectedPointIndex = i + 2;
@@ -1270,7 +1270,6 @@ public class EditLayerOverlay
                         }
                         point++;
                     }
-                    ring++;
                 }
             }
             return false;
