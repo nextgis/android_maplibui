@@ -46,7 +46,6 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -83,7 +82,7 @@ public class NGWSettingsActivity
     protected AccountManager mAccountManager;
     protected final Handler mHandler = new Handler();
     protected String mAction;
-
+    protected Header mCurrentHeader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -355,7 +354,7 @@ public class NGWSettingsActivity
             final Account account,
             PreferenceCategory actionCategory)
     {
-        final boolean[] warCurrentSyncActive = {false};
+        final boolean[] wasCurrentSyncActive = {false};
         final IGISApplication application = (IGISApplication) getApplicationContext();
 
         final BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
@@ -380,7 +379,7 @@ public class NGWSettingsActivity
                 }
 
                 String action;
-                if (warCurrentSyncActive[0]) {
+                if (wasCurrentSyncActive[0]) {
                     if (null == intent) {
                         return;
                     }
@@ -400,7 +399,7 @@ public class NGWSettingsActivity
                     case SyncAdapter.SYNC_CANCELED:
                         Log.d(Constants.TAG, "NGWSettingsActivity - sync status - NO active");
 
-                        warCurrentSyncActive[0] = false;
+                        wasCurrentSyncActive[0] = false;
 
                         AccountManager accountManager = AccountManager.get(
                                 NGWSettingsActivity.this);
@@ -415,7 +414,12 @@ public class NGWSettingsActivity
                         unregisterReceiver(this);
                         mProgressDialog.dismiss();
 
-                        finish();
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                            finish();
+                        }
+                        else {
+                            invalidateHeaders();
+                        }
 
                         break;
 
@@ -444,7 +448,7 @@ public class NGWSettingsActivity
                                 intentFilter.addAction(SyncAdapter.SYNC_CANCELED);
                                 registerReceiver(broadcastReceiver, intentFilter);
 
-                                warCurrentSyncActive[0] = AccountUtil.isSyncActive(
+                                wasCurrentSyncActive[0] = AccountUtil.isSyncActive(
                                         account, application.getAuthority());
 
                                 ContentResolver.removePeriodicSync(
@@ -581,10 +585,13 @@ public class NGWSettingsActivity
             mAccountManager = AccountManager.get(this);
         }
 
+        Header header;
+        mCurrentHeader = null;
+
         if (null != mAccountManager) {
             for (Account account : mAccountManager.getAccountsByType(
                     NGW_ACCOUNT_TYPE)) {
-                Header header = new Header();
+                header = new Header();
                 header.title = account.name;
                 header.fragment = com.nextgis.maplibui.NGWSettingsFragment.class.getName();
 
@@ -592,14 +599,33 @@ public class NGWSettingsActivity
                 bundle.putParcelable("account", account);
                 header.fragmentArguments = bundle;
                 target.add(header);
+
+                if(mCurrentHeader == null)
+                    mCurrentHeader = header;
             }
+
+            //in Android 5.0 or higher need to have one header with fragment
+            if(target.size() < 1){
+                header = new Header();
+                header.fragment = com.nextgis.maplibui.NGWSettingsFragment.class.getName();
+                target.add(header);
+
+                if(mCurrentHeader == null)
+                    mCurrentHeader = header;
+            }
+
             //add "Add account" header
-            Header header = new Header();
+            header = new Header();
             header.title = getString(R.string.add_account);
             header.summary = getString(R.string.add_account_summary);
             header.intent = new Intent(this, NGWLoginActivity.class);
             target.add(header);
         }
+    }
+
+    @Override
+    public Header onGetNewHeader() {
+        return mCurrentHeader;
     }
 
 

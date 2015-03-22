@@ -39,8 +39,12 @@ public class NGWSettingsFragment
 
         addPreferencesFromResource(R.xml.preferences_empty);
 
-        Account account = getArguments().getParcelable("account");
-        NGWSettingsActivity activity = (NGWSettingsActivity) getActivity();
-        activity.fillAccountPreferences(getPreferenceScreen(), account);
+        if(getArguments() != null) {
+            Account account = getArguments().getParcelable("account");
+            if (null != account) {
+                NGWSettingsActivity activity = (NGWSettingsActivity) getActivity();
+                activity.fillAccountPreferences(getPreferenceScreen(), account);
+            }
+        }
     }
 }
