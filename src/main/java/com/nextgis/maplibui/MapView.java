@@ -583,7 +583,7 @@ public class MapView
         }
         else if(System.currentTimeMillis() - mStartDrawTime > DISPLAY_REDRAW_TIMEOUT){
             mStartDrawTime = System.currentTimeMillis();
-            postInvalidate();
+            invalidate();
         }
     }
 

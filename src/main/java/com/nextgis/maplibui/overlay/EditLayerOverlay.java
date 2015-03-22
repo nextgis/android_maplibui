@@ -693,7 +693,10 @@ public class EditLayerOverlay
         mOriginalGeometry = null;
 
         if(mItem.getGeoGeometry() == null && mItem.getId() != Constants.NOT_FOUND){
-            mLayer.delete(VectorLayer.FIELD_ID + " = ?", new String[]{mItem.getId() + ""});
+            if(mLayer.delete(VectorLayer.FIELD_ID + " = ?", new String[]{mItem.getId() + ""}) > 0) {
+                mLayer.deleteCacheItem(mItem.getId());
+                mItem = null;
+            }
             return;
         }
         else if(mItem.getGeoGeometry() != null && mItem.getId() == Constants.NOT_FOUND){
@@ -707,6 +710,9 @@ public class EditLayerOverlay
                 return;
             }
             long id = mLayer.insert(values);
+            if(id == Constants.NOT_FOUND)
+                return;
+            mLayer.deleteCacheItem(Constants.NOT_FOUND);
             mItem = mLayer.getCacheItem(id);
         }
         //show attributes edit activity
