@@ -64,6 +64,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -71,6 +72,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static com.nextgis.maplibui.util.ConstantsUI.*;
@@ -569,14 +571,40 @@ public class CustomModifyAttributesActivity
         if(attributes.has(JSON_FILLLAST_KEY))
             last = attributes.getBoolean(JSON_FILLLAST_KEY);
 
-        TextView dateEdit = (TextView)getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
-        //TextView dateEdit = new TextView(this);
-        dateEdit.setSingleLine(true);
-        dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit));
-        dateEdit.setFocusable(false);
-        SimpleDateFormat dateText = new SimpleDateFormat();
-        String pattern = dateText.toLocalizedPattern();
-        dateEdit.setHint(pattern);
+        TextView dateEdit = null;
+        SimpleDateFormat dateText = null;
+        int picker_type = attributes.getInt("date_type");
+        if(picker_type == DATE) {
+            dateEdit = (TextView) getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
+            //TextView dateEdit = new TextView(this);
+            dateEdit.setSingleLine(true);
+            dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit, picker_type));
+            dateEdit.setFocusable(false);
+            dateText = (SimpleDateFormat)DateFormat.getDateInstance();
+            String pattern = dateText.toLocalizedPattern();
+            dateEdit.setHint(pattern);
+        }
+        else if(picker_type == TIME) {
+            dateEdit = (TextView) getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
+            dateEdit.setSingleLine(true);
+            dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit, picker_type));
+            dateEdit.setFocusable(false);
+            dateText = (SimpleDateFormat)DateFormat.getTimeInstance();
+            String pattern = dateText.toLocalizedPattern();
+            dateEdit.setHint(pattern);
+        }
+        else if(picker_type == DATETIME) {
+            dateEdit = (TextView) getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
+            dateEdit.setSingleLine(true);
+            dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit, picker_type));
+            dateEdit.setFocusable(false);
+            dateText = (SimpleDateFormat)DateFormat.getDateTimeInstance();
+            String pattern = dateText.toLocalizedPattern();
+            dateEdit.setHint(pattern);
+        }
+        else{
+            return;
+        }
 
         String lastVal = mLastValues.get(field);
         if(TextUtils.isEmpty(lastVal) && attributes.has(JSON_TEXT_KEY))

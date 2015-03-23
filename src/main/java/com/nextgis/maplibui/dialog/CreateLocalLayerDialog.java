@@ -531,8 +531,19 @@ public class CreateLocalLayerDialog
                         return layer.initialize(fields, new ArrayList<Feature>(), geomType);
                     }
                     else{
+
+                        //read fields
+                        List<Field> fields = NGWVectorLayer.getFieldsFromJson(metaJson.getJSONArray("fields"));
+                        //read geometry type
+                        String geomTypeString = metaJson.getString("geometry_type");
+                        int geomType = GeoGeometryFactory.typeFromString(geomTypeString);
+
+                        //read SRS -- not need as we will be fill layer with 3857
+                        JSONObject srs = metaJson.getJSONObject("srs");
+                        int nSRS = srs.getInt("id");
+
                         FileUtil.deleteRecursive(meta);
-                        String errorMessage = layer.createFromGeoJSON(geoJSONObject);
+                        String errorMessage = layer.createFromGeoJSON(geoJSONObject, fields, geomType, nSRS);
                         if(TextUtils.isEmpty(errorMessage)) {
                             mGroupLayer.addLayer(layer);
                             mGroupLayer.save();

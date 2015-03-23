@@ -21,9 +21,13 @@
 
 package com.nextgis.maplibui;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.TimePickerDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.Location;
@@ -45,6 +49,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
@@ -61,6 +66,7 @@ import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -88,6 +94,10 @@ public class ModifyAttributesActivity
     protected long mFeatureId;
     protected Map<String, View> mFields;
     protected GeoGeometry mGeometry;
+
+    protected final static int DATE = 0;
+    protected final static int TIME = 1;
+    protected final static int DATETIME = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -208,9 +218,9 @@ public class ModifyAttributesActivity
                     TextView dateEdit = (TextView)getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
                     //TextView dateEdit = new TextView(this);
                     dateEdit.setSingleLine(true);
-                    dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit));
+                    dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit, DATE));
                     dateEdit.setFocusable(false);
-                    SimpleDateFormat dateText = new SimpleDateFormat();
+                    SimpleDateFormat dateText = (SimpleDateFormat) DateFormat.getDateTimeInstance();
                     String pattern = dateText.toLocalizedPattern();
                     dateEdit.setHint(pattern);
                     layout.addView(dateEdit);
@@ -421,7 +431,7 @@ public class ModifyAttributesActivity
 
     }
 
-    protected View.OnClickListener getDateUpdateWatcher(final TextView dateEdit){
+    protected View.OnClickListener getDateUpdateWatcher(final TextView dateEdit, final int pickerType){
         View.OnClickListener out = new View.OnClickListener() {
             protected Calendar calendar = Calendar.getInstance();
 
@@ -444,8 +454,37 @@ public class ModifyAttributesActivity
 
             };
 
-            protected void updateLabel() {
-                SimpleDateFormat sdf = new SimpleDateFormat();
+            TimePickerDialog.OnTimeSetListener time = new TimePickerDialog.OnTimeSetListener()
+            {
+                @Override
+                public void onTimeSet(
+                        TimePicker view,
+                        int hourOfDay,
+                        int minute)
+                {
+                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                    calendar.set(Calendar.MINUTE, minute);
+
+                    updateLabel();
+                }
+            };
+
+
+            protected void updateLabel()
+            {
+                SimpleDateFormat sdf;
+                if(pickerType == DATE){
+                    sdf = (SimpleDateFormat) DateFormat.getDateInstance();
+                }
+                else if(pickerType == TIME){
+                    sdf = (SimpleDateFormat) DateFormat.getTimeInstance();
+                }
+                else if(pickerType == DATETIME){
+                    sdf = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+                }
+                else {
+                    sdf = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+                }
                 dateEdit.setText(sdf.format(calendar.getTime()));
             }
 
@@ -453,9 +492,77 @@ public class ModifyAttributesActivity
             @Override
             public void onClick(View view)
             {
-                new DatePickerDialog(ModifyAttributesActivity.this, date, calendar.get(Calendar.YEAR),
-                                     calendar.get(Calendar.MONTH),
-                                     calendar.get(Calendar.DAY_OF_MONTH)).show();
+                if (pickerType == DATE) {
+                    new DatePickerDialog(ModifyAttributesActivity.this, date,
+                                         calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+                                         calendar.get(Calendar.DAY_OF_MONTH)).show();
+                }
+                else if (pickerType == TIME) {
+                    new TimePickerDialog(ModifyAttributesActivity.this, time, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), android.text.format.DateFormat.is24HourFormat(ModifyAttributesActivity.this)).show();
+                }
+                else if(pickerType == DATETIME){
+                    final SimpleDateFormat sdf = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(ModifyAttributesActivity.this);
+                    builder.setTitle(sdf.format(calendar.getTime()))
+                            .setNegativeButton(R.string.ok, new DialogInterface.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(
+                                        DialogInterface dialog,
+                                        int which)
+                                {
+                                    dialog.cancel();
+                                }
+                            });
+
+                    final AlertDialog alert = builder.create();
+                    View datetimePickerLayout = getLayoutInflater().inflate(R.layout.layout_datetimepicker, null);
+                    alert.setView(datetimePickerLayout);
+
+                    TimePicker tp = (TimePicker)datetimePickerLayout.findViewById(R.id.timePicker);
+                    tp.setIs24HourView(android.text.format.DateFormat.is24HourFormat(ModifyAttributesActivity.this));
+                    tp.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener()
+                    {
+                        @Override
+                        public void onTimeChanged(
+                                TimePicker view,
+                                int hourOfDay,
+                                int minute)
+                        {
+                            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                            calendar.set(Calendar.MINUTE, minute);
+
+                            alert.setTitle(sdf.format(calendar.getTime()));
+
+                            updateLabel();
+                        }
+                    });
+
+                    DatePicker dt = (DatePicker)datetimePickerLayout.findViewById(R.id.datePicker);
+                    dt.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+                            calendar.get(Calendar.DAY_OF_MONTH),
+                            new DatePicker.OnDateChangedListener()
+                            {
+
+                                @Override
+                                public void onDateChanged(
+                                        DatePicker view,
+                                        int year,
+                                        int monthOfYear,
+                                        int dayOfMonth)
+                                {
+                                    calendar.set(Calendar.YEAR, year);
+                                    calendar.set(Calendar.MONTH, monthOfYear);
+                                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                                    alert.setTitle(sdf.format(calendar.getTime()));
+
+                                    updateLabel();
+                                }
+                            });
+
+                    alert.show();
+                }
             }
         };
 
