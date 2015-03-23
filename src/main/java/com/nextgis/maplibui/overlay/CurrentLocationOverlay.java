@@ -82,13 +82,13 @@ public class CurrentLocationOverlay
         mMarkerColor = mContext.getResources().getColor(R.color.accent);
 
         double longitude = 0, latitude = 0;
-        Location location = mGpsEventSource.getLastKnownLocation();
-
-        if (location != null) {
-            mCurrentLocation = location;
-            longitude = location.getLongitude();
-            latitude = location.getLatitude();
-        }
+//        Location location = mGpsEventSource.getLastKnownLocation();
+//
+//        if (location != null) {
+//            mCurrentLocation = location;
+//            longitude = location.getLongitude();
+//            latitude = location.getLatitude();
+//        }
 
         mMarker =
                 new OverlayItem(mapViewOverlays.getMap(), longitude, latitude, getDefaultMarker());
@@ -110,7 +110,7 @@ public class CurrentLocationOverlay
             return;
         }
 
-        if (mIsInBounds && isMarkerEnabled()) {
+        if (mIsInBounds && isMarkerEnabled() && mCurrentLocation != null) {
             if (mIsAccuracyEnabled && mIsAccuracyMarkerBiggest) {
                 drawOnPanning(canvas, currentMouseOffset, mAccuracy);
             }
@@ -131,7 +131,7 @@ public class CurrentLocationOverlay
             return;
         }
 
-        if (mIsInBounds && isMarkerEnabled()) {
+        if (mIsInBounds && isMarkerEnabled() && mCurrentLocation != null) {
             if (mIsAccuracyEnabled && mIsAccuracyMarkerBiggest) {
                 drawOnZooming(canvas, currentFocusLocation, scale, mAccuracy, true);
             }
@@ -219,6 +219,7 @@ public class CurrentLocationOverlay
 
     public void startShowingCurrentLocation()
     {
+        mCurrentLocation = null;
         mGpsEventSource.addListener(this);
     }
 
@@ -273,26 +274,26 @@ public class CurrentLocationOverlay
     }
 
 
-    // TODO proper provider / invalidate rect
+    // TODO invalidate rect
     @Override
     public void onLocationChanged(Location location)
     {
-        String provider = location.getProvider();
-        boolean update = LocationUtil.isProviderEnabled(mContext, provider, false) &&
-                         mCurrentLocation == null;
+        boolean update = true;
 
-        if (!update) {
-            update = LocationUtil.isProviderEnabled(mContext, provider, false) &&
-                     (mCurrentLocation.getProvider().equals(provider) ||
-                      location.getAccuracy() < mCurrentLocation.getAccuracy() ||
-                      location.getTime() - mCurrentLocation.getTime() >
-                      LOCATION_FORCE_UPDATE_TIMEOUT);
+        if (location != null) {
+            String provider = location.getProvider();
+            update = LocationUtil.isProviderEnabled(mContext, provider, false);
+
+//            if (!update) {
+//                update = mCurrentLocation.getProvider().equals(provider) ||
+//                         location.getAccuracy() < mCurrentLocation.getAccuracy() ||
+//                         location.getTime() - mCurrentLocation.getTime() > LOCATION_FORCE_UPDATE_TIMEOUT;
+//            }
         }
 
         if (update) {
-            mMapViewOverlays.postInvalidate();
-//            mMapViewOverlays.getMap().runDraw(mMapViewOverlays.getMap().getDisplay());
             mCurrentLocation = location;
+            mMapViewOverlays.postInvalidate();
         }
     }
 
