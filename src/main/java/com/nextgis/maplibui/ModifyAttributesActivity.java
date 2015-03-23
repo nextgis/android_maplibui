@@ -361,7 +361,8 @@ public class ModifyAttributesActivity
                 Uri uri = Uri.parse("content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
                 Uri updateUri = ContentUris.withAppendedId(uri, mFeatureId);
 
-                if(getContentResolver().update(updateUri, values, null, null) == 0){
+                boolean hasFieldsAndValues = fields.size() > 0 && values.size() > 0;
+                if (hasFieldsAndValues && getContentResolver().update(updateUri, values, null, null) == 0) {
                     Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT).show();
                     return true;
                 }
