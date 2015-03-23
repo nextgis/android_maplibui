@@ -922,8 +922,11 @@ public class EditLayerOverlay
             return;
         }
         mItem = items.get(0);
+
         mDrawItems.setSelectedPointIndex(0);
-        mDrawItems.setSelectedRing(0);
+        if(mMode != MODE_HIGHLIGHT) {
+            mDrawItems.setSelectedRing(0);
+        }
 
         mMapViewOverlays.postInvalidate();
     }
