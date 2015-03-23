@@ -82,7 +82,6 @@ public class NGWSettingsActivity
     protected AccountManager mAccountManager;
     protected final Handler mHandler = new Handler();
     protected String mAction;
-    protected Header mCurrentHeader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -418,7 +417,10 @@ public class NGWSettingsActivity
                             finish();
                         }
                         else {
-                            invalidateHeaders();
+                            if(onIsHidingHeaders())
+                                finish();
+                            else
+                                invalidateHeaders();
                         }
 
                         break;
@@ -510,7 +512,6 @@ public class NGWSettingsActivity
         mOnDeleteAccountListener = onDeleteAccountListener;
     }
 
-
     public interface OnDeleteAccountListener
     {
         public void onDeleteAccount(Account account);
@@ -586,7 +587,6 @@ public class NGWSettingsActivity
         }
 
         Header header;
-        mCurrentHeader = null;
 
         if (null != mAccountManager) {
             for (Account account : mAccountManager.getAccountsByType(
@@ -599,19 +599,6 @@ public class NGWSettingsActivity
                 bundle.putParcelable("account", account);
                 header.fragmentArguments = bundle;
                 target.add(header);
-
-                if(mCurrentHeader == null)
-                    mCurrentHeader = header;
-            }
-
-            //in Android 5.0 or higher need to have one header with fragment
-            if(target.size() < 1){
-                header = new Header();
-                header.fragment = com.nextgis.maplibui.NGWSettingsFragment.class.getName();
-                target.add(header);
-
-                if(mCurrentHeader == null)
-                    mCurrentHeader = header;
             }
 
             //add "Add account" header
@@ -623,9 +610,31 @@ public class NGWSettingsActivity
         }
     }
 
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
-    public Header onGetNewHeader() {
-        return mCurrentHeader;
+    public Header onGetInitialHeader()
+    {
+        if (null != mAccountManager) {
+            if (mAccountManager.getAccountsByType(NGW_ACCOUNT_TYPE).length > 0) {
+                return super.onGetInitialHeader();
+            }
+        }
+        //in Android 5.0 or higher need to have one header with fragment
+        Header header = new Header();
+        header.fragment = com.nextgis.maplibui.NGWSettingsFragment.class.getName();
+        return header;
+    }
+
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Override
+    public Header onGetNewHeader()
+    {
+        if(!onIsHidingHeaders()) {
+            return onGetInitialHeader();
+        }
+        return super.onGetNewHeader();
     }
 
 
@@ -663,6 +672,7 @@ public class NGWSettingsActivity
             }
         } else {
             invalidateHeaders();
+            setSelection(0);
         }
     }
 
@@ -673,4 +683,5 @@ public class NGWSettingsActivity
     {
         return NGWSettingsFragment.class.getName().equals(fragmentName);
     }
+
 }
