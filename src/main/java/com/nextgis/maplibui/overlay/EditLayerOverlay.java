@@ -126,6 +126,7 @@ public class EditLayerOverlay
     protected PointF        mTempPointOffset;
     protected boolean       mHasEdits;
     protected boolean       mIsWalking;
+    protected boolean       mIsWalkMinPoints;
     protected BottomToolbar mCurrentToolbar;
 
 
@@ -692,7 +693,12 @@ public class EditLayerOverlay
 
                         if (mIsWalking) {
                             stopGeometryByWalk();
-                            saveEdits();
+
+                            if (mIsWalkMinPoints)
+                                saveEdits();
+                            else
+                                Toast.makeText(mContext, R.string.geometry_by_walk_no_points, Toast.LENGTH_SHORT).show();
+
                             setMode(MODE_EDIT);
                             setToolbar(toolbar);
                         } else {
@@ -877,7 +883,9 @@ public class EditLayerOverlay
             {
                 mMapViewOverlays.setSkipNextDraw(true);
                 mLayer.delete(VectorLayer.FIELD_ID + " = ?", new String[]{itemId + ""});
-                setFeature(null, null);
+
+                if (mItem != null && mItem.getId() == itemId)
+                    setFeature(null, null);
             }
 
 
@@ -897,7 +905,9 @@ public class EditLayerOverlay
             {
                 //mMapViewOverlays.setDelay(DELAY);
                 mLayer.restoreCacheItem();
-                setFeature(null, null);
+
+                if (mItem != null && mItem.getId() == itemId)
+                    setFeature(null, null);
             }
         }).show();
     }
@@ -1156,26 +1166,25 @@ public class EditLayerOverlay
             GeoPoint currentPoint = new GeoPoint(location.getLongitude(), location.getLatitude());
             currentPoint.setCRS(GeoConstants.CRS_WGS84);
             currentPoint.project(GeoConstants.CRS_WEB_MERCATOR);
-            boolean minItems;
 
             switch (mItem.getGeoGeometry().getType()) {
                 case GeoConstants.GTLineString:
                     GeoLineString line = (GeoLineString) mItem.getGeoGeometry();
                     line.add(currentPoint);
-                    minItems = line.getPoints().size() > 1;
+                    mIsWalkMinPoints = line.getPoints().size() > 1;
                     break;
                 case GeoConstants.GTPolygon:
                     GeoPolygon polygon =  (GeoPolygon) mItem.getGeoGeometry();
                     polygon.add(currentPoint);
-                    minItems = polygon.getOuterRing().getPoints().size() > 2;
+                    mIsWalkMinPoints = polygon.getOuterRing().getPoints().size() > 2;
                     break;
                 default:
                     return;
             }
 
-            if (minItems) {
+            if (mIsWalkMinPoints) {
                 fillDrawItems(mItem.getGeoGeometry(), mMapViewOverlays.getMap());
-                // TODO fill
+                // TODO fill?
 //                mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mMapViewOverlays.getMap());
             }
         }

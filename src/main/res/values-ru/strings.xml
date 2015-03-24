@@ -156,4 +156,5 @@
     <string name="yes">Yes</string>
     <string name="attributes_next">Следующий</string>
     <string name="attributes_prev">Предыдущий</string>
+    <string name="geometry_by_walk_no_points">Недостаточно точек для создания геометрии</string>
 </resources>

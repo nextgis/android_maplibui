@@ -161,4 +161,5 @@
     <string name="has_edits">There are unsaved edits. Do you want to save them?</string>
     <string name="attributes_next">Next</string>
     <string name="attributes_prev">Previous</string>
+    <string name="geometry_by_walk_no_points">No enough points to create geometry</string>
 </resources>
