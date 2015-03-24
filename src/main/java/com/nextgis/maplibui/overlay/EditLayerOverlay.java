@@ -852,7 +852,9 @@ public class EditLayerOverlay
         GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
         //1. search current geometry point
         if (mDrawItems.intersects(screenEnv)) {
-            mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mMapViewOverlays.getMap());
+            if(null != mItem) {
+                mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mMapViewOverlays.getMap());
+            }
             mMapViewOverlays.postInvalidate();
             return;
         }
