@@ -311,6 +311,10 @@ public class EditLayerOverlay
     protected void fillDrawLine(int ring, GeoLineString lineString, MapDrawable mapDrawable){
         GeoPoint[] geoPoints = lineString.getPoints().toArray(new GeoPoint[lineString.getPoints().size()]);
         float[] points = mapDrawable.mapToScreen(geoPoints);
+
+        if (points.length < 2)
+            return;
+
         mDrawItems.addItems(ring, points, DrawItems.TYPE_VERTEX);
         float[] edgePoints = new float[points.length - 2];
         for(int i = 0; i < points.length - 2; i++){
@@ -325,7 +329,7 @@ public class EditLayerOverlay
         mDrawItems.addItems(ring, points, DrawItems.TYPE_VERTEX);
         float[] edgePoints = new float[points.length];
 
-        if (edgePoints.length < 2)
+        if (points.length == 0 || edgePoints.length < 2)
             return;
 
         for(int i = 0; i < points.length - 2; i++){
