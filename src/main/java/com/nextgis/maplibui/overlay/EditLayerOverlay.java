@@ -37,12 +37,16 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 import com.cocosw.undobar.UndoBarController;
+import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
@@ -78,7 +82,7 @@ import java.util.List;
  * The class for edit vector features
  */
 public class EditLayerOverlay
-        extends Overlay implements MapViewEventListener
+        extends Overlay implements MapViewEventListener, GpsEventListener
 {
 
     public final static int MODE_NONE      = 0;
@@ -104,7 +108,8 @@ public class EditLayerOverlay
     protected float mAnchorCenterX, mAnchorCenterY;
     protected DrawItems mDrawItems;
 
-    protected List<EditEventListener> mListeners;
+    protected List<EditEventListener>         mListeners;
+    protected Toolbar.OnMenuItemClickListener mMenuListener;
 
     protected static final int mType = 3;
 
@@ -118,7 +123,9 @@ public class EditLayerOverlay
     protected GeoGeometry   mOriginalGeometry; //For undo
     protected PointF        mTempPointOffset;
     protected boolean       mHasEdits;
+    protected boolean       mIsWalking;
     protected BottomToolbar mCurrentToolbar;
+
 
     public EditLayerOverlay(
             Context context,
@@ -191,7 +198,8 @@ public class EditLayerOverlay
     }
 
 
-    public long getSelectedItemId() {
+    public long getSelectedItemId()
+    {
         if (mItem == null)
             return -1;
 
@@ -199,7 +207,8 @@ public class EditLayerOverlay
     }
 
 
-    public VectorLayer getSelectedLayer() {
+    public VectorLayer getSelectedLayer()
+    {
         return mLayer;
     }
 
@@ -312,6 +321,10 @@ public class EditLayerOverlay
         float[] points = mapDrawable.mapToScreen(geoPoints);
         mDrawItems.addItems(ring, points, DrawItems.TYPE_VERTEX);
         float[] edgePoints = new float[points.length];
+
+        if (edgePoints.length < 2)
+            return;
+
         for(int i = 0; i < points.length - 2; i++){
             edgePoints[i] = (points[i] + points[i + 2]) * .5f;
         }
@@ -444,222 +457,257 @@ public class EditLayerOverlay
         return null;
     }
 
-    public void setToolbar(BottomToolbar toolbar)
+    public void setToolbar(final BottomToolbar toolbar)
     {
         if(null == toolbar || null == mLayer)
             return;
 
         mCurrentToolbar = toolbar;
-        toolbar.setNavigationOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                if(mHasEdits){
-                    saveEdits();
-                }
-                else {
-                    for (EditEventListener listener : mListeners) {
-                        listener.onFinishEditSession();
+
+        switch (mMode) {
+            case MODE_EDIT:
+                toolbar.setNavigationOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        if(mHasEdits){
+                            saveEdits();
+                        }
+                        else {
+                            for (EditEventListener listener : mListeners) {
+                                listener.onFinishEditSession();
+                            }
+
+                            setMode(MODE_NONE);
+                        }
                     }
+                });
 
-                    setMode(MODE_NONE);
+                setToolbarSaveState(false);
+
+                if (toolbar.getMenu() != null)
+                    toolbar.getMenu().clear();
+
+                switch (mLayer.getGeometryType()) {
+                    case GeoConstants.GTPoint:
+                        toolbar.inflateMenu(R.menu.edit_point);
+                        break;
+                    case GeoConstants.GTMultiPoint:
+                        toolbar.inflateMenu(R.menu.edit_multipoint);
+                        break;
+                    case GeoConstants.GTLineString:
+                        toolbar.inflateMenu(R.menu.edit_line);
+                        break;
+                    case GeoConstants.GTMultiLineString:
+                        //toolbar.inflateMenu(R.menu.edit_multiline);
+                        break;
+                    case GeoConstants.GTPolygon:
+                        toolbar.inflateMenu(R.menu.edit_polygon);
+                        break;
+                    case GeoConstants.GTMultiPolygon:
+                        //toolbar.inflateMenu(R.menu.edit_multipolygon);
+                        break;
+                    case GeoConstants.GTGeometryCollection:
+                    default:
+                        break;
                 }
-            }
-        });
 
-        setToolbarSaveState(false);
-        switch (mLayer.getGeometryType()) {
-            case GeoConstants.GTPoint:
-                toolbar.inflateMenu(R.menu.edit_point);
+                toolbar.setOnMenuItemClickListener(new BottomToolbar.OnMenuItemClickListener()
+                {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem)
+                    {
+                        if(null == mLayer)
+                            return false;
+
+                        if(menuItem.getItemId() == R.id.menu_edit_attributes){
+                            if(null == mItem || null == mItem.getGeoGeometry() || mHasEdits)
+                                return false;
+                            if(null != mLayer && mLayer instanceof  ILayerUI) {
+                                ILayerUI vectorLayerUI = (ILayerUI) mLayer;
+                                if (null != vectorLayerUI) {
+                                    vectorLayerUI.showEditForm(mContext, mItem.getId());
+                                }
+                            }
+                        }
+                        else if(menuItem.getItemId() == R.id.menu_edit_move_point_to_current_location){
+                            if(null == mItem || null == mItem.getGeoGeometry())
+                                return false;
+
+                            Activity parent = (Activity) mContext;
+                            GpsEventSource gpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
+                            Location location = gpsEventSource.getLastKnownLocation();
+                            if(null != location){
+                                //change to screen coordinates
+                                MapDrawable mapDrawable = mMapViewOverlays.getMap();
+                                GeoPoint pt = new GeoPoint(location.getLongitude(), location.getLatitude());
+                                pt.setCRS(GeoConstants.CRS_WGS84);
+                                pt.project(GeoConstants.CRS_WEB_MERCATOR);
+                                GeoPoint screenPt = mapDrawable.mapToScreen(pt);
+
+                                mHasEdits = true;
+                                setToolbarSaveState(true);
+                                //store original geometry for cancel operation
+                                if(null == mOriginalGeometry){
+                                    mOriginalGeometry = mItem.getGeoGeometry().copy();
+                                }
+
+                                mDrawItems.setSelectedPoint((float) screenPt.getX(),
+                                                            (float) screenPt.getY());
+
+                                mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mapDrawable);
+                                updateMap();
+                            }
+                        }
+                        else if(menuItem.getItemId() == R.id.menu_edit_add_new_multipoint ||
+                                menuItem.getItemId() == R.id.menu_edit_add_new_line ||
+                                menuItem.getItemId() == R.id.menu_edit_add_new_polygon){
+
+                            mHasEdits = true;
+                            setToolbarSaveState(true);
+
+                            MapDrawable mapDrawable = mMapViewOverlays.getMap();
+                            if(null == mapDrawable)
+                                return false;
+
+                            GeoPoint center = mapDrawable.getFullBounds().getCenter();
+
+                            mDrawItems.clear();
+
+                            if(menuItem.getItemId() == R.id.menu_edit_add_new_multipoint) {
+                                mItem = new VectorCacheItem(new GeoMultiPoint(), Constants.NOT_FOUND);
+                                float[] geoPoints = getNewGeometry(GeoConstants.GTMultiPoint, center);
+                                mDrawItems.addItems(0, geoPoints, DrawItems.TYPE_VERTEX);
+                            }
+                            else if(menuItem.getItemId() == R.id.menu_edit_add_new_line) {
+                                mItem = new VectorCacheItem(new GeoLineString(), Constants.NOT_FOUND);
+                                float[] geoPoints = getNewGeometry(GeoConstants.GTLineString, center);
+                                mDrawItems.addItems(0, geoPoints, DrawItems.TYPE_VERTEX);
+                            }
+                            else if(menuItem.getItemId() == R.id.menu_edit_add_new_polygon) {
+                                mItem = new VectorCacheItem(new GeoPolygon(), Constants.NOT_FOUND);
+                                float[] geoPoints = getNewGeometry(GeoConstants.GTPolygon, center);
+                                mDrawItems.addItems(0, geoPoints, DrawItems.TYPE_VERTEX);
+                            }
+
+                            mDrawItems.setSelectedRing(0);
+                            mDrawItems.setSelectedPointIndex(0);
+                            //set new coordinates to GeoPoint from screen coordinates
+                            mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mapDrawable);
+
+                            updateMap();
+                        }
+                        else if(menuItem.getItemId() == R.id.menu_edit_add_new_point){
+                            if(null == mItem || null == mItem.getGeoGeometry()) {
+                                if(mLayer.getGeometryType() != GeoConstants.GTPoint)
+                                    return false;
+                            }
+
+                            mHasEdits = true;
+                            setToolbarSaveState(true);
+
+                            MapDrawable mapDrawable = mMapViewOverlays.getMap();
+                            if(null == mapDrawable)
+                                return false;
+
+                            GeoPoint center = mapDrawable.getFullBounds().getCenter();
+                            if(mLayer.getGeometryType() == GeoConstants.GTPoint){
+                                mItem = new VectorCacheItem(new GeoPoint(), Constants.NOT_FOUND);
+                                mDrawItems.clear();
+                                float[] geoPoints = new float[2];
+                                geoPoints[0] = (float)center.getX();
+                                geoPoints[1] = (float)center.getY();
+                                mDrawItems.addItems(0, geoPoints, DrawItems.TYPE_VERTEX);
+                                mDrawItems.setSelectedRing(0);
+                                mDrawItems.setSelectedPointIndex(0);
+                                //set new coordinates to GeoPoint from screen coordinates
+                                mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mapDrawable);
+                            }
+                            else{
+                                //insert point in appropriate position
+                                mDrawItems.addNewPoint((float)center.getX(), (float)center.getY());
+                                int lastIndex = mDrawItems.getLastPointIndex();
+                                mDrawItems.setSelectedPointIndex(lastIndex);
+                                //set new coordinates to GeoPoint from screen coordinates
+                                mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mapDrawable);
+                            }
+
+                            updateMap();
+                        }
+                        else if(menuItem.getItemId() == R.id.menu_edit_delete_multipoint ||
+                                menuItem.getItemId() == R.id.menu_edit_delete_line ||
+                                menuItem.getItemId() == R.id.menu_edit_delete_polygon){
+                            if(null == mItem || null == mItem.getGeoGeometry())
+                                return false;
+
+                            mHasEdits = true;
+                            setToolbarSaveState(true);
+
+                            mDrawItems.clear();
+                            mItem.setGeoGeometry(null);
+
+                            updateMap();
+                        }
+                        else if(menuItem.getItemId() == R.id.menu_edit_delete_point){
+                            if(null == mItem || null == mItem.getGeoGeometry())
+                                return false;
+
+                            mHasEdits = true;
+                            setToolbarSaveState(true);
+
+                            //store original geometry for cancel operation
+                            if(null == mOriginalGeometry){
+                                mOriginalGeometry = mItem.getGeoGeometry().copy();
+                            }
+
+                            mDrawItems.deleteSelectedPoint();
+                            GeoGeometry geom = mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mMapViewOverlays.getMap());
+                            if(null == geom)
+                                mItem.setGeoGeometry(null);
+
+                            updateMap();
+                        }
+                        else if(menuItem.getItemId() == R.id.menu_edit_track){
+                            if(mLayer.getGeometryType() == GeoConstants.GTPoint ||
+                               mLayer.getGeometryType() == GeoConstants.GTMultiPoint)
+                                return false;
+                            //only support for lines and polygons
+
+                            //TODO: release this
+                        }
+                        return true;
+                    }
+                });
                 break;
-            case GeoConstants.GTMultiPoint:
-                toolbar.inflateMenu(R.menu.edit_multipoint);
-                break;
-            case GeoConstants.GTLineString:
-                toolbar.inflateMenu(R.menu.edit_line);
-                break;
-            case GeoConstants.GTMultiLineString:
-                //toolbar.inflateMenu(R.menu.edit_multiline);
-                break;
-            case GeoConstants.GTPolygon:
-                toolbar.inflateMenu(R.menu.edit_polygon);
-                break;
-            case GeoConstants.GTMultiPolygon:
-                //toolbar.inflateMenu(R.menu.edit_multipolygon);
-                break;
-            case GeoConstants.GTGeometryCollection:
-            default:
+            case MODE_HIGHLIGHT:
+                toolbar.setNavigationOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        mMenuListener = null;
+
+                        if (mIsWalking) {
+                            stopGeometryByWalk();
+                            saveEdits();
+                            setMode(MODE_EDIT);
+                            setToolbar(toolbar);
+                        } else {
+                            ((ActionBarActivity) mContext).getSupportFragmentManager().popBackStack();
+                        }
+                    }
+                });
+
+                if (toolbar.getMenu() != null)
+                    toolbar.getMenu().clear();
+
+                toolbar.inflateMenu(R.menu.edit_highlight);
+                toolbar.setOnMenuItemClickListener(mMenuListener);
+
+                setToolbarSaveState(false);
                 break;
         }
-
-        toolbar.setOnMenuItemClickListener(new BottomToolbar.OnMenuItemClickListener()
-        {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem)
-            {
-                if(null == mLayer)
-                    return false;
-
-                if(menuItem.getItemId() == R.id.menu_edit_attributes){
-                    if(null == mItem || null == mItem.getGeoGeometry() || mHasEdits)
-                        return false;
-                    if(null != mLayer && mLayer instanceof  ILayerUI) {
-                        ILayerUI vectorLayerUI = (ILayerUI) mLayer;
-                        if (null != vectorLayerUI) {
-                            vectorLayerUI.showEditForm(mContext, mItem.getId());
-                        }
-                    }
-                }
-                else if(menuItem.getItemId() == R.id.menu_edit_move_point_to_current_location){
-                    if(null == mItem || null == mItem.getGeoGeometry())
-                        return false;
-
-                    Activity parent = (Activity) mContext;
-                    GpsEventSource gpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
-                    Location location = gpsEventSource.getLastKnownLocation();
-                    if(null != location){
-                        //change to screen coordinates
-                        MapDrawable mapDrawable = mMapViewOverlays.getMap();
-                        GeoPoint pt = new GeoPoint(location.getLongitude(), location.getLatitude());
-                        pt.setCRS(GeoConstants.CRS_WGS84);
-                        pt.project(GeoConstants.CRS_WEB_MERCATOR);
-                        GeoPoint screenPt = mapDrawable.mapToScreen(pt);
-
-                        mHasEdits = true;
-                        setToolbarSaveState(true);
-                        //store original geometry for cancel operation
-                        if(null == mOriginalGeometry){
-                            mOriginalGeometry = mItem.getGeoGeometry().copy();
-                        }
-
-                        mDrawItems.setSelectedPoint((float) screenPt.getX(),
-                                                    (float) screenPt.getY());
-
-                        mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mapDrawable);
-                        updateMap();
-                    }
-                }
-                else if(menuItem.getItemId() == R.id.menu_edit_add_new_multipoint ||
-                        menuItem.getItemId() == R.id.menu_edit_add_new_line ||
-                        menuItem.getItemId() == R.id.menu_edit_add_new_polygon){
-
-                    mHasEdits = true;
-                    setToolbarSaveState(true);
-
-                    MapDrawable mapDrawable = mMapViewOverlays.getMap();
-                    if(null == mapDrawable)
-                        return false;
-
-                    GeoPoint center = mapDrawable.getFullBounds().getCenter();
-
-                    mDrawItems.clear();
-
-                    if(menuItem.getItemId() == R.id.menu_edit_add_new_multipoint) {
-                        mItem = new VectorCacheItem(new GeoMultiPoint(), Constants.NOT_FOUND);
-                        float[] geoPoints = getNewGeometry(GeoConstants.GTMultiPoint, center);
-                        mDrawItems.addItems(0, geoPoints, DrawItems.TYPE_VERTEX);
-                    }
-                    else if(menuItem.getItemId() == R.id.menu_edit_add_new_line) {
-                        mItem = new VectorCacheItem(new GeoLineString(), Constants.NOT_FOUND);
-                        float[] geoPoints = getNewGeometry(GeoConstants.GTLineString, center);
-                        mDrawItems.addItems(0, geoPoints, DrawItems.TYPE_VERTEX);
-                    }
-                    else if(menuItem.getItemId() == R.id.menu_edit_add_new_polygon) {
-                        mItem = new VectorCacheItem(new GeoPolygon(), Constants.NOT_FOUND);
-                        float[] geoPoints = getNewGeometry(GeoConstants.GTPolygon, center);
-                        mDrawItems.addItems(0, geoPoints, DrawItems.TYPE_VERTEX);
-                    }
-
-                    mDrawItems.setSelectedRing(0);
-                    mDrawItems.setSelectedPointIndex(0);
-                    //set new coordinates to GeoPoint from screen coordinates
-                    mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mapDrawable);
-
-                    updateMap();
-                }
-                else if(menuItem.getItemId() == R.id.menu_edit_add_new_point){
-                    if(null == mItem || null == mItem.getGeoGeometry()) {
-                        if(mLayer.getGeometryType() != GeoConstants.GTPoint)
-                            return false;
-                    }
-
-                    mHasEdits = true;
-                    setToolbarSaveState(true);
-
-                    MapDrawable mapDrawable = mMapViewOverlays.getMap();
-                    if(null == mapDrawable)
-                        return false;
-
-                    GeoPoint center = mapDrawable.getFullBounds().getCenter();
-                    if(mLayer.getGeometryType() == GeoConstants.GTPoint){
-                        mItem = new VectorCacheItem(new GeoPoint(), Constants.NOT_FOUND);
-                        mDrawItems.clear();
-                        float[] geoPoints = new float[2];
-                        geoPoints[0] = (float)center.getX();
-                        geoPoints[1] = (float)center.getY();
-                        mDrawItems.addItems(0, geoPoints, DrawItems.TYPE_VERTEX);
-                        mDrawItems.setSelectedRing(0);
-                        mDrawItems.setSelectedPointIndex(0);
-                        //set new coordinates to GeoPoint from screen coordinates
-                        mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mapDrawable);
-                    }
-                    else{
-                        //insert point in appropriate position
-                        mDrawItems.addNewPoint((float)center.getX(), (float)center.getY());
-                        int lastIndex = mDrawItems.getLastPointIndex();
-                        mDrawItems.setSelectedPointIndex(lastIndex);
-                        //set new coordinates to GeoPoint from screen coordinates
-                        mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mapDrawable);
-                    }
-
-                    updateMap();
-                }
-                else if(menuItem.getItemId() == R.id.menu_edit_delete_multipoint ||
-                        menuItem.getItemId() == R.id.menu_edit_delete_line ||
-                        menuItem.getItemId() == R.id.menu_edit_delete_polygon){
-                    if(null == mItem || null == mItem.getGeoGeometry())
-                        return false;
-
-                    mHasEdits = true;
-                    setToolbarSaveState(true);
-
-                    mDrawItems.clear();
-                    mItem.setGeoGeometry(null);
-
-                    updateMap();
-                }
-                else if(menuItem.getItemId() == R.id.menu_edit_delete_point){
-                    if(null == mItem || null == mItem.getGeoGeometry())
-                        return false;
-
-                    mHasEdits = true;
-                    setToolbarSaveState(true);
-
-                    //store original geometry for cancel operation
-                    if(null == mOriginalGeometry){
-                        mOriginalGeometry = mItem.getGeoGeometry().copy();
-                    }
-
-                    mDrawItems.deleteSelectedPoint();
-                    GeoGeometry geom = mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mMapViewOverlays.getMap());
-                    if(null == geom)
-                        mItem.setGeoGeometry(null);
-
-                    updateMap();
-                }
-                else if(menuItem.getItemId() == R.id.menu_edit_track){
-                    if(mLayer.getGeometryType() == GeoConstants.GTPoint ||
-                       mLayer.getGeometryType() == GeoConstants.GTMultiPoint)
-                        return false;
-                    //only support for lines and polygons
-
-                    //TODO: release this
-                }
-                return true;
-            }
-        });
-
     }
 
     protected void updateMap(){
@@ -691,6 +739,9 @@ public class EditLayerOverlay
         mHasEdits = false;
         mMode = MODE_EDIT;
         mOriginalGeometry = null;
+
+        if (mItem == null)
+            return;
 
         if(mItem.getGeoGeometry() == null && mItem.getId() != Constants.NOT_FOUND){
             if(mLayer.delete(VectorLayer.FIELD_ID + " = ?", new String[]{mItem.getId() + ""}) > 0) {
@@ -1032,6 +1083,88 @@ public class EditLayerOverlay
     }
 
 
+    public void startGeometryByWalk(int geometryType)
+    {
+        switch (geometryType) {
+            case GeoConstants.GTLineString:
+                mItem = new VectorCacheItem(new GeoLineString(), Constants.NOT_FOUND);
+                break;
+            case GeoConstants.GTPolygon:
+                mItem = new VectorCacheItem(new GeoPolygon(), Constants.NOT_FOUND);
+                break;
+            default:
+                return;
+        }
+
+        mIsWalking = true;
+
+        Activity parent = (Activity) mContext;
+        GpsEventSource gpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
+        gpsEventSource.addListener(this);
+
+        setToolbarSaveState(true);
+
+        if (mCurrentToolbar.getMenu() != null)
+            mCurrentToolbar.getMenu().clear();
+    }
+
+
+    public void stopGeometryByWalk()
+    {
+        mIsWalking = false;
+
+        Activity parent = (Activity) mContext;
+        GpsEventSource gpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
+        gpsEventSource.removeListener(this);
+    }
+
+
+    @Override
+    public void onLocationChanged(Location location)
+    {
+        if (mItem != null && location != null) {
+            GeoPoint currentPoint = new GeoPoint(location.getLongitude(), location.getLatitude());
+            currentPoint.setCRS(GeoConstants.CRS_WGS84);
+            currentPoint.project(GeoConstants.CRS_WEB_MERCATOR);
+            boolean minItems;
+
+            switch (mItem.getGeoGeometry().getType()) {
+                case GeoConstants.GTLineString:
+                    GeoLineString line = (GeoLineString) mItem.getGeoGeometry();
+                    line.add(currentPoint);
+                    minItems = line.getPoints().size() > 1;
+                    break;
+                case GeoConstants.GTPolygon:
+                    GeoPolygon polygon =  (GeoPolygon) mItem.getGeoGeometry();
+                    polygon.add(currentPoint);
+                    minItems = polygon.getOuterRing().getPoints().size() > 2;
+                    break;
+                default:
+                    return;
+            }
+
+            if (minItems) {
+                mDrawItems.clear();
+                fillDrawItems(mItem.getGeoGeometry(), mMapViewOverlays.getMap());
+                mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mMapViewOverlays.getMap());
+            }
+        }
+    }
+
+
+    @Override
+    public void onGpsStatusChanged(int event)
+    {
+
+    }
+
+
+    public void setAttributesListeners(Toolbar.OnMenuItemClickListener listener)
+    {
+        mMenuListener = listener;
+    }
+
+
     protected class DrawItems{
         List<float[]> mDrawItemsVertex;
         List<float[]> mDrawItemsEdge;
@@ -1198,7 +1331,8 @@ public class EditLayerOverlay
 
                 if(mItem.getGeoGeometry().getType() == GeoConstants.GTPolygon ||
                    mItem.getGeoGeometry().getType() == GeoConstants.GTMultiPolygon){
-                    canvas.drawLine(items[0], items[1], items[items.length - 2], items[items.length - 1], mPaint);
+                    if (items.length >= 2)
+                        canvas.drawLine(items[0], items[1], items[items.length - 2], items[items.length - 1], mPaint);
                 }
 
                 if (mMode == MODE_EDIT || mMode == MODE_CHANGE) {

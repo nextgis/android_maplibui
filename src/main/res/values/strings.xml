@@ -159,4 +159,6 @@
     <string name="no">No</string>
     <string name="yes">Yes</string>
     <string name="has_edits">There are unsaved edits. Do you want to save them?</string>
+    <string name="attributes_next">Next</string>
+    <string name="attributes_prev">Previous</string>
 </resources>

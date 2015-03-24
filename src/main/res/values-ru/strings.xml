@@ -154,4 +154,6 @@
     <string name="error_create_feature">Create feature failed</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>
+    <string name="attributes_next">Следующий</string>
+    <string name="attributes_prev">Предыдущий</string>
 </resources>
