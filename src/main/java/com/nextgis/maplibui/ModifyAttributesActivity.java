@@ -218,7 +218,7 @@ public class ModifyAttributesActivity
                     TextView dateEdit = (TextView)getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
                     //TextView dateEdit = new TextView(this);
                     dateEdit.setSingleLine(true);
-                    dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit, DATE));
+                    dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit, DATETIME));
                     dateEdit.setFocusable(false);
                     SimpleDateFormat dateText = (SimpleDateFormat) DateFormat.getDateTimeInstance();
                     String pattern = dateText.toLocalizedPattern();
@@ -303,7 +303,7 @@ public class ModifyAttributesActivity
                     continue;
                 String stringVal = editText.toString();
                 if(field.getType() == GeoConstants.FTDateTime){
-                    SimpleDateFormat dateFormat = new SimpleDateFormat();
+                    SimpleDateFormat dateFormat = (SimpleDateFormat)DateFormat.getDateTimeInstance();
                     try {
                         Date date = dateFormat.parse(stringVal);
                         values.put(field.getName(), date.getTime());
@@ -318,6 +318,11 @@ public class ModifyAttributesActivity
 
             if(mFeatureId == Constants.NOT_FOUND){
                 if(mGeometry == null) {
+                    if(null == mLocation){
+                        Toast.makeText(this, getText(R.string.error_no_location), Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+
                     //create point geometry
                     GeoGeometry geometry = null;
                     GeoPoint pt;

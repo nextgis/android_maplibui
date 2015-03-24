@@ -72,11 +72,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
-import static com.nextgis.maplibui.util.ConstantsUI.*;
 import static com.nextgis.maplib.util.Constants.*;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 /**
  * Activity to add or modify vector layer attributes
@@ -101,6 +100,7 @@ public class CustomModifyAttributesActivity
     protected Map<String, String> mLastValues;
     protected Map<String, Map<String, String>> mKeyValuesForField;
     protected Map<View, String> mDoubleComboFirstKeys;
+    protected Map<View, Integer> mDateTimePickerType;
 
     protected static final String FILE_LAST = "last.json";
 
@@ -111,6 +111,7 @@ public class CustomModifyAttributesActivity
 
         mKeyValuesForField = new HashMap<>();
         mDoubleComboFirstKeys = new HashMap<>();
+        mDateTimePickerType = new HashMap<>();
 
         //TODO: add location control via fragment only defined by user space
         setContentView(R.layout.activity_standard_attributes);
@@ -606,6 +607,8 @@ public class CustomModifyAttributesActivity
             return;
         }
 
+        mDateTimePickerType.put(dateEdit, picker_type);
+
         String lastVal = mLastValues.get(field);
         if(TextUtils.isEmpty(lastVal) && attributes.has(JSON_TEXT_KEY))
             lastVal = attributes.getString(JSON_TEXT_KEY);
@@ -622,13 +625,8 @@ public class CustomModifyAttributesActivity
             Calendar calendar = Calendar.getInstance();
             int column = cursor.getColumnIndex(field);
             long millis = cursor.getLong(column);
-            if(millis >= 0) {
-                calendar.setTimeInMillis(cursor.getLong(column));
-                dateEdit.setText(dateText.format(calendar.getTime()));
-            }
-            else {
-                dateEdit.setText(lastVal);
-            }
+            calendar.setTimeInMillis(millis);
+            dateEdit.setText(dateText.format(calendar.getTime()));
         }
         mFields.put(field, dateEdit);
 
@@ -742,10 +740,6 @@ public class CustomModifyAttributesActivity
             return true;
         }
         else if(id == R.id.menu_apply) {
-            if(null == mLocation){
-                Toast.makeText(this, getText(R.string.error_no_location), Toast.LENGTH_SHORT).show();
-                return false;
-            }
             serializeLast(true);
 
             //create new row or modify existing
@@ -791,8 +785,17 @@ public class CustomModifyAttributesActivity
 
                 Log.d(TAG, "field: " + field.getName() + " value: " + stringVal);
                 if(!TextUtils.isEmpty(stringVal)) {
-                    if (field.getType() == GeoConstants.FTDateTime) {
-                        SimpleDateFormat dateFormat = new SimpleDateFormat();
+                    if (mDateTimePickerType.containsKey(v)) {
+                    //if (field.getType() == GeoConstants.FTDateTime) {
+                        SimpleDateFormat dateFormat;
+                        int pickerType = mDateTimePickerType.get(v);
+                        if(pickerType == DATE)
+                            dateFormat = (SimpleDateFormat)DateFormat.getDateInstance();
+                        else if(pickerType == TIME)
+                            dateFormat = (SimpleDateFormat)DateFormat.getTimeInstance();
+                        else
+                            dateFormat = (SimpleDateFormat)DateFormat.getDateTimeInstance();
+
                         try {
                             Date date = dateFormat.parse(stringVal);
                             values.put(field.getName(), date.getTime());
@@ -807,6 +810,10 @@ public class CustomModifyAttributesActivity
 
             if(mFeatureId == Constants.NOT_FOUND){
                 if(mGeometry == null) {
+                    if(null == mLocation){
+                        Toast.makeText(this, getText(R.string.error_no_location), Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
                     //create point geometry
                     GeoGeometry geometry = null;
                     GeoPoint pt;
