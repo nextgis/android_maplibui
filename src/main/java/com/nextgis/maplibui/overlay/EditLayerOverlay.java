@@ -1261,9 +1261,9 @@ public class EditLayerOverlay
             }
 
             if (mMode == MODE_EDIT) {
-                for (int ring = 0; ring < mDrawItemsVertex.size(); ring++) {
+                for (int ring = 0; ring < mDrawItemsEdge.size(); ring++) {
                     point = 0;
-                    float[] items = mDrawItemsVertex.get(ring);
+                    float[] items = mDrawItemsEdge.get(ring);
                     for (int i = 0; i < items.length - 1; i += 2) {
                         if (screenEnv.contains(new GeoPoint(items[i], items[i + 1]))) {
                             mSelectedPointIndex = i + 2;
