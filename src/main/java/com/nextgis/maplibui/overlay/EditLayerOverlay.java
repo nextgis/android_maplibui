@@ -40,7 +40,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -51,6 +50,7 @@ import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoGeometry;
+import com.nextgis.maplib.datasource.GeoGeometryFactory;
 import com.nextgis.maplib.datasource.GeoLineString;
 import com.nextgis.maplib.datasource.GeoLinearRing;
 import com.nextgis.maplib.datasource.GeoMultiLineString;
@@ -113,9 +113,11 @@ public class EditLayerOverlay
 
     protected static final int mType = 3;
 
-    protected static final String BUNDLE_KEY_MODE    = "mode";
-    protected static final String BUNDLE_KEY_LAYER   = "layer";
-    protected static final String BUNDLE_KEY_FEATURE = "feature";
+    protected static final String BUNDLE_KEY_MODE          = "mode";
+    protected static final String BUNDLE_KEY_LAYER         = "layer";
+    protected static final String BUNDLE_KEY_FEATURE_ID    = "feature";
+    protected static final String BUNDLE_KEY_IS_WALKING    = "is_walking";
+    protected static final String BUNDLE_KEY_SAVED_FEATURE = "feature_blob";
 
     protected float mTolerancePX;
     protected float mAnchorTolerancePX;
@@ -738,7 +740,6 @@ public class EditLayerOverlay
         setToolbarSaveState(false);
         mHasEdits = false;
         mMode = MODE_EDIT;
-        mOriginalGeometry = null;
 
         if (mItem == null)
             return;
@@ -771,6 +772,8 @@ public class EditLayerOverlay
         if(null != vectorLayerUI) {
             vectorLayerUI.showEditForm(mContext, mItem.getId());
         }
+
+        mOriginalGeometry = null;
     }
 
 
@@ -788,11 +791,19 @@ public class EditLayerOverlay
         }
 
         if(null == mItem){
-            bundle.putLong(BUNDLE_KEY_FEATURE, Constants.NOT_FOUND);
+            bundle.putLong(BUNDLE_KEY_FEATURE_ID, Constants.NOT_FOUND);
         }
         else{
-            bundle.putLong(BUNDLE_KEY_FEATURE, mItem.getId());
+            try {
+                bundle.putByteArray(BUNDLE_KEY_SAVED_FEATURE, mItem.getGeoGeometry().toBlob());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            bundle.putLong(BUNDLE_KEY_FEATURE_ID, mItem.getId());
         }
+
+        bundle.putBoolean(BUNDLE_KEY_IS_WALKING, mIsWalking);
+
         return bundle;
     }
 
@@ -801,6 +812,8 @@ public class EditLayerOverlay
     public void onRestoreState(Bundle bundle)
     {
         if(null != bundle){
+            mIsWalking = bundle.getBoolean(BUNDLE_KEY_IS_WALKING);
+
             int type = bundle.getInt(BUNDLE_KEY_TYPE);
             if(mType == type) {
                 mMode = bundle.getInt(BUNDLE_KEY_MODE);
@@ -809,11 +822,22 @@ public class EditLayerOverlay
                 mLayer = null;
                 if (null != layer && layer instanceof VectorLayer) {
                     mLayer = (VectorLayer)layer;
-                    long featureId = bundle.getLong(BUNDLE_KEY_FEATURE);
-                    for (VectorCacheItem item : mLayer.getVectorCache()) {
-                        if (item.getId() == featureId) {
-                            mItem = item;
-                            break;
+
+                    if (mIsWalking) {
+                        try {
+                            mOriginalGeometry =
+                                    GeoGeometryFactory.fromBlob(
+                                            bundle.getByteArray(BUNDLE_KEY_SAVED_FEATURE));
+                        } catch (IOException | ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        long featureId = bundle.getLong(BUNDLE_KEY_FEATURE_ID);
+                        for (VectorCacheItem item : mLayer.getVectorCache()) {
+                            if (item.getId() == featureId) {
+                                mItem = item;
+                                break;
+                            }
                         }
                     }
                 }
@@ -1085,17 +1109,23 @@ public class EditLayerOverlay
 
     public void startGeometryByWalk(int geometryType)
     {
-        switch (geometryType) {
-            case GeoConstants.GTLineString:
-                mItem = new VectorCacheItem(new GeoLineString(), Constants.NOT_FOUND);
-                break;
-            case GeoConstants.GTPolygon:
-                mItem = new VectorCacheItem(new GeoPolygon(), Constants.NOT_FOUND);
-                break;
-            default:
-                return;
-        }
+        GeoGeometry geometry;
 
+        if (mOriginalGeometry == null) {
+            switch (geometryType) {
+                case GeoConstants.GTLineString:
+                    geometry = new GeoLineString();
+                    break;
+                case GeoConstants.GTPolygon:
+                    geometry = new GeoPolygon();
+                    break;
+                default:
+                    return;
+            }
+        } else
+            geometry = mOriginalGeometry;
+
+        mItem = new VectorCacheItem(geometry, Constants.NOT_FOUND);
         mIsWalking = true;
 
         Activity parent = (Activity) mContext;
@@ -1144,9 +1174,9 @@ public class EditLayerOverlay
             }
 
             if (minItems) {
-                mDrawItems.clear();
                 fillDrawItems(mItem.getGeoGeometry(), mMapViewOverlays.getMap());
-                mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mMapViewOverlays.getMap());
+                // TODO fill
+//                mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mMapViewOverlays.getMap());
             }
         }
     }
@@ -1156,6 +1186,11 @@ public class EditLayerOverlay
     public void onGpsStatusChanged(int event)
     {
 
+    }
+
+
+    public boolean isWalking() {
+        return mIsWalking;
     }
 
 
