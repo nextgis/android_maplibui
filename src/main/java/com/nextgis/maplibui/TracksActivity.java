@@ -54,23 +54,24 @@ import com.nextgis.maplib.service.TrackerService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 
 public class TracksActivity
         extends ActionBarActivity
         implements LoaderManager.LoaderCallbacks<Cursor>
 {
-    private static final int TRACKS_ID = 0;
+    private static final int    TRACKS_ID             = 0;
+    private static final String BUNDLE_SELECTED_ITEMS = "selected_items";
 
     private Uri                    mContentUriTracks;
     private SimpleCursorAdapter    mSimpleCursorAdapter;
-    private List<String>           mIds;
+    private ArrayList<String>      mIds;
     private ListView               mTracks;
     private HashMap<Long, Integer> mTracksPositionsIds;
     private ActionMode             mActionMode;
     private ActionMode.Callback    mActionCallback;
     private boolean mSelectState = false;
+    private boolean mNeedRestore = false;
 
 
     @Override
@@ -79,6 +80,13 @@ public class TracksActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_tracks);
+
+        mIds = new ArrayList<>();
+
+        if (savedInstanceState != null) {
+            mIds = savedInstanceState.getStringArrayList(BUNDLE_SELECTED_ITEMS);
+            mNeedRestore = true;
+        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         toolbar.getBackground().setAlpha(255);
@@ -90,8 +98,6 @@ public class TracksActivity
 
         mContentUriTracks = Uri.parse(
                 "content://" + application.getAuthority() + "/" + TrackLayer.TABLE_TRACKS);
-
-        mIds = new ArrayList<>();
 
         String[] from = new String[] {TrackLayer.FIELD_NAME, TrackLayer.FIELD_VISIBLE};
         int[] to = new int[] {R.id.tv_name, R.id.iv_visibility};
@@ -280,6 +286,15 @@ public class TracksActivity
     }
 
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+
+        outState.putStringArrayList(BUNDLE_SELECTED_ITEMS, mIds);
+    }
+
+
     private void setSelection()
     {
         int childrenCount = mTracks.getCount();
@@ -378,6 +393,12 @@ public class TracksActivity
 
         for (int i = 0; i < data.getCount(); i++) {
             mTracksPositionsIds.put(mTracks.getItemIdAtPosition(i), i);
+        }
+
+        if (mNeedRestore) {
+            mNeedRestore = false;
+            mActionMode = getSupportActionBar().startActionMode(mActionCallback);
+            mActionMode.setTitle(mIds.size() + getString(R.string.cab_selected));
         }
 
         if (data.getCount() == 0) {
