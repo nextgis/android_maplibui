@@ -22,8 +22,10 @@
 package com.nextgis.maplibui;
 
 import android.content.Context;
+import android.support.v7.widget.PopupMenu;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -164,26 +166,38 @@ public class LayersListAdapter
             }
         });
 
-        ImageButton btSettings = (ImageButton) v.findViewById(R.id.btSettings);
-        if (layerui != null) {
-            btSettings.setOnClickListener(new View.OnClickListener()
-            {
-                public void onClick(View arg0)
-                {
-                    //Layer layer = mMap.getLayerById(id);
-                    layerui.changeProperties();
-                }
-            });
-        } else {
-            btSettings.setEnabled(false);
-        }
-        ImageButton btDelete = (ImageButton) v.findViewById(R.id.btDelete);
-        btDelete.setOnClickListener(new View.OnClickListener()
+        final ImageButton btMore = (ImageButton) v.findViewById(R.id.btMore);
+        btMore.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View arg0)
             {
-                layer.delete();
-                mMap.save();
+                PopupMenu popup = new PopupMenu(mContext, btMore);
+                popup.getMenuInflater().inflate(R.menu.layer_popup, popup.getMenu());
+
+                if (layerui == null) {
+                    popup.getMenu().findItem(R.id.menu_settings).setEnabled(false);
+                }
+
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener()
+                {
+                    public boolean onMenuItemClick(MenuItem item)
+                    {
+                        int i = item.getItemId();
+                        if (i == R.id.menu_settings) {
+                            //Layer layer = mMap.getLayerById(id);
+                            assert layerui != null;
+                            layerui.changeProperties();
+                        } else if (i == R.id.menu_share) {
+
+                        } else if (i == R.id.menu_delete) {
+                            layer.delete();
+                            mMap.save();
+                        }
+                        return true;
+                    }
+                });
+
+                popup.show();
             }
         });
 
