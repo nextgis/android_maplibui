@@ -44,7 +44,6 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -54,6 +53,7 @@ import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.service.TrackerService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -63,12 +63,13 @@ public class TracksActivity
 {
     private static final int TRACKS_ID = 0;
 
-    private Uri                 mContentUriTracks;
-    private SimpleCursorAdapter mSimpleCursorAdapter;
-    private List<String>        mIds;
-    private ListView            mTracks;
-    private ActionMode          mActionMode;
-    private ActionMode.Callback mActionCallback;
+    private Uri                    mContentUriTracks;
+    private SimpleCursorAdapter    mSimpleCursorAdapter;
+    private List<String>           mIds;
+    private ListView               mTracks;
+    private HashMap<Long, Integer> mTracksPositionsIds;
+    private ActionMode             mActionMode;
+    private ActionMode.Callback    mActionCallback;
     private boolean mSelectState = false;
 
 
@@ -103,10 +104,10 @@ public class TracksActivity
         {
             public boolean setViewValue(
                     final View view,
-                    Cursor cursor,
+                    final Cursor cursor,
                     int columnIndex)
             {
-                String id = cursor.getString(0);
+                final String id = cursor.getString(0);
                 final View rootView = (View) view.getParent();
                 rootView.setTag(id);
 
@@ -135,14 +136,15 @@ public class TracksActivity
 
                     CheckBox cb = (CheckBox) rootView.findViewById(R.id.cb_item);
                     cb.setChecked(mIds.contains(id));
-                    cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+                    cb.setTag(id);
+                    cb.setOnClickListener(new View.OnClickListener()
                     {
                         @Override
-                        public void onCheckedChanged(
-                                CompoundButton buttonView,
-                                boolean isChecked)
+                        public void onClick(View v)
                         {
-                            updateSelectedItems(isChecked, (String) rootView.getTag());
+                            int position = mTracksPositionsIds.get(Long.parseLong(id));
+                            View parent = mTracks.getAdapter().getView(position, null, mTracks);
+                            mTracks.performItemClick(parent, position, Long.parseLong(id));
                         }
                     });
                 }
@@ -269,6 +271,7 @@ public class TracksActivity
                 CheckBox cb = (CheckBox) view.findViewById(R.id.cb_item);
                 boolean isChecked = !cb.isChecked();
                 cb.setChecked(isChecked);
+                updateSelectedItems(isChecked, (String) cb.getTag());
                 mTracks.setItemChecked(position, isChecked);
             }
         });
@@ -371,6 +374,11 @@ public class TracksActivity
             Cursor data)
     {
         mSimpleCursorAdapter.swapCursor(data);
+        mTracksPositionsIds = new HashMap<>();
+
+        for (int i = 0; i < data.getCount(); i++) {
+            mTracksPositionsIds.put(mTracks.getItemIdAtPosition(i), i);
+        }
 
         if (data.getCount() == 0) {
             findViewById(R.id.tv_empty_list).setVisibility(View.VISIBLE);
