@@ -32,6 +32,7 @@ import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.VectorCacheItem;
 import com.nextgis.maplibui.CustomModifyAttributesActivity;
 import com.nextgis.maplibui.ModifyAttributesActivity;
@@ -56,6 +57,9 @@ import static com.nextgis.maplibui.util.ConstantsUI.*;
  */
 public class VectorLayerUI extends VectorLayer implements ILayerUI
 {
+    private static final long MAX_INTERNAL_CACHE_SIZE = 1048576; // 1MB
+    private static final long MAX_EXTERNAL_CACHE_SIZE = 5242880; // 5MB
+
     public VectorLayerUI(
             Context context,
             File path)
@@ -125,10 +129,20 @@ public class VectorLayerUI extends VectorLayer implements ILayerUI
 
     public void shareGeoJSON() {
         try {
+            boolean clearCached;
             File temp = mContext.getExternalCacheDir();
 
-            if (temp == null)
+            if (temp == null) {
                 temp = mContext.getCacheDir();
+                clearCached = FileUtil.getDirectorySize(temp) > MAX_INTERNAL_CACHE_SIZE;
+            } else
+                clearCached = FileUtil.getDirectorySize(temp) > MAX_EXTERNAL_CACHE_SIZE;
+
+            temp = new File(temp, "shared_layers");
+            if (clearCached)
+                FileUtil.deleteRecursive(temp);
+
+            FileUtil.createDir(temp);
 
             temp = new File(temp, getName() + ".geojson");
             FileWriter fw = new FileWriter(temp);
