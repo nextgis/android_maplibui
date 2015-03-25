@@ -157,4 +157,5 @@
     <string name="attributes_next">Следующий</string>
     <string name="attributes_prev">Предыдущий</string>
     <string name="geometry_by_walk_no_points">Недостаточно точек для создания геометрии</string>
+    <string name="error_change_feature">Change feature failed</string>
 </resources>

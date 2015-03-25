@@ -781,6 +781,21 @@ public class EditLayerOverlay
             mLayer.deleteCacheItem(Constants.NOT_FOUND);
             mItem = mLayer.getCacheItem(id);
         }
+        else{ //update geometry
+            ContentValues values = new ContentValues();
+            try {
+                values.put(VectorLayer.FIELD_GEOM, mItem.getGeoGeometry().toBlob());
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(mContext, mContext.getString(R.string.error_change_feature), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if( mLayer.update(values, VectorLayer.FIELD_ID + " = " + mItem.getId(), null) < 1) {
+                return;
+            }
+            mItem = mLayer.getCacheItem(mItem.getId());
+        }
+
         //show attributes edit activity
         ILayerUI vectorLayerUI = (ILayerUI)mLayer;
         if(null != vectorLayerUI) {
