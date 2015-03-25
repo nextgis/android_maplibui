@@ -153,7 +153,7 @@ public class LayersListAdapter
 
         ImageButton btShow = (ImageButton) v.findViewById(R.id.btShow);
         //Log.d(TAG, "Layer #" + id + " is visible " + layer.isVisible());
-        btShow.setBackgroundResource(layer.isVisible()
+        btShow.setImageResource(layer.isVisible()
                                      ? R.drawable.ic_action_visibility_on
                                      : R.drawable.ic_action_visibility_off);
         //btShow.refreshDrawableState();

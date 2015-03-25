@@ -58,8 +58,10 @@
     <ImageButton
         android:id="@+id/btShow"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
         android:layout_gravity="center"
+        android:background="@null"
         android:layout_margin="5dp"
         tools:ignore="ContentDescription"
         />
@@ -67,7 +69,8 @@
     <ImageButton
         android:id="@+id/btMore"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
         android:layout_gravity="center"
         android:layout_margin="5dp"
         android:background="@null"
