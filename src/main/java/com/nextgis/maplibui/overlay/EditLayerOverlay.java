@@ -128,6 +128,7 @@ public class EditLayerOverlay
     protected boolean       mIsWalking;
     protected boolean       mIsWalkMinPoints;
     protected BottomToolbar mCurrentToolbar;
+    private   int           mHighlightMenuResId;
 
 
     public EditLayerOverlay(
@@ -714,7 +715,9 @@ public class EditLayerOverlay
                 if (toolbar.getMenu() != null)
                     toolbar.getMenu().clear();
 
-                toolbar.inflateMenu(R.menu.edit_highlight);
+                if (mHighlightMenuResId != 0)
+                    toolbar.inflateMenu(mHighlightMenuResId);
+
                 toolbar.setOnMenuItemClickListener(mMenuListener);
 
                 setToolbarSaveState(false);
@@ -750,6 +753,7 @@ public class EditLayerOverlay
         setToolbarSaveState(false);
         mHasEdits = false;
         mMode = MODE_EDIT;
+        mOriginalGeometry = null;
 
         if (mItem == null)
             return;
@@ -782,8 +786,6 @@ public class EditLayerOverlay
         if(null != vectorLayerUI) {
             vectorLayerUI.showEditForm(mContext, mItem.getId());
         }
-
-        mOriginalGeometry = null;
     }
 
 
@@ -1138,8 +1140,10 @@ public class EditLayerOverlay
                 default:
                     return;
             }
-        } else
-            geometry = mOriginalGeometry;
+        } else {
+            geometry = mOriginalGeometry.copy();
+            mOriginalGeometry = null;
+        }
 
         mItem = new VectorCacheItem(geometry, Constants.NOT_FOUND);
         mIsWalking = true;
@@ -1149,9 +1153,6 @@ public class EditLayerOverlay
         gpsEventSource.addListener(this);
 
         setToolbarSaveState(true);
-
-        if (mCurrentToolbar.getMenu() != null)
-            mCurrentToolbar.getMenu().clear();
     }
 
 
@@ -1209,9 +1210,15 @@ public class EditLayerOverlay
     }
 
 
-    public void setAttributesListeners(Toolbar.OnMenuItemClickListener listener)
+    public void setHighlightToolbarMenuListener(Toolbar.OnMenuItemClickListener listener)
     {
         mMenuListener = listener;
+    }
+
+
+    public void setHighlightToolbarMenu(int menuResourceId)
+    {
+        mHighlightMenuResId = menuResourceId;
     }
 
 
