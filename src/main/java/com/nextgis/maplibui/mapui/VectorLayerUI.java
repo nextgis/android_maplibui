@@ -24,6 +24,7 @@ package com.nextgis.maplibui.mapui;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.widget.Toast;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.map.VectorLayer;
@@ -34,9 +35,15 @@ import com.nextgis.maplibui.ModifyAttributesActivity;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.util.ConstantsUI;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
+import static com.nextgis.maplib.util.GeoConstants.*;
 import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
@@ -109,6 +116,55 @@ public class VectorLayerUI extends VectorLayer implements ILayerUI
             if(null != geometry)
                 intent.putExtra(KEY_GEOMETRY, geometry);
             context.startActivity(intent);
+        }
+    }
+
+    public void shareGeoJSON() {
+        try {
+            File temp = mContext.getExternalCacheDir();
+
+            if (temp == null)
+                temp = mContext.getCacheDir();
+
+            temp = new File(temp, getName() + ".geojson");
+            FileWriter fw = new FileWriter(temp);
+
+            JSONObject obj = new JSONObject();
+            obj.put(GEOJSON_TYPE, GEOJSON_TYPE_FeatureCollection);
+
+            JSONObject crs = new JSONObject();
+            crs.put(GEOJSON_TYPE, GEOJSON_NAME);
+            JSONObject crsName = new JSONObject();
+            crsName.put(GEOJSON_NAME, "urn:ogc:def:crs:EPSG::3857");
+            crs.put(GEOJSON_PROPERTIES, crsName);
+            obj.put(GEOJSON_CRS, crs);
+
+            JSONArray geoJSONFeatures = new JSONArray();
+            for (VectorCacheItem cacheItem : mVectorCacheItems) {
+                JSONObject feature = new JSONObject();
+                feature.put(GEOJSON_TYPE, GEOJSON_TYPE_Feature);
+                feature.put(GEOJSON_PROPERTIES, new JSONObject());
+                feature.put(GEOJSON_GEOMETRY, cacheItem.getGeoGeometry().toJSON());
+                geoJSONFeatures.put(feature);
+            }
+
+            obj.put(GEOJSON_TYPE_FEATURES, geoJSONFeatures);
+
+            fw.write(obj.toString());
+            fw.flush();
+            fw.close();
+
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.setType("application/json,application/vnd.geo+json");
+            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(temp));
+//            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, urisArray); // multiple data
+
+            shareIntent = Intent.createChooser(shareIntent, mContext.getString(R.string.abc_shareactionprovider_share_with));
+            shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mContext.startActivity(shareIntent);
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -38,6 +38,7 @@ import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.map.MapEventSource;
 import com.nextgis.maplibui.api.ILayerUI;
+import com.nextgis.maplibui.mapui.VectorLayerUI;
 
 import static com.nextgis.maplib.util.Constants.*;
 
@@ -176,6 +177,11 @@ public class LayersListAdapter
 
                 if (layerui == null) {
                     popup.getMenu().findItem(R.id.menu_settings).setEnabled(false);
+                    popup.getMenu().findItem(R.id.menu_share).setEnabled(false);
+                }
+
+                if (layerui instanceof VectorLayerUI) {
+                    popup.getMenu().findItem(R.id.menu_share).setVisible(true);
                 }
 
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener()
@@ -188,7 +194,8 @@ public class LayersListAdapter
                             assert layerui != null;
                             layerui.changeProperties();
                         } else if (i == R.id.menu_share) {
-
+                            assert (layerui) != null;
+                            ((VectorLayerUI) layerui).shareGeoJSON();
                         } else if (i == R.id.menu_delete) {
                             layer.delete();
                             mMap.save();
