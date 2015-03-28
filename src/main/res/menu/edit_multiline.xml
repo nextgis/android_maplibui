@@ -53,11 +53,17 @@
         android:icon="@drawable/ic_action_delete_point"
         android:title="@string/delete_point"
         />
-    <item
+    <!-- TODO: item
         android:id="@+id/menu_edit_track"
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_maps_directions_walk"
         android:title="@string/write_track"
+        /-->
+    <item
+        android:id="@+id/menu_edit_move_point_to_center"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_move_point_to_center"
+        android:title="@string/move_point_to_center"
         />
     <item
         android:id="@+id/menu_edit_move_point_to_current_location"

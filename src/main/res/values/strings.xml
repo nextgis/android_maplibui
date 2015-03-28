@@ -163,4 +163,5 @@
     <string name="attributes_prev">Previous</string>
     <string name="geometry_by_walk_no_points">No enough points to create geometry</string>
     <string name="error_change_feature">Change feature failed</string>
+    <string name="move_point_to_center">Point to display center</string>
 </resources>

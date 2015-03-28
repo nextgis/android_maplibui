@@ -244,6 +244,8 @@ public class EditLayerOverlay
             default:
                 break;
         }
+
+        drawCross(canvas);
     }
 
 
@@ -371,6 +373,8 @@ public class EditLayerOverlay
             default:
                 break;
         }
+
+        drawCross(canvas);
     }
 
 
@@ -402,6 +406,20 @@ public class EditLayerOverlay
             default:
                 break;
         }
+
+        drawCross(canvas);
+    }
+
+    protected void drawCross(Canvas canvas){
+        if(mMode != MODE_EDIT)
+            return;
+        float x = canvas.getWidth() / 2;
+        float y = canvas.getHeight() / 2;
+
+        mPaint.setColor(mSelectColor);
+        mPaint.setStrokeWidth(LINE_WIDTH / 2);
+        canvas.drawLine(x - mTolerancePX, y, x + mTolerancePX, y, mPaint);
+        canvas.drawLine(x, y - mTolerancePX, x, y + mTolerancePX, mPaint);
     }
 
     public void addListener(EditEventListener listener)
@@ -538,6 +556,30 @@ public class EditLayerOverlay
                                     vectorLayerUI.showEditForm(mContext, mItem.getId());
                                 }
                             }
+                        }
+                        else if (menuItem.getItemId() == R.id.menu_edit_move_point_to_center){
+                            if(null == mItem || null == mItem.getGeoGeometry())
+                                return false;
+
+                            Activity parent = (Activity) mContext;
+
+                            //change to screen coordinates
+                            MapDrawable mapDrawable = mMapViewOverlays.getMap();
+                            GeoPoint pt = mapDrawable.getMapCenter();
+                            GeoPoint screenPt = mapDrawable.mapToScreen(pt);
+
+                            mHasEdits = true;
+                            setToolbarSaveState(true);
+                            //store original geometry for cancel operation
+                            if(null == mOriginalGeometry){
+                                mOriginalGeometry = mItem.getGeoGeometry().copy();
+                            }
+
+                            mDrawItems.setSelectedPoint((float) screenPt.getX(),
+                                                        (float) screenPt.getY());
+
+                            mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mapDrawable);
+                            updateMap();
                         }
                         else if(menuItem.getItemId() == R.id.menu_edit_move_point_to_current_location){
                             if(null == mItem || null == mItem.getGeoGeometry())
@@ -676,14 +718,14 @@ public class EditLayerOverlay
 
                             updateMap();
                         }
-                        else if(menuItem.getItemId() == R.id.menu_edit_track){
+                        /*else if(menuItem.getItemId() == R.id.menu_edit_track){
                             if(mLayer.getGeometryType() == GeoConstants.GTPoint ||
                                mLayer.getGeometryType() == GeoConstants.GTMultiPoint)
                                 return false;
                             //only support for lines and polygons
 
                             //TODO: release this
-                        }
+                        }*/
                         return true;
                     }
                 });
