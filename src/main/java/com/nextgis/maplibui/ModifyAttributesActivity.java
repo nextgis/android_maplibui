@@ -498,14 +498,17 @@ public class ModifyAttributesActivity
             public void onClick(View view)
             {
                 if (pickerType == DATE) {
+                    calendar.setTime(new Date());
                     new DatePickerDialog(ModifyAttributesActivity.this, date,
                                          calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
                                          calendar.get(Calendar.DAY_OF_MONTH)).show();
                 }
                 else if (pickerType == TIME) {
+                    calendar.setTime(new Date());
                     new TimePickerDialog(ModifyAttributesActivity.this, time, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), android.text.format.DateFormat.is24HourFormat(ModifyAttributesActivity.this)).show();
                 }
                 else if(pickerType == DATETIME){
+                    calendar.setTime(new Date());
                     final SimpleDateFormat sdf = (SimpleDateFormat) DateFormat.getDateTimeInstance();
                     AlertDialog.Builder builder = new AlertDialog.Builder(ModifyAttributesActivity.this);
                     builder.setTitle(sdf.format(calendar.getTime()))
@@ -516,6 +519,7 @@ public class ModifyAttributesActivity
                                         DialogInterface dialog,
                                         int which)
                                 {
+                                    updateLabel();
                                     dialog.cancel();
                                 }
                             });
