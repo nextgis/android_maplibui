@@ -574,7 +574,9 @@ public class CustomModifyAttributesActivity
 
         TextView dateEdit = null;
         SimpleDateFormat dateText = null;
-        int picker_type = attributes.getInt("date_type");
+        int picker_type = DATETIME;
+        if(attributes.has("date_type"))
+            picker_type = attributes.getInt("date_type");
         if(picker_type == DATE) {
             dateEdit = (TextView) getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
             //TextView dateEdit = new TextView(this);
