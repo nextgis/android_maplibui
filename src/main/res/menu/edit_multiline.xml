@@ -24,6 +24,11 @@
       xmlns:app="http://schemas.android.com/apk/res-auto"
     >
     <item
+        android:id="@+id/menu_cancel"
+        android:title="@string/cancel"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_action_cancel"/>
+    <item
         android:id="@+id/menu_edit_add_new_multiline"
         app:showAsAction="always"
         android:icon="@drawable/ic_action_add_multiline"
@@ -31,7 +36,7 @@
         />
     <item
         android:id="@+id/menu_edit_add_new_line"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_add_line"
         android:title="@string/add_line"
         />
@@ -43,7 +48,7 @@
         />
     <item
         android:id="@+id/menu_edit_delete_line"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_delete_line"
         android:title="@string/delete_line"
         />

@@ -557,12 +557,12 @@ public class EditLayerOverlay
                                 }
                             }
                         }
+                        else if(menuItem.getItemId() == R.id.menu_cancel){
+                            cancelEdits();
+                        }
                         else if (menuItem.getItemId() == R.id.menu_edit_move_point_to_center){
                             if(null == mItem || null == mItem.getGeoGeometry())
                                 return false;
-
-                            Activity parent = (Activity) mContext;
-
                             //change to screen coordinates
                             MapDrawable mapDrawable = mMapViewOverlays.getMap();
                             GeoPoint pt = mapDrawable.getMapCenter();
@@ -775,6 +775,10 @@ public class EditLayerOverlay
     }
 
     protected void cancelEdits(){
+
+        if(!mHasEdits)
+            return;
+
         // restore
         setToolbarSaveState(false);
         mHasEdits = false;
@@ -1009,7 +1013,7 @@ public class EditLayerOverlay
 
         if(mHasEdits)
         {
-            final float xCoord = event.getX();
+            /*final float xCoord = event.getX();
             final float yCoord = event.getY();
             AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
             builder.setMessage(mContext.getString(R.string.has_edits));
@@ -1045,6 +1049,8 @@ public class EditLayerOverlay
                     }
                 });
             builder.create().show();
+            */
+            return;
         }
         else {
             selectGeometryInScreenCoordinates(event.getX(), event.getY());
