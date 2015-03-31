@@ -37,6 +37,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -148,11 +149,7 @@ public class CreateLocalLayerDialog
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        final Context context = getActivity();
-        //fix: http://stackoverflow.com/q/25684940
-        context.setTheme(android.R.style.Theme_Holo_Light);
-
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        final Context context = new ContextThemeWrapper(getActivity(), R.style.NGDialog);
 
         int tmsType = 0;
         if (null == savedInstanceState) {
@@ -177,10 +174,10 @@ public class CreateLocalLayerDialog
 
         View view;
         if(mLayerType < 3) {
-            view = inflater.inflate(R.layout.layout_create_vector_layer, null);
+            view = View.inflate(context, R.layout.layout_create_vector_layer, null);
         }
         else{
-            view = inflater.inflate(R.layout.layout_create_local_tms, null);
+            view = View.inflate(context, R.layout.layout_create_local_tms, null);
 
             final ArrayAdapter<CharSequence> adapter =
                     new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);

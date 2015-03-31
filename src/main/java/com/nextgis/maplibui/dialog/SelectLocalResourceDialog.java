@@ -28,6 +28,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -89,8 +90,7 @@ public class SelectLocalResourceDialog extends DialogFragment implements ISelect
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-
+        final Context context = new ContextThemeWrapper(getActivity(), R.style.NGDialog);
 
         mListAdapter = new LocalResourcesListAdapter(this);
 
@@ -105,7 +105,7 @@ public class SelectLocalResourceDialog extends DialogFragment implements ISelect
             mPath = (File) savedInstanceState.getSerializable(KEY_PATH);
         }
 
-        View view = inflater.inflate(R.layout.layout_resources, null);
+        View view = View.inflate(context, R.layout.layout_resources, null);
         ListView dialogListView = (ListView) view.findViewById(R.id.listView);
         mListAdapter.setTypeMask(mTypeMask);
         mListAdapter.setCurrentPath(mPath);
@@ -115,9 +115,10 @@ public class SelectLocalResourceDialog extends DialogFragment implements ISelect
         LinearLayout pathView = (LinearLayout) view.findViewById(R.id.path);
         mListAdapter.setPathLayout(pathView);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(mTitle)
                .setView(view)
+               .setInverseBackgroundForced(true)
                .setPositiveButton(R.string.select, new DialogInterface.OnClickListener()
                {
                    public void onClick(DialogInterface dialog, int id)
@@ -135,8 +136,7 @@ public class SelectLocalResourceDialog extends DialogFragment implements ISelect
                    }
                });
         // Create the AlertDialog object and return it
-        mDialog = builder.create();
-        return mDialog;
+        return builder.create();
     }
 
 

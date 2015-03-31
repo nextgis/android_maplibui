@@ -164,4 +164,8 @@
     <string name="geometry_by_walk_no_points">No enough points to create geometry</string>
     <string name="error_change_feature">Change feature failed</string>
     <string name="move_point_to_center">Point to display center</string>
+    <string name="mainSettings">Main settings</string>
+    <string name="displaySettings">Display settings</string>
+    <string name="fill_color">Fill color</string>
+    <string name="layerSettings">Layer settings</string>
 </resources>

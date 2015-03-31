@@ -134,7 +134,7 @@
     <string name="geojson">Файл GeoJSON</string>
     <string name="add_point">Добавить точку</string>
     <string name="edit_attributes">Редактировать атрибуты</string>
-    <string name="move_point_to_current_location">Переместить точку в текущее местоположение</string>
+    <string name="move_point_to_current_location">Точка в текущее местоположение</string>
     <string name="delete_point">Удалить точку</string>
     <string name="add_multipoint">Добавить мультиточку</string>
     <string name="delete_multipoint">Удалить мультиточку</string>
@@ -150,13 +150,17 @@
     <string name="delete_hole">Удалить дырку</string>
     <string name="add_multipolygon">Добавить мультиполигон</string>
     <string name="delete_multipolygon">Удалить мультиполигон</string>
-    <string name="save">Save</string>
-    <string name="error_create_feature">Create feature failed</string>
-    <string name="no">No</string>
-    <string name="yes">Yes</string>
+    <string name="save">Сохранить</string>
+    <string name="error_create_feature">Ошибка создания записи</string>
+    <string name="no">Нет</string>
+    <string name="yes">Да</string>
     <string name="attributes_next">Следующий</string>
     <string name="attributes_prev">Предыдущий</string>
     <string name="geometry_by_walk_no_points">Недостаточно точек для создания геометрии</string>
-    <string name="error_change_feature">Change feature failed</string>
+    <string name="error_change_feature">Ошибка изменения записи</string>
     <string name="move_point_to_center">Точка в центр экрана</string>
+    <string name="mainSettings">Main settings</string>
+    <string name="displaySettings">Display settings</string>
+    <string name="fill_color">Fill color</string>
+    <string name="layerSettings">Layer settings</string>
 </resources>

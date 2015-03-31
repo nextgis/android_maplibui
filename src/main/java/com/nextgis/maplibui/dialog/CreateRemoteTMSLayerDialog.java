@@ -28,6 +28,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.URLUtil;
@@ -81,13 +82,16 @@ public class CreateRemoteTMSLayerDialog extends DialogFragment
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        final Context context = getActivity();
+        //final Context context = getActivity();
         //fix: http://stackoverflow.com/q/25684940
-        context.setTheme(android.R.style.Theme_Holo_Light);
+        //context.setTheme(android.R.style.Theme_Holo_Light);
+        //context.setTheme(android.R.style.Theme_Light_NoTitleBar);
 
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        final Context context = new ContextThemeWrapper(getActivity(), R.style.NGDialog);//android.R.style.Theme_Holo_Light
 
-        View view = inflater.inflate(R.layout.layout_create_tms, null);
+        //LayoutInflater inflater = getActivity().getLayoutInflater();
+
+        View view = View.inflate(context, R.layout.layout_create_tms, null);
 
         final ArrayAdapter<CharSequence> adapter =
                 new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
@@ -125,62 +129,63 @@ public class CreateRemoteTMSLayerDialog extends DialogFragment
             }
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(mTitle)
                .setIcon(R.drawable.ic_remote_tms)
                .setView(view)
                .setPositiveButton(R.string.create, new DialogInterface.OnClickListener()
-                {
-                    public void onClick(
-                            DialogInterface dialog,
-                            int whichButton)
-                    {
-                        int tmsType = 0;
-                        switch (mSpinner.getSelectedItemPosition()) {
-                            case 0:
-                                tmsType = TMSTYPE_OSM;
-                                break;
-                            case 1:
-                                tmsType = TMSTYPE_NORMAL;
-                                break;
-                        }
-                        String layerName = mInput.getText().toString();
-                        String layerURL = mUrl.getText().toString().trim();
-                        String layerLogin = mLogin.getText().toString();
-                        String layerPassword = mPassword.getText().toString();
+               {
+                   public void onClick(
+                           DialogInterface dialog,
+                           int whichButton)
+                   {
+                       int tmsType = 0;
+                       switch (mSpinner.getSelectedItemPosition()) {
+                           case 0:
+                               tmsType = TMSTYPE_OSM;
+                               break;
+                           case 1:
+                               tmsType = TMSTYPE_NORMAL;
+                               break;
+                       }
+                       String layerName = mInput.getText().toString();
+                       String layerURL = mUrl.getText().toString().trim();
+                       String layerLogin = mLogin.getText().toString();
+                       String layerPassword = mPassword.getText().toString();
 
-                        //check if {x}, {y} or {z} present
-                        if (!layerURL.contains("{x}") || !layerURL.contains("{y}") ||
-                            !layerURL.contains("{z}")   ) {
-                            Toast.makeText(context, R.string.error_invalid_url, Toast.LENGTH_SHORT)
-                                 .show();
-                            return;
-                        }
+                       //check if {x}, {y} or {z} present
+                       if (!layerURL.contains("{x}") || !layerURL.contains("{y}") ||
+                           !layerURL.contains("{z}")) {
+                           Toast.makeText(context, R.string.error_invalid_url, Toast.LENGTH_SHORT)
+                                .show();
+                           return;
+                       }
 
-                        if(!layerURL.startsWith("http"))
-                            layerURL = "http://" + layerURL;
+                       if (!layerURL.startsWith("http"))
+                           layerURL = "http://" + layerURL;
 
-                        boolean isURL = URLUtil.isValidUrl(layerURL);
+                       boolean isURL = URLUtil.isValidUrl(layerURL);
 
-                        if (!isURL) {
-                            Toast.makeText(context, R.string.error_invalid_url, Toast.LENGTH_SHORT)
-                                 .show();
-                            return;
-                        }
+                       if (!isURL) {
+                           Toast.makeText(context, R.string.error_invalid_url, Toast.LENGTH_SHORT)
+                                .show();
+                           return;
+                       }
 
-                        //create new layer and store it and add it to the map
-                        RemoteTMSLayerUI layer = new RemoteTMSLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
-                        layer.setName(layerName);
-                        layer.setURL(layerURL);
-                        layer.setLogin(layerLogin);
-                        layer.setPassword(layerPassword);
-                        layer.setTMSType(tmsType);
-                        layer.setVisible(true);
+                       //create new layer and store it and add it to the map
+                       RemoteTMSLayerUI layer = new RemoteTMSLayerUI(mGroupLayer.getContext(),
+                                                                     mGroupLayer.createLayerStorage());
+                       layer.setName(layerName);
+                       layer.setURL(layerURL);
+                       layer.setLogin(layerLogin);
+                       layer.setPassword(layerPassword);
+                       layer.setTMSType(tmsType);
+                       layer.setVisible(true);
 
-                        mGroupLayer.addLayer(layer);
-                        mGroupLayer.save();
-                    }
-                })
+                       mGroupLayer.addLayer(layer);
+                       mGroupLayer.save();
+                   }
+               })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
                 {
                     public void onClick(

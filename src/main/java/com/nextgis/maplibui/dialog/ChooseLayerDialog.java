@@ -28,6 +28,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ListView;
@@ -82,7 +83,7 @@ public class ChooseLayerDialog extends DialogFragment implements ILayerSelector
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        final Context context = new ContextThemeWrapper(getActivity(), R.style.NGDialog);
 
         mListAdapter = new ChooseLayerListAdapter(this);
 
@@ -102,14 +103,15 @@ public class ChooseLayerDialog extends DialogFragment implements ILayerSelector
             mCode = savedInstanceState.getInt(KEY_CODE);
         }
 
-        View view = inflater.inflate(R.layout.layout_layers, null);
+        View view = View.inflate(context, R.layout.layout_layers, null);
         ListView dialogListView = (ListView) view.findViewById(R.id.listView);
         dialogListView.setAdapter(mListAdapter);
         dialogListView.setOnItemClickListener(mListAdapter);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(mTitle)
                .setView(view)
+               .setInverseBackgroundForced(true)
                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
                {
                    public void onClick(

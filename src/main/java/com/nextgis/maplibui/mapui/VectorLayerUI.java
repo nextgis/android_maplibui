@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.Toast;
 import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.Field;
@@ -37,6 +38,8 @@ import com.nextgis.maplib.util.VectorCacheItem;
 import com.nextgis.maplibui.CustomModifyAttributesActivity;
 import com.nextgis.maplibui.ModifyAttributesActivity;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.TracksActivity;
+import com.nextgis.maplibui.VectorLayerSettingsActivity;
 import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.util.ConstantsUI;
 import org.json.JSONArray;
@@ -78,7 +81,10 @@ public class VectorLayerUI extends VectorLayer implements ILayerUI
     @Override
     public void changeProperties()
     {
-
+        Intent settings = new Intent(mContext, VectorLayerSettingsActivity.class);
+        settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        settings.putExtra(VectorLayerSettingsActivity.LAYER_ID_KEY, getId());
+        mContext.startActivity(settings);
     }
 
 

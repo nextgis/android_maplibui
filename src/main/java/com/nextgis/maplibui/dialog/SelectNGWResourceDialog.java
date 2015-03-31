@@ -26,11 +26,13 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -98,8 +100,7 @@ public class SelectNGWResourceDialog extends DialogFragment
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-
+        final Context context = new ContextThemeWrapper(getActivity(), R.style.NGDialog);
 
         mListAdapter = new NGWResourcesListAdapter(this);
 
@@ -128,7 +129,7 @@ public class SelectNGWResourceDialog extends DialogFragment
                     KEY_STATES));
         }
 
-        View view = inflater.inflate(R.layout.layout_resources, null);
+        View view = View.inflate(context, R.layout.layout_resources, null);
         ListView dialogListView = (ListView) view.findViewById(R.id.listView);
         mListAdapter.setTypeMask(mTypeMask);
         dialogListView.setAdapter(mListAdapter);
@@ -137,10 +138,11 @@ public class SelectNGWResourceDialog extends DialogFragment
         LinearLayout pathView = (LinearLayout) view.findViewById(R.id.path);
         mListAdapter.setPathLayout(pathView);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(mTitle)
                .setIcon(R.drawable.ic_ngw)
                .setView(view)
+               .setInverseBackgroundForced(true)
                .setPositiveButton(R.string.select, new DialogInterface.OnClickListener()
                {
                    public void onClick(

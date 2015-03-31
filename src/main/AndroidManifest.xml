@@ -26,6 +26,7 @@
     <application
         android:allowBackup="true"
         android:label="@string/app_name"
+        android:theme="@style/AppBaseTheme"
         >
 
         <activity android:name=".NGWLoginActivity"
@@ -42,6 +43,9 @@
 
         <activity android:name=".TracksActivity"
                   android:label="@string/tracks"/>
+
+        <activity android:name=".VectorLayerSettingsActivity"
+                  android:label="@string/layerSettings"/>
 
         <service
             android:name=".account.NGWAuthenticatorService">
