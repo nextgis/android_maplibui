@@ -280,6 +280,10 @@ public class CustomModifyAttributesActivity
                     break;
             }
         }
+
+        if (null != cursor) {
+            cursor.close();
+        }
     }
 
     protected void addDoubleCombobox(LinearLayout layout, JSONObject element, Cursor cursor)

@@ -186,6 +186,8 @@ public class VectorLayerUI extends VectorLayer implements ILayerUI
                 } while (featuresCursor.moveToNext());
             }
 
+            featuresCursor.close();
+
             obj.put(GEOJSON_TYPE_FEATURES, geoJSONFeatures);
 
             fw.write(obj.toString());
