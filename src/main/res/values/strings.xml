@@ -168,4 +168,11 @@
     <string name="displaySettings">Display settings</string>
     <string name="fill_color">Fill color</string>
     <string name="layerSettings">Layer settings</string>
+    <string name="red">red</string>
+    <string name="green">green</string>
+    <string name="blue">blue</string>
+    <string name="magenta">magenta</string>
+    <string name="yellow">yellow</string>
+    <string name="cyan">cyan</string>
+    <string name="select_color">Select color</string>
 </resources>

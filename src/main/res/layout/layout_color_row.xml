@@ -21,55 +21,27 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:id="@+id/color_row"
+              android:orientation="horizontal"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:gravity="center_vertical"
+    >
 
-    <include
-        layout="@layout/actionbar"
-        />
-
-    <TextView
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/color_image"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/mainSettings"
-        style="?android:attr/listSeparatorTextViewStyle"
         android:layout_margin="5dp"
+        android:src="@drawable/color_ring"
         />
 
     <TextView
-        android:layout_width="match_parent"
+        android:id="@+id/color_name"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/layer_name"
-        android:id="@+id/layer_name_label"
-        android:layout_margin="5dp"
+        android:text="#fffff"
         />
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/layer_name"
-        android:layout_margin="5dp"
-        />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/displaySettings"
-        style="?android:attr/listSeparatorTextViewStyle"
-        android:layout_margin="5dp"
-        />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/fill_color"
-        android:layout_margin="5dp"
-        />
-
-    <include
-        layout="@layout/layout_color_row" />
 
 </LinearLayout>
