@@ -165,6 +165,12 @@ public class VectorLayerUI extends VectorLayer implements ILayerUI
 
             JSONArray geoJSONFeatures = new JSONArray();
             Cursor featuresCursor = query(null, null, null, null);
+
+            if (null == featuresCursor) {
+                fw.close();
+                return;
+            }
+
             Feature feature;
 
             if (featuresCursor.moveToFirst()) {
