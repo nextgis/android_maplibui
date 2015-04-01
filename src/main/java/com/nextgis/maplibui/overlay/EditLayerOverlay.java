@@ -22,10 +22,8 @@
 package com.nextgis.maplibui.overlay;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -154,8 +152,8 @@ public class EditLayerOverlay
 
         mAnchor =
                 BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_action_anchor);
-        mAnchorRectOffsetX = -mAnchor.getWidth() * 0.1f;
-        mAnchorRectOffsetY = -mAnchor.getHeight() * 0.1f;
+        mAnchorRectOffsetX = -mAnchor.getWidth() * 0.05f;
+        mAnchorRectOffsetY = -mAnchor.getHeight() * 0.05f;
         mAnchorCenterX = mAnchor.getWidth() * 0.75f;
         mAnchorCenterY = mAnchor.getHeight() * 0.75f;
         mAnchorTolerancePX = mAnchor.getScaledWidth(context.getResources().getDisplayMetrics());

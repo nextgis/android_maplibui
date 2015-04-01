@@ -23,7 +23,6 @@ package com.nextgis.maplibui;
 
 import android.content.Context;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,15 +31,16 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.Layer;
-import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.map.MapEventSource;
 import com.nextgis.maplibui.api.ILayerUI;
+import com.nextgis.maplibui.mapui.TrackLayerUI;
 import com.nextgis.maplibui.mapui.VectorLayerUI;
 
-import static com.nextgis.maplib.util.Constants.*;
+import static com.nextgis.maplib.util.Constants.LAYERTYPE_REMOTE_TMS;
+import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 
 
 /**
@@ -180,7 +180,10 @@ public class LayersListAdapter
                     popup.getMenu().findItem(R.id.menu_share).setEnabled(false);
                 }
 
-                if (layerui instanceof VectorLayerUI) {
+                if(layerui instanceof TrackLayerUI){
+                    popup.getMenu().findItem(R.id.menu_delete).setVisible(false);
+                }
+                else if (layerui instanceof VectorLayerUI) {
                     popup.getMenu().findItem(R.id.menu_share).setVisible(true);
                 }
 
