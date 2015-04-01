@@ -126,6 +126,7 @@ public class VectorLayerSettingsActivity extends ActionBarActivity implements IC
         ImageView iv = (ImageView) findViewById(R.id.color_image);
         GradientDrawable sd = (GradientDrawable) iv.getDrawable();
         sd.setColor(color);
+        iv.invalidate();
 
         // set color name
         TextView tv = (TextView) findViewById(R.id.color_name);
