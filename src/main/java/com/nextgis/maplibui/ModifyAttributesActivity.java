@@ -248,6 +248,10 @@ public class ModifyAttributesActivity
                     break;
             }
         }
+
+        if (null != cursor) {
+            cursor.close();
+        }
     }
 
 
