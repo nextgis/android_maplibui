@@ -278,6 +278,8 @@ public class LayersListAdapter
     {
         if(null == mMap)
             return;
+        mMap.save();
+
         mMap.thaw();
         mMap.runDraw(null);
     }
