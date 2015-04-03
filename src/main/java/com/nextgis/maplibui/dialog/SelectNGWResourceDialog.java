@@ -33,7 +33,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.ContextThemeWrapper;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -182,7 +181,7 @@ public class SelectNGWResourceDialog extends DialogFragment
 
     protected Connections fillConnections(){
         Connections connections = new Connections(getString(R.string.accounts));
-        final AccountManager accountManager = AccountManager.get(getActivity());
+        final AccountManager accountManager = AccountManager.get(getActivity().getApplicationContext());
         for (Account account : accountManager.getAccountsByType(
                 NGW_ACCOUNT_TYPE)) {
             String url = accountManager.getUserData(account, "url");
@@ -208,7 +207,7 @@ public class SelectNGWResourceDialog extends DialogFragment
         if (requestCode == ADDACCOUNT_CODE) {
             if(resultCode != Activity.RESULT_CANCELED){
                 //search new account and add it
-                final AccountManager accountManager = AccountManager.get(getActivity());
+                final AccountManager accountManager = AccountManager.get(getActivity().getApplicationContext());
                 Connections connections = mListAdapter.getConnections();
                 for (Account account : accountManager.getAccountsByType(
                         NGW_ACCOUNT_TYPE)) {

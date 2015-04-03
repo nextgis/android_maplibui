@@ -89,7 +89,7 @@ public class NGWSettingsActivity
         super.onCreate(savedInstanceState);
 
         if (null == mAccountManager) {
-            mAccountManager = AccountManager.get(this);
+            mAccountManager = AccountManager.get(this.getApplicationContext());
         }
 
         ViewGroup root = ((ViewGroup) findViewById(android.R.id.content));
@@ -401,7 +401,7 @@ public class NGWSettingsActivity
                         wasCurrentSyncActive[0] = false;
 
                         AccountManager accountManager = AccountManager.get(
-                                NGWSettingsActivity.this);
+                                NGWSettingsActivity.this.getApplicationContext());
                         accountManager.removeAccount(
                                 account, null, new Handler());
 
@@ -583,7 +583,7 @@ public class NGWSettingsActivity
     public void onBuildHeaders(List<Header> target)
     {
         if (null == mAccountManager) {
-            mAccountManager = AccountManager.get(this);
+            mAccountManager = AccountManager.get(this.getApplicationContext());
         }
 
         Header header;

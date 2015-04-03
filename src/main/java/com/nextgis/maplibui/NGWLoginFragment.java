@@ -171,7 +171,7 @@ public class NGWLoginFragment
             String accountName,
             String token)
     {
-        final AccountManager am = AccountManager.get(getActivity());
+        final AccountManager am = AccountManager.get(getActivity().getApplicationContext());
         final Account account = new Account(accountName, NGW_ACCOUNT_TYPE);
 
         Bundle userData = new Bundle();
