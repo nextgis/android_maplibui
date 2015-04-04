@@ -26,22 +26,22 @@ public interface ConstantsUI
     /**
      * Draw state
      */
-    public static final int DRAW_SATE_none = 0;
-    public static final int DRAW_SATE_drawing = 1;
-    public static final int DRAW_SATE_drawing_noclearbk = 2;
-    public static final int DRAW_SATE_panning = 3;
-    public static final int DRAW_SATE_zooming = 4;
-    public static final int DRAW_SATE_panning_fling = 5;
+    int DRAW_SATE_none = 0;
+    int DRAW_SATE_drawing           = 1;
+    int DRAW_SATE_drawing_noclearbk = 2;
+    int DRAW_SATE_panning           = 3;
+    int DRAW_SATE_zooming           = 4;
+    int DRAW_SATE_panning_fling     = 5;
 
-    public static final String KEY_MESSAGE = "msg";
-    public static final String KEY_LAYER_ID = "layer_id";
-    public static final String KEY_FEATURE_ID = "feature_id";
-    public static final String KEY_GEOMETRY = "geometry";
-    public static final String KEY_FORM_PATH = "form_path";
+    String KEY_MESSAGE    = "msg";
+    String KEY_LAYER_ID   = "layer_id";
+    String KEY_FEATURE_ID = "feature_id";
+    String KEY_GEOMETRY   = "geometry";
+    String KEY_FORM_PATH  = "form_path";
 
-    public static final String MESSAGE_INTENT = "com.nextgis.malibui.MESSAGE";
+    String MESSAGE_INTENT = "com.nextgis.malibui.MESSAGE";
 
-    public final static String FILE_FORM = "form.json";
+    String FILE_FORM = "form.json";
 
-    public static final int TOLERANCE_DP = 20;
+    int TOLERANCE_DP = 20;
 }

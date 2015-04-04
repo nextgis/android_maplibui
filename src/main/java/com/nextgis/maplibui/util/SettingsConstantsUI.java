@@ -23,11 +23,11 @@ package com.nextgis.maplibui.util;
 
 public interface SettingsConstantsUI
 {
-    public static final String KEY_PREF_KEEPSCREENON         = "keep_screen_on";
-    public static final String KEY_PREF_COORD_FORMAT         = "coordinates_format";
-    public static final String KEY_PREF_SYNC_PERIODICALLY    = "sync_periodically";
-    public static final String KEY_PREF_SYNC_PERIOD          = "sync_period";
-    public static final String KEY_PREF_SYNC_PERIOD_SEC_LONG = "sync_period_sec_long";
-    public static final String KEY_PREF_SHOW_STATUS_PANEL    = "show_status_panel";
-    public static final String KEY_PREF_SHOW_CURRENT_LOC     = "show_current_location";
+    String KEY_PREF_KEEPSCREENON         = "keep_screen_on";
+    String KEY_PREF_COORD_FORMAT         = "coordinates_format";
+    String KEY_PREF_SYNC_PERIODICALLY    = "sync_periodically";
+    String KEY_PREF_SYNC_PERIOD          = "sync_period";
+    String KEY_PREF_SYNC_PERIOD_SEC_LONG = "sync_period_sec_long";
+    String KEY_PREF_SHOW_STATUS_PANEL    = "show_status_panel";
+    String KEY_PREF_SHOW_CURRENT_LOC     = "show_current_location";
 }
