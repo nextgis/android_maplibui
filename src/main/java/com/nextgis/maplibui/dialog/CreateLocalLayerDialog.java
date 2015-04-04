@@ -452,7 +452,7 @@ public class CreateLocalLayerDialog
                     }
 
                     Account account = LayerFactory.getAccountByName(context, accountName);
-                    final AccountManager am = AccountManager.get(context);
+                    final AccountManager am = AccountManager.get(context.getApplicationContext());
                     if(null == account) {
                         //create account
                         Bundle userData = new Bundle();
