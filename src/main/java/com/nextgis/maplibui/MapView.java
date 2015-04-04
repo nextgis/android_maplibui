@@ -24,6 +24,8 @@ package com.nextgis.maplibui;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.PointF;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -56,10 +58,11 @@ public class MapView
     protected       double               mCurrentSpan;
     protected       Scroller             mScroller;
     protected       long                 mStartDrawTime;
-    protected long mTopVisibleLayerId;
+    protected       long                 mTopVisibleLayerId;
 
     //display redraw timeout ms
     public static final int DISPLAY_REDRAW_TIMEOUT = 1650;
+    protected final Handler mHandler = new Handler(Looper.getMainLooper());
 
 
     public MapView(
@@ -84,15 +87,17 @@ public class MapView
         findTopVisibleLayer(mMap);
     }
 
-    protected boolean findTopVisibleLayer(LayerGroup group){
-        for(int i = group.getLayerCount() - 1; i >= 0; i--){
+
+    protected boolean findTopVisibleLayer(LayerGroup group)
+    {
+        for (int i = group.getLayerCount() - 1; i >= 0; i--) {
             ILayer layer = group.getLayer(i);
-            if(layer instanceof LayerGroup){
-                if(findTopVisibleLayer((LayerGroup) layer))
+            if (layer instanceof LayerGroup) {
+                if (findTopVisibleLayer((LayerGroup) layer))
                     return true;
             }
-            ILayerView view = (ILayerView)group.getLayer(i);
-            if(view.isVisible()){
+            ILayerView view = (ILayerView) group.getLayer(i);
+            if (view.isVisible()) {
                 mTopVisibleLayerId = layer.getId();
                 return true;
             }
@@ -121,7 +126,6 @@ public class MapView
             mMap.removeListener(this);
         }
     }
-
 
 
     @Override
@@ -165,6 +169,8 @@ public class MapView
     }
 
     protected void zoomStart(ScaleGestureDetector scaleGestureDetector){
+        mHandler.removeCallbacksAndMessages(null);
+
         if(mDrawingState == DRAW_SATE_zooming)
             return;
 
@@ -206,7 +212,6 @@ public class MapView
 
     protected void zoomStop(){
         if(mDrawingState == DRAW_SATE_zooming && mMap != null) {
-            //mDrawingState = DRAW_SATE_none;
 
             float zoom = getZoomForScaleFactor(mScaleFactor);
 
@@ -223,16 +228,22 @@ public class MapView
             GeoPoint newCenterPt = env.getCenter();
             GeoPoint newCenterPtMap = mMap.screenToMap(newCenterPt);
 
+            Log.d(TAG, "zoomStop: setZoomAndCenter");
             setZoomAndCenter(zoom, newCenterPtMap);
+
+            asyncSetDrawingState(true);
         }
     }
 
     protected void panStart(final MotionEvent e){
+        mHandler.removeCallbacksAndMessages(null);
+
         if (mDrawingState == DRAW_SATE_zooming
             || mDrawingState == DRAW_SATE_panning
             || mDrawingState == DRAW_SATE_panning_fling)
             return;
 
+        Log.d(TAG, "panStart");
         for (MapViewEventListener listener : mListeners){
             if(null != listener)
                 listener.panStart(e);
@@ -281,8 +292,6 @@ public class MapView
 
         if(mDrawingState == DRAW_SATE_panning && mMap != null) {
 
-            //mDrawingState = DRAW_SATE_none;
-
             float x = mCurrentMouseOffset.x;
             float y = mCurrentMouseOffset.y;
 
@@ -297,12 +306,15 @@ public class MapView
             //Log.d(TAG, "panStop. x: " + x + ", y:" + y + ", sx:" + screenPt.getX() + ", sy:" + screenPt.getY());
             //mDisplay.panStop((float) screenPt.getX(), (float) screenPt.getY());
 
+            Log.d(TAG, "panStop: setZoomAndCenter");
             setZoomAndCenter(getZoomLevel(), pt);
 
             for (MapViewEventListener listener : mListeners){
                 if(null != listener)
                     listener.panStop();
             }
+
+            asyncSetDrawingState(true);
         }
     }
 
@@ -365,37 +377,37 @@ public class MapView
     public void computeScroll()
     {
         super.computeScroll();
-        if (mScroller.computeScrollOffset() && mMap != null)
-        {
-            if(mScroller.isFinished()){
+        if(mDrawingState == DRAW_SATE_panning_fling && mMap != null) {
+            if (mScroller.computeScrollOffset()) {
+                if (mScroller.isFinished()) {
+                    mDrawingState = DRAW_SATE_panning;
+                    panStop();
+                } else {
+                    float x = mScroller.getCurrX();
+                    float y = mScroller.getCurrY();
+
+                    GeoEnvelope bounds = mMap.getFullBounds();
+                    bounds.offset(x, y);
+
+                    GeoEnvelope limits = mMap.getLimits();
+
+                    if (bounds.getMinY() <= limits.getMinY() || bounds.getMaxY() >= limits.getMaxY()) {
+                        y = mCurrentMouseOffset.y;
+                    }
+
+                    if (bounds.getMinX() <= limits.getMinX() || bounds.getMaxX() >= limits.getMaxX()) {
+                        x = mCurrentMouseOffset.x;
+                    }
+                    findTopVisibleLayer(mMap);
+
+                    mCurrentMouseOffset.set(x, y);
+
+                    postInvalidate();
+                }
+            } else if (mScroller.isFinished()) {
                 mDrawingState = DRAW_SATE_panning;
                 panStop();
             }
-            else {
-                float x = mScroller.getCurrX();
-                float y = mScroller.getCurrY();
-
-                GeoEnvelope bounds = mMap.getFullBounds();
-                bounds.offset(x, y);
-
-                GeoEnvelope limits = mMap.getLimits();
-
-                if (bounds.getMinY() <= limits.getMinY() || bounds.getMaxY() >= limits.getMaxY()) {
-                    y = mCurrentMouseOffset.y;
-                }
-
-                if (bounds.getMinX() <= limits.getMinX() || bounds.getMaxX() >= limits.getMaxX()) {
-                    x = mCurrentMouseOffset.x;
-                }findTopVisibleLayer(mMap);
-
-                mCurrentMouseOffset.set(x, y);
-
-                postInvalidate();
-            }
-        }
-        else if(mDrawingState == DRAW_SATE_panning_fling && mScroller.isFinished()){
-            mDrawingState = DRAW_SATE_panning;
-            panStop();
         }
     }
 
@@ -456,7 +468,11 @@ public class MapView
         GeoPoint newCenterPt = env.getCenter();
         GeoPoint newCenterPtMap = mMap.screenToMap(newCenterPt);
 
+        Log.d(TAG, "onDoubleTap: setZoomAndCenter");
         setZoomAndCenter((float)Math.ceil(getZoomLevel() + 0.5), newCenterPtMap);
+
+        asyncSetDrawingState(true);
+
         return true;
     }
 
@@ -476,8 +492,10 @@ public class MapView
         mDrawingState = DRAW_SATE_zooming;
         mScaleFactor = 2;
         mCurrentFocusLocation.set(-getWidth() / 2, -getHeight() / 2);
-        postInvalidate();
+
         super.zoomIn();
+
+        asyncSetDrawingState(true);
     }
 
     @Override
@@ -485,8 +503,10 @@ public class MapView
         mDrawingState = DRAW_SATE_zooming;
         mScaleFactor = 0.5;
         mCurrentFocusLocation.set(-getWidth() / 2, -getHeight() / 2);
-        postInvalidate();
+
         super.zoomOut();
+
+        asyncSetDrawingState(true);
     }
 
     @Override
@@ -573,8 +593,10 @@ public class MapView
             int id,
             float percent)
     {
+        if(mDrawingState != DRAW_SATE_drawing_noclearbk)
+            return;
         //Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent);
-        mDrawingState = DRAW_SATE_drawing_noclearbk;
+        //mDrawingState = DRAW_SATE_drawing_noclearbk;
         if(percent >= 1.0 && id == mTopVisibleLayerId){
             //Log.d(TAG, "LayerDrawFinished: id - " + id + ", percent - " + percent);
             //ILayer layer = mMap.getLastLayer();
@@ -583,13 +605,35 @@ public class MapView
         }
         else if(System.currentTimeMillis() - mStartDrawTime > DISPLAY_REDRAW_TIMEOUT){
             mStartDrawTime = System.currentTimeMillis();
-            invalidate();
+            postInvalidate();
         }
     }
 
 
     public void panTo(GeoPoint center)
     {
+        Log.d(TAG, "panTo: setZoomAndCenter");
         setZoomAndCenter(getZoomLevel(), center);
+    }
+
+    protected void asyncSetDrawingState(final boolean isPostInvalidate){
+        final Runnable s = new Runnable() {
+            public void run() {
+                //do your stuff here after DELAY sec
+                mDrawingState = DRAW_SATE_drawing_noclearbk;
+                mStartDrawTime = System.currentTimeMillis();
+            }
+        };
+        mHandler.postDelayed(s, 650);
+
+        final Runnable r = new Runnable() {
+            public void run() {
+                if(isPostInvalidate)
+                    postInvalidate();
+                else
+                    invalidate();
+            }
+        };
+        mHandler.postDelayed(r, DISPLAY_REDRAW_TIMEOUT);
     }
 }
