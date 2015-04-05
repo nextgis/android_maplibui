@@ -367,12 +367,12 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
      * the hover cell back to its correct location.
      */
     protected void touchEventsEnded () {
-
-        LayersListAdapter adapter = (LayersListAdapter)getAdapter();
-        adapter.endDrag();
-
         final View mobileView = getViewForID(mMobileItemId);
-        if (mCellIsMobile|| mIsWaitingForScrollFinish) {
+        if (mCellIsMobile || mIsWaitingForScrollFinish) {
+
+            LayersListAdapter adapter = (LayersListAdapter)getAdapter();
+            adapter.endDrag();
+
             mCellIsMobile = false;
             mIsWaitingForScrollFinish = false;
             mIsMobileScrolling = false;
@@ -405,11 +405,12 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
      * Resets all the appropriate fields to a default state.
      */
     protected void touchEventsCancelled () {
-        LayersListAdapter adapter = (LayersListAdapter)getAdapter();
-        adapter.endDrag();
-        
         View mobileView = getViewForID(mMobileItemId);
         if (mCellIsMobile) {
+
+            LayersListAdapter adapter = (LayersListAdapter)getAdapter();
+            adapter.endDrag();
+
             mAboveItemId = NOT_FOUND;
             mMobileItemId = NOT_FOUND;
             mBelowItemId = NOT_FOUND;
