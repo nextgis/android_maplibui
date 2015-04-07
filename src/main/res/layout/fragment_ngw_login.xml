@@ -63,7 +63,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:id="@+id/login"
-        android:hint="@string/login"
+        android:hint="@string/user_name"
         android:inputType="textPersonName"
         android:layout_margin="5dp"
         />
