@@ -48,6 +48,7 @@ public class SelectLocalResourceDialog extends DialogFragment implements ISelect
     protected String  mTitle;
     protected int     mTypeMask;
     protected boolean mCanSelectMulti;
+    protected boolean mCanWrite;
     protected File    mPath;
     protected LocalResourcesListAdapter mListAdapter;
 
@@ -57,6 +58,7 @@ public class SelectLocalResourceDialog extends DialogFragment implements ISelect
     protected final static String KEY_MASK        = "mask";
     protected final static String KEY_STATES      = "states";
     protected final static String KEY_CANMULTISEL = "can_multiselect";
+    protected final static String KEY_WRITABLE    = "can_write";
     protected final static String KEY_PATH        = "path";
 
     public SelectLocalResourceDialog setTitle(String title)
@@ -79,6 +81,11 @@ public class SelectLocalResourceDialog extends DialogFragment implements ISelect
         return this;
     }
 
+    public SelectLocalResourceDialog setWritable(boolean can)
+    {
+        mCanWrite = can;
+        return this;
+    }
 
     public SelectLocalResourceDialog setPath(File path)
     {
@@ -101,6 +108,7 @@ public class SelectLocalResourceDialog extends DialogFragment implements ISelect
             mTitle = savedInstanceState.getString(KEY_TITLE);
             mTypeMask = savedInstanceState.getInt(KEY_MASK);
             mCanSelectMulti = savedInstanceState.getBoolean(KEY_CANMULTISEL);
+            mCanWrite = savedInstanceState.getBoolean(KEY_WRITABLE);
             mListAdapter.setCheckState(savedInstanceState.getStringArrayList(KEY_STATES));
             mPath = (File) savedInstanceState.getSerializable(KEY_PATH);
         }
@@ -109,6 +117,8 @@ public class SelectLocalResourceDialog extends DialogFragment implements ISelect
         ListView dialogListView = (ListView) view.findViewById(R.id.listView);
         mListAdapter.setTypeMask(mTypeMask);
         mListAdapter.setCurrentPath(mPath);
+        mListAdapter.setCanSelectMulti(mCanSelectMulti);
+        mListAdapter.setCanWrite(mCanWrite);
         dialogListView.setAdapter(mListAdapter);
         dialogListView.setOnItemClickListener(mListAdapter);
 
@@ -146,6 +156,7 @@ public class SelectLocalResourceDialog extends DialogFragment implements ISelect
         outState.putString(KEY_TITLE, mTitle);
         outState.putInt(KEY_MASK, mTypeMask);
         outState.putBoolean(KEY_CANMULTISEL, mCanSelectMulti);
+        outState.putBoolean(KEY_WRITABLE, mCanWrite);
         outState.putStringArrayList(KEY_STATES, (ArrayList<String>) mListAdapter.getCheckState());
         outState.putSerializable(KEY_PATH, mListAdapter.getCurrentPath());
         super.onSaveInstanceState(outState);

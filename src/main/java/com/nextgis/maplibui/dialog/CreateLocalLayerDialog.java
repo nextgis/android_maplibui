@@ -35,6 +35,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.provider.DocumentFile;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextThemeWrapper;

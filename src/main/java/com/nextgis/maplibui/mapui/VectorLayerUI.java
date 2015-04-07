@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.v4.provider.DocumentFile;
 import android.util.Log;
 import android.widget.Toast;
 import com.nextgis.maplib.datasource.Feature;

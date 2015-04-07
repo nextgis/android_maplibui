@@ -55,6 +55,7 @@ public class LocalResourcesListAdapter extends BaseAdapter
     protected int                   mTypeMask;
     protected PathView              mPathView;
     protected boolean               mCanSelectMulti;
+    protected boolean               mCanWrite;
     protected RadioButton mUncheckBtn;
 
     protected File       mPath;
@@ -148,6 +149,10 @@ public class LocalResourcesListAdapter extends BaseAdapter
         mCanSelectMulti = canSelectMulti;
     }
 
+    public void setCanWrite(boolean canWrite)
+    {
+        mCanWrite = canWrite;
+    }
 
     @Override
     public int getCount()
@@ -206,7 +211,7 @@ public class LocalResourcesListAdapter extends BaseAdapter
 
             switch (getFileType(file)){
                 case FILETYPE_FOLDER:
-                    if(0 == (mTypeMask & FILETYPE_FOLDER)) {
+                    if(0 == (mTypeMask & FILETYPE_FOLDER) || (mCanWrite && !file.canWrite())) {
                         if(v == null || v.getId() != R.id.resourcegroup_row) {
                             v = inflater.inflate(R.layout.layout_resourcegroup_row, null);
                             v.setId(R.id.resourcegroup_row);
