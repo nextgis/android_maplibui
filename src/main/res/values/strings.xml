@@ -42,6 +42,7 @@
     <string name="ngw_url">NextGIS Web URL</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
+    <string name="user_name">Login</string>
     <string name="canceled">Canceled</string>
     <string name="account_already_exists">Account already exist</string>
     <string name="error_login">Login failed</string>
