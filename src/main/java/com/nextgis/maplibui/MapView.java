@@ -90,6 +90,9 @@ public class MapView
 
     protected boolean findTopVisibleLayer(LayerGroup group)
     {
+        if(null == group)
+            return false;
+
         for (int i = group.getLayerCount() - 1; i >= 0; i--) {
             ILayer layer = group.getLayer(i);
             if (layer instanceof LayerGroup) {
@@ -151,13 +154,12 @@ public class MapView
                     break;
 //TODO: add invalidate rect to prevent flicker
                 case DRAW_SATE_drawing_noclearbk:
-                case DRAW_SATE_drawing:
                     canvas.drawBitmap(mMap.getView(false), 0, 0, null);
                     break;
 
-
-                   // canvas.drawBitmap(mMap.getView(true), 0, 0, null);
-                   // break;
+                case DRAW_SATE_drawing:
+                    canvas.drawBitmap(mMap.getView(true), 0, 0, null);
+                    break;
 
                 default: // mDrawingState == DRAW_SATE_none
                     break;
@@ -450,6 +452,8 @@ public class MapView
         if(mMap == null)
             return false;
 
+        mHandler.removeCallbacksAndMessages(null);
+
         mDrawingState = DRAW_SATE_zooming;
         mScaleFactor = 2;
         mCurrentFocusLocation.set(-e.getX(), -e.getY());
@@ -489,9 +493,13 @@ public class MapView
 
     @Override
     public void zoomIn() {
+
+        mHandler.removeCallbacksAndMessages(null);
+
         mDrawingState = DRAW_SATE_zooming;
         mScaleFactor = 2;
         mCurrentFocusLocation.set(-getWidth() / 2, -getHeight() / 2);
+        invalidate();
 
         super.zoomIn();
 
@@ -500,9 +508,13 @@ public class MapView
 
     @Override
     public void zoomOut() {
+
+        mHandler.removeCallbacksAndMessages(null);
+
         mDrawingState = DRAW_SATE_zooming;
         mScaleFactor = 0.5;
         mCurrentFocusLocation.set(-getWidth() / 2, -getHeight() / 2);
+        invalidate();
 
         super.zoomOut();
 
@@ -535,33 +547,24 @@ public class MapView
     @Override
     public void onLayerAdded(int id)
     {
-        if(mMap != null) {
-            findTopVisibleLayer(mMap);
-            mMap.runDraw(null);
-            mStartDrawTime = System.currentTimeMillis();
-        }
+        findTopVisibleLayer(mMap);
+        drawMapDrawable();
     }
 
 
     @Override
     public void onLayerDeleted(int id)
     {
-        if(mMap != null) {
-            findTopVisibleLayer(mMap);
-            mMap.runDraw(null);
-            mStartDrawTime = System.currentTimeMillis();
-        }
+        findTopVisibleLayer(mMap);
+        drawMapDrawable();
     }
 
 
     @Override
     public void onLayerChanged(int id)
     {
-        if(mMap != null) {
-            findTopVisibleLayer(mMap);
-            mMap.runDraw(null);
-            mStartDrawTime = System.currentTimeMillis();
-        }
+        findTopVisibleLayer(mMap);
+        drawMapDrawable();
     }
 
 
@@ -570,20 +573,22 @@ public class MapView
             float zoom,
             GeoPoint center)
     {
-        if(mMap != null) {
-            mStartDrawTime = System.currentTimeMillis();
-            mMap.runDraw(null);
-        }
+        drawMapDrawable();
     }
 
 
     @Override
     public void onLayersReordered()
     {
+        findTopVisibleLayer(mMap);
+        drawMapDrawable();
+    }
+
+    protected void drawMapDrawable(){
         if(mMap != null) {
-            findTopVisibleLayer(mMap);
-            mMap.runDraw(null);
+            mDrawingState = DRAW_SATE_drawing;
             mStartDrawTime = System.currentTimeMillis();
+            mMap.runDraw(null);
         }
     }
 
@@ -593,7 +598,7 @@ public class MapView
             int id,
             float percent)
     {
-        if(mDrawingState != DRAW_SATE_drawing_noclearbk)
+        if(!(mDrawingState == DRAW_SATE_drawing_noclearbk || mDrawingState == DRAW_SATE_drawing))
             return;
         //Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent);
         //mDrawingState = DRAW_SATE_drawing_noclearbk;
@@ -620,7 +625,7 @@ public class MapView
         final Runnable s = new Runnable() {
             public void run() {
                 //do your stuff here after DELAY sec
-                mDrawingState = DRAW_SATE_drawing_noclearbk;
+                mDrawingState = DRAW_SATE_drawing;
                 mStartDrawTime = System.currentTimeMillis();
             }
         };
