@@ -34,10 +34,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ISelectResourceDialog;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -176,7 +178,6 @@ public class LocalResourcesListAdapter extends BaseAdapter
         return i;
     }
 
-
     @Override
     public View getView(
             int i,
@@ -211,7 +212,8 @@ public class LocalResourcesListAdapter extends BaseAdapter
 
             switch (getFileType(file)){
                 case FILETYPE_FOLDER:
-                    if(0 == (mTypeMask & FILETYPE_FOLDER) || (mCanWrite && !file.canWrite())) {
+                    if(0 == (mTypeMask & FILETYPE_FOLDER) || (mCanWrite && !FileUtil.isDirectoryWritable(
+                            file))) {
                         if(v == null || v.getId() != R.id.resourcegroup_row) {
                             v = inflater.inflate(R.layout.layout_resourcegroup_row, null);
                             v.setId(R.id.resourcegroup_row);
