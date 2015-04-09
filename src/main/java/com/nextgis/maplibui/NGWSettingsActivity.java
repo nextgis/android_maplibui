@@ -83,11 +83,16 @@ public class NGWSettingsActivity
     protected final Handler mHandler = new Handler();
     protected String mAction;
 
+    protected static String mDeleteAccountSummary;
+    protected static String mDeleteAccountWarnMsg;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        setStrings();
 
         if (null == mAccountManager) {
             mAccountManager = AccountManager.get(this.getApplicationContext());
@@ -222,6 +227,14 @@ public class NGWSettingsActivity
     protected boolean isValidFragment(String fragmentName)
     {
         return NGWSettingsFragment.class.getName().equals(fragmentName);
+    }
+
+
+    // for overriding in a subclass
+    protected void setStrings()
+    {
+        mDeleteAccountSummary = getString(R.string.delete_account_summary);
+        mDeleteAccountWarnMsg = getString(R.string.delete_account_warn_msg);
     }
 
 
@@ -572,7 +585,7 @@ public class NGWSettingsActivity
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(NGWSettingsActivity.this);
         dialogBuilder.setIcon(R.drawable.ic_action_warning)
                 .setTitle(R.string.delete_account_ask)
-                .setMessage(R.string.delete_account_warn_msg)
+                .setMessage(mDeleteAccountWarnMsg)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(
                         R.string.ok, new DialogInterface.OnClickListener()
@@ -608,7 +621,7 @@ public class NGWSettingsActivity
 
         Preference preferenceDelete = new Preference(this);
         preferenceDelete.setTitle(R.string.delete_account);
-        preferenceDelete.setSummary(R.string.delete_account_summary);
+        preferenceDelete.setSummary(mDeleteAccountSummary);
 
         if (actionCategory.addPreference(preferenceDelete)) {
             preferenceDelete.setOnPreferenceClickListener(
