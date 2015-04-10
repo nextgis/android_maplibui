@@ -83,10 +83,16 @@ public class NGWSettingsActivity
     protected final Handler mHandler = new Handler();
     protected String mAction;
 
+    protected static String mDeleteAccountSummary;
+    protected static String mDeleteAccountWarnMsg;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        setStrings();
 
         if (null == mAccountManager) {
             mAccountManager = AccountManager.get(this.getApplicationContext());
@@ -96,7 +102,8 @@ public class NGWSettingsActivity
         if (null != root) {
             View content = root.getChildAt(0);
             if (null != content) {
-                LinearLayout toolbarContainer = (LinearLayout) View.inflate(this, R.layout.activity_settings, null);
+                LinearLayout toolbarContainer =
+                        (LinearLayout) View.inflate(this, R.layout.activity_settings, null);
 
                 root.removeAllViews();
                 toolbarContainer.addView(content);
@@ -106,18 +113,135 @@ public class NGWSettingsActivity
                 toolbar.getBackground().setAlpha(255);
                 toolbar.setTitle(getTitle());
                 toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-                toolbar.setNavigationOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View v)
-                    {
-                        NGWSettingsActivity.this.finish();
-                    }
-                });
+                toolbar.setNavigationOnClickListener(
+                        new View.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(View v)
+                            {
+                                NGWSettingsActivity.this.finish();
+                            }
+                        });
             }
         }
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB){
+        createView();
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Override
+    public void onBuildHeaders(List<Header> target)
+    {
+        if (null == mAccountManager) {
+            mAccountManager = AccountManager.get(this.getApplicationContext());
+        }
+
+        Header header;
+
+        if (null != mAccountManager) {
+            for (Account account : mAccountManager.getAccountsByType(
+                    NGW_ACCOUNT_TYPE)) {
+                header = new Header();
+                header.title = account.name;
+                header.fragment = com.nextgis.maplibui.NGWSettingsFragment.class.getName();
+
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("account", account);
+                header.fragmentArguments = bundle;
+                target.add(header);
+            }
+
+            //add "Add account" header
+            header = new Header();
+            header.title = getString(R.string.add_account);
+            header.summary = getString(R.string.add_account_summary);
+            header.intent = new Intent(this, NGWLoginActivity.class);
+            target.add(header);
+        }
+    }
+
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Override
+    public Header onGetInitialHeader()
+    {
+        if (null != mAccountManager) {
+            if (mAccountManager.getAccountsByType(NGW_ACCOUNT_TYPE).length > 0) {
+                return super.onGetInitialHeader();
+            }
+        }
+        //in Android 5.0 or higher need to have one header with fragment
+        Header header = new Header();
+        header.fragment = com.nextgis.maplibui.NGWSettingsFragment.class.getName();
+        return header;
+    }
+
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Override
+    public Header onGetNewHeader()
+    {
+        if (!onIsHidingHeaders()) {
+            return onGetInitialHeader();
+        }
+        return super.onGetNewHeader();
+    }
+
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        if (null != mAccountManager) {
+            mAccountManager.addOnAccountsUpdatedListener(this, mHandler, true);
+        }
+    }
+
+
+    @Override
+    public void onPause()
+    {
+        if (null != mAccountManager) {
+            mAccountManager.removeOnAccountsUpdatedListener(this);
+        }
+        super.onPause();
+    }
+
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    @Override
+    protected boolean isValidFragment(String fragmentName)
+    {
+        return NGWSettingsFragment.class.getName().equals(fragmentName);
+    }
+
+
+    // for overriding in a subclass
+    protected void setStrings()
+    {
+        mDeleteAccountSummary = getString(R.string.delete_account_summary);
+        mDeleteAccountWarnMsg = getString(R.string.delete_account_warn_msg);
+    }
+
+
+    // for overriding in a subclass
+    protected void createView()
+    {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             PreferenceScreen screen = getPreferenceManager().createPreferenceScreen(this);
             mAction = getIntent().getAction();
             if (mAction != null && mAction.equals(ACCOUNT_ACTION)) {
@@ -128,6 +252,40 @@ public class NGWSettingsActivity
             }
 
             setPreferenceScreen(screen);
+        }
+    }
+
+
+    protected void fillPreferences(PreferenceScreen screen)
+    {
+        if (null != mAccountManager) {
+            for (Account account : mAccountManager.getAccountsByType(
+                    NGW_ACCOUNT_TYPE)) {
+                Preference preference = new Preference(this);
+                preference.setTitle(account.name);
+
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("account", account);
+                Intent intent = new Intent(this, NGWSettingsActivity.class);
+                intent.putExtras(bundle);
+                intent.setAction(ACCOUNT_ACTION);
+
+                preference.setIntent(intent);
+
+                if (null != screen) {
+                    screen.addPreference(preference);
+                }
+            }
+            //add "Add account" preference
+            Preference preference = new Preference(this);
+            preference.setTitle(R.string.add_account);
+            preference.setSummary(R.string.add_account_summary);
+            Intent intent = new Intent(this, NGWLoginActivity.class);
+            preference.setIntent(intent);
+
+            if (null != screen) {
+                screen.addPreference(preference);
+            }
         }
     }
 
@@ -162,6 +320,7 @@ public class NGWSettingsActivity
     }
 
 
+    // for overriding in a subclass
     protected void addAutoSyncProperty(
             final Account account,
             final IGISApplication application,
@@ -194,7 +353,7 @@ public class NGWSettingsActivity
         if (isAccountSyncEnabled && timeStamp > 0) {
             enablePeriodicSync.setSummary(
                     getString(R.string.last_sync_time) + ": " +
-                    new SimpleDateFormat().format(new Date(timeStamp)));
+                            new SimpleDateFormat().format(new Date(timeStamp)));
         } else {
             enablePeriodicSync.setSummary(R.string.auto_sync_summary);
         }
@@ -202,7 +361,7 @@ public class NGWSettingsActivity
     }
 
 
-    // for overriding in child class
+    // for overriding in a subclass
     protected boolean isAccountSyncEnabled(
             Account account,
             String authority)
@@ -211,7 +370,7 @@ public class NGWSettingsActivity
     }
 
 
-    // for overriding in child class
+    // for overriding in a subclass
     protected void setAccountSyncEnabled(
             Account account,
             String authority,
@@ -221,7 +380,7 @@ public class NGWSettingsActivity
     }
 
 
-    // for overriding in child class
+    // for overriding in a subclass
     protected void addPeriodicSyncTime(
             final Account account,
             final IGISApplication application,
@@ -292,7 +451,7 @@ public class NGWSettingsActivity
     }
 
 
-    // for overriding in child class
+    // for overriding in a subclass
     protected void addAccountLayers(
             PreferenceScreen screen,
             Account account)
@@ -318,7 +477,7 @@ public class NGWSettingsActivity
                 //layerSync.setKey("" + ngwLayer.getId());
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB &&
-                    ngwLayer instanceof ILayerUI) {
+                        ngwLayer instanceof ILayerUI) {
                     ILayerUI layerUI = (ILayerUI) ngwLayer;
                     layerSync.setIcon(layerUI.getIcon());
                 }
@@ -349,6 +508,7 @@ public class NGWSettingsActivity
     }
 
 
+    // for overriding in a subclass
     protected void addDeleteAccountAction(
             final Account account,
             PreferenceCategory actionCategory)
@@ -396,7 +556,7 @@ public class NGWSettingsActivity
                         break;
 
                     case SyncAdapter.SYNC_CANCELED:
-                        Log.d(Constants.TAG, "NGWSettingsActivity - sync status - NO active");
+                        Log.d(Constants.TAG, "NGWSettingsActivity - sync status - SYNC_CANCELED");
 
                         wasCurrentSyncActive[0] = false;
 
@@ -413,16 +573,7 @@ public class NGWSettingsActivity
                         unregisterReceiver(this);
                         mProgressDialog.dismiss();
 
-                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                            finish();
-                        }
-                        else {
-                            if(onIsHidingHeaders())
-                                finish();
-                            else
-                                invalidateHeaders();
-                        }
-
+                        onDeleteAccount();
                         break;
 
                     case SyncAdapter.SYNC_CHANGES:
@@ -434,7 +585,7 @@ public class NGWSettingsActivity
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(NGWSettingsActivity.this);
         dialogBuilder.setIcon(R.drawable.ic_action_warning)
                 .setTitle(R.string.delete_account_ask)
-                .setMessage(R.string.delete_account_warn_msg)
+                .setMessage(mDeleteAccountWarnMsg)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(
                         R.string.ok, new DialogInterface.OnClickListener()
@@ -470,7 +621,7 @@ public class NGWSettingsActivity
 
         Preference preferenceDelete = new Preference(this);
         preferenceDelete.setTitle(R.string.delete_account);
-        preferenceDelete.setSummary(R.string.delete_account_summary);
+        preferenceDelete.setSummary(mDeleteAccountSummary);
 
         if (actionCategory.addPreference(preferenceDelete)) {
             preferenceDelete.setOnPreferenceClickListener(
@@ -504,20 +655,6 @@ public class NGWSettingsActivity
     }
 
 
-    protected OnDeleteAccountListener mOnDeleteAccountListener;
-
-
-    public void setOnDeleteAccountListener(OnDeleteAccountListener onDeleteAccountListener)
-    {
-        mOnDeleteAccountListener = onDeleteAccountListener;
-    }
-
-    public interface OnDeleteAccountListener
-    {
-        public void onDeleteAccount(Account account);
-    }
-
-
     protected static List<INGWLayer> getLayersForAccount(
             Context context,
             Account account)
@@ -531,130 +668,18 @@ public class NGWSettingsActivity
     }
 
 
-    protected void fillPreferences(PreferenceScreen screen)
+    // for overriding in a subclass
+    protected void onDeleteAccount()
     {
-        if (null != mAccountManager) {
-            for (Account account : mAccountManager.getAccountsByType(
-                    NGW_ACCOUNT_TYPE)) {
-                Preference preference = new Preference(this);
-                preference.setTitle(account.name);
-
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("account", account);
-                Intent intent = new Intent(this, NGWSettingsActivity.class);
-                intent.putExtras(bundle);
-                intent.setAction(ACCOUNT_ACTION);
-
-                preference.setIntent(intent);
-
-                if(null != screen) {
-                    screen.addPreference(preference);
-                }
-            }
-            //add "Add account" preference
-            Preference preference = new Preference(this);
-            preference.setTitle(R.string.add_account);
-            preference.setSummary(R.string.add_account_summary);
-            Intent intent = new Intent(this, NGWLoginActivity.class);
-            preference.setIntent(intent);
-
-            if(null != screen) {
-                screen.addPreference(preference);
-            }
-        }
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        switch (item.getItemId()) {
-            case android.R.id.home:
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            finish();
+        } else {
+            if (onIsHidingHeaders()) {
                 finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    @Override
-    public void onBuildHeaders(List<Header> target)
-    {
-        if (null == mAccountManager) {
-            mAccountManager = AccountManager.get(this.getApplicationContext());
-        }
-
-        Header header;
-
-        if (null != mAccountManager) {
-            for (Account account : mAccountManager.getAccountsByType(
-                    NGW_ACCOUNT_TYPE)) {
-                header = new Header();
-                header.title = account.name;
-                header.fragment = com.nextgis.maplibui.NGWSettingsFragment.class.getName();
-
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("account", account);
-                header.fragmentArguments = bundle;
-                target.add(header);
-            }
-
-            //add "Add account" header
-            header = new Header();
-            header.title = getString(R.string.add_account);
-            header.summary = getString(R.string.add_account_summary);
-            header.intent = new Intent(this, NGWLoginActivity.class);
-            target.add(header);
-        }
-    }
-
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    @Override
-    public Header onGetInitialHeader()
-    {
-        if (null != mAccountManager) {
-            if (mAccountManager.getAccountsByType(NGW_ACCOUNT_TYPE).length > 0) {
-                return super.onGetInitialHeader();
+            } else {
+                invalidateHeaders();
             }
         }
-        //in Android 5.0 or higher need to have one header with fragment
-        Header header = new Header();
-        header.fragment = com.nextgis.maplibui.NGWSettingsFragment.class.getName();
-        return header;
-    }
-
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    @Override
-    public Header onGetNewHeader()
-    {
-        if(!onIsHidingHeaders()) {
-            return onGetInitialHeader();
-        }
-        return super.onGetNewHeader();
-    }
-
-
-    @Override
-    public void onResume()
-    {
-        super.onResume();
-        if (null != mAccountManager) {
-            mAccountManager.addOnAccountsUpdatedListener(this, mHandler, true);
-        }
-    }
-
-
-    @Override
-    public void onPause()
-    {
-        if (null != mAccountManager) {
-            mAccountManager.removeOnAccountsUpdatedListener(this);
-        }
-        super.onPause();
     }
 
 
@@ -662,7 +687,7 @@ public class NGWSettingsActivity
     public void onAccountsUpdated(Account[] accounts)
     {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            if(mAction == null || !mAction.equals(ACCOUNT_ACTION)) {
+            if (mAction == null || !mAction.equals(ACCOUNT_ACTION)) {
                 PreferenceScreen screen = getPreferenceScreen();
                 if (null != screen) {
                     screen.removeAll();
@@ -677,11 +702,17 @@ public class NGWSettingsActivity
     }
 
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
-    @Override
-    protected boolean isValidFragment(String fragmentName)
+    protected OnDeleteAccountListener mOnDeleteAccountListener;
+
+
+    public void setOnDeleteAccountListener(OnDeleteAccountListener onDeleteAccountListener)
     {
-        return NGWSettingsFragment.class.getName().equals(fragmentName);
+        mOnDeleteAccountListener = onDeleteAccountListener;
     }
 
+
+    public interface OnDeleteAccountListener
+    {
+        public void onDeleteAccount(Account account);
+    }
 }
