@@ -25,10 +25,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.net.Uri;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.view.View;
 
 import com.nextgis.maplib.api.ILayer;
@@ -36,7 +33,6 @@ import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapDrawable;
-import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplibui.api.MapViewEventListener;
 
 import java.util.ArrayList;
@@ -104,7 +100,7 @@ public class MapViewBase
     protected void onDraw(Canvas canvas)
     {
         if (mMap != null) {
-            canvas.drawBitmap(mMap.getView(false), 0, 0, null);
+            mMap.draw(canvas, 0, 0, false);
         } else {
             super.onDraw(canvas);
         }

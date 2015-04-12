@@ -75,7 +75,7 @@ public class MapViewOverlays
     protected void onDraw(Canvas canvas)
     {
         if(isLockMap())
-            canvas.drawBitmap(mMap.getView(false), 0, 0, null);
+            mMap.draw(canvas, 0, 0, false);
         else
             super.onDraw(canvas);
 

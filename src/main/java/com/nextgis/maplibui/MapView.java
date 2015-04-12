@@ -142,23 +142,19 @@ public class MapView
 
                 case DRAW_SATE_panning:
                 case DRAW_SATE_panning_fling:
-                    canvas.drawBitmap(
-                            mMap.getView(-mCurrentMouseOffset.x, -mCurrentMouseOffset.y, true), 0,
-                            0, null);
+                    mMap.draw(canvas, -mCurrentMouseOffset.x, -mCurrentMouseOffset.y, true);
                     break;
 
                 case DRAW_SATE_zooming:
-                    canvas.drawBitmap(
-                            mMap.getView(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y,
-                                         (float) mScaleFactor), 0, 0, null);
+                    mMap.draw(canvas, -mCurrentFocusLocation.x, -mCurrentFocusLocation.y, (float) mScaleFactor);
                     break;
 //TODO: add invalidate rect to prevent flicker
                 case DRAW_SATE_drawing_noclearbk:
-                    canvas.drawBitmap(mMap.getView(false), 0, 0, null);
+                    mMap.draw(canvas, 0, 0, false);
                     break;
 
                 case DRAW_SATE_drawing:
-                    canvas.drawBitmap(mMap.getView(true), 0, 0, null);
+                    mMap.draw(canvas, 0, 0, true);
                     break;
 
                 default: // mDrawingState == DRAW_SATE_none
