@@ -257,7 +257,9 @@ public class MapView
     }
 
     protected void panMoveTo(final MotionEvent e){
-        if(mDrawingState == DRAW_SATE_zooming || mDrawingState == DRAW_SATE_drawing_noclearbk)
+        if(mDrawingState == DRAW_SATE_zooming ||
+           mDrawingState == DRAW_SATE_drawing_noclearbk ||
+           mDrawingState == DRAW_SATE_drawing)
             return;
 
         if(mDrawingState == DRAW_SATE_panning && mMap != null){
