@@ -582,7 +582,7 @@ public class MapView
         drawMapDrawable();
     }
 
-    protected void drawMapDrawable(){
+    public void drawMapDrawable(){
         if(mMap != null) {
             mDrawingState = DRAW_SATE_drawing;
             mStartDrawTime = System.currentTimeMillis();
@@ -613,6 +613,13 @@ public class MapView
     }
 
 
+    @Override
+    public void onLayerDrawStarted()
+    {
+
+    }
+
+
     public void panTo(GeoPoint center)
     {
         Log.d(TAG, "panTo: setZoomAndCenter");
@@ -638,5 +645,11 @@ public class MapView
             }
         };
         mHandler.postDelayed(r, DISPLAY_REDRAW_TIMEOUT);
+    }
+
+
+    public long getTopVisibleLayerId()
+    {
+        return mTopVisibleLayerId;
     }
 }

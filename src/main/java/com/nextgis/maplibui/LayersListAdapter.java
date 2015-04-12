@@ -260,6 +260,14 @@ public class LayersListAdapter
 
     }
 
+
+    @Override
+    public void onLayerDrawStarted()
+    {
+
+    }
+
+
     public void swapElements(
             int originalPosition,
             int newPosition)

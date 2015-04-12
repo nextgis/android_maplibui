@@ -1186,6 +1186,13 @@ public class EditLayerOverlay
     }
 
 
+    @Override
+    public void onLayerDrawStarted()
+    {
+
+    }
+
+
     public void startGeometryByWalk(int geometryType)
     {
         GeoGeometry geometry;
