@@ -603,7 +603,7 @@ public class MapView
                 drawMapDrawable();
             }
         };
-        mHandler.postDelayed(s, 350);
+        mHandler.postDelayed(s, 550);
     }
 
     @Override
