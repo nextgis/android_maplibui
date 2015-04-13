@@ -26,6 +26,7 @@ import android.graphics.Canvas;
 import android.graphics.PointF;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.SyncStateContract;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -38,6 +39,7 @@ import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapDrawable;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.api.MapViewEventListener;
 
 import static com.nextgis.maplibui.util.ConstantsUI.*;
@@ -59,6 +61,7 @@ public class MapView
     protected       Scroller             mScroller;
     protected       long                 mStartDrawTime;
     protected       long                 mTopVisibleLayerId;
+    protected int mVisibleLayerCount;
 
     //display redraw timeout ms
     public static final int DISPLAY_REDRAW_TIMEOUT = 1650;
@@ -93,6 +96,8 @@ public class MapView
         if(null == group)
             return false;
 
+        mVisibleLayerCount = 0;
+        mTopVisibleLayerId = Constants.NOT_FOUND;
         for (int i = group.getLayerCount() - 1; i >= 0; i--) {
             ILayer layer = group.getLayer(i);
             if (layer instanceof LayerGroup) {
@@ -101,11 +106,12 @@ public class MapView
             }
             ILayerView view = (ILayerView) group.getLayer(i);
             if (view.isVisible()) {
-                mTopVisibleLayerId = layer.getId();
-                return true;
+                mVisibleLayerCount++;
+                if(mTopVisibleLayerId == Constants.NOT_FOUND)
+                    mTopVisibleLayerId = layer.getId();
             }
         }
-        return false;
+        return true;
     }
 
 
@@ -131,10 +137,11 @@ public class MapView
     }
 
 
+
     @Override
     protected synchronized void onDraw(Canvas canvas)
     {
-        // Log.d(TAG, "state: " + mDrawingState + ", current loc: " +  mCurrentMouseOffset.toString() + " current focus: " + mCurrentFocusLocation.toString() + " scale: "  + mScaleFactor);
+        //Log.d(TAG, "state: " + mDrawingState + ", current loc: " +  mCurrentMouseOffset.toString() + " current focus: " + mCurrentFocusLocation.toString() + " scale: "  + mScaleFactor);
 
         if (mMap != null) {
 
@@ -590,6 +597,14 @@ public class MapView
         }
     }
 
+    public void asyncDrawMapDrawable(){
+        final Runnable s = new Runnable() {
+            public void run() {
+                drawMapDrawable();
+            }
+        };
+        mHandler.postDelayed(s, 350);
+    }
 
     @Override
     public void onLayerDrawFinished(
@@ -651,5 +666,11 @@ public class MapView
     public long getTopVisibleLayerId()
     {
         return mTopVisibleLayerId;
+    }
+
+
+    public int getVisibleLayerCount()
+    {
+        return mVisibleLayerCount;
     }
 }
