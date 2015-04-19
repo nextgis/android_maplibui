@@ -36,7 +36,6 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -108,7 +107,6 @@ public class EditLayerOverlay
     protected DrawItems mDrawItems;
 
     protected List<EditEventListener>         mListeners;
-    protected Toolbar.OnMenuItemClickListener mMenuListener;
 
     protected static final int mType = 3;
 
@@ -124,11 +122,11 @@ public class EditLayerOverlay
     protected GeoGeometry   mOriginalGeometry; //For undo
     protected PointF        mTempPointOffset;
     protected boolean       mHasEdits;
+
     protected boolean       mIsWalking;
     protected boolean       mIsWalkMinPoints;
-    protected BottomToolbar mCurrentToolbar;
-    private   int           mHighlightMenuResId;
 
+    protected BottomToolbar mCurrentToolbar;
 
     public EditLayerOverlay(
             Context context,
@@ -254,9 +252,9 @@ public class EditLayerOverlay
     {
         mDrawItems.clear();
 
-        GeoPoint[] geoPoints = null;
-        float[] points = null;
-        GeoLineString lineString = null;
+        GeoPoint[] geoPoints;
+        float[] points;
+        GeoLineString lineString;
         switch (geom.getType()) {
             case GeoConstants.GTPoint:
                 geoPoints = new GeoPoint[1];
@@ -442,8 +440,13 @@ public class EditLayerOverlay
 
             Menu toolbarMenu = mCurrentToolbar.getMenu();
             if(null != toolbarMenu) {
-                MenuItem item = toolbarMenu.getItem(0);
-                item.setVisible(true);
+                for(int i = 0; i < toolbarMenu.size(); i++) {
+                    MenuItem item = toolbarMenu.getItem(i);
+                    if(item.getItemId() == R.id.menu_cancel) {
+                        item.setVisible(true);
+                        break;
+                    }
+                }
             }
         }
         else{
@@ -453,8 +456,13 @@ public class EditLayerOverlay
             //hide cancel button as it has no sense at this state
             Menu toolbarMenu = mCurrentToolbar.getMenu();
             if(null != toolbarMenu) {
-                MenuItem item = toolbarMenu.getItem(0);
-                item.setVisible(false);
+                for(int i = 0; i < toolbarMenu.size(); i++) {
+                    MenuItem item = toolbarMenu.getItem(i);
+                    if(item.getItemId() == R.id.menu_cancel) {
+                        item.setVisible(false);
+                        break;
+                    }
+                }
             }
         }
     }
@@ -747,7 +755,6 @@ public class EditLayerOverlay
                     @Override
                     public void onClick(View view)
                     {
-                        mMenuListener = null;
 
                         if (mIsWalking) {
                             stopGeometryByWalk();
@@ -755,23 +762,20 @@ public class EditLayerOverlay
                             if (mIsWalkMinPoints)
                                 saveEdits();
                             else
-                                Toast.makeText(mContext, R.string.geometry_by_walk_no_points, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mContext, R.string.geometry_by_walk_no_points,
+                                               Toast.LENGTH_SHORT).show();
 
                             setMode(MODE_EDIT);
                             setToolbar(toolbar);
                         } else {
-                            ((ActionBarActivity) mContext).getSupportFragmentManager().popBackStack();
+                            ((ActionBarActivity) mContext).getSupportFragmentManager()
+                                                          .popBackStack();
                         }
                     }
                 });
 
                 if (toolbar.getMenu() != null)
                     toolbar.getMenu().clear();
-
-                if (mHighlightMenuResId != 0)
-                    toolbar.inflateMenu(mHighlightMenuResId);
-
-                toolbar.setOnMenuItemClickListener(mMenuListener);
 
                 setToolbarSaveState(false);
                 break;
@@ -1291,19 +1295,6 @@ public class EditLayerOverlay
     public boolean isWalking() {
         return mIsWalking;
     }
-
-
-    public void setHighlightToolbarMenuListener(Toolbar.OnMenuItemClickListener listener)
-    {
-        mMenuListener = listener;
-    }
-
-
-    public void setHighlightToolbarMenu(int menuResourceId)
-    {
-        mHighlightMenuResId = menuResourceId;
-    }
-
 
     protected class DrawItems{
         List<float[]> mDrawItemsVertex;

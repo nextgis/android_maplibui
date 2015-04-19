@@ -23,7 +23,6 @@ package com.nextgis.maplibui;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -586,7 +585,7 @@ public class ModifyAttributesActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        getMenuInflater().inflate(R.menu.standard_attributes, menu);
+        getMenuInflater().inflate(R.menu.edit_attributes, menu);
 
         return true;
     }

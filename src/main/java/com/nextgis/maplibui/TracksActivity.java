@@ -183,7 +183,7 @@ public class TracksActivity
                     Menu menu)
             {
                 MenuInflater inflater = actionMode.getMenuInflater();
-                inflater.inflate(R.menu.menu_tracks, menu);
+                inflater.inflate(R.menu.tracks, menu);
                 getSupportActionBar().hide();
                 return true;
             }
