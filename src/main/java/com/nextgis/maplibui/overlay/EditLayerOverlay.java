@@ -38,6 +38,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -438,10 +439,23 @@ public class EditLayerOverlay
         if(save){
             mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_save);
             mCurrentToolbar.setNavigationContentDescription(R.string.save);
+
+            Menu toolbarMenu = mCurrentToolbar.getMenu();
+            if(null != toolbarMenu) {
+                MenuItem item = toolbarMenu.getItem(0);
+                item.setVisible(true);
+            }
         }
         else{
             mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_apply);
             mCurrentToolbar.setNavigationContentDescription(R.string.apply);
+
+            //hide cancel button as it has no sense at this state
+            Menu toolbarMenu = mCurrentToolbar.getMenu();
+            if(null != toolbarMenu) {
+                MenuItem item = toolbarMenu.getItem(0);
+                item.setVisible(false);
+            }
         }
     }
 
@@ -495,10 +509,9 @@ public class EditLayerOverlay
                     @Override
                     public void onClick(View view)
                     {
-                        if(mHasEdits){
+                        if (mHasEdits) {
                             saveEdits();
-                        }
-                        else {
+                        } else {
                             for (EditEventListener listener : mListeners) {
                                 listener.onFinishEditSession();
                             }
@@ -507,8 +520,6 @@ public class EditLayerOverlay
                         }
                     }
                 });
-
-                setToolbarSaveState(false);
 
                 if (toolbar.getMenu() != null)
                     toolbar.getMenu().clear();
@@ -536,6 +547,8 @@ public class EditLayerOverlay
                     default:
                         break;
                 }
+
+                setToolbarSaveState(false);
 
                 toolbar.setOnMenuItemClickListener(new BottomToolbar.OnMenuItemClickListener()
                 {
