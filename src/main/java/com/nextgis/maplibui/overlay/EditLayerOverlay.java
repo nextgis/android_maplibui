@@ -93,7 +93,7 @@ public class EditLayerOverlay
     protected final static int EDGE_RADIUS   = 12;
     protected final static int LINE_WIDTH    = 4;
 
-    public final static long DELAY = 750;
+    public final static long DELAY = 650;
 
     protected VectorLayer     mLayer;
     protected VectorCacheItem mItem;
@@ -779,6 +779,8 @@ public class EditLayerOverlay
     }
 
     protected void updateMap(){
+        //delay to draw background while the redraw accrues after user release tap
+        mMapViewOverlays.setDelay(DELAY);
         //do we need map refresh?
         mMapViewOverlays.onLayerChanged(mLayer.getId()); // redraw the map
         //or just overlay
@@ -800,7 +802,7 @@ public class EditLayerOverlay
         }
         else {
             mItem.setGeoGeometry(mOriginalGeometry); //restore original geometry
-            mMapViewOverlays.onLayerChanged(mLayer.getId());
+            updateMap();
         }
         mOriginalGeometry = null;
     }
@@ -1144,7 +1146,7 @@ public class EditLayerOverlay
             mMode = MODE_EDIT;
             mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mMapViewOverlays.getMap());
 
-            mMapViewOverlays.onLayerChanged(mLayer.getId()); // redraw the map
+            updateMap(); // redraw the map
         }
     }
 
