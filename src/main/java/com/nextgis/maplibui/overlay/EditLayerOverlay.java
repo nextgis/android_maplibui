@@ -560,7 +560,10 @@ public class EditLayerOverlay
                         break;
                 }
 
-                setToolbarSaveState(false);
+                if(isCurrentGeometryValid() && mItem.getId() == Constants.NOT_FOUND)
+                    setToolbarSaveState(true);
+                else
+                    setToolbarSaveState(false);
 
                 toolbar.setOnMenuItemClickListener(new BottomToolbar.OnMenuItemClickListener()
                 {
@@ -1181,6 +1184,9 @@ public class EditLayerOverlay
                     return;
             }
             mItem = new VectorCacheItem(geometry, Constants.NOT_FOUND);
+        } else{
+            if(isCurrentGeometryValid())
+                setToolbarSaveState(true);
         }
 
         Activity parent = (Activity) mContext;
