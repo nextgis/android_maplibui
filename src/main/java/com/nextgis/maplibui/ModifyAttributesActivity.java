@@ -365,6 +365,7 @@ public class ModifyAttributesActivity
                     throw new IllegalArgumentException("Not a IGISApplication");
                 }
                 Uri uri = Uri.parse("content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
+                values.put(VectorLayer.FIELD_ID, 1000 + mLayer.getCount());
 
                 if(getContentResolver().insert(uri, values) == null){
                     Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT).show();

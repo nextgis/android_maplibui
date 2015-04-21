@@ -31,6 +31,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -58,6 +59,7 @@ import com.nextgis.maplib.datasource.GeoPolygon;
 import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.VectorLayer;
+import com.nextgis.maplib.util.ChangeFeatureItem;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.VectorCacheItem;
@@ -822,7 +824,7 @@ public class EditLayerOverlay
             return;
 
         if(mItem.getGeoGeometry() == null && mItem.getId() != Constants.NOT_FOUND){
-            if(mLayer.delete(VectorLayer.FIELD_ID + " = ?", new String[]{mItem.getId() + ""}) > 0) {
+            if(mLayer.deleteAddChanges(mItem.getId() + "") > 0) {
                 mLayer.deleteCacheItem(mItem.getId());
                 mItem = null;
             }
@@ -838,7 +840,9 @@ public class EditLayerOverlay
                 Toast.makeText(mContext, mContext.getString(R.string.error_create_feature), Toast.LENGTH_SHORT).show();
                 return;
             }
-            long id = mLayer.insert(values);
+            values.put(VectorLayer.FIELD_ID, 1000 + mLayer.getCount());
+
+            long id = mLayer.insertAddChanges(values);
             if(id == Constants.NOT_FOUND)
                 return;
             mLayer.deleteCacheItem(Constants.NOT_FOUND);
@@ -853,10 +857,12 @@ public class EditLayerOverlay
                 Toast.makeText(mContext, mContext.getString(R.string.error_change_feature), Toast.LENGTH_SHORT).show();
                 return;
             }
-            if( mLayer.update(values, VectorLayer.FIELD_ID + " = " + mItem.getId(), null) < 1) {
+            if( mLayer.updateAddChanges(values, mItem.getId() + "") > 0) {
+                mItem = mLayer.getCacheItem(mItem.getId());
+            }
+            else{
                 return;
             }
-            mItem = mLayer.getCacheItem(mItem.getId());
         }
 
         //show attributes edit activity
@@ -963,7 +969,7 @@ public class EditLayerOverlay
                     Parcelable parcelable)
             {
                 mMapViewOverlays.setSkipNextDraw(true);
-                mLayer.delete(VectorLayer.FIELD_ID + " = ?", new String[]{itemId + ""});
+                mLayer.deleteAddChanges(itemId + "");
 
                 if (mItem != null && mItem.getId() == itemId)
                     setFeature(null, null);
