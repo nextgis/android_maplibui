@@ -29,6 +29,7 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -179,72 +180,80 @@ public class ModifyAttributesActivity
             aliasText.setTextColor(getResources().getColor(android.R.color.darker_gray));
             layout.addView(aliasText);
 
-            //create control
-            switch (field.getType()){
-                case GeoConstants.FTString:
-                    EditText stringEdit = new EditText(this);
-                    //stringEdit.setSingleLine(true);
-                    layout.addView(stringEdit);
-                    if(null != cursor){
-                        String stringVal = cursor.getString(cursor.getColumnIndex(field.getName()));
-                        stringEdit.setText(stringVal);
-                    }
-                    mFields.put(field.getName(), stringEdit);
-                    break;
-                case GeoConstants.FTInteger:
-                    EditText intEdit = new EditText(this);
-                    intEdit.setSingleLine(true);
-                    intEdit.setInputType(InputType.TYPE_CLASS_NUMBER);
-                    layout.addView(intEdit);
-                    if(null != cursor){
-                        int intVal = cursor.getInt(cursor.getColumnIndex(field.getName()));
-                        intEdit.setText(""+intVal);
-                    }
-                    mFields.put(field.getName(), intEdit);
-                    break;
-                case GeoConstants.FTReal:
-                    EditText realEdit = new EditText(this);
-                    realEdit.setSingleLine(true);
-                    realEdit.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-                    layout.addView(realEdit);
-                    if(null != cursor){
-                        float realVal = cursor.getInt(cursor.getColumnIndex(field.getName()));
-                        realEdit.setText(""+realVal);
-                    }
-                    mFields.put(field.getName(), realEdit);
-                    break;
-                case GeoConstants.FTDateTime:
-                    TextView dateEdit = (TextView)getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
-                    //TextView dateEdit = new TextView(this);
-                    dateEdit.setSingleLine(true);
-                    dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit, DATETIME));
-                    dateEdit.setFocusable(false);
-                    SimpleDateFormat dateText = (SimpleDateFormat) DateFormat.getDateTimeInstance();
-                    String pattern = dateText.toLocalizedPattern();
-                    dateEdit.setHint(pattern);
-                    layout.addView(dateEdit);
-                    if(null != cursor){
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.setTimeInMillis(cursor.getLong(cursor.getColumnIndex(field.getName())));
-                        dateEdit.setText(dateText.format(calendar.getTime()));
-                    }
-                    mFields.put(field.getName(), dateEdit);
+            try {
 
-                    //add grey view here
-                    View greyLine = new View(this);
-                    greyLine.setBackgroundResource(android.R.color.darker_gray);
-                    layout.addView(greyLine);
-                    ViewGroup.LayoutParams params = greyLine.getLayoutParams();
-                    params.height = (int) height;
-                    greyLine.setLayoutParams(params);
-                    break;
-                case GeoConstants.FTIntegerList:
-                case GeoConstants.FTBinary:
-                case GeoConstants.FTStringList:
-                case GeoConstants.FTRealList:
-                default:
-                    //TODO: add support for this types
-                    break;
+                //create control
+                switch (field.getType()) {
+                    case GeoConstants.FTString:
+                        EditText stringEdit = new EditText(this);
+                        //stringEdit.setSingleLine(true);
+                        layout.addView(stringEdit);
+                        if (null != cursor) {
+                            String stringVal = cursor.getString(cursor.getColumnIndex(field.getName()));
+                            stringEdit.setText(stringVal);
+                        }
+                        mFields.put(field.getName(), stringEdit);
+                        break;
+                    case GeoConstants.FTInteger:
+                        EditText intEdit = new EditText(this);
+                        intEdit.setSingleLine(true);
+                        intEdit.setInputType(InputType.TYPE_CLASS_NUMBER);
+                        layout.addView(intEdit);
+                        if (null != cursor) {
+                            int intVal = cursor.getInt(cursor.getColumnIndex(field.getName()));
+                            intEdit.setText("" + intVal);
+                        }
+                        mFields.put(field.getName(), intEdit);
+                        break;
+                    case GeoConstants.FTReal:
+                        EditText realEdit = new EditText(this);
+                        realEdit.setSingleLine(true);
+                        realEdit.setInputType(
+                                InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                        layout.addView(realEdit);
+                        if (null != cursor) {
+                            float realVal = cursor.getInt(cursor.getColumnIndex(field.getName()));
+                            realEdit.setText("" + realVal);
+                        }
+                        mFields.put(field.getName(), realEdit);
+                        break;
+                    case GeoConstants.FTDateTime:
+                        TextView dateEdit = (TextView) getLayoutInflater().inflate(R.layout.spinner_datepicker,
+                                                                                   null);
+                        //TextView dateEdit = new TextView(this);
+                        dateEdit.setSingleLine(true);
+                        dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit, DATETIME));
+                        dateEdit.setFocusable(false);
+                        SimpleDateFormat dateText = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+                        String pattern = dateText.toLocalizedPattern();
+                        dateEdit.setHint(pattern);
+                        layout.addView(dateEdit);
+                        if (null != cursor) {
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTimeInMillis(cursor.getLong(cursor.getColumnIndex(field.getName())));
+                            dateEdit.setText(dateText.format(calendar.getTime()));
+                        }
+                        mFields.put(field.getName(), dateEdit);
+
+                        //add grey view here
+                        View greyLine = new View(this);
+                        greyLine.setBackgroundResource(android.R.color.darker_gray);
+                        layout.addView(greyLine);
+                        ViewGroup.LayoutParams params = greyLine.getLayoutParams();
+                        params.height = (int) height;
+                        greyLine.setLayoutParams(params);
+                        break;
+                    case GeoConstants.FTIntegerList:
+                    case GeoConstants.FTBinary:
+                    case GeoConstants.FTStringList:
+                    case GeoConstants.FTRealList:
+                    default:
+                        //TODO: add support for this types
+                        break;
+                }
+            }
+            catch (CursorIndexOutOfBoundsException e){
+                e.printStackTrace();
             }
         }
 
