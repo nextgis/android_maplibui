@@ -62,15 +62,6 @@ public class TrackLayerUI
 
 
     @Override
-    public void showEditForm(
-            Context context,
-            long featureId)
-    {
-
-    }
-
-
-    @Override
     public boolean delete()
     {
         Toast.makeText(mContext, R.string.layer_permanent, Toast.LENGTH_SHORT).show();

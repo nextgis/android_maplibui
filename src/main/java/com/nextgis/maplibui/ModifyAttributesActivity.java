@@ -328,6 +328,14 @@ public class ModifyAttributesActivity
                 }
             }
 
+            if(null != mGeometry) {
+                try {
+                    values.put(VectorLayer.FIELD_GEOM, mGeometry.toBlob());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
             if(mFeatureId == Constants.NOT_FOUND){
                 if(mGeometry == null) {
                     if(null == mLocation){
@@ -360,13 +368,6 @@ public class ModifyAttributesActivity
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                    }
-                }
-                else{
-                    try {
-                        values.put(VectorLayer.FIELD_GEOM, mGeometry.toBlob());
-                    } catch (IOException e) {
-                        e.printStackTrace();
                     }
                 }
                 IGISApplication app = (IGISApplication) getApplication();

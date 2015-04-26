@@ -814,9 +814,17 @@ public class CustomModifyAttributesActivity
                 }
             }
 
+            if(null != mGeometry) {
+                try {
+                    values.put(VectorLayer.FIELD_GEOM, mGeometry.toBlob());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
             if(mFeatureId == Constants.NOT_FOUND){
                 if(mGeometry == null) {
-                    if(null == mLocation){
+                    if (null == mLocation) {
                         Toast.makeText(this, getText(R.string.error_no_location), Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -839,19 +847,12 @@ public class CustomModifyAttributesActivity
                             geometry = mpt;
                             break;
                     }
-                    if(null != geometry) {
+                    if (null != geometry) {
                         try {
                             values.put(VectorLayer.FIELD_GEOM, geometry.toBlob());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                    }
-                }
-                else{
-                    try {
-                        values.put(VectorLayer.FIELD_GEOM, mGeometry.toBlob());
-                    } catch (IOException e) {
-                        e.printStackTrace();
                     }
                 }
                 IGISApplication app = (IGISApplication) getApplication();

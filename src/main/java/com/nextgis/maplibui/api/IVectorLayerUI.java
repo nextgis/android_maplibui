@@ -19,39 +19,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui.mapui;
+package com.nextgis.maplibui.api;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import com.nextgis.maplib.map.NGWRasterLayer;
-import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.api.ILayerUI;
-
-import java.io.File;
+import com.nextgis.maplib.datasource.GeoGeometry;
 
 
-public class NGWRasterLayerUI extends NGWRasterLayer
-        implements ILayerUI
+/**
+ * Vector layer interface
+ */
+public interface IVectorLayerUI
 {
-    public NGWRasterLayerUI(
-            Context context,
-            File path)
-    {
-        super(context, path);
-    }
-
-
-    @Override
-    public Drawable getIcon()
-    {
-        return mContext.getResources().getDrawable(R.drawable.ic_ngw_raster);
-    }
-
-
-    @Override
-    public void changeProperties()
-    {
-
-    }
-
+    void showEditForm( Context context, long featureId, GeoGeometry geometry);
 }

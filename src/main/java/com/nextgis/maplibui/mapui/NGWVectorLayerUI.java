@@ -26,12 +26,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.widget.Toast;
+import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.CustomModifyAttributesActivity;
 import com.nextgis.maplibui.ModifyAttributesActivity;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
+import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.io.File;
@@ -40,7 +42,7 @@ import java.io.File;
 import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
-public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
+public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI, IVectorLayerUI
 {
     public NGWVectorLayerUI(
             Context context,
@@ -65,9 +67,7 @@ public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
 
 
     @Override
-    public void showEditForm(
-            Context context,
-            long featureId)
+    public void showEditForm( Context context, long featureId, GeoGeometry geometry)
     {
         if(!mIsInitialized)
         {
@@ -82,6 +82,8 @@ public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
             intent.putExtra(KEY_LAYER_ID, getId());
             intent.putExtra(KEY_FEATURE_ID, featureId);
             intent.putExtra(KEY_FORM_PATH, form);
+            if(null != geometry)
+                intent.putExtra(KEY_GEOMETRY, geometry);
             context.startActivity(intent);
         }
         else {
@@ -89,6 +91,8 @@ public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI
             Intent intent = new Intent(context, ModifyAttributesActivity.class);
             intent.putExtra(KEY_LAYER_ID, getId());
             intent.putExtra(KEY_FEATURE_ID, featureId);
+            if(null != geometry)
+                intent.putExtra(KEY_GEOMETRY, geometry);
             context.startActivity(intent);
         }
     }

@@ -42,6 +42,7 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.TracksActivity;
 import com.nextgis.maplibui.VectorLayerSettingsActivity;
 import com.nextgis.maplibui.api.ILayerUI;
+import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.util.ConstantsUI;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -59,7 +60,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.*;
 /**
  * A UI for vector layer
  */
-public class VectorLayerUI extends VectorLayer implements ILayerUI
+public class VectorLayerUI extends VectorLayer implements ILayerUI, IVectorLayerUI
 {
     private static final long MAX_INTERNAL_CACHE_SIZE = 1048576; // 1MB
     private static final long MAX_EXTERNAL_CACHE_SIZE = 5242880; // 5MB
@@ -90,9 +91,7 @@ public class VectorLayerUI extends VectorLayer implements ILayerUI
 
 
     @Override
-    public void showEditForm(
-            Context context,
-            long featureId)
+    public void showEditForm( Context context, long featureId , GeoGeometry geometry)
     {
         if(!mIsInitialized)
         {
@@ -102,8 +101,7 @@ public class VectorLayerUI extends VectorLayer implements ILayerUI
         }
 
         //get geometry
-        GeoGeometry geometry = null;
-        if(featureId != Constants.NOT_FOUND){
+        if(geometry == null && featureId != Constants.NOT_FOUND){
             for(VectorCacheItem item : mVectorCacheItems){
                 if(item.getId() == featureId){
                     geometry = item.getGeoGeometry();

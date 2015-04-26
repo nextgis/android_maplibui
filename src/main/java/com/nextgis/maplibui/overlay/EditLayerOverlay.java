@@ -68,6 +68,7 @@ import com.nextgis.maplibui.MapViewOverlays;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.EditEventListener;
 import com.nextgis.maplibui.api.ILayerUI;
+import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.api.MapViewEventListener;
 import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.util.ConstantsUI;
@@ -117,6 +118,7 @@ public class EditLayerOverlay
     protected static final String BUNDLE_KEY_FEATURE_ID    = "feature";
     protected static final String BUNDLE_KEY_IS_WALKING    = "is_walking";
     protected static final String BUNDLE_KEY_SAVED_FEATURE = "feature_blob";
+    protected static final String BUNDLE_KEY_HASEDITS      = "has_edits";
 
     protected float mTolerancePX;
     protected float mAnchorTolerancePX;
@@ -579,9 +581,9 @@ public class EditLayerOverlay
                             if(null == mItem || null == mItem.getGeoGeometry() || mHasEdits)
                                 return false;
                             if(null != mLayer && mLayer instanceof  ILayerUI) {
-                                ILayerUI vectorLayerUI = (ILayerUI) mLayer;
+                                IVectorLayerUI vectorLayerUI = (IVectorLayerUI) mLayer;
                                 if (null != vectorLayerUI) {
-                                    vectorLayerUI.showEditForm(mContext, mItem.getId());
+                                    vectorLayerUI.showEditForm(mContext, mItem.getId(), mItem.getGeoGeometry() );
                                 }
                             }
                         }
@@ -828,47 +830,17 @@ public class EditLayerOverlay
                 mLayer.deleteCacheItem(mItem.getId());
                 mItem = null;
             }
-            return;
         }
-        else if(mItem.getGeoGeometry() != null && mItem.getId() == Constants.NOT_FOUND){
-            //create new
-            ContentValues values = new ContentValues();
-            try {
-                values.put(VectorLayer.FIELD_GEOM, mItem.getGeoGeometry().toBlob());
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(mContext, mContext.getString(R.string.error_create_feature), Toast.LENGTH_SHORT).show();
-                return;
-            }
-            values.put(VectorLayer.FIELD_ID, 1000 + mLayer.getCount());
+        else {
+            //show attributes edit activity
+            IVectorLayerUI vectorLayerUI = (IVectorLayerUI)mLayer;
+            if(null != vectorLayerUI) {
+                vectorLayerUI.showEditForm(mContext, mItem.getId(), mItem.getGeoGeometry());
 
-            long id = mLayer.insertAddChanges(values);
-            if(id == Constants.NOT_FOUND)
-                return;
-            mLayer.deleteCacheItem(Constants.NOT_FOUND);
-            mItem = mLayer.getCacheItem(id);
-        }
-        else{ //update geometry
-            ContentValues values = new ContentValues();
-            try {
-                values.put(VectorLayer.FIELD_GEOM, mItem.getGeoGeometry().toBlob());
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(mContext, mContext.getString(R.string.error_change_feature), Toast.LENGTH_SHORT).show();
-                return;
+                if(mItem.getId() != Constants.NOT_FOUND)
+                    mLayer.deleteCacheItem(Constants.NOT_FOUND);
+                mItem = null; // remove selection
             }
-            if( mLayer.updateAddChanges(values, mItem.getId() + "") > 0) {
-                mItem = mLayer.getCacheItem(mItem.getId());
-            }
-            else{
-                return;
-            }
-        }
-
-        //show attributes edit activity
-        ILayerUI vectorLayerUI = (ILayerUI)mLayer;
-        if(null != vectorLayerUI) {
-            vectorLayerUI.showEditForm(mContext, mItem.getId());
         }
     }
 
@@ -890,9 +862,10 @@ public class EditLayerOverlay
             bundle.putLong(BUNDLE_KEY_FEATURE_ID, Constants.NOT_FOUND);
         }
         else{
-            if(mItem.getId() == Constants.NOT_FOUND) {
+            if(mItem.getId() == Constants.NOT_FOUND && mItem.getGeoGeometry() != null) {
                 try {
                     bundle.putByteArray(BUNDLE_KEY_SAVED_FEATURE, mItem.getGeoGeometry().toBlob());
+                    bundle.putBoolean(BUNDLE_KEY_HASEDITS, mHasEdits);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -922,6 +895,7 @@ public class EditLayerOverlay
                         try {
                             mItem = new VectorCacheItem(GeoGeometryFactory.fromBlob(
                                     bundle.getByteArray(BUNDLE_KEY_SAVED_FEATURE)), Constants.NOT_FOUND);
+                            mHasEdits = bundle.getBoolean(BUNDLE_KEY_HASEDITS);
                         } catch (IOException | ClassNotFoundException e) {
                             e.printStackTrace();
                         }
@@ -1023,12 +997,12 @@ public class EditLayerOverlay
         double dMaxY = event.getY() + mTolerancePX;
         GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
         //1. search current geometry point
-        if (mDrawItems.intersects(screenEnv)) {
-            if(null != mItem) {
+        if(null != mItem) {
+            if (mDrawItems.intersects(screenEnv)) {
                 mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mMapViewOverlays.getMap());
+                mMapViewOverlays.postInvalidate();
+                return;
             }
-            mMapViewOverlays.postInvalidate();
-            return;
         }
 
         if(!mHasEdits){

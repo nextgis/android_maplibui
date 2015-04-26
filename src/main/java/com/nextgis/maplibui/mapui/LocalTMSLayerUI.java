@@ -58,12 +58,4 @@ public class LocalTMSLayerUI extends LocalTMSLayer
 
     }
 
-
-    @Override
-    public void showEditForm(
-            Context context,
-            long featureId)
-    {
-
-    }
 }
