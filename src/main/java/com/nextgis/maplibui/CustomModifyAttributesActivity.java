@@ -243,7 +243,10 @@ public class CustomModifyAttributesActivity
         Cursor cursor = null;
         if(mFeatureId != NOT_FOUND) {
             cursor = mLayer.query(null, VectorLayer.FIELD_ID + " = " + mFeatureId, null, null);
-            cursor.moveToFirst();
+            if(cursor.getCount() < 1)
+                cursor = null;
+            else
+                cursor.moveToFirst();
         }
 
         for(int i = 0; i < elements.length(); i++){
@@ -309,8 +312,12 @@ public class CustomModifyAttributesActivity
         String cursorVal1 = null;
         String cursorVal2 = null;
         if(null != cursor) {
-            cursorVal1 = cursor.getString(cursor.getColumnIndex(field1));
-            cursorVal2 = cursor.getString(cursor.getColumnIndex(field1));
+            int nIndex1 = cursor.getColumnIndex(field1);
+            int nIndex2 = cursor.getColumnIndex(field2);
+            if(nIndex1 >= 0 && nIndex2 >= 0) {
+                cursorVal1 = cursor.getString(nIndex1);
+                cursorVal2 = cursor.getString(nIndex2);
+            }
         }
 
         final ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
@@ -446,7 +453,10 @@ public class CustomModifyAttributesActivity
         Map<String, String> keyValueMap = new HashMap<>();
         String cursorVal = null;
         if(null != cursor) {
-            cursorVal = cursor.getString(cursor.getColumnIndex(field));
+            int nIndex = cursor.getColumnIndex(field);
+            if(nIndex >= 0) {
+                cursorVal = cursor.getString(nIndex);
+            }
         }
 
         int index = 0;
@@ -516,7 +526,10 @@ public class CustomModifyAttributesActivity
             last = false;
         String cursorVal = null;
         if(null != cursor) {
-            cursorVal = cursor.getString(cursor.getColumnIndex(field));
+            int nIndex = cursor.getColumnIndex(field);
+            if(nIndex >= 0) {
+                cursorVal = cursor.getString(nIndex);
+            }
         }
 
         for(int j = 0; j < values.length(); j++){
@@ -630,9 +643,11 @@ public class CustomModifyAttributesActivity
         else{
             Calendar calendar = Calendar.getInstance();
             int column = cursor.getColumnIndex(field);
-            long millis = cursor.getLong(column);
-            calendar.setTimeInMillis(millis);
-            dateEdit.setText(dateText.format(calendar.getTime()));
+            if(column >= 0) {
+                long millis = cursor.getLong(column);
+                calendar.setTimeInMillis(millis);
+                dateEdit.setText(dateText.format(calendar.getTime()));
+            }
         }
         mFields.put(field, dateEdit);
 
@@ -704,7 +719,10 @@ public class CustomModifyAttributesActivity
             stringEdit.setText(lastVal);
         }
         else{
-            String stringVal = cursor.getString(cursor.getColumnIndex(field));
+            int nIndex = cursor.getColumnIndex(field);
+            String stringVal = "";
+            if(nIndex >= 0)
+                stringVal = cursor.getString(nIndex);
             stringEdit.setText(stringVal);
         }
         mFields.put(field, stringEdit);

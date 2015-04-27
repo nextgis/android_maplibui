@@ -163,7 +163,10 @@ public class ModifyAttributesActivity
         Cursor cursor = null;
         if(mFeatureId != Constants.NOT_FOUND) {
             cursor = mLayer.query(null, VectorLayer.FIELD_ID + " = " + mFeatureId, null, null);
-            cursor.moveToFirst();
+            if(cursor.getCount() < 1)
+                cursor = null;
+            else
+                cursor.moveToFirst();
         }
         float height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
                                   getResources().getDisplayMetrics());
@@ -189,8 +192,11 @@ public class ModifyAttributesActivity
                         //stringEdit.setSingleLine(true);
                         layout.addView(stringEdit);
                         if (null != cursor) {
-                            String stringVal = cursor.getString(cursor.getColumnIndex(field.getName()));
-                            stringEdit.setText(stringVal);
+                            int nIndex = cursor.getColumnIndex(field.getName());
+                            if(nIndex >= 0) {
+                                String stringVal = cursor.getString(nIndex);
+                                stringEdit.setText(stringVal);
+                            }
                         }
                         mFields.put(field.getName(), stringEdit);
                         break;
@@ -200,8 +206,11 @@ public class ModifyAttributesActivity
                         intEdit.setInputType(InputType.TYPE_CLASS_NUMBER);
                         layout.addView(intEdit);
                         if (null != cursor) {
-                            int intVal = cursor.getInt(cursor.getColumnIndex(field.getName()));
-                            intEdit.setText("" + intVal);
+                            int nIndex = cursor.getColumnIndex(field.getName());
+                            if(nIndex >= 0) {
+                                int intVal = cursor.getInt(nIndex);
+                                intEdit.setText("" + intVal);
+                            }
                         }
                         mFields.put(field.getName(), intEdit);
                         break;
@@ -212,8 +221,11 @@ public class ModifyAttributesActivity
                                 InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
                         layout.addView(realEdit);
                         if (null != cursor) {
-                            float realVal = cursor.getInt(cursor.getColumnIndex(field.getName()));
-                            realEdit.setText("" + realVal);
+                            int nIndex = cursor.getColumnIndex(field.getName());
+                            if(nIndex >= 0) {
+                                float realVal = cursor.getInt(nIndex);
+                                realEdit.setText("" + realVal);
+                            }
                         }
                         mFields.put(field.getName(), realEdit);
                         break;
@@ -229,9 +241,12 @@ public class ModifyAttributesActivity
                         dateEdit.setHint(pattern);
                         layout.addView(dateEdit);
                         if (null != cursor) {
-                            Calendar calendar = Calendar.getInstance();
-                            calendar.setTimeInMillis(cursor.getLong(cursor.getColumnIndex(field.getName())));
-                            dateEdit.setText(dateText.format(calendar.getTime()));
+                            int nIndex = cursor.getColumnIndex(field.getName());
+                            if(nIndex >= 0) {
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.setTimeInMillis(cursor.getLong(nIndex));
+                                dateEdit.setText(dateText.format(calendar.getTime()));
+                            }
                         }
                         mFields.put(field.getName(), dateEdit);
 
