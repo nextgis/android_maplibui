@@ -51,4 +51,9 @@
         <item>30 мин</item>
         <item>45 мин</item>
     </string-array>
+    <string-array name="current_location_mode">
+        <item>Не показывать текущее местоположение</item>
+        <item>Показывать только маркер</item>
+        <item>Показывать маркер и радиус точности</item>
+    </string-array>
 </resources>

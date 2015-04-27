@@ -160,15 +160,15 @@
     <string name="geometry_by_walk_no_points">Недостаточно точек для создания геометрии</string>
     <string name="error_change_feature">Ошибка изменения записи</string>
     <string name="move_point_to_center">Точка в центр экрана</string>
-    <string name="mainSettings">Main settings</string>
-    <string name="displaySettings">Display settings</string>
-    <string name="fill_color">Fill color</string>
-    <string name="layerSettings">Layer settings</string>
-    <string name="red">red</string>
-    <string name="green">green</string>
-    <string name="blue">blue</string>
-    <string name="magenta">magenta</string>
-    <string name="yellow">yellow</string>
-    <string name="cyan">cyan</string>
-    <string name="select_color">Select color</string>
+    <string name="mainSettings">Основные настройки</string>
+    <string name="displaySettings">Настройки экрана</string>
+    <string name="fill_color">Цвет заливки</string>
+    <string name="layerSettings">Настройки слоя</string>
+    <string name="red">красный</string>
+    <string name="green">зеленый</string>
+    <string name="blue">синий</string>
+    <string name="magenta">пурпурный</string>
+    <string name="yellow">желтый</string>
+    <string name="cyan">голубой</string>
+    <string name="select_color">Выбрать цвет</string>
 </resources>
