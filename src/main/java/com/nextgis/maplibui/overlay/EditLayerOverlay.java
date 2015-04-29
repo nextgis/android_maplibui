@@ -1235,14 +1235,13 @@ public class EditLayerOverlay
     }
 
     protected boolean isCurrentGeometryValid(){
-        if(null == mItem || null == mItem.getGeoGeometry())
+        if(null == mItem || null == mItem.getGeoGeometry() || mLayer.getGeometryType() != mItem.getGeoGeometry().getType())
             return false;
 
         switch (mLayer.getGeometryType()) {
             case GeoConstants.GTPoint:
-                return mItem.getGeoGeometry().getType() == GeoConstants.GTPoint;
             case GeoConstants.GTMultiPoint:
-                return mItem.getGeoGeometry().getType() == GeoConstants.GTMultiPoint;
+                return true;
             case GeoConstants.GTLineString:
                 GeoLineString line = (GeoLineString)mItem.getGeoGeometry();
                 return line.getPointCount() > 1;
