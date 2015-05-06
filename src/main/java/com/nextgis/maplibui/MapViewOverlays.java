@@ -44,8 +44,8 @@ public class MapViewOverlays
 {
     protected List<Overlay> mOverlays;
     protected boolean mLockMap;
-    protected boolean mSkipNextDraw;
-    protected long mDelay;
+    //protected boolean mSkipNextDraw;
+    //protected long mDelay;
 
     public MapViewOverlays(
             Context context,
@@ -54,8 +54,8 @@ public class MapViewOverlays
         super(context, map);
         mOverlays = new ArrayList<>();
         mLockMap = false;
-        mSkipNextDraw = false;
-        mDelay = 0;
+//        mSkipNextDraw = false;
+//        mDelay = 0;
     }
 
 
@@ -69,7 +69,6 @@ public class MapViewOverlays
     {
         mLockMap = lockMap;
     }
-
 
     @Override
     protected void onDraw(Canvas canvas)
@@ -172,6 +171,13 @@ public class MapViewOverlays
     }
 
 
+    public void buffer()
+    {
+        if(null != mMap)
+            mMap.buffer(0,0,1);
+    }
+
+
     public static class SavedState
             extends BaseSavedState
     {
@@ -239,7 +245,7 @@ public class MapViewOverlays
     }
 
 
-    public void setSkipNextDraw(boolean skipNextDraw)
+    /*public void setSkipNextDraw(boolean skipNextDraw)
     {
         mSkipNextDraw = skipNextDraw;
     }
@@ -274,5 +280,5 @@ public class MapViewOverlays
     public void setDelay(long delay)
     {
         mDelay = delay;
-    }
+    }*/
 }

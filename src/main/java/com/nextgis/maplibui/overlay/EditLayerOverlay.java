@@ -787,8 +787,8 @@ public class EditLayerOverlay
     }
 
     protected void updateMap(){
-        //delay to draw background while the redraw accrues after user release tap
-        mMapViewOverlays.setDelay(DELAY);
+        mMapViewOverlays.buffer();
+
         //do we need map refresh?
         mMapViewOverlays.onLayerChanged(mLayer.getId()); // redraw the map
         //or just overlay
@@ -942,7 +942,7 @@ public class EditLayerOverlay
                     @Nullable
                     Parcelable parcelable)
             {
-                mMapViewOverlays.setSkipNextDraw(true);
+                //mMapViewOverlays.setSkipNextDraw(true);
                 mLayer.deleteAddChanges(itemId + "");
 
                 if (mItem != null && mItem.getId() == itemId)

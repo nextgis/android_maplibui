@@ -64,8 +64,7 @@ public class MapView
     protected int mVisibleLayerCount;
 
     //display redraw timeout ms
-    public static final int DISPLAY_REDRAW_TIMEOUT = 1650;
-    protected final Handler mHandler = new Handler(Looper.getMainLooper());
+    public static final int DISPLAY_REDRAW_TIMEOUT = 1780;
 
 
     public MapView(
@@ -174,7 +173,6 @@ public class MapView
     }
 
     protected void zoomStart(ScaleGestureDetector scaleGestureDetector){
-        mHandler.removeCallbacksAndMessages(null);
 
         if(mDrawingState == DRAW_SATE_zooming)
             return;
@@ -233,22 +231,21 @@ public class MapView
             GeoPoint newCenterPt = env.getCenter();
             GeoPoint newCenterPtMap = mMap.screenToMap(newCenterPt);
 
-            Log.d(TAG, "zoomStop: setZoomAndCenter");
+            //Log.d(TAG, "zoomStop: setZoomAndCenter");
+            // buffer current view
+            mMap.buffer(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y, (float) mScaleFactor);
             setZoomAndCenter(zoom, newCenterPtMap);
-
-            asyncSetDrawingState(true);
         }
     }
 
     protected void panStart(final MotionEvent e){
-        mHandler.removeCallbacksAndMessages(null);
 
         if (mDrawingState == DRAW_SATE_zooming
             || mDrawingState == DRAW_SATE_panning
             || mDrawingState == DRAW_SATE_panning_fling)
             return;
 
-        Log.d(TAG, "panStart");
+        //Log.d(TAG, "panStart");
         for (MapViewEventListener listener : mListeners){
             if(null != listener)
                 listener.panStart(e);
@@ -313,15 +310,15 @@ public class MapView
             //Log.d(TAG, "panStop. x: " + x + ", y:" + y + ", sx:" + screenPt.getX() + ", sy:" + screenPt.getY());
             //mDisplay.panStop((float) screenPt.getX(), (float) screenPt.getY());
 
-            Log.d(TAG, "panStop: setZoomAndCenter");
+            //Log.d(TAG, "panStop: setZoomAndCenter");
+            // buffer current view
+            mMap.buffer(-mCurrentMouseOffset.x, -mCurrentMouseOffset.y, 1);
             setZoomAndCenter(getZoomLevel(), pt);
 
             for (MapViewEventListener listener : mListeners){
                 if(null != listener)
                     listener.panStop();
             }
-
-            asyncSetDrawingState(true);
         }
     }
 
@@ -362,8 +359,13 @@ public class MapView
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        if(mMap == null) //fling not always exec panStop
+        if(mMap == null ) //fling not always exec panStop
             return false;
+        if(mDrawingState == DRAW_SATE_zooming ||
+           mDrawingState == DRAW_SATE_drawing_noclearbk ||
+           mDrawingState == DRAW_SATE_drawing)
+            return false;
+
         float x = mCurrentMouseOffset.x;
         float y = mCurrentMouseOffset.y;
         GeoEnvelope bounds = mMap.getLimits();
@@ -457,8 +459,6 @@ public class MapView
         if(mMap == null)
             return false;
 
-        mHandler.removeCallbacksAndMessages(null);
-
         mDrawingState = DRAW_SATE_zooming;
         mScaleFactor = 2;
         mCurrentFocusLocation.set(-e.getX(), -e.getY());
@@ -477,10 +477,11 @@ public class MapView
         GeoPoint newCenterPt = env.getCenter();
         GeoPoint newCenterPtMap = mMap.screenToMap(newCenterPt);
 
-        Log.d(TAG, "onDoubleTap: setZoomAndCenter");
-        setZoomAndCenter((float)Math.ceil(getZoomLevel() + 0.5), newCenterPtMap);
+        //Log.d(TAG, "onDoubleTap: setZoomAndCenter");
+        //buffer curretn view
+        mMap.buffer(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y, (float) mScaleFactor);
 
-        asyncSetDrawingState(true);
+        setZoomAndCenter((float) Math.ceil(getZoomLevel() + 0.5), newCenterPtMap);
 
         return true;
     }
@@ -498,32 +499,24 @@ public class MapView
 
     @Override
     public void zoomIn() {
-
-        mHandler.removeCallbacksAndMessages(null);
-
         mDrawingState = DRAW_SATE_zooming;
         mScaleFactor = 2;
         mCurrentFocusLocation.set(-getWidth() / 2, -getHeight() / 2);
+        mMap.buffer(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y, (float) mScaleFactor);
         invalidate();
 
         super.zoomIn();
-
-        asyncSetDrawingState(true);
     }
 
     @Override
     public void zoomOut() {
-
-        mHandler.removeCallbacksAndMessages(null);
-
         mDrawingState = DRAW_SATE_zooming;
         mScaleFactor = 0.5;
         mCurrentFocusLocation.set(-getWidth() / 2, -getHeight() / 2);
+        mMap.buffer(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y, (float) mScaleFactor);
         invalidate();
 
         super.zoomOut();
-
-        asyncSetDrawingState(true);
     }
 
     @Override
@@ -597,14 +590,14 @@ public class MapView
         }
     }
 
-    public void asyncDrawMapDrawable(){
+    /*public void asyncDrawMapDrawable(){
         final Runnable s = new Runnable() {
             public void run() {
                 drawMapDrawable();
             }
         };
         mHandler.postDelayed(s, 550);
-    }
+    }*/
 
     @Override
     public void onLayerDrawFinished(
@@ -619,10 +612,16 @@ public class MapView
             //Log.d(TAG, "LayerDrawFinished: id - " + id + ", percent - " + percent);
             //ILayer layer = mMap.getLastLayer();
             //if(null != layer && layer.getId() == id)
+
+            mMap.buffer(0, 0, 1);
+
             invalidate();
         }
         else if(System.currentTimeMillis() - mStartDrawTime > DISPLAY_REDRAW_TIMEOUT){
             mStartDrawTime = System.currentTimeMillis();
+
+            mMap.buffer(0,0,1);
+
             postInvalidate();
         }
     }
@@ -641,7 +640,7 @@ public class MapView
         setZoomAndCenter(getZoomLevel(), center);
     }
 
-    protected void asyncSetDrawingState(final boolean isPostInvalidate){
+    /*protected void asyncSetDrawingState(final boolean isPostInvalidate){
         final Runnable s = new Runnable() {
             public void run() {
                 //do your stuff here after DELAY sec
@@ -661,7 +660,7 @@ public class MapView
         };
         mHandler.postDelayed(r, DISPLAY_REDRAW_TIMEOUT);
     }
-
+    */
 
     public long getTopVisibleLayerId()
     {
