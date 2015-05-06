@@ -1718,7 +1718,7 @@ public class EditLayerOverlay
         public boolean isTapNearSelectedPoint(GeoEnvelope screenEnv)
         {
             float[] points = getSelectedRing();
-            if (null != points && mSelectedPointIndex > Constants.NOT_FOUND) {
+            if (null != points && mSelectedPointIndex > Constants.NOT_FOUND && points.length > mSelectedPointIndex + 1) {
                 if(screenEnv.contains(new GeoPoint(points[mSelectedPointIndex], points[mSelectedPointIndex + 1]))){
                     return true;
                 }
