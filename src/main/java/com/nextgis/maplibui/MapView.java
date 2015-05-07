@@ -24,6 +24,7 @@ package com.nextgis.maplibui;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.PointF;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.SyncStateContract;
@@ -31,6 +32,8 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.View;
+import android.view.WindowManager;
 import android.widget.Scroller;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.api.ILayerView;
@@ -64,7 +67,7 @@ public class MapView
     protected int mVisibleLayerCount;
 
     //display redraw timeout ms
-    public static final int DISPLAY_REDRAW_TIMEOUT = 1780;
+    public static final int DISPLAY_REDRAW_TIMEOUT = 1500;
 
 
     public MapView(
@@ -72,6 +75,10 @@ public class MapView
             MapDrawable map)
     {
         super(context, map);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        }
 
         mGestureDetector = new GestureDetector(context, this);
         mGestureDetector.setOnDoubleTapListener(this);
@@ -163,10 +170,8 @@ public class MapView
                     mMap.draw(canvas, 0, 0, true);
                     break;
 
-                case DRAW_SATE_none:
-                    mDrawingState = DRAW_SATE_drawing;
-                    mMap.draw(canvas, 0, 0, true);
-                    break;
+                //case DRAW_SATE_none:
+                //    break;
 
                 default:
                     break;
@@ -179,13 +184,15 @@ public class MapView
 
     protected void zoomStart(ScaleGestureDetector scaleGestureDetector){
 
-        if(mDrawingState == DRAW_SATE_zooming || mDrawingState == DRAW_SATE_none)
+        if(mDrawingState == DRAW_SATE_zooming)
             return;
 
         mDrawingState = DRAW_SATE_zooming;
         mCurrentSpan = scaleGestureDetector.getCurrentSpan();
         mCurrentFocusLocation.set(-scaleGestureDetector.getFocusX(), -scaleGestureDetector.getFocusY());
         mScaleFactor = 1.f;
+
+        mMap.buffer(0,0,1);
     }
 
     protected void zoom(ScaleGestureDetector scaleGestureDetector){
@@ -200,6 +207,7 @@ public class MapView
                 return;
 
             mScaleFactor = scaleFactor;
+            mMap.buffer(0,0,1);
             invalidate();
         }
     }
@@ -238,10 +246,6 @@ public class MapView
 
             //Log.d(TAG, "zoomStop: setZoomAndCenter");
 
-            // buffer current view
-            mMap.buffer(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y, (float) mScaleFactor);
-            mDrawingState = DRAW_SATE_none;
-
             setZoomAndCenter(zoom, newCenterPtMap);
         }
     }
@@ -250,8 +254,7 @@ public class MapView
 
         if (mDrawingState == DRAW_SATE_zooming
             || mDrawingState == DRAW_SATE_panning
-            || mDrawingState == DRAW_SATE_panning_fling
-            || mDrawingState == DRAW_SATE_none)
+            || mDrawingState == DRAW_SATE_panning_fling)
             return;
 
         //Log.d(TAG, "panStart");
@@ -263,14 +266,15 @@ public class MapView
         mDrawingState = DRAW_SATE_panning;
         mStartMouseLocation.set(e.getX(), e.getY());
         mCurrentMouseOffset.set(0, 0);
+
+        mMap.buffer(0,0,1);
     }
 
     protected void panMoveTo(final MotionEvent e){
 
         if(mDrawingState == DRAW_SATE_zooming
            || mDrawingState == DRAW_SATE_drawing_noclearbk
-           || mDrawingState == DRAW_SATE_drawing
-           || mDrawingState == DRAW_SATE_none)
+           || mDrawingState == DRAW_SATE_drawing)
            return;
 
         if(mDrawingState == DRAW_SATE_panning && mMap != null){
@@ -298,6 +302,7 @@ public class MapView
             }
 
             mCurrentMouseOffset.set(x, y);
+            mMap.buffer(0,0,1);
             invalidate();
         }
     }
@@ -310,7 +315,7 @@ public class MapView
             float x = mCurrentMouseOffset.x;
             float y = mCurrentMouseOffset.y;
 
-            //Log.d(TAG, "panStop x - " + x + " y - " + y);
+            Log.d(TAG, "panStop x - " + x + " y - " + y);
 
             GeoEnvelope bounds = mMap.getFullBounds();
             bounds.offset(x, y);
@@ -320,16 +325,13 @@ public class MapView
 
             //Log.d(TAG, "panStop: setZoomAndCenter");
 
-            // buffer current view
-            mMap.buffer(-mCurrentMouseOffset.x, -mCurrentMouseOffset.y, 1);
-            mDrawingState = DRAW_SATE_none;
-
             setZoomAndCenter(getZoomLevel(), pt);
 
             for (MapViewEventListener listener : mListeners){
                 if(null != listener)
                     listener.panStop();
             }
+
         }
     }
 
@@ -375,8 +377,7 @@ public class MapView
 
         if(mDrawingState == DRAW_SATE_zooming
            || mDrawingState == DRAW_SATE_drawing_noclearbk
-           || mDrawingState == DRAW_SATE_drawing
-           || mDrawingState == DRAW_SATE_none)
+           || mDrawingState == DRAW_SATE_drawing)
             return false;
 
         float x = mCurrentMouseOffset.x;
@@ -491,9 +492,8 @@ public class MapView
         GeoPoint newCenterPtMap = mMap.screenToMap(newCenterPt);
 
         //Log.d(TAG, "onDoubleTap: setZoomAndCenter");
-        //buffer curretn view
-        mMap.buffer(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y, (float) mScaleFactor);
 
+        mMap.buffer(0,0,1);
         setZoomAndCenter((float) Math.ceil(getZoomLevel() + 0.5), newCenterPtMap);
 
         return true;
@@ -512,22 +512,24 @@ public class MapView
 
     @Override
     public void zoomIn() {
+        mDrawingState = DRAW_SATE_zooming;
         mScaleFactor = 2;
         mCurrentFocusLocation.set(-getWidth() / 2, -getHeight() / 2);
-        mMap.buffer(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y, (float) mScaleFactor);
-        mCurrentFocusLocation.set(0, 0);
-        postInvalidate();
+
+        mMap.buffer(0, 0, 1); //TODO: zoom the buffer and just draw it, not draw with scale
+        invalidate();
 
         super.zoomIn();
     }
 
     @Override
     public void zoomOut() {
+        mDrawingState = DRAW_SATE_zooming;
         mScaleFactor = 0.5;
         mCurrentFocusLocation.set(-getWidth() / 2, -getHeight() / 2);
-        mMap.buffer(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y, (float) mScaleFactor);
-        mCurrentFocusLocation.set(0, 0);
-        postInvalidate();
+
+        mMap.buffer(0, 0, 1); //TODO: zoom the buffer and just draw it, not draw with scale
+        invalidate();
 
         super.zoomOut();
     }
@@ -624,7 +626,7 @@ public class MapView
         else if(System.currentTimeMillis() - mStartDrawTime > DISPLAY_REDRAW_TIMEOUT){
             mStartDrawTime = System.currentTimeMillis();
 
-            mMap.buffer(0,0,1);
+            mMap.buffer(0, 0, 1);
 
             postInvalidate();
         }
