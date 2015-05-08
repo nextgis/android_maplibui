@@ -68,7 +68,7 @@ public class MapViewBase
     {
         super.onVisibilityChanged(changedView, visibility);
 
-        if (View.VISIBLE == visibility) {
+        if (View.GONE != visibility) {
             setKeepScreenOnByPref();
         }
     }
@@ -79,7 +79,7 @@ public class MapViewBase
     {
         super.onWindowVisibilityChanged(visibility);
 
-        if (View.VISIBLE == visibility) {
+        if (View.GONE != visibility) {
             setKeepScreenOnByPref();
         }
     }
@@ -89,7 +89,8 @@ public class MapViewBase
     {
         SharedPreferences sharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(getContext());
-        setKeepScreenOn(sharedPreferences.getBoolean(KEY_PREF_KEEPSCREENON, false));
+        boolean keepScreen = sharedPreferences.getBoolean(KEY_PREF_KEEPSCREENON, false);
+        setKeepScreenOn(keepScreen);
     }
 
 
