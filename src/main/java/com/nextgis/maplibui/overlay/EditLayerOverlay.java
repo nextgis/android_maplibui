@@ -1046,20 +1046,23 @@ public class EditLayerOverlay
     {
         if(mMode == MODE_EDIT) {
 
-            //check if we are near selected point
-            double dMinX = event.getX() - mTolerancePX * 2 - mAnchorTolerancePX;
-            double dMaxX = event.getX() + mTolerancePX;
-            double dMinY = event.getY() - mTolerancePX * 2 - mAnchorTolerancePX;
-            double dMaxY = event.getY() + mTolerancePX;
-            GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
+            if(null != mItem && null != mItem.getGeoGeometry()) {
 
-            if(mDrawItems.isTapNearSelectedPoint(screenEnv)){
-                PointF tempPoint = mDrawItems.getSelectedPoint();
-                mTempPointOffset = new PointF(tempPoint.x - event.getX(), tempPoint.y - event.getY());
-                if(null == mOriginalGeometry)
-                    mOriginalGeometry = mItem.getGeoGeometry().copy();
-                mMapViewOverlays.setLockMap(true);
-                mMode = MODE_CHANGE;
+                //check if we are near selected point
+                double dMinX = event.getX() - mTolerancePX * 2 - mAnchorTolerancePX;
+                double dMaxX = event.getX() + mTolerancePX;
+                double dMinY = event.getY() - mTolerancePX * 2 - mAnchorTolerancePX;
+                double dMaxY = event.getY() + mTolerancePX;
+                GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
+
+                if (mDrawItems.isTapNearSelectedPoint(screenEnv)) {
+                    PointF tempPoint = mDrawItems.getSelectedPoint();
+                    mTempPointOffset = new PointF(tempPoint.x - event.getX(), tempPoint.y - event.getY());
+                    if (null == mOriginalGeometry)
+                        mOriginalGeometry = mItem.getGeoGeometry().copy();
+                    mMapViewOverlays.setLockMap(true);
+                    mMode = MODE_CHANGE;
+                }
             }
         }
     }
