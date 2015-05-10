@@ -127,6 +127,10 @@
     <string name="empty_tracks">Треков пока нет</string>
     <string name="menu_delete">Удалить</string>
     <string name="menu_select_all">Выбрать все</string>
+    <string name="menu_share">Поделится</string>
+    <string name="menu_visibility_on">Показать</string>
+    <string name="menu_visibility_off">Скрыть</string>
+    <string name="cab_selected">"выбран(о)"</string>
     <string name="nothing_selected">Ничего не выбрано</string>
     <string name="unclosed_track_deleted">Текущий трек тоже удален</string>
     <string name="folder">Папка</string>
@@ -155,6 +159,7 @@
     <string name="error_create_feature">Ошибка создания записи</string>
     <string name="no">Нет</string>
     <string name="yes">Да</string>
+    <string name="has_edits">There are unsaved edits. Do you want to save them?</string>
     <string name="attributes_next">Следующий</string>
     <string name="attributes_prev">Предыдущий</string>
     <string name="geometry_by_walk_no_points">Недостаточно точек для создания геометрии</string>

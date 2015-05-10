@@ -336,7 +336,7 @@ public class TracksActivity
             if (mIds.size() == 0)
                 mActionMode.finish();
             else
-                mActionMode.setTitle(mIds.size() + getString(R.string.cab_selected));
+                mActionMode.setTitle("" + mIds.size() + " " + getString(R.string.cab_selected));
         }
     }
 

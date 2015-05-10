@@ -87,7 +87,7 @@ public class CreateRemoteTMSLayerDialog extends DialogFragment
         //context.setTheme(android.R.style.Theme_Holo_Light);
         //context.setTheme(android.R.style.Theme_Light_NoTitleBar);
 
-        final Context context = new ContextThemeWrapper(getActivity(), R.style.NGDialog);//android.R.style.Theme_Holo_Light
+        final Context context = new ContextThemeWrapper(getActivity(), R.style.NGDialog);
 
         //LayoutInflater inflater = getActivity().getLayoutInflater();
 
