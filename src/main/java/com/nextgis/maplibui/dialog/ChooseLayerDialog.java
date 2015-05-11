@@ -87,10 +87,7 @@ public class ChooseLayerDialog extends DialogFragment implements ILayerSelector
 
         mListAdapter = new ChooseLayerListAdapter(this);
 
-        if(null == savedInstanceState){
-
-        }
-        else{
+        if(null != savedInstanceState){
             mTitle = savedInstanceState.getString(KEY_TITLE);
             List<Integer> ids = savedInstanceState.getIntegerArrayList(KEY_LAYERS_IDS);
             IGISApplication app = (IGISApplication) getActivity().getApplication();

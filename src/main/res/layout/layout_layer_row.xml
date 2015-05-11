@@ -53,6 +53,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:ellipsize="end"
         android:maxLines="2"
+        android:textColor="@color/abc_primary_text_material_light"
         />
 
     <ImageButton

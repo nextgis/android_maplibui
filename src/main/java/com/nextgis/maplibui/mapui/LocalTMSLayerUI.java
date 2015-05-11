@@ -53,7 +53,7 @@ public class LocalTMSLayerUI extends LocalTMSLayer
 
 
     @Override
-    public void changeProperties()
+    public void changeProperties(Context context)
     {
 
     }

@@ -53,7 +53,7 @@ public class LayerGroupUI extends LayerGroup implements ILayerUI
 
 
     @Override
-    public void changeProperties()
+    public void changeProperties(Context context)
     {
 
     }

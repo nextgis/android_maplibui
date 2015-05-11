@@ -2,6 +2,7 @@
  * Project:  NextGIS Mobile
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
+ * Author:   Dmitry Baryshnikov, dmitry.baryshnikov@nextgis.com
  * *****************************************************************************
  * Copyright (c) 2015 NextGIS, info@nextgis.com
  *
@@ -33,9 +34,10 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.app.ActionBar;
 import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -57,8 +59,8 @@ import java.util.HashMap;
 
 
 public class TracksActivity
-        extends ActionBarActivity
-        implements LoaderManager.LoaderCallbacks<Cursor>
+        extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks<Cursor>, ActionMode.Callback
 {
     private static final int    TRACKS_ID             = 0;
     private static final String BUNDLE_SELECTED_ITEMS = "selected_items";
@@ -69,7 +71,6 @@ public class TracksActivity
     private ListView               mTracks;
     private HashMap<Long, Integer> mTracksPositionsIds;
     private ActionMode             mActionMode;
-    private ActionMode.Callback    mActionCallback;
     private boolean mSelectState = false;
     private boolean mNeedRestore = false;
 
@@ -91,8 +92,12 @@ public class TracksActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         toolbar.getBackground().setAlpha(255);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        ActionBar bar = getSupportActionBar();
+        if(null != bar) {
+            bar.setHomeButtonEnabled(true);
+            bar.setDisplayHomeAsUpEnabled(true);
+        }
 
         IGISApplication application = (IGISApplication) getApplication();
 
@@ -175,93 +180,6 @@ public class TracksActivity
 
         mTracks.setAdapter(mSimpleCursorAdapter);
 
-        mActionCallback = new ActionMode.Callback()
-        {
-            @Override
-            public boolean onCreateActionMode(
-                    ActionMode actionMode,
-                    Menu menu)
-            {
-                MenuInflater inflater = actionMode.getMenuInflater();
-                inflater.inflate(R.menu.tracks, menu);
-                getSupportActionBar().hide();
-                return true;
-            }
-
-
-            @Override
-            public boolean onPrepareActionMode(
-                    ActionMode actionMode,
-                    Menu menu)
-            {
-                return false;
-            }
-
-
-            @Override
-            public boolean onActionItemClicked(
-                    ActionMode actionMode,
-                    MenuItem menuItem)
-            {
-                int id = menuItem.getItemId();
-
-                if (id == R.id.menu_delete) {
-                    if (mIds.size() > 0) {
-                        Intent trackerService = new Intent(getApplicationContext(), TrackerService.class);
-
-                        if (isTrackerServiceRunning(getApplicationContext())) {
-                            stopService(trackerService);
-                            Toast.makeText(getApplicationContext(), R.string.unclosed_track_deleted, Toast.LENGTH_SHORT).show();
-                        }
-
-                        String selection = TrackLayer.FIELD_ID + " IN (" + makePlaceholders() + ")";
-                        String[] args = mIds.toArray(new String[mIds.size()]);
-                        getContentResolver().delete(mContentUriTracks, selection, args);
-                        mIds.clear();
-                    } else {
-                        Toast.makeText(getApplicationContext(), R.string.nothing_selected, Toast.LENGTH_SHORT).show();
-                    }
-
-                    actionMode.finish();
-                } else if (id == R.id.menu_select_all) {
-                    mSelectState = !mSelectState;
-                    setSelection();
-                } else if (id == R.id.menu_visibility_on || id == R.id.menu_visibility_off) {
-                    boolean isShow = id == R.id.menu_visibility_on;
-                    SparseBooleanArray checkedItems = mTracks.getCheckedItemPositions();
-
-                    for (int i = 0; i < mTracks.getAdapter().getCount(); i++) {
-                        if (checkedItems.get(i)) {
-                            ImageView view =
-                                    (ImageView) mTracks.getAdapter().getView(i, null, mTracks).findViewById(R.id.iv_visibility);
-
-                            if (isShow) {
-                                if (!(boolean) view.getTag())
-                                    view.performClick();
-                            } else {
-                                if ((boolean) view.getTag())
-                                    view.performClick();
-                            }
-                        }
-                    }
-
-                    actionMode.finish();
-                }
-
-                return true;
-            }
-
-
-            @Override
-            public void onDestroyActionMode(ActionMode actionMode)
-            {
-                mSelectState = false;
-                setSelection();
-                mActionMode = null;
-                getSupportActionBar().show();
-            }
-        };
-
         mTracks.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
@@ -271,8 +189,9 @@ public class TracksActivity
                     int position,
                     long id)
             {
-                if (mActionMode == null)
-                    mActionMode = getSupportActionBar().startActionMode(mActionCallback);
+                if (mActionMode == null) {
+                    mActionMode = startSupportActionMode(TracksActivity.this);
+                }
 
                 CheckBox cb = (CheckBox) view.findViewById(R.id.cb_item);
                 boolean isChecked = !cb.isChecked();
@@ -336,7 +255,7 @@ public class TracksActivity
             if (mIds.size() == 0)
                 mActionMode.finish();
             else
-                mActionMode.setTitle("" + mIds.size() + " " + getString(R.string.cab_selected));
+                mActionMode.setTitle("" + mIds.size());// + " " + getString(R.string.cab_selected));
         }
     }
 
@@ -397,8 +316,9 @@ public class TracksActivity
 
         if (mNeedRestore) {
             mNeedRestore = false;
-            mActionMode = getSupportActionBar().startActionMode(mActionCallback);
-            mActionMode.setTitle(mIds.size() + getString(R.string.cab_selected));
+            mActionMode = startSupportActionMode(this);
+            if(null != mActionMode)
+                mActionMode.setTitle(mIds.size() + getString(R.string.cab_selected));
         }
 
         if (data.getCount() == 0) {
@@ -426,6 +346,95 @@ public class TracksActivity
         }
 
         return false;
+    }
+
+
+    @Override
+    public boolean onCreateActionMode(
+            ActionMode actionMode,
+            Menu menu)
+    {
+        MenuInflater inflater = actionMode.getMenuInflater();
+        inflater.inflate(R.menu.tracks, menu);
+        ActionBar bar = getSupportActionBar();
+        if(null != bar)
+            bar.hide();
+        return true;
+    }
+
+
+    @Override
+    public boolean onPrepareActionMode(
+            ActionMode actionMode,
+            Menu menu)
+    {
+        return false;
+    }
+
+
+    @Override
+    public boolean onActionItemClicked(
+            ActionMode actionMode,
+            MenuItem menuItem)
+    {
+        int id = menuItem.getItemId();
+
+        if (id == R.id.menu_delete) {
+            if (mIds.size() > 0) {
+                Intent trackerService = new Intent(getApplicationContext(), TrackerService.class);
+
+                if (isTrackerServiceRunning(getApplicationContext())) {
+                    stopService(trackerService);
+                    Toast.makeText(getApplicationContext(), R.string.unclosed_track_deleted, Toast.LENGTH_SHORT).show();
+                }
+
+                String selection = TrackLayer.FIELD_ID + " IN (" + makePlaceholders() + ")";
+                String[] args = mIds.toArray(new String[mIds.size()]);
+                getContentResolver().delete(mContentUriTracks, selection, args);
+                mIds.clear();
+            } else {
+                Toast.makeText(getApplicationContext(), R.string.nothing_selected, Toast.LENGTH_SHORT).show();
+            }
+
+            actionMode.finish();
+        } else if (id == R.id.menu_select_all) {
+            mSelectState = !mSelectState;
+            setSelection();
+        } else if (id == R.id.menu_visibility_on || id == R.id.menu_visibility_off) {
+            boolean isShow = id == R.id.menu_visibility_on;
+            SparseBooleanArray checkedItems = mTracks.getCheckedItemPositions();
+
+            for (int i = 0; i < mTracks.getAdapter().getCount(); i++) {
+                if (checkedItems.get(i)) {
+                    ImageView view =
+                            (ImageView) mTracks.getAdapter().getView(i, null, mTracks).findViewById(R.id.iv_visibility);
+
+                    if (isShow) {
+                        if (!(boolean) view.getTag())
+                            view.performClick();
+                    } else {
+                        if ((boolean) view.getTag())
+                            view.performClick();
+                    }
+                }
+            }
+
+            actionMode.finish();
+        }
+
+        return true;
+    }
+
+
+    @Override
+    public void onDestroyActionMode(ActionMode actionMode)
+    {
+        mSelectState = false;
+        setSelection();
+        mActionMode = null;
+        ActionBar bar = getSupportActionBar();
+        if(null != bar)
+            bar.show();
     }
 
 }

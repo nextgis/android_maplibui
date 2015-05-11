@@ -28,10 +28,10 @@ import android.graphics.drawable.Drawable;
 import android.widget.Toast;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.map.NGWVectorLayer;
-import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.CustomModifyAttributesActivity;
 import com.nextgis.maplibui.ModifyAttributesActivity;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.VectorLayerSettingsActivity;
 import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.util.ConstantsUI;
@@ -60,9 +60,12 @@ public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI, IVecto
 
 
     @Override
-    public void changeProperties()
+    public void changeProperties(Context context)
     {
-
+        Intent settings = new Intent(context, VectorLayerSettingsActivity.class);
+        settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        settings.putExtra(VectorLayerSettingsActivity.LAYER_ID_KEY, getId());
+        context.startActivity(settings);
     }
 
 

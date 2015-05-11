@@ -83,9 +83,7 @@ public class ChooseColorDialog extends DialogFragment implements AdapterView.OnI
         final Context context = new ContextThemeWrapper(getActivity(), R.style.NGDialog);
 
 
-        if (null == savedInstanceState) {
-
-        } else {
+        if (null != savedInstanceState) {
             mTitle = savedInstanceState.getString(KEY_TITLE);
             mColors = (List<Pair<Integer, String>>) savedInstanceState.getSerializable(KEY_COLORS);
         }

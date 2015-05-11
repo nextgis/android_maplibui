@@ -108,12 +108,7 @@ public class CreateRemoteTMSLayerDialog extends DialogFragment
         mLogin = (EditText) view.findViewById(R.id.login);
         mPassword = (EditText) view.findViewById(R.id.password);
 
-        if(null == savedInstanceState){
-            //mInput.setText(context.getResources().getText(R.string.osm));
-            //mUrl.setText(context.getResources().getText(R.string.osm_url));
-            //mSpinner.setSelection(0);
-        }
-        else{
+        if(null != savedInstanceState){
             mInput.setText(savedInstanceState.getString(KEY_NAME));
             mUrl.setText(savedInstanceState.getString(KEY_URL));
             mLogin.setText(savedInstanceState.getString(KEY_LOGIN));

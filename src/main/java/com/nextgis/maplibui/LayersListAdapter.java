@@ -195,7 +195,7 @@ public class LayersListAdapter
                         if (i == R.id.menu_settings) {
                             //Layer layer = mMap.getLayerById(id);
                             assert layerui != null;
-                            layerui.changeProperties();
+                            layerui.changeProperties(mContext);
                         } else if (i == R.id.menu_share) {
                             assert (layerui) != null;
                             ((VectorLayerUI) layerui).shareGeoJSON();

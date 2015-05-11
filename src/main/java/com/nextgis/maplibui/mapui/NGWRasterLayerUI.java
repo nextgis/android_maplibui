@@ -49,7 +49,7 @@ public class NGWRasterLayerUI extends NGWRasterLayer
 
 
     @Override
-    public void changeProperties()
+    public void changeProperties(Context context)
     {
 
     }

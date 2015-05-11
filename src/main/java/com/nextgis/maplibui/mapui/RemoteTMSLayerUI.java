@@ -49,7 +49,7 @@ public class RemoteTMSLayerUI extends RemoteTMSLayer implements ILayerUI
 
 
     @Override
-    public void changeProperties()
+    public void changeProperties(Context context)
     {
 
     }

@@ -153,9 +153,7 @@ public class CreateLocalLayerDialog
         final Context context = new ContextThemeWrapper(getActivity(), R.style.NGDialog);
 
         int tmsType = 0;
-        if (null == savedInstanceState) {
-            //nothing to do
-        } else {
+        if (null != savedInstanceState) {
             mLayerName = savedInstanceState.getString(KEY_NAME);
             mTitle = savedInstanceState.getString(KEY_TITLE);
             mUri = savedInstanceState.getParcelable(KEY_URI);

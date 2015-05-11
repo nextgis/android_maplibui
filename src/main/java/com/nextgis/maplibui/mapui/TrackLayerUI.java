@@ -53,11 +53,11 @@ public class TrackLayerUI
 
 
     @Override
-    public void changeProperties()
+    public void changeProperties(Context context)
     {
-        Intent tracksSettings = new Intent(mContext, TracksActivity.class);
+        Intent tracksSettings = new Intent(context, TracksActivity.class);
         tracksSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        mContext.startActivity(tracksSettings);
+        context.startActivity(tracksSettings);
     }
 
 

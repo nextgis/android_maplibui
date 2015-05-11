@@ -30,6 +30,6 @@ public interface ILayerUI
 {
     Drawable getIcon();
 
-    void changeProperties();
+    void changeProperties(Context context);
 
 }

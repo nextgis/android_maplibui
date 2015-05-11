@@ -26,11 +26,10 @@
         <item name="android:background">@drawable/ic_spinner_calendar</item>
     </style>
 
-    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar"/>
-
     <style name="NGDialog" parent="Base.Theme.AppCompat.Light.Dialog">
         <item name="isLightTheme">true</item>
         <item name="windowActionBarOverlay">false</item>
+        <item name="android:textColor">@color/primary_text_default_material_light</item>
         <!-- Action Mode -->
         <item name="actionModeCutDrawable">@drawable/ic_action_content_cut</item>
         <item name="actionModeCopyDrawable">@drawable/ic_action_content_copy</item>
