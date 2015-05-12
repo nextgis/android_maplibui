@@ -242,7 +242,7 @@ public class CustomModifyAttributesActivity
     {
         Cursor cursor = null;
         if(mFeatureId != NOT_FOUND) {
-            cursor = mLayer.query(null, Constants.FIELD_ID + " = " + mFeatureId, null, null);
+            cursor = mLayer.query(null, FIELD_ID + " = " + mFeatureId, null, null);
             if(cursor.getCount() < 1)
                 cursor = null;
             else
@@ -834,13 +834,13 @@ public class CustomModifyAttributesActivity
 
             if(null != mGeometry) {
                 try {
-                    values.put(Constants.FIELD_GEOM, mGeometry.toBlob());
+                    values.put(FIELD_GEOM, mGeometry.toBlob());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
 
-            if(mFeatureId == Constants.NOT_FOUND){
+            if(mFeatureId == NOT_FOUND){
                 if(mGeometry == null) {
                     if (null == mLocation) {
                         Toast.makeText(this, getText(R.string.error_no_location), Toast.LENGTH_SHORT).show();
@@ -867,7 +867,7 @@ public class CustomModifyAttributesActivity
                     }
                     if (null != geometry) {
                         try {
-                            values.put(Constants.FIELD_GEOM, geometry.toBlob());
+                            values.put(FIELD_GEOM, geometry.toBlob());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -879,7 +879,7 @@ public class CustomModifyAttributesActivity
                 }
                 Uri uri = Uri.parse("content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
 
-                values.put(Constants.FIELD_ID, 1000 + mLayer.getCount());
+                values.put(FIELD_ID, 1000 + mLayer.getCount());
                 if(getContentResolver().insert(uri, values) == null){
                     Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT).show();
                     return true;

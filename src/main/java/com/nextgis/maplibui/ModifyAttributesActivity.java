@@ -76,8 +76,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.nextgis.maplibui.util.ConstantsUI.*;
 import static com.nextgis.maplib.util.Constants.*;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 /**
  * Activity to add or modify vector layer attributes
@@ -161,8 +161,8 @@ public class ModifyAttributesActivity
     protected void createAndFillControls(LinearLayout layout){
 
         Cursor cursor = null;
-        if(mFeatureId != Constants.NOT_FOUND) {
-            cursor = mLayer.query(null, Constants.FIELD_ID + " = " + mFeatureId, null, null);
+        if(mFeatureId != NOT_FOUND) {
+            cursor = mLayer.query(null, FIELD_ID + " = " + mFeatureId, null, null);
             if(cursor.getCount() < 1)
                 cursor = null;
             else
@@ -345,13 +345,13 @@ public class ModifyAttributesActivity
 
             if(null != mGeometry) {
                 try {
-                    values.put(Constants.FIELD_GEOM, mGeometry.toBlob());
+                    values.put(FIELD_GEOM, mGeometry.toBlob());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
 
-            if(mFeatureId == Constants.NOT_FOUND){
+            if(mFeatureId == NOT_FOUND){
                 if(mGeometry == null) {
                     if(null == mLocation){
                         Toast.makeText(this, getText(R.string.error_no_location), Toast.LENGTH_SHORT).show();
@@ -379,7 +379,7 @@ public class ModifyAttributesActivity
                     }
                     if(null != geometry) {
                         try {
-                            values.put(Constants.FIELD_GEOM, geometry.toBlob());
+                            values.put(FIELD_GEOM, geometry.toBlob());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -390,7 +390,7 @@ public class ModifyAttributesActivity
                     throw new IllegalArgumentException("Not a IGISApplication");
                 }
                 Uri uri = Uri.parse("content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
-                values.put(Constants.FIELD_ID, 1000 + mLayer.getCount());
+                values.put(FIELD_ID, 1000 + mLayer.getCount());
 
                 if(getContentResolver().insert(uri, values) == null){
                     Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT).show();
