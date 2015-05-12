@@ -826,7 +826,7 @@ public class EditLayerOverlay
             return;
 
         if(mItem.getGeoGeometry() == null && mItem.getId() != Constants.NOT_FOUND){
-            if(mLayer.deleteAddChanges(mItem.getId() + "") > 0) {
+            if(mLayer.deleteAddChanges(mItem.getId()) > 0) {
                 mLayer.deleteCacheItem(mItem.getId());
                 mItem = null;
             }
@@ -943,7 +943,7 @@ public class EditLayerOverlay
                     Parcelable parcelable)
             {
                 //mMapViewOverlays.setSkipNextDraw(true);
-                mLayer.deleteAddChanges(itemId + "");
+                mLayer.deleteAddChanges(itemId);
 
                 if (mItem != null && mItem.getId() == itemId)
                     setFeature(null, null);
