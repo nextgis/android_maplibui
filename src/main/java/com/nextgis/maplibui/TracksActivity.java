@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -355,7 +356,13 @@ public class TracksActivity
             Menu menu)
     {
         MenuInflater inflater = actionMode.getMenuInflater();
-        inflater.inflate(R.menu.tracks, menu);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            inflater.inflate(R.menu.tracks_v21, menu);
+        } else {
+            inflater.inflate(R.menu.tracks, menu);
+        }
+
         ActionBar bar = getSupportActionBar();
         if(null != bar)
             bar.hide();
