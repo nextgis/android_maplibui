@@ -59,7 +59,6 @@ import com.nextgis.maplib.datasource.GeoPolygon;
 import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.VectorLayer;
-import com.nextgis.maplib.util.ChangeFeatureItem;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.VectorCacheItem;
