@@ -27,12 +27,12 @@ import android.accounts.AccountManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 
 public class NGWLoginActivity
-        extends ActionBarActivity
+        extends AppCompatActivity
         implements NGWLoginFragment.OnAddAccountListener
 {
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;

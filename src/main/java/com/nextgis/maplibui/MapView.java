@@ -28,6 +28,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.SyncStateContract;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -338,7 +339,7 @@ public class MapView
 
     // delegate the event to the gesture detector
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         mScaleGestureDetector.onTouchEvent(event);
 
         if (!mGestureDetector.onTouchEvent(event)) {

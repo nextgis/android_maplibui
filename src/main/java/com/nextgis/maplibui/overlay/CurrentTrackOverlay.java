@@ -162,39 +162,43 @@ public class CurrentTrackOverlay
                                .query(Uri.withAppendedPath(mContentUriTracks, id), proj, null, null,
                                       null);
 
-        if (track == null || !track.moveToFirst()) {
+        if (track == null) {
             return;
         }
 
-        float x0 = track.getFloat(track.getColumnIndex(TrackLayer.FIELD_LON)),
-                y0 = track.getFloat(track.getColumnIndex(TrackLayer.FIELD_LAT)), x1, y1;
-        GeoPoint point;
-        point = new GeoPoint(x0, y0);
-        point.setCRS(GeoConstants.CRS_WGS84);
-        point.project(GeoConstants.CRS_WEB_MERCATOR);
-
-        GeoPoint mts = mapDrawable.mapToScreen(point);
-        x0 = (float) (mts.getX());
-        y0 = (float) (mts.getY());
-
-        while (track.moveToNext()) {
-            x1 = track.getFloat(track.getColumnIndex(TrackLayer.FIELD_LON));
-            y1 = track.getFloat(track.getColumnIndex(TrackLayer.FIELD_LAT));
-
-            point = new GeoPoint(x1, y1);
+        if (track.moveToFirst()) {
+            float x0 = track.getFloat(track.getColumnIndex(TrackLayer.FIELD_LON)),
+                    y0 = track.getFloat(track.getColumnIndex(TrackLayer.FIELD_LAT)), x1, y1;
+            GeoPoint point;
+            point = new GeoPoint(x0, y0);
             point.setCRS(GeoConstants.CRS_WGS84);
             point.project(GeoConstants.CRS_WEB_MERCATOR);
 
-            mts = mapDrawable.mapToScreen(point);
-
-            canvas.drawLine(x0, y0, (float) mts.getX(), (float) mts.getY(), mPaint);
-
-            mTrackpoints.add(new GeoPoint(x0, y0));
+            GeoPoint mts = mapDrawable.mapToScreen(point);
             x0 = (float) (mts.getX());
             y0 = (float) (mts.getY());
+
+            while (track.moveToNext()) {
+                x1 = track.getFloat(track.getColumnIndex(TrackLayer.FIELD_LON));
+                y1 = track.getFloat(track.getColumnIndex(TrackLayer.FIELD_LAT));
+
+                point = new GeoPoint(x1, y1);
+                point.setCRS(GeoConstants.CRS_WGS84);
+                point.project(GeoConstants.CRS_WEB_MERCATOR);
+
+                mts = mapDrawable.mapToScreen(point);
+
+                canvas.drawLine(x0, y0, (float) mts.getX(), (float) mts.getY(), mPaint);
+
+                mTrackpoints.add(new GeoPoint(x0, y0));
+                x0 = (float) (mts.getX());
+                y0 = (float) (mts.getY());
+            }
+
+            mTrackpoints.add(new GeoPoint(x0, y0));
         }
 
-        mTrackpoints.add(new GeoPoint(x0, y0));
+        track.close();
     }
 
 

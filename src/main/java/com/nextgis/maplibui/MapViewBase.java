@@ -26,6 +26,7 @@ import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.view.View;
 
 import com.nextgis.maplib.api.ILayer;
@@ -63,6 +64,7 @@ public class MapViewBase
 
     @Override
     protected void onVisibilityChanged(
+            @NonNull
             View changedView,
             int visibility)
     {

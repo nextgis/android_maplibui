@@ -28,6 +28,7 @@ import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
@@ -123,8 +124,11 @@ public class CustomModifyAttributesActivity
 
         LinearLayout layout = (LinearLayout)findViewById(R.id.controls_list);
 
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar bar = getSupportActionBar();
+        if (null != bar) {
+            bar.setHomeButtonEnabled(true);
+            bar.setDisplayHomeAsUpEnabled(true);
+        }
 
         final IGISApplication app = (IGISApplication) getApplication();
         //create and fill controls

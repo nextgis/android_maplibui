@@ -24,7 +24,8 @@ package com.nextgis.maplibui;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Pair;
 import android.view.MenuItem;
@@ -49,7 +50,9 @@ import java.util.List;
 /**
  * Vector layer settings activity. Include common settings (layer name) and renderer settings.
  */
-public class VectorLayerSettingsActivity extends ActionBarActivity implements IChooseColorResult
+public class VectorLayerSettingsActivity
+        extends AppCompatActivity
+        implements IChooseColorResult
 {
     public final static String LAYER_ID_KEY = "layer_id";
     protected VectorLayer                 mVectorLayer;
@@ -81,8 +84,12 @@ public class VectorLayerSettingsActivity extends ActionBarActivity implements IC
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         toolbar.getBackground().setAlpha(255);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        ActionBar bar = getSupportActionBar();
+        if (null != bar) {
+            bar.setHomeButtonEnabled(true);
+            bar.setDisplayHomeAsUpEnabled(true);
+        }
 
         IGISApplication application = (IGISApplication) getApplication();
 

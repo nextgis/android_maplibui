@@ -34,7 +34,8 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
@@ -60,7 +61,6 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.VectorLayer;
-import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
@@ -83,7 +83,8 @@ import static com.nextgis.maplibui.util.ConstantsUI.*;
  * Activity to add or modify vector layer attributes
  */
 public class ModifyAttributesActivity
-        extends ActionBarActivity implements GpsEventListener
+        extends AppCompatActivity
+        implements GpsEventListener
 {
     protected TextView mLatView;
     protected TextView mLongView;
@@ -113,8 +114,11 @@ public class ModifyAttributesActivity
 
         LinearLayout layout = (LinearLayout)findViewById(R.id.controls_list);
 
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar bar = getSupportActionBar();
+        if (null != bar) {
+            bar.setHomeButtonEnabled(true);
+            bar.setDisplayHomeAsUpEnabled(true);
+        }
 
         final IGISApplication app = (IGISApplication) getApplication();
         //create and fill controls
