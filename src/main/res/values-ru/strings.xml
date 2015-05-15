@@ -166,7 +166,7 @@
     <string name="error_change_feature">Ошибка изменения записи</string>
     <string name="move_point_to_center">Точка в центр экрана</string>
     <string name="mainSettings">Основные настройки</string>
-    <string name="displaySettings">Настройки экрана</string>
+    <string name="displaySettings">Настройки отображения</string>
     <string name="fill_color">Цвет заливки</string>
     <string name="layerSettings">Настройки слоя</string>
     <string name="red">красный</string>
