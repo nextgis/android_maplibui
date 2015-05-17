@@ -127,7 +127,7 @@
     <string name="empty_tracks">Треков пока нет</string>
     <string name="menu_delete">Удалить</string>
     <string name="menu_select_all">Выбрать все</string>
-    <string name="menu_share">Поделится</string>
+    <string name="menu_share">Поделиться</string>
     <string name="menu_visibility_on">Показать</string>
     <string name="menu_visibility_off">Скрыть</string>
     <string name="cab_selected">"выбран(о)"</string>
