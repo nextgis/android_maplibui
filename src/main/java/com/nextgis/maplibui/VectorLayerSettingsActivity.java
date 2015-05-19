@@ -37,6 +37,7 @@ import android.widget.TextView;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.display.SimpleFeatureRenderer;
+import com.nextgis.maplib.display.Style;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
@@ -122,8 +123,11 @@ public class VectorLayerSettingsActivity
             // set color
             SimpleFeatureRenderer sfr = (SimpleFeatureRenderer) mVectorLayer.getRenderer();
             if (null != sfr) {
-                int color = sfr.getStyle().getColor();
-                setColor(color);
+                Style style = sfr.getStyle();
+                if (null != style) {
+                    int color = style.getColor();
+                    setColor(color);
+                }
             }
         }
     }
@@ -178,7 +182,10 @@ public class VectorLayerSettingsActivity
         // set color
         SimpleFeatureRenderer sfr = (SimpleFeatureRenderer) mVectorLayer.getRenderer();
         if (null != sfr) {
-            sfr.getStyle().setColor(mCurrentColor);
+            Style style = sfr.getStyle();
+            if (null != style) {
+                style.setColor(mCurrentColor);
+            }
         }
 
         mVectorLayer.save();
