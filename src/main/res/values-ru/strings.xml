@@ -31,7 +31,7 @@
     <string name="layer_url_hint">Пример: http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png</string>
     <string name="layer_type">Тип TMS</string>
     <string name="create_layer">Создать слой</string>
-    <string name="create_tms_layer">Создать слой TMS</string>
+    <string name="create_tms_layer">Добавить слой TMS</string>
     <string name="tmstype_osm">XYZ (OSM)</string>
     <string name="tmstype_normal">TMS (OSGeo)</string>
     <string name="osm_url">http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png</string>
