@@ -478,12 +478,9 @@ public class CreateLocalLayerDialog
                     NGWVectorLayerUI layer = new NGWVectorLayerUI(mGroupLayer.getContext(),
                                                                   outputPath);
                     layer.setName(name);
-                    layer.setURL(url);
                     layer.setRemoteId(resourceId);
                     layer.setVisible(true);
                     layer.setAccountName(accountName);
-                    layer.setLogin(am.getUserData(account, "login"));
-                    layer.setPassword(am.getPassword(account));
 
                     mGroupLayer.addLayer(layer);
                     mGroupLayer.save();

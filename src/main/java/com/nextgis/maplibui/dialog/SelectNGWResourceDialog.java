@@ -280,8 +280,6 @@ public class SelectNGWResourceDialog extends DialogFragment
                     newLayer.setTMSType(TMSTYPE_OSM);
                     newLayer.setVisible(true);
                     newLayer.setAccountName(connection.getName());
-                    newLayer.setLogin(connection.getLogin());
-                    newLayer.setPassword(connection.getPassword());
 
                     mGroupLayer.addLayer(newLayer);
                 }
@@ -299,12 +297,9 @@ public class SelectNGWResourceDialog extends DialogFragment
 
                     final NGWVectorLayerUI newLayer = new NGWVectorLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
                     newLayer.setName(layerName);
-                    newLayer.setURL(connection.getURL());
                     newLayer.setRemoteId(layer.getRemoteId());
                     newLayer.setVisible(true);
                     newLayer.setAccountName(connection.getName());
-                    newLayer.setLogin(connection.getLogin());
-                    newLayer.setPassword(connection.getPassword());
 
                     mGroupLayer.addLayer(newLayer);
 
