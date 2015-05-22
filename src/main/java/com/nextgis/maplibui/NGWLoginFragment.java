@@ -36,6 +36,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplibui.service.HTTPLoader;
@@ -122,7 +123,12 @@ public class NGWLoginFragment
         mLogin.addTextChangedListener(watcher);
         mPassword.addTextChangedListener(watcher);
 
-        if (!mForNewAccount) {
+        TextView loginDescription = (TextView) view.findViewById(R.id.login_description);
+
+        if (mForNewAccount) {
+            loginDescription.setText(R.string.ngw_login_description);
+        } else {
+            loginDescription.setText(R.string.ngw_edit_login_description);
             mURL.setText(mUrlText);
             mLogin.setText(mLoginText);
             mURL.setEnabled(mChangeAccountUrl);

@@ -39,6 +39,7 @@
     <string name="nextgis_web">NextGIS Web</string>
     <string name="ngw_login_title">Учетная запись в NextGIS Web</string>
     <string name="ngw_login_description">Введите URL сервера NextGIS Web, имя пользователя и пароль</string>
+    <string name="ngw_edit_login_description">Введите имя пользователя и пароль для сервера NextGIS Web</string>
     <string name="ngw_url">NextGIS Web URL</string>
     <string name="password">Пароль</string>
     <string name="login">Подключить</string>
