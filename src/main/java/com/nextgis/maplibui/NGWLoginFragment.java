@@ -255,16 +255,18 @@ public class NGWLoginFragment
         } else {
             Account account = ((IGISApplication) appContext).getAccount(accountName);
 
-            if (mChangeAccountUrl) {
-                am.setUserData(account, "url", mURL.getText().toString().trim());
-            }
+            if (null != account) {
+                if (mChangeAccountUrl) {
+                    am.setUserData(account, "url", mURL.getText().toString().trim());
+                }
 
-            if (mChangeAccountLogin) {
-                am.setUserData(account, "login", mLogin.getText().toString());
-            }
+                if (mChangeAccountLogin) {
+                    am.setUserData(account, "login", mLogin.getText().toString());
+                }
 
-            am.setPassword(account, mPassword.getText().toString());
-            NGWSettingsActivity.updateAccountLayersCacheData(appContext, account);
+                am.setPassword(account, mPassword.getText().toString());
+                NGWSettingsActivity.updateAccountLayersCacheData(appContext, account);
+            }
 
             getActivity().finish();
         }
