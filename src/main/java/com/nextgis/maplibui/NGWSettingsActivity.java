@@ -315,6 +315,9 @@ public class NGWSettingsActivity
         actionCategory.setTitle(R.string.actions);
         screen.addPreference(actionCategory);
 
+        // add "Edit account" action
+        addEditAccountAction(account, actionCategory);
+
         // add delete account action
         addDeleteAccountAction(account, actionCategory);
     }
@@ -507,6 +510,30 @@ public class NGWSettingsActivity
         }
     }
 
+
+    // for overriding in a subclass
+    protected void addEditAccountAction(
+            final Account account,
+            PreferenceCategory actionCategory)
+    {
+        Preference preferenceEdit = new Preference(this);
+        preferenceEdit.setTitle(R.string.edit_account);
+        preferenceEdit.setSummary(R.string.edit_account_summary);
+
+        AccountManager accountManager = AccountManager.get(getApplicationContext());
+        String url = accountManager.getUserData(account, "url");
+        String login = accountManager.getUserData(account, "login");
+
+        Intent intent = new Intent(this, NGWLoginActivity.class);
+        intent.putExtra(NGWLoginActivity.FOR_NEW_ACCOUNT, false);
+        intent.putExtra(NGWLoginActivity.ACCOUNT_URL_TEXT, url);
+        intent.putExtra(NGWLoginActivity.ACCOUNT_LOGIN_TEXT, login);
+        intent.putExtra(NGWLoginActivity.CHANGE_ACCOUNT_URL, false);
+        intent.putExtra(NGWLoginActivity.CHANGE_ACCOUNT_LOGIN, true);
+        preferenceEdit.setIntent(intent);
+
+        actionCategory.addPreference(preferenceEdit);
+    }
 
     // for overriding in a subclass
     protected void addDeleteAccountAction(

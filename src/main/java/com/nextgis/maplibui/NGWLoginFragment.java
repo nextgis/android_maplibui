@@ -23,6 +23,7 @@ package com.nextgis.maplibui;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -36,6 +37,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplibui.service.HTTPLoader;
 
 import java.net.URI;
@@ -53,7 +55,52 @@ public class NGWLoginFragment
     protected EditText mPassword;
     protected Button   mSignInButton;
 
+    protected String mUrlText   = "";
+    protected String mLoginText = "";
+
+    protected boolean mForNewAccount      = true;
+    protected boolean mChangeAccountUrl   = mForNewAccount;
+    protected boolean mChangeAccountLogin = mForNewAccount;
+
     protected OnAddAccountListener mOnAddAccountListener;
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
+
+    public void setForNewAccount(boolean forNewAccount)
+    {
+        mForNewAccount = forNewAccount;
+    }
+
+
+    public void setChangeAccountUrl(boolean changeAccountUrl)
+    {
+        mChangeAccountUrl = changeAccountUrl;
+    }
+
+
+    public void setChangeAccountLogin(boolean changeAccountLogin)
+    {
+        mChangeAccountLogin = changeAccountLogin;
+    }
+
+
+    public void setUrlText(String urlText)
+    {
+        mUrlText = urlText;
+    }
+
+
+    public void setLoginText(String loginText)
+    {
+        mLoginText = loginText;
+    }
 
 
     @Override
@@ -74,6 +121,13 @@ public class NGWLoginFragment
         mURL.addTextChangedListener(watcher);
         mLogin.addTextChangedListener(watcher);
         mPassword.addTextChangedListener(watcher);
+
+        if (!mForNewAccount) {
+            mURL.setText(mUrlText);
+            mLogin.setText(mLoginText);
+            mURL.setEnabled(mChangeAccountUrl);
+            mLogin.setEnabled(mChangeAccountLogin);
+        }
 
         return view;
     }
@@ -171,22 +225,42 @@ public class NGWLoginFragment
             String accountName,
             String token)
     {
-        final AccountManager am = AccountManager.get(getActivity().getApplicationContext());
-        final Account account = new Account(accountName, NGW_ACCOUNT_TYPE);
+        Context appContext = getActivity().getApplicationContext();
+        final AccountManager am = AccountManager.get(appContext);
 
-        Bundle userData = new Bundle();
-        userData.putString("url", mURL.getText().toString().trim());
-        userData.putString("login", mLogin.getText().toString());
+        if (mForNewAccount) {
+            final Account account = new Account(accountName, NGW_ACCOUNT_TYPE);
 
-        boolean accountAdded =
-                am.addAccountExplicitly(account, mPassword.getText().toString(), userData);
+            Bundle userData = new Bundle();
+            userData.putString("url", mURL.getText().toString().trim());
+            userData.putString("login", mLogin.getText().toString());
 
-        if (accountAdded) {
-            am.setAuthToken(account, account.type, token);
-        }
+            boolean accountAdded =
+                    am.addAccountExplicitly(account, mPassword.getText().toString(), userData);
 
-        if (null != mOnAddAccountListener) {
-            mOnAddAccountListener.onAddAccount(account, token, accountAdded);
+            if (accountAdded) {
+                am.setAuthToken(account, account.type, token);
+            }
+
+            if (null != mOnAddAccountListener) {
+                mOnAddAccountListener.onAddAccount(account, token, accountAdded);
+            }
+
+        } else {
+            Account account = ((IGISApplication) appContext).getAccount(accountName);
+
+            if (mChangeAccountUrl) {
+                am.setUserData(account, "url", mURL.getText().toString().trim());
+            }
+
+            if (mChangeAccountLogin) {
+                am.setUserData(account, "login", mLogin.getText().toString());
+            }
+
+            am.setPassword(account, mPassword.getText().toString());
+            NGWSettingsActivity.updateAccountLayersCacheData(appContext, account);
+
+            getActivity().finish();
         }
     }
 

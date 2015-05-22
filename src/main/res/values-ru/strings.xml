@@ -176,4 +176,6 @@
     <string name="yellow">желтый</string>
     <string name="cyan">голубой</string>
     <string name="select_color">Выбрать цвет</string>
+    <string name="edit_account">Редактировать учетную запись</string>
+    <string name="edit_account_summary">Редатирование имени и пароля пользователя</string>
 </resources>

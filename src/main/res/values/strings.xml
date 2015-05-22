@@ -176,4 +176,6 @@
     <string name="yellow">yellow</string>
     <string name="cyan">cyan</string>
     <string name="select_color">Select color</string>
+    <string name="edit_account">Edit account</string>
+    <string name="edit_account_summary">Editing a user name and password</string>
 </resources>

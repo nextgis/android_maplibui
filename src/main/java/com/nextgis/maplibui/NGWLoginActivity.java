@@ -35,6 +35,19 @@ public class NGWLoginActivity
         extends AppCompatActivity
         implements NGWLoginFragment.OnAddAccountListener
 {
+    public static final String FOR_NEW_ACCOUNT      = "for_new_account";
+    public static final String ACCOUNT_URL_TEXT     = "account_url_text";
+    public static final String ACCOUNT_LOGIN_TEXT   = "account_login_text";
+    public static final String CHANGE_ACCOUNT_URL   = "change_account_url";
+    public static final String CHANGE_ACCOUNT_LOGIN = "change_account_login";
+
+    protected boolean mForNewAccount      = true;
+    protected boolean mChangeAccountUrl   = mForNewAccount;
+    protected boolean mChangeAccountLogin = mForNewAccount;
+
+    protected String mUrlText   = "";
+    protected String mLoginText = "";
+
     private AccountAuthenticatorResponse mAccountAuthenticatorResponse = null;
     private Bundle                       mResultBundle                 = null;
 
@@ -42,6 +55,28 @@ public class NGWLoginActivity
     @Override
     protected void onCreate(Bundle icicle)
     {
+        Bundle extras = this.getIntent().getExtras();
+        if (extras != null) {
+            if (extras.containsKey(FOR_NEW_ACCOUNT)) {
+                mForNewAccount = extras.getBoolean(FOR_NEW_ACCOUNT);
+            }
+
+            if (!mForNewAccount) {
+                if (extras.containsKey(ACCOUNT_URL_TEXT)) {
+                    mUrlText = extras.getString(ACCOUNT_URL_TEXT);
+                }
+                if (extras.containsKey(ACCOUNT_LOGIN_TEXT)) {
+                    mLoginText = extras.getString(ACCOUNT_LOGIN_TEXT);
+                }
+                if (extras.containsKey(CHANGE_ACCOUNT_URL)) {
+                    mChangeAccountUrl = extras.getBoolean(CHANGE_ACCOUNT_URL);
+                }
+                if (extras.containsKey(CHANGE_ACCOUNT_LOGIN)) {
+                    mChangeAccountLogin = extras.getBoolean(CHANGE_ACCOUNT_LOGIN);
+                }
+            }
+        }
+
         super.onCreate(icicle);
 
         mAccountAuthenticatorResponse =
@@ -66,7 +101,12 @@ public class NGWLoginActivity
         NGWLoginFragment ngwLoginFragment = (NGWLoginFragment) fm.findFragmentByTag("NGWLogin");
 
         if (ngwLoginFragment == null) {
-            ngwLoginFragment = new NGWLoginFragment();
+            ngwLoginFragment = getNewLoginFragment();
+            ngwLoginFragment.setForNewAccount(mForNewAccount);
+            ngwLoginFragment.setUrlText(mUrlText);
+            ngwLoginFragment.setLoginText(mLoginText);
+            ngwLoginFragment.setChangeAccountUrl(mChangeAccountUrl);
+            ngwLoginFragment.setChangeAccountLogin(mChangeAccountLogin);
         }
 
         ngwLoginFragment.setOnAddAccountListener(this);
@@ -74,6 +114,12 @@ public class NGWLoginActivity
         FragmentTransaction ft = fm.beginTransaction();
         ft.add(R.id.login_frame, ngwLoginFragment, "NGWLogin");
         ft.commit();
+    }
+
+
+    protected NGWLoginFragment getNewLoginFragment()
+    {
+        return new NGWLoginFragment();
     }
 
 
