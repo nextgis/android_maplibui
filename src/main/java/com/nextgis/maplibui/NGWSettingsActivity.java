@@ -637,6 +637,18 @@ public class NGWSettingsActivity
     }
 
 
+    public static void updateAccountLayersCacheData(
+            Context context,
+            Account account)
+    {
+        List<INGWLayer> layers = getLayersForAccount(context, account);
+
+        for (INGWLayer layer : layers) {
+            layer.setAccountCacheData();
+        }
+    }
+
+
     protected void deleteAccountLayers(
             IGISApplication application,
             Account account)
