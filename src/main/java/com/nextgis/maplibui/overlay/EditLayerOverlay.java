@@ -37,6 +37,7 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -94,8 +95,6 @@ public class EditLayerOverlay
     protected final static int EDGE_RADIUS   = 12;
     protected final static int LINE_WIDTH    = 4;
 
-    public final static long DELAY = 650;
-
     protected VectorLayer     mLayer;
     protected VectorCacheItem mItem;
     protected int             mMode;
@@ -115,7 +114,6 @@ public class EditLayerOverlay
     protected static final String BUNDLE_KEY_MODE          = "mode";
     protected static final String BUNDLE_KEY_LAYER         = "layer";
     protected static final String BUNDLE_KEY_FEATURE_ID    = "feature";
-    protected static final String BUNDLE_KEY_IS_WALKING    = "is_walking";
     protected static final String BUNDLE_KEY_SAVED_FEATURE = "feature_blob";
     protected static final String BUNDLE_KEY_HASEDITS      = "has_edits";
 
@@ -127,6 +125,8 @@ public class EditLayerOverlay
     protected boolean       mHasEdits;
 
     protected BottomToolbar mCurrentToolbar;
+
+    protected float mCanvasCenterX, mCanvasCenterY;
 
     public EditLayerOverlay(
             Context context,
@@ -417,13 +417,13 @@ public class EditLayerOverlay
     protected void drawCross(Canvas canvas){
         if(mMode != MODE_EDIT)
             return;
-        float x = canvas.getWidth() / 2;
-        float y = canvas.getHeight() / 2;
+        mCanvasCenterX = canvas.getWidth() / 2;
+        mCanvasCenterY = canvas.getHeight() / 2;
 
         mPaint.setColor(mSelectColor);
         mPaint.setStrokeWidth(LINE_WIDTH / 2);
-        canvas.drawLine(x - mTolerancePX, y, x + mTolerancePX, y, mPaint);
-        canvas.drawLine(x, y - mTolerancePX, x, y + mTolerancePX, mPaint);
+        canvas.drawLine(mCanvasCenterX - mTolerancePX, mCanvasCenterY, mCanvasCenterX + mTolerancePX, mCanvasCenterY, mPaint);
+        canvas.drawLine(mCanvasCenterX, mCanvasCenterY - mTolerancePX, mCanvasCenterX, mCanvasCenterY + mTolerancePX, mPaint);
     }
 
     public void addListener(EditEventListener listener)
@@ -592,10 +592,9 @@ public class EditLayerOverlay
                         else if (menuItem.getItemId() == R.id.menu_edit_move_point_to_center){
                             if(null == mItem || null == mItem.getGeoGeometry())
                                 return false;
+
                             //change to screen coordinates
                             MapDrawable mapDrawable = mMapViewOverlays.getMap();
-                            GeoPoint pt = mapDrawable.getMapCenter();
-                            GeoPoint screenPt = mapDrawable.mapToScreen(pt);
 
                             mHasEdits = true;
                             setToolbarSaveState(true);
@@ -604,8 +603,7 @@ public class EditLayerOverlay
                                 mOriginalGeometry = mItem.getGeoGeometry().copy();
                             }
 
-                            mDrawItems.setSelectedPoint((float) screenPt.getX(),
-                                                        (float) screenPt.getY());
+                            mDrawItems.setSelectedPoint(mCanvasCenterX, mCanvasCenterY);
 
                             mDrawItems.fillGeometry(0, mItem.getGeoGeometry(), mapDrawable);
                             updateMap();
