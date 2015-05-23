@@ -22,7 +22,7 @@
 
 <resources>
     <string-array name="tracker_min_dist_update">
-        <item>0 м</item>
+        <item>Наиболее часто</item>
         <item>1 м</item>
         <item>5 м</item>
         <item>10 м</item>
@@ -35,7 +35,7 @@
         <item>300 м</item>
     </string-array>
     <string-array name="tracker_min_time_between_updates">
-        <item>0 сек</item>
+        <item>Наиболее часто</item>
         <item>1 сек</item>
         <item>2 сек</item>
         <item>5 сек</item>

@@ -32,7 +32,7 @@
         <item>2</item>
     </string-array>
     <string-array name="tracker_min_dist_update">
-        <item>0 m</item>
+        <item>Most frequently</item>
         <item>1 m</item>
         <item>5 m</item>
         <item>10 m</item>
@@ -58,7 +58,7 @@
         <item>300</item>
     </string-array>
     <string-array name="tracker_min_time_between_updates">
-        <item>0 sec</item>
+        <item>Most frequently</item>
         <item>1 sec</item>
         <item>2 sec</item>
         <item>5 sec</item>
