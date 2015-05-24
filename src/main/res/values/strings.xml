@@ -179,4 +179,8 @@
     <string name="select_color">Select color</string>
     <string name="edit_account">Edit account</string>
     <string name="edit_account_summary">Editing a user name and password</string>
+    <string name="tms_layer_cache_size">TMS in-memory cache size</string>
+    <string name="make_grayscale">Make grayscale</string>
+    <string name="contrast">Contrast</string>
+    <string name="brightness">Brightness</string>
 </resources>

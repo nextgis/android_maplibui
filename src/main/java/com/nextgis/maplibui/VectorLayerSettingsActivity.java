@@ -58,7 +58,8 @@ public class VectorLayerSettingsActivity
     public final static String LAYER_ID_KEY = "layer_id";
     protected VectorLayer                 mVectorLayer;
     protected List<Pair<Integer, String>> mColors;
-    protected int mCurrentColor;
+    protected int                         mCurrentColor;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)

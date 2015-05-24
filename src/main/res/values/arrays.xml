@@ -101,4 +101,16 @@
         <item>1</item>
         <item>3</item>
     </string-array>
+    <string-array name="tms_tile_cache_size">
+        <item>No cache</item>
+        <item>1 screen</item>
+        <item>2 screens (recommended)</item>
+        <item>3 screens</item>
+    </string-array>
+    <string-array name="tms_tile_cache_size_val"  translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
 </resources>

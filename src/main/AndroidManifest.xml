@@ -46,6 +46,9 @@
         <activity android:name=".VectorLayerSettingsActivity"
                   android:label="@string/layerSettings"/>
 
+        <activity android:name=".RemoteTMSLayerSettingsActivity"
+                  android:label="@string/layerSettings"/>
+
         <service
             android:name=".account.NGWAuthenticatorService">
             <intent-filter>

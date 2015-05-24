@@ -56,4 +56,10 @@
         <item>Показывать только маркер</item>
         <item>Показывать маркер и радиус точности</item>
     </string-array>
+    <string-array name="tms_tile_cache_size">
+        <item>Без кэша</item>
+        <item>1 экран</item>
+        <item>2 экрана (рекомендуется)</item>
+        <item>3 экрана</item>
+    </string-array>
 </resources>

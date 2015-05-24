@@ -23,9 +23,11 @@
 package com.nextgis.maplibui.mapui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.RemoteTMSLayerSettingsActivity;
 import com.nextgis.maplibui.api.ILayerUI;
 
 import java.io.File;
@@ -51,6 +53,9 @@ public class RemoteTMSLayerUI extends RemoteTMSLayer implements ILayerUI
     @Override
     public void changeProperties(Context context)
     {
-
+        Intent settings = new Intent(context, RemoteTMSLayerSettingsActivity.class);
+        settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        settings.putExtra(RemoteTMSLayerSettingsActivity.LAYER_ID_KEY, getId());
+        context.startActivity(settings);
     }
 }
