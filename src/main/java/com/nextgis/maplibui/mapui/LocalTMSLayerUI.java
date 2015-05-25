@@ -22,9 +22,12 @@
 package com.nextgis.maplibui.mapui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import com.nextgis.maplib.map.LocalTMSLayer;
+import com.nextgis.maplibui.LocalTMSLayerSettingsActivity;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.RemoteTMSLayerSettingsActivity;
 import com.nextgis.maplibui.api.ILayerUI;
 
 import java.io.File;
@@ -55,7 +58,10 @@ public class LocalTMSLayerUI extends LocalTMSLayer
     @Override
     public void changeProperties(Context context)
     {
-
+        Intent settings = new Intent(context, LocalTMSLayerSettingsActivity.class);
+        settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        settings.putExtra(LocalTMSLayerSettingsActivity.LAYER_ID_KEY, getId());
+        context.startActivity(settings);
     }
 
 }

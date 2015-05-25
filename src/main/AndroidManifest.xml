@@ -49,6 +49,9 @@
         <activity android:name=".RemoteTMSLayerSettingsActivity"
                   android:label="@string/layerSettings"/>
 
+        <activity android:name=".LocalTMSLayerSettingsActivity"
+                  android:label="@string/layerSettings"/>
+
         <service
             android:name=".account.NGWAuthenticatorService">
             <intent-filter>
