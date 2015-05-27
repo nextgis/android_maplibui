@@ -123,7 +123,6 @@
     <string name="error_layer_not_inited">Слой не инициализирован. Отмена</string>
     <string name="n_a">н/д</string>
     <string name="layer_vector">Векторный слой</string>
-    <string name="tracks">Треки</string>
     <string name="layer_permanent">Это постоянный слой</string>
     <string name="empty_tracks">Треков пока нет</string>
     <string name="menu_delete">Удалить</string>
