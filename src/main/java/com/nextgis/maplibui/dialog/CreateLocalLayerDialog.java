@@ -624,7 +624,13 @@ public class CreateLocalLayerDialog
         @Override
         protected void onPostExecute(String error)
         {
-            mProgressDialog.dismiss();
+            try { // if dialog is already detach from window catch exception
+                mProgressDialog.dismiss();
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+
             if(null != error && error.length() > 0){
                 Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show();
             }
