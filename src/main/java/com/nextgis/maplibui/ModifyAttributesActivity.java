@@ -394,7 +394,12 @@ public class ModifyAttributesActivity
                     throw new IllegalArgumentException("Not a IGISApplication");
                 }
                 Uri uri = Uri.parse("content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
-                values.put(FIELD_ID, 1000 + mLayer.getCount());
+
+                int nUniqId = mLayer.getUniqId();
+                if(nUniqId < 1000)
+                    nUniqId = 1000;// + mLayer.getCount();
+
+                values.put(FIELD_ID, nUniqId);
 
                 if(getContentResolver().insert(uri, values) == null){
                     Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT).show();
