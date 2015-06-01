@@ -37,9 +37,9 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -144,18 +144,19 @@ public class ModifyAttributesActivity
             mAccView = (TextView) findViewById(R.id.accuracy_view);
 
             ImageButton refreshLocation = (ImageButton) findViewById(R.id.refresh);
-            refreshLocation.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View view)
-                {
-                    if (null != app) {
-                        GpsEventSource gpsEventSource = app.getGpsEventSource();
-                        Location location = gpsEventSource.getLastKnownLocation();
-                        setLocationText(location);
-                    }
-                }
-            });
+            refreshLocation.setOnClickListener(
+                    new View.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(View view)
+                        {
+                            if (null != app) {
+                                GpsEventSource gpsEventSource = app.getGpsEventSource();
+                                Location location = gpsEventSource.getLastKnownLocation();
+                                setLocationText(location);
+                            }
+                        }
+                    });
         } else {
             //hide location panel
             ViewGroup rootView = (ViewGroup) findViewById(R.id.root_view);
@@ -175,20 +176,15 @@ public class ModifyAttributesActivity
             }
         }
 
-        float height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
-                                                 getResources().getDisplayMetrics());
-
+        float lineHeight = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
 
         mFields = new HashMap<>();
         List<Field> fields = mLayer.getFields();
 
         for (Field field : fields) {
             //create static text with alias
-            TextView aliasText = new TextView(this);
-            aliasText.setText(field.getAlias());
-            aliasText.setEllipsize(TextUtils.TruncateAt.END);
-            aliasText.setTextAppearance(this, android.R.style.TextAppearance_Medium);
-            aliasText.setTextColor(getResources().getColor(android.R.color.darker_gray));
+            TextView aliasText = getAliasTextView(field);
             layout.addView(aliasText);
 
             try {
@@ -197,80 +193,35 @@ public class ModifyAttributesActivity
                 switch (field.getType()) {
 
                     case GeoConstants.FTString:
-                        EditText stringEdit = new EditText(this);
-                        //stringEdit.setSingleLine(true);
-                        layout.addView(stringEdit);
-                        if (null != cursor) {
-                            int nIndex = cursor.getColumnIndex(field.getName());
-                            if (nIndex >= 0) {
-                                String stringVal = cursor.getString(nIndex);
-                                stringEdit.setText(stringVal);
-                            }
-                        }
-                        mFields.put(field.getName(), stringEdit);
+                        EditText editStringView = getStringEditView(field, cursor);
+                        layout.addView(editStringView);
+                        mFields.put(field.getName(), editStringView);
                         break;
 
                     case GeoConstants.FTInteger:
-                        EditText intEdit = new EditText(this);
-                        intEdit.setSingleLine(true);
-                        intEdit.setInputType(InputType.TYPE_CLASS_NUMBER);
-                        layout.addView(intEdit);
-                        if (null != cursor) {
-                            int nIndex = cursor.getColumnIndex(field.getName());
-                            if (nIndex >= 0) {
-                                int intVal = cursor.getInt(nIndex);
-                                intEdit.setText("" + intVal);
-                            }
-                        }
-                        mFields.put(field.getName(), intEdit);
+                        EditText editIntView = getIntEditView(field, cursor);
+                        layout.addView(editIntView);
+                        mFields.put(field.getName(), editIntView);
                         break;
 
                     case GeoConstants.FTReal:
-                        EditText realEdit = new EditText(this);
-                        realEdit.setSingleLine(true);
-                        realEdit.setInputType(
-                                InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-                        layout.addView(realEdit);
-                        if (null != cursor) {
-                            int nIndex = cursor.getColumnIndex(field.getName());
-                            if (nIndex >= 0) {
-                                float realVal = cursor.getInt(nIndex);
-                                realEdit.setText("" + realVal);
-                            }
-                        }
-                        mFields.put(field.getName(), realEdit);
+                        EditText editRealView = getRealEditView(field, cursor);
+                        layout.addView(editRealView);
+                        mFields.put(field.getName(), editRealView);
                         break;
 
                     case GeoConstants.FTDateTime:
-                        TextView dateEdit =
-                                (TextView) getLayoutInflater().inflate(R.layout.spinner_datepicker,
-                                                                       null);
-                        //TextView dateEdit = new TextView(this);
-                        dateEdit.setSingleLine(true);
-                        dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit, DATETIME));
-                        dateEdit.setFocusable(false);
-                        SimpleDateFormat dateText =
-                                (SimpleDateFormat) DateFormat.getDateTimeInstance();
-                        String pattern = dateText.toLocalizedPattern();
-                        dateEdit.setHint(pattern);
+                        TextView dateEdit = getDateEditView(field, cursor);
                         layout.addView(dateEdit);
-                        if (null != cursor) {
-                            int nIndex = cursor.getColumnIndex(field.getName());
-                            if (nIndex >= 0) {
-                                Calendar calendar = Calendar.getInstance();
-                                calendar.setTimeInMillis(cursor.getLong(nIndex));
-                                dateEdit.setText(dateText.format(calendar.getTime()));
-                            }
-                        }
                         mFields.put(field.getName(), dateEdit);
 
-                        //add grey view here
+                        // add grey line here
                         View greyLine = new View(this);
-                        greyLine.setBackgroundResource(android.R.color.darker_gray);
                         layout.addView(greyLine);
                         ViewGroup.LayoutParams params = greyLine.getLayoutParams();
-                        params.height = (int) height;
+                        params.height = (int) lineHeight;
                         greyLine.setLayoutParams(params);
+                        greyLine.setBackgroundResource(android.R.color.darker_gray);
                         break;
 
                     case GeoConstants.FTIntegerList:
@@ -290,6 +241,109 @@ public class ModifyAttributesActivity
         if (null != cursor) {
             cursor.close();
         }
+    }
+
+
+    protected TextView getAliasTextView(Field field)
+    {
+        TextView aliasText = new TextView(this);
+        aliasText.setText(field.getAlias());
+        aliasText.setEllipsize(TextUtils.TruncateAt.END);
+        aliasText.setTextAppearance(this, android.R.style.TextAppearance_Medium);
+        aliasText.setTextColor(getResources().getColor(android.R.color.darker_gray));
+
+        return aliasText;
+    }
+
+
+    protected EditText getStringEditView(
+            Field field,
+            Cursor cursor)
+    {
+        EditText stringEdit = new EditText(this);
+        //stringEdit.setSingleLine(true);
+
+        if (null != cursor) {
+            int nIndex = cursor.getColumnIndex(field.getName());
+
+            if (nIndex >= 0) {
+                String stringVal = cursor.getString(nIndex);
+                stringEdit.setText(stringVal);
+            }
+        }
+
+        return stringEdit;
+    }
+
+
+    protected EditText getIntEditView(
+            Field field,
+            Cursor cursor)
+    {
+        EditText intEdit = new EditText(this);
+        intEdit.setSingleLine(true);
+        intEdit.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+        if (null != cursor) {
+            int nIndex = cursor.getColumnIndex(field.getName());
+
+            if (nIndex >= 0) {
+                int intVal = cursor.getInt(nIndex);
+                intEdit.setText("" + intVal);
+            }
+        }
+
+        return intEdit;
+    }
+
+
+    protected EditText getRealEditView(
+            Field field,
+            Cursor cursor)
+    {
+        EditText realEdit = new EditText(this);
+        realEdit.setSingleLine(true);
+        realEdit.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+
+        if (null != cursor) {
+            int nIndex = cursor.getColumnIndex(field.getName());
+
+            if (nIndex >= 0) {
+                float realVal = cursor.getFloat(nIndex);
+                realEdit.setText("" + realVal);
+            }
+        }
+
+        return realEdit;
+    }
+
+
+    protected TextView getDateEditView(
+            Field field,
+            Cursor cursor)
+    {
+        //TextView dateEdit = new TextView(this);
+        TextView dateEdit =
+                (TextView) getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
+
+        dateEdit.setSingleLine(true);
+        dateEdit.setFocusable(false);
+        dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit, DATETIME));
+
+        SimpleDateFormat dateText = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+        String pattern = dateText.toLocalizedPattern();
+        dateEdit.setHint(pattern);
+
+        if (null != cursor) {
+            int nIndex = cursor.getColumnIndex(field.getName());
+            if (nIndex >= 0) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(cursor.getLong(nIndex));
+                dateEdit.setText(dateText.format(calendar.getTime()));
+            }
+        }
+
+        return dateEdit;
     }
 
 
@@ -323,124 +377,162 @@ public class ModifyAttributesActivity
 
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        getMenuInflater().inflate(R.menu.edit_attributes, menu);
+
+        return true;
+    }
+
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
         int id = item.getItemId();
+
         if (id == R.id.menu_cancel || id == android.R.id.home) {
             finish();
             return true;
+
         } else if (id == R.id.menu_settings) {
             final IGISApplication app = (IGISApplication) getApplication();
             app.showSettings();
             return true;
+
         } else if (id == R.id.menu_apply) {
-            //create new row or modify existing
-            List<Field> fields = mLayer.getFields();
-            ContentValues values = new ContentValues();
-            for (Field field : fields) {
-                TextView textView = (TextView) mFields.get(field.getName());
-                Editable editText = textView.getEditableText();
-                if (null == editText) {
-                    continue;
-                }
-                String stringVal = editText.toString();
-                if (field.getType() == GeoConstants.FTDateTime) {
-                    SimpleDateFormat dateFormat =
-                            (SimpleDateFormat) DateFormat.getDateTimeInstance();
-                    try {
-                        Date date = dateFormat.parse(stringVal);
-                        values.put(field.getName(), date.getTime());
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    values.put(field.getName(), stringVal);
-                }
-            }
-
-            if (null != mGeometry) {
-                try {
-                    values.put(FIELD_GEOM, mGeometry.toBlob());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (mFeatureId == NOT_FOUND) {
-                if (mGeometry == null) {
-                    if (null == mLocation) {
-                        Toast.makeText(this, getText(R.string.error_no_location),
-                                       Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
-
-                    //create point geometry
-                    GeoGeometry geometry = null;
-                    GeoPoint pt;
-                    switch (mLayer.getGeometryType()) {
-                        case GeoConstants.GTPoint:
-                            pt = new GeoPoint(mLocation.getLongitude(), mLocation.getLatitude());
-                            pt.setCRS(GeoConstants.CRS_WGS84);
-                            pt.project(GeoConstants.CRS_WEB_MERCATOR);
-                            geometry = pt;
-                            break;
-                        case GeoConstants.GTMultiPoint:
-                            GeoMultiPoint mpt = new GeoMultiPoint();
-                            pt = new GeoPoint(mLocation.getLongitude(), mLocation.getLatitude());
-                            pt.setCRS(GeoConstants.CRS_WGS84);
-                            pt.project(GeoConstants.CRS_WEB_MERCATOR);
-                            mpt.add(pt);
-                            geometry = mpt;
-                            break;
-                    }
-                    if (null != geometry) {
-                        try {
-                            values.put(FIELD_GEOM, geometry.toBlob());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                IGISApplication app = (IGISApplication) getApplication();
-                if (null == app) {
-                    throw new IllegalArgumentException("Not a IGISApplication");
-                }
-                Uri uri = Uri.parse(
-                        "content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
-
-                int nUniqId = mLayer.getUniqId();
-                if (nUniqId < 1000) {
-                    nUniqId = 1000;// + mLayer.getCount();
-                }
-
-                values.put(FIELD_ID, nUniqId);
-
-                if (getContentResolver().insert(uri, values) == null) {
-                    Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT)
-                         .show();
-                    return true;
-                }
-            } else {
-                IGISApplication app = (IGISApplication) getApplication();
-                if (null == app) {
-                    throw new IllegalArgumentException("Not a IGISApplication");
-                }
-                Uri uri = Uri.parse(
-                        "content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
-                Uri updateUri = ContentUris.withAppendedId(uri, mFeatureId);
-
-                boolean hasFieldsAndValues = fields.size() > 0 && values.size() > 0;
-                if (hasFieldsAndValues &&
-                    getContentResolver().update(updateUri, values, null, null) == 0) {
-                    Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT)
-                         .show();
-                    return true;
-                }
-            }
-            finish();
+            onMenuApplyClicked();
             return true;
         }
+
         return super.onOptionsItemSelected(item);
+    }
+
+
+    protected void onMenuApplyClicked()
+    {
+        saveFeature();
+        finish();
+    }
+
+
+    protected void saveFeature()
+    {
+        //create new row or modify existing
+        List<Field> fields = mLayer.getFields();
+        ContentValues values = new ContentValues();
+
+        for (Field field : fields) {
+            putFieldValue(values, field);
+        }
+
+        putGeometry(values);
+
+
+        IGISApplication app = (IGISApplication) getApplication();
+
+        if (null == app) {
+            throw new IllegalArgumentException("Not a IGISApplication");
+        }
+
+        Uri uri = Uri.parse(
+                "content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
+
+        if (mFeatureId == NOT_FOUND) {
+
+            int nUniqId = mLayer.getUniqId();
+            if (nUniqId < 1000) {
+                nUniqId = 1000;// + mLayer.getCount();
+            }
+
+            values.put(FIELD_ID, nUniqId);
+
+            if (getContentResolver().insert(uri, values) == null) {
+                Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT)
+                        .show();
+            }
+
+        } else {
+            Uri updateUri = ContentUris.withAppendedId(uri, mFeatureId);
+
+            if (getContentResolver().update(updateUri, values, null, null) == 0) {
+                Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }
+    }
+
+
+    protected void putFieldValue(ContentValues values, Field field)
+    {
+        TextView textView = (TextView) mFields.get(field.getName());
+        String stringVal = textView.getText().toString();
+
+        if (field.getType() == GeoConstants.FTDateTime) {
+            SimpleDateFormat dateFormat =
+                    (SimpleDateFormat) DateFormat.getDateTimeInstance();
+
+            try {
+                Date date = dateFormat.parse(stringVal);
+                values.put(field.getName(), date.getTime());
+            } catch (ParseException e) {
+                Log.d(TAG, "Date parse error, " + e.getLocalizedMessage());
+            }
+
+        } else {
+            values.put(field.getName(), stringVal);
+        }
+    }
+
+
+    protected boolean putGeometry(ContentValues values)
+    {
+        GeoGeometry geometry = null;
+
+        if (null != mGeometry) {
+            geometry = mGeometry;
+
+        } else if (NOT_FOUND == mFeatureId) {
+
+            if (null == mLocation) {
+                Toast.makeText(
+                        this, getText(R.string.error_no_location), Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
+            //create point geometry
+            GeoPoint pt;
+
+            switch (mLayer.getGeometryType()) {
+
+                case GeoConstants.GTPoint:
+                    pt = new GeoPoint(mLocation.getLongitude(), mLocation.getLatitude());
+                    pt.setCRS(GeoConstants.CRS_WGS84);
+                    pt.project(GeoConstants.CRS_WEB_MERCATOR);
+
+                    geometry = pt;
+                    break;
+
+                case GeoConstants.GTMultiPoint:
+                    pt = new GeoPoint(mLocation.getLongitude(), mLocation.getLatitude());
+                    pt.setCRS(GeoConstants.CRS_WGS84);
+                    pt.project(GeoConstants.CRS_WEB_MERCATOR);
+
+                    GeoMultiPoint mpt = new GeoMultiPoint();
+                    mpt.add(pt);
+                    geometry = mpt;
+                    break;
+            }
+        }
+
+        if (null != geometry) {
+            try {
+                values.put(FIELD_GEOM, geometry.toBlob());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return true;
     }
 
 
@@ -448,6 +540,7 @@ public class ModifyAttributesActivity
     {
         if (null == location || null == mLatView || null == mLongView || null == mAccView ||
             null == mAltView) {
+
             mLatView.setText(
                     getString(R.string.latitude_caption_short) + ": " + getString(R.string.n_a));
             mLongView.setText(
@@ -456,6 +549,7 @@ public class ModifyAttributesActivity
                     getString(R.string.altitude_caption_short) + ": " + getString(R.string.n_a));
             mAccView.setText(
                     getString(R.string.accuracy_caption_short) + ": " + getString(R.string.n_a));
+
             return;
         }
 
@@ -463,16 +557,17 @@ public class ModifyAttributesActivity
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        int nFormat = prefs.getInt(SettingsConstantsUI.KEY_PREF_COORD_FORMAT + "_int",
-                                   Location.FORMAT_SECONDS);
+        int nFormat = prefs.getInt(
+                SettingsConstantsUI.KEY_PREF_COORD_FORMAT + "_int", Location.FORMAT_SECONDS);
         DecimalFormat df = new DecimalFormat("0.0");
 
-        mLatView.setText(getString(R.string.latitude_caption_short) + ": " +
-                         LocationUtil.formatLatitude(location.getLatitude(), nFormat,
-                                                     getResources()));
-        mLongView.setText(getString(R.string.longitude_caption_short) + ": " +
-                          LocationUtil.formatLongitude(location.getLongitude(), nFormat,
-                                                       getResources()));
+        mLatView.setText(
+                getString(R.string.latitude_caption_short) + ": " +
+                LocationUtil.formatLatitude(location.getLatitude(), nFormat, getResources()));
+
+        mLongView.setText(
+                getString(R.string.longitude_caption_short) + ": " +
+                LocationUtil.formatLongitude(location.getLongitude(), nFormat, getResources()));
 
         double altitude = location.getAltitude();
         mAltView.setText(
@@ -483,7 +578,6 @@ public class ModifyAttributesActivity
         mAccView.setText(
                 getString(R.string.accuracy_caption_short) + ": " + df.format(accuracy) + " " +
                 getString(R.string.unit_meter));
-
     }
 
 
@@ -565,62 +659,48 @@ public class ModifyAttributesActivity
             {
                 if (pickerType == DATE) {
                     calendar.setTime(new Date());
-                    new DatePickerDialog(ModifyAttributesActivity.this, date,
-                                         calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
-                                         calendar.get(Calendar.DAY_OF_MONTH)).show();
+                    new DatePickerDialog(
+                            ModifyAttributesActivity.this, date, calendar.get(Calendar.YEAR),
+                            calendar.get(Calendar.MONTH),
+                            calendar.get(Calendar.DAY_OF_MONTH)).show();
                 } else if (pickerType == TIME) {
                     calendar.setTime(new Date());
-                    new TimePickerDialog(ModifyAttributesActivity.this, time,
-                                         calendar.get(Calendar.HOUR_OF_DAY),
-                                         calendar.get(Calendar.MINUTE),
-                                         android.text.format.DateFormat.is24HourFormat(
-                                                 ModifyAttributesActivity.this)).show();
+                    new TimePickerDialog(
+                            ModifyAttributesActivity.this, time, calendar.get(Calendar.HOUR_OF_DAY),
+                            calendar.get(Calendar.MINUTE),
+                            android.text.format.DateFormat.is24HourFormat(
+                                    ModifyAttributesActivity.this)).show();
                 } else if (pickerType == DATETIME) {
                     calendar.setTime(new Date());
                     final SimpleDateFormat sdf =
                             (SimpleDateFormat) DateFormat.getDateTimeInstance();
+
                     AlertDialog.Builder builder =
                             new AlertDialog.Builder(ModifyAttributesActivity.this);
-                    builder.setTitle(sdf.format(calendar.getTime()))
-                           .setNegativeButton(R.string.ok, new DialogInterface.OnClickListener()
-                           {
-                               @Override
-                               public void onClick(
-                                       DialogInterface dialog,
-                                       int which)
-                               {
-                                   updateLabel();
-                                   dialog.cancel();
-                               }
-                           });
+
+                    builder.setTitle(sdf.format(calendar.getTime()));
+                    builder.setNegativeButton(
+                            R.string.ok, new DialogInterface.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(
+                                        DialogInterface dialog,
+                                        int which)
+                                {
+                                    updateLabel();
+                                    dialog.cancel();
+                                }
+                            });
 
                     final AlertDialog alert = builder.create();
+
                     View datetimePickerLayout =
                             getLayoutInflater().inflate(R.layout.layout_datetimepicker, null);
                     alert.setView(datetimePickerLayout);
 
-                    TimePicker tp = (TimePicker) datetimePickerLayout.findViewById(R.id.timePicker);
-                    tp.setIs24HourView(android.text.format.DateFormat.is24HourFormat(
-                            ModifyAttributesActivity.this));
-                    tp.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener()
-                    {
-                        @Override
-                        public void onTimeChanged(
-                                TimePicker view,
-                                int hourOfDay,
-                                int minute)
-                        {
-                            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                            calendar.set(Calendar.MINUTE, minute);
-
-                            alert.setTitle(sdf.format(calendar.getTime()));
-
-                            updateLabel();
-                        }
-                    });
-
                     DatePicker dt = (DatePicker) datetimePickerLayout.findViewById(R.id.datePicker);
-                    dt.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+                    dt.init(
+                            calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
                             calendar.get(Calendar.DAY_OF_MONTH),
                             new DatePicker.OnDateChangedListener()
                             {
@@ -642,20 +722,33 @@ public class ModifyAttributesActivity
                                 }
                             });
 
+                    TimePicker tp = (TimePicker) datetimePickerLayout.findViewById(R.id.timePicker);
+                    tp.setIs24HourView(
+                            android.text.format.DateFormat.is24HourFormat(
+                                    ModifyAttributesActivity.this));
+                    tp.setOnTimeChangedListener(
+                            new TimePicker.OnTimeChangedListener()
+                            {
+                                @Override
+                                public void onTimeChanged(
+                                        TimePicker view,
+                                        int hourOfDay,
+                                        int minute)
+                                {
+                                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                                    calendar.set(Calendar.MINUTE, minute);
+
+                                    alert.setTitle(sdf.format(calendar.getTime()));
+
+                                    updateLabel();
+                                }
+                            });
+
                     alert.show();
                 }
             }
         };
 
         return out;
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        getMenuInflater().inflate(R.menu.edit_attributes, menu);
-
-        return true;
     }
 }

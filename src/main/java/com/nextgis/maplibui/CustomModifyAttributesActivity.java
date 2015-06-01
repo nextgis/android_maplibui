@@ -21,12 +21,10 @@
 
 package com.nextgis.maplibui;
 
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -35,7 +33,6 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -51,8 +48,6 @@ import android.widget.Toast;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometry;
-import com.nextgis.maplib.datasource.GeoMultiPoint;
-import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.VectorLayer;
@@ -143,7 +138,7 @@ public class CustomModifyAttributesActivity
             MapBase map = app.getMap();
             mLayer = (VectorLayer) map.getLayerById(layerId);
             if (null != mLayer) {
-                serializeLast(false);
+                readLastValues();
                 int orientation = getResources().getConfiguration().orientation;
                 boolean isLand = orientation == Configuration.ORIENTATION_LANDSCAPE;
                 createAndFillControls(layout, form, isLand);
@@ -157,18 +152,19 @@ public class CustomModifyAttributesActivity
             mAccView = (TextView) findViewById(R.id.accuracy_view);
 
             ImageButton refreshLocation = (ImageButton) findViewById(R.id.refresh);
-            refreshLocation.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View view)
-                {
-                    if (null != app) {
-                        GpsEventSource gpsEventSource = app.getGpsEventSource();
-                        Location location = gpsEventSource.getLastKnownLocation();
-                        setLocationText(location);
-                    }
-                }
-            });
+            refreshLocation.setOnClickListener(
+                    new View.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(View view)
+                        {
+                            if (null != app) {
+                                GpsEventSource gpsEventSource = app.getGpsEventSource();
+                                Location location = gpsEventSource.getLastKnownLocation();
+                                setLocationText(location);
+                            }
+                        }
+                    });
         } else {
             //hide location panel
             ViewGroup rootView = (ViewGroup) findViewById(R.id.root_view);
@@ -177,65 +173,105 @@ public class CustomModifyAttributesActivity
     }
 
 
-    protected void serializeLast(boolean store)
+    protected void readLastValues()
     {
-        if (store) {
-            JSONArray lastJsonArray = new JSONArray();
-            for (Map.Entry<String, String> entry : mLastValues.entrySet()) {
-                String field = entry.getKey();
+        mLastValues = new HashMap<>();
 
-                View v = mFields.get(field);
-                String key;
-                if (v instanceof Spinner) {
-                    Spinner sp = (Spinner) v;
-                    key = (String) sp.getSelectedItem();
-                } else if (v instanceof RadioGroup) {
-                    RadioGroup rg = (RadioGroup) v;
-                    RadioButton radioButton =
-                            (RadioButton) rg.findViewById(rg.getCheckedRadioButtonId());
-                    key = (String) radioButton.getText();
-                } else {
-                    TextView tv = (TextView) v;
-                    Editable editText = tv.getEditableText();
-                    if (null == editText) {
-                        continue;
-                    }
+        try {
+            JSONArray lastJsonArray =
+                    new JSONArray(FileUtil.readFromFile(new File(mLayer.getPath(), FILE_LAST)));
 
-                    //String value = entry.getValue();
-                    key = editText.toString();
-                }
-
-                JSONObject lastValue = new JSONObject();
-                try {
-                    lastValue.put(JSON_NAME_KEY, field);
-                    lastValue.put(JSON_VALUE_KEY, key);
-                    lastJsonArray.put(lastValue);
-                } catch (JSONException e) {
-                    //skip broken field/value
-                    e.printStackTrace();
-                }
+            for (int i = 0; i < lastJsonArray.length(); i++) {
+                JSONObject lastValue = lastJsonArray.getJSONObject(i);
+                String fieldName = lastValue.getString(JSON_NAME_KEY);
+                String fieldValue = lastValue.getString(JSON_VALUE_KEY);
+                mLastValues.put(fieldName, fieldValue);
             }
+
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    protected void writeLastValues()
+    {
+        JSONArray lastJsonArray = new JSONArray();
+
+        for (Map.Entry<String, String> entry : mLastValues.entrySet()) {
+            String field = entry.getKey();
+
+            View v = mFields.get(field);
+            String fieldValue;
+
+            if (v instanceof Spinner) {
+                Spinner sp = (Spinner) v;
+                fieldValue = (String) sp.getSelectedItem();
+
+            } else if (v instanceof RadioGroup) {
+                RadioGroup rg = (RadioGroup) v;
+                RadioButton radioButton =
+                        (RadioButton) rg.findViewById(rg.getCheckedRadioButtonId());
+                fieldValue = (String) radioButton.getText();
+
+            } else {
+                TextView tv = (TextView) v;
+                Editable editText = tv.getEditableText();
+
+                if (null == editText) {
+                    continue;
+                }
+
+                //String value = entry.getValue();
+                fieldValue = editText.toString();
+            }
+
+            JSONObject lastValue = new JSONObject();
+
             try {
-                FileUtil.writeToFile(new File(mLayer.getPath(), FILE_LAST),
-                                     lastJsonArray.toString());
-            } catch (IOException e) {
-                //skip save if something wrong
-                e.printStackTrace();
+                lastValue.put(JSON_NAME_KEY, field);
+                lastValue.put(JSON_VALUE_KEY, fieldValue);
+                lastJsonArray.put(lastValue);
+            } catch (JSONException e) {
+                //skip broken field/value
+                Log.d(TAG, e.getLocalizedMessage());
             }
-        } else {
-            mLastValues = new HashMap<>();
-            try {
-                JSONArray lastJsonArray =
-                        new JSONArray(FileUtil.readFromFile(new File(mLayer.getPath(), FILE_LAST)));
-                for (int i = 0; i < lastJsonArray.length(); i++) {
-                    JSONObject lastValue = lastJsonArray.getJSONObject(i);
-                    String fieldName = lastValue.getString(JSON_NAME_KEY);
-                    String fieldValue = lastValue.getString(JSON_VALUE_KEY);
-                    mLastValues.put(fieldName, fieldValue);
+        }
+
+        try {
+            FileUtil.writeToFile(
+                    new File(mLayer.getPath(), FILE_LAST), lastJsonArray.toString());
+
+        } catch (IOException e) {
+            //skip save if something wrong
+            e.printStackTrace();
+        }
+    }
+
+
+    protected void createAndFillControls(
+            LinearLayout layout,
+            File form,
+            boolean isLand)
+    {
+        try {
+            JSONObject jsonFormContents = new JSONObject(FileUtil.readFromFile(form));
+            JSONArray tabs = jsonFormContents.getJSONArray(JSON_TABS_KEY);
+            //TODO: add support more than one tab
+            JSONObject tab0 = tabs.getJSONObject(0);
+            if (isLand && !tab0.isNull(JSON_ALBUM_KEY)) {
+                JSONArray elements = tab0.getJSONArray(JSON_ALBUM_KEY);
+                if (null != elements && elements.length() > 0) {
+                    createAndFillControls(layout, elements);
                 }
-            } catch (IOException | JSONException e) {
-                e.printStackTrace();
+            } else {
+                JSONArray elements = tab0.getJSONArray(JSON_PORTRAIT_KEY);
+                createAndFillControls(layout, elements);
             }
+
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, getString(R.string.error_form_create), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -246,12 +282,11 @@ public class CustomModifyAttributesActivity
             throws JSONException
     {
         Cursor cursor = null;
+
         if (mFeatureId != NOT_FOUND) {
             cursor = mLayer.query(null, FIELD_ID + " = " + mFeatureId, null, null);
-            if (cursor.getCount() < 1) {
+            if (!cursor.moveToFirst()) {
                 cursor = null;
-            } else {
-                cursor.moveToFirst();
             }
         }
 
@@ -397,8 +432,8 @@ public class CustomModifyAttributesActivity
         adapter.setDropDownViewResource(
                 android.R.layout.simple_spinner_dropdown_item); // The drop down view
         spinner.setAdapter(adapter);
-        float minHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14,
-                                                    getResources().getDisplayMetrics());
+        float minHeight = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 14, getResources().getDisplayMetrics());
         spinner.setPadding(0, (int) minHeight, 0, (int) minHeight);
 
         int spinnerPosition = adapter.getPosition(lastVal1);
@@ -413,38 +448,40 @@ public class CustomModifyAttributesActivity
         layout.addView(subspinner);
         mFields.put(field2, subspinner);
 
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
-        {
-            public void onItemSelected(
-                    AdapterView<?> arg0,
-                    View arg1,
-                    int arg2,
-                    long arg3)
-            {
-                String sCat = adapter.getItem(arg2).toString();
-                List<String> subCatList = categoriesMap.get(sCat);
-                ArrayAdapter<String> subadapter =
-                        new ArrayAdapter<>(CustomModifyAttributesActivity.this,
-                                           android.R.layout.simple_spinner_item, subCatList);
-                subadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                subspinner.setAdapter(subadapter);
+        spinner.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener()
+                {
+                    public void onItemSelected(
+                            AdapterView<?> arg0,
+                            View arg1,
+                            int arg2,
+                            long arg3)
+                    {
+                        String sCat = adapter.getItem(arg2).toString();
+                        List<String> subCatList = categoriesMap.get(sCat);
+                        ArrayAdapter<String> subadapter = new ArrayAdapter<>(
+                                CustomModifyAttributesActivity.this,
+                                android.R.layout.simple_spinner_item, subCatList);
+                        subadapter.setDropDownViewResource(
+                                android.R.layout.simple_spinner_dropdown_item);
+                        subspinner.setAdapter(subadapter);
 
-                int spinnerPosition2 = subadapter.getPosition(lastVal2);
-                if (spinnerPosition2 < 0) {
-                    subspinner.setSelection(0);
-                } else {
-                    subspinner.setSelection(spinnerPosition2);
-                }
+                        int spinnerPosition2 = subadapter.getPosition(lastVal2);
+                        if (spinnerPosition2 < 0) {
+                            subspinner.setSelection(0);
+                        } else {
+                            subspinner.setSelection(spinnerPosition2);
+                        }
 
-                String firstKey = (String) spinner.getSelectedItem();
-                mDoubleComboFirstKeys.put(subspinner, firstKey);
-            }
+                        String firstKey = (String) spinner.getSelectedItem();
+                        mDoubleComboFirstKeys.put(subspinner, firstKey);
+                    }
 
 
-            public void onNothingSelected(AdapterView<?> arg0)
-            {
-            }
-        });
+                    public void onNothingSelected(AdapterView<?> arg0)
+                    {
+                    }
+                });
 
 
         //add grey view here
@@ -452,8 +489,8 @@ public class CustomModifyAttributesActivity
         greyLine.setBackgroundResource(android.R.color.darker_gray);
         layout.addView(greyLine);
         ViewGroup.LayoutParams params = greyLine.getLayoutParams();
-        float height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
-                                                 getResources().getDisplayMetrics());
+        float height = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
         params.height = (int) height;
         greyLine.setLayoutParams(params);
     }
@@ -533,8 +570,8 @@ public class CustomModifyAttributesActivity
         greyLine.setBackgroundResource(android.R.color.darker_gray);
         layout.addView(greyLine);
         ViewGroup.LayoutParams params = greyLine.getLayoutParams();
-        float height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
-                                                 getResources().getDisplayMetrics());
+        float height = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
         params.height = (int) height;
         greyLine.setLayoutParams(params);
     }
@@ -598,8 +635,8 @@ public class CustomModifyAttributesActivity
         spinnerArrayAdapter.setDropDownViewResource(
                 android.R.layout.simple_spinner_dropdown_item); // The drop down view
         spinner.setAdapter(spinnerArrayAdapter);
-        float minHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14,
-                                                    getResources().getDisplayMetrics());
+        float minHeight = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 14, getResources().getDisplayMetrics());
         spinner.setPadding(0, (int) minHeight, 0, (int) minHeight);
 
         int spinnerPosition = spinnerArrayAdapter.getPosition(lastVal);
@@ -613,8 +650,8 @@ public class CustomModifyAttributesActivity
         greyLine.setBackgroundResource(android.R.color.darker_gray);
         layout.addView(greyLine);
         ViewGroup.LayoutParams params = greyLine.getLayoutParams();
-        float height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
-                                                 getResources().getDisplayMetrics());
+        float height = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
         params.height = (int) height;
         greyLine.setLayoutParams(params);
     }
@@ -698,8 +735,8 @@ public class CustomModifyAttributesActivity
         greyLine.setBackgroundResource(android.R.color.darker_gray);
         layout.addView(greyLine);
         ViewGroup.LayoutParams params = greyLine.getLayoutParams();
-        float height = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
-                                                 getResources().getDisplayMetrics());
+        float height = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
         params.height = (int) height;
         greyLine.setLayoutParams(params);
     }
@@ -783,192 +820,82 @@ public class CustomModifyAttributesActivity
     }
 
 
-    protected void createAndFillControls(
-            LinearLayout layout,
-            File form,
-            boolean isLand)
+    protected void onMenuApplyClicked()
     {
-        try {
-            JSONObject jsonFormContents = new JSONObject(FileUtil.readFromFile(form));
-            JSONArray tabs = jsonFormContents.getJSONArray(JSON_TABS_KEY);
-            //TODO: add support more than one tab
-            JSONObject tab0 = tabs.getJSONObject(0);
-            if (isLand && !tab0.isNull(JSON_ALBUM_KEY)) {
-                JSONArray elements = tab0.getJSONArray(JSON_ALBUM_KEY);
-                if (null != elements && elements.length() > 0) {
-                    createAndFillControls(layout, elements);
-                }
-            } else {
-                JSONArray elements = tab0.getJSONArray(JSON_PORTRAIT_KEY);
-                createAndFillControls(layout, elements);
-            }
-
-        } catch (JSONException | IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, getString(R.string.error_form_create), Toast.LENGTH_SHORT).show();
-        }
+        writeLastValues();
+        super.onMenuApplyClicked();
     }
 
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
+    protected void putFieldValue(
+            ContentValues values,
+            Field field)
     {
-        int id = item.getItemId();
-        if (id == R.id.menu_cancel || id == android.R.id.home) {
-            finish();
-            return true;
-        } else if (id == R.id.menu_settings) {
-            final IGISApplication app = (IGISApplication) getApplication();
-            app.showSettings();
-            return true;
-        } else if (id == R.id.menu_apply) {
-            serializeLast(true);
+        View v = mFields.get(field.getName());
 
-            //create new row or modify existing
-            List<Field> fields = mLayer.getFields();
-            ContentValues values = new ContentValues();
-            for (Field field : fields) {
-                View v = mFields.get(field.getName());
-                if (null == v) {
-                    continue;
-                }
+        if (null == v) {
+            return;
+        }
 
-                String stringVal = null;
-                if (v instanceof Spinner) {
-                    Spinner sp = (Spinner) v;
-                    String key = (String) sp.getSelectedItem();
-                    String firstKey = mDoubleComboFirstKeys.get(sp);
-                    if (!TextUtils.isEmpty(firstKey)) {
-                        key = firstKey + "->" + key;
-                    }
-                    Map<String, String> keyValue = mKeyValuesForField.get(field.getName());
-                    if (null != keyValue) {
-                        stringVal = keyValue.get(key);
-                    }
-                } else if (v instanceof RadioGroup) {
-                    RadioGroup rg = (RadioGroup) v;
-                    RadioButton radioButton =
-                            (RadioButton) rg.findViewById(rg.getCheckedRadioButtonId());
-                    String key = (String) radioButton.getText();
-                    Map<String, String> keyValue = mKeyValuesForField.get(field.getName());
-                    if (null != keyValue) {
-                        stringVal = keyValue.get(key);
-                    }
-                } else {
-                    TextView textView = (TextView) v;
-                    Editable editText = textView.getEditableText();
-                    if (null == editText) {
-                        stringVal = (String) textView.getText();
-                    } else {
-                        stringVal = editText.toString();
-                    }
-                }
+        String stringVal = null;
 
-                Log.d(TAG, "field: " + field.getName() + " value: " + stringVal);
-                if (!TextUtils.isEmpty(stringVal)) {
-                    if (mDateTimePickerType.containsKey(v)) {
-                        //if (field.getType() == GeoConstants.FTDateTime) {
-                        SimpleDateFormat dateFormat;
-                        int pickerType = mDateTimePickerType.get(v);
-                        if (pickerType == DATE) {
-                            dateFormat = (SimpleDateFormat) DateFormat.getDateInstance();
-                        } else if (pickerType == TIME) {
-                            dateFormat = (SimpleDateFormat) DateFormat.getTimeInstance();
-                        } else {
-                            dateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
-                        }
+        if (v instanceof Spinner) {
+            Spinner sp = (Spinner) v;
+            String key = (String) sp.getSelectedItem();
+            String firstKey = mDoubleComboFirstKeys.get(sp);
 
-                        try {
-                            Date date = dateFormat.parse(stringVal);
-                            values.put(field.getName(), date.getTime());
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        values.put(field.getName(), stringVal);
-                    }
-                }
+            if (!TextUtils.isEmpty(firstKey)) {
+                key = firstKey + "->" + key;
             }
 
-            if (null != mGeometry) {
+            Map<String, String> keyValue = mKeyValuesForField.get(field.getName());
+
+            if (null != keyValue) {
+                stringVal = keyValue.get(key);
+            }
+
+        } else if (v instanceof RadioGroup) {
+            RadioGroup rg = (RadioGroup) v;
+            RadioButton radioButton = (RadioButton) rg.findViewById(rg.getCheckedRadioButtonId());
+            String key = (String) radioButton.getText();
+            Map<String, String> keyValue = mKeyValuesForField.get(field.getName());
+
+            if (null != keyValue) {
+                stringVal = keyValue.get(key);
+            }
+
+        } else {
+            TextView textView = (TextView) v;
+            stringVal = textView.getText().toString();
+        }
+
+        Log.d(TAG, "field: " + field.getName() + " value: " + stringVal);
+
+        if (!TextUtils.isEmpty(stringVal)) {
+
+            if (mDateTimePickerType.containsKey(v)) {
+                //if (field.getType() == GeoConstants.FTDateTime) {
+                SimpleDateFormat dateFormat;
+                int pickerType = mDateTimePickerType.get(v);
+
+                if (pickerType == DATE) {
+                    dateFormat = (SimpleDateFormat) DateFormat.getDateInstance();
+                } else if (pickerType == TIME) {
+                    dateFormat = (SimpleDateFormat) DateFormat.getTimeInstance();
+                } else {
+                    dateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+                }
+
                 try {
-                    values.put(FIELD_GEOM, mGeometry.toBlob());
-                } catch (IOException e) {
+                    Date date = dateFormat.parse(stringVal);
+                    values.put(field.getName(), date.getTime());
+                } catch (ParseException e) {
                     e.printStackTrace();
                 }
-            }
 
-            if (mFeatureId == NOT_FOUND) {
-                if (mGeometry == null) {
-                    if (null == mLocation) {
-                        Toast.makeText(this, getText(R.string.error_no_location),
-                                       Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
-                    //create point geometry
-                    GeoGeometry geometry = null;
-                    GeoPoint pt;
-                    switch (mLayer.getGeometryType()) {
-                        case GeoConstants.GTPoint:
-                            pt = new GeoPoint(mLocation.getLongitude(), mLocation.getLatitude());
-                            pt.setCRS(GeoConstants.CRS_WGS84);
-                            pt.project(GeoConstants.CRS_WEB_MERCATOR);
-                            geometry = pt;
-                            break;
-                        case GeoConstants.GTMultiPoint:
-                            GeoMultiPoint mpt = new GeoMultiPoint();
-                            pt = new GeoPoint(mLocation.getLongitude(), mLocation.getLatitude());
-                            pt.setCRS(GeoConstants.CRS_WGS84);
-                            pt.project(GeoConstants.CRS_WEB_MERCATOR);
-                            mpt.add(pt);
-                            geometry = mpt;
-                            break;
-                    }
-                    if (null != geometry) {
-                        try {
-                            values.put(FIELD_GEOM, geometry.toBlob());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                IGISApplication app = (IGISApplication) getApplication();
-                if (null == app) {
-                    throw new IllegalArgumentException("Not a IGISApplication");
-                }
-                Uri uri = Uri.parse(
-                        "content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
-
-                int nUniqId = mLayer.getUniqId();
-                if (nUniqId < 1000) {
-                    nUniqId = 1000;// + mLayer.getCount();
-                }
-
-                values.put(FIELD_ID, nUniqId);
-
-                if (getContentResolver().insert(uri, values) == null) {
-                    Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT)
-                         .show();
-                    return true;
-                }
             } else {
-                IGISApplication app = (IGISApplication) getApplication();
-                if (null == app) {
-                    throw new IllegalArgumentException("Not a IGISApplication");
-                }
-                Uri uri = Uri.parse(
-                        "content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
-                Uri updateUri = ContentUris.withAppendedId(uri, mFeatureId);
-
-                if (getContentResolver().update(updateUri, values, null, null) == 0) {
-                    Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT)
-                         .show();
-                    return true;
-                }
+                values.put(field.getName(), stringVal);
             }
-            finish();
-            return true;
         }
-        return super.onOptionsItemSelected(item);
     }
 }
