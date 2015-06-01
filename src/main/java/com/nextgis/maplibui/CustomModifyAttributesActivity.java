@@ -56,7 +56,6 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.VectorLayer;
-import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.GeoConstants;
 import org.json.JSONArray;
@@ -78,6 +77,7 @@ import java.util.Map;
 import static com.nextgis.maplib.util.Constants.*;
 import static com.nextgis.maplibui.util.ConstantsUI.*;
 
+
 /**
  * Activity to add or modify vector layer attributes
  */
@@ -85,25 +85,26 @@ public class CustomModifyAttributesActivity
         extends ModifyAttributesActivity
 {
 
-    protected static final String JSON_ATTRIBUTES_KEY = "attributes";
-    protected static final String JSON_TYPE_KEY = "type";
-    protected static final String JSON_TABS_KEY = "tabs";
-    protected static final String JSON_ALBUM_KEY = "album_elements";
-    protected static final String JSON_PORTRAIT_KEY = "portrait_elements";
-    protected static final String JSON_TEXT_KEY = "text";
-    protected static final String JSON_FIELD_KEY = "field";
-    protected static final String JSON_FILLLAST_KEY = "last";
+    protected static final String JSON_ATTRIBUTES_KEY     = "attributes";
+    protected static final String JSON_TYPE_KEY           = "type";
+    protected static final String JSON_TABS_KEY           = "tabs";
+    protected static final String JSON_ALBUM_KEY          = "album_elements";
+    protected static final String JSON_PORTRAIT_KEY       = "portrait_elements";
+    protected static final String JSON_TEXT_KEY           = "text";
+    protected static final String JSON_FIELD_KEY          = "field";
+    protected static final String JSON_FILLLAST_KEY       = "last";
     protected static final String JSON_MAXSTRINGCOUNT_KEY = "max_string_count";
-    protected static final String JSON_ONLYFIGURES_KEY = "only_figures";
-    protected static final String JSON_VALUES_KEY = "values";
-    protected static final String JSON_ALIAS_KEY = "alias";
+    protected static final String JSON_ONLYFIGURES_KEY    = "only_figures";
+    protected static final String JSON_VALUES_KEY         = "values";
+    protected static final String JSON_ALIAS_KEY          = "alias";
 
-    protected Map<String, String> mLastValues;
+    protected Map<String, String>              mLastValues;
     protected Map<String, Map<String, String>> mKeyValuesForField;
-    protected Map<View, String> mDoubleComboFirstKeys;
-    protected Map<View, Integer> mDateTimePickerType;
+    protected Map<View, String>                mDoubleComboFirstKeys;
+    protected Map<View, Integer>               mDateTimePickerType;
 
     protected static final String FILE_LAST = "last.json";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -122,7 +123,7 @@ public class CustomModifyAttributesActivity
         setSupportActionBar(toolbar);
 
 
-        LinearLayout layout = (LinearLayout)findViewById(R.id.controls_list);
+        LinearLayout layout = (LinearLayout) findViewById(R.id.controls_list);
 
         ActionBar bar = getSupportActionBar();
         if (null != bar) {
@@ -141,7 +142,7 @@ public class CustomModifyAttributesActivity
 
             MapBase map = app.getMap();
             mLayer = (VectorLayer) map.getLayerById(layerId);
-            if(null != mLayer){
+            if (null != mLayer) {
                 serializeLast(false);
                 int orientation = getResources().getConfiguration().orientation;
                 boolean isLand = orientation == Configuration.ORIENTATION_LANDSCAPE;
@@ -149,7 +150,7 @@ public class CustomModifyAttributesActivity
             }
         }
 
-        if(null == mGeometry && mFeatureId == NOT_FOUND) {
+        if (null == mGeometry && mFeatureId == NOT_FOUND) {
             mLatView = (TextView) findViewById(R.id.latitude_view);
             mLongView = (TextView) findViewById(R.id.longitude_view);
             mAltView = (TextView) findViewById(R.id.altitude_view);
@@ -168,8 +169,7 @@ public class CustomModifyAttributesActivity
                     }
                 }
             });
-        }
-        else{
+        } else {
             //hide location panel
             ViewGroup rootView = (ViewGroup) findViewById(R.id.root_view);
             rootView.removeView(findViewById(R.id.location_panel));
@@ -179,27 +179,27 @@ public class CustomModifyAttributesActivity
 
     protected void serializeLast(boolean store)
     {
-        if(store){
+        if (store) {
             JSONArray lastJsonArray = new JSONArray();
             for (Map.Entry<String, String> entry : mLastValues.entrySet()) {
                 String field = entry.getKey();
 
                 View v = mFields.get(field);
                 String key;
-                if(v instanceof Spinner){
-                    Spinner sp = (Spinner)v;
+                if (v instanceof Spinner) {
+                    Spinner sp = (Spinner) v;
                     key = (String) sp.getSelectedItem();
-                } else if(v instanceof RadioGroup) {
-                    RadioGroup rg = (RadioGroup)v;
+                } else if (v instanceof RadioGroup) {
+                    RadioGroup rg = (RadioGroup) v;
                     RadioButton radioButton =
                             (RadioButton) rg.findViewById(rg.getCheckedRadioButtonId());
                     key = (String) radioButton.getText();
-                }
-                else {
+                } else {
                     TextView tv = (TextView) v;
                     Editable editText = tv.getEditableText();
-                    if (null == editText)
+                    if (null == editText) {
                         continue;
+                    }
 
                     //String value = entry.getValue();
                     key = editText.toString();
@@ -216,17 +216,18 @@ public class CustomModifyAttributesActivity
                 }
             }
             try {
-                FileUtil.writeToFile(new File(mLayer.getPath(), FILE_LAST), lastJsonArray.toString());
+                FileUtil.writeToFile(new File(mLayer.getPath(), FILE_LAST),
+                                     lastJsonArray.toString());
             } catch (IOException e) {
                 //skip save if something wrong
                 e.printStackTrace();
             }
-        }
-        else{
+        } else {
             mLastValues = new HashMap<>();
             try {
-                JSONArray lastJsonArray = new JSONArray(FileUtil.readFromFile(new File(mLayer.getPath(), FILE_LAST)));
-                for(int i = 0; i < lastJsonArray.length(); i++){
+                JSONArray lastJsonArray =
+                        new JSONArray(FileUtil.readFromFile(new File(mLayer.getPath(), FILE_LAST)));
+                for (int i = 0; i < lastJsonArray.length(); i++) {
                     JSONObject lastValue = lastJsonArray.getJSONObject(i);
                     String fieldName = lastValue.getString(JSON_NAME_KEY);
                     String fieldValue = lastValue.getString(JSON_VALUE_KEY);
@@ -245,18 +246,19 @@ public class CustomModifyAttributesActivity
             throws JSONException
     {
         Cursor cursor = null;
-        if(mFeatureId != NOT_FOUND) {
+        if (mFeatureId != NOT_FOUND) {
             cursor = mLayer.query(null, FIELD_ID + " = " + mFeatureId, null, null);
-            if(cursor.getCount() < 1)
+            if (cursor.getCount() < 1) {
                 cursor = null;
-            else
+            } else {
                 cursor.moveToFirst();
+            }
         }
 
-        for(int i = 0; i < elements.length(); i++){
+        for (int i = 0; i < elements.length(); i++) {
             JSONObject element = elements.getJSONObject(i);
             String type = element.getString(JSON_TYPE_KEY);
-            switch(type){
+            switch (type) {
                 case "text_edit":
                     addEditText(layout, element, cursor);
                     break;
@@ -293,15 +295,20 @@ public class CustomModifyAttributesActivity
         }
     }
 
-    protected void addDoubleCombobox(LinearLayout layout, JSONObject element, Cursor cursor)
+
+    protected void addDoubleCombobox(
+            LinearLayout layout,
+            JSONObject element,
+            Cursor cursor)
             throws JSONException
     {
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         String field1 = attributes.getString("field_level1");
         String field2 = attributes.getString("field_level2");
         boolean last = false;
-        if(attributes.has(JSON_FILLLAST_KEY))
+        if (attributes.has(JSON_FILLLAST_KEY)) {
             last = attributes.getBoolean(JSON_FILLLAST_KEY);
+        }
         JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
 
         Map<String, String> keyValueMap1 = new HashMap<>();
@@ -310,40 +317,41 @@ public class CustomModifyAttributesActivity
 
         String lastVal1 = mLastValues.get(field1);
         String lastSubVal2 = mLastValues.get(field2);
-        if(TextUtils.isEmpty(lastVal1) || TextUtils.isEmpty(lastSubVal2))
+        if (TextUtils.isEmpty(lastVal1) || TextUtils.isEmpty(lastSubVal2)) {
             last = false;
+        }
 
         String cursorVal1 = null;
         String cursorVal2 = null;
-        if(null != cursor) {
+        if (null != cursor) {
             int nIndex1 = cursor.getColumnIndex(field1);
             int nIndex2 = cursor.getColumnIndex(field2);
-            if(nIndex1 >= 0 && nIndex2 >= 0) {
+            if (nIndex1 >= 0 && nIndex2 >= 0) {
                 cursorVal1 = cursor.getString(nIndex1);
                 cursorVal2 = cursor.getString(nIndex2);
             }
         }
 
-        final ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
+        final ArrayAdapter<CharSequence> adapter =
+                new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
 
 
-        for(int j = 0; j < values.length(); j++){
+        for (int j = 0; j < values.length(); j++) {
             JSONObject keyValue = values.getJSONObject(j);
             String value = keyValue.getString(JSON_NAME_KEY);
             String key = keyValue.getString(JSON_ALIAS_KEY);
 
             boolean isDefault = false;
 
-            if(j == 0) {
+            if (j == 0) {
                 lastVal1 = key;
                 isDefault = true;
             }
 
-            if(null != cursorVal1 && cursorVal1.equals(value)){ //if modify data
+            if (null != cursorVal1 && cursorVal1.equals(value)) { //if modify data
                 lastVal1 = key;
-                isDefault= true;
-            }
-            else if(!last && keyValue.has("default") && keyValue.getBoolean("default")){
+                isDefault = true;
+            } else if (!last && keyValue.has("default") && keyValue.getBoolean("default")) {
                 lastVal1 = key;
                 isDefault = true;
             }
@@ -353,14 +361,15 @@ public class CustomModifyAttributesActivity
 
             categoriesMap.put(key, new ArrayList<String>());
             JSONArray subValues = keyValue.getJSONArray(JSON_VALUES_KEY);
-            for(int k = 0; k < subValues.length(); k++){
+            for (int k = 0; k < subValues.length(); k++) {
                 JSONObject keyValue2 = subValues.getJSONObject(k);
                 String value2 = keyValue2.getString(JSON_NAME_KEY);
                 String key2 = keyValue2.getString(JSON_ALIAS_KEY);
 
-                if(isDefault) {
-                    if (k == 0)
+                if (isDefault) {
+                    if (k == 0) {
                         lastSubVal2 = key2;
+                    }
 
                     if (null != cursorVal2 && cursorVal2.equals(value2)) { //if modify data
                         lastSubVal2 = key2;
@@ -375,7 +384,7 @@ public class CustomModifyAttributesActivity
             }
         }
 
-        if(last){
+        if (last) {
             mLastValues.put(field1, lastVal1);
             mLastValues.put(field2, lastSubVal2);
         }
@@ -383,8 +392,10 @@ public class CustomModifyAttributesActivity
         mKeyValuesForField.put(field1, keyValueMap1);
         mKeyValuesForField.put(field2, keyValueMap2);
 
-        final Spinner spinner = new Spinner(this); //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item); // The drop down view
+        final Spinner spinner = new Spinner(
+                this); //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
+        adapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item); // The drop down view
         spinner.setAdapter(adapter);
         float minHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14,
                                                     getResources().getDisplayMetrics());
@@ -402,26 +413,36 @@ public class CustomModifyAttributesActivity
         layout.addView(subspinner);
         mFields.put(field2, subspinner);
 
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        {
+            public void onItemSelected(
+                    AdapterView<?> arg0,
+                    View arg1,
+                    int arg2,
+                    long arg3)
+            {
                 String sCat = adapter.getItem(arg2).toString();
                 List<String> subCatList = categoriesMap.get(sCat);
-                ArrayAdapter<String> subadapter = new ArrayAdapter<>(CustomModifyAttributesActivity.this,
-                                                                     android.R.layout.simple_spinner_item, subCatList);
+                ArrayAdapter<String> subadapter =
+                        new ArrayAdapter<>(CustomModifyAttributesActivity.this,
+                                           android.R.layout.simple_spinner_item, subCatList);
                 subadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 subspinner.setAdapter(subadapter);
 
                 int spinnerPosition2 = subadapter.getPosition(lastVal2);
-                if(spinnerPosition2 < 0)
+                if (spinnerPosition2 < 0) {
                     subspinner.setSelection(0);
-                else
+                } else {
                     subspinner.setSelection(spinnerPosition2);
+                }
 
                 String firstKey = (String) spinner.getSelectedItem();
                 mDoubleComboFirstKeys.put(subspinner, firstKey);
             }
 
-            public void onNothingSelected(AdapterView<?> arg0) {
+
+            public void onNothingSelected(AdapterView<?> arg0)
+            {
             }
         });
 
@@ -437,34 +458,40 @@ public class CustomModifyAttributesActivity
         greyLine.setLayoutParams(params);
     }
 
-    protected void addRadio(LinearLayout layout, JSONObject element, Cursor cursor)
+
+    protected void addRadio(
+            LinearLayout layout,
+            JSONObject element,
+            Cursor cursor)
             throws JSONException
     {
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         String field = attributes.getString(JSON_FIELD_KEY);
         boolean last = false;
-        if(attributes.has(JSON_FILLLAST_KEY))
+        if (attributes.has(JSON_FILLLAST_KEY)) {
             last = attributes.getBoolean(JSON_FILLLAST_KEY);
+        }
         JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
 
         String lastVal = mLastValues.get(field);
-        if(TextUtils.isEmpty(lastVal))
+        if (TextUtils.isEmpty(lastVal)) {
             last = false;
+        }
 
         RadioGroup rg = new RadioGroup(this);
         rg.setOrientation(RadioGroup.VERTICAL);
 
         Map<String, String> keyValueMap = new HashMap<>();
         String cursorVal = null;
-        if(null != cursor) {
+        if (null != cursor) {
             int nIndex = cursor.getColumnIndex(field);
-            if(nIndex >= 0) {
+            if (nIndex >= 0) {
                 cursorVal = cursor.getString(nIndex);
             }
         }
 
         int index = 0;
-        for(int j = 0; j < values.length(); j++){
+        for (int j = 0; j < values.length(); j++) {
             JSONObject keyValue = values.getJSONObject(j);
             String value = keyValue.getString(JSON_NAME_KEY);
             String key = keyValue.getString(JSON_ALIAS_KEY);
@@ -472,16 +499,15 @@ public class CustomModifyAttributesActivity
             RadioButton rb = new RadioButton(this);
             rb.setText(key);
 
-            if(j == 0) {
+            if (j == 0) {
                 lastVal = key;
                 index = j;
             }
 
-            if(null != cursorVal && cursorVal.equals(value)){ //if modify data
+            if (null != cursorVal && cursorVal.equals(value)) { //if modify data
                 lastVal = key;
                 index = j;
-            }
-            else if(!last && keyValue.has("default") && keyValue.getBoolean("default")){
+            } else if (!last && keyValue.has("default") && keyValue.getBoolean("default")) {
                 lastVal = key;
                 index = j;
             }
@@ -492,7 +518,7 @@ public class CustomModifyAttributesActivity
 
         rg.check(rg.getChildAt(index).getId());
 
-        if(last){
+        if (last) {
             mLastValues.put(field, lastVal);
         }
 
@@ -513,41 +539,48 @@ public class CustomModifyAttributesActivity
         greyLine.setLayoutParams(params);
     }
 
-    protected void addCombobox(LinearLayout layout, JSONObject element, Cursor cursor)
+
+    protected void addCombobox(
+            LinearLayout layout,
+            JSONObject element,
+            Cursor cursor)
             throws JSONException
     {
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         String field = attributes.getString(JSON_FIELD_KEY);
         boolean last = false;
-        if(attributes.has(JSON_FILLLAST_KEY) && !attributes.isNull(JSON_FILLLAST_KEY))
+        if (attributes.has(JSON_FILLLAST_KEY) && !attributes.isNull(JSON_FILLLAST_KEY)) {
             last = attributes.getBoolean(JSON_FILLLAST_KEY);
+        }
         JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
 
         Map<String, String> keyValueMap = new HashMap<>();
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
+        ArrayAdapter<String> spinnerArrayAdapter =
+                new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
         String lastVal = mLastValues.get(field);
-        if(TextUtils.isEmpty(lastVal))
+        if (TextUtils.isEmpty(lastVal)) {
             last = false;
+        }
         String cursorVal = null;
-        if(null != cursor) {
+        if (null != cursor) {
             int nIndex = cursor.getColumnIndex(field);
-            if(nIndex >= 0) {
+            if (nIndex >= 0) {
                 cursorVal = cursor.getString(nIndex);
             }
         }
 
-        for(int j = 0; j < values.length(); j++){
+        for (int j = 0; j < values.length(); j++) {
             JSONObject keyValue = values.getJSONObject(j);
             String value = keyValue.getString(JSON_NAME_KEY);
             String key = keyValue.getString(JSON_ALIAS_KEY);
 
-            if(j == 0)
-                lastVal = key;
-
-            if(null != cursorVal && cursorVal.equals(value)){ //if modify data
+            if (j == 0) {
                 lastVal = key;
             }
-            else if(!last && keyValue.has("default") && keyValue.getBoolean("default")){
+
+            if (null != cursorVal && cursorVal.equals(value)) { //if modify data
+                lastVal = key;
+            } else if (!last && keyValue.has("default") && keyValue.getBoolean("default")) {
                 lastVal = key;
             }
 
@@ -555,16 +588,18 @@ public class CustomModifyAttributesActivity
             keyValueMap.put(key, value);
         }
 
-        if(last){
+        if (last) {
             mLastValues.put(field, lastVal);
         }
 
         mKeyValuesForField.put(field, keyValueMap);
-        Spinner spinner = new Spinner(this); //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
-        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item); // The drop down view
+        Spinner spinner = new Spinner(
+                this); //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
+        spinnerArrayAdapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item); // The drop down view
         spinner.setAdapter(spinnerArrayAdapter);
         float minHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14,
-                                                 getResources().getDisplayMetrics());
+                                                    getResources().getDisplayMetrics());
         spinner.setPadding(0, (int) minHeight, 0, (int) minHeight);
 
         int spinnerPosition = spinnerArrayAdapter.getPosition(lastVal);
@@ -584,70 +619,73 @@ public class CustomModifyAttributesActivity
         greyLine.setLayoutParams(params);
     }
 
-    protected void addDateTime(LinearLayout layout, JSONObject element, Cursor cursor)
+
+    protected void addDateTime(
+            LinearLayout layout,
+            JSONObject element,
+            Cursor cursor)
             throws JSONException
     {
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         String field = attributes.getString(JSON_FIELD_KEY);
         boolean last = false;
-        if(attributes.has(JSON_FILLLAST_KEY))
+        if (attributes.has(JSON_FILLLAST_KEY)) {
             last = attributes.getBoolean(JSON_FILLLAST_KEY);
+        }
 
         TextView dateEdit = null;
         SimpleDateFormat dateText = null;
         int picker_type = DATETIME;
-        if(attributes.has("date_type"))
+        if (attributes.has("date_type")) {
             picker_type = attributes.getInt("date_type");
-        if(picker_type == DATE) {
+        }
+        if (picker_type == DATE) {
             dateEdit = (TextView) getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
             //TextView dateEdit = new TextView(this);
             dateEdit.setSingleLine(true);
             dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit, picker_type));
             dateEdit.setFocusable(false);
-            dateText = (SimpleDateFormat)DateFormat.getDateInstance();
+            dateText = (SimpleDateFormat) DateFormat.getDateInstance();
             String pattern = dateText.toLocalizedPattern();
             dateEdit.setHint(pattern);
-        }
-        else if(picker_type == TIME) {
+        } else if (picker_type == TIME) {
             dateEdit = (TextView) getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
             dateEdit.setSingleLine(true);
             dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit, picker_type));
             dateEdit.setFocusable(false);
-            dateText = (SimpleDateFormat)DateFormat.getTimeInstance();
+            dateText = (SimpleDateFormat) DateFormat.getTimeInstance();
             String pattern = dateText.toLocalizedPattern();
             dateEdit.setHint(pattern);
-        }
-        else if(picker_type == DATETIME) {
+        } else if (picker_type == DATETIME) {
             dateEdit = (TextView) getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
             dateEdit.setSingleLine(true);
             dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit, picker_type));
             dateEdit.setFocusable(false);
-            dateText = (SimpleDateFormat)DateFormat.getDateTimeInstance();
+            dateText = (SimpleDateFormat) DateFormat.getDateTimeInstance();
             String pattern = dateText.toLocalizedPattern();
             dateEdit.setHint(pattern);
-        }
-        else{
+        } else {
             return;
         }
 
         mDateTimePickerType.put(dateEdit, picker_type);
 
         String lastVal = mLastValues.get(field);
-        if(TextUtils.isEmpty(lastVal) && attributes.has(JSON_TEXT_KEY))
+        if (TextUtils.isEmpty(lastVal) && attributes.has(JSON_TEXT_KEY)) {
             lastVal = attributes.getString(JSON_TEXT_KEY);
+        }
 
-        if(last){
+        if (last) {
             mLastValues.put(field, lastVal);
         }
 
         layout.addView(dateEdit);
-        if(null == cursor) {
+        if (null == cursor) {
             dateEdit.setText(lastVal);
-        }
-        else{
+        } else {
             Calendar calendar = Calendar.getInstance();
             int column = cursor.getColumnIndex(field);
-            if(column >= 0) {
+            if (column >= 0) {
                 long millis = cursor.getLong(column);
                 calendar.setTimeInMillis(millis);
                 dateEdit.setText(dateText.format(calendar.getTime()));
@@ -666,7 +704,10 @@ public class CustomModifyAttributesActivity
         greyLine.setLayoutParams(params);
     }
 
-    protected void addLabel(LinearLayout layout, JSONObject element)
+
+    protected void addLabel(
+            LinearLayout layout,
+            JSONObject element)
             throws JSONException
     {
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
@@ -679,72 +720,85 @@ public class CustomModifyAttributesActivity
         layout.addView(aliasText);
     }
 
-    protected void addEditText(LinearLayout layout, JSONObject element, Cursor cursor)
+
+    protected void addEditText(
+            LinearLayout layout,
+            JSONObject element,
+            Cursor cursor)
             throws JSONException
     {
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         String field = attributes.getString(JSON_FIELD_KEY);
         boolean last = false;
-        if(attributes.has(JSON_FILLLAST_KEY))
+        if (attributes.has(JSON_FILLLAST_KEY)) {
             last = attributes.getBoolean(JSON_FILLLAST_KEY);
+        }
 
         boolean onlyFigures = attributes.getBoolean(JSON_ONLYFIGURES_KEY);
         int maxLines = attributes.getInt(JSON_MAXSTRINGCOUNT_KEY);
         String lastVal = mLastValues.get(field);
-        if(TextUtils.isEmpty(lastVal))
+        if (TextUtils.isEmpty(lastVal)) {
             lastVal = attributes.getString(JSON_TEXT_KEY);
+        }
 
-        if(last){
+        if (last) {
             mLastValues.put(field, lastVal);
         }
 
         //let's create control
         EditText stringEdit = new EditText(this);
-        if(maxLines < 2)
+        if (maxLines < 2) {
             stringEdit.setSingleLine(true);
-        else
+        } else {
             stringEdit.setMaxLines(maxLines);
-        if(onlyFigures) {
+        }
+        if (onlyFigures) {
             List<Field> layerFields = mLayer.getFields();
             int fieldType = NOT_FOUND;
-            for(Field layerField : layerFields){
-                if(layerField.getName().equals(field)){
+            for (Field layerField : layerFields) {
+                if (layerField.getName().equals(field)) {
                     fieldType = layerField.getType();
                 }
             }
             //check field type
-            if(fieldType == GeoConstants.FTInteger)
+            if (fieldType == GeoConstants.FTInteger) {
                 stringEdit.setInputType(InputType.TYPE_CLASS_NUMBER);
-            else if(fieldType == GeoConstants.FTReal)
-                stringEdit.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            } else if (fieldType == GeoConstants.FTReal) {
+                stringEdit.setInputType(
+                        InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            }
         }
         layout.addView(stringEdit);
-        if(null == cursor) {
+        if (null == cursor) {
             stringEdit.setText(lastVal);
-        }
-        else{
+        } else {
             int nIndex = cursor.getColumnIndex(field);
             String stringVal = "";
-            if(nIndex >= 0)
+            if (nIndex >= 0) {
                 stringVal = cursor.getString(nIndex);
+            }
             stringEdit.setText(stringVal);
         }
         mFields.put(field, stringEdit);
     }
 
-    protected void createAndFillControls(LinearLayout layout, File form, boolean isLand){
+
+    protected void createAndFillControls(
+            LinearLayout layout,
+            File form,
+            boolean isLand)
+    {
         try {
             JSONObject jsonFormContents = new JSONObject(FileUtil.readFromFile(form));
             JSONArray tabs = jsonFormContents.getJSONArray(JSON_TABS_KEY);
             //TODO: add support more than one tab
             JSONObject tab0 = tabs.getJSONObject(0);
-            if(isLand && !tab0.isNull(JSON_ALBUM_KEY)) {
+            if (isLand && !tab0.isNull(JSON_ALBUM_KEY)) {
                 JSONArray elements = tab0.getJSONArray(JSON_ALBUM_KEY);
                 if (null != elements && elements.length() > 0) {
                     createAndFillControls(layout, elements);
                 }
-            }
-            else{
+            } else {
                 JSONArray elements = tab0.getJSONArray(JSON_PORTRAIT_KEY);
                 createAndFillControls(layout, elements);
             }
@@ -755,74 +809,74 @@ public class CustomModifyAttributesActivity
         }
     }
 
+
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
         int id = item.getItemId();
-        if(id == R.id.menu_cancel || id == android.R.id.home) {
+        if (id == R.id.menu_cancel || id == android.R.id.home) {
             finish();
             return true;
-        }
-        else if(id == R.id.menu_settings) {
+        } else if (id == R.id.menu_settings) {
             final IGISApplication app = (IGISApplication) getApplication();
             app.showSettings();
             return true;
-        }
-        else if(id == R.id.menu_apply) {
+        } else if (id == R.id.menu_apply) {
             serializeLast(true);
 
             //create new row or modify existing
             List<Field> fields = mLayer.getFields();
             ContentValues values = new ContentValues();
-            for(Field field : fields){
+            for (Field field : fields) {
                 View v = mFields.get(field.getName());
-                if(null == v)
+                if (null == v) {
                     continue;
+                }
 
                 String stringVal = null;
-                if(v instanceof Spinner){
-                    Spinner sp = (Spinner)v;
+                if (v instanceof Spinner) {
+                    Spinner sp = (Spinner) v;
                     String key = (String) sp.getSelectedItem();
                     String firstKey = mDoubleComboFirstKeys.get(sp);
-                    if(!TextUtils.isEmpty(firstKey))
+                    if (!TextUtils.isEmpty(firstKey)) {
                         key = firstKey + "->" + key;
+                    }
                     Map<String, String> keyValue = mKeyValuesForField.get(field.getName());
-                    if(null != keyValue){
+                    if (null != keyValue) {
                         stringVal = keyValue.get(key);
                     }
-                }
-                else if(v instanceof RadioGroup) {
-                    RadioGroup rg = (RadioGroup)v;
+                } else if (v instanceof RadioGroup) {
+                    RadioGroup rg = (RadioGroup) v;
                     RadioButton radioButton =
                             (RadioButton) rg.findViewById(rg.getCheckedRadioButtonId());
                     String key = (String) radioButton.getText();
                     Map<String, String> keyValue = mKeyValuesForField.get(field.getName());
-                    if(null != keyValue){
+                    if (null != keyValue) {
                         stringVal = keyValue.get(key);
                     }
-                }
-                else {
+                } else {
                     TextView textView = (TextView) v;
                     Editable editText = textView.getEditableText();
                     if (null == editText) {
                         stringVal = (String) textView.getText();
-                    }
-                    else {
+                    } else {
                         stringVal = editText.toString();
                     }
                 }
 
                 Log.d(TAG, "field: " + field.getName() + " value: " + stringVal);
-                if(!TextUtils.isEmpty(stringVal)) {
+                if (!TextUtils.isEmpty(stringVal)) {
                     if (mDateTimePickerType.containsKey(v)) {
-                    //if (field.getType() == GeoConstants.FTDateTime) {
+                        //if (field.getType() == GeoConstants.FTDateTime) {
                         SimpleDateFormat dateFormat;
                         int pickerType = mDateTimePickerType.get(v);
-                        if(pickerType == DATE)
-                            dateFormat = (SimpleDateFormat)DateFormat.getDateInstance();
-                        else if(pickerType == TIME)
-                            dateFormat = (SimpleDateFormat)DateFormat.getTimeInstance();
-                        else
-                            dateFormat = (SimpleDateFormat)DateFormat.getDateTimeInstance();
+                        if (pickerType == DATE) {
+                            dateFormat = (SimpleDateFormat) DateFormat.getDateInstance();
+                        } else if (pickerType == TIME) {
+                            dateFormat = (SimpleDateFormat) DateFormat.getTimeInstance();
+                        } else {
+                            dateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+                        }
 
                         try {
                             Date date = dateFormat.parse(stringVal);
@@ -836,7 +890,7 @@ public class CustomModifyAttributesActivity
                 }
             }
 
-            if(null != mGeometry) {
+            if (null != mGeometry) {
                 try {
                     values.put(FIELD_GEOM, mGeometry.toBlob());
                 } catch (IOException e) {
@@ -844,10 +898,11 @@ public class CustomModifyAttributesActivity
                 }
             }
 
-            if(mFeatureId == NOT_FOUND){
-                if(mGeometry == null) {
+            if (mFeatureId == NOT_FOUND) {
+                if (mGeometry == null) {
                     if (null == mLocation) {
-                        Toast.makeText(this, getText(R.string.error_no_location), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getText(R.string.error_no_location),
+                                       Toast.LENGTH_SHORT).show();
                         return false;
                     }
                     //create point geometry
@@ -878,32 +933,36 @@ public class CustomModifyAttributesActivity
                     }
                 }
                 IGISApplication app = (IGISApplication) getApplication();
-                if(null == app) {
+                if (null == app) {
                     throw new IllegalArgumentException("Not a IGISApplication");
                 }
-                Uri uri = Uri.parse("content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
+                Uri uri = Uri.parse(
+                        "content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
 
                 int nUniqId = mLayer.getUniqId();
-                if(nUniqId < 1000)
+                if (nUniqId < 1000) {
                     nUniqId = 1000;// + mLayer.getCount();
+                }
 
                 values.put(FIELD_ID, nUniqId);
 
-                if(getContentResolver().insert(uri, values) == null){
-                    Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT).show();
+                if (getContentResolver().insert(uri, values) == null) {
+                    Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT)
+                         .show();
                     return true;
                 }
-            }
-            else{
+            } else {
                 IGISApplication app = (IGISApplication) getApplication();
-                if(null == app) {
+                if (null == app) {
                     throw new IllegalArgumentException("Not a IGISApplication");
                 }
-                Uri uri = Uri.parse("content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
+                Uri uri = Uri.parse(
+                        "content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
                 Uri updateUri = ContentUris.withAppendedId(uri, mFeatureId);
 
-                if(getContentResolver().update(updateUri, values, null, null) == 0){
-                    Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT).show();
+                if (getContentResolver().update(updateUri, values, null, null) == 0) {
+                    Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT)
+                         .show();
                     return true;
                 }
             }
