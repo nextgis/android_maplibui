@@ -108,23 +108,13 @@ public class ModifyAttributesActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_standard_attributes);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        toolbar.getBackground().setAlpha(255);
-        setSupportActionBar(toolbar);
-
+        createToolbarView();
 
         LinearLayout layout = (LinearLayout) findViewById(R.id.controls_list);
-
-        ActionBar bar = getSupportActionBar();
-        if (null != bar) {
-            bar.setHomeButtonEnabled(true);
-            bar.setDisplayHomeAsUpEnabled(true);
-        }
-
         final IGISApplication app = (IGISApplication) getApplication();
         //create and fill controls
         Bundle extras = getIntent().getExtras();
+
         if (extras != null) {
             short layerId = extras.getShort(KEY_LAYER_ID);
             mFeatureId = extras.getLong(KEY_FEATURE_ID);
@@ -137,6 +127,26 @@ public class ModifyAttributesActivity
             }
         }
 
+        createLocationPanelView(app);
+    }
+
+
+    protected void createToolbarView()
+    {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        toolbar.getBackground().setAlpha(255);
+        setSupportActionBar(toolbar);
+
+        ActionBar bar = getSupportActionBar();
+        if (null != bar) {
+            bar.setHomeButtonEnabled(true);
+            bar.setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
+
+    protected void createLocationPanelView(final IGISApplication app)
+    {
         if (null == mGeometry && mFeatureId == NOT_FOUND) {
             mLatView = (TextView) findViewById(R.id.latitude_view);
             mLongView = (TextView) findViewById(R.id.longitude_view);
@@ -176,16 +186,12 @@ public class ModifyAttributesActivity
             }
         }
 
-        float lineHeight = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
-
         mFields = new HashMap<>();
         List<Field> fields = mLayer.getFields();
 
         for (Field field : fields) {
             //create static text with alias
-            TextView aliasText = getAliasTextView(field);
-            layout.addView(aliasText);
+            addTextLabel(layout, field.getAlias());
 
             try {
 
@@ -193,35 +199,19 @@ public class ModifyAttributesActivity
                 switch (field.getType()) {
 
                     case GeoConstants.FTString:
-                        EditText editStringView = getStringEditView(field, cursor);
-                        layout.addView(editStringView);
-                        mFields.put(field.getName(), editStringView);
+                        addTextEdit(layout, field.getName(), cursor);
                         break;
 
                     case GeoConstants.FTInteger:
-                        EditText editIntView = getIntEditView(field, cursor);
-                        layout.addView(editIntView);
-                        mFields.put(field.getName(), editIntView);
+                        addIntEdit(layout, field.getName(), cursor);
                         break;
 
                     case GeoConstants.FTReal:
-                        EditText editRealView = getRealEditView(field, cursor);
-                        layout.addView(editRealView);
-                        mFields.put(field.getName(), editRealView);
+                        addRealEdit(layout, field.getName(), cursor);
                         break;
 
                     case GeoConstants.FTDateTime:
-                        TextView dateEdit = getDateEditView(field, cursor);
-                        layout.addView(dateEdit);
-                        mFields.put(field.getName(), dateEdit);
-
-                        // add grey line here
-                        View greyLine = new View(this);
-                        layout.addView(greyLine);
-                        ViewGroup.LayoutParams params = greyLine.getLayoutParams();
-                        params.height = (int) lineHeight;
-                        greyLine.setLayoutParams(params);
-                        greyLine.setBackgroundResource(android.R.color.darker_gray);
+                        addDateTime(layout, field.getName(), cursor);
                         break;
 
                     case GeoConstants.FTIntegerList:
@@ -244,27 +234,32 @@ public class ModifyAttributesActivity
     }
 
 
-    protected TextView getAliasTextView(Field field)
+    protected void addTextLabel(
+            LinearLayout layout,
+            String fieldAlias)
     {
-        TextView aliasText = new TextView(this);
-        aliasText.setText(field.getAlias());
-        aliasText.setEllipsize(TextUtils.TruncateAt.END);
-        aliasText.setTextAppearance(this, android.R.style.TextAppearance_Medium);
-        aliasText.setTextColor(getResources().getColor(android.R.color.darker_gray));
+        //create static text with alias
+        TextView textLabel = new TextView(this);
 
-        return aliasText;
+        textLabel.setText(fieldAlias);
+        textLabel.setEllipsize(TextUtils.TruncateAt.END);
+        textLabel.setTextAppearance(this, android.R.style.TextAppearance_Medium);
+        textLabel.setTextColor(getResources().getColor(android.R.color.darker_gray));
+
+        layout.addView(textLabel);
     }
 
 
-    protected EditText getStringEditView(
-            Field field,
+    protected void addTextEdit(
+            LinearLayout layout,
+            String fieldName,
             Cursor cursor)
     {
         EditText stringEdit = new EditText(this);
         //stringEdit.setSingleLine(true);
 
         if (null != cursor) {
-            int nIndex = cursor.getColumnIndex(field.getName());
+            int nIndex = cursor.getColumnIndex(fieldName);
 
             if (nIndex >= 0) {
                 String stringVal = cursor.getString(nIndex);
@@ -272,12 +267,14 @@ public class ModifyAttributesActivity
             }
         }
 
-        return stringEdit;
+        layout.addView(stringEdit);
+        mFields.put(fieldName, stringEdit);
     }
 
 
-    protected EditText getIntEditView(
-            Field field,
+    protected void addIntEdit(
+            LinearLayout layout,
+            String fieldName,
             Cursor cursor)
     {
         EditText intEdit = new EditText(this);
@@ -285,7 +282,7 @@ public class ModifyAttributesActivity
         intEdit.setInputType(InputType.TYPE_CLASS_NUMBER);
 
         if (null != cursor) {
-            int nIndex = cursor.getColumnIndex(field.getName());
+            int nIndex = cursor.getColumnIndex(fieldName);
 
             if (nIndex >= 0) {
                 int intVal = cursor.getInt(nIndex);
@@ -293,12 +290,14 @@ public class ModifyAttributesActivity
             }
         }
 
-        return intEdit;
+        layout.addView(intEdit);
+        mFields.put(fieldName, intEdit);
     }
 
 
-    protected EditText getRealEditView(
-            Field field,
+    protected void addRealEdit(
+            LinearLayout layout,
+            String fieldName,
             Cursor cursor)
     {
         EditText realEdit = new EditText(this);
@@ -306,7 +305,7 @@ public class ModifyAttributesActivity
         realEdit.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
 
         if (null != cursor) {
-            int nIndex = cursor.getColumnIndex(field.getName());
+            int nIndex = cursor.getColumnIndex(fieldName);
 
             if (nIndex >= 0) {
                 float realVal = cursor.getFloat(nIndex);
@@ -314,12 +313,14 @@ public class ModifyAttributesActivity
             }
         }
 
-        return realEdit;
+        layout.addView(realEdit);
+        mFields.put(fieldName, realEdit);
     }
 
 
-    protected TextView getDateEditView(
-            Field field,
+    protected void addDateTime(
+            LinearLayout layout,
+            String fieldName,
             Cursor cursor)
     {
         //TextView dateEdit = new TextView(this);
@@ -335,7 +336,7 @@ public class ModifyAttributesActivity
         dateEdit.setHint(pattern);
 
         if (null != cursor) {
-            int nIndex = cursor.getColumnIndex(field.getName());
+            int nIndex = cursor.getColumnIndex(fieldName);
             if (nIndex >= 0) {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTimeInMillis(cursor.getLong(nIndex));
@@ -343,7 +344,18 @@ public class ModifyAttributesActivity
             }
         }
 
-        return dateEdit;
+        layout.addView(dateEdit);
+        mFields.put(fieldName, dateEdit);
+
+        // add grey line view here
+        float lineHeight = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
+        View greyLine = new View(this);
+        layout.addView(greyLine);
+        ViewGroup.LayoutParams params = greyLine.getLayoutParams();
+        params.height = (int) lineHeight;
+        greyLine.setLayoutParams(params);
+        greyLine.setBackgroundResource(android.R.color.darker_gray);
     }
 
 
@@ -380,7 +392,6 @@ public class ModifyAttributesActivity
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.edit_attributes, menu);
-
         return true;
     }
 
@@ -447,29 +458,28 @@ public class ModifyAttributesActivity
             values.put(FIELD_ID, nUniqId);
 
             if (getContentResolver().insert(uri, values) == null) {
-                Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT)
-                        .show();
+                Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT).show();
             }
 
         } else {
             Uri updateUri = ContentUris.withAppendedId(uri, mFeatureId);
 
             if (getContentResolver().update(updateUri, values, null, null) == 0) {
-                Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT)
-                        .show();
+                Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT).show();
             }
         }
     }
 
 
-    protected void putFieldValue(ContentValues values, Field field)
+    protected void putFieldValue(
+            ContentValues values,
+            Field field)
     {
         TextView textView = (TextView) mFields.get(field.getName());
         String stringVal = textView.getText().toString();
 
         if (field.getType() == GeoConstants.FTDateTime) {
-            SimpleDateFormat dateFormat =
-                    (SimpleDateFormat) DateFormat.getDateTimeInstance();
+            SimpleDateFormat dateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
 
             try {
                 Date date = dateFormat.parse(stringVal);
