@@ -30,5 +30,8 @@ import com.nextgis.maplib.datasource.GeoGeometry;
  */
 public interface IVectorLayerUI
 {
-    void showEditForm( Context context, long featureId, GeoGeometry geometry);
+    void showEditForm(
+            Context context,
+            long featureId,
+            GeoGeometry geometry);
 }

@@ -25,7 +25,8 @@
     android:innerRadius="5dp"
     android:shape="ring"
     android:thickness="5dp"
-    android:useLevel="false">
+    android:useLevel="false"
+    >
 
     <solid
         android:color="#FF0000">
@@ -34,6 +35,7 @@
     <size
         android:height="48dp"
         android:width="48dp"
-        android:scaleType="center">
+        android:scaleType="center"
+        >
     </size>
 </shape>

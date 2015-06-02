@@ -1,4 +1,3 @@
-
 /*
  * Project:  NextGIS Mobile
  * Purpose:  Mobile GIS for Android.
@@ -22,19 +21,18 @@
 
 package com.nextgis.maplibui.mapui;
 
+import android.content.Context;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
-import android.content.Context;
 import android.util.Log;
-
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.util.FileUtil;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.dialog.CreateLocalLayerDialog;
 import com.nextgis.maplibui.dialog.CreateRemoteTMSLayerDialog;
-import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,6 +42,7 @@ import java.io.IOException;
 
 import static com.nextgis.maplib.util.Constants.*;
 
+
 public class LayerFactoryUI
         extends LayerFactory
 {
@@ -52,13 +51,17 @@ public class LayerFactoryUI
             final Context context,
             final LayerGroup groupLayer)
     {
-        if(context instanceof FragmentActivity) {
-            FragmentActivity fragmentActivity = (FragmentActivity)context;
+        if (context instanceof FragmentActivity) {
+            FragmentActivity fragmentActivity = (FragmentActivity) context;
             SelectNGWResourceDialog newFragment = new SelectNGWResourceDialog();
             newFragment.setTitle(context.getString(R.string.select_ngw_layer))
-                       .setLayerGroup(groupLayer)
-                       .setTypeMask(Connection.NGWResourceTypePostgisLayer | Connection.NGWResourceTypeVectorLayer | Connection.NGWResourceTypeRasterLayer | Connection.NGWResourceTypeWMSClient)
-                       .show(fragmentActivity.getSupportFragmentManager(), "create_ngw_layer");
+                    .setLayerGroup(groupLayer)
+                    .setTypeMask(
+                            Connection.NGWResourceTypePostgisLayer |
+                            Connection.NGWResourceTypeVectorLayer |
+                            Connection.NGWResourceTypeRasterLayer |
+                            Connection.NGWResourceTypeWMSClient)
+                    .show(fragmentActivity.getSupportFragmentManager(), "create_ngw_layer");
         }
     }
 
@@ -69,21 +72,21 @@ public class LayerFactoryUI
             final LayerGroup groupLayer,
             final Uri uri)
     {
-        String layerName = FileUtil.getFileNameByUri(context, uri, context.getString(R.string.new_layer));
+        String layerName =
+                FileUtil.getFileNameByUri(context, uri, context.getString(R.string.new_layer));
         final int lastPeriodPos = layerName.lastIndexOf('.');
-        if (lastPeriodPos > 0)
-        {
+        if (lastPeriodPos > 0) {
             layerName = layerName.substring(0, lastPeriodPos);
         }
-        if(context instanceof FragmentActivity) {
-            FragmentActivity fragmentActivity = (FragmentActivity)context;
+        if (context instanceof FragmentActivity) {
+            FragmentActivity fragmentActivity = (FragmentActivity) context;
             CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
             newFragment.setTitle(context.getString(R.string.create_tms_layer))
-                       .setLayerGroup(groupLayer)
-                       .setLayerType(CreateLocalLayerDialog.TMS_LAYER)
-                       .setUri(uri)
-                       .setLayerName(layerName)
-                       .show(fragmentActivity.getSupportFragmentManager(), "create_tms_layer");
+                    .setLayerGroup(groupLayer)
+                    .setLayerType(CreateLocalLayerDialog.TMS_LAYER)
+                    .setUri(uri)
+                    .setLayerName(layerName)
+                    .show(fragmentActivity.getSupportFragmentManager(), "create_tms_layer");
         }
     }
 
@@ -94,21 +97,21 @@ public class LayerFactoryUI
             final LayerGroup groupLayer,
             final Uri uri)
     {
-        String layerName = FileUtil.getFileNameByUri(context, uri, context.getString(R.string.new_layer));
+        String layerName =
+                FileUtil.getFileNameByUri(context, uri, context.getString(R.string.new_layer));
         final int lastPeriodPos = layerName.lastIndexOf('.');
-        if (lastPeriodPos > 0)
-        {
+        if (lastPeriodPos > 0) {
             layerName = layerName.substring(0, lastPeriodPos);
         }
-        if(context instanceof FragmentActivity) {
-            FragmentActivity fragmentActivity = (FragmentActivity)context;
+        if (context instanceof FragmentActivity) {
+            FragmentActivity fragmentActivity = (FragmentActivity) context;
             CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
             newFragment.setTitle(context.getString(R.string.create_vector_layer))
-                       .setLayerGroup(groupLayer)
-                       .setLayerType(CreateLocalLayerDialog.VECTOR_LAYER)
-                       .setUri(uri)
-                       .setLayerName(layerName)
-                       .show(fragmentActivity.getSupportFragmentManager(), "create_vector_layer");
+                    .setLayerGroup(groupLayer)
+                    .setLayerType(CreateLocalLayerDialog.VECTOR_LAYER)
+                    .setUri(uri)
+                    .setLayerName(layerName)
+                    .show(fragmentActivity.getSupportFragmentManager(), "create_vector_layer");
         }
     }
 
@@ -119,21 +122,23 @@ public class LayerFactoryUI
             final LayerGroup groupLayer,
             final Uri uri)
     {
-        String layerName = FileUtil.getFileNameByUri(context, uri, context.getString(R.string.new_layer));
+        String layerName =
+                FileUtil.getFileNameByUri(context, uri, context.getString(R.string.new_layer));
         final int lastPeriodPos = layerName.lastIndexOf('.');
-        if (lastPeriodPos > 0)
-        {
+        if (lastPeriodPos > 0) {
             layerName = layerName.substring(0, lastPeriodPos);
         }
-        if(context instanceof FragmentActivity) {
-            FragmentActivity fragmentActivity = (FragmentActivity)context;
+        if (context instanceof FragmentActivity) {
+            FragmentActivity fragmentActivity = (FragmentActivity) context;
             CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
             newFragment.setTitle(context.getString(R.string.create_vector_layer))
-                       .setLayerGroup(groupLayer)
-                       .setLayerType(CreateLocalLayerDialog.VECTOR_LAYER_WITH_FORM)
-                       .setUri(uri)
-                       .setLayerName(layerName)
-                       .show(fragmentActivity.getSupportFragmentManager(), "create_vector_with_form_layer");
+                    .setLayerGroup(groupLayer)
+                    .setLayerType(CreateLocalLayerDialog.VECTOR_LAYER_WITH_FORM)
+                    .setUri(uri)
+                    .setLayerName(layerName)
+                    .show(
+                            fragmentActivity.getSupportFragmentManager(),
+                            "create_vector_with_form_layer");
         }
     }
 
@@ -142,15 +147,14 @@ public class LayerFactoryUI
             final Context context,
             final LayerGroup groupLayer)
     {
-        if(context instanceof FragmentActivity) {
-            FragmentActivity fragmentActivity = (FragmentActivity)context;
+        if (context instanceof FragmentActivity) {
+            FragmentActivity fragmentActivity = (FragmentActivity) context;
             CreateRemoteTMSLayerDialog newFragment = new CreateRemoteTMSLayerDialog();
             newFragment.setTitle(context.getString(R.string.create_tms_layer))
-                       .setLayerGroup(groupLayer)
-                       .show(fragmentActivity.getSupportFragmentManager(), "create_tms_layer");
+                    .setLayerGroup(groupLayer)
+                    .show(fragmentActivity.getSupportFragmentManager(), "create_tms_layer");
         }
     }
-
 
 
     public ILayer createLayer(
@@ -195,8 +199,12 @@ public class LayerFactoryUI
         return layer;
     }
 
-    public static String getLayerTypeString(Context context, int type){
-        switch (type){
+
+    public static String getLayerTypeString(
+            Context context,
+            int type)
+    {
+        switch (type) {
             case LAYERTYPE_GROUP:
                 return context.getString(R.string.layer_group);
             case LAYERTYPE_NGW_RASTER:

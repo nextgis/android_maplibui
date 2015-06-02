@@ -35,7 +35,9 @@ import android.view.View;
 /**
  * Bottom toolbar
  */
-public class BottomToolbar extends Toolbar {
+public class BottomToolbar
+        extends Toolbar
+{
 
     protected boolean mIsMenuInitialized;
 
@@ -70,12 +72,13 @@ public class BottomToolbar extends Toolbar {
     public Menu getMenu()
     {
         MenuBuilder menuBuilder = (MenuBuilder) super.getMenu();
-        if(!mIsMenuInitialized) {
+        if (!mIsMenuInitialized) {
             ActionMenuPresenter presenter = new ActionMenuPresenter(getContext());
-            presenter.setWidthLimit(getContext().getResources().getDisplayMetrics().widthPixels,
-                                    true);
+            presenter.setWidthLimit(
+                    getContext().getResources().getDisplayMetrics().widthPixels, true);
             presenter.setItemLimit(Integer.MAX_VALUE);
-            menuBuilder.addMenuPresenter(presenter, new ContextThemeWrapper(getContext(), getPopupTheme()));
+            menuBuilder.addMenuPresenter(
+                    presenter, new ContextThemeWrapper(getContext(), getPopupTheme()));
 
             ActionMenuView menuView = null;
             for (int i = 0; i < getChildCount(); i++) {
@@ -85,7 +88,10 @@ public class BottomToolbar extends Toolbar {
                     break;
                 }
             }
-            presenter.setMenuView(menuView);
+
+            if (null != menuView) {
+                presenter.setMenuView(menuView);
+            }
 
             /* center menu buttons in toolbar
             ViewGroup.LayoutParams params = menuView.getLayoutParams();

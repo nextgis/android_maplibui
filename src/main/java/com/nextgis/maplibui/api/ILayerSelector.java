@@ -34,12 +34,15 @@ public interface ILayerSelector
 {
     /**
      * Execute from dialog then user select layer
-     * @param layer Selected layer
+     *
+     * @param layer
+     *         Selected layer
      */
     public void onLayerSelect(ILayer layer);
 
     /**
      * Get layers to choose one
+     *
      * @return the layer list
      */
     public List<ILayer> getLayers();

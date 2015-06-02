@@ -21,8 +21,8 @@
   -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
     >
 
     <LinearLayout
@@ -32,33 +32,33 @@
         android:layout_margin="5dp"
         >
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/layer_name"
-        android:hint="@string/layer_name"
-        android:singleLine="true"
-        android:inputType="text"
-        />
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/layer_name"
+            android:hint="@string/layer_name"
+            android:singleLine="true"
+            android:inputType="text"
+            />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/layer_type_optional"
-        android:id="@+id/layer_type_summary"
-        android:background="@color/primary"
-        android:textColor="@android:color/primary_text_dark"
-        android:layout_margin="5dp"
-        android:padding="2dp"
-        />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/layer_type_optional"
+            android:id="@+id/layer_type_summary"
+            android:background="@color/primary"
+            android:textColor="@android:color/primary_text_dark"
+            android:layout_margin="5dp"
+            android:padding="2dp"
+            />
 
-    <Spinner
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/layer_type"
-        android:prompt="@string/layer_type"
-        />
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/layer_type"
+            android:prompt="@string/layer_type"
+            />
 
     </LinearLayout>
 

@@ -26,7 +26,7 @@ public interface ConstantsUI
     /**
      * Draw state
      */
-    int DRAW_SATE_none = 0;
+    int DRAW_SATE_none              = 0;
     int DRAW_SATE_drawing           = 1;
     int DRAW_SATE_drawing_noclearbk = 2;
     int DRAW_SATE_panning           = 3;

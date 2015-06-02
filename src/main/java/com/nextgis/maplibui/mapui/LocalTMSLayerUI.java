@@ -27,7 +27,6 @@ import android.graphics.drawable.Drawable;
 import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplibui.LocalTMSLayerSettingsActivity;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.RemoteTMSLayerSettingsActivity;
 import com.nextgis.maplibui.api.ILayerUI;
 
 import java.io.File;
@@ -36,7 +35,8 @@ import java.io.File;
 /**
  * A UI for local TMS layer
  */
-public class LocalTMSLayerUI extends LocalTMSLayer
+public class LocalTMSLayerUI
+        extends LocalTMSLayer
         implements ILayerUI
 {
 

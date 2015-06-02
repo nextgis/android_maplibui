@@ -95,7 +95,8 @@ public class CurrentLocationOverlay
         mAccuracy = new OverlayItem(mapViewOverlays.getMap(), longitude, latitude, null);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        mShowMode = Integer.parseInt(preferences.getString(SettingsConstantsUI.KEY_PREF_SHOW_CURRENT_LOC, "3"));
+        mShowMode = Integer.parseInt(
+                preferences.getString(SettingsConstantsUI.KEY_PREF_SHOW_CURRENT_LOC, "3"));
         setShowAccuracy(0 != (mShowMode & WITH_ACCURACY));
     }
 
@@ -152,7 +153,7 @@ public class CurrentLocationOverlay
             mMarker.setMarker(getDefaultMarker());
             mMarker.setCoordinates(lon, lat);
 
-            if(null != mapDrawable) {
+            if (null != mapDrawable) {
 
                 double accuracy = mCurrentLocation.getAccuracy();
                 accuracy = getAccuracyRadius(lat, accuracy);
@@ -169,15 +170,15 @@ public class CurrentLocationOverlay
                 mIsAccuracyMarkerBiggest = compareMarkers();
 
                 GeoEnvelope bounds = mapDrawable.getCurrentBounds();
-                mIsInBounds = bounds.contains(mMarker.getCoordinates(GeoConstants.CRS_WEB_MERCATOR));
+                mIsInBounds =
+                        bounds.contains(mMarker.getCoordinates(GeoConstants.CRS_WEB_MERCATOR));
 
 //            Paint p = new Paint();
 //            p.setColor(mMarkerColor);
 //            p.setAlpha(60);
 //            GeoPoint c = mAccuracy.getCoordinates(GeoConstants.CRS_WEB_MERCATOR);
 //            mapDrawable.getDisplay().drawCircle((float) c.getX(), (float) c.getY(), radius, p);
-            }
-            else{
+            } else {
                 mIsAccuracyMarkerBiggest = false;
             }
 
@@ -235,6 +236,7 @@ public class CurrentLocationOverlay
         mShowMode = Integer.parseInt(newMode);
         setShowAccuracy(0 != (mShowMode & WITH_ACCURACY));
     }
+
 
     private boolean isMarkerEnabled()
     {
@@ -359,8 +361,9 @@ public class CurrentLocationOverlay
     // TODO huge radius > possible out of memory
     private Bitmap getAccuracyMarker(int accuracy)
     {
-        int max = Math.max(mContext.getResources().getDisplayMetrics().widthPixels,
-                           mContext.getResources().getDisplayMetrics().heightPixels);
+        int max = Math.max(
+                mContext.getResources().getDisplayMetrics().widthPixels,
+                mContext.getResources().getDisplayMetrics().heightPixels);
 
         if (accuracy * 2 > max) {
             accuracy = max / 2; // temp fix

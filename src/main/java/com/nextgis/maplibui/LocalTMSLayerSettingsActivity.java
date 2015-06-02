@@ -51,7 +51,7 @@ public class LocalTMSLayerSettingsActivity
     public final static String LAYER_ID_KEY = "layer_id";
     protected LocalTMSLayer mRasterLayer;
 
-    protected int mCacheSizeMult;
+    protected int     mCacheSizeMult;
     protected float   mContrast;
     protected float   mBrightness;
     protected boolean mForceToGrayScale;
@@ -96,27 +96,29 @@ public class LocalTMSLayerSettingsActivity
             editText.setText(mRasterLayer.getName());
 
             Spinner cacheSizeMult = (Spinner) findViewById(R.id.spinner);
-            if(null != cacheSizeMult){
+            if (null != cacheSizeMult) {
                 cacheSizeMult.setSelection(mRasterLayer.getCacheSizeMultiply());
 
-                cacheSizeMult.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
-                {
-                    @Override
-                    public void onItemSelected(
-                            AdapterView<?> parent,
-                            View view,
-                            int position,
-                            long id)
-                    {
-                        mCacheSizeMult = position;
-                    }
+                cacheSizeMult.setOnItemSelectedListener(
+                        new AdapterView.OnItemSelectedListener()
+                        {
+                            @Override
+                            public void onItemSelected(
+                                    AdapterView<?> parent,
+                                    View view,
+                                    int position,
+                                    long id)
+                            {
+                                mCacheSizeMult = position;
+                            }
 
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent)
-                    {
 
-                    }
-                });
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent)
+                            {
+
+                            }
+                        });
             }
 
             // set color
@@ -126,16 +128,17 @@ public class LocalTMSLayerSettingsActivity
                 mForceToGrayScale = tmsRenderer.isForceToGrayScale();
                 switchCompat.setChecked(mForceToGrayScale);
 
-                switchCompat.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-                {
-                    @Override
-                    public void onCheckedChanged(
-                            CompoundButton buttonView,
-                            boolean isChecked)
-                    {
-                        mForceToGrayScale = isChecked;
-                    }
-                });
+                switchCompat.setOnCheckedChangeListener(
+                        new CompoundButton.OnCheckedChangeListener()
+                        {
+                            @Override
+                            public void onCheckedChanged(
+                                    CompoundButton buttonView,
+                                    boolean isChecked)
+                            {
+                                mForceToGrayScale = isChecked;
+                            }
+                        });
 
                 mContrast = tmsRenderer.getContrast();
 
@@ -144,35 +147,37 @@ public class LocalTMSLayerSettingsActivity
 
                 SeekBar contrastPicker = (SeekBar) findViewById(R.id.contrastSeekBar);
                 contrastPicker.setProgress((int) mContrast * 10);
-                contrastPicker.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
-                {
-                    @Override
-                    public void onProgressChanged(
-                            SeekBar seekBar,
-                            int progress,
-                            boolean fromUser)
-                    {
-                        if (fromUser) {
-                            float fProgress = progress;
-                            mContrast = fProgress / 10;
-                            mContrastLabel.setText(getString(R.string.contrast) + ": " + mContrast);
-                        }
-                    }
+                contrastPicker.setOnSeekBarChangeListener(
+                        new SeekBar.OnSeekBarChangeListener()
+                        {
+                            @Override
+                            public void onProgressChanged(
+                                    SeekBar seekBar,
+                                    int progress,
+                                    boolean fromUser)
+                            {
+                                if (fromUser) {
+                                    float fProgress = progress;
+                                    mContrast = fProgress / 10;
+                                    mContrastLabel.setText(
+                                            getString(R.string.contrast) + ": " + mContrast);
+                                }
+                            }
 
 
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar)
-                    {
+                            @Override
+                            public void onStartTrackingTouch(SeekBar seekBar)
+                            {
 
-                    }
+                            }
 
 
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar)
-                    {
+                            @Override
+                            public void onStopTrackingTouch(SeekBar seekBar)
+                            {
 
-                    }
-                });
+                            }
+                        });
 
                 mBrightness = tmsRenderer.getBrightness();
 
@@ -181,37 +186,40 @@ public class LocalTMSLayerSettingsActivity
 
                 SeekBar brightnessPicker = (SeekBar) findViewById(R.id.brightnessSeekBar);
                 brightnessPicker.setProgress((int) mBrightness + 255);
-                brightnessPicker.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
-                {
-                    @Override
-                    public void onProgressChanged(
-                            SeekBar seekBar,
-                            int progress,
-                            boolean fromUser)
-                    {
-                        if (fromUser) {
-                            mBrightness = progress - 255;
-                            mBrightnessLabel.setText(getString(R.string.brightness) + ": " + mBrightness);
-                        }
-                    }
+                brightnessPicker.setOnSeekBarChangeListener(
+                        new SeekBar.OnSeekBarChangeListener()
+                        {
+                            @Override
+                            public void onProgressChanged(
+                                    SeekBar seekBar,
+                                    int progress,
+                                    boolean fromUser)
+                            {
+                                if (fromUser) {
+                                    mBrightness = progress - 255;
+                                    mBrightnessLabel.setText(
+                                            getString(R.string.brightness) + ": " + mBrightness);
+                                }
+                            }
 
 
-                    @Override
-                    public void onStartTrackingTouch(SeekBar seekBar)
-                    {
+                            @Override
+                            public void onStartTrackingTouch(SeekBar seekBar)
+                            {
 
-                    }
+                            }
 
 
-                    @Override
-                    public void onStopTrackingTouch(SeekBar seekBar)
-                    {
+                            @Override
+                            public void onStopTrackingTouch(SeekBar seekBar)
+                            {
 
-                    }
-                });
+                            }
+                        });
             }
         }
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
@@ -226,9 +234,12 @@ public class LocalTMSLayerSettingsActivity
         return super.onOptionsItemSelected(item);
     }
 
-    protected void saveSettings(){
-        if(null == mRasterLayer)
+
+    protected void saveSettings()
+    {
+        if (null == mRasterLayer) {
             return;
+        }
         EditText editText = (EditText) findViewById(R.id.layer_name);
         mRasterLayer.setName(editText.getEditableText().toString());
         mRasterLayer.setCacheSizeMultiply(mCacheSizeMult);

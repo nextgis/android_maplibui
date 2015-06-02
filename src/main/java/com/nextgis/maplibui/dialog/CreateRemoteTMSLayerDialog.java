@@ -29,7 +29,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.ContextThemeWrapper;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.ArrayAdapter;
@@ -46,23 +45,25 @@ import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_NORMAL;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
 
 
-public class CreateRemoteTMSLayerDialog extends DialogFragment
+public class CreateRemoteTMSLayerDialog
+        extends DialogFragment
 {
     protected String     mTitle;
     protected LayerGroup mGroupLayer;
-    protected Spinner mSpinner;
-    protected EditText mInput;
-    protected EditText mUrl;
-    protected EditText mLogin;
-    protected EditText mPassword;
+    protected Spinner    mSpinner;
+    protected EditText   mInput;
+    protected EditText   mUrl;
+    protected EditText   mLogin;
+    protected EditText   mPassword;
 
-    protected final static String KEY_TITLE = "title";
-    protected final static String KEY_ID    = "id";
-    protected final static String KEY_NAME  = "name";
-    protected final static String KEY_URL   = "url";
-    protected final static String KEY_POSITION   = "pos";
-    protected final static String KEY_LOGIN   = "login";
-    protected final static String KEY_PASSWORD   = "password";
+    protected final static String KEY_TITLE    = "title";
+    protected final static String KEY_ID       = "id";
+    protected final static String KEY_NAME     = "name";
+    protected final static String KEY_URL      = "url";
+    protected final static String KEY_POSITION = "pos";
+    protected final static String KEY_LOGIN    = "login";
+    protected final static String KEY_PASSWORD = "password";
+
 
     public CreateRemoteTMSLayerDialog setTitle(String title)
     {
@@ -108,7 +109,7 @@ public class CreateRemoteTMSLayerDialog extends DialogFragment
         mLogin = (EditText) view.findViewById(R.id.login);
         mPassword = (EditText) view.findViewById(R.id.password);
 
-        if(null != savedInstanceState){
+        if (null != savedInstanceState) {
             mInput.setText(savedInstanceState.getString(KEY_NAME));
             mUrl.setText(savedInstanceState.getString(KEY_URL));
             mLogin.setText(savedInstanceState.getString(KEY_LOGIN));
@@ -117,71 +118,71 @@ public class CreateRemoteTMSLayerDialog extends DialogFragment
             mTitle = savedInstanceState.getString(KEY_TITLE);
             short id = savedInstanceState.getShort(KEY_ID);
             MapBase map = MapBase.getInstance();
-            if(null != map){
+            if (null != map) {
                 ILayer iLayer = map.getLayerById(id);
-                if(iLayer instanceof LayerGroup)
-                    mGroupLayer = (LayerGroup)iLayer;
+                if (iLayer instanceof LayerGroup) {
+                    mGroupLayer = (LayerGroup) iLayer;
+                }
             }
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(mTitle)
-               .setIcon(R.drawable.ic_remote_tms)
-               .setView(view)
-               .setPositiveButton(R.string.create, new DialogInterface.OnClickListener()
-               {
-                   public void onClick(
-                           DialogInterface dialog,
-                           int whichButton)
-                   {
-                       int tmsType = 0;
-                       switch (mSpinner.getSelectedItemPosition()) {
-                           case 0:
-                               tmsType = TMSTYPE_OSM;
-                               break;
-                           case 1:
-                               tmsType = TMSTYPE_NORMAL;
-                               break;
-                       }
-                       String layerName = mInput.getText().toString();
-                       String layerURL = mUrl.getText().toString().trim();
-                       String layerLogin = mLogin.getText().toString();
-                       String layerPassword = mPassword.getText().toString();
+        builder.setTitle(mTitle).setIcon(R.drawable.ic_remote_tms).setView(view).setPositiveButton(
+                R.string.create, new DialogInterface.OnClickListener()
+                {
+                    public void onClick(
+                            DialogInterface dialog,
+                            int whichButton)
+                    {
+                        int tmsType = 0;
+                        switch (mSpinner.getSelectedItemPosition()) {
+                            case 0:
+                                tmsType = TMSTYPE_OSM;
+                                break;
+                            case 1:
+                                tmsType = TMSTYPE_NORMAL;
+                                break;
+                        }
+                        String layerName = mInput.getText().toString();
+                        String layerURL = mUrl.getText().toString().trim();
+                        String layerLogin = mLogin.getText().toString();
+                        String layerPassword = mPassword.getText().toString();
 
-                       //check if {x}, {y} or {z} present
-                       if (!layerURL.contains("{x}") || !layerURL.contains("{y}") ||
-                           !layerURL.contains("{z}")) {
-                           Toast.makeText(context, R.string.error_invalid_url, Toast.LENGTH_SHORT)
-                                .show();
-                           return;
-                       }
+                        //check if {x}, {y} or {z} present
+                        if (!layerURL.contains("{x}") || !layerURL.contains("{y}") ||
+                            !layerURL.contains("{z}")) {
+                            Toast.makeText(context, R.string.error_invalid_url, Toast.LENGTH_SHORT)
+                                    .show();
+                            return;
+                        }
 
-                       if (!layerURL.startsWith("http"))
-                           layerURL = "http://" + layerURL;
+                        if (!layerURL.startsWith("http")) {
+                            layerURL = "http://" + layerURL;
+                        }
 
-                       boolean isURL = URLUtil.isValidUrl(layerURL);
+                        boolean isURL = URLUtil.isValidUrl(layerURL);
 
-                       if (!isURL) {
-                           Toast.makeText(context, R.string.error_invalid_url, Toast.LENGTH_SHORT)
-                                .show();
-                           return;
-                       }
+                        if (!isURL) {
+                            Toast.makeText(context, R.string.error_invalid_url, Toast.LENGTH_SHORT)
+                                    .show();
+                            return;
+                        }
 
-                       //create new layer and store it and add it to the map
-                       RemoteTMSLayerUI layer = new RemoteTMSLayerUI(mGroupLayer.getContext(),
-                                                                     mGroupLayer.createLayerStorage());
-                       layer.setName(layerName);
-                       layer.setURL(layerURL);
-                       layer.setLogin(layerLogin);
-                       layer.setPassword(layerPassword);
-                       layer.setTMSType(tmsType);
-                       layer.setVisible(true);
+                        //create new layer and store it and add it to the map
+                        RemoteTMSLayerUI layer = new RemoteTMSLayerUI(
+                                mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
+                        layer.setName(layerName);
+                        layer.setURL(layerURL);
+                        layer.setLogin(layerLogin);
+                        layer.setPassword(layerPassword);
+                        layer.setTMSType(tmsType);
+                        layer.setVisible(true);
 
-                       mGroupLayer.addLayer(layer);
-                       mGroupLayer.save();
-                   }
-               })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
+                        mGroupLayer.addLayer(layer);
+                        mGroupLayer.save();
+                    }
+                }).setNegativeButton(
+                R.string.cancel, new DialogInterface.OnClickListener()
                 {
                     public void onClick(
                             DialogInterface dialog,
@@ -193,6 +194,7 @@ public class CreateRemoteTMSLayerDialog extends DialogFragment
         // Create the AlertDialog object and return it
         return builder.create();
     }
+
 
     @Override
     public void onSaveInstanceState(Bundle outState)

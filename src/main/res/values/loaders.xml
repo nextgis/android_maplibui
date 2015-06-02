@@ -21,5 +21,6 @@
   -->
 
 <resources>
-    <item name="auth_token_loader" type="id" />
+    <item name="auth_token_loader"
+          type="id"/>
 </resources>

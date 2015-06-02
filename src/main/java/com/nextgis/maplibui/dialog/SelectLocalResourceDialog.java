@@ -29,7 +29,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.ContextThemeWrapper;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -43,13 +42,15 @@ import java.util.ArrayList;
 /**
  * Local folder/file select dialog
  */
-public class SelectLocalResourceDialog extends DialogFragment implements ISelectResourceDialog
+public class SelectLocalResourceDialog
+        extends DialogFragment
+        implements ISelectResourceDialog
 {
-    protected String  mTitle;
-    protected int     mTypeMask;
-    protected boolean mCanSelectMulti;
-    protected boolean mCanWrite;
-    protected File    mPath;
+    protected String                    mTitle;
+    protected int                       mTypeMask;
+    protected boolean                   mCanSelectMulti;
+    protected boolean                   mCanWrite;
+    protected File                      mPath;
     protected LocalResourcesListAdapter mListAdapter;
 
     protected AlertDialog mDialog;
@@ -60,6 +61,7 @@ public class SelectLocalResourceDialog extends DialogFragment implements ISelect
     protected final static String KEY_CANMULTISEL = "can_multiselect";
     protected final static String KEY_WRITABLE    = "can_write";
     protected final static String KEY_PATH        = "path";
+
 
     public SelectLocalResourceDialog setTitle(String title)
     {
@@ -81,17 +83,20 @@ public class SelectLocalResourceDialog extends DialogFragment implements ISelect
         return this;
     }
 
+
     public SelectLocalResourceDialog setWritable(boolean can)
     {
         mCanWrite = can;
         return this;
     }
 
+
     public SelectLocalResourceDialog setPath(File path)
     {
         mPath = path;
         return this;
     }
+
 
     @NonNull
     @Override
@@ -126,25 +131,25 @@ public class SelectLocalResourceDialog extends DialogFragment implements ISelect
         mListAdapter.setPathLayout(pathView);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(mTitle)
-               .setView(view)
-               .setInverseBackgroundForced(true)
-               .setPositiveButton(R.string.select, new DialogInterface.OnClickListener()
-               {
-                   public void onClick(DialogInterface dialog, int id)
-                   {
+        builder.setTitle(mTitle).setView(view).setInverseBackgroundForced(true).setPositiveButton(
+                R.string.select, new DialogInterface.OnClickListener()
+                {
+                    public void onClick(
+                            DialogInterface dialog,
+                            int id)
+                    {
 
-                   }
-               })
-               .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
-               {
-                   public void onClick(
-                           DialogInterface dialog,
-                           int id)
-                   {
-                       // User cancelled the dialog
-                   }
-               });
+                    }
+                }).setNegativeButton(
+                R.string.cancel, new DialogInterface.OnClickListener()
+                {
+                    public void onClick(
+                            DialogInterface dialog,
+                            int id)
+                    {
+                        // User cancelled the dialog
+                    }
+                });
         // Create the AlertDialog object and return it
         return builder.create();
     }
@@ -173,6 +178,7 @@ public class SelectLocalResourceDialog extends DialogFragment implements ISelect
     @Override
     public void updateButtons()
     {
-        mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(mListAdapter.getCheckState().size() > 0);
+        mDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setEnabled(mListAdapter.getCheckState().size() > 0);
     }
 }

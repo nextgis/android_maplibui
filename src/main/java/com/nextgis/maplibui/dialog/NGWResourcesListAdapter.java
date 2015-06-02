@@ -50,7 +50,9 @@ import java.util.List;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 
 
-public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.OnItemClickListener
+public class NGWResourcesListAdapter
+        extends BaseAdapter
+        implements AdapterView.OnItemClickListener
 {
     protected Connections             mConnections;
     protected INGWResource            mCurrentResource;
@@ -97,8 +99,9 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
         mCurrentResource = mConnections.getResourceById(id);
         if (null != mCurrentResource) {
             notifyDataSetChanged();
-            if (null != mPathView)
+            if (null != mPathView) {
                 mPathView.onUpdate(mCurrentResource);
+            }
         }
     }
 
@@ -125,10 +128,12 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
     @Override
     public int getCount()
     {
-        if (null == mCurrentResource)
+        if (null == mCurrentResource) {
             return 0;
-        if (mLoading)
+        }
+        if (mLoading) {
             return 2;
+        }
         return mCurrentResource.getChildrenCount() + 1; //add up button or add connections button
     }
 
@@ -136,19 +141,23 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
     @Override
     public Object getItem(int i)
     {
-        if (null == mCurrentResource || mLoading)
+        if (null == mCurrentResource || mLoading) {
             return null;
+        }
         if (mCurrentResource.getType() == Connection.NGWResourceTypeConnections) {
-            if (i > mCurrentResource.getChildrenCount())
+            if (i > mCurrentResource.getChildrenCount()) {
                 return null;
+            }
             return mCurrentResource.getChild(i);
         } else if (mCurrentResource.getType() == Connection.NGWResourceTypeConnection) {
-            if (i == 0)
+            if (i == 0) {
                 return null;
+            }
             return mCurrentResource.getChild(i - 1);
         } else if (mCurrentResource.getType() == Connection.NGWResourceTypeResourceGroup) {
-            if (i == 0)
+            if (i == 0) {
                 return null;
+            }
             return mCurrentResource.getChild(i - 1);
         }
         return null;
@@ -159,8 +168,9 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
     public long getItemId(int i)
     {
         INGWResource resource = (INGWResource) getItem(i);
-        if (null == resource)
+        if (null == resource) {
             return NOT_FOUND;
+        }
         return resource.getId();
     }
 
@@ -256,7 +266,8 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
                 v.setId(R.id.resourcegroup_row);
 
                 ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                ivIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_ngw_folder));
+                ivIcon.setImageDrawable(
+                        context.getResources().getDrawable(R.drawable.ic_ngw_folder));
             }
 
             TextView tvText = (TextView) v.findViewById(R.id.tvName);
@@ -269,7 +280,8 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
             TextView tvDesc;
 
             int resourceType = resource.getType();
-            if(0 == ( mTypeMask & resourceType ) && resourceType != Connection.NGWResourceTypeResourceGroup) {
+            if (0 == (mTypeMask & resourceType) &&
+                resourceType != Connection.NGWResourceTypeResourceGroup) {
                 if (null == v || v.getId() != R.id.empty_row) {
                     LayoutInflater inflater = LayoutInflater.from(context);
                     v = inflater.inflate(R.layout.layout_empty_row, null);
@@ -281,7 +293,7 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
             final int id = resource.getId();
             CheckBox checkBox1, checkBox2;
 
-            switch (resourceType){
+            switch (resourceType) {
                 case Connection.NGWResourceTypeResourceGroup:
                     if (null == v || v.getId() != R.id.resourcegroup_row) {
                         LayoutInflater inflater = LayoutInflater.from(context);
@@ -289,7 +301,8 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
                         v.setId(R.id.resourcegroup_row);
 
                         ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                        ivIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_ngw_folder));
+                        ivIcon.setImageDrawable(
+                                context.getResources().getDrawable(R.drawable.ic_ngw_folder));
                     }
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
@@ -302,13 +315,14 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
                         v.setId(R.id.ngw_layer_check_row);
                     }
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_ngw_raster));
+                    ivIcon.setImageDrawable(
+                            context.getResources().getDrawable(R.drawable.ic_ngw_raster));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
                     tvDesc.setText(context.getString(R.string.raster_layer));
 
                     //add check listener
-                    checkBox1 = (CheckBox)v.findViewById(R.id.checkBox1);
+                    checkBox1 = (CheckBox) v.findViewById(R.id.checkBox1);
                     setCheckBox(checkBox1, id, 1);
                     break;
                 case Connection.NGWResourceTypeWMSClient:
@@ -318,18 +332,19 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
                         v.setId(R.id.ngw_layer_check_row);
                     }
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_ngw_raster));
+                    ivIcon.setImageDrawable(
+                            context.getResources().getDrawable(R.drawable.ic_ngw_raster));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
                     tvDesc.setText(context.getString(R.string.raster_layer));
 
                     //add check listener
-                    checkBox1 = (CheckBox)v.findViewById(R.id.checkBox1);
+                    checkBox1 = (CheckBox) v.findViewById(R.id.checkBox1);
                     setCheckBox(checkBox1, id, 1);
                     break;
                 case Connection.NGWResourceTypeVectorLayer:
-                    LayerWithStyles layer = (LayerWithStyles)resource;
-                    if(layer.getStyleCount() > 0){
+                    LayerWithStyles layer = (LayerWithStyles) resource;
+                    if (layer.getStyleCount() > 0) {
                         if (null == v || v.getId() != R.id.ngw_layer_doublecheck_row) {
                             LayoutInflater inflater = LayoutInflater.from(context);
                             v = inflater.inflate(R.layout.layout_ngwlayer_doublecheck_row, null);
@@ -337,13 +352,12 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
                         }
 
                         //add check listener
-                        checkBox1 = (CheckBox)v.findViewById(R.id.checkBox1);
+                        checkBox1 = (CheckBox) v.findViewById(R.id.checkBox1);
                         setCheckBox(checkBox1, id, 1);
 
-                        checkBox2 = (CheckBox)v.findViewById(R.id.checkBox2);
+                        checkBox2 = (CheckBox) v.findViewById(R.id.checkBox2);
                         setCheckBox(checkBox2, id, 2);
-                    }
-                    else{
+                    } else {
                         if (null == v || v.getId() != R.id.ngw_layer_check_row) {
                             LayoutInflater inflater = LayoutInflater.from(context);
                             v = inflater.inflate(R.layout.layout_ngwlayer_check_row, null);
@@ -354,19 +368,20 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
                         tvType.setText(context.getString(R.string.vector));
 
                         //add check listener
-                        checkBox1 = (CheckBox)v.findViewById(R.id.checkBox1);
+                        checkBox1 = (CheckBox) v.findViewById(R.id.checkBox1);
                         setCheckBox(checkBox1, id, 2);
                     }
 
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_ngw_vector));
+                    ivIcon.setImageDrawable(
+                            context.getResources().getDrawable(R.drawable.ic_ngw_vector));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
                     tvDesc.setText(context.getString(R.string.vector_layer));
                     break;
                 case Connection.NGWResourceTypePostgisLayer:
-                    LayerWithStyles pglayer = (LayerWithStyles)resource;
-                    if(pglayer.getStyleCount() > 0){
+                    LayerWithStyles pglayer = (LayerWithStyles) resource;
+                    if (pglayer.getStyleCount() > 0) {
                         if (null == v || v.getId() != R.id.ngw_layer_doublecheck_row) {
                             LayoutInflater inflater = LayoutInflater.from(context);
                             v = inflater.inflate(R.layout.layout_ngwlayer_doublecheck_row, null);
@@ -375,13 +390,12 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
 
 
                         //add check listener
-                        checkBox1 = (CheckBox)v.findViewById(R.id.checkBox1);
+                        checkBox1 = (CheckBox) v.findViewById(R.id.checkBox1);
                         setCheckBox(checkBox1, id, 1);
 
-                        checkBox2 = (CheckBox)v.findViewById(R.id.checkBox2);
+                        checkBox2 = (CheckBox) v.findViewById(R.id.checkBox2);
                         setCheckBox(checkBox2, id, 2);
-                    }
-                    else{
+                    } else {
                         if (null == v || v.getId() != R.id.ngw_layer_check_row) {
                             LayoutInflater inflater = LayoutInflater.from(context);
                             v = inflater.inflate(R.layout.layout_ngwlayer_check_row, null);
@@ -392,12 +406,13 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
                         tvType.setText(context.getString(R.string.vector));
 
                         //add check listener
-                        checkBox1 = (CheckBox)v.findViewById(R.id.checkBox1);
+                        checkBox1 = (CheckBox) v.findViewById(R.id.checkBox1);
                         setCheckBox(checkBox1, id, 2);
                     }
 
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_pg_vector));
+                    ivIcon.setImageDrawable(
+                            context.getResources().getDrawable(R.drawable.ic_pg_vector));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
                     tvDesc.setText(context.getString(R.string.pg_layer));
@@ -413,73 +428,80 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
         return v;
     }
 
-    public void setCheckBox(final CheckBox checkBox, final int id, final int checkNo)
+
+    public void setCheckBox(
+            final CheckBox checkBox,
+            final int id,
+            final int checkNo)
     {
         checkBox.setOnCheckedChangeListener(null);
-        for(CheckState state : mCheckState){
-            if(checkNo == 1) {
-                if (state.getId() == id && state.isCheckState1())
+        for (CheckState state : mCheckState) {
+            if (checkNo == 1) {
+                if (state.getId() == id && state.isCheckState1()) {
                     checkBox.setChecked(true);
-            }
-            else if(checkNo == 2){
-                if (state.getId() == id && state.isCheckState2())
+                }
+            } else if (checkNo == 2) {
+                if (state.getId() == id && state.isCheckState2()) {
                     checkBox.setChecked(true);
+                }
             }
         }
 
-        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-        {
-            @Override
-            public void onCheckedChanged(
-                    CompoundButton compoundButton,
-                    boolean b)
-            {
-                if(b){
-                    boolean exist = false;
-                    for(CheckState state : mCheckState){
-                        if(state.getId() == id){
-                            exist = true;
-                            if(checkNo == 1)
-                                state.setCheckState1(b);
-                            else if(checkNo == 2)
-                                state.setCheckState2(b);
-                        }
-                    }
+        checkBox.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener()
+                {
+                    @Override
+                    public void onCheckedChanged(
+                            CompoundButton compoundButton,
+                            boolean b)
+                    {
+                        if (b) {
+                            boolean exist = false;
+                            for (CheckState state : mCheckState) {
+                                if (state.getId() == id) {
+                                    exist = true;
+                                    if (checkNo == 1) {
+                                        state.setCheckState1(b);
+                                    } else if (checkNo == 2) {
+                                        state.setCheckState2(b);
+                                    }
+                                }
+                            }
 
-                    if(!exist) {
-                        if (checkNo == 1)
-                            mCheckState.add(new CheckState(id, b, false));
-                        else if (checkNo == 2)
-                            mCheckState.add(new CheckState(id, false, b));
-                    }
-                }
-                else{
-                    for(CheckState state : mCheckState){
-                        if(state.getId() == id){
-                            if(checkNo == 1) {
-                                if (!state.isCheckState1()) {
-                                    mCheckState.remove(state);
-                                } else {
-                                    state.setCheckState2(b);
+                            if (!exist) {
+                                if (checkNo == 1) {
+                                    mCheckState.add(new CheckState(id, b, false));
+                                } else if (checkNo == 2) {
+                                    mCheckState.add(new CheckState(id, false, b));
                                 }
                             }
-                            else if(checkNo == 2){
-                                if (!state.isCheckState2()) {
-                                    mCheckState.remove(state);
-                                } else {
-                                    state.setCheckState1(b);
+                        } else {
+                            for (CheckState state : mCheckState) {
+                                if (state.getId() == id) {
+                                    if (checkNo == 1) {
+                                        if (!state.isCheckState1()) {
+                                            mCheckState.remove(state);
+                                        } else {
+                                            state.setCheckState2(b);
+                                        }
+                                    } else if (checkNo == 2) {
+                                        if (!state.isCheckState2()) {
+                                            mCheckState.remove(state);
+                                        } else {
+                                            state.setCheckState1(b);
+                                        }
+                                    }
+                                    break;
                                 }
                             }
-                            break;
                         }
+                        mSelectNGWResourceDialog.updateSelectButton();
                     }
-                }
-                mSelectNGWResourceDialog.updateSelectButton();
-            }
-        });
+                });
 
 
     }
+
 
     @Override
     public void onItemClick(
@@ -498,7 +520,8 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
                 if (connection.isConnected()) {
                     notifyDataSetChanged();
                 } else {
-                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(mSelectNGWResourceDialog.getActivity(), connection);
+                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(
+                            mSelectNGWResourceDialog.getActivity(), connection);
                     task.execute();
                 }
             }
@@ -507,24 +530,23 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
             if (i == 0) {
                 //go up
                 INGWResource resource = mCurrentResource.getParent();
-                if(resource instanceof Resource){
-                    Resource resourceGroup = (Resource)resource;
-                    if(resourceGroup.getRemoteId() == 0){
+                if (resource instanceof Resource) {
+                    Resource resourceGroup = (Resource) resource;
+                    if (resourceGroup.getRemoteId() == 0) {
                         resource = resource.getParent();
                     }
                 }
                 mCurrentResource = resource;
                 notifyDataSetChanged();
-            }
-            else {
+            } else {
                 //go deep
                 ResourceGroup resourceGroup = (ResourceGroup) mCurrentResource.getChild(i - 1);
                 mCurrentResource = resourceGroup;
                 if (resourceGroup.isChildrenLoaded()) {
                     notifyDataSetChanged();
                 } else {
-                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(mSelectNGWResourceDialog.getActivity(),
-                                                                         resourceGroup);
+                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(
+                            mSelectNGWResourceDialog.getActivity(), resourceGroup);
                     task.execute();
                 }
             }
@@ -534,10 +556,11 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
 
 
     /**
-     * A path view class. the path is a resources names divide by arrows in head of dialog.
-     * If user click on name, the dialog follow the specified path.
+     * A path view class. the path is a resources names divide by arrows in head of dialog. If user
+     * click on name, the dialog follow the specified path.
      */
-    protected class PathView{
+    protected class PathView
+    {
         protected LinearLayout mLinearLayout;
 
 
@@ -546,16 +569,19 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
             mLinearLayout = linearLayout;
         }
 
-        public void onUpdate(INGWResource mCurrentResource){
-            if(null == mLinearLayout || null == mCurrentResource)
+
+        public void onUpdate(INGWResource mCurrentResource)
+        {
+            if (null == mLinearLayout || null == mCurrentResource) {
                 return;
+            }
             mLinearLayout.removeAllViewsInLayout();
             INGWResource parent = mCurrentResource;
-            while (null != parent){
+            while (null != parent) {
                 //skip root resource
-                if(parent instanceof Resource){
-                    Resource resource = (Resource)parent;
-                    if(resource.getRemoteId() == 0){
+                if (parent instanceof Resource) {
+                    Resource resource = (Resource) parent;
+                    if (resource.getRemoteId() == 0) {
                         parent = parent.getParent();
                         continue;
                     }
@@ -570,24 +596,28 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
                 name.setSingleLine(true);
                 name.setMaxLines(1);
                 name.setBackgroundResource(android.R.drawable.list_selector_background);
-                name.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View v)
-                    {
-                        setCurrentResourceId(id);
-                    }
-                });
+                name.setOnClickListener(
+                        new View.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(View v)
+                            {
+                                setCurrentResourceId(id);
+                            }
+                        });
 
                 mLinearLayout.addView(name, 0);
 
                 parent = parent.getParent();
 
-                if(null != parent){
+                if (null != parent) {
                     ImageView image = new ImageView(mSelectNGWResourceDialog.getActivity());
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(30,30);
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(30, 30);
                     image.setLayoutParams(params);
-                    image.setImageDrawable(mSelectNGWResourceDialog.getActivity().getResources().getDrawable(R.drawable.ic_next));
+                    image.setImageDrawable(
+                            mSelectNGWResourceDialog.getActivity()
+                                    .getResources()
+                                    .getDrawable(R.drawable.ic_next));
                     mLinearLayout.addView(image, 0);
                 }
             }
@@ -602,9 +632,12 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
             extends AsyncTask<Void, Void, String>
     {
         protected INGWResource mINGWResource;
-        protected Context mContext;
+        protected Context      mContext;
 
-        public NGWResourceAsyncTask(Context context, INGWResource INGWResource)
+
+        public NGWResourceAsyncTask(
+                Context context,
+                INGWResource INGWResource)
         {
             mINGWResource = INGWResource;
             mContext = context;
@@ -622,15 +655,15 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
         @Override
         protected String doInBackground(Void... voids)
         {
-            if(mINGWResource instanceof Connection){
-                Connection connection = (Connection)mINGWResource;
-                if(connection.connect())
+            if (mINGWResource instanceof Connection) {
+                Connection connection = (Connection) mINGWResource;
+                if (connection.connect()) {
                     connection.loadChildren();
-                else
+                } else {
                     return mContext.getString(R.string.error_connect_failed);
-            }
-            else if(mINGWResource instanceof ResourceGroup){
-                ResourceGroup resourceGroup = (ResourceGroup)mINGWResource;
+                }
+            } else if (mINGWResource instanceof ResourceGroup) {
+                ResourceGroup resourceGroup = (ResourceGroup) mINGWResource;
                 resourceGroup.loadChildren();
             }
             return "";
@@ -640,9 +673,8 @@ public class NGWResourcesListAdapter extends BaseAdapter implements AdapterView.
         @Override
         protected void onPostExecute(String error)
         {
-            if(null != error && error.length() > 0){
-                Toast.makeText(mContext, error, Toast.LENGTH_SHORT)
-                     .show();
+            if (null != error && error.length() > 0) {
+                Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show();
             }
             mLoading = false;
             notifyDataSetChanged();

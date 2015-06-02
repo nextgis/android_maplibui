@@ -28,7 +28,6 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.view.View;
-
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
@@ -39,15 +38,15 @@ import com.nextgis.maplibui.api.MapViewEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.nextgis.maplib.util.GeoConstants.*;
-import static com.nextgis.maplibui.util.SettingsConstantsUI.*;
+import static com.nextgis.maplib.util.GeoConstants.DEFAULT_MAX_ZOOM;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_KEEPSCREENON;
 
 
 public class MapViewBase
         extends View
 {
 
-    protected MapDrawable mMap;
+    protected MapDrawable                mMap;
     protected List<MapViewEventListener> mListeners;
 
 
@@ -157,6 +156,7 @@ public class MapViewBase
         }
     }
 
+
     public boolean canZoomIn()
     {
         return mMap != null && mMap.getZoomLevel() < mMap.getMaxZoom();
@@ -177,6 +177,7 @@ public class MapViewBase
         return mMap.getZoomLevel();
     }
 
+
     public final float getMaxZoom()
     {
         if (mMap == null) {
@@ -185,6 +186,7 @@ public class MapViewBase
         return mMap.getMaxZoom();
     }
 
+
     public final float getMinZoom()
     {
         if (mMap == null) {
@@ -192,6 +194,7 @@ public class MapViewBase
         }
         return mMap.getMinZoom();
     }
+
 
     public final GeoPoint getMapCenter()
     {
@@ -231,6 +234,7 @@ public class MapViewBase
         }
     }
 
+
     public void addNGWLayer()
     {
         if (mMap != null) {
@@ -238,7 +242,9 @@ public class MapViewBase
         }
     }
 
-    public List<ILayer> getLayersByType(int types){
+
+    public List<ILayer> getLayersByType(int types)
+    {
         List<ILayer> ret = new ArrayList<>();
 
         if (mMap != null) {
@@ -248,14 +254,18 @@ public class MapViewBase
         return ret;
     }
 
-    public ILayer getLayerById(int id){
-        if(mMap != null){
+
+    public ILayer getLayerById(int id)
+    {
+        if (mMap != null) {
             return mMap.getLayerById(id);
         }
         return null;
     }
 
-    public List<ILayer> getVectorLayersByType(int types){
+
+    public List<ILayer> getVectorLayersByType(int types)
+    {
         List<ILayer> ret = new ArrayList<>();
 
         if (mMap != null) {
@@ -292,7 +302,7 @@ public class MapViewBase
 
     public GeoEnvelope screenToMap(GeoEnvelope envelope)
     {
-        if(mMap != null){
+        if (mMap != null) {
             return mMap.screenToMap(envelope);
         }
 

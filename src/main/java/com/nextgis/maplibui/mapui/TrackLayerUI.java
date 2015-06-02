@@ -34,7 +34,8 @@ import java.io.File;
 
 
 public class TrackLayerUI
-        extends TrackLayer implements ILayerUI
+        extends TrackLayer
+        implements ILayerUI
 {
     public TrackLayerUI(
             Context context,

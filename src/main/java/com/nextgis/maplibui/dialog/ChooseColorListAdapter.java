@@ -38,13 +38,16 @@ import java.util.List;
 /**
  * Colors list to choose
  */
-public class ChooseColorListAdapter extends BaseAdapter
+public class ChooseColorListAdapter
+        extends BaseAdapter
 {
     protected List<Pair<Integer, String>> mColors;
-    protected Context mContext;
+    protected Context                     mContext;
 
 
-    public ChooseColorListAdapter(Context context, List<Pair<Integer, String>> colors)
+    public ChooseColorListAdapter(
+            Context context,
+            List<Pair<Integer, String>> colors)
     {
         mColors = colors;
         mContext = context;

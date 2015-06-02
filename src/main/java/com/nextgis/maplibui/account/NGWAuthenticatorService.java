@@ -1,4 +1,3 @@
-
 /*
  * Project:  NextGIS Mobile
  * Purpose:  Mobile GIS for Android.
@@ -25,10 +24,10 @@ package com.nextgis.maplibui.account;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import com.nextgis.maplibui.account.NGWAccountAuthenticator;
 
 
-public class NGWAuthenticatorService extends Service
+public class NGWAuthenticatorService
+        extends Service
 {
     protected NGWAccountAuthenticator mAuthenticator;
 

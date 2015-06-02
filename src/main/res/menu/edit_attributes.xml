@@ -29,14 +29,16 @@
         android:title="@string/apply"
         android:orderInCategory="100"
         app:showAsAction="always"
-        android:icon="@drawable/ic_action_apply"/>
+        android:icon="@drawable/ic_action_apply"
+        />
 
     <item
         android:id="@+id/menu_cancel"
         android:title="@string/cancel"
         android:orderInCategory="100"
         app:showAsAction="always"
-        android:icon="@drawable/ic_action_cancel"/>
+        android:icon="@drawable/ic_action_cancel"
+        />
 
     <item
         android:id="@+id/menu_settings"

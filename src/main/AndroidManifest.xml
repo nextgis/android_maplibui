@@ -28,29 +28,45 @@
         android:label="@string/app_name"
         >
 
-        <activity android:name=".NGWLoginActivity"
-                  android:label="@string/account_setup"/>
+        <activity
+            android:name=".NGWLoginActivity"
+            android:label="@string/account_setup"
+            />
 
-        <activity android:name=".NGWSettingsActivity"
-                  android:label="@string/ngw_settings"/>
+        <activity
+            android:name=".NGWSettingsActivity"
+            android:label="@string/ngw_settings"
+            />
 
-        <activity android:name=".ModifyAttributesActivity"
-                  android:label="@string/set_attributes"/>
+        <activity
+            android:name=".ModifyAttributesActivity"
+            android:label="@string/set_attributes"
+            />
 
-        <activity android:name=".CustomModifyAttributesActivity"
-                  android:label="@string/set_attributes"/>
+        <activity
+            android:name=".CustomModifyAttributesActivity"
+            android:label="@string/set_attributes"
+            />
 
-        <activity android:name=".TracksActivity"
-                  android:label="@string/tracks"/>
+        <activity
+            android:name=".TracksActivity"
+            android:label="@string/tracks"
+            />
 
-        <activity android:name=".VectorLayerSettingsActivity"
-                  android:label="@string/layerSettings"/>
+        <activity
+            android:name=".VectorLayerSettingsActivity"
+            android:label="@string/layerSettings"
+            />
 
-        <activity android:name=".RemoteTMSLayerSettingsActivity"
-                  android:label="@string/layerSettings"/>
+        <activity
+            android:name=".RemoteTMSLayerSettingsActivity"
+            android:label="@string/layerSettings"
+            />
 
-        <activity android:name=".LocalTMSLayerSettingsActivity"
-                  android:label="@string/layerSettings"/>
+        <activity
+            android:name=".LocalTMSLayerSettingsActivity"
+            android:label="@string/layerSettings"
+            />
 
         <service
             android:name=".account.NGWAuthenticatorService">
@@ -59,7 +75,8 @@
             </intent-filter>
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" />
+                android:resource="@xml/authenticator"
+                />
         </service>
 
     </application>

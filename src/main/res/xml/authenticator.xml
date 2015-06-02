@@ -24,6 +24,7 @@
                        android:accountType="com.nextgis.account"
                        android:icon="@drawable/ic_ngw"
                        android:smallIcon="@drawable/ic_ngw"
-                       android:label="@string/nextgis_web">
+                       android:label="@string/nextgis_web"
+    >
 
 </account-authenticator>

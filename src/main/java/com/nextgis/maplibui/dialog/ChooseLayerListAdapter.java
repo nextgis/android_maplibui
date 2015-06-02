@@ -38,7 +38,9 @@ import com.nextgis.maplibui.mapui.LayerFactoryUI;
 /**
  * Class to show list of layers
  */
-public class ChooseLayerListAdapter extends BaseAdapter implements AdapterView.OnItemClickListener
+public class ChooseLayerListAdapter
+        extends BaseAdapter
+        implements AdapterView.OnItemClickListener
 {
     protected ILayerSelector mSelector;
 
@@ -76,14 +78,14 @@ public class ChooseLayerListAdapter extends BaseAdapter implements AdapterView.O
             View view,
             ViewGroup viewGroup)
     {
-        final ILayer layer = (ILayer)getItem(i);
+        final ILayer layer = (ILayer) getItem(i);
         View v = view;
         if (v == null) {
             LayoutInflater inflater = LayoutInflater.from(mSelector.getContext());
             v = inflater.inflate(R.layout.layout_select_layer_row, null);
         }
 
-        ILayerUI layerUI = (ILayerUI)layer;
+        ILayerUI layerUI = (ILayerUI) layer;
         if (layerUI != null) {
             ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
             ivIcon.setImageDrawable(layerUI.getIcon());

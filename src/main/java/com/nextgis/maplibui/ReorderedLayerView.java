@@ -39,10 +39,12 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import static com.nextgis.maplib.util.Constants.*;
+import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 
-public class ReorderedLayerView extends ListView implements AdapterView.OnItemLongClickListener,
-                                                            AbsListView.OnScrollListener
+
+public class ReorderedLayerView
+        extends ListView
+        implements AdapterView.OnItemLongClickListener, AbsListView.OnScrollListener
 {
     protected final static int SMOOTH_SCROLL_AMOUNT_AT_EDGE = 15;
     protected final static int LINE_THICKNESS               = 5;
@@ -66,7 +68,7 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
     protected Rect           mHoverCellCurrentBounds;
     protected Rect           mHoverCellOriginalBounds;
 
-    protected int mActivePointerId   = NOT_FOUND;
+    protected int mActivePointerId = NOT_FOUND;
 
     protected boolean mIsWaitingForScrollFinish = false;
     protected int     mScrollState              = OnScrollListener.SCROLL_STATE_IDLE;
@@ -76,6 +78,7 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
     protected int mCurrentFirstVisibleItem;
     protected int mCurrentVisibleItemCount;
     protected int mCurrentScrollState;
+
 
     public ReorderedLayerView(Context context)
     {
@@ -121,7 +124,7 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
         setOnItemLongClickListener(this);
         setOnScrollListener(this);
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        mSmoothScrollAmountAtEdge = (int)(SMOOTH_SCROLL_AMOUNT_AT_EDGE / metrics.density);
+        mSmoothScrollAmountAtEdge = (int) (SMOOTH_SCROLL_AMOUNT_AT_EDGE / metrics.density);
     }
 
 
@@ -143,7 +146,7 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
         selectedView.setVisibility(INVISIBLE);
 
         mCellIsMobile = true;
-        LayersListAdapter adapter = (LayersListAdapter)getAdapter();
+        LayersListAdapter adapter = (LayersListAdapter) getAdapter();
         adapter.beginDrag();
 
         updateNeighborViewsForID(mMobileItemId);
@@ -151,12 +154,13 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
         return true;
     }
 
+
     /**
-     * Creates the hover cell with the appropriate bitmap and of appropriate
-     * size. The hover cell's BitmapDrawable is drawn on top of the bitmap every
-     * single time an invalidate call is made.
+     * Creates the hover cell with the appropriate bitmap and of appropriate size. The hover cell's
+     * BitmapDrawable is drawn on top of the bitmap every single time an invalidate call is made.
      */
-    protected BitmapDrawable getAndAddHoverView(View v) {
+    protected BitmapDrawable getAndAddHoverView(View v)
+    {
 
         int w = v.getWidth();
         int h = v.getHeight();
@@ -176,8 +180,11 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
     }
 
 
-    /** Draws a black border over the screenshot of the view passed in. */
-    protected Bitmap getBitmapWithBorder(View v) {
+    /**
+     * Draws a black border over the screenshot of the view passed in.
+     */
+    protected Bitmap getBitmapWithBorder(View v)
+    {
         Bitmap bitmap = getBitmapFromView(v);
         Canvas canvas = new Canvas(bitmap);
 
@@ -194,10 +201,14 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
         return bitmap;
     }
 
-    /** Returns a bitmap showing a screenshot of the view passed in. */
-    protected Bitmap getBitmapFromView(View v) {
+
+    /**
+     * Returns a bitmap showing a screenshot of the view passed in.
+     */
+    protected Bitmap getBitmapFromView(View v)
+    {
         Bitmap bitmap = Bitmap.createBitmap(v.getWidth(), v.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas (bitmap);
+        Canvas canvas = new Canvas(bitmap);
 
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
@@ -209,24 +220,29 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
         return bitmap;
     }
 
+
     /**
-     * Stores a reference to the views above and below the item currently
-     * corresponding to the hover cell. It is important to note that if this
-     * item is either at the top or bottom of the list, mAboveItemId or mBelowItemId
-     * may be invalid.
+     * Stores a reference to the views above and below the item currently corresponding to the hover
+     * cell. It is important to note that if this item is either at the top or bottom of the list,
+     * mAboveItemId or mBelowItemId may be invalid.
      */
-    protected void updateNeighborViewsForID(long itemID) {
+    protected void updateNeighborViewsForID(long itemID)
+    {
         int position = getPositionForID(itemID);
         ListAdapter adapter = getAdapter();
         mAboveItemId = adapter.getItemId(position - 1);
         mBelowItemId = adapter.getItemId(position + 1);
     }
 
-    /** Retrieves the view in the list corresponding to itemID */
-    public View getViewForID (long itemID) {
+
+    /**
+     * Retrieves the view in the list corresponding to itemID
+     */
+    public View getViewForID(long itemID)
+    {
         int firstVisiblePosition = getFirstVisiblePosition();
         ListAdapter adapter = getAdapter();
-        for(int i = 0; i < getChildCount(); i++) {
+        for (int i = 0; i < getChildCount(); i++) {
             View v = getChildAt(i);
             int position = firstVisiblePosition + i;
             long id = adapter.getItemId(position);
@@ -237,8 +253,12 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
         return null;
     }
 
-    /** Retrieves the position in the list corresponding to itemID */
-    public int getPositionForID (long itemID) {
+
+    /**
+     * Retrieves the position in the list corresponding to itemID
+     */
+    public int getPositionForID(long itemID)
+    {
         View v = getViewForID(itemID);
         if (v == null) {
             return NOT_FOUND;
@@ -247,26 +267,34 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
         }
     }
 
+
     /**
-     *  dispatchDraw gets invoked when all the child views are about to be drawn.
-     *  By overriding this method, the hover cell (BitmapDrawable) can be drawn
-     *  over the listview's items whenever the listview is redrawn.
+     * dispatchDraw gets invoked when all the child views are about to be drawn. By overriding this
+     * method, the hover cell (BitmapDrawable) can be drawn over the listview's items whenever the
+     * listview is redrawn.
      */
     @Override
-    protected void dispatchDraw(@NonNull Canvas canvas) {
+    protected void dispatchDraw(
+            @NonNull
+            Canvas canvas)
+    {
         super.dispatchDraw(canvas);
         if (mHoverCell != null) {
             mHoverCell.draw(canvas);
         }
     }
 
+
     @Override
-    public boolean onTouchEvent (@NonNull MotionEvent event) {
+    public boolean onTouchEvent(
+            @NonNull
+            MotionEvent event)
+    {
 
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                mDownX = (int)event.getX();
-                mDownY = (int)event.getY();
+                mDownX = (int) event.getX();
+                mDownY = (int) event.getY();
                 mActivePointerId = event.getPointerId(0);
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -318,16 +346,17 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
         return super.onTouchEvent(event);
     }
 
+
     /**
-     * This method determines whether the hover cell has been shifted far enough
-     * to invoke a cell swap. If so, then the respective cell swap candidate is
-     * determined and the data set is changed. Upon posting a notification of the
-     * data set change, a layout is invoked to place the cells in the right place.
-     * Using a ViewTreeObserver and a corresponding OnPreDrawListener, we can
-     * offset the cell being swapped to where it previously was and then animate it to
-     * its new position.
+     * This method determines whether the hover cell has been shifted far enough to invoke a cell
+     * swap. If so, then the respective cell swap candidate is determined and the data set is
+     * changed. Upon posting a notification of the data set change, a layout is invoked to place the
+     * cells in the right place. Using a ViewTreeObserver and a corresponding OnPreDrawListener, we
+     * can offset the cell being swapped to where it previously was and then animate it to its new
+     * position.
      */
-    protected void handleCellSwitch() {
+    protected void handleCellSwitch()
+    {
         final int deltaY = mLastEventY - mDownY;
         int deltaYTotal = mHoverCellOriginalBounds.top + mTotalOffset + deltaY;
 
@@ -349,9 +378,10 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
                 return;
             }
 
-            LayersListAdapter adapter = (LayersListAdapter)getAdapter();
-            if(null != adapter)
+            LayersListAdapter adapter = (LayersListAdapter) getAdapter();
+            if (null != adapter) {
                 adapter.swapElements(originalItem, getPositionForView(switchView));
+            }
 
             mDownY = mLastEventY;
 
@@ -363,15 +393,17 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
         }
     }
 
+
     /**
-     * Resets all the appropriate fields to a default state while also animating
-     * the hover cell back to its correct location.
+     * Resets all the appropriate fields to a default state while also animating the hover cell back
+     * to its correct location.
      */
-    protected void touchEventsEnded () {
+    protected void touchEventsEnded()
+    {
         final View mobileView = getViewForID(mMobileItemId);
         if (mCellIsMobile || mIsWaitingForScrollFinish) {
 
-            LayersListAdapter adapter = (LayersListAdapter)getAdapter();
+            LayersListAdapter adapter = (LayersListAdapter) getAdapter();
             adapter.endDrag();
 
             mCellIsMobile = false;
@@ -402,14 +434,16 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
         }
     }
 
+
     /**
      * Resets all the appropriate fields to a default state.
      */
-    protected void touchEventsCancelled () {
+    protected void touchEventsCancelled()
+    {
         View mobileView = getViewForID(mMobileItemId);
         if (mCellIsMobile) {
 
-            LayersListAdapter adapter = (LayersListAdapter)getAdapter();
+            LayersListAdapter adapter = (LayersListAdapter) getAdapter();
             adapter.endDrag();
 
             mAboveItemId = NOT_FOUND;
@@ -425,9 +459,10 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
         mActivePointerId = NOT_FOUND;
     }
 
+
     /**
-     *  Determines whether this listview is in a scrolling state invoked
-     *  by the fact that the hover cell is out of the bounds of the listview;
+     * Determines whether this listview is in a scrolling state invoked by the fact that the hover
+     * cell is out of the bounds of the listview;
      */
     protected void handleMobileCellScroll()
     {
@@ -436,9 +471,9 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
 
 
     /**
-     * This method is in charge of determining if the hover cell is above
-     * or below the bounds of the listview. If so, the listview does an appropriate
-     * upward or downward smooth scroll so as to reveal new items.
+     * This method is in charge of determining if the hover cell is above or below the bounds of the
+     * listview. If so, the listview does an appropriate upward or downward smooth scroll so as to
+     * reveal new items.
      */
     protected boolean handleMobileCellScroll(Rect r)
     {
@@ -462,8 +497,11 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
         return false;
     }
 
+
     @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState)
+    public void onScrollStateChanged(
+            AbsListView view,
+            int scrollState)
     {
         mCurrentScrollState = scrollState;
         mScrollState = scrollState;
@@ -472,7 +510,10 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
 
 
     @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
+    public void onScroll(
+            AbsListView view,
+            int firstVisibleItem,
+            int visibleItemCount,
             int totalItemCount)
     {
         mCurrentFirstVisibleItem = firstVisibleItem;
@@ -494,12 +535,11 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
 
 
     /**
-     * This method is in charge of invoking 1 of 2 actions. Firstly, if the listview
-     * is in a state of scrolling invoked by the hover cell being outside the bounds
-     * of the listview, then this scrolling event is continued. Secondly, if the hover
-     * cell has already been released, this invokes the animation for the hover cell
-     * to return to its correct position after the listview has entered an idle scroll
-     * state.
+     * This method is in charge of invoking 1 of 2 actions. Firstly, if the listview is in a state
+     * of scrolling invoked by the hover cell being outside the bounds of the listview, then this
+     * scrolling event is continued. Secondly, if the hover cell has already been released, this
+     * invokes the animation for the hover cell to return to its correct position after the listview
+     * has entered an idle scroll state.
      */
     protected void isScrollCompleted()
     {
@@ -514,8 +554,8 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
 
 
     /**
-     * Determines if the listview scrolled up enough to reveal a new cell at the
-     * top of the list. If so, then the appropriate parameters are updated.
+     * Determines if the listview scrolled up enough to reveal a new cell at the top of the list. If
+     * so, then the appropriate parameters are updated.
      */
     protected void checkAndHandleFirstVisibleCellChange()
     {
@@ -529,8 +569,8 @@ public class ReorderedLayerView extends ListView implements AdapterView.OnItemLo
 
 
     /**
-     * Determines if the listview scrolled down enough to reveal a new cell at the
-     * bottom of the list. If so, then the appropriate parameters are updated.
+     * Determines if the listview scrolled down enough to reveal a new cell at the bottom of the
+     * list. If so, then the appropriate parameters are updated.
      */
     protected void checkAndHandleLastVisibleCellChange()
     {

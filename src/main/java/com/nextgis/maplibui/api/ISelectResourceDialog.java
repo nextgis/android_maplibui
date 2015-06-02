@@ -30,5 +30,6 @@ import android.content.Context;
 public interface ISelectResourceDialog
 {
     public Context getContext();
+
     public void updateButtons();
 }

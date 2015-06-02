@@ -34,7 +34,9 @@ import java.io.File;
 /**
  * UI for Layer group
  */
-public class LayerGroupUI extends LayerGroup implements ILayerUI
+public class LayerGroupUI
+        extends LayerGroup
+        implements ILayerUI
 {
     public LayerGroupUI(
             Context context,

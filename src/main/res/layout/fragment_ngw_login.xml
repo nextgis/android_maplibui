@@ -25,7 +25,8 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              tools:context="com.nextgis.maplibui.NGWLoginFragment">
+              tools:context="com.nextgis.maplibui.NGWLoginFragment"
+    >
 
     <TextView
         android:layout_width="match_parent"

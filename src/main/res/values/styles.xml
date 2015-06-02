@@ -22,11 +22,13 @@
 
 <resources>
 
-    <style name="DatePickSpinner" parent="Base.Widget.AppCompat.Spinner">
+    <style name="DatePickSpinner"
+           parent="Base.Widget.AppCompat.Spinner">
         <item name="android:background">@drawable/ic_spinner_calendar</item>
     </style>
 
-    <style name="NGDialog" parent="Base.Theme.AppCompat.Light.Dialog">
+    <style name="NGDialog"
+           parent="Base.Theme.AppCompat.Light.Dialog">
         <item name="isLightTheme">true</item>
         <item name="windowActionBarOverlay">false</item>
         <item name="android:textColor">@color/primary_text_default_material_light</item>

@@ -56,9 +56,9 @@ public class VectorLayerSettingsActivity
         implements IChooseColorResult
 {
     public final static String LAYER_ID_KEY = "layer_id";
-    protected VectorLayer                 mVectorLayer;
+    protected VectorLayer mVectorLayer;
     protected List<Pair<Integer, String>> mColors;
-    protected int                         mCurrentColor;
+    protected int mCurrentColor;
 
 
     @Override
@@ -108,18 +108,21 @@ public class VectorLayerSettingsActivity
             editText.setText(mVectorLayer.getName());
 
             LinearLayout color_row = (LinearLayout) findViewById(R.id.color_row);
-            color_row.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    //show colors list
-                    ChooseColorDialog newChooseColorDialog = new ChooseColorDialog();
-                    newChooseColorDialog.setTitle(getString(R.string.select_color))
-                                        .setColors(mColors)
-                                        .show(VectorLayerSettingsActivity.this.getSupportFragmentManager(), "choose_color");
-                }
-            });
+            color_row.setOnClickListener(
+                    new View.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(View v)
+                        {
+                            //show colors list
+                            ChooseColorDialog newChooseColorDialog = new ChooseColorDialog();
+                            newChooseColorDialog.setTitle(getString(R.string.select_color))
+                                    .setColors(mColors)
+                                    .show(
+                                            VectorLayerSettingsActivity.this.getSupportFragmentManager(),
+                                            "choose_color");
+                        }
+                    });
 
             // set color
             SimpleFeatureRenderer sfr = (SimpleFeatureRenderer) mVectorLayer.getRenderer();
@@ -133,7 +136,9 @@ public class VectorLayerSettingsActivity
         }
     }
 
-    protected void setColor(int color){
+
+    protected void setColor(int color)
+    {
         // set color
         ImageView iv = (ImageView) findViewById(R.id.color_image);
         GradientDrawable sd = (GradientDrawable) iv.getDrawable();
@@ -146,6 +151,7 @@ public class VectorLayerSettingsActivity
 
         mCurrentColor = color;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
@@ -160,10 +166,13 @@ public class VectorLayerSettingsActivity
         return super.onOptionsItemSelected(item);
     }
 
-    protected String getColorName(int color){
-        for(Pair<Integer, String> colorEntry : mColors){
-            if (colorEntry.first == color)
+
+    protected String getColorName(int color)
+    {
+        for (Pair<Integer, String> colorEntry : mColors) {
+            if (colorEntry.first == color) {
                 return colorEntry.second;
+            }
         }
         return "#" + Integer.toHexString(color & 0x00FFFFFF);
     }
@@ -175,9 +184,12 @@ public class VectorLayerSettingsActivity
         setColor(color);
     }
 
-    protected void saveSettings(){
-        if(null == mVectorLayer)
+
+    protected void saveSettings()
+    {
+        if (null == mVectorLayer) {
             return;
+        }
         EditText editText = (EditText) findViewById(R.id.layer_name);
         mVectorLayer.setName(editText.getEditableText().toString());
         // set color

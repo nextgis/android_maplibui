@@ -1,4 +1,3 @@
-
 /*
  * Project:  NextGIS Mobile
  * Purpose:  Mobile GIS for Android.
@@ -43,7 +42,9 @@ import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.*;
 
-public class HTTPLoader extends AsyncTaskLoader<String>
+
+public class HTTPLoader
+        extends AsyncTaskLoader<String>
 {
     protected final String mUrl;
     protected final String mLogin;
@@ -63,7 +64,13 @@ public class HTTPLoader extends AsyncTaskLoader<String>
         mPassword = password;
     }
 
-    public static String signIn(Context context, String url, String login, String password) {
+
+    public static String signIn(
+            Context context,
+            String url,
+            String login,
+            String password)
+    {
         try {
             return new HTTPLoader(context, url, login, password).signIn();
         } catch (IOException e) {
@@ -74,7 +81,8 @@ public class HTTPLoader extends AsyncTaskLoader<String>
 
 
     @Override
-    protected void onStartLoading() {
+    protected void onStartLoading()
+    {
         if (mAuthToken == null || mAuthToken.length() == 0) {
             forceLoad();
         } else {
@@ -82,14 +90,18 @@ public class HTTPLoader extends AsyncTaskLoader<String>
         }
     }
 
+
     @Override
-    public void deliverResult(String data) {
+    public void deliverResult(String data)
+    {
         mAuthToken = data;
         super.deliverResult(data);
     }
 
+
     @Override
-    public String loadInBackground() {
+    public String loadInBackground()
+    {
         try {
             return signIn();
         } catch (IOException e) {
@@ -98,13 +110,17 @@ public class HTTPLoader extends AsyncTaskLoader<String>
         return null;
     }
 
-    protected String signIn() throws IOException {
+
+    protected String signIn()
+            throws IOException
+    {
         //1. fix url
         String url = mUrl.trim();
-        if(url.startsWith("http"))
+        if (url.startsWith("http")) {
             url = url + "/login";
-        else
+        } else {
             url = "http://" + url + "/login";
+        }
 
         try {
             HttpPost httppost = new HttpPost(url);
@@ -116,18 +132,18 @@ public class HTTPLoader extends AsyncTaskLoader<String>
             HttpClient httpclient = new DefaultHttpClient();
             httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT, APP_USER_AGENT);
             httpclient.getParams()
-                      .setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, TIMEOUT_CONNECTION);
+                    .setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, TIMEOUT_CONNECTION);
             httpclient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, TIMEOUT_SOKET);
             httpclient.getParams().setParameter(ClientPNames.HANDLE_REDIRECTS, Boolean.FALSE);
 
             HttpResponse response = httpclient.execute(httppost);
             //2 get cookie
             Header head = response.getFirstHeader("Set-Cookie");
-            if (head == null)
+            if (head == null) {
                 return null;
+            }
             return head.getValue();
-        }
-        catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return null;
         }

@@ -35,11 +35,12 @@ public abstract class Overlay
 {
     protected boolean mIsVisible = true;
 
-    protected static final String BUNDLE_KEY_TYPE = "type";
+    protected static final String BUNDLE_KEY_TYPE    = "type";
     protected static final String BUNDLE_KEY_VISIBLE = "is_visible";
 
-    protected Context mContext;
+    protected Context         mContext;
     protected MapViewOverlays mMapViewOverlays;
+
 
     public Overlay(
             Context context,
@@ -68,8 +69,8 @@ public abstract class Overlay
             Canvas canvas,
             OverlayItem overlayItem)
     {
-        canvas.drawBitmap(overlayItem.getMarker(), overlayItem.getScreenX(),
-                          overlayItem.getScreenY(), null);
+        canvas.drawBitmap(
+                overlayItem.getMarker(), overlayItem.getScreenX(), overlayItem.getScreenY(), null);
     }
 
 
@@ -78,8 +79,9 @@ public abstract class Overlay
             PointF currentMouseOffset,
             OverlayItem overlayItem)
     {
-        canvas.drawBitmap(overlayItem.getMarker(), overlayItem.getScreenX() - currentMouseOffset.x,
-                          overlayItem.getScreenY() - currentMouseOffset.y, null);
+        canvas.drawBitmap(
+                overlayItem.getMarker(), overlayItem.getScreenX() - currentMouseOffset.x,
+                overlayItem.getScreenY() - currentMouseOffset.y, null);
     }
 
 

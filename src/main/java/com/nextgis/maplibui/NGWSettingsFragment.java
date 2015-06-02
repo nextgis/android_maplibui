@@ -39,7 +39,7 @@ public class NGWSettingsFragment
 
         addPreferencesFromResource(R.xml.preferences_empty);
 
-        if(getArguments() != null) {
+        if (getArguments() != null) {
             Account account = getArguments().getParcelable("account");
             if (null != account) {
                 NGWSettingsActivity activity = (NGWSettingsActivity) getActivity();

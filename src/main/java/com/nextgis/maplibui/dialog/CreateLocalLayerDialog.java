@@ -35,11 +35,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.provider.DocumentFile;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -88,16 +86,16 @@ import static com.nextgis.maplib.util.GeoConstants.*;
 public class CreateLocalLayerDialog
         extends DialogFragment
 {
-    public final static    int    VECTOR_LAYER           = 1;
-    public final static    int    VECTOR_LAYER_WITH_FORM = 2;
-    public final static    int    TMS_LAYER = 3;
+    public final static int VECTOR_LAYER           = 1;
+    public final static int VECTOR_LAYER_WITH_FORM = 2;
+    public final static int TMS_LAYER              = 3;
 
     protected final static String KEY_TITLE      = "title";
     protected final static String KEY_NAME       = "name";
     protected final static String KEY_ID         = "id";
     protected final static String KEY_URI        = "uri";
     protected final static String KEY_LAYER_TYPE = "layer_type";
-    protected final static String KEY_TMS_TYPE = "tms_type";
+    protected final static String KEY_TMS_TYPE   = "tms_type";
     protected final static String KEY_POSITION   = "pos";
 
     protected final static String FILE_META = "meta.json";
@@ -109,7 +107,8 @@ public class CreateLocalLayerDialog
     protected LayerGroup mGroupLayer;
     protected int        mLayerType;
     protected String     mLayerName;
-    protected Spinner mSpinner;
+    protected Spinner    mSpinner;
+
 
     public CreateLocalLayerDialog setTitle(String title)
     {
@@ -172,10 +171,9 @@ public class CreateLocalLayerDialog
         }
 
         View view;
-        if(mLayerType < 3) {
+        if (mLayerType < 3) {
             view = View.inflate(context, R.layout.layout_create_vector_layer, null);
-        }
-        else{
+        } else {
             view = View.inflate(context, R.layout.layout_create_local_tms, null);
 
             final ArrayAdapter<CharSequence> adapter =
@@ -195,36 +193,38 @@ public class CreateLocalLayerDialog
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(mTitle)
-               .setIcon(mLayerType < 3 ? R.drawable.ic_local_vector : R.drawable.ic_local_tms)
-               .setView(view)
-               .setPositiveButton(R.string.create, new DialogInterface.OnClickListener()
-                                  {
-                                      public void onClick(
-                                              DialogInterface dialog,
-                                              int whichButton)
-                                      {
-                                          mLayerName = layerName.getText().toString();
-                                          if (mLayerType < 3)
-                                              new CreateTask(context).execute(mLayerName);
-                                          else {
-                                              int nType = mSpinner.getSelectedItemPosition();
-                                              String sTmsType = nType == 0 ? "XYZ" : "TMS";
-                                              new CreateTask(context).execute(mLayerName, sTmsType);
-                                          }
-                                      }
-                                  }
+                .setIcon(mLayerType < 3 ? R.drawable.ic_local_vector : R.drawable.ic_local_tms)
+                .setView(view)
+                .setPositiveButton(
+                        R.string.create, new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(
+                                    DialogInterface dialog,
+                                    int whichButton)
+                            {
+                                mLayerName = layerName.getText().toString();
+                                if (mLayerType < 3) {
+                                    new CreateTask(context).execute(mLayerName);
+                                } else {
+                                    int nType = mSpinner.getSelectedItemPosition();
+                                    String sTmsType = nType == 0 ? "XYZ" : "TMS";
+                                    new CreateTask(context).execute(mLayerName, sTmsType);
+                                }
+                            }
+                        }
 
 
-               )
-               .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
-               {
-                   public void onClick(
-                           DialogInterface dialog,
-                           int whichButton)
-                   {
-                       // Do nothing.
-                   }
-               });
+                )
+                .setNegativeButton(
+                        R.string.cancel, new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(
+                                    DialogInterface dialog,
+                                    int whichButton)
+                            {
+                                // Do nothing.
+                            }
+                        });
         // Create the AlertDialog object and return it
         return builder.create();
     }
@@ -238,17 +238,20 @@ public class CreateLocalLayerDialog
         outState.putString(KEY_NAME, mLayerName);
         outState.putParcelable(KEY_URI, mUri);
         outState.putInt(KEY_LAYER_TYPE, mLayerType);
-        if(null != mSpinner)
+        if (null != mSpinner) {
             outState.putInt(KEY_POSITION, mSpinner.getSelectedItemPosition());
+        }
 
         super.onSaveInstanceState(outState);
     }
+
 
     protected String createTMSLayer(
             Context context,
             String name,
             String type,
-            CreateTask task){
+            CreateTask task)
+    {
         try {
             InputStream inputStream = context.getContentResolver().openInputStream(mUri);
             if (inputStream != null) {
@@ -269,8 +272,7 @@ public class CreateLocalLayerDialog
                 }
 
                 //create Layer
-                LocalTMSLayerUI layer = new LocalTMSLayerUI(mGroupLayer.getContext(),
-                                                            outputPath);
+                LocalTMSLayerUI layer = new LocalTMSLayerUI(mGroupLayer.getContext(), outputPath);
                 layer.setName(name);
                 layer.setVisible(true);
                 layer.setTMSType(type.equals("TMS") ? TMSTYPE_NORMAL : TMSTYPE_OSM);
@@ -292,20 +294,24 @@ public class CreateLocalLayerDialog
                     int nMinY = 10000000;
                     Log.d(com.nextgis.maplib.util.Constants.TAG, zoomLevel.getName());
                     int nLevelZ = Integer.parseInt(zoomLevel.getName());
-                    if (nLevelZ > nMaxLevel)
+                    if (nLevelZ > nMaxLevel) {
                         nMaxLevel = nLevelZ;
-                    if (nLevelZ < nMinLevel)
+                    }
+                    if (nLevelZ < nMinLevel) {
                         nMinLevel = nLevelZ;
+                    }
                     File[] levelsX = zoomLevel.listFiles();
 
                     boolean bFirstTurn = true;
                     for (File inLevelX : levelsX) {
                         Log.d(com.nextgis.maplib.util.Constants.TAG, inLevelX.getName());
                         int nX = Integer.parseInt(inLevelX.getName());
-                        if (nX > nMaxX)
+                        if (nX > nMaxX) {
                             nMaxX = nX;
-                        if (nX < nMinX)
+                        }
+                        if (nX < nMinX) {
                             nMinX = nX;
+                        }
 
                         File[] levelsY = inLevelX.listFiles();
 
@@ -314,11 +320,15 @@ public class CreateLocalLayerDialog
                                 String sLevelY = inLevelY.getName();
 
                                 //Log.d(TAG, sLevelY);
-                                int nY = Integer.parseInt(sLevelY.replace(com.nextgis.maplib.util.Constants.TILE_EXT, ""));
-                                if (nY > nMaxY)
+                                int nY = Integer.parseInt(
+                                        sLevelY.replace(
+                                                com.nextgis.maplib.util.Constants.TILE_EXT, ""));
+                                if (nY > nMaxY) {
                                     nMaxY = nY;
-                                if (nY < nMinY)
+                                }
+                                if (nY < nMinY) {
                                     nMinY = nY;
+                                }
                             }
                             bFirstTurn = false;
                         }
@@ -343,7 +353,8 @@ public class CreateLocalLayerDialog
     protected String createVectorLayer(
             Context context,
             String name,
-            CreateTask task){
+            CreateTask task)
+    {
         try {
             InputStream inputStream = context.getContentResolver().openInputStream(mUri);
             if (inputStream != null) {
@@ -362,14 +373,14 @@ public class CreateLocalLayerDialog
                 }
                 task.setMessage(mGroupLayer.getContext().getString(R.string.message_opening));
 
-                VectorLayerUI layer = new VectorLayerUI(mGroupLayer.getContext(),
-                                                        mGroupLayer.createLayerStorage());
+                VectorLayerUI layer = new VectorLayerUI(
+                        mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
                 layer.setName(name);
                 layer.setVisible(true);
 
                 JSONObject geoJSONObject = new JSONObject(responseStrBuilder.toString());
                 String errorMessage = layer.createFromGeoJSON(geoJSONObject);
-                if(TextUtils.isEmpty(errorMessage)) {
+                if (TextUtils.isEmpty(errorMessage)) {
                     mGroupLayer.addLayer(layer);
                     mGroupLayer.save();
                 }
@@ -384,10 +395,12 @@ public class CreateLocalLayerDialog
         return mGroupLayer.getContext().getString(R.string.error_layer_create);
     }
 
+
     protected String createVectorLayerWithForm(
             Context context,
             String name,
-            CreateTask task){
+            CreateTask task)
+    {
         try {
             InputStream inputStream = context.getContentResolver().openInputStream(mUri);
             if (inputStream != null) {
@@ -415,15 +428,16 @@ public class CreateLocalLayerDialog
 
                 //read if this local o remote source
                 boolean isNgwConnection = metaJson.has("ngw_connection");
-                if(isNgwConnection && !metaJson.isNull("ngw_connection")){
+                if (isNgwConnection && !metaJson.isNull("ngw_connection")) {
                     File dataFile = new File(outputPath, FILE_DATA);
                     FileUtil.deleteRecursive(dataFile);
                     JSONObject connection = metaJson.getJSONObject("ngw_connection");
 
                     //read url
                     String url = connection.getString("url");
-                    if(!url.startsWith("http"))
+                    if (!url.startsWith("http")) {
                         url = "http://" + url;
+                    }
 
                     //read login
                     String login = connection.getString("login");
@@ -439,12 +453,15 @@ public class CreateLocalLayerDialog
                     try {
                         URI uri = new URI(url);
 
-                        if (uri.getHost() != null && uri.getHost().length() > 0)
+                        if (uri.getHost() != null && uri.getHost().length() > 0) {
                             accountName += uri.getHost();
-                        if (uri.getPort() != 80 && uri.getPort() > 0)
+                        }
+                        if (uri.getPort() != 80 && uri.getPort() > 0) {
                             accountName += ":" + uri.getPort();
-                        if (uri.getPath() != null && uri.getPath().length() > 0)
+                        }
+                        if (uri.getPath() != null && uri.getPath().length() > 0) {
                             accountName += uri.getPath();
+                        }
 
                     } catch (URISyntaxException e) {
                         e.printStackTrace();
@@ -452,7 +469,7 @@ public class CreateLocalLayerDialog
 
                     Account account = LayerFactory.getAccountByName(context, accountName);
                     final AccountManager am = AccountManager.get(context.getApplicationContext());
-                    if(null == account) {
+                    if (null == account) {
                         //create account
                         Bundle userData = new Bundle();
                         userData.putString("url", url);
@@ -462,21 +479,22 @@ public class CreateLocalLayerDialog
                             return mGroupLayer.getContext().getString(
                                     R.string.account_already_exists);
                         }
-                    }
-                    else{
+                    } else {
                         //compare login/password and report differences
                         boolean same = am.getPassword(account).equals(password) &&
                                        am.getUserData(account, "login").equals(login);
-                        if(!same){
+                        if (!same) {
                             Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT);
-                            msg.putExtra(ConstantsUI.KEY_MESSAGE, getString(R.string.warning_different_credentials));
+                            msg.putExtra(
+                                    ConstantsUI.KEY_MESSAGE,
+                                    getString(R.string.warning_different_credentials));
                             context.sendBroadcast(msg);
                         }
                     }
 
                     //create NGWVectorLayer
-                    NGWVectorLayerUI layer = new NGWVectorLayerUI(mGroupLayer.getContext(),
-                                                                  outputPath);
+                    NGWVectorLayerUI layer =
+                            new NGWVectorLayerUI(mGroupLayer.getContext(), outputPath);
                     layer.setName(name);
                     layer.setRemoteId(resourceId);
                     layer.setVisible(true);
@@ -489,10 +507,8 @@ public class CreateLocalLayerDialog
                     task.setIndeterminate(true);
 
                     return layer.download();
-                }
-                else{
-                    VectorLayerUI layer = new VectorLayerUI(mGroupLayer.getContext(),
-                                                            outputPath);
+                } else {
+                    VectorLayerUI layer = new VectorLayerUI(mGroupLayer.getContext(), outputPath);
                     layer.setName(name);
                     layer.setVisible(true);
 
@@ -503,11 +519,12 @@ public class CreateLocalLayerDialog
 
                     JSONObject geoJSONObject = new JSONObject(jsonContent);
                     JSONArray geoJSONFeatures = geoJSONObject.getJSONArray(GEOJSON_TYPE_FEATURES);
-                    if (0 == geoJSONFeatures.length()){
+                    if (0 == geoJSONFeatures.length()) {
                         //create empty layer
 
                         //read fields
-                        List<Field> fields = NGWVectorLayer.getFieldsFromJson(metaJson.getJSONArray("fields"));
+                        List<Field> fields =
+                                NGWVectorLayer.getFieldsFromJson(metaJson.getJSONArray("fields"));
                         //read geometry type
                         String geomTypeString = metaJson.getString("geometry_type");
                         int geomType = GeoGeometryFactory.typeFromString(geomTypeString);
@@ -522,11 +539,11 @@ public class CreateLocalLayerDialog
                         mGroupLayer.save();
 
                         return layer.initialize(fields, new ArrayList<Feature>(), geomType);
-                    }
-                    else{
+                    } else {
 
                         //read fields
-                        List<Field> fields = NGWVectorLayer.getFieldsFromJson(metaJson.getJSONArray("fields"));
+                        List<Field> fields =
+                                NGWVectorLayer.getFieldsFromJson(metaJson.getJSONArray("fields"));
                         //read geometry type
                         String geomTypeString = metaJson.getString("geometry_type");
                         int geomType = GeoGeometryFactory.typeFromString(geomTypeString);
@@ -536,8 +553,9 @@ public class CreateLocalLayerDialog
                         int nSRS = srs.getInt("id");
 
                         FileUtil.deleteRecursive(meta);
-                        String errorMessage = layer.createFromGeoJSON(geoJSONObject, fields, geomType, nSRS);
-                        if(TextUtils.isEmpty(errorMessage)) {
+                        String errorMessage =
+                                layer.createFromGeoJSON(geoJSONObject, fields, geomType, nSRS);
+                        if (TextUtils.isEmpty(errorMessage)) {
                             mGroupLayer.addLayer(layer);
                             mGroupLayer.save();
                         }
@@ -553,14 +571,21 @@ public class CreateLocalLayerDialog
         return mGroupLayer.getContext().getString(R.string.error_layer_create);
     }
 
-    protected void unzipEntry(ZipInputStream zis, ZipEntry entry, File outputDir) throws IOException {
+
+    protected void unzipEntry(
+            ZipInputStream zis,
+            ZipEntry entry,
+            File outputDir)
+            throws IOException
+    {
         String entryName = entry.getName();
 
         //for backward capability where the zip haz root directory named "mapnik"
-        if(!TextUtils.isDigitsOnly(entryName.substring(0, 1))) {
+        if (!TextUtils.isDigitsOnly(entryName.substring(0, 1))) {
             int pos = entryName.indexOf('/');
-            if(pos != NOT_FOUND)
+            if (pos != NOT_FOUND) {
                 entryName = entryName.substring(pos, entryName.length());
+            }
         }
 
         //for prevent searching by media library
@@ -581,11 +606,12 @@ public class CreateLocalLayerDialog
         fout.close();
     }
 
+
     protected class CreateTask
             extends AsyncTask<String, String, String>
     {
         protected ProgressDialog mProgressDialog;
-        protected Context mContext;
+        protected Context        mContext;
 
 
         public CreateTask(Context context)
@@ -598,7 +624,8 @@ public class CreateLocalLayerDialog
         protected void onPreExecute()
         {
             mProgressDialog = new ProgressDialog(mContext);
-            mProgressDialog.setMessage(mGroupLayer.getContext().getString(R.string.message_loading));
+            mProgressDialog.setMessage(
+                    mGroupLayer.getContext().getString(R.string.message_loading));
             mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             mProgressDialog.setCancelable(true);
             mProgressDialog.show();
@@ -621,22 +648,22 @@ public class CreateLocalLayerDialog
             return null;
         }
 
+
         @Override
         protected void onPostExecute(String error)
         {
             try { // if dialog is already detach from window catch exception
                 mProgressDialog.dismiss();
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            if(null != error && error.length() > 0){
+            if (null != error && error.length() > 0) {
                 Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show();
-            }
-            else{
-                Toast.makeText(mContext, mContext.getString(R.string.message_layer_created),
-                               Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(
+                        mContext, mContext.getString(R.string.message_layer_created),
+                        Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -658,6 +685,7 @@ public class CreateLocalLayerDialog
         {
             mProgressDialog.setProgress(increment);
         }
+
 
         public void setMessage(String string)
         {

@@ -356,7 +356,7 @@ public class NGWSettingsActivity
         if (isAccountSyncEnabled && timeStamp > 0) {
             enablePeriodicSync.setSummary(
                     getString(R.string.last_sync_time) + ": " +
-                            new SimpleDateFormat().format(new Date(timeStamp)));
+                    new SimpleDateFormat().format(new Date(timeStamp)));
         } else {
             enablePeriodicSync.setSummary(R.string.auto_sync_summary);
         }
@@ -480,7 +480,7 @@ public class NGWSettingsActivity
                 //layerSync.setKey("" + ngwLayer.getId());
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB &&
-                        ngwLayer instanceof ILayerUI) {
+                    ngwLayer instanceof ILayerUI) {
                     ILayerUI layerUI = (ILayerUI) ngwLayer;
                     layerSync.setIcon(layerUI.getIcon());
                 }
@@ -534,6 +534,7 @@ public class NGWSettingsActivity
 
         actionCategory.addPreference(preferenceEdit);
     }
+
 
     // for overriding in a subclass
     protected void addDeleteAccountAction(

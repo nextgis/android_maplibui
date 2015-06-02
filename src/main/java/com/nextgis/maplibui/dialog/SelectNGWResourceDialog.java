@@ -57,23 +57,25 @@ import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
 
 
-public class SelectNGWResourceDialog extends DialogFragment
+public class SelectNGWResourceDialog
+        extends DialogFragment
 {
-    protected String mTitle;
+    protected String     mTitle;
     protected LayerGroup mGroupLayer;
-    protected int mTypeMask;
+    protected int        mTypeMask;
 
     protected NGWResourcesListAdapter mListAdapter;
-    protected AlertDialog mDialog;
+    protected AlertDialog             mDialog;
 
-    protected final static String KEY_TITLE = "title";
-    protected final static String KEY_MASK = "mask";
-    protected final static String KEY_ID = "id";
+    protected final static String KEY_TITLE       = "title";
+    protected final static String KEY_MASK        = "mask";
+    protected final static String KEY_ID          = "id";
     protected final static String KEY_CONNECTIONS = "connections";
-    protected final static String KEY_RESOURCEID = "resource_id";
-    protected final static String KEY_STATES = "states";
+    protected final static String KEY_RESOURCEID  = "resource_id";
+    protected final static String KEY_STATES      = "states";
 
     protected final static int ADDACCOUNT_CODE = 777;
+
 
     public SelectNGWResourceDialog setTitle(String title)
     {
@@ -95,6 +97,7 @@ public class SelectNGWResourceDialog extends DialogFragment
         return this;
     }
 
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
@@ -103,29 +106,30 @@ public class SelectNGWResourceDialog extends DialogFragment
 
         mListAdapter = new NGWResourcesListAdapter(this);
 
-        if(null == savedInstanceState){
+        if (null == savedInstanceState) {
             //first launch, lets fill connections array
             Connections connections = fillConnections();
             mListAdapter.setConnections(connections);
             mListAdapter.setCurrentResourceId(connections.getId());
             mListAdapter.setCheckState(new ArrayList<CheckState>());
-        }
-        else{
+        } else {
             mTitle = savedInstanceState.getString(KEY_TITLE);
             mTypeMask = savedInstanceState.getInt(KEY_MASK);
             short id = savedInstanceState.getShort(KEY_ID);
             MapBase map = MapBase.getInstance();
-            if(null != map){
+            if (null != map) {
                 ILayer iLayer = map.getLayerById(id);
-                if(iLayer instanceof LayerGroup)
-                    mGroupLayer = (LayerGroup)iLayer;
+                if (iLayer instanceof LayerGroup) {
+                    mGroupLayer = (LayerGroup) iLayer;
+                }
             }
 
             mListAdapter.setConnections(
                     (Connections) savedInstanceState.getParcelable(KEY_CONNECTIONS));
             mListAdapter.setCurrentResourceId(savedInstanceState.getInt(KEY_RESOURCEID));
-            mListAdapter.setCheckState(savedInstanceState.<CheckState> getParcelableArrayList(
-                    KEY_STATES));
+            mListAdapter.setCheckState(
+                    savedInstanceState.<CheckState> getParcelableArrayList(
+                            KEY_STATES));
         }
 
         View view = View.inflate(context, R.layout.layout_resources, null);
@@ -139,27 +143,29 @@ public class SelectNGWResourceDialog extends DialogFragment
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(mTitle)
-               .setIcon(R.drawable.ic_ngw)
-               .setView(view)
-               .setInverseBackgroundForced(true)
-               .setPositiveButton(R.string.select, new DialogInterface.OnClickListener()
-               {
-                   public void onClick(
-                           DialogInterface dialog,
-                           int id)
-                   {
-                        createLayers();
-                   }
-               })
-               .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
-               {
-                   public void onClick(
-                           DialogInterface dialog,
-                           int id)
-                   {
-                       // User cancelled the dialog
-                   }
-               });
+                .setIcon(R.drawable.ic_ngw)
+                .setView(view)
+                .setInverseBackgroundForced(true)
+                .setPositiveButton(
+                        R.string.select, new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(
+                                    DialogInterface dialog,
+                                    int id)
+                            {
+                                createLayers();
+                            }
+                        })
+                .setNegativeButton(
+                        R.string.cancel, new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(
+                                    DialogInterface dialog,
+                                    int id)
+                            {
+                                // User cancelled the dialog
+                            }
+                        });
         // Create the AlertDialog object and return it
         mDialog = builder.create();
         return mDialog;
@@ -174,14 +180,18 @@ public class SelectNGWResourceDialog extends DialogFragment
         outState.putShort(KEY_ID, mGroupLayer.getId());
         outState.putInt(KEY_RESOURCEID, mListAdapter.getCurrentResourceId());
         outState.putParcelable(KEY_CONNECTIONS, mListAdapter.getConnections());
-        outState.putParcelableArrayList(KEY_STATES,
-                                        (ArrayList<? extends android.os.Parcelable>) mListAdapter.getCheckState());
+        outState.putParcelableArrayList(
+                KEY_STATES,
+                (ArrayList<? extends android.os.Parcelable>) mListAdapter.getCheckState());
         super.onSaveInstanceState(outState);
     }
 
-    protected Connections fillConnections(){
+
+    protected Connections fillConnections()
+    {
         Connections connections = new Connections(getString(R.string.accounts));
-        final AccountManager accountManager = AccountManager.get(getActivity().getApplicationContext());
+        final AccountManager accountManager =
+                AccountManager.get(getActivity().getApplicationContext());
         for (Account account : accountManager.getAccountsByType(
                 NGW_ACCOUNT_TYPE)) {
             String url = accountManager.getUserData(account, "url");
@@ -192,7 +202,9 @@ public class SelectNGWResourceDialog extends DialogFragment
         return connections;
     }
 
-    public void onAddAccount(){
+
+    public void onAddAccount()
+    {
         Intent intent = new Intent(getActivity(), NGWLoginActivity.class);
         startActivityForResult(intent, ADDACCOUNT_CODE);
     }
@@ -205,22 +217,23 @@ public class SelectNGWResourceDialog extends DialogFragment
             Intent data)
     {
         if (requestCode == ADDACCOUNT_CODE) {
-            if(resultCode != Activity.RESULT_CANCELED){
+            if (resultCode != Activity.RESULT_CANCELED) {
                 //search new account and add it
-                final AccountManager accountManager = AccountManager.get(getActivity().getApplicationContext());
+                final AccountManager accountManager =
+                        AccountManager.get(getActivity().getApplicationContext());
                 Connections connections = mListAdapter.getConnections();
                 for (Account account : accountManager.getAccountsByType(
                         NGW_ACCOUNT_TYPE)) {
                     boolean find = false;
-                    for(int i = 0; i < connections.getChildrenCount(); i++){
+                    for (int i = 0; i < connections.getChildrenCount(); i++) {
                         Connection connection = (Connection) connections.getChild(i);
-                        if(null != connection && connection.getName().equals(account.name) ){
+                        if (null != connection && connection.getName().equals(account.name)) {
                             find = true;
                             break;
                         }
                     }
 
-                    if(!find) {
+                    if (!find) {
                         String url = accountManager.getUserData(account, "url");
                         String password = accountManager.getPassword(account);
                         String login = accountManager.getUserData(account, "login");
@@ -230,9 +243,9 @@ public class SelectNGWResourceDialog extends DialogFragment
                     }
                 }
             }
-        }
-        else
+        } else {
             super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
 
@@ -243,38 +256,44 @@ public class SelectNGWResourceDialog extends DialogFragment
         updateSelectButton();
     }
 
+
     public void updateSelectButton()
     {
-        mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(mListAdapter.getCheckState().size() > 0);
+        mDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setEnabled(mListAdapter.getCheckState().size() > 0);
     }
+
 
     public void createLayers()
     {
         List<CheckState> checkStates = mListAdapter.getCheckState();
         Connections connections = mListAdapter.getConnections();
-        for(CheckState checkState : checkStates){
-            if(checkState.isCheckState1()) { //create raster
+        for (CheckState checkState : checkStates) {
+            if (checkState.isCheckState1()) { //create raster
 
                 INGWResource resource = connections.getResourceById(checkState.getId());
-                if(resource instanceof LayerWithStyles){
-                    LayerWithStyles layer = (LayerWithStyles)resource;
+                if (resource instanceof LayerWithStyles) {
+                    LayerWithStyles layer = (LayerWithStyles) resource;
                     //1. get first style
                     Connection connection = layer.getConnection();
                     //2. create tiles url
                     String layerURL = layer.getTMSUrl(0);
 
-                    if(layerURL == null){
-                        Toast.makeText(getActivity(), getString(R.string.error_layer_create),
-                                       Toast.LENGTH_SHORT).show();
+                    if (layerURL == null) {
+                        Toast.makeText(
+                                getActivity(), getString(R.string.error_layer_create),
+                                Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    if(!layerURL.startsWith("http"))
+                    if (!layerURL.startsWith("http")) {
                         layerURL = "http://" + layerURL;
+                    }
                     //3. create layer
                     String layerName = layer.getName();
 
-                    NGWRasterLayerUI newLayer = new NGWRasterLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
+                    NGWRasterLayerUI newLayer = new NGWRasterLayerUI(
+                            mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
                     newLayer.setName(layerName);
                     newLayer.setURL(layerURL);
                     newLayer.setTMSType(TMSTYPE_OSM);
@@ -285,17 +304,18 @@ public class SelectNGWResourceDialog extends DialogFragment
                 }
             }
 
-            if(checkState.isCheckState2()){ //create vector
+            if (checkState.isCheckState2()) { //create vector
                 INGWResource resource = connections.getResourceById(checkState.getId());
-                if(resource instanceof LayerWithStyles){
-                    LayerWithStyles layer = (LayerWithStyles)resource;
+                if (resource instanceof LayerWithStyles) {
+                    LayerWithStyles layer = (LayerWithStyles) resource;
                     //1. get connection for url
                     Connection connection = layer.getConnection();
 
                     //3. create layer
                     String layerName = layer.getName();
 
-                    final NGWVectorLayerUI newLayer = new NGWVectorLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
+                    final NGWVectorLayerUI newLayer = new NGWVectorLayerUI(
+                            mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
                     newLayer.setName(layerName);
                     newLayer.setRemoteId(layer.getRemoteId());
                     newLayer.setVisible(true);
@@ -309,8 +329,8 @@ public class SelectNGWResourceDialog extends DialogFragment
         }
         mGroupLayer.save();
 
-        Toast.makeText(getActivity(), getString(R.string.message_layer_created),
-                       Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), getString(R.string.message_layer_created), Toast.LENGTH_SHORT)
+                .show();
     }
 
 }

@@ -30,7 +30,8 @@ import com.nextgis.maplibui.api.ILayerUI;
 import java.io.File;
 
 
-public class NGWRasterLayerUI extends NGWRasterLayer
+public class NGWRasterLayerUI
+        extends NGWRasterLayer
         implements ILayerUI
 {
     public NGWRasterLayerUI(

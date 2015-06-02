@@ -35,10 +35,10 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
-import android.support.v7.app.ActionBar;
 import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -95,7 +95,7 @@ public class TracksActivity
         setSupportActionBar(toolbar);
 
         ActionBar bar = getSupportActionBar();
-        if(null != bar) {
+        if (null != bar) {
             bar.setHomeButtonEnabled(true);
             bar.setDisplayHomeAsUpEnabled(true);
         }
@@ -108,72 +108,79 @@ public class TracksActivity
         String[] from = new String[] {TrackLayer.FIELD_NAME, TrackLayer.FIELD_VISIBLE};
         int[] to = new int[] {R.id.tv_name, R.id.iv_visibility};
 
-        mSimpleCursorAdapter =
-                new SimpleCursorAdapter(this, R.layout.layout_track_row, null, from, to,
-                                        CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        mSimpleCursorAdapter = new SimpleCursorAdapter(
+                this, R.layout.layout_track_row, null, from, to,
+                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
-        mSimpleCursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder()
-        {
-            public boolean setViewValue(
-                    final View view,
-                    final Cursor cursor,
-                    int columnIndex)
-            {
-                final String id = cursor.getString(0);
-                final View rootView = (View) view.getParent();
-                rootView.setTag(id);
-
-                if (view instanceof TextView) {
-                    ((TextView) view).setText(cursor.getString(columnIndex));
-                }
-
-                if (view instanceof ImageView) {
-                    int visibleColumnID = cursor.getColumnIndex(TrackLayer.FIELD_VISIBLE);
-                    boolean isVisible = cursor.getInt(visibleColumnID) != 0;
-
-                    setImage(view, isVisible);
-                    view.setTag(isVisible);
-                    view.setOnClickListener(new View.OnClickListener()
+        mSimpleCursorAdapter.setViewBinder(
+                new SimpleCursorAdapter.ViewBinder()
+                {
+                    public boolean setViewValue(
+                            final View view,
+                            final Cursor cursor,
+                            int columnIndex)
                     {
-                        @Override
-                        public void onClick(View v)
-                        {
-                            boolean isVisible = !(boolean) v.getTag();
-                            updateRecord(isVisible, (String) rootView.getTag());
+                        final String id = cursor.getString(0);
+                        final View rootView = (View) view.getParent();
+                        rootView.setTag(id);
 
-                            setImage(v, isVisible);
-                            v.setTag(isVisible);
+                        if (view instanceof TextView) {
+                            ((TextView) view).setText(cursor.getString(columnIndex));
                         }
-                    });
 
-                    CheckBox cb = (CheckBox) rootView.findViewById(R.id.cb_item);
-                    cb.setChecked(mIds.contains(id));
-                    cb.setTag(id);
-                    cb.setOnClickListener(new View.OnClickListener()
+                        if (view instanceof ImageView) {
+                            int visibleColumnID = cursor.getColumnIndex(TrackLayer.FIELD_VISIBLE);
+                            boolean isVisible = cursor.getInt(visibleColumnID) != 0;
+
+                            setImage(view, isVisible);
+                            view.setTag(isVisible);
+                            view.setOnClickListener(
+                                    new View.OnClickListener()
+                                    {
+                                        @Override
+                                        public void onClick(View v)
+                                        {
+                                            boolean isVisible = !(boolean) v.getTag();
+                                            updateRecord(isVisible, (String) rootView.getTag());
+
+                                            setImage(v, isVisible);
+                                            v.setTag(isVisible);
+                                        }
+                                    });
+
+                            CheckBox cb = (CheckBox) rootView.findViewById(R.id.cb_item);
+                            cb.setChecked(mIds.contains(id));
+                            cb.setTag(id);
+                            cb.setOnClickListener(
+                                    new View.OnClickListener()
+                                    {
+                                        @Override
+                                        public void onClick(View v)
+                                        {
+                                            int position =
+                                                    mTracksPositionsIds.get(Long.parseLong(id));
+                                            View parent = mTracks.getAdapter()
+                                                    .getView(position, null, mTracks);
+                                            mTracks.performItemClick(
+                                                    parent, position, Long.parseLong(id));
+                                        }
+                                    });
+                        }
+
+                        return true;
+                    }
+
+
+                    private void setImage(
+                            View view,
+                            boolean visibility)
                     {
-                        @Override
-                        public void onClick(View v)
-                        {
-                            int position = mTracksPositionsIds.get(Long.parseLong(id));
-                            View parent = mTracks.getAdapter().getView(position, null, mTracks);
-                            mTracks.performItemClick(parent, position, Long.parseLong(id));
-                        }
-                    });
-                }
-
-                return true;
-            }
-
-
-            private void setImage(
-                    View view,
-                    boolean visibility)
-            {
-                ((ImageView) view).setImageResource(visibility
-                                                    ? R.drawable.ic_action_visibility_on
-                                                    : R.drawable.ic_action_visibility_off);
-            }
-        });
+                        ((ImageView) view).setImageResource(
+                                visibility
+                                ? R.drawable.ic_action_visibility_on
+                                : R.drawable.ic_action_visibility_off);
+                    }
+                });
 
         mTracks = (ListView) findViewById(R.id.lv_tracks);
         mTracks.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
@@ -181,26 +188,27 @@ public class TracksActivity
 
         mTracks.setAdapter(mSimpleCursorAdapter);
 
-        mTracks.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-            @Override
-            public void onItemClick(
-                    AdapterView<?> parent,
-                    View view,
-                    int position,
-                    long id)
-            {
-                if (mActionMode == null) {
-                    mActionMode = startSupportActionMode(TracksActivity.this);
-                }
+        mTracks.setOnItemClickListener(
+                new AdapterView.OnItemClickListener()
+                {
+                    @Override
+                    public void onItemClick(
+                            AdapterView<?> parent,
+                            View view,
+                            int position,
+                            long id)
+                    {
+                        if (mActionMode == null) {
+                            mActionMode = startSupportActionMode(TracksActivity.this);
+                        }
 
-                CheckBox cb = (CheckBox) view.findViewById(R.id.cb_item);
-                boolean isChecked = !cb.isChecked();
-                cb.setChecked(isChecked);
-                updateSelectedItems(isChecked, (String) cb.getTag());
-                mTracks.setItemChecked(position, isChecked);
-            }
-        });
+                        CheckBox cb = (CheckBox) view.findViewById(R.id.cb_item);
+                        boolean isChecked = !cb.isChecked();
+                        cb.setChecked(isChecked);
+                        updateSelectedItems(isChecked, (String) cb.getTag());
+                        mTracks.setItemChecked(position, isChecked);
+                    }
+                });
 
         getSupportLoaderManager().initLoader(TRACKS_ID, null, this);
     }
@@ -223,8 +231,9 @@ public class TracksActivity
             View parent = mTracks.getAdapter().getView(i, null, mTracks);
             CheckBox view = (CheckBox) parent.findViewById(R.id.cb_item);
 
-            if (mSelectState != view.isChecked())
+            if (mSelectState != view.isChecked()) {
                 mTracks.performItemClick(parent, i, i);
+            }
         }
 
         mTracks.invalidateViews();
@@ -246,17 +255,19 @@ public class TracksActivity
             String id)
     {
         if (isChecked) {
-            if (!mIds.contains(id))
+            if (!mIds.contains(id)) {
                 mIds.add(id);
+            }
         } else {
             mIds.remove(id);
         }
 
         if (mActionMode != null) {
-            if (mIds.size() == 0)
+            if (mIds.size() == 0) {
                 mActionMode.finish();
-            else
+            } else {
                 mActionMode.setTitle("" + mIds.size());// + " " + getString(R.string.cab_selected));
+            }
         }
     }
 
@@ -318,8 +329,9 @@ public class TracksActivity
         if (mNeedRestore) {
             mNeedRestore = false;
             mActionMode = startSupportActionMode(this);
-            if(null != mActionMode)
+            if (null != mActionMode) {
                 mActionMode.setTitle(mIds.size() + getString(R.string.cab_selected));
+            }
         }
 
         if (data.getCount() == 0) {
@@ -337,10 +349,13 @@ public class TracksActivity
     }
 
 
-    public static boolean isTrackerServiceRunning(Context context) {
-        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+    public static boolean isTrackerServiceRunning(Context context)
+    {
+        ActivityManager manager =
+                (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(
+                Integer.MAX_VALUE)) {
             if (TrackerService.class.getName().equals(service.service.getClassName())) {
                 return true;
             }
@@ -364,8 +379,9 @@ public class TracksActivity
         }
 
         ActionBar bar = getSupportActionBar();
-        if(null != bar)
+        if (null != bar) {
             bar.hide();
+        }
         return true;
     }
 
@@ -392,7 +408,9 @@ public class TracksActivity
 
                 if (isTrackerServiceRunning(getApplicationContext())) {
                     stopService(trackerService);
-                    Toast.makeText(getApplicationContext(), R.string.unclosed_track_deleted, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(
+                            getApplicationContext(), R.string.unclosed_track_deleted,
+                            Toast.LENGTH_SHORT).show();
                 }
 
                 String selection = TrackLayer.FIELD_ID + " IN (" + makePlaceholders() + ")";
@@ -400,7 +418,9 @@ public class TracksActivity
                 getContentResolver().delete(mContentUriTracks, selection, args);
                 mIds.clear();
             } else {
-                Toast.makeText(getApplicationContext(), R.string.nothing_selected, Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                        getApplicationContext(), R.string.nothing_selected, Toast.LENGTH_SHORT)
+                        .show();
             }
 
             actionMode.finish();
@@ -413,15 +433,18 @@ public class TracksActivity
 
             for (int i = 0; i < mTracks.getAdapter().getCount(); i++) {
                 if (checkedItems.get(i)) {
-                    ImageView view =
-                            (ImageView) mTracks.getAdapter().getView(i, null, mTracks).findViewById(R.id.iv_visibility);
+                    ImageView view = (ImageView) mTracks.getAdapter()
+                            .getView(i, null, mTracks)
+                            .findViewById(R.id.iv_visibility);
 
                     if (isShow) {
-                        if (!(boolean) view.getTag())
+                        if (!(boolean) view.getTag()) {
                             view.performClick();
+                        }
                     } else {
-                        if ((boolean) view.getTag())
+                        if ((boolean) view.getTag()) {
                             view.performClick();
+                        }
                     }
                 }
             }
@@ -440,8 +463,9 @@ public class TracksActivity
         setSelection();
         mActionMode = null;
         ActionBar bar = getSupportActionBar();
-        if(null != bar)
+        if (null != bar) {
             bar.show();
+        }
     }
 
 }

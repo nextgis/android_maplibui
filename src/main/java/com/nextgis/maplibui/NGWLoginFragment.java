@@ -44,7 +44,7 @@ import com.nextgis.maplibui.service.HTTPLoader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static com.nextgis.maplib.util.Constants.*;
+import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
 
 
 public class NGWLoginFragment

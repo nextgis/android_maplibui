@@ -38,11 +38,12 @@ import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.io.File;
 
-
 import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
-public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI, IVectorLayerUI
+public class NGWVectorLayerUI
+        extends NGWVectorLayer
+        implements ILayerUI, IVectorLayerUI
 {
     public NGWVectorLayerUI(
             Context context,
@@ -70,32 +71,37 @@ public class NGWVectorLayerUI extends NGWVectorLayer implements ILayerUI, IVecto
 
 
     @Override
-    public void showEditForm( Context context, long featureId, GeoGeometry geometry)
+    public void showEditForm(
+            Context context,
+            long featureId,
+            GeoGeometry geometry)
     {
-        if(!mIsInitialized)
-        {
-            Toast.makeText(context, context.getString(R.string.error_layer_not_inited), Toast.LENGTH_SHORT).show();
+        if (!mIsInitialized) {
+            Toast.makeText(
+                    context, context.getString(R.string.error_layer_not_inited), Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
         //check custom form
         File form = new File(mPath, ConstantsUI.FILE_FORM);
-        if(form.exists()){
+        if (form.exists()) {
             //show custom form
             Intent intent = new Intent(context, CustomModifyAttributesActivity.class);
             intent.putExtra(KEY_LAYER_ID, getId());
             intent.putExtra(KEY_FEATURE_ID, featureId);
             intent.putExtra(KEY_FORM_PATH, form);
-            if(null != geometry)
+            if (null != geometry) {
                 intent.putExtra(KEY_GEOMETRY, geometry);
+            }
             context.startActivity(intent);
-        }
-        else {
+        } else {
             //if not exist show standard form
             Intent intent = new Intent(context, ModifyAttributesActivity.class);
             intent.putExtra(KEY_LAYER_ID, getId());
             intent.putExtra(KEY_FEATURE_ID, featureId);
-            if(null != geometry)
+            if (null != geometry) {
                 intent.putExtra(KEY_GEOMETRY, geometry);
+            }
             context.startActivity(intent);
         }
     }

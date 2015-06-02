@@ -24,8 +24,6 @@ package com.nextgis.maplibui;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -43,9 +41,10 @@ public class MapViewOverlays
         extends MapView
 {
     protected List<Overlay> mOverlays;
-    protected boolean mLockMap;
+    protected boolean       mLockMap;
     //protected boolean mSkipNextDraw;
     //protected long mDelay;
+
 
     public MapViewOverlays(
             Context context,
@@ -70,13 +69,15 @@ public class MapViewOverlays
         mLockMap = lockMap;
     }
 
+
     @Override
     protected void onDraw(Canvas canvas)
     {
-        if(isLockMap())
+        if (isLockMap()) {
             mMap.draw(canvas, 0, 0, false);
-        else
+        } else {
             super.onDraw(canvas);
+        }
 
         if (mMap != null) {
             switch (mDrawingState) {
@@ -132,7 +133,7 @@ public class MapViewOverlays
         Parcelable superState = super.onSaveInstanceState();
         SavedState savedState = new SavedState(superState);
 
-        for(Overlay overlay : mOverlays) {
+        for (Overlay overlay : mOverlays) {
             savedState.add(overlay.onSaveState());
         }
 
@@ -147,7 +148,7 @@ public class MapViewOverlays
             SavedState savedState = (SavedState) state;
 
             int counter = 0;
-            for(Overlay overlay : mOverlays) {
+            for (Overlay overlay : mOverlays) {
                 overlay.onRestoreState(savedState.get(counter++));
             }
 
@@ -163,7 +164,7 @@ public class MapViewOverlays
             float zoom,
             GeoPoint center)
     {
-        if(isLockMap()){
+        if (isLockMap()) {
             mDrawingState = DRAW_SATE_drawing_noclearbk;
             return;
         }
@@ -173,8 +174,9 @@ public class MapViewOverlays
 
     public void buffer()
     {
-        if(null != mMap)
-            mMap.buffer(0,0,1);
+        if (null != mMap) {
+            mMap.buffer(0, 0, 1);
+        }
     }
 
 
@@ -197,19 +199,24 @@ public class MapViewOverlays
 
             mBundles = new ArrayList<>();
             int size = in.readInt();
-            for(int i = 0; i < size; i++){
+            for (int i = 0; i < size; i++) {
                 Bundle bundle = in.readBundle();
                 mBundles.add(bundle);
             }
         }
 
-        public void add(Bundle bundle){
+
+        public void add(Bundle bundle)
+        {
             mBundles.add(bundle);
         }
 
-        public Bundle get(int index){
+
+        public Bundle get(int index)
+        {
             return mBundles.get(index);
         }
+
 
         @Override
         public void writeToParcel(
@@ -220,7 +227,7 @@ public class MapViewOverlays
             super.writeToParcel(out, flags);
 
             out.writeInt(mBundles.size());
-            for(Bundle bundle : mBundles) {
+            for (Bundle bundle : mBundles) {
                 out.writeBundle(bundle);
             }
         }

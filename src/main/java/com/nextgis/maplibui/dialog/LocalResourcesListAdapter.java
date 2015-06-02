@@ -39,7 +39,6 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ISelectResourceDialog;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +48,8 @@ import static com.nextgis.maplib.util.Constants.*;
 /**
  * Adapter to represent folders and files
  */
-public class LocalResourcesListAdapter extends BaseAdapter
+public class LocalResourcesListAdapter
+        extends BaseAdapter
         implements AdapterView.OnItemClickListener
 {
     protected ISelectResourceDialog mDialog;
@@ -58,9 +58,9 @@ public class LocalResourcesListAdapter extends BaseAdapter
     protected PathView              mPathView;
     protected boolean               mCanSelectMulti;
     protected boolean               mCanWrite;
-    protected RadioButton mUncheckBtn;
+    protected RadioButton           mUncheckBtn;
 
-    protected File       mPath;
+    protected File mPath;
     protected List<File> mFiles;
 
 
@@ -102,8 +102,9 @@ public class LocalResourcesListAdapter extends BaseAdapter
             mUncheckBtn = null;
             fillFiles();
             notifyDataSetChanged();
-            if (null != mPathView)
+            if (null != mPathView) {
                 mPathView.onUpdate(path);
+            }
         }
     }
 
@@ -117,16 +118,19 @@ public class LocalResourcesListAdapter extends BaseAdapter
     protected void fillFiles()
     {
         mFiles = new ArrayList<>();
-        if (null != mPath.getParentFile())
+        if (null != mPath.getParentFile()) {
             mFiles.add(null);
+        }
         File[] files = mPath.listFiles();
         if (null != files) {
             for (File file : files) {
                 int type = getFileType(file);
-                if (0 != (mTypeMask & type))
+                if (0 != (mTypeMask & type)) {
                     mFiles.add(file);
-                else if (type == FILETYPE_FOLDER) // always show folders
+                } else if (type == FILETYPE_FOLDER) // always show folders
+                {
                     mFiles.add(file);
+                }
             }
         }
     }
@@ -134,14 +138,18 @@ public class LocalResourcesListAdapter extends BaseAdapter
 
     protected int getFileType(File file)
     {
-        if (file.isDirectory())
+        if (file.isDirectory()) {
             return FILETYPE_FOLDER;
-        if (file.getName().endsWith("zip"))
+        }
+        if (file.getName().endsWith("zip")) {
             return FILETYPE_ZIP;
-        if (file.getName().endsWith("ngfb"))
+        }
+        if (file.getName().endsWith("ngfb")) {
             return FILETYPE_FB;
-        if (file.getName().endsWith("geojson"))
+        }
+        if (file.getName().endsWith("geojson")) {
             return FILETYPE_GEOJSON;
+        }
         return 1 << 255;
     }
 
@@ -151,10 +159,12 @@ public class LocalResourcesListAdapter extends BaseAdapter
         mCanSelectMulti = canSelectMulti;
     }
 
+
     public void setCanWrite(boolean canWrite)
     {
         mCanWrite = canWrite;
     }
+
 
     @Override
     public int getCount()
@@ -166,8 +176,9 @@ public class LocalResourcesListAdapter extends BaseAdapter
     @Override
     public Object getItem(int i)
     {
-        if(mFiles.isEmpty())
+        if (mFiles.isEmpty()) {
             return null;
+        }
         return mFiles.get(i);
     }
 
@@ -178,6 +189,7 @@ public class LocalResourcesListAdapter extends BaseAdapter
         return i;
     }
 
+
     @Override
     public View getView(
             int i,
@@ -187,14 +199,15 @@ public class LocalResourcesListAdapter extends BaseAdapter
         View v = view;
         final File file = (File) getItem(i);
         int viewId;
-        if(null == file){
+        if (null == file) {
             if (null == v || v.getId() != R.id.resourcegroup_row) {
                 LayoutInflater inflater = LayoutInflater.from(mDialog.getContext());
                 v = inflater.inflate(R.layout.layout_resourcegroup_row, null);
                 v.setId(R.id.resourcegroup_row);
 
                 ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                ivIcon.setImageDrawable(mDialog.getContext().getResources().getDrawable(R.drawable.ic_folder));
+                ivIcon.setImageDrawable(
+                        mDialog.getContext().getResources().getDrawable(R.drawable.ic_folder));
             }
 
             TextView tvText = (TextView) v.findViewById(R.id.tvName);
@@ -202,47 +215,44 @@ public class LocalResourcesListAdapter extends BaseAdapter
 
             TextView tvDesc = (TextView) v.findViewById(R.id.tvDesc);
             tvDesc.setText(mDialog.getContext().getString(R.string.up));
-        }
-        else{
+        } else {
             ImageView ivIcon;
             TextView tvDesc;
             CheckBox checkBox;
             RadioButton radioButton;
             LayoutInflater inflater = LayoutInflater.from(mDialog.getContext());
 
-            switch (getFileType(file)){
+            switch (getFileType(file)) {
                 case FILETYPE_FOLDER:
-                    if(0 == (mTypeMask & FILETYPE_FOLDER) || (mCanWrite && !FileUtil.isDirectoryWritable(
-                            file))) {
-                        if(v == null || v.getId() != R.id.resourcegroup_row) {
+                    if (0 == (mTypeMask & FILETYPE_FOLDER) ||
+                        (mCanWrite && !FileUtil.isDirectoryWritable(
+                                file))) {
+                        if (v == null || v.getId() != R.id.resourcegroup_row) {
                             v = inflater.inflate(R.layout.layout_resourcegroup_row, null);
                             v.setId(R.id.resourcegroup_row);
                         }
-                    }
-                    else{
-                        if(mCanSelectMulti) //chow checkbox
+                    } else {
+                        if (mCanSelectMulti) //chow checkbox
                         {
                             viewId = R.id.resource_check_row;
-                            if(v == null || v.getId() != viewId) {
+                            if (v == null || v.getId() != viewId) {
                                 v = inflater.inflate(R.layout.layout_resource_check_row, null);
                                 v.setId(viewId);
 
 
                             }
                             //add check listener
-                            checkBox = (CheckBox)v.findViewById(R.id.check);
+                            checkBox = (CheckBox) v.findViewById(R.id.check);
                             setCheckBox(checkBox, file);
-                        }
-                        else
-                        {
+                        } else {
                             viewId = R.id.resource_radio_row;
-                            if(v == null || v.getId() != viewId) {
+                            if (v == null || v.getId() != viewId) {
                                 v = inflater.inflate(R.layout.layout_resource_radio_row, null);
                                 v.setId(viewId);
                             }
 
                             //add check listener
-                            radioButton = (RadioButton)v.findViewById(R.id.radio);
+                            radioButton = (RadioButton) v.findViewById(R.id.radio);
                             setRadioButton(radioButton, file);
                         }
                     }
@@ -254,26 +264,24 @@ public class LocalResourcesListAdapter extends BaseAdapter
                     tvDesc.setText(mDialog.getContext().getString(R.string.folder));
                     break;
                 case FILETYPE_ZIP:
-                    if(mCanSelectMulti) //chow checkbox
+                    if (mCanSelectMulti) //chow checkbox
                     {
                         viewId = R.id.resource_check_row;
-                        if(v == null || v.getId() !=viewId) {
+                        if (v == null || v.getId() != viewId) {
                             v = inflater.inflate(R.layout.layout_resource_check_row, null);
                             v.setId(viewId);
                         }
                         //add check listener
-                        checkBox = (CheckBox)v.findViewById(R.id.check);
+                        checkBox = (CheckBox) v.findViewById(R.id.check);
                         setCheckBox(checkBox, file);
-                    }
-                    else
-                    {
+                    } else {
                         viewId = R.id.resource_radio_row;
-                        if(v == null || v.getId() != viewId) {
+                        if (v == null || v.getId() != viewId) {
                             v = inflater.inflate(R.layout.layout_resource_radio_row, null);
                             v.setId(viewId);
                         }
                         //add check listener
-                        radioButton = (RadioButton)v.findViewById(R.id.radio);
+                        radioButton = (RadioButton) v.findViewById(R.id.radio);
                         setRadioButton(radioButton, file);
                     }
 
@@ -286,58 +294,56 @@ public class LocalResourcesListAdapter extends BaseAdapter
 
                     break;
                 case FILETYPE_FB:
-                    if(mCanSelectMulti) //chow checkbox
+                    if (mCanSelectMulti) //chow checkbox
                     {
                         viewId = R.id.resource_check_row;
-                        if(v == null || v.getId() != viewId) {
+                        if (v == null || v.getId() != viewId) {
                             v = inflater.inflate(R.layout.layout_resource_check_row, null);
                             v.setId(viewId);
                         }
                         //add check listener
-                        checkBox = (CheckBox)v.findViewById(R.id.check);
+                        checkBox = (CheckBox) v.findViewById(R.id.check);
                         setCheckBox(checkBox, file);
-                    }
-                    else
-                    {
+                    } else {
                         viewId = R.id.resource_radio_row;
-                        if(v == null || v.getId() != viewId) {
+                        if (v == null || v.getId() != viewId) {
                             v = inflater.inflate(R.layout.layout_resource_radio_row, null);
                             v.setId(viewId);
                         }
                         //add check listener
-                        radioButton = (RadioButton)v.findViewById(R.id.radio);
+                        radioButton = (RadioButton) v.findViewById(R.id.radio);
                         setRadioButton(radioButton, file);
                     }
 
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
                     ivIcon.setImageDrawable(
-                            mDialog.getContext().getResources().getDrawable(R.drawable.ic_formbuilder));
+                            mDialog.getContext()
+                                    .getResources()
+                                    .getDrawable(R.drawable.ic_formbuilder));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
                     tvDesc.setText(mDialog.getContext().getString(R.string.formbuilder));
 
                     break;
                 case FILETYPE_GEOJSON:
-                    if(mCanSelectMulti) //chow checkbox
+                    if (mCanSelectMulti) //chow checkbox
                     {
                         viewId = R.id.resource_check_row;
-                        if(v == null || v.getId() != viewId) {
+                        if (v == null || v.getId() != viewId) {
                             v = inflater.inflate(R.layout.layout_resource_check_row, null);
                             v.setId(viewId);
                         }
                         //add check listener
-                        checkBox = (CheckBox)v.findViewById(R.id.check);
+                        checkBox = (CheckBox) v.findViewById(R.id.check);
                         setCheckBox(checkBox, file);
-                    }
-                    else
-                    {
+                    } else {
                         viewId = R.id.resource_radio_row;
-                        if(v == null || v.getId() != viewId) {
+                        if (v == null || v.getId() != viewId) {
                             v = inflater.inflate(R.layout.layout_resource_radio_row, null);
                             v.setId(viewId);
                         }
                         //add check listener
-                        radioButton = (RadioButton)v.findViewById(R.id.radio);
+                        radioButton = (RadioButton) v.findViewById(R.id.radio);
                         setRadioButton(radioButton, file);
                     }
 
@@ -364,38 +370,42 @@ public class LocalResourcesListAdapter extends BaseAdapter
     {
         radioButton.setOnCheckedChangeListener(null);
 
-        if(mCheckState.contains(file.getAbsolutePath())) {
+        if (mCheckState.contains(file.getAbsolutePath())) {
 
             mUncheckBtn = radioButton;
-            if(!radioButton.isChecked())
+            if (!radioButton.isChecked()) {
                 radioButton.setChecked(true);
-        }
-        else{
-            if(radioButton.isChecked())
-                radioButton.setChecked(false);
-        }
-
-        radioButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-        {
-            @Override
-            public void onCheckedChanged(
-                    CompoundButton compoundButton,
-                    boolean b)
-            {
-                if(b) {
-                    if(mCheckState.isEmpty())
-                        mCheckState.add(file.getAbsolutePath());
-                    else
-                        mCheckState.set(0, file.getAbsolutePath());
-
-                    if(null != mUncheckBtn && mUncheckBtn != radioButton)
-                        mUncheckBtn.setChecked(false);
-                    mUncheckBtn = radioButton;
-                }
-
-                mDialog.updateButtons();
             }
-        });
+        } else {
+            if (radioButton.isChecked()) {
+                radioButton.setChecked(false);
+            }
+        }
+
+        radioButton.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener()
+                {
+                    @Override
+                    public void onCheckedChanged(
+                            CompoundButton compoundButton,
+                            boolean b)
+                    {
+                        if (b) {
+                            if (mCheckState.isEmpty()) {
+                                mCheckState.add(file.getAbsolutePath());
+                            } else {
+                                mCheckState.set(0, file.getAbsolutePath());
+                            }
+
+                            if (null != mUncheckBtn && mUncheckBtn != radioButton) {
+                                mUncheckBtn.setChecked(false);
+                            }
+                            mUncheckBtn = radioButton;
+                        }
+
+                        mDialog.updateButtons();
+                    }
+                });
     }
 
 
@@ -405,29 +415,32 @@ public class LocalResourcesListAdapter extends BaseAdapter
     {
         checkBox.setOnCheckedChangeListener(null);
 
-        if(mCheckState.contains(file.getAbsolutePath())) {
-            if(!checkBox.isChecked())
+        if (mCheckState.contains(file.getAbsolutePath())) {
+            if (!checkBox.isChecked()) {
                 checkBox.setChecked(true);
-        }
-        else {
-            if(checkBox.isChecked())
+            }
+        } else {
+            if (checkBox.isChecked()) {
                 checkBox.setChecked(false);
+            }
         }
 
-        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-        {
-            @Override
-            public void onCheckedChanged(
-                    CompoundButton compoundButton,
-                    boolean b)
-            {
-                if(b && !mCheckState.contains(file.getAbsolutePath()))
-                    mCheckState.add(file.getAbsolutePath());
-                else
-                    mCheckState.remove(file.getAbsolutePath());
-                mDialog.updateButtons();
-            }
-        });
+        checkBox.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener()
+                {
+                    @Override
+                    public void onCheckedChanged(
+                            CompoundButton compoundButton,
+                            boolean b)
+                    {
+                        if (b && !mCheckState.contains(file.getAbsolutePath())) {
+                            mCheckState.add(file.getAbsolutePath());
+                        } else {
+                            mCheckState.remove(file.getAbsolutePath());
+                        }
+                        mDialog.updateButtons();
+                    }
+                });
     }
 
 
@@ -439,20 +452,22 @@ public class LocalResourcesListAdapter extends BaseAdapter
             long l)
     {
         File file = (File) getItem(i);
-        if(null == file){
+        if (null == file) {
             //go
             setCurrentPath(mPath.getParentFile());
-        }
-        else{
+        } else {
             //go deep
             setCurrentPath(file);
         }
     }
+
+
     /**
-     * A path view class. the path is a resources names divide by arrows in head of dialog.
-     * If user click on name, the dialog follow the specified path.
+     * A path view class. the path is a resources names divide by arrows in head of dialog. If user
+     * click on name, the dialog follow the specified path.
      */
-    protected class PathView{
+    protected class PathView
+    {
         protected LinearLayout mLinearLayout;
 
 
@@ -461,13 +476,16 @@ public class LocalResourcesListAdapter extends BaseAdapter
             mLinearLayout = linearLayout;
         }
 
-        public void onUpdate(File path){
-            if(null == mLinearLayout || null == path)
+
+        public void onUpdate(File path)
+        {
+            if (null == mLinearLayout || null == path) {
                 return;
+            }
             mLinearLayout.removeAllViewsInLayout();
 
             File parent = path;
-            while (null != parent){
+            while (null != parent) {
                 final File parentPath = parent;
                 TextView name = new TextView(mDialog.getContext());
                 String sName = parent.getName();
@@ -477,24 +495,26 @@ public class LocalResourcesListAdapter extends BaseAdapter
                 name.setSingleLine(true);
                 name.setMaxLines(1);
                 name.setBackgroundResource(android.R.drawable.list_selector_background);
-                name.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View v)
-                    {
-                        setCurrentPath(parentPath);
-                    }
-                });
+                name.setOnClickListener(
+                        new View.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(View v)
+                            {
+                                setCurrentPath(parentPath);
+                            }
+                        });
 
                 mLinearLayout.addView(name, 0);
 
                 parent = parent.getParentFile();
 
-                if(null != parent){
+                if (null != parent) {
                     ImageView image = new ImageView(mDialog.getContext());
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(30,30);
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(30, 30);
                     image.setLayoutParams(params);
-                    image.setImageDrawable(mDialog.getContext().getResources().getDrawable(R.drawable.ic_next));
+                    image.setImageDrawable(
+                            mDialog.getContext().getResources().getDrawable(R.drawable.ic_next));
                     mLinearLayout.addView(image, 0);
                 }
             }

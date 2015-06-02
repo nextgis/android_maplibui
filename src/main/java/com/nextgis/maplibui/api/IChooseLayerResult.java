@@ -29,5 +29,7 @@ import com.nextgis.maplib.api.ILayer;
  */
 public interface IChooseLayerResult
 {
-    void onFinishChooseLayerDialog(int code, ILayer layer);
+    void onFinishChooseLayerDialog(
+            int code,
+            ILayer layer);
 }

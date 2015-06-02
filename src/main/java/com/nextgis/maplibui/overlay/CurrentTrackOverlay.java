@@ -46,10 +46,10 @@ import java.util.List;
 public class CurrentTrackOverlay
         extends Overlay
 {
-    private       Cursor          mCursor;
-    private final Uri             mContentUriTracks;
-    private       Paint           mPaint;
-    private       List<GeoPoint>  mTrackpoints;
+    private       Cursor         mCursor;
+    private final Uri            mContentUriTracks;
+    private       Paint          mPaint;
+    private       List<GeoPoint> mTrackpoints;
 
     String[] mProjection = new String[] {TrackLayer.FIELD_ID};
     String   mSelection  = TrackLayer.FIELD_VISIBLE + " = 1 AND (" + TrackLayer.FIELD_END +
@@ -75,7 +75,7 @@ public class CurrentTrackOverlay
         String authority = app.getAuthority();
         mContentUriTracks = Uri.parse("content://" + authority + "/" + TrackLayer.TABLE_TRACKS);
         mCursor = mContext.getContentResolver()
-                          .query(mContentUriTracks, mProjection, mSelection, null, null);
+                .query(mContentUriTracks, mProjection, mSelection, null, null);
 
         mCursor.setNotificationUri(mContext.getContentResolver(), mContentUriTracks);
 
@@ -91,8 +91,9 @@ public class CurrentTrackOverlay
             Canvas canvas,
             PointF currentMouseOffset)
     {
-        if(mMapViewOverlays.isLockMap())
+        if (mMapViewOverlays.isLockMap()) {
             return;
+        }
 
         if (mTrackpoints.size() < 2) {
             return;
@@ -116,8 +117,9 @@ public class CurrentTrackOverlay
             PointF currentFocusLocation,
             float scale)
     {
-        if(mMapViewOverlays.isLockMap())
+        if (mMapViewOverlays.isLockMap()) {
             return;
+        }
 
         float x0, y0, x1, y1;
         double dx, dy;
@@ -158,9 +160,8 @@ public class CurrentTrackOverlay
         String id = mCursor.getString(0);
         String[] proj = new String[] {TrackLayer.FIELD_LON, TrackLayer.FIELD_LAT};
 
-        Cursor track = mContext.getContentResolver()
-                               .query(Uri.withAppendedPath(mContentUriTracks, id), proj, null, null,
-                                      null);
+        Cursor track = mContext.getContentResolver().query(
+                Uri.withAppendedPath(mContentUriTracks, id), proj, null, null, null);
 
         if (track == null) {
             return;

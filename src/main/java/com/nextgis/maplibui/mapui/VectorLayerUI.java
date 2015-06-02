@@ -57,10 +57,13 @@ import static com.nextgis.maplibui.util.ConstantsUI.*;
 /**
  * A UI for vector layer
  */
-public class VectorLayerUI extends VectorLayer implements ILayerUI, IVectorLayerUI
+public class VectorLayerUI
+        extends VectorLayer
+        implements ILayerUI, IVectorLayerUI
 {
     private static final long MAX_INTERNAL_CACHE_SIZE = 1048576; // 1MB
     private static final long MAX_EXTERNAL_CACHE_SIZE = 5242880; // 5MB
+
 
     public VectorLayerUI(
             Context context,
@@ -88,19 +91,22 @@ public class VectorLayerUI extends VectorLayer implements ILayerUI, IVectorLayer
 
 
     @Override
-    public void showEditForm( Context context, long featureId , GeoGeometry geometry)
+    public void showEditForm(
+            Context context,
+            long featureId,
+            GeoGeometry geometry)
     {
-        if(!mIsInitialized)
-        {
-            Toast.makeText(context, context.getString(R.string.error_layer_not_inited),
-                           Toast.LENGTH_SHORT).show();
+        if (!mIsInitialized) {
+            Toast.makeText(
+                    context, context.getString(R.string.error_layer_not_inited), Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
 
         //get geometry
-        if(geometry == null && featureId != Constants.NOT_FOUND){
-            for(VectorCacheItem item : mVectorCacheItems){
-                if(item.getId() == featureId){
+        if (geometry == null && featureId != Constants.NOT_FOUND) {
+            for (VectorCacheItem item : mVectorCacheItems) {
+                if (item.getId() == featureId) {
                     geometry = item.getGeoGeometry();
                 }
             }
@@ -108,28 +114,31 @@ public class VectorLayerUI extends VectorLayer implements ILayerUI, IVectorLayer
 
         //check custom form
         File form = new File(mPath, ConstantsUI.FILE_FORM);
-        if(form.exists()){
+        if (form.exists()) {
             //show custom form
             Intent intent = new Intent(context, CustomModifyAttributesActivity.class);
             intent.putExtra(KEY_LAYER_ID, getId());
             intent.putExtra(KEY_FEATURE_ID, featureId);
             intent.putExtra(KEY_FORM_PATH, form);
-            if(null != geometry)
+            if (null != geometry) {
                 intent.putExtra(KEY_GEOMETRY, geometry);
+            }
             context.startActivity(intent);
-        }
-        else {
+        } else {
             //if not exist show standard form
             Intent intent = new Intent(context, ModifyAttributesActivity.class);
             intent.putExtra(KEY_LAYER_ID, getId());
             intent.putExtra(KEY_FEATURE_ID, featureId);
-            if(null != geometry)
+            if (null != geometry) {
                 intent.putExtra(KEY_GEOMETRY, geometry);
+            }
             context.startActivity(intent);
         }
     }
 
-    public void shareGeoJSON() {
+
+    public void shareGeoJSON()
+    {
         try {
             boolean clearCached;
             File temp = mContext.getExternalCacheDir();
@@ -137,12 +146,14 @@ public class VectorLayerUI extends VectorLayer implements ILayerUI, IVectorLayer
             if (temp == null) {
                 temp = mContext.getCacheDir();
                 clearCached = FileUtil.getDirectorySize(temp) > MAX_INTERNAL_CACHE_SIZE;
-            } else
+            } else {
                 clearCached = FileUtil.getDirectorySize(temp) > MAX_EXTERNAL_CACHE_SIZE;
+            }
 
             temp = new File(temp, "shared_layers");
-            if (clearCached)
+            if (clearCached) {
                 FileUtil.deleteRecursive(temp);
+            }
 
             FileUtil.createDir(temp);
 
@@ -202,7 +213,8 @@ public class VectorLayerUI extends VectorLayer implements ILayerUI, IVectorLayer
             shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(temp));
 //            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, urisArray); // multiple data
 
-            shareIntent = Intent.createChooser(shareIntent, mContext.getString(R.string.abc_shareactionprovider_share_with));
+            shareIntent = Intent.createChooser(
+                    shareIntent, mContext.getString(R.string.abc_shareactionprovider_share_with));
             shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mContext.startActivity(shareIntent);
         } catch (JSONException | IOException e) {

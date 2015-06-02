@@ -29,17 +29,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.ContextThemeWrapper;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ListView;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.MapBase;
-import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IChooseLayerResult;
 import com.nextgis.maplibui.api.ILayerSelector;
-import com.nextgis.maplibui.api.ILayerUI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,22 +45,26 @@ import java.util.List;
 /**
  * A dialog to choose layer and start attributes edit form
  */
-public class ChooseLayerDialog extends DialogFragment implements ILayerSelector
+public class ChooseLayerDialog
+        extends DialogFragment
+        implements ILayerSelector
 {
-    protected String       mTitle;
-    protected List<ILayer> mLayers;
+    protected String                 mTitle;
+    protected List<ILayer>           mLayers;
     protected ChooseLayerListAdapter mListAdapter;
-    protected int mCode;
+    protected int                    mCode;
 
-    protected final static String KEY_TITLE = "title";
+    protected final static String KEY_TITLE      = "title";
     protected final static String KEY_LAYERS_IDS = "ids";
-    protected final static String KEY_CODE = "code";
+    protected final static String KEY_CODE       = "code";
+
 
     public ChooseLayerDialog setTitle(String title)
     {
         mTitle = title;
         return this;
     }
+
 
     public ChooseLayerDialog setLayerList(List<ILayer> list)
     {
@@ -87,13 +88,13 @@ public class ChooseLayerDialog extends DialogFragment implements ILayerSelector
 
         mListAdapter = new ChooseLayerListAdapter(this);
 
-        if(null != savedInstanceState){
+        if (null != savedInstanceState) {
             mTitle = savedInstanceState.getString(KEY_TITLE);
             List<Integer> ids = savedInstanceState.getIntegerArrayList(KEY_LAYERS_IDS);
             IGISApplication app = (IGISApplication) getActivity().getApplication();
             MapBase map = app.getMap();
             mLayers = new ArrayList<>();
-            for(Integer id : ids){
+            for (Integer id : ids) {
                 ILayer layer = map.getLayerById(id);
                 mLayers.add(layer);
             }
@@ -106,18 +107,16 @@ public class ChooseLayerDialog extends DialogFragment implements ILayerSelector
         dialogListView.setOnItemClickListener(mListAdapter);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(mTitle)
-               .setView(view)
-               .setInverseBackgroundForced(true)
-               .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
-               {
-                   public void onClick(
-                           DialogInterface dialog,
-                           int id)
-                   {
-                       // User cancelled the dialog
-                   }
-               });
+        builder.setTitle(mTitle).setView(view).setInverseBackgroundForced(true).setNegativeButton(
+                R.string.cancel, new DialogInterface.OnClickListener()
+                {
+                    public void onClick(
+                            DialogInterface dialog,
+                            int id)
+                    {
+                        // User cancelled the dialog
+                    }
+                });
         // Create the AlertDialog object and return it
         return builder.create();
     }
@@ -128,7 +127,7 @@ public class ChooseLayerDialog extends DialogFragment implements ILayerSelector
     {
         outState.putString(KEY_TITLE, mTitle);
         ArrayList<Integer> ids = new ArrayList<>();
-        for(ILayer layer : mLayers){
+        for (ILayer layer : mLayers) {
             ids.add((int) layer.getId());
         }
         outState.putIntegerArrayList(KEY_LAYERS_IDS, ids);
@@ -141,7 +140,7 @@ public class ChooseLayerDialog extends DialogFragment implements ILayerSelector
     public void onLayerSelect(ILayer layer)
     {
         IChooseLayerResult activity = (IChooseLayerResult) getActivity();
-        if(null != activity) {
+        if (null != activity) {
             activity.onFinishChooseLayerDialog(mCode, layer);
         }
 

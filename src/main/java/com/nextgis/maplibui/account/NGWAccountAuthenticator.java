@@ -1,4 +1,3 @@
-
 /*
  * Project:  NextGIS Mobile
  * Purpose:  Mobile GIS for Android.
@@ -32,12 +31,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import com.nextgis.maplibui.NGWLoginActivity;
 
-import static com.nextgis.maplib.util.Constants.*;
+import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
 
-public class
-        NGWAccountAuthenticator extends AbstractAccountAuthenticator
+
+public class NGWAccountAuthenticator
+        extends AbstractAccountAuthenticator
 {
     protected Context mContext;
+
 
     public NGWAccountAuthenticator(Context context)
     {
@@ -66,7 +67,8 @@ public class
     {
         final Intent intent = new Intent(mContext, NGWLoginActivity.class);
         intent.putExtra(NGW_ACCOUNT_TYPE, accountType);
-        intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, accountAuthenticatorResponse);
+        intent.putExtra(
+                AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, accountAuthenticatorResponse);
         final Bundle bundle = new Bundle();
         if (options != null) {
             bundle.putAll(options);

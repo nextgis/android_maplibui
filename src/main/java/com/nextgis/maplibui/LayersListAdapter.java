@@ -62,8 +62,9 @@ public class LayersListAdapter
         mMap = map;
         mContext = context;
 
-        if(null != mMap)
+        if (null != mMap) {
             mMap.addListener(this);
+        }
     }
 
 
@@ -71,8 +72,9 @@ public class LayersListAdapter
     protected void finalize()
             throws Throwable
     {
-        if(null != mMap)
+        if (null != mMap) {
             mMap.removeListener(this);
+        }
         super.finalize();
     }
 
@@ -80,8 +82,9 @@ public class LayersListAdapter
     @Override
     public int getCount()
     {
-        if(null != mMap)
+        if (null != mMap) {
             return mMap.getLayerCount();
+        }
         return 0;
     }
 
@@ -90,8 +93,9 @@ public class LayersListAdapter
     public Object getItem(int i)
     {
         int nIndex = getCount() - 1 - i;
-        if(null != mMap)
+        if (null != mMap) {
             return mMap.getLayer(nIndex);
+        }
         return null;
     }
 
@@ -99,11 +103,13 @@ public class LayersListAdapter
     @Override
     public long getItemId(int i)
     {
-        if(i < 0 || i >= mMap.getLayerCount())
+        if (i < 0 || i >= mMap.getLayerCount()) {
             return NOT_FOUND;
+        }
         Layer layer = (Layer) getItem(i);
-        if(null != layer)
+        if (null != layer) {
             return layer.getId();
+        }
         return NOT_FOUND;
     }
 
@@ -153,63 +159,70 @@ public class LayersListAdapter
 
         ImageButton btShow = (ImageButton) v.findViewById(R.id.btShow);
         //Log.d(TAG, "Layer #" + id + " is visible " + layer.isVisible());
-        btShow.setImageResource(layer.isVisible()
-                                     ? R.drawable.ic_action_visibility_on
-                                     : R.drawable.ic_action_visibility_off);
+        btShow.setImageResource(
+                layer.isVisible()
+                ? R.drawable.ic_action_visibility_on
+                : R.drawable.ic_action_visibility_off);
         //btShow.refreshDrawableState();
-        btShow.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View arg0)
-            {
-                //Layer layer = mMap.getLayerById(id);
-                layer.setVisible(!layer.isVisible());
-                layer.save();
-            }
-        });
-
-        final ImageButton btMore = (ImageButton) v.findViewById(R.id.btMore);
-        btMore.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View arg0)
-            {
-                PopupMenu popup = new PopupMenu(mContext, btMore);
-                popup.getMenuInflater().inflate(R.menu.layer_popup, popup.getMenu());
-
-                if (layerui == null) {
-                    popup.getMenu().findItem(R.id.menu_settings).setEnabled(false);
-                    popup.getMenu().findItem(R.id.menu_share).setEnabled(false);
-                }
-
-                if(layerui instanceof TrackLayerUI){
-                    popup.getMenu().findItem(R.id.menu_delete).setVisible(false);
-                }
-                else if (layerui instanceof VectorLayerUI) {
-                    popup.getMenu().findItem(R.id.menu_share).setVisible(true);
-                }
-
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener()
+        btShow.setOnClickListener(
+                new View.OnClickListener()
                 {
-                    public boolean onMenuItemClick(MenuItem item)
+                    public void onClick(View arg0)
                     {
-                        int i = item.getItemId();
-                        if (i == R.id.menu_settings) {
-                            //Layer layer = mMap.getLayerById(id);
-                            assert layerui != null;
-                            layerui.changeProperties(mContext);
-                        } else if (i == R.id.menu_share) {
-                            assert (layerui) != null;
-                            ((VectorLayerUI) layerui).shareGeoJSON();
-                        } else if (i == R.id.menu_delete) {
-                            layer.delete();
-                            mMap.save();
-                        }
-                        return true;
+                        //Layer layer = mMap.getLayerById(id);
+                        layer.setVisible(!layer.isVisible());
+                        layer.save();
                     }
                 });
 
-                popup.show();
-            }
-        });
+        final ImageButton btMore = (ImageButton) v.findViewById(R.id.btMore);
+        btMore.setOnClickListener(
+                new View.OnClickListener()
+                {
+                    public void onClick(View arg0)
+                    {
+                        PopupMenu popup = new PopupMenu(mContext, btMore);
+                        popup.getMenuInflater().inflate(R.menu.layer_popup, popup.getMenu());
+
+                        if (layerui == null) {
+                            popup.getMenu().findItem(R.id.menu_settings).setEnabled(false);
+                            popup.getMenu().findItem(R.id.menu_share).setEnabled(false);
+                        }
+
+                        if (layerui instanceof TrackLayerUI) {
+                            popup.getMenu().findItem(R.id.menu_delete).setVisible(false);
+                        } else if (layerui instanceof VectorLayerUI) {
+                            popup.getMenu().findItem(R.id.menu_share).setVisible(true);
+                        }
+
+                        popup.setOnMenuItemClickListener(
+                                new PopupMenu.OnMenuItemClickListener()
+                                {
+                                    public boolean onMenuItemClick(MenuItem item)
+                                    {
+                                        int i = item.getItemId();
+                                        if (i == R.id.menu_settings) {
+                                            //Layer layer = mMap.getLayerById(id);
+                                            assert layerui != null;
+                                            layerui.changeProperties(mContext);
+                                        } else if (i == R.id.menu_share) {
+                                            assert (layerui) != null;
+
+                                            if (layerui instanceof VectorLayerUI) {
+                                                ((VectorLayerUI) layerui).shareGeoJSON();
+                                            }
+
+                                        } else if (i == R.id.menu_delete) {
+                                            layer.delete();
+                                            mMap.save();
+                                        }
+                                        return true;
+                                    }
+                                });
+
+                        popup.show();
+                    }
+                });
 
         return v;
     }
@@ -274,8 +287,9 @@ public class LayersListAdapter
     {
         //Log.d(TAG,
         //      "Original position: " + originalPosition + " Destination position: " + newPosition);
-        if(null == mMap)
+        if (null == mMap) {
             return;
+        }
         int newPositionFixed = getCount() - 1 - newPosition;
         mMap.moveLayer(newPositionFixed, (com.nextgis.maplib.api.ILayer) getItem(originalPosition));
         notifyDataSetChanged();
@@ -284,8 +298,9 @@ public class LayersListAdapter
 
     public void endDrag()
     {
-        if(null == mMap)
+        if (null == mMap) {
             return;
+        }
         mMap.save();
 
         mMap.thaw();
@@ -295,8 +310,9 @@ public class LayersListAdapter
 
     public void beginDrag()
     {
-        if(null == mMap)
+        if (null == mMap) {
             return;
+        }
         mMap.freeze();
     }
 }

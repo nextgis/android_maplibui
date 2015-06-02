@@ -43,7 +43,9 @@ import java.util.List;
 /**
  * Color picker
  */
-public class ChooseColorDialog extends DialogFragment implements AdapterView.OnItemClickListener
+public class ChooseColorDialog
+        extends DialogFragment
+        implements AdapterView.OnItemClickListener
 {
     protected String                      mTitle;
     protected List<Pair<Integer, String>> mColors;
@@ -96,18 +98,16 @@ public class ChooseColorDialog extends DialogFragment implements AdapterView.OnI
         dialogListView.setOnItemClickListener(this);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(mTitle)
-               .setView(view)
-               .setInverseBackgroundForced(true)
-               .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
-               {
-                   public void onClick(
-                           DialogInterface dialog,
-                           int id)
-                   {
-                       // User cancelled the dialog
-                   }
-               });
+        builder.setTitle(mTitle).setView(view).setInverseBackgroundForced(true).setNegativeButton(
+                R.string.cancel, new DialogInterface.OnClickListener()
+                {
+                    public void onClick(
+                            DialogInterface dialog,
+                            int id)
+                    {
+                        // User cancelled the dialog
+                    }
+                });
         // Create the AlertDialog object and return it
         return builder.create();
     }
@@ -122,7 +122,7 @@ public class ChooseColorDialog extends DialogFragment implements AdapterView.OnI
     {
         //send event to parent
         IChooseColorResult activity = (IChooseColorResult) getActivity();
-        if(null != activity) {
+        if (null != activity) {
             TextView tv = (TextView) view.findViewById(R.id.color_name);
             String colorName = (String) tv.getText();
             for (Pair<Integer, String> entry : mColors) {

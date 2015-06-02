@@ -21,36 +21,37 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
 
     <item
         android:id="@+id/menu_visibility_on"
         android:title="@string/menu_visibility_on"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_visibility_white_24dp"/>
+        android:icon="@drawable/ic_visibility_white_24dp"
+        />
 
     <item
         android:id="@+id/menu_visibility_off"
         android:title="@string/menu_visibility_off"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_visibility_off_white_24dp"/>
+        android:icon="@drawable/ic_visibility_off_white_24dp"
+        />
 
-    <!--<item-->
-    <!--android:id="@+id/menu_share"-->
-    <!--android:title="@string/menu_share"-->
-    <!--app:showAsAction="always"-->
-    <!--android:icon="@drawable/abc_ic_menu_share_mtrl_alpha"/>-->
+    <!--<item--><!--android:id="@+id/menu_share"--><!--android:title="@string/menu_share"--><!--app:showAsAction="always"--><!--android:icon="@drawable/abc_ic_menu_share_mtrl_alpha"/>-->
 
     <item
         android:id="@+id/menu_delete"
         android:title="@string/menu_delete"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_action_delete_light"/>
+        android:icon="@drawable/ic_action_delete_light"
+        />
 
     <item
         android:id="@+id/menu_select_all"
         android:title="@string/menu_select_all"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/abc_ic_menu_selectall_mtrl_alpha"/>
+        android:icon="@drawable/abc_ic_menu_selectall_mtrl_alpha"
+        />
 
 </menu>

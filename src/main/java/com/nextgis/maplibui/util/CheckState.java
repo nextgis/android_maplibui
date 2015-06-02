@@ -30,7 +30,7 @@ public class CheckState
         implements Parcelable
 {
 
-    protected int mId;
+    protected int     mId;
     protected boolean mCheckState1;
     protected boolean mCheckState2;
 
@@ -59,9 +59,10 @@ public class CheckState
             int i)
     {
         parcel.writeInt(mId);
-        parcel.writeByte(mCheckState1 ? (byte)1 : (byte)0);
-        parcel.writeByte(mCheckState2 ? (byte)1 : (byte)0);
+        parcel.writeByte(mCheckState1 ? (byte) 1 : (byte) 0);
+        parcel.writeByte(mCheckState2 ? (byte) 1 : (byte) 0);
     }
+
 
     public static final Parcelable.Creator<CheckState> CREATOR =
             new Parcelable.Creator<CheckState>()
