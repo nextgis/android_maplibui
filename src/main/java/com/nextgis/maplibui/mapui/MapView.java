@@ -53,18 +53,18 @@ public class MapView
         implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener,
                    ScaleGestureDetector.OnScaleGestureListener, MapEventListener
 {
-    protected final GestureDetector mGestureDetector;
+    protected final GestureDetector      mGestureDetector;
     protected final ScaleGestureDetector mScaleGestureDetector;
-    protected       PointF mStartMouseLocation;
-    protected       PointF mCurrentMouseOffset;
-    protected       PointF mCurrentFocusLocation;
-    protected       int mDrawingState;
-    protected       double mScaleFactor;
-    protected       double mCurrentSpan;
-    protected       Scroller mScroller;
-    protected       long mStartDrawTime;
-    protected       long mTopVisibleLayerId;
-    protected       int mVisibleLayerCount;
+    protected       PointF               mStartMouseLocation;
+    protected       PointF               mCurrentMouseOffset;
+    protected       PointF               mCurrentFocusLocation;
+    protected       int                  mDrawingState;
+    protected       double               mScaleFactor;
+    protected       double               mCurrentSpan;
+    protected       Scroller             mScroller;
+    protected       long                 mStartDrawTime;
+    protected       long                 mTopVisibleLayerId;
+    protected       int                  mVisibleLayerCount;
 
     //display redraw timeout ms
     public static final int DISPLAY_REDRAW_TIMEOUT = 1500;

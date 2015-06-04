@@ -23,16 +23,16 @@
   -->
 
 <com.nextgis.maplibui.fragment.BottomToolbar xmlns:android="http://schemas.android.com/apk/res/android"
-                                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                                    android:id="@+id/bottom_toolbar"
-                                    android:layout_height="?attr/actionBarSize"
-                                    android:layout_width="match_parent"
-                                    android:minHeight="?attr/actionBarSize"
-                                    android:background="?attr/colorPrimary"
-                                    app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-                                    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                                    android:layout_gravity="bottom"
-                                    android:layout_alignParentBottom="true"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             android:id="@+id/bottom_toolbar"
+                                             android:layout_height="?attr/actionBarSize"
+                                             android:layout_width="match_parent"
+                                             android:minHeight="?attr/actionBarSize"
+                                             android:background="?attr/colorPrimary"
+                                             app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                                             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                                             android:layout_gravity="bottom"
+                                             android:layout_alignParentBottom="true"
     >
 
 </com.nextgis.maplibui.fragment.BottomToolbar>

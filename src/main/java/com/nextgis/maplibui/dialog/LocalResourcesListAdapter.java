@@ -62,7 +62,7 @@ public class LocalResourcesListAdapter
     protected boolean               mCanWrite;
     protected RadioButton           mUncheckBtn;
 
-    protected File mPath;
+    protected File       mPath;
     protected List<File> mFiles;
 
 
