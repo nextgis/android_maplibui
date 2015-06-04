@@ -21,34 +21,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui.api;
+package com.nextgis.maplibui.controlui;
 
-import android.content.Context;
-import com.nextgis.maplib.api.ILayer;
-
-import java.util.List;
-
-
-/**
- * Interface to select layer
- */
-public interface ILayerSelector
+public class TextEdit
 {
-    /**
-     * Execute from dialog then user select layer
-     *
-     * @param layer
-     *         Selected layer
-     */
-    public void onLayerSelect(ILayer layer);
-
-    /**
-     * Get layers to choose one
-     *
-     * @return the layer list
-     */
-    public List<ILayer> getLayers();
-
-    public Context getContext();
-
 }
