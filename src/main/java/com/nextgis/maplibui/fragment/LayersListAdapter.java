@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui;
+package com.nextgis.maplibui.fragment;
 
 import android.content.Context;
 import android.support.v7.widget.PopupMenu;
@@ -35,6 +35,7 @@ import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.MapEventSource;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.mapui.TrackLayerUI;
 import com.nextgis.maplibui.mapui.VectorLayerUI;

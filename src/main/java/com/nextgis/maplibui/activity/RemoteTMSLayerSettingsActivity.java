@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui;
+package com.nextgis.maplibui.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -37,19 +37,20 @@ import android.widget.TextView;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.display.TMSRenderer;
-import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplibui.R;
 
 
 /**
  * TMS layer settings activity. Include common settings (layer name) and renderer settings.
  */
-public class LocalTMSLayerSettingsActivity
+public class RemoteTMSLayerSettingsActivity
         extends AppCompatActivity
 {
     public final static String LAYER_ID_KEY = "layer_id";
-    protected LocalTMSLayer mRasterLayer;
+    protected RemoteTMSLayer mRasterLayer;
 
     protected int     mCacheSizeMult;
     protected float   mContrast;
@@ -62,7 +63,7 @@ public class LocalTMSLayerSettingsActivity
     {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_localrasterlayer_settings);
+        setContentView(R.layout.activity_remoterasterlayer_settings);
 
         short layerId = Constants.NOT_FOUND;
         if (savedInstanceState != null) {
@@ -86,8 +87,8 @@ public class LocalTMSLayerSettingsActivity
         MapBase map = application.getMap();
         if (null != map) {
             ILayer layer = map.getLayerById(layerId);
-            if (null != layer && layer.getType() == Constants.LAYERTYPE_LOCAL_TMS) {
-                mRasterLayer = (LocalTMSLayer) layer;
+            if (null != layer && layer.getType() == Constants.LAYERTYPE_REMOTE_TMS) {
+                mRasterLayer = (RemoteTMSLayer) layer;
             }
         }
 
@@ -120,6 +121,7 @@ public class LocalTMSLayerSettingsActivity
                             }
                         });
             }
+
 
             // set color
             TMSRenderer tmsRenderer = (TMSRenderer) mRasterLayer.getRenderer();

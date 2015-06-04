@@ -35,9 +35,9 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.util.GeoConstants;
-import com.nextgis.maplibui.MapViewOverlays;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.Overlay;
+import com.nextgis.maplibui.mapui.MapViewOverlays;
 
 import java.util.ArrayList;
 import java.util.List;

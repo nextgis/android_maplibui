@@ -60,14 +60,14 @@ import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.VectorCacheItem;
-import com.nextgis.maplibui.BottomToolbar;
-import com.nextgis.maplibui.MapViewOverlays;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.EditEventListener;
 import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.api.MapViewEventListener;
 import com.nextgis.maplibui.api.Overlay;
+import com.nextgis.maplibui.fragment.BottomToolbar;
+import com.nextgis.maplibui.mapui.MapViewOverlays;
 import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.io.IOException;

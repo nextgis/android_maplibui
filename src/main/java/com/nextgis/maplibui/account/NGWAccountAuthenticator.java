@@ -29,7 +29,7 @@ import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import com.nextgis.maplibui.NGWLoginActivity;
+import com.nextgis.maplibui.activity.NGWLoginActivity;
 
 import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
 

@@ -43,10 +43,10 @@ import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
-import com.nextgis.maplibui.MapViewOverlays;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.api.OverlayItem;
+import com.nextgis.maplibui.mapui.MapViewOverlays;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 

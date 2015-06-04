@@ -20,7 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui;
+package com.nextgis.maplibui.activity;
 
 import android.app.ActivityManager;
 import android.content.ContentValues;
@@ -54,6 +54,7 @@ import android.widget.Toast;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.service.TrackerService;
+import com.nextgis.maplibui.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;

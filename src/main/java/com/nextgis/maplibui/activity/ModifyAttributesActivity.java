@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui;
+package com.nextgis.maplibui.activity;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -63,6 +63,7 @@ import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.IOException;

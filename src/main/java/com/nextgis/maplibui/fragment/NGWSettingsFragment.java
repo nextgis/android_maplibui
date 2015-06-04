@@ -19,13 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui;
+package com.nextgis.maplibui.fragment;
 
 import android.accounts.Account;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.NGWSettingsActivity;
 
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)

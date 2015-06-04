@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui;
+package com.nextgis.maplibui.fragment;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -39,6 +39,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.nextgis.maplib.api.IGISApplication;
+import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.NGWSettingsActivity;
 import com.nextgis.maplibui.service.HTTPLoader;
 
 import java.net.URI;

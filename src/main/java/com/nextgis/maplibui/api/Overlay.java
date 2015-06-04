@@ -28,7 +28,7 @@ import android.graphics.PointF;
 import android.os.Bundle;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
-import com.nextgis.maplibui.MapViewOverlays;
+import com.nextgis.maplibui.mapui.MapViewOverlays;
 
 
 public abstract class Overlay

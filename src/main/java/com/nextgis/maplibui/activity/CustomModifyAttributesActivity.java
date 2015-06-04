@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui;
+package com.nextgis.maplibui.activity;
 
 import android.content.ContentValues;
 import android.content.res.Configuration;
@@ -47,6 +47,7 @@ import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplibui.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

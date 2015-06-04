@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui;
+package com.nextgis.maplibui.activity;
 
 
 import android.accounts.Account;
@@ -60,7 +60,9 @@ import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.SettingsConstants;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
+import com.nextgis.maplibui.fragment.NGWSettingsFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -157,7 +159,7 @@ public class NGWSettingsActivity
                     NGW_ACCOUNT_TYPE)) {
                 header = new Header();
                 header.title = account.name;
-                header.fragment = com.nextgis.maplibui.NGWSettingsFragment.class.getName();
+                header.fragment = NGWSettingsFragment.class.getName();
 
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("account", account);
@@ -186,7 +188,7 @@ public class NGWSettingsActivity
         }
         //in Android 5.0 or higher need to have one header with fragment
         Header header = new Header();
-        header.fragment = com.nextgis.maplibui.NGWSettingsFragment.class.getName();
+        header.fragment = NGWSettingsFragment.class.getName();
         return header;
     }
 

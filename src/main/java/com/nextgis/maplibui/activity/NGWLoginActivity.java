@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui;
+package com.nextgis.maplibui.activity;
 
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
@@ -29,6 +29,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.fragment.NGWLoginFragment;
 
 
 public class NGWLoginActivity

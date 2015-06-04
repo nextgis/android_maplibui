@@ -20,7 +20,7 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<com.nextgis.maplibui.BottomToolbar xmlns:android="http://schemas.android.com/apk/res/android"
+<com.nextgis.maplibui.fragment.BottomToolbar xmlns:android="http://schemas.android.com/apk/res/android"
                                     xmlns:app="http://schemas.android.com/apk/res-auto"
                                     android:id="@+id/bottom_toolbar"
                                     android:layout_height="?attr/actionBarSize"
@@ -33,4 +33,4 @@
                                     android:layout_alignParentBottom="true"
     >
 
-</com.nextgis.maplibui.BottomToolbar>
+</com.nextgis.maplibui.fragment.BottomToolbar>

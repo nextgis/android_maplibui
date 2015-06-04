@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui;
+package com.nextgis.maplibui.fragment;
 
 import android.content.Context;
 import android.support.v7.internal.view.menu.MenuBuilder;

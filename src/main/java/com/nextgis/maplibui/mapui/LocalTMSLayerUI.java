@@ -25,8 +25,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import com.nextgis.maplib.map.LocalTMSLayer;
-import com.nextgis.maplibui.LocalTMSLayerSettingsActivity;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.LocalTMSLayerSettingsActivity;
 import com.nextgis.maplibui.api.ILayerUI;
 
 import java.io.File;

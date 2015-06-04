@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui;
+package com.nextgis.maplibui.fragment;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -38,6 +38,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import com.nextgis.maplibui.R;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 

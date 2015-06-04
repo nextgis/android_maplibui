@@ -29,42 +29,42 @@
         >
 
         <activity
-            android:name=".NGWLoginActivity"
+            android:name=".activity.NGWLoginActivity"
             android:label="@string/account_setup"
             />
 
         <activity
-            android:name=".NGWSettingsActivity"
+            android:name=".activity.NGWSettingsActivity"
             android:label="@string/ngw_settings"
             />
 
         <activity
-            android:name=".ModifyAttributesActivity"
+            android:name=".activity.ModifyAttributesActivity"
             android:label="@string/set_attributes"
             />
 
         <activity
-            android:name=".CustomModifyAttributesActivity"
+            android:name=".activity.CustomModifyAttributesActivity"
             android:label="@string/set_attributes"
             />
 
         <activity
-            android:name=".TracksActivity"
+            android:name=".activity.TracksActivity"
             android:label="@string/tracks"
             />
 
         <activity
-            android:name=".VectorLayerSettingsActivity"
+            android:name=".activity.VectorLayerSettingsActivity"
             android:label="@string/layerSettings"
             />
 
         <activity
-            android:name=".RemoteTMSLayerSettingsActivity"
+            android:name=".activity.RemoteTMSLayerSettingsActivity"
             android:label="@string/layerSettings"
             />
 
         <activity
-            android:name=".LocalTMSLayerSettingsActivity"
+            android:name=".activity.LocalTMSLayerSettingsActivity"
             android:label="@string/layerSettings"
             />
 

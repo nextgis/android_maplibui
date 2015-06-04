@@ -27,7 +27,7 @@ import android.graphics.drawable.Drawable;
 import android.widget.Toast;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.TracksActivity;
+import com.nextgis.maplibui.activity.TracksActivity;
 import com.nextgis.maplibui.api.ILayerUI;
 
 import java.io.File;

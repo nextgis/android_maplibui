@@ -26,7 +26,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.RemoteTMSLayerSettingsActivity;
+import com.nextgis.maplibui.activity.RemoteTMSLayerSettingsActivity;
 import com.nextgis.maplibui.api.ILayerUI;
 
 import java.io.File;

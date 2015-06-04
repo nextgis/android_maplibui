@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui;
+package com.nextgis.maplibui.activity;
 
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -41,6 +41,7 @@ import com.nextgis.maplib.display.Style;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IChooseColorResult;
 import com.nextgis.maplibui.dialog.ChooseColorDialog;
 
