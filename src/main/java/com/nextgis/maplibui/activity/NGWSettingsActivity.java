@@ -465,10 +465,8 @@ public class NGWSettingsActivity
     {
         List<INGWLayer> layers = getLayersForAccount(this, account);
         if (!layers.isEmpty()) {
-            PreferenceCategory layersCategory = new PreferenceCategory(this);
-            layersCategory.setTitle(R.string.sync_layers);
-            layersCategory.setSummary(R.string.sync_layers_summary);
-            screen.addPreference(layersCategory);
+
+            PreferenceCategory layersCategory = null;
 
             for (INGWLayer layer : layers) {
 
@@ -477,6 +475,10 @@ public class NGWSettingsActivity
                 }
 
                 final NGWVectorLayer ngwLayer = (NGWVectorLayer) layer;
+
+                if(!ngwLayer.isSyncable()){
+                    continue;
+                }
 
                 CheckBoxPreference layerSync = new CheckBoxPreference(this);
                 layerSync.setTitle(ngwLayer.getName());
@@ -509,6 +511,12 @@ public class NGWSettingsActivity
                             }
                         });
 
+                if(null == layersCategory){
+                    layersCategory = new PreferenceCategory(this);
+                    layersCategory.setTitle(R.string.sync_layers);
+                    layersCategory.setSummary(R.string.sync_layers_summary);
+                    screen.addPreference(layersCategory);
+                }
                 layersCategory.addPreference(layerSync);
             }
         }

@@ -32,6 +32,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -260,8 +261,8 @@ public class ModifyAttributesActivity
 
         textLabel.setText(fieldAlias);
         textLabel.setEllipsize(TextUtils.TruncateAt.END);
-        textLabel.setTextAppearance(this, android.R.style.TextAppearance_Medium);
-        textLabel.setTextColor(getResources().getColor(android.R.color.darker_gray));
+        textLabel.setTextAppearance(this, R.style.Base_TextAppearance_AppCompat_Medium);
+        textLabel.setTextColor(getResources().getColor(R.color.hint_foreground_material_light));
 
         layout.addView(textLabel);
     }
@@ -372,7 +373,7 @@ public class ModifyAttributesActivity
         ViewGroup.LayoutParams params = greyLine.getLayoutParams();
         params.height = (int) lineHeight;
         greyLine.setLayoutParams(params);
-        greyLine.setBackgroundResource(android.R.color.darker_gray);
+        greyLine.setBackgroundResource(R.color.hint_foreground_material_light);
     }
 
 
