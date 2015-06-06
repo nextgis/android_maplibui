@@ -76,19 +76,29 @@ import static com.nextgis.maplibui.util.ConstantsUI.*;
 public class CustomModifyAttributesActivity
         extends ModifyAttributesActivity
 {
+    public static final String JSON_ATTRIBUTES_KEY        = "attributes";
+    public static final String JSON_TYPE_KEY              = "type";
+    public static final String JSON_TABS_KEY              = "tabs";
+    public static final String JSON_ALBUM_ELEMENTS_KEY    = "album_elements";
+    public static final String JSON_PORTRAIT_ELEMENTS_KEY = "portrait_elements";
+    public static final String JSON_TEXT_KEY              = "text";
+    public static final String JSON_FIELD_NAME_KEY        = "field";
+    public static final String JSON_SHOW_LAST_KEY         = "last";
+    public static final String JSON_MAX_STRING_COUNT_KEY  = "max_string_count";
+    public static final String JSON_ONLY_FIGURES_KEY      = "only_figures";
+    public static final String JSON_VALUES_KEY            = "values";
+    public static final String JSON_VALUE_ALIAS_KEY       = "alias";
+    public static final String JSON_DATE_TYPE_KEY         = "date_type";
+    public static final String JSON_DEFAULT_KEY           = "default";
+    public static final String JSON_FIELD_LEVEL1_KEY      = "field_level1";
+    public static final String JSON_FIELD_LEVEL2_KEY      = "field_level2";
 
-    protected static final String JSON_ATTRIBUTES_KEY        = "attributes";
-    protected static final String JSON_TYPE_KEY              = "type";
-    protected static final String JSON_TABS_KEY              = "tabs";
-    protected static final String JSON_ALBUM_ELEMENTS_KEY    = "album_elements";
-    protected static final String JSON_PORTRAIT_ELEMENTS_KEY = "portrait_elements";
-    protected static final String JSON_TEXT_KEY              = "text";
-    protected static final String JSON_FIELD_KEY             = "field";
-    protected static final String JSON_LAST_KEY              = "last";
-    protected static final String JSON_MAX_STRING_COUNT_KEY  = "max_string_count";
-    protected static final String JSON_ONLY_FIGURES_KEY      = "only_figures";
-    protected static final String JSON_VALUES_KEY            = "values";
-    protected static final String JSON_ALIAS_KEY             = "alias";
+    public static final String JSON_TEXT_LABEL_VALUE      = "text_label";
+    public static final String JSON_TEXT_EDIT_VALUE       = "text_edit";
+    public static final String JSON_DATE_TIME_VALUE       = "date_time";
+    public static final String JSON_RADIO_GROUP_VALUE     = "radio_group";
+    public static final String JSON_COMBOBOX_VALUE        = "combobox";
+    public static final String JSON_DOUBLE_COMBOBOX_VALUE = "double_combobox";
 
     protected Map<String, String>              mLastValues;
     protected Map<String, Map<String, String>> mKeyValuesForField;
@@ -98,21 +108,9 @@ public class CustomModifyAttributesActivity
     protected static final String FILE_LAST_VALUES = "last_values.json";
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState)
+    protected void createAndFillControls(final IGISApplication app)
     {
-        super.onCreate(savedInstanceState);
-
         //TODO: add location control via fragment only defined by user space
-        setContentView(R.layout.activity_standard_attributes);
-        createToolbarView();
-
-        mKeyValuesForField = new HashMap<>();
-        mDoubleComboFirstKeys = new HashMap<>();
-        mDateTimePickerType = new HashMap<>();
-
-        LinearLayout layout = (LinearLayout) findViewById(R.id.controls_list);
-        final IGISApplication app = (IGISApplication) getApplication();
         //create and fill controls
         Bundle extras = getIntent().getExtras();
 
@@ -128,11 +126,14 @@ public class CustomModifyAttributesActivity
                 readLastValues();
                 int orientation = getResources().getConfiguration().orientation;
                 boolean isLand = orientation == Configuration.ORIENTATION_LANDSCAPE;
+                LinearLayout layout = (LinearLayout) findViewById(R.id.controls_list);
                 createAndFillControls(layout, form, isLand);
             }
         }
 
-        createLocationPanelView(app);
+        mKeyValuesForField = new HashMap<>();
+        mDoubleComboFirstKeys = new HashMap<>();
+        mDateTimePickerType = new HashMap<>();
     }
 
 
@@ -162,8 +163,8 @@ public class CustomModifyAttributesActivity
         JSONArray lastJsonArray = new JSONArray();
 
         for (Map.Entry<String, String> entry : mLastValues.entrySet()) {
-            String field = entry.getKey();
-            View fieldView = mFields.get(field);
+            String fieldName = entry.getKey();
+            View fieldView = mFields.get(fieldName);
             String fieldValue;
 
             if (fieldView instanceof Spinner) {
@@ -185,7 +186,7 @@ public class CustomModifyAttributesActivity
             JSONObject lastValue = new JSONObject();
 
             try {
-                lastValue.put(JSON_NAME_KEY, field);
+                lastValue.put(JSON_NAME_KEY, fieldName);
                 lastValue.put(JSON_VALUE_KEY, fieldValue);
                 lastJsonArray.put(lastValue);
             } catch (JSONException e) {
@@ -246,26 +247,29 @@ public class CustomModifyAttributesActivity
             }
         }
 
+        List<Field> fields = mLayer.getFields();
+
+
         for (int i = 0; i < elements.length(); i++) {
             JSONObject element = elements.getJSONObject(i);
             String type = element.getString(JSON_TYPE_KEY);
             switch (type) {
-                case "text_label":
+                case JSON_TEXT_LABEL_VALUE:
                     addTextLabel(layout, element);
                     break;
-                case "text_edit":
+                case JSON_TEXT_EDIT_VALUE:
                     addTextEdit(layout, element, cursor);
                     break;
-                case "date_time":
+                case JSON_DATE_TIME_VALUE:
                     addDateTime(layout, element, cursor);
                     break;
-                case "radio_group":
+                case JSON_RADIO_GROUP_VALUE:
                     addRadioGroup(layout, element, cursor);
                     break;
-                case "combobox":
-                    addCombobox(layout, element, cursor);
+                case JSON_COMBOBOX_VALUE:
+                    addCombobox(layout, element, cursor, fields);
                     break;
-                case "double_combobox":
+                case JSON_DOUBLE_COMBOBOX_VALUE:
                     addDoubleCombobox(layout, element, cursor);
                     break;
                 //TODO: add controls
@@ -296,8 +300,8 @@ public class CustomModifyAttributesActivity
         TextView textLabel = new TextView(this);
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
-
         textLabel.setText(attributes.getString(JSON_TEXT_KEY));
+
         textLabel.setEllipsize(TextUtils.TruncateAt.END);
         textLabel.setTextAppearance(this, android.R.style.TextAppearance_Medium);
         textLabel.setTextColor(getResources().getColor(android.R.color.darker_gray));
@@ -316,11 +320,11 @@ public class CustomModifyAttributesActivity
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
 
-        String fieldName = attributes.getString(JSON_FIELD_KEY);
+        String fieldName = attributes.getString(JSON_FIELD_NAME_KEY);
 
         boolean last = false;
-        if (attributes.has(JSON_LAST_KEY) && !attributes.isNull(JSON_LAST_KEY)) {
-            last = attributes.getBoolean(JSON_LAST_KEY);
+        if (attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(JSON_SHOW_LAST_KEY)) {
+            last = attributes.getBoolean(JSON_SHOW_LAST_KEY);
         }
 
         String lastVal = mLastValues.get(fieldName);
@@ -398,15 +402,15 @@ public class CustomModifyAttributesActivity
             picker_type = attributes.getInt("date_type");
         }
 
-        SimpleDateFormat dateText = null;
+        SimpleDateFormat sdf = null;
 
         switch (picker_type) {
 
             case DATE:
             case TIME:
             case DATETIME:
-                dateText = (SimpleDateFormat) DateFormat.getDateInstance();
-                String pattern = dateText.toLocalizedPattern();
+                sdf = (SimpleDateFormat) DateFormat.getDateInstance();
+                String pattern = sdf.toLocalizedPattern();
 
                 dateEdit =
                         (TextView) getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
@@ -423,11 +427,11 @@ public class CustomModifyAttributesActivity
         mDateTimePickerType.put(dateEdit, picker_type);
 
 
-        String fieldName = attributes.getString(JSON_FIELD_KEY);
+        String fieldName = attributes.getString(JSON_FIELD_NAME_KEY);
 
         boolean last = false;
-        if (attributes.has(JSON_LAST_KEY) && !attributes.isNull(JSON_LAST_KEY)) {
-            last = attributes.getBoolean(JSON_LAST_KEY);
+        if (attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(JSON_SHOW_LAST_KEY)) {
+            last = attributes.getBoolean(JSON_SHOW_LAST_KEY);
         }
 
         String lastVal = mLastValues.get(fieldName);
@@ -451,7 +455,7 @@ public class CustomModifyAttributesActivity
 
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTimeInMillis(millis);
-                dateEdit.setText(dateText.format(calendar.getTime()));
+                dateEdit.setText(sdf.format(calendar.getTime()));
             }
         }
 
@@ -481,11 +485,11 @@ public class CustomModifyAttributesActivity
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
 
-        String fieldName = attributes.getString(JSON_FIELD_KEY);
+        String fieldName = attributes.getString(JSON_FIELD_NAME_KEY);
 
         boolean last = false;
-        if (attributes.has(JSON_LAST_KEY) && !attributes.isNull(JSON_LAST_KEY)) {
-            last = attributes.getBoolean(JSON_LAST_KEY);
+        if (attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(JSON_SHOW_LAST_KEY)) {
+            last = attributes.getBoolean(JSON_SHOW_LAST_KEY);
         }
 
         String lastVal = mLastValues.get(fieldName);
@@ -507,11 +511,11 @@ public class CustomModifyAttributesActivity
 
         for (int j = 0; j < values.length(); j++) {
             JSONObject keyValue = values.getJSONObject(j);
-            String key = keyValue.getString(JSON_ALIAS_KEY);
+            String key = keyValue.getString(JSON_VALUE_ALIAS_KEY);
             String value = keyValue.getString(JSON_NAME_KEY);
 
             if (j == 0 || null != cursorVal && cursorVal.equals(value) /*if modify data*/ ||
-                !last && keyValue.has("default") && keyValue.getBoolean("default")) {
+                !last && keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(JSON_DEFAULT_KEY)) {
 
                 lastVal = key;
                 index = j;
@@ -552,7 +556,8 @@ public class CustomModifyAttributesActivity
     protected void addCombobox(
             LinearLayout layout,
             JSONObject element,
-            Cursor cursor)
+            Cursor cursor,
+            List<Field> fields)
             throws JSONException
     {
         //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
@@ -560,21 +565,33 @@ public class CustomModifyAttributesActivity
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
 
-        String fieldName = attributes.getString(JSON_FIELD_KEY);
+        String jsonFieldName = attributes.getString(JSON_FIELD_NAME_KEY);
 
-        boolean last = false;
-        if (attributes.has(JSON_LAST_KEY) && !attributes.isNull(JSON_LAST_KEY)) {
-            last = attributes.getBoolean(JSON_LAST_KEY);
+        boolean isEnabled = false;
+
+        for (Field field : fields) {
+            String fieldName = field.getName();
+            if (fieldName.equals(jsonFieldName)) {
+                isEnabled = true;
+                break;
+            }
         }
 
-        String lastVal = mLastValues.get(fieldName);
+        spinner.setEnabled(isEnabled);
+
+        boolean last = false;
+        if (attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(JSON_SHOW_LAST_KEY)) {
+            last = attributes.getBoolean(JSON_SHOW_LAST_KEY);
+        }
+
+        String lastVal = mLastValues.get(jsonFieldName);
         if (TextUtils.isEmpty(lastVal)) {
             last = false;
         }
 
         String cursorVal = null;
         if (null != cursor) {
-            int column = cursor.getColumnIndex(fieldName);
+            int column = cursor.getColumnIndex(jsonFieldName);
             if (column >= 0) {
                 cursorVal = cursor.getString(column);
             }
@@ -589,11 +606,11 @@ public class CustomModifyAttributesActivity
 
         for (int j = 0; j < values.length(); j++) {
             JSONObject keyValue = values.getJSONObject(j);
-            String key = keyValue.getString(JSON_ALIAS_KEY);
+            String key = keyValue.getString(JSON_VALUE_ALIAS_KEY);
             String value = keyValue.getString(JSON_NAME_KEY);
 
             if (j == 0 || null != cursorVal && cursorVal.equals(value) /*if modify data*/ ||
-                !last && keyValue.has("default") && keyValue.getBoolean("default")) {
+                !last && keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(JSON_DEFAULT_KEY)) {
 
                 lastVal = key;
             }
@@ -602,10 +619,10 @@ public class CustomModifyAttributesActivity
             spinnerArrayAdapter.add(key);
         }
 
-        mKeyValuesForField.put(fieldName, keyValueMap);
+        mKeyValuesForField.put(jsonFieldName, keyValueMap);
 
         if (last) {
-            mLastValues.put(fieldName, lastVal);
+            mLastValues.put(jsonFieldName, lastVal);
         }
 
         // The drop down view
@@ -620,7 +637,7 @@ public class CustomModifyAttributesActivity
         spinner.setPadding(0, (int) minHeight, 0, (int) minHeight);
 
         layout.addView(spinner);
-        mFields.put(fieldName, spinner);
+        mFields.put(jsonFieldName, spinner);
 
 
         // add grey line view here
@@ -647,12 +664,12 @@ public class CustomModifyAttributesActivity
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
 
-        String fieldName = attributes.getString("field_level1");
-        String subFieldName = attributes.getString("field_level2");
+        String fieldName = attributes.getString(JSON_FIELD_LEVEL1_KEY);
+        String subFieldName = attributes.getString(JSON_FIELD_LEVEL2_KEY);
 
         boolean last = false;
-        if (attributes.has(JSON_LAST_KEY) && !attributes.isNull(JSON_LAST_KEY)) {
-            last = attributes.getBoolean(JSON_LAST_KEY);
+        if (attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(JSON_SHOW_LAST_KEY)) {
+            last = attributes.getBoolean(JSON_SHOW_LAST_KEY);
         }
 
         String lastVal = mLastValues.get(fieldName);
@@ -684,13 +701,13 @@ public class CustomModifyAttributesActivity
 
         for (int j = 0; j < values.length(); j++) {
             JSONObject keyValue = values.getJSONObject(j);
-            String key = keyValue.getString(JSON_ALIAS_KEY);
+            String key = keyValue.getString(JSON_VALUE_ALIAS_KEY);
             String value = keyValue.getString(JSON_NAME_KEY);
 
             boolean isDefault = false;
 
             if (j == 0 || null != cursorVal && cursorVal.equals(value) /*if modify data*/ ||
-                !last && keyValue.has("default") && keyValue.getBoolean("default")) {
+                !last && keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(JSON_DEFAULT_KEY)) {
 
                 lastVal = key;
                 isDefault = true;
@@ -704,12 +721,12 @@ public class CustomModifyAttributesActivity
 
             for (int k = 0; k < subValues.length(); k++) {
                 JSONObject subKeyValue = subValues.getJSONObject(k);
-                String subKey = subKeyValue.getString(JSON_ALIAS_KEY);
+                String subKey = subKeyValue.getString(JSON_VALUE_ALIAS_KEY);
                 String subValue = subKeyValue.getString(JSON_NAME_KEY);
 
                 if (isDefault) {
                     if (k == 0 || null != cursorSubVal && cursorSubVal.equals(subValue) /*if modify data*/ ||
-                        !last && subKeyValue.has("default") && subKeyValue.getBoolean("default")) {
+                        !last && subKeyValue.has(JSON_DEFAULT_KEY) && subKeyValue.getBoolean(JSON_DEFAULT_KEY)) {
 
                         lastSubVal = subKey;
                     }
@@ -856,19 +873,24 @@ public class CustomModifyAttributesActivity
 
             if (mDateTimePickerType.containsKey(fieldView)) {
                 //if (field.getType() == GeoConstants.FTDateTime) {
-                SimpleDateFormat dateFormat;
+                SimpleDateFormat sdf;
                 int pickerType = mDateTimePickerType.get(fieldView);
 
-                if (pickerType == DATE) {
-                    dateFormat = (SimpleDateFormat) DateFormat.getDateInstance();
-                } else if (pickerType == TIME) {
-                    dateFormat = (SimpleDateFormat) DateFormat.getTimeInstance();
-                } else {
-                    dateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+                switch (pickerType) {
+                    case DATE:
+                        sdf = (SimpleDateFormat) DateFormat.getDateInstance();
+                        break;
+                    case TIME:
+                        sdf = (SimpleDateFormat) DateFormat.getTimeInstance();
+                        break;
+                    case DATETIME:
+                    default:
+                        sdf = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+                        break;
                 }
 
                 try {
-                    Date date = dateFormat.parse(stringVal);
+                    Date date = sdf.parse(stringVal);
                     values.put(field.getName(), date.getTime());
                 } catch (ParseException e) {
                     e.printStackTrace();

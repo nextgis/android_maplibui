@@ -66,6 +66,7 @@ import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.controlui.TextLabelControl;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.IOException;
@@ -113,23 +114,8 @@ public class ModifyAttributesActivity
         setContentView(R.layout.activity_standard_attributes);
         createToolbarView();
 
-        LinearLayout layout = (LinearLayout) findViewById(R.id.controls_list);
         final IGISApplication app = (IGISApplication) getApplication();
-        //create and fill controls
-        Bundle extras = getIntent().getExtras();
-
-        if (extras != null) {
-            short layerId = extras.getShort(KEY_LAYER_ID);
-            mFeatureId = extras.getLong(KEY_FEATURE_ID);
-            mGeometry = (GeoGeometry) extras.getSerializable(KEY_GEOMETRY);
-
-            MapBase map = app.getMap();
-            mLayer = (VectorLayer) map.getLayerById(layerId);
-            if (null != mLayer) {
-                createAndFillControls(layout);
-            }
-        }
-
+        createAndFillControls(app);
         createLocationPanelView(app);
     }
 
@@ -178,14 +164,34 @@ public class ModifyAttributesActivity
     }
 
 
+    protected void createAndFillControls(final IGISApplication app)
+    {
+        //create and fill controls
+        Bundle extras = getIntent().getExtras();
+
+        if (extras != null) {
+            short layerId = extras.getShort(KEY_LAYER_ID);
+            mFeatureId = extras.getLong(KEY_FEATURE_ID);
+            mGeometry = (GeoGeometry) extras.getSerializable(KEY_GEOMETRY);
+
+            MapBase map = app.getMap();
+            mLayer = (VectorLayer) map.getLayerById(layerId);
+            if (null != mLayer) {
+                LinearLayout layout = (LinearLayout) findViewById(R.id.controls_list);
+                createAndFillControls(layout);
+            }
+        }
+    }
+
+
     protected void createAndFillControls(LinearLayout layout)
     {
-        Cursor cursor = null;
+        Cursor featureCursor = null;
 
         if (mFeatureId != NOT_FOUND) {
-            cursor = mLayer.query(null, FIELD_ID + " = " + mFeatureId, null, null);
-            if (!cursor.moveToFirst()) {
-                cursor = null;
+            featureCursor = mLayer.query(null, FIELD_ID + " = " + mFeatureId, null, null);
+            if (!featureCursor.moveToFirst()) {
+                featureCursor = null;
             }
         }
 
@@ -194,7 +200,11 @@ public class ModifyAttributesActivity
 
         for (Field field : fields) {
             //create static text with alias
-            addTextLabel(layout, field.getAlias());
+            TextLabelControl label = new TextLabelControl(this);
+            label.setText(field.getAlias());
+            label.addToLayout(layout);
+
+            String fieldName = field.getName();
 
             try {
 
@@ -202,19 +212,23 @@ public class ModifyAttributesActivity
                 switch (field.getType()) {
 
                     case GeoConstants.FTString:
-                        addTextEdit(layout, field.getName(), cursor);
+                        addTextEdit(layout, field.getName(), featureCursor);
+//                        TextEditControl stringEdit = new TextEditControl(this);
+//                        stringEdit.setText(featureCursor, fieldName);
+//                        stringEdit.addToLayout(layout);
+//                        mFields.put(fieldName, stringEdit);
                         break;
 
                     case GeoConstants.FTInteger:
-                        addIntEdit(layout, field.getName(), cursor);
+                        addIntEdit(layout, fieldName, featureCursor);
                         break;
 
                     case GeoConstants.FTReal:
-                        addRealEdit(layout, field.getName(), cursor);
+                        addRealEdit(layout, fieldName, featureCursor);
                         break;
 
                     case GeoConstants.FTDateTime:
-                        addDateTime(layout, field.getName(), cursor);
+                        addDateTime(layout, fieldName, featureCursor);
                         break;
 
                     case GeoConstants.FTIntegerList:
@@ -231,8 +245,8 @@ public class ModifyAttributesActivity
             }
         }
 
-        if (null != cursor) {
-            cursor.close();
+        if (null != featureCursor) {
+            featureCursor.close();
         }
     }
 
@@ -262,10 +276,10 @@ public class ModifyAttributesActivity
         //stringEdit.setSingleLine(true);
 
         if (null != cursor) {
-            int nIndex = cursor.getColumnIndex(fieldName);
+            int column = cursor.getColumnIndex(fieldName);
 
-            if (nIndex >= 0) {
-                String stringVal = cursor.getString(nIndex);
+            if (column >= 0) {
+                String stringVal = cursor.getString(column);
                 stringEdit.setText(stringVal);
             }
         }
@@ -308,10 +322,10 @@ public class ModifyAttributesActivity
         realEdit.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
 
         if (null != cursor) {
-            int nIndex = cursor.getColumnIndex(fieldName);
+            int column = cursor.getColumnIndex(fieldName);
 
-            if (nIndex >= 0) {
-                float realVal = cursor.getFloat(nIndex);
+            if (column >= 0) {
+                float realVal = cursor.getFloat(column);
                 realEdit.setText("" + realVal);
             }
         }
@@ -334,16 +348,16 @@ public class ModifyAttributesActivity
         dateEdit.setFocusable(false);
         dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit, DATETIME));
 
-        SimpleDateFormat dateText = (SimpleDateFormat) DateFormat.getDateTimeInstance();
-        String pattern = dateText.toLocalizedPattern();
+        SimpleDateFormat sdf = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+        String pattern = sdf.toLocalizedPattern();
         dateEdit.setHint(pattern);
 
         if (null != cursor) {
-            int nIndex = cursor.getColumnIndex(fieldName);
-            if (nIndex >= 0) {
+            int column = cursor.getColumnIndex(fieldName);
+            if (column >= 0) {
                 Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(cursor.getLong(nIndex));
-                dateEdit.setText(dateText.format(calendar.getTime()));
+                calendar.setTimeInMillis(cursor.getLong(column));
+                dateEdit.setText(sdf.format(calendar.getTime()));
             }
         }
 
