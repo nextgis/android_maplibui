@@ -23,6 +23,12 @@
 
 package com.nextgis.maplibui.controlui;
 
-public class TextEdit
+import android.view.ViewGroup;
+
+
+public interface IControl
 {
+    void addToLayout(ViewGroup layout);
+
+    Object getValue();
 }
