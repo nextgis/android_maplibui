@@ -23,51 +23,25 @@
 
 package com.nextgis.maplibui.controlui;
 
-import android.content.Context;
-import android.text.TextUtils;
+import android.util.TypedValue;
+import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import com.nextgis.maplibui.R;
 
 
-public class TextLabelControl
-        extends TextView
-        implements IControl
+public class GreyLine
 {
-    public TextLabelControl(Context context)
+    public static void addToLayout(ViewGroup layout)
     {
-        super(context);
-        init(context);
+        // add grey line view here
+        float lineHeight = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 1, layout.getContext().getResources().getDisplayMetrics());
+        View greyLine = new View(layout.getContext());
+        layout.addView(greyLine);
+        ViewGroup.LayoutParams params = greyLine.getLayoutParams();
+        params.height = (int) lineHeight;
+        greyLine.setLayoutParams(params);
+        greyLine.setBackgroundResource(R.color.hint_foreground_material_light);
     }
 
-    public TextLabelControl(Context context, String text)
-    {
-        super(context);
-        init(context);
-        setText(text);
-    }
-
-
-    protected void init(Context context)
-    {
-        setEllipsize(TextUtils.TruncateAt.END);
-        setTextAppearance(context, R.style.Base_TextAppearance_AppCompat_Medium);
-        setTextColor(getResources().getColor(R.color.hint_foreground_material_light));
-
-    }
-
-
-    @Override
-    public void addToLayout(ViewGroup layout)
-    {
-        layout.addView(this);
-    }
-
-
-    @Override
-    public Object getValue()
-    {
-        // do nothing
-        return null;
-    }
 }

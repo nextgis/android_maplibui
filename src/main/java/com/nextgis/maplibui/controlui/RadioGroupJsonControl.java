@@ -26,8 +26,6 @@ package com.nextgis.maplibui.controlui;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
-import android.util.TypedValue;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -127,16 +125,7 @@ public class RadioGroupJsonControl
     public void addToLayout(ViewGroup layout)
     {
         layout.addView(this);
-
-        // add grey line view here
-        float height = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
-        View greyLine = new View(layout.getContext());
-        layout.addView(greyLine);
-        ViewGroup.LayoutParams params = greyLine.getLayoutParams();
-        params.height = (int) height;
-        greyLine.setLayoutParams(params);
-        greyLine.setBackgroundResource(android.R.color.darker_gray);
+        GreyLine.addToLayout(layout);
     }
 
 

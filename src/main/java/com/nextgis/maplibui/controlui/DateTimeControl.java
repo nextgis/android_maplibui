@@ -32,7 +32,6 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -254,16 +253,7 @@ public class DateTimeControl
     public void addToLayout(ViewGroup layout)
     {
         layout.addView(this);
-
-        // add grey line view here
-        float lineHeight = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
-        View greyLine = new View(layout.getContext());
-        layout.addView(greyLine);
-        ViewGroup.LayoutParams params = greyLine.getLayoutParams();
-        params.height = (int) lineHeight;
-        greyLine.setLayoutParams(params);
-        greyLine.setBackgroundResource(android.R.color.darker_gray);
+        GreyLine.addToLayout(layout);
     }
 
 

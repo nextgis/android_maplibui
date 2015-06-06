@@ -648,7 +648,7 @@ public class CustomModifyAttributesActivity
         ViewGroup.LayoutParams params = greyLine.getLayoutParams();
         params.height = (int) height;
         greyLine.setLayoutParams(params);
-        greyLine.setBackgroundResource(android.R.color.darker_gray);
+        greyLine.setBackgroundResource(R.color.hint_foreground_material_light);
     }
 
 
