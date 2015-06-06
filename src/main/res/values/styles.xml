@@ -24,8 +24,11 @@
 
 <resources>
 
+    <attr name="DatePickSpinnerStyle" format="reference"/>
+
     <style name="DatePickSpinner"
            parent="Base.Widget.AppCompat.Spinner">
+        <item name="@attr/DatePickSpinnerStyle">@style/DatePickSpinner</item>
         <item name="android:background">@drawable/ic_spinner_calendar</item>
     </style>
 
