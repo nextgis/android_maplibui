@@ -35,7 +35,7 @@ import org.json.JSONObject;
 import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
-import static com.nextgis.maplibui.activity.CustomModifyAttributesActivity.*;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
 @SuppressLint("ViewConstructor")
@@ -49,7 +49,7 @@ public class TextEditJsonControl
             Context context,
             JSONObject element,
             List<Field> fields,
-            Cursor cursor)
+            Cursor featureCursor)
             throws JSONException
     {
         super(context);
@@ -70,16 +70,17 @@ public class TextEditJsonControl
         setEnabled(isEnabled);
 
         mIsShowLast = false;
-        if (attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(JSON_SHOW_LAST_KEY)) {
+        if (attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(
+                JSON_SHOW_LAST_KEY)) {
             mIsShowLast = attributes.getBoolean(JSON_SHOW_LAST_KEY);
         }
 
         String lastValue = null;
         if (mIsShowLast) {
-            if (null != cursor) {
-                int column = cursor.getColumnIndex(mFieldName);
+            if (null != featureCursor) {
+                int column = featureCursor.getColumnIndex(mFieldName);
                 if (column >= 0) {
-                    lastValue = cursor.getString(column);
+                    lastValue = featureCursor.getString(column);
                 }
             }
         }
@@ -87,7 +88,8 @@ public class TextEditJsonControl
         if (mIsShowLast && null != lastValue) {
             setText(lastValue);
         } else {
-            if (attributes.has(JSON_TEXT_KEY) && !attributes.isNull(JSON_TEXT_KEY)) {
+            if (attributes.has(JSON_TEXT_KEY) && !attributes.isNull(
+                    JSON_TEXT_KEY)) {
                 String defaultValue = attributes.getString(JSON_TEXT_KEY);
                 setText(defaultValue);
             }
@@ -119,4 +121,7 @@ public class TextEditJsonControl
             }
         }
     }
+
+
+
 }

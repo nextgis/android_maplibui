@@ -28,8 +28,8 @@ import android.content.Context;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import static com.nextgis.maplibui.activity.CustomModifyAttributesActivity.JSON_ATTRIBUTES_KEY;
-import static com.nextgis.maplibui.activity.CustomModifyAttributesActivity.JSON_TEXT_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_KEY;
 
 
 @SuppressLint("ViewConstructor")

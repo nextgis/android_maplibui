@@ -36,7 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
-import static com.nextgis.maplibui.activity.CustomModifyAttributesActivity.*;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
 @SuppressLint("ViewConstructor")
@@ -69,7 +69,8 @@ public class DateTimeJsonControl
         setEnabled(isEnabled);
 
         mIsShowLast = false;
-        if (attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(JSON_SHOW_LAST_KEY)) {
+        if (attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(
+                JSON_SHOW_LAST_KEY)) {
             mIsShowLast = attributes.getBoolean(JSON_SHOW_LAST_KEY);
         }
 
@@ -109,7 +110,8 @@ public class DateTimeJsonControl
         if (mIsShowLast && null != lastValue) {
             setText(lastValue);
         } else {
-            if (attributes.has(JSON_TEXT_KEY) && !attributes.isNull(JSON_TEXT_KEY)) {
+            if (attributes.has(JSON_TEXT_KEY) && !attributes.isNull(
+                    JSON_TEXT_KEY)) {
                 String defaultValue = attributes.getString(JSON_TEXT_KEY);
 
                 // TODO: check format of defaultValue

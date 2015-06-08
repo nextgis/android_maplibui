@@ -23,14 +23,19 @@
 
 package com.nextgis.maplibui.controlui;
 
-import android.view.ViewGroup;
-
-
-public interface IControl
+public class DoubleComboboxValue
 {
-    String getFieldName();
+    public String mFieldName;
+    public String mValue;
 
-    void addToLayout(ViewGroup layout);
+    public String mSubFieldName;
+    public String mSubValue;
 
-    Object getValue();
+
+    @Override
+    public String toString()
+    {
+        return "mFieldName: " + mFieldName + ", mValue: " + mValue + ", mSubFieldName: " +
+               mSubFieldName + ", mSubValue: " + mSubValue;
+    }
 }

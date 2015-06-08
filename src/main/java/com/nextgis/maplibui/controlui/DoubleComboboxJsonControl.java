@@ -26,7 +26,6 @@ package com.nextgis.maplibui.controlui;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,8 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.nextgis.maplib.util.Constants.JSON_NAME_KEY;
-import static com.nextgis.maplibui.activity.CustomModifyAttributesActivity.*;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
 @SuppressLint("ViewConstructor")
@@ -68,7 +66,7 @@ public class DoubleComboboxJsonControl
             Context context,
             JSONObject element,
             List<Field> fields,
-            Cursor cursor)
+            Cursor featureCursor)
             throws JSONException
     {
         super(context);
@@ -91,21 +89,22 @@ public class DoubleComboboxJsonControl
         setEnabled(isEnabled);
 
         mIsShowLast = false;
-        if (attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(JSON_SHOW_LAST_KEY)) {
+        if (attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(
+                JSON_SHOW_LAST_KEY)) {
             mIsShowLast = attributes.getBoolean(JSON_SHOW_LAST_KEY);
         }
 
         String lastValue = null;
         String subLastValue = null;
         if (mIsShowLast) {
-            if (null != cursor) {
-                int column = cursor.getColumnIndex(mFieldName);
-                int subColumn = cursor.getColumnIndex(mSubFieldName);
+            if (null != featureCursor) {
+                int column = featureCursor.getColumnIndex(mFieldName);
+                int subColumn = featureCursor.getColumnIndex(mSubFieldName);
                 if (column >= 0) {
-                    lastValue = cursor.getString(column);
+                    lastValue = featureCursor.getString(column);
                 }
                 if (subColumn >= 0) {
-                    subLastValue = cursor.getString(subColumn);
+                    subLastValue = featureCursor.getString(subColumn);
                 }
             }
         }
@@ -124,10 +123,11 @@ public class DoubleComboboxJsonControl
 
         for (int j = 0; j < values.length(); j++) {
             JSONObject keyValue = values.getJSONObject(j);
-            String value = keyValue.getString(JSON_NAME_KEY);
+            String value = keyValue.getString(JSON_VALUE_NAME_KEY);
             String valueAlias = keyValue.getString(JSON_VALUE_ALIAS_KEY);
 
-            if (keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(JSON_DEFAULT_KEY)) {
+            if (keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(
+                    JSON_DEFAULT_KEY)) {
                 defaultPosition = j;
             }
 
@@ -145,10 +145,11 @@ public class DoubleComboboxJsonControl
 
             for (int k = 0; k < subValues.length(); k++) {
                 JSONObject subKeyValue = subValues.getJSONObject(k);
-                String subValue = subKeyValue.getString(JSON_NAME_KEY);
+                String subValue = subKeyValue.getString(JSON_VALUE_NAME_KEY);
                 String subAliasValue = subKeyValue.getString(JSON_VALUE_ALIAS_KEY);
 
-                if (subKeyValue.has(JSON_DEFAULT_KEY) && subKeyValue.getBoolean(JSON_DEFAULT_KEY)) {
+                if (subKeyValue.has(JSON_DEFAULT_KEY) && subKeyValue.getBoolean(
+                        JSON_DEFAULT_KEY)) {
                     subDefaultPosition = j;
                 }
 
@@ -218,6 +219,12 @@ public class DoubleComboboxJsonControl
     }
 
 
+    public String getFieldName()
+    {
+        return mFieldName;
+    }
+
+
     @Override
     public void addToLayout(ViewGroup layout)
     {
@@ -236,6 +243,14 @@ public class DoubleComboboxJsonControl
         String value = mAliasValueMap.get(valueAlias);
         String subValue = mSubAliasValueMaps.get(valueAlias).get(subValueAlias);
 
-        return new Pair<>(value, subValue);
+        DoubleComboboxValue retValue = new DoubleComboboxValue();
+
+        retValue.mFieldName = mFieldName;
+        retValue.mValue = value;
+
+        retValue.mSubFieldName = mSubFieldName;
+        retValue.mSubValue = subValue;
+
+        return retValue;
     }
 }

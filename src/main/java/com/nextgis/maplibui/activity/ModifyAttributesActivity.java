@@ -23,15 +23,10 @@
 
 package com.nextgis.maplibui.activity;
 
-import android.app.AlertDialog;
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.CursorIndexOutOfBoundsException;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -39,20 +34,14 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
-import android.text.TextUtils;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
@@ -66,16 +55,14 @@ import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.controlui.DateTimeControl;
+import com.nextgis.maplibui.controlui.IControl;
+import com.nextgis.maplibui.controlui.TextEditControl;
 import com.nextgis.maplibui.controlui.TextLabelControl;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,15 +78,15 @@ public class ModifyAttributesActivity
         extends AppCompatActivity
         implements GpsEventListener
 {
-    protected TextView          mLatView;
-    protected TextView          mLongView;
-    protected TextView          mAltView;
-    protected TextView          mAccView;
-    protected Location          mLocation;
-    protected VectorLayer       mLayer;
-    protected long              mFeatureId;
-    protected Map<String, View> mFields;
-    protected GeoGeometry       mGeometry;
+    protected TextView              mLatView;
+    protected TextView              mLongView;
+    protected TextView              mAltView;
+    protected TextView              mAccView;
+    protected Location              mLocation;
+    protected VectorLayer           mLayer;
+    protected long                  mFeatureId;
+    protected Map<String, IControl> mFields;
+    protected GeoGeometry           mGeometry;
 
     protected final static int DATE     = 0;
     protected final static int TIME     = 1;
@@ -200,179 +187,48 @@ public class ModifyAttributesActivity
 
         for (Field field : fields) {
             //create static text with alias
-            TextLabelControl label = new TextLabelControl(this);
-            label.setText(field.getAlias());
-            label.addToLayout(layout);
+            TextLabelControl textLabel = new TextLabelControl(this, field.getAlias());
+            textLabel.addToLayout(layout);
 
-            String fieldName = field.getName();
+            IControl control = null;
 
-            try {
+            //create control
+            switch (field.getType()) {
 
-                //create control
-                switch (field.getType()) {
+                case GeoConstants.FTString:
+                case GeoConstants.FTInteger:
+                case GeoConstants.FTReal:
+                    control = new TextEditControl(this, field, featureCursor);
+                    break;
 
-                    case GeoConstants.FTString:
-                        addTextEdit(layout, field.getName(), featureCursor);
-//                        TextEditControl stringEdit = new TextEditControl(this);
-//                        stringEdit.setText(featureCursor, fieldName);
-//                        stringEdit.addToLayout(layout);
-//                        mFields.put(fieldName, stringEdit);
-                        break;
+                case GeoConstants.FTDateTime:
+                    control = new DateTimeControl(this, field, featureCursor);
+                    break;
 
-                    case GeoConstants.FTInteger:
-                        addIntEdit(layout, fieldName, featureCursor);
-                        break;
+                case GeoConstants.FTIntegerList:
+                case GeoConstants.FTBinary:
+                case GeoConstants.FTStringList:
+                case GeoConstants.FTRealList:
+                    //TODO: add support for this types
+                    break;
 
-                    case GeoConstants.FTReal:
-                        addRealEdit(layout, fieldName, featureCursor);
-                        break;
+                default:
+                    break;
+            }
 
-                    case GeoConstants.FTDateTime:
-                        addDateTime(layout, fieldName, featureCursor);
-                        break;
+            if (null != control) {
+                control.addToLayout(layout);
+                String fieldName = control.getFieldName();
 
-                    case GeoConstants.FTIntegerList:
-                    case GeoConstants.FTBinary:
-                    case GeoConstants.FTStringList:
-                    case GeoConstants.FTRealList:
-                    default:
-                        //TODO: add support for this types
-                        break;
+                if (null != fieldName) {
+                    mFields.put(control.getFieldName(), control);
                 }
-
-            } catch (CursorIndexOutOfBoundsException e) {
-                e.printStackTrace();
             }
         }
 
         if (null != featureCursor) {
             featureCursor.close();
         }
-    }
-
-
-    protected void addTextLabel(
-            LinearLayout layout,
-            String fieldAlias)
-    {
-        //create static text with alias
-        TextView textLabel = new TextView(this);
-
-        textLabel.setText(fieldAlias);
-        textLabel.setEllipsize(TextUtils.TruncateAt.END);
-        textLabel.setTextAppearance(this, R.style.Base_TextAppearance_AppCompat_Medium);
-        textLabel.setTextColor(getResources().getColor(R.color.hint_foreground_material_light));
-
-        layout.addView(textLabel);
-    }
-
-
-    protected void addTextEdit(
-            LinearLayout layout,
-            String fieldName,
-            Cursor cursor)
-    {
-        EditText stringEdit = new EditText(this);
-        //stringEdit.setSingleLine(true);
-
-        if (null != cursor) {
-            int column = cursor.getColumnIndex(fieldName);
-
-            if (column >= 0) {
-                String stringVal = cursor.getString(column);
-                stringEdit.setText(stringVal);
-            }
-        }
-
-        layout.addView(stringEdit);
-        mFields.put(fieldName, stringEdit);
-    }
-
-
-    protected void addIntEdit(
-            LinearLayout layout,
-            String fieldName,
-            Cursor cursor)
-    {
-        EditText intEdit = new EditText(this);
-        intEdit.setSingleLine(true);
-        intEdit.setInputType(InputType.TYPE_CLASS_NUMBER);
-
-        if (null != cursor) {
-            int nIndex = cursor.getColumnIndex(fieldName);
-
-            if (nIndex >= 0) {
-                int intVal = cursor.getInt(nIndex);
-                intEdit.setText("" + intVal);
-            }
-        }
-
-        layout.addView(intEdit);
-        mFields.put(fieldName, intEdit);
-    }
-
-
-    protected void addRealEdit(
-            LinearLayout layout,
-            String fieldName,
-            Cursor cursor)
-    {
-        EditText realEdit = new EditText(this);
-        realEdit.setSingleLine(true);
-        realEdit.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-
-        if (null != cursor) {
-            int column = cursor.getColumnIndex(fieldName);
-
-            if (column >= 0) {
-                float realVal = cursor.getFloat(column);
-                realEdit.setText("" + realVal);
-            }
-        }
-
-        layout.addView(realEdit);
-        mFields.put(fieldName, realEdit);
-    }
-
-
-    protected void addDateTime(
-            LinearLayout layout,
-            String fieldName,
-            Cursor cursor)
-    {
-        //TextView dateEdit = new TextView(this);
-        TextView dateEdit =
-                (TextView) getLayoutInflater().inflate(R.layout.spinner_datepicker, null);
-
-        dateEdit.setSingleLine(true);
-        dateEdit.setFocusable(false);
-        dateEdit.setOnClickListener(getDateUpdateWatcher(dateEdit, DATETIME));
-
-        SimpleDateFormat sdf = (SimpleDateFormat) DateFormat.getDateTimeInstance();
-        String pattern = sdf.toLocalizedPattern();
-        dateEdit.setHint(pattern);
-
-        if (null != cursor) {
-            int column = cursor.getColumnIndex(fieldName);
-            if (column >= 0) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(cursor.getLong(column));
-                dateEdit.setText(sdf.format(calendar.getTime()));
-            }
-        }
-
-        layout.addView(dateEdit);
-        mFields.put(fieldName, dateEdit);
-
-        // add grey line view here
-        float lineHeight = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics());
-        View greyLine = new View(this);
-        layout.addView(greyLine);
-        ViewGroup.LayoutParams params = greyLine.getLayoutParams();
-        params.height = (int) lineHeight;
-        greyLine.setLayoutParams(params);
-        greyLine.setBackgroundResource(R.color.hint_foreground_material_light);
     }
 
 
@@ -488,26 +344,25 @@ public class ModifyAttributesActivity
     }
 
 
-    protected void putFieldValue(
+    protected Object putFieldValue(
             ContentValues values,
             Field field)
     {
-        TextView textView = (TextView) mFields.get(field.getName());
-        String stringVal = textView.getText().toString();
+        IControl control = mFields.get(field.getName());
+        Object value = control.getValue();
 
-        if (field.getType() == GeoConstants.FTDateTime) {
-            SimpleDateFormat dateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+        if (null != value) {
+            Log.d(TAG, "field: " + field.getName() + " value: " + value.toString());
 
-            try {
-                Date date = dateFormat.parse(stringVal);
-                values.put(field.getName(), date.getTime());
-            } catch (ParseException e) {
-                Log.d(TAG, "Date parse error, " + e.getLocalizedMessage());
+            if (value instanceof Long) {
+                values.put(field.getName(), (Long) value);
+
+            } else if (value instanceof String) {
+                values.put(field.getName(), (String) value);
             }
-
-        } else {
-            values.put(field.getName(), stringVal);
         }
+
+        return value;
     }
 
 
@@ -619,163 +474,5 @@ public class ModifyAttributesActivity
     public void onGpsStatusChanged(int event)
     {
 
-    }
-
-
-    protected View.OnClickListener getDateUpdateWatcher(
-            final TextView dateEdit,
-            final int pickerType)
-    {
-        View.OnClickListener out = new View.OnClickListener()
-        {
-            protected Calendar calendar = Calendar.getInstance();
-
-            DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener()
-            {
-
-                @Override
-                public void onDateSet(
-                        DatePicker view,
-                        int year,
-                        int monthOfYear,
-                        int dayOfMonth)
-                {
-                    calendar.set(Calendar.YEAR, year);
-                    calendar.set(Calendar.MONTH, monthOfYear);
-                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-
-                    updateLabel();
-                }
-
-            };
-
-            TimePickerDialog.OnTimeSetListener time = new TimePickerDialog.OnTimeSetListener()
-            {
-                @Override
-                public void onTimeSet(
-                        TimePicker view,
-                        int hourOfDay,
-                        int minute)
-                {
-                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                    calendar.set(Calendar.MINUTE, minute);
-
-                    updateLabel();
-                }
-            };
-
-
-            protected void updateLabel()
-            {
-                SimpleDateFormat sdf;
-                if (pickerType == DATE) {
-                    sdf = (SimpleDateFormat) DateFormat.getDateInstance();
-                } else if (pickerType == TIME) {
-                    sdf = (SimpleDateFormat) DateFormat.getTimeInstance();
-                } else if (pickerType == DATETIME) {
-                    sdf = (SimpleDateFormat) DateFormat.getDateTimeInstance();
-                } else {
-                    sdf = (SimpleDateFormat) DateFormat.getDateTimeInstance();
-                }
-                dateEdit.setText(sdf.format(calendar.getTime()));
-            }
-
-
-            @Override
-            public void onClick(View view)
-            {
-                if (pickerType == DATE) {
-                    calendar.setTime(new Date());
-                    new DatePickerDialog(
-                            ModifyAttributesActivity.this, date, calendar.get(Calendar.YEAR),
-                            calendar.get(Calendar.MONTH),
-                            calendar.get(Calendar.DAY_OF_MONTH)).show();
-                } else if (pickerType == TIME) {
-                    calendar.setTime(new Date());
-                    new TimePickerDialog(
-                            ModifyAttributesActivity.this, time, calendar.get(Calendar.HOUR_OF_DAY),
-                            calendar.get(Calendar.MINUTE),
-                            android.text.format.DateFormat.is24HourFormat(
-                                    ModifyAttributesActivity.this)).show();
-                } else if (pickerType == DATETIME) {
-                    calendar.setTime(new Date());
-                    final SimpleDateFormat sdf =
-                            (SimpleDateFormat) DateFormat.getDateTimeInstance();
-
-                    AlertDialog.Builder builder =
-                            new AlertDialog.Builder(ModifyAttributesActivity.this);
-
-                    builder.setTitle(sdf.format(calendar.getTime()));
-                    builder.setNegativeButton(
-                            R.string.ok, new DialogInterface.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(
-                                        DialogInterface dialog,
-                                        int which)
-                                {
-                                    updateLabel();
-                                    dialog.cancel();
-                                }
-                            });
-
-                    final AlertDialog alert = builder.create();
-
-                    View datetimePickerLayout =
-                            getLayoutInflater().inflate(R.layout.layout_datetimepicker, null);
-                    alert.setView(datetimePickerLayout);
-
-                    DatePicker dt = (DatePicker) datetimePickerLayout.findViewById(R.id.datePicker);
-                    dt.init(
-                            calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
-                            calendar.get(Calendar.DAY_OF_MONTH),
-                            new DatePicker.OnDateChangedListener()
-                            {
-
-                                @Override
-                                public void onDateChanged(
-                                        DatePicker view,
-                                        int year,
-                                        int monthOfYear,
-                                        int dayOfMonth)
-                                {
-                                    calendar.set(Calendar.YEAR, year);
-                                    calendar.set(Calendar.MONTH, monthOfYear);
-                                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-
-                                    alert.setTitle(sdf.format(calendar.getTime()));
-
-                                    updateLabel();
-                                }
-                            });
-
-                    TimePicker tp = (TimePicker) datetimePickerLayout.findViewById(R.id.timePicker);
-                    tp.setIs24HourView(
-                            android.text.format.DateFormat.is24HourFormat(
-                                    ModifyAttributesActivity.this));
-                    tp.setOnTimeChangedListener(
-                            new TimePicker.OnTimeChangedListener()
-                            {
-                                @Override
-                                public void onTimeChanged(
-                                        TimePicker view,
-                                        int hourOfDay,
-                                        int minute)
-                                {
-                                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                                    calendar.set(Calendar.MINUTE, minute);
-
-                                    alert.setTitle(sdf.format(calendar.getTime()));
-
-                                    updateLabel();
-                                }
-                            });
-
-                    alert.show();
-                }
-            }
-        };
-
-        return out;
     }
 }

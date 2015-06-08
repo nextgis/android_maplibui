@@ -57,6 +57,14 @@ public class TextLabelControl
 
 
     @Override
+    public String getFieldName()
+    {
+        // do nothing
+        return null;
+    }
+
+
+    @Override
     public void addToLayout(ViewGroup layout)
     {
         layout.addView(this);

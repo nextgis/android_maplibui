@@ -46,4 +46,28 @@ public interface ConstantsUI
     String FILE_FORM = "form.json";
 
     int TOLERANCE_DP = 20;
+
+    String JSON_ATTRIBUTES_KEY        = "attributes";
+    String JSON_TABS_KEY              = "tabs";
+    String JSON_ALBUM_ELEMENTS_KEY    = "album_elements";
+    String JSON_PORTRAIT_ELEMENTS_KEY = "portrait_elements";
+    String JSON_FIELD_NAME_KEY        = "field";
+    String JSON_DEFAULT_KEY           = "default";
+    String JSON_SHOW_LAST_KEY         = "last";
+    String JSON_TEXT_KEY              = "text";
+    String JSON_MAX_STRING_COUNT_KEY  = "max_string_count";
+    String JSON_ONLY_FIGURES_KEY      = "only_figures";
+    String JSON_VALUES_KEY            = "values";
+    String JSON_VALUE_NAME_KEY        = "name";
+    String JSON_VALUE_ALIAS_KEY       = "alias";
+    String JSON_DATE_TYPE_KEY         = "date_type";
+    String JSON_FIELD_LEVEL1_KEY      = "field_level1";
+    String JSON_FIELD_LEVEL2_KEY      = "field_level2";
+
+    String JSON_TEXT_LABEL_VALUE      = "text_label";
+    String JSON_TEXT_EDIT_VALUE       = "text_edit";
+    String JSON_DATE_TIME_VALUE       = "date_time";
+    String JSON_RADIO_GROUP_VALUE     = "radio_group";
+    String JSON_COMBOBOX_VALUE        = "combobox";
+    String JSON_DOUBLE_COMBOBOX_VALUE = "double_combobox";
 }

@@ -83,6 +83,12 @@ public class TextEditControl
     }
 
 
+    public String getFieldName()
+    {
+        return mFieldName;
+    }
+
+
     @Override
     public void addToLayout(ViewGroup layout)
     {

@@ -39,8 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.nextgis.maplib.util.Constants.JSON_NAME_KEY;
-import static com.nextgis.maplibui.activity.CustomModifyAttributesActivity.*;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
 @SuppressLint("ViewConstructor")
@@ -57,7 +56,7 @@ public class ComboboxJsonControl
             Context context,
             JSONObject element,
             List<Field> fields,
-            Cursor cursor)
+            Cursor featureCursor)
             throws JSONException
     {
         super(context);
@@ -77,16 +76,17 @@ public class ComboboxJsonControl
         setEnabled(isEnabled);
 
         mIsShowLast = false;
-        if (attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(JSON_SHOW_LAST_KEY)) {
+        if (attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(
+                JSON_SHOW_LAST_KEY)) {
             mIsShowLast = attributes.getBoolean(JSON_SHOW_LAST_KEY);
         }
 
         String lastValue = null;
         if (mIsShowLast) {
-            if (null != cursor) {
-                int column = cursor.getColumnIndex(mFieldName);
+            if (null != featureCursor) {
+                int column = featureCursor.getColumnIndex(mFieldName);
                 if (column >= 0) {
-                    lastValue = cursor.getString(column);
+                    lastValue = featureCursor.getString(column);
                 }
             }
         }
@@ -103,10 +103,11 @@ public class ComboboxJsonControl
 
         for (int j = 0; j < values.length(); j++) {
             JSONObject keyValue = values.getJSONObject(j);
-            String value = keyValue.getString(JSON_NAME_KEY);
+            String value = keyValue.getString(JSON_VALUE_NAME_KEY);
             String value_alias = keyValue.getString(JSON_VALUE_ALIAS_KEY);
 
-            if (keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(JSON_DEFAULT_KEY)) {
+            if (keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(
+                    JSON_DEFAULT_KEY)) {
                 defaultPosition = j;
             }
 
@@ -127,6 +128,12 @@ public class ComboboxJsonControl
         float minHeight = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, 14, getResources().getDisplayMetrics());
         setPadding(0, (int) minHeight, 0, (int) minHeight);
+    }
+
+
+    public String getFieldName()
+    {
+        return mFieldName;
     }
 
 
