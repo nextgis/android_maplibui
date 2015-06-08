@@ -46,7 +46,7 @@
             />
 
         <activity
-            android:name=".activity.CustomModifyAttributesActivity"
+            android:name=".activity.FormBuilderModifyAttributesActivity"
             android:label="@string/set_attributes"
             />
 

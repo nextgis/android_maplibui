@@ -62,7 +62,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.*;
 /**
  * Activity to add or modify vector layer attributes
  */
-public class CustomModifyAttributesActivity
+public class FormBuilderModifyAttributesActivity
         extends ModifyAttributesActivity
 {
     protected Map<String, Map<String, String>> mKeyValuesForField;

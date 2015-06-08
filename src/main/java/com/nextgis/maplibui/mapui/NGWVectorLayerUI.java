@@ -31,7 +31,7 @@ import android.widget.Toast;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.activity.CustomModifyAttributesActivity;
+import com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.activity.VectorLayerSettingsActivity;
 import com.nextgis.maplibui.api.ILayerUI;
@@ -88,7 +88,7 @@ public class NGWVectorLayerUI
         File form = new File(mPath, ConstantsUI.FILE_FORM);
         if (form.exists()) {
             //show custom form
-            Intent intent = new Intent(context, CustomModifyAttributesActivity.class);
+            Intent intent = new Intent(context, FormBuilderModifyAttributesActivity.class);
             intent.putExtra(KEY_LAYER_ID, getId());
             intent.putExtra(KEY_FEATURE_ID, featureId);
             intent.putExtra(KEY_FORM_PATH, form);

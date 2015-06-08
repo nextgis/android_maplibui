@@ -37,7 +37,7 @@ import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.VectorCacheItem;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.activity.CustomModifyAttributesActivity;
+import com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.activity.VectorLayerSettingsActivity;
 import com.nextgis.maplibui.api.ILayerUI;
@@ -118,7 +118,7 @@ public class VectorLayerUI
         File form = new File(mPath, ConstantsUI.FILE_FORM);
         if (form.exists()) {
             //show custom form
-            Intent intent = new Intent(context, CustomModifyAttributesActivity.class);
+            Intent intent = new Intent(context, FormBuilderModifyAttributesActivity.class);
             intent.putExtra(KEY_LAYER_ID, getId());
             intent.putExtra(KEY_FEATURE_ID, featureId);
             intent.putExtra(KEY_FORM_PATH, form);
