@@ -88,10 +88,6 @@ public class ModifyAttributesActivity
     protected Map<String, IControl> mFields;
     protected GeoGeometry           mGeometry;
 
-    protected final static int DATE     = 0;
-    protected final static int TIME     = 1;
-    protected final static int DATETIME = 2;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -205,9 +201,9 @@ public class ModifyAttributesActivity
                     control = new DateTimeControl(this, field, featureCursor);
                     break;
 
-                case GeoConstants.FTIntegerList:
                 case GeoConstants.FTBinary:
                 case GeoConstants.FTStringList:
+                case GeoConstants.FTIntegerList:
                 case GeoConstants.FTRealList:
                     //TODO: add support for this types
                     break;
@@ -284,18 +280,12 @@ public class ModifyAttributesActivity
             return true;
 
         } else if (id == R.id.menu_apply) {
-            onMenuApplyClicked();
+            saveFeature();
+            finish();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-
-    protected void onMenuApplyClicked()
-    {
-        saveFeature();
-        finish();
     }
 
 

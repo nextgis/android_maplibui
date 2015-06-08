@@ -27,7 +27,6 @@ import android.content.ContentValues;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import com.nextgis.maplib.api.IGISApplication;
@@ -51,9 +50,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.nextgis.maplib.util.Constants.*;
 import static com.nextgis.maplibui.util.ConstantsUI.*;
@@ -65,11 +62,6 @@ import static com.nextgis.maplibui.util.ConstantsUI.*;
 public class FormBuilderModifyAttributesActivity
         extends ModifyAttributesActivity
 {
-    protected Map<String, Map<String, String>> mKeyValuesForField;
-    protected Map<View, String>                mDoubleComboFirstKeys;
-    protected Map<View, Integer>               mDateTimePickerType;
-
-
     protected void createAndFillControls(final IGISApplication app)
     {
         //TODO: add location control via fragment only defined by user space
@@ -91,10 +83,6 @@ public class FormBuilderModifyAttributesActivity
                 createAndFillControls(layout, form, isLand);
             }
         }
-
-        mKeyValuesForField = new HashMap<>();
-        mDoubleComboFirstKeys = new HashMap<>();
-        mDateTimePickerType = new HashMap<>();
     }
 
 
