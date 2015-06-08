@@ -53,7 +53,6 @@ public class TextLabelControl
         setEllipsize(TextUtils.TruncateAt.END);
         setTextAppearance(context, R.style.Base_TextAppearance_AppCompat_Medium);
         setTextColor(getResources().getColor(R.color.hint_foreground_material_light));
-
     }
 
 

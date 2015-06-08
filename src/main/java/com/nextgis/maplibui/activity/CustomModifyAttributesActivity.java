@@ -701,7 +701,7 @@ public class CustomModifyAttributesActivity
 
         for (int j = 0; j < values.length(); j++) {
             JSONObject keyValue = values.getJSONObject(j);
-            String key = keyValue.getString(JSON_VALUE_ALIAS_KEY);
+            String valueAlias = keyValue.getString(JSON_VALUE_ALIAS_KEY);
             String value = keyValue.getString(JSON_NAME_KEY);
 
             boolean isDefault = false;
@@ -709,31 +709,31 @@ public class CustomModifyAttributesActivity
             if (j == 0 || null != cursorVal && cursorVal.equals(value) /*if modify data*/ ||
                 !last && keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(JSON_DEFAULT_KEY)) {
 
-                lastVal = key;
+                lastVal = valueAlias;
                 isDefault = true;
             }
 
-            adapter.add(key);
-            keyValueMap.put(key, value);
+            adapter.add(valueAlias);
+            keyValueMap.put(valueAlias, value);
 
-            categoriesMap.put(key, new ArrayList<String>());
+            categoriesMap.put(valueAlias, new ArrayList<String>());
             JSONArray subValues = keyValue.getJSONArray(JSON_VALUES_KEY);
 
             for (int k = 0; k < subValues.length(); k++) {
                 JSONObject subKeyValue = subValues.getJSONObject(k);
-                String subKey = subKeyValue.getString(JSON_VALUE_ALIAS_KEY);
+                String subValueAlias = subKeyValue.getString(JSON_VALUE_ALIAS_KEY);
                 String subValue = subKeyValue.getString(JSON_NAME_KEY);
 
                 if (isDefault) {
                     if (k == 0 || null != cursorSubVal && cursorSubVal.equals(subValue) /*if modify data*/ ||
                         !last && subKeyValue.has(JSON_DEFAULT_KEY) && subKeyValue.getBoolean(JSON_DEFAULT_KEY)) {
 
-                        lastSubVal = subKey;
+                        lastSubVal = subValueAlias;
                     }
                 }
 
-                subKeyValueMap.put(key + "->" + subKey, subValue);
-                categoriesMap.get(key).add(subKey);
+                subKeyValueMap.put(valueAlias + "->" + subValueAlias, subValue);
+                categoriesMap.get(valueAlias).add(subValueAlias);
             }
         }
 

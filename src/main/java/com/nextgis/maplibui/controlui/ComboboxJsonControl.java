@@ -141,7 +141,7 @@ public class ComboboxJsonControl
     @Override
     public Object getValue()
     {
-        String value_alias = (String) getSelectedItem();
-        return mAliasValueMap.get(value_alias);
+        String valueAlias = (String) getSelectedItem();
+        return mAliasValueMap.get(valueAlias);
     }
 }
