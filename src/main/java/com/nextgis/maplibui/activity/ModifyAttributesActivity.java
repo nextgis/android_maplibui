@@ -341,6 +341,11 @@ public class ModifyAttributesActivity
             Field field)
     {
         IControl control = mFields.get(field.getName());
+
+        if (null == control) {
+            return null;
+        }
+
         Object value = control.getValue();
 
         if (null != value) {
