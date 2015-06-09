@@ -28,14 +28,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.text.InputType;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.EditText;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.GeoConstants;
 
 
 @SuppressLint("ViewConstructor")
 public class TextEditControl
-        extends TextView
+        extends EditText
         implements IControl
 {
     String mFieldName;
