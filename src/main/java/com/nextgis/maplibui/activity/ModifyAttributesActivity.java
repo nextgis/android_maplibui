@@ -78,15 +78,17 @@ public class ModifyAttributesActivity
         extends AppCompatActivity
         implements GpsEventListener
 {
+    protected Map<String, IControl> mFields;
+
+    protected VectorLayer           mLayer;
+    protected long                  mFeatureId;
+    protected GeoGeometry           mGeometry;
+
     protected TextView              mLatView;
     protected TextView              mLongView;
     protected TextView              mAltView;
     protected TextView              mAccView;
     protected Location              mLocation;
-    protected VectorLayer           mLayer;
-    protected long                  mFeatureId;
-    protected Map<String, IControl> mFields;
-    protected GeoGeometry           mGeometry;
 
 
     @Override
@@ -98,7 +100,7 @@ public class ModifyAttributesActivity
         createToolbarView();
 
         final IGISApplication app = (IGISApplication) getApplication();
-        createAndFillControls(app);
+        createView(app);
         createLocationPanelView(app);
     }
 
@@ -147,27 +149,28 @@ public class ModifyAttributesActivity
     }
 
 
-    protected void createAndFillControls(final IGISApplication app)
+    protected void createView(final IGISApplication app)
     {
         //create and fill controls
         Bundle extras = getIntent().getExtras();
 
         if (extras != null) {
             short layerId = extras.getShort(KEY_LAYER_ID);
-            mFeatureId = extras.getLong(KEY_FEATURE_ID);
-            mGeometry = (GeoGeometry) extras.getSerializable(KEY_GEOMETRY);
-
             MapBase map = app.getMap();
             mLayer = (VectorLayer) map.getLayerById(layerId);
+
             if (null != mLayer) {
+                mFields = new HashMap<>();
+                mFeatureId = extras.getLong(KEY_FEATURE_ID);
+                mGeometry = (GeoGeometry) extras.getSerializable(KEY_GEOMETRY);
                 LinearLayout layout = (LinearLayout) findViewById(R.id.controls_list);
-                createAndFillControls(layout);
+                fillControls(layout);
             }
         }
     }
 
 
-    protected void createAndFillControls(LinearLayout layout)
+    protected void fillControls(LinearLayout layout)
     {
         Cursor featureCursor = null;
 
@@ -178,7 +181,6 @@ public class ModifyAttributesActivity
             }
         }
 
-        mFields = new HashMap<>();
         List<Field> fields = mLayer.getFields();
 
         for (Field field : fields) {
@@ -217,7 +219,7 @@ public class ModifyAttributesActivity
                 String fieldName = control.getFieldName();
 
                 if (null != fieldName) {
-                    mFields.put(control.getFieldName(), control);
+                    mFields.put(fieldName, control);
                 }
             }
         }

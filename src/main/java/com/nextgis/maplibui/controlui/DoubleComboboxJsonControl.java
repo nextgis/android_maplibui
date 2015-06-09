@@ -37,7 +37,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +58,9 @@ public class DoubleComboboxJsonControl
 
     protected Map<String, String>              mAliasValueMap;
     protected Map<String, Map<String, String>> mSubAliasValueMaps;
-    protected Map<String, ArrayList<String>>   mSubComboboxValueListMap;
+    protected Map<String, AliasList>           mAliasSubListMap;
+
+    protected boolean mFirstShow = true;
 
 
     public DoubleComboboxJsonControl(
@@ -69,9 +70,11 @@ public class DoubleComboboxJsonControl
             Cursor featureCursor)
             throws JSONException
     {
+        //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
+
         super(context);
 
-        //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
+        mSubCombobox = new Spinner(context);
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
 
@@ -112,10 +115,11 @@ public class DoubleComboboxJsonControl
 
         JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
         int defaultPosition = 0;
-        int subDefaultPosition = 0;
         int lastValuePosition = -1;
         int subLastValuePosition = -1;
+        mAliasValueMap = new HashMap<>();
         mSubAliasValueMaps = new HashMap<>();
+        mAliasSubListMap = new HashMap<>();
 
         final ArrayAdapter<String> comboboxAdapter =
                 new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
@@ -126,31 +130,36 @@ public class DoubleComboboxJsonControl
             String value = keyValue.getString(JSON_VALUE_NAME_KEY);
             String valueAlias = keyValue.getString(JSON_VALUE_ALIAS_KEY);
 
+            Map<String, String> subAliasValueMap = new HashMap<>();
+            AliasList subAliasList = new AliasList();
+
+            mAliasValueMap.put(valueAlias, value);
+            mSubAliasValueMaps.put(valueAlias, subAliasValueMap);
+            mAliasSubListMap.put(valueAlias, subAliasList);
+            comboboxAdapter.add(valueAlias);
+
             if (keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(
                     JSON_DEFAULT_KEY)) {
                 defaultPosition = j;
             }
 
-            Map<String, String> subAliasValueMap = new HashMap<>();
-            mAliasValueMap.put(valueAlias, value);
-            mSubAliasValueMaps.put(valueAlias, subAliasValueMap);
-            comboboxAdapter.add(valueAlias);
-
-            JSONArray subValues = keyValue.getJSONArray(JSON_VALUES_KEY);
-
             if (mIsShowLast && null != lastValue && lastValue.equals(value)) { // if modify data
                 lastValuePosition = j;
             }
 
+            JSONArray subValues = keyValue.getJSONArray(JSON_VALUES_KEY);
 
             for (int k = 0; k < subValues.length(); k++) {
                 JSONObject subKeyValue = subValues.getJSONObject(k);
                 String subValue = subKeyValue.getString(JSON_VALUE_NAME_KEY);
-                String subAliasValue = subKeyValue.getString(JSON_VALUE_ALIAS_KEY);
+                String subValueAlias = subKeyValue.getString(JSON_VALUE_ALIAS_KEY);
+
+                subAliasValueMap.put(subValueAlias, subValue);
+                subAliasList.aliasList.add(subValueAlias);
 
                 if (subKeyValue.has(JSON_DEFAULT_KEY) && subKeyValue.getBoolean(
                         JSON_DEFAULT_KEY)) {
-                    subDefaultPosition = j;
+                    subAliasList.defaultPosition = k;
                 }
 
                 if (mIsShowLast && null != subLastValue &&
@@ -159,14 +168,11 @@ public class DoubleComboboxJsonControl
                     lastValuePosition = j;
                     subLastValuePosition = k;
                 }
-
-                subAliasValueMap.put(subAliasValue, subValue);
             }
         }
 
         setSelection(lastValuePosition >= 0 ? lastValuePosition : defaultPosition);
         final int subLastValuePositionFinal = subLastValuePosition;
-        final int subDefaultPositionFinal = subDefaultPosition;
 
         // The drop down view
         comboboxAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -187,20 +193,23 @@ public class DoubleComboboxJsonControl
                             long id)
                     {
                         String selectedValueAlias = comboboxAdapter.getItem(position);
-                        List<String> subComboboxValueList =
-                                mSubComboboxValueListMap.get(selectedValueAlias);
+                        AliasList subAliasList = mAliasSubListMap.get(selectedValueAlias);
 
                         ArrayAdapter<String> subComboboxAdapter = new ArrayAdapter<>(
                                 view.getContext(), android.R.layout.simple_spinner_item,
-                                subComboboxValueList);
+                                subAliasList.aliasList);
                         subComboboxAdapter.setDropDownViewResource(
                                 android.R.layout.simple_spinner_dropdown_item);
-                        mSubCombobox.setAdapter(subComboboxAdapter);
 
+                        mSubCombobox.setAdapter(subComboboxAdapter);
                         mSubCombobox.setSelection(
-                                subLastValuePositionFinal >= 0
+                                mFirstShow && subLastValuePositionFinal >= 0
                                 ? subLastValuePositionFinal
-                                : subDefaultPositionFinal);
+                                : subAliasList.defaultPosition);
+
+                        if (mFirstShow) {
+                            mFirstShow = false;
+                        }
                     }
 
 

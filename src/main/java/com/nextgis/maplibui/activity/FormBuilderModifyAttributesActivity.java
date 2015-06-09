@@ -29,11 +29,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Field;
-import com.nextgis.maplib.datasource.GeoGeometry;
-import com.nextgis.maplib.map.MapBase;
-import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.controlui.ComboboxJsonControl;
@@ -62,48 +58,35 @@ import static com.nextgis.maplibui.util.ConstantsUI.*;
 public class FormBuilderModifyAttributesActivity
         extends ModifyAttributesActivity
 {
-    protected void createAndFillControls(final IGISApplication app)
+    protected void fillControls(LinearLayout layout)
     {
         //TODO: add location control via fragment only defined by user space
-        //create and fill controls
-        Bundle extras = getIntent().getExtras();
 
-        if (extras != null) {
-            short layerId = extras.getShort(KEY_LAYER_ID);
-            mFeatureId = extras.getLong(KEY_FEATURE_ID);
-            mGeometry = (GeoGeometry) extras.getSerializable(KEY_GEOMETRY);
-            File form = (File) extras.getSerializable(KEY_FORM_PATH);
+        Bundle extras = getIntent().getExtras(); // null != extras
+        File form = (File) extras.getSerializable(KEY_FORM_PATH);
 
-            MapBase map = app.getMap();
-            mLayer = (VectorLayer) map.getLayerById(layerId);
-            if (null != mLayer) {
-                int orientation = getResources().getConfiguration().orientation;
-                boolean isLand = orientation == Configuration.ORIENTATION_LANDSCAPE;
-                LinearLayout layout = (LinearLayout) findViewById(R.id.controls_list);
-                createAndFillControls(layout, form, isLand);
-            }
-        }
-    }
+        int orientation = getResources().getConfiguration().orientation;
+        boolean isLand = orientation == Configuration.ORIENTATION_LANDSCAPE;
 
-
-    protected void createAndFillControls(
-            LinearLayout layout,
-            File form,
-            boolean isLand)
-    {
         try {
             JSONObject jsonFormContents = new JSONObject(FileUtil.readFromFile(form));
             JSONArray tabs = jsonFormContents.getJSONArray(JSON_TABS_KEY);
-            //TODO: add support more than one tab
-            JSONObject tab0 = tabs.getJSONObject(0);
-            if (isLand && !tab0.isNull(JSON_ALBUM_ELEMENTS_KEY)) {
-                JSONArray elements = tab0.getJSONArray(JSON_ALBUM_ELEMENTS_KEY);
-                if (null != elements && elements.length() > 0) {
-                    createAndFillControls(layout, elements);
+
+            for (int i = 0; i < tabs.length(); i++) {
+                JSONObject tab = tabs.getJSONObject(i);
+                JSONArray elements = null;
+
+                if (isLand && !tab.isNull(JSON_ALBUM_ELEMENTS_KEY)) {
+                    elements = tab.getJSONArray(JSON_ALBUM_ELEMENTS_KEY);
                 }
-            } else {
-                JSONArray elements = tab0.getJSONArray(JSON_PORTRAIT_ELEMENTS_KEY);
-                createAndFillControls(layout, elements);
+
+                if (!isLand && !tab.isNull(JSON_PORTRAIT_ELEMENTS_KEY)) {
+                    elements = tab.getJSONArray(JSON_PORTRAIT_ELEMENTS_KEY);
+                }
+
+                if (null != elements && elements.length() > 0) {
+                    fillTabControls(layout, elements);
+                }
             }
 
         } catch (JSONException | IOException e) {
@@ -113,7 +96,7 @@ public class FormBuilderModifyAttributesActivity
     }
 
 
-    protected void createAndFillControls(
+    protected void fillTabControls(
             LinearLayout layout,
             JSONArray elements)
             throws JSONException
