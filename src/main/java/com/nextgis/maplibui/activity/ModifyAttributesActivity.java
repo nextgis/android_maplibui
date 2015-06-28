@@ -75,7 +75,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.*;
  * Activity to add or modify vector layer attributes
  */
 public class ModifyAttributesActivity
-        extends AppCompatActivity
+        extends NGActivity
         implements GpsEventListener
 {
     protected Map<String, IControl> mFields;
@@ -97,27 +97,12 @@ public class ModifyAttributesActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_standard_attributes);
-        createToolbarView();
+        setToolbar(R.id.main_toolbar);
 
         final IGISApplication app = (IGISApplication) getApplication();
         createView(app);
         createLocationPanelView(app);
     }
-
-
-    protected void createToolbarView()
-    {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        toolbar.getBackground().setAlpha(255);
-        setSupportActionBar(toolbar);
-
-        ActionBar bar = getSupportActionBar();
-        if (null != bar) {
-            bar.setHomeButtonEnabled(true);
-            bar.setDisplayHomeAsUpEnabled(true);
-        }
-    }
-
 
     protected void createLocationPanelView(final IGISApplication app)
     {

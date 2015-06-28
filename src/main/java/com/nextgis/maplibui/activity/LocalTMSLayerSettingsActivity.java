@@ -49,7 +49,7 @@ import com.nextgis.maplibui.R;
  * TMS layer settings activity. Include common settings (layer name) and renderer settings.
  */
 public class LocalTMSLayerSettingsActivity
-        extends AppCompatActivity
+        extends NGActivity
 {
     public final static String LAYER_ID_KEY = "layer_id";
     protected LocalTMSLayer mRasterLayer;
@@ -66,22 +66,13 @@ public class LocalTMSLayerSettingsActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_localrasterlayer_settings);
+        setToolbar(R.id.main_toolbar);
 
         short layerId = Constants.NOT_FOUND;
         if (savedInstanceState != null) {
             layerId = savedInstanceState.getShort(LAYER_ID_KEY);
         } else {
             layerId = getIntent().getShortExtra(LAYER_ID_KEY, layerId);
-        }
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        toolbar.getBackground().setAlpha(255);
-        setSupportActionBar(toolbar);
-
-        ActionBar bar = getSupportActionBar();
-        if (null != bar) {
-            bar.setHomeButtonEnabled(true);
-            bar.setDisplayHomeAsUpEnabled(true);
         }
 
         IGISApplication application = (IGISApplication) getApplication();
@@ -221,20 +212,6 @@ public class LocalTMSLayerSettingsActivity
                         });
             }
         }
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        int id = item.getItemId();
-
-        if (id == android.R.id.home) {
-            finish();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
 

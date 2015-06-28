@@ -68,12 +68,21 @@ public class NGActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
-                return true;
+                if(isHomeEnabled()) {
+                    finish();
+                    return true;
+                }
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
+
+    protected boolean isHomeEnabled()
+    {
+        return true;
+    }
+
 
     protected void setToolbar(int toolbarId){
         Toolbar toolbar = (Toolbar) findViewById(toolbarId);

@@ -79,7 +79,7 @@ import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD
 
 
 public class NGWSettingsActivity
-        extends PreferenceActivity
+        extends NGPreferenceActivity
         implements OnAccountsUpdateListener
 {
     protected static final String ACCOUNT_ACTION = "com.nextgis.maplibui.ACCOUNT";
@@ -95,14 +95,6 @@ public class NGWSettingsActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        if (PreferenceManager.getDefaultSharedPreferences(this)
-                .getBoolean(SettingsConstantsUI.KEY_PREF_DARKTHEME, false)) {
-            setTheme(getThemeId(true));
-        }
-        else{
-            setTheme(getThemeId(false));
-        }
-
         super.onCreate(savedInstanceState);
 
         setStrings();
@@ -111,41 +103,7 @@ public class NGWSettingsActivity
             mAccountManager = AccountManager.get(this.getApplicationContext());
         }
 
-        ViewGroup root = ((ViewGroup) findViewById(android.R.id.content));
-        if (null != root) {
-            View content = root.getChildAt(0);
-            if (null != content) {
-                LinearLayout toolbarContainer =
-                        (LinearLayout) View.inflate(this, R.layout.activity_settings, null);
-
-                root.removeAllViews();
-                toolbarContainer.addView(content);
-                root.addView(toolbarContainer);
-
-                Toolbar toolbar = (Toolbar) toolbarContainer.findViewById(R.id.main_toolbar);
-                toolbar.getBackground().setAlpha(255);
-                toolbar.setTitle(getTitle());
-                toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-                toolbar.setNavigationOnClickListener(
-                        new View.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(View v)
-                            {
-                                NGWSettingsActivity.this.finish();
-                            }
-                        });
-            }
-        }
-
         createView();
-    }
-
-    protected int getThemeId(boolean isDark){
-        if(isDark)
-            return com.nextgis.maplibui.R.style.Theme_NextGIS_AppCompat_Dark;
-        else
-            return com.nextgis.maplibui.R.style.Theme_NextGIS_AppCompat_Light;
     }
 
     @Override
@@ -780,6 +738,6 @@ public class NGWSettingsActivity
 
     public interface OnDeleteAccountListener
     {
-        public void onDeleteAccount(Account account);
+        void onDeleteAccount(Account account);
     }
 }

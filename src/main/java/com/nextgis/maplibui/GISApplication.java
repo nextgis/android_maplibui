@@ -74,6 +74,12 @@ public abstract class GISApplication extends Application
 
         getMap();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (sharedPreferences.getBoolean(SettingsConstantsUI.KEY_PREF_DARKTHEME, false)) {
+            setTheme(getThemeId(true));
+        }
+        else{
+            setTheme(getThemeId(false));
+        }
 
         if (sharedPreferences.getBoolean(SettingsConstantsUI.KEY_PREF_APP_FIRST_RUN, true)) {
             onFirstRun();
@@ -97,6 +103,12 @@ public abstract class GISApplication extends Application
         }
     }
 
+    protected int getThemeId(boolean isDark){
+        if(isDark)
+            return R.style.Theme_NextGIS_AppCompat_Dark;
+        else
+            return R.style.Theme_NextGIS_AppCompat_Light;
+    }
 
     @Override
     public MapBase getMap()

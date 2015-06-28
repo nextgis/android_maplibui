@@ -33,14 +33,14 @@
         <item name="colorPrimary">@color/primary.Light</item>
         <item name="colorPrimaryDark">@color/primary_dark.Light</item>
         <item name="colorAccent">@color/accent.Light</item>
-        <item name="android:textColorPrimary">@color/textColorPrimary.Light</item>
-        <item name="android:textColor">@color/textColor.Light</item>
-        <item name="android:textColorSecondary">@color/textColorSecondary.Light</item>
         <item name="undoBarStyle">@style/UndoBarMaterialStyle</item>
         <item name="windowActionBarOverlay">true</item>
         <item name="windowActionModeOverlay">false</item>
-        <item name="ThemeOverlay.NextGIS.Toolbar">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+        <item name="ThemeOverlay.NextGIS.Toolbar">@style/Theme.NextGIS.AppCompat.ActionBar</item>
         <item name="ThemeOverlay.NextGIS.ToolbarPopup">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="android:textColorPrimary">@color/textColorPrimary.Light</item>
+        <item name="android:textColorSecondary">@color/textColorSecondary.Light</item>
+        <item name="android:textColor">@color/textColorPrimaryInverse.Light</item>
     </style>
 
     <style name="Theme.NextGIS.AppCompat.Dark"
@@ -50,20 +50,31 @@
         <item name="colorPrimaryDark">@color/primary_dark.Dark</item>
         <item name="colorAccent">@color/accent.Dark</item>
         <item name="undoBarStyle">@style/UndoBarMaterialStyle</item>
-        <item name="android:textColorPrimary">@color/textColorPrimary.Dark</item>
-        <item name="android:textColor">@color/textColor.Dark</item>
-        <item name="android:textColorSecondary">@color/textColorSecondary.Dark</item>
         <item name="windowActionBarOverlay">true</item>
         <item name="windowActionModeOverlay">false</item>
-        <item name="ThemeOverlay.NextGIS.Toolbar">@style/ThemeOverlay.AppCompat.ActionBar</item>
+        <item name="ThemeOverlay.NextGIS.Toolbar">@style/Theme.NextGIS.AppCompat.ActionBar</item>
         <item name="ThemeOverlay.NextGIS.ToolbarPopup">@style/ThemeOverlay.AppCompat</item>
+        <item name="android:textColorPrimary">@color/textColorPrimary.Dark</item>
+        <item name="android:textColorSecondary">@color/textColorSecondary.Dark</item>
+        <item name="android:textColor">@color/textColor.Dark</item>
+    </style>
+
+    <style name="Theme.NextGIS.AppCompat.ActionBar" parent="ThemeOverlay.AppCompat.ActionBar">
+        <item name="actionButtonStyle">@style/Widget.AppCompat.Light.ActionButton</item>
+        <item name="selectableItemBackground">?android:selectableItemBackground</item>
+        <item name="selectableItemBackgroundBorderless">?android:selectableItemBackground</item>
+        <item name="android:textColorPrimary">@color/textColorPrimary.Light</item>
+        <item name="android:textColor">@color/textColorPrimaryInverse.Light</item>
+        <item name="android:textColorSecondary">@color/textColorSecondary.Light</item>
+        <item name="colorControlHighlight">@color/accent.Light</item>
+        <item name="colorControlNormal">@color/textColorPrimary.Light</item>
     </style>
 
     <style name="Theme.NextGIS.AppCompat.Light.Dialog"
            parent="Base.Theme.AppCompat.Light.Dialog">
         <item name="isLightTheme">true</item>
         <item name="windowActionBarOverlay">false</item>
-        <item name="android:textColor">@color/primary_text_default_material_light</item>
+        <item name="android:textColor">@color/textColor.Light</item>
         <!-- Action Mode -->
         <item name="actionModeCutDrawable">@drawable/ic_action_content_cut</item>
         <item name="actionModeCopyDrawable">@drawable/ic_action_content_copy</item>

@@ -62,7 +62,7 @@ import java.util.HashMap;
 
 
 public class TracksActivity
-        extends AppCompatActivity
+        extends NGActivity
         implements LoaderManager.LoaderCallbacks<Cursor>, ActionMode.Callback
 {
     private static final int    TRACKS_ID             = 0;
@@ -84,22 +84,13 @@ public class TracksActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_tracks);
+        setToolbar(R.id.main_toolbar);
 
         mIds = new ArrayList<>();
 
         if (savedInstanceState != null) {
             mIds = savedInstanceState.getStringArrayList(BUNDLE_SELECTED_ITEMS);
             mNeedRestore = true;
-        }
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        toolbar.getBackground().setAlpha(255);
-        setSupportActionBar(toolbar);
-
-        ActionBar bar = getSupportActionBar();
-        if (null != bar) {
-            bar.setHomeButtonEnabled(true);
-            bar.setDisplayHomeAsUpEnabled(true);
         }
 
         IGISApplication application = (IGISApplication) getApplication();
@@ -271,20 +262,6 @@ public class TracksActivity
                 mActionMode.setTitle("" + mIds.size());// + " " + getString(R.string.cab_selected));
             }
         }
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        int id = item.getItemId();
-
-        if (id == android.R.id.home) {
-            finish();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
 
