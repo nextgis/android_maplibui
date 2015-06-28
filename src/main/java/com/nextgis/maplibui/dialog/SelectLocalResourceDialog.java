@@ -104,7 +104,7 @@ public class SelectLocalResourceDialog
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        final Context context = new ContextThemeWrapper(getActivity(), R.style.NGDialog);
+        final Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_NextGIS_AppCompat_Light_Dialog);
 
         mListAdapter = new LocalResourcesListAdapter(this);
 

@@ -41,6 +41,7 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.util.ThemeUtil;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 
@@ -198,7 +199,10 @@ public class ReorderedLayerView
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(LINE_THICKNESS);
-        paint.setColor(getResources().getColor(R.color.accent));
+
+        int accentColor = ThemeUtil.getColor(getContext(), R.attr.colorAccent);
+
+        paint.setColor(accentColor);
         canvas.drawRect(rect, paint);
 
         return bitmap;

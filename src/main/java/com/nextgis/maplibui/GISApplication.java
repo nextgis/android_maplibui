@@ -1,0 +1,200 @@
+/*
+ * Project:  NextGIS Mobile
+ * Purpose:  Mobile GIS for Android.
+ * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
+ * *****************************************************************************
+ * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package com.nextgis.maplibui;
+
+import android.Manifest;
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.app.Application;
+import android.content.ContentResolver;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+
+import com.nextgis.maplib.api.IGISApplication;
+import com.nextgis.maplib.datasource.ngw.SyncAdapter;
+import com.nextgis.maplib.location.GpsEventSource;
+import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.MapDrawable;
+import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.SettingsConstants;
+import com.nextgis.maplibui.mapui.LayerFactoryUI;
+import com.nextgis.maplibui.util.SettingsConstantsUI;
+
+import java.io.File;
+
+import static com.nextgis.maplib.util.Constants.MAP_EXT;
+import static com.nextgis.maplib.util.Constants.NOT_FOUND;
+import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_MAP;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIODICALLY;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
+
+/**
+ * This is a base application class. Each application should inherited their base application from
+ * this class.
+ *
+ * The main application class stored some singleton objects.
+ *
+ * @author Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
+ */
+public abstract class GISApplication extends Application
+        implements IGISApplication {
+
+    protected MapDrawable mMap;
+    protected GpsEventSource mGpsEventSource;
+
+    @Override
+    public void onCreate()
+    {
+        super.onCreate();
+
+        mGpsEventSource = new GpsEventSource(this);
+
+        getMap();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (sharedPreferences.getBoolean(SettingsConstantsUI.KEY_PREF_APP_FIRST_RUN, true)) {
+            onFirstRun();
+            SharedPreferences.Editor edit = sharedPreferences.edit();
+            edit.putBoolean(SettingsConstantsUI.KEY_PREF_APP_FIRST_RUN, false);
+            edit.commit();
+        }
+
+        //turn on periodic sync. Can be set for each layer individually, but this is simpler
+        if (sharedPreferences.getBoolean(KEY_PREF_SYNC_PERIODICALLY, true)) {
+            long period =
+                    sharedPreferences.getLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, NOT_FOUND); //10 min
+            if (period != NOT_FOUND) {
+                Bundle params = new Bundle();
+                params.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, false);
+                params.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, false);
+                params.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
+
+                SyncAdapter.setSyncPeriod(this, params, period);
+            }
+        }
+    }
+
+
+    @Override
+    public MapBase getMap()
+    {
+        if (null != mMap) {
+            return mMap;
+        }
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        File defaultPath = getExternalFilesDir(KEY_PREF_MAP);
+        if (defaultPath == null) {
+            defaultPath = new File(getFilesDir(), KEY_PREF_MAP);
+        }
+
+        String mapPath = sharedPreferences.getString(SettingsConstants.KEY_PREF_MAP_PATH, defaultPath.getPath());
+        String mapName = sharedPreferences.getString(SettingsConstantsUI.KEY_PREF_MAP_NAME, "default");
+
+        File mapFullPath = new File(mapPath, mapName + MAP_EXT);
+
+        final Bitmap bkBitmap = BitmapFactory.decodeResource(
+                getResources(), R.drawable.bk_tile);
+        mMap = new MapDrawable(bkBitmap, this, mapFullPath, new LayerFactoryUI());
+        mMap.setName(mapName);
+        mMap.load();
+
+        return mMap;
+    }
+
+    @Override
+    public Account getAccount(String accountName)
+    {
+        if(!checkPermission(Manifest.permission.GET_ACCOUNTS)){
+            return null;
+        }
+
+        AccountManager accountManager = AccountManager.get(this);
+        for (Account account : accountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
+            if (account.name.equals(accountName)) {
+                return account;
+            }
+        }
+        return null;
+    }
+
+
+    @Override
+    public String getAccountUrl(Account account)
+    {
+        if(!checkPermission(Manifest.permission.AUTHENTICATE_ACCOUNTS)){
+            return "";
+        }
+
+        AccountManager accountManager = AccountManager.get(this);
+        return accountManager.getUserData(account, "url");
+    }
+
+
+    @Override
+    public String getAccountLogin(Account account)
+    {
+        if(!checkPermission(Manifest.permission.AUTHENTICATE_ACCOUNTS)){
+            return "";
+        }
+
+        AccountManager accountManager = AccountManager.get(this);
+        return accountManager.getUserData(account, "login");
+    }
+
+
+    @Override
+    public String getAccountPassword(Account account)
+    {
+        if(!checkPermission(Manifest.permission.AUTHENTICATE_ACCOUNTS)){
+            return "";
+        }
+
+        AccountManager accountManager = AccountManager.get(this);
+        return accountManager.getPassword(account);
+    }
+
+
+    @Override
+    public GpsEventSource getGpsEventSource()
+    {
+        return mGpsEventSource;
+    }
+
+    /**
+     * Executed then application first run. One can create some data here (some layers, etc.).
+     */
+    protected void onFirstRun()
+    {
+
+    }
+
+    protected boolean checkPermission(String permission) {
+        PackageManager pm = getPackageManager();
+        int hasPerm = pm.checkPermission(permission, getPackageName());
+        return hasPerm == PackageManager.PERMISSION_GRANTED;
+    }
+}

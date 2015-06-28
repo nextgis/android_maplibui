@@ -49,8 +49,8 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="@string/layer_type_optional"
             android:id="@+id/layer_type_summary"
-            android:background="@color/primary"
-            android:textColor="@android:color/primary_text_dark"
+            android:background="?attr/colorPrimary"
+            android:textColor="?android:attr/textColorPrimary"
             android:layout_margin="5dp"
             android:padding="2dp"
             />

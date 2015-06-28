@@ -31,6 +31,7 @@ import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.TracksActivity;
 import com.nextgis.maplibui.api.ILayerUI;
+import com.nextgis.maplibui.util.ThemeUtil;
 
 import java.io.File;
 
@@ -44,7 +45,8 @@ public class TrackLayerUI
             File path)
     {
         super(context, path);
-        mColor = mContext.getResources().getColor(R.color.accent);
+
+        mColor = ThemeUtil.getColor(mContext, R.attr.colorAccent);
     }
 
 
