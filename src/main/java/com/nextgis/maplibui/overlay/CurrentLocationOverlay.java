@@ -37,6 +37,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.location.Location;
 import android.preference.PreferenceManager;
+import android.support.v7.internal.widget.ThemeUtils;
 import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.GeoEnvelope;
@@ -50,7 +51,6 @@ import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.api.OverlayItem;
 import com.nextgis.maplibui.mapui.MapViewOverlays;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
-import com.nextgis.maplibui.util.ThemeUtil;
 
 
 public class CurrentLocationOverlay
@@ -82,7 +82,7 @@ public class CurrentLocationOverlay
         super(context, mapViewOverlays);
         Activity parent = (Activity) context;
         mGpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
-        mMarkerColor = ThemeUtil.getColor(mContext, R.attr.colorAccent);
+        mMarkerColor = ThemeUtils.getThemeAttrColor(mContext, R.attr.colorAccent);
 
         double longitude = 0, latitude = 0;
 //        Location location = mGpsEventSource.getLastKnownLocation();

@@ -26,12 +26,12 @@ package com.nextgis.maplibui.mapui;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.support.v7.internal.widget.ThemeUtils;
 import android.widget.Toast;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.TracksActivity;
 import com.nextgis.maplibui.api.ILayerUI;
-import com.nextgis.maplibui.util.ThemeUtil;
 
 import java.io.File;
 
@@ -46,7 +46,7 @@ public class TrackLayerUI
     {
         super(context, path);
 
-        mColor = ThemeUtil.getColor(mContext, R.attr.colorAccent);
+        mColor = ThemeUtils.getThemeAttrColor(mContext, R.attr.colorAccent);
     }
 
 

@@ -36,7 +36,7 @@ import com.nextgis.maplibui.fragment.NGWLoginFragment;
 
 
 public class NGWLoginActivity
-        extends AppCompatActivity
+        extends NGActivity
         implements NGWLoginFragment.OnAddAccountListener
 {
     public static final String FOR_NEW_ACCOUNT      = "for_new_account";
@@ -96,10 +96,7 @@ public class NGWLoginActivity
     protected void createView()
     {
         setContentView(R.layout.activity_ngw_login);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        toolbar.getBackground().setAlpha(255);
-        setSupportActionBar(toolbar);
+        setToolbar(R.id.main_toolbar);
 
         FragmentManager fm = getSupportFragmentManager();
         NGWLoginFragment ngwLoginFragment = (NGWLoginFragment) fm.findFragmentByTag("NGWLogin");

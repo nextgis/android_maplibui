@@ -29,6 +29,7 @@
 
     <style name="Theme.NextGIS.AppCompat.Light"
            parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="isLightTheme">true</item>
         <item name="colorPrimary">@color/primary.Light</item>
         <item name="colorPrimaryDark">@color/primary_dark.Light</item>
         <item name="colorAccent">@color/accent.Light</item>
@@ -44,6 +45,7 @@
 
     <style name="Theme.NextGIS.AppCompat.Dark"
            parent="Theme.AppCompat.NoActionBar">
+        <item name="isLightTheme">false</item>
         <item name="colorPrimary">@color/primary.Dark</item>
         <item name="colorPrimaryDark">@color/primary_dark.Dark</item>
         <item name="colorAccent">@color/accent.Dark</item>

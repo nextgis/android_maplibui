@@ -30,8 +30,8 @@
     <color name="accent.Light">#03a9f4</color>
     <color name="tabsScrollColor.Light">#4db6ac</color>
     <color name="textColorPrimary.Light">#ffffff</color>
-    <color name="textColor.Light">#000000</color>
-    <color name="textColorSecondary.Light">#e0e0e0</color>
+    <color name="textColor.Light">#212121</color>
+    <color name="textColorSecondary.Light">#616161</color>
     <!-- Dark -->
     <color name="actionBarColor.Dark">#8003a9f4</color>
     <color name="primary.Dark">#03a9f4</color>
@@ -39,7 +39,7 @@
     <color name="accent.Dark">#03a9f4</color>
     <color name="tabsScrollColor.Dark">#4db6ac</color>
     <color name="textColorPrimary.Dark">#ffffff</color>
-    <color name="textColor.Dark">#ffffff</color>
-    <color name="textColorSecondary.Dark">#616161</color>
+    <color name="textColor.Dark">#fafafa</color>
+    <color name="textColorSecondary.Dark">#eeeeee</color>
     <!--indigo from http://www.google.co.uk/design/spec/style/color.html#color-color-palette -->
 </resources>

@@ -65,6 +65,7 @@ import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.fragment.NGWSettingsFragment;
+import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -94,6 +95,14 @@ public class NGWSettingsActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        if (PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(SettingsConstantsUI.KEY_PREF_DARKTHEME, false)) {
+            setTheme(getThemeId(true));
+        }
+        else{
+            setTheme(getThemeId(false));
+        }
+
         super.onCreate(savedInstanceState);
 
         setStrings();
@@ -132,6 +141,12 @@ public class NGWSettingsActivity
         createView();
     }
 
+    protected int getThemeId(boolean isDark){
+        if(isDark)
+            return com.nextgis.maplibui.R.style.Theme_NextGIS_AppCompat_Dark;
+        else
+            return com.nextgis.maplibui.R.style.Theme_NextGIS_AppCompat_Light;
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)

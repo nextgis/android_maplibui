@@ -32,6 +32,7 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 import android.net.Uri;
 import android.os.Handler;
+import android.support.v7.internal.widget.ThemeUtils;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
@@ -40,7 +41,6 @@ import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.mapui.MapViewOverlays;
-import com.nextgis.maplibui.util.ThemeUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +71,7 @@ public class CurrentTrackOverlay
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setColor(ThemeUtil.getColor(mContext, R.attr.colorAccent));
+        mPaint.setColor(ThemeUtils.getThemeAttrColor(mContext, R.attr.colorAccent));
         mPaint.setStrokeWidth(4);
 
         IGISApplication app = (IGISApplication) parent.getApplication();
