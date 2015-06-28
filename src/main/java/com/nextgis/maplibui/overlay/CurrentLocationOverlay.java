@@ -50,6 +50,7 @@ import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.api.OverlayItem;
 import com.nextgis.maplibui.mapui.MapViewOverlays;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
+import com.nextgis.maplibui.util.ThemeUtil;
 
 
 public class CurrentLocationOverlay
@@ -81,7 +82,7 @@ public class CurrentLocationOverlay
         super(context, mapViewOverlays);
         Activity parent = (Activity) context;
         mGpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
-        mMarkerColor = mContext.getResources().getColor(R.color.accent);
+        mMarkerColor = ThemeUtil.getColor(mContext, R.attr.colorAccent);
 
         double longitude = 0, latitude = 0;
 //        Location location = mGpsEventSource.getLastKnownLocation();

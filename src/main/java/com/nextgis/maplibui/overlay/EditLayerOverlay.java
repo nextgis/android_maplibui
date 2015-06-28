@@ -71,6 +71,7 @@ import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.fragment.BottomToolbar;
 import com.nextgis.maplibui.mapui.MapViewOverlays;
 import com.nextgis.maplibui.util.ConstantsUI;
+import com.nextgis.maplibui.util.ThemeUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -146,7 +147,7 @@ public class EditLayerOverlay
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
 
-        mFillColor = mContext.getResources().getColor(R.color.accent);
+        mFillColor = ThemeUtil.getColor(mContext, R.attr.colorAccent);
         mOutlineColor = Color.BLACK;
         mSelectColor = Color.RED;
 

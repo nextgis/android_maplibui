@@ -90,7 +90,7 @@ public class CreateRemoteTMSLayerDialog
         //context.setTheme(android.R.style.Theme_Holo_Light);
         //context.setTheme(android.R.style.Theme_Light_NoTitleBar);
 
-        final Context context = new ContextThemeWrapper(getActivity(), R.style.NGDialog);
+        final Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_NextGIS_AppCompat_Light_Dialog);
 
         //LayoutInflater inflater = getActivity().getLayoutInflater();
 

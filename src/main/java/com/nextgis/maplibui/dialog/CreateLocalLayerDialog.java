@@ -151,7 +151,7 @@ public class CreateLocalLayerDialog
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        final Context context = new ContextThemeWrapper(getActivity(), R.style.NGDialog);
+        final Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_NextGIS_AppCompat_Light_Dialog);
 
         int tmsType = 0;
         if (null != savedInstanceState) {

@@ -40,6 +40,7 @@ import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.mapui.MapViewOverlays;
+import com.nextgis.maplibui.util.ThemeUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +71,7 @@ public class CurrentTrackOverlay
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setColor(mContext.getResources().getColor(R.color.accent));
+        mPaint.setColor(ThemeUtil.getColor(mContext, R.attr.colorAccent));
         mPaint.setStrokeWidth(4);
 
         IGISApplication app = (IGISApplication) parent.getApplication();
