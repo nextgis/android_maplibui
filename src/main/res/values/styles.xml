@@ -26,6 +26,9 @@
 
     <attr name="ThemeOverlay.NextGIS.Toolbar" format="reference"/>
     <attr name="ThemeOverlay.NextGIS.ToolbarPopup" format="reference"/>
+    <attr name="colorPrimary" format="reference"/>
+    <attr name="colorPrimaryDark" format="reference"/>
+    <attr name="colorAccent" format="reference"/>
 
     <style name="Theme.NextGIS.AppCompat.Light"
            parent="Theme.AppCompat.Light.NoActionBar">
@@ -41,6 +44,10 @@
         <item name="android:textColorPrimary">@color/textColorPrimary.Light</item>
         <item name="android:textColorSecondary">@color/textColorSecondary.Light</item>
         <item name="android:textColor">@color/textColorPrimaryInverse.Light</item>
+        <item name="colorControlNormal">@color/textColorPrimaryInverse.Light</item>
+        <item name="colorControlActivated">@color/accent.Light</item>
+        <item name="colorControlHighlight">@color/accent.Light</item>
+        <item name="android:editTextStyle">@style/EditTextStyle.Light</item>
     </style>
 
     <style name="Theme.NextGIS.AppCompat.Dark"
@@ -56,6 +63,17 @@
         <item name="ThemeOverlay.NextGIS.ToolbarPopup">@style/ThemeOverlay.AppCompat</item>
         <item name="android:textColorPrimary">@color/textColorPrimary.Dark</item>
         <item name="android:textColorSecondary">@color/textColorSecondary.Dark</item>
+        <item name="android:textColor">@color/textColor.Dark</item>
+        <item name="colorControlNormal">@color/textColorPrimaryInverse.Dark</item>
+        <item name="colorControlActivated">@color/accent.Dark</item>
+        <item name="colorControlHighlight">@color/accent.Dark</item>
+        <item name="android:editTextStyle">@style/EditTextStyle.Dark</item>
+    </style>
+
+    <style name="EditTextStyle.Light" parent="Widget.AppCompat.EditText">
+        <item name="android:textColor">@color/textColor.Light</item>
+    </style>
+    <style name="EditTextStyle.Dark" parent="Widget.AppCompat.EditText">
         <item name="android:textColor">@color/textColor.Dark</item>
     </style>
 

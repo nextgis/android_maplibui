@@ -61,7 +61,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.*;
  */
 public class VectorLayerUI
         extends VectorLayer
-        implements ILayerUI, IVectorLayerUI
+        implements IVectorLayerUI
 {
     private static final long MAX_INTERNAL_CACHE_SIZE = 1048576; // 1MB
     private static final long MAX_EXTERNAL_CACHE_SIZE = 5242880; // 5MB

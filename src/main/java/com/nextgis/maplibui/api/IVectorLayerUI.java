@@ -30,7 +30,7 @@ import com.nextgis.maplib.datasource.GeoGeometry;
 /**
  * Vector layer interface
  */
-public interface IVectorLayerUI
+public interface IVectorLayerUI extends ILayerUI
 {
     void showEditForm(
             Context context,

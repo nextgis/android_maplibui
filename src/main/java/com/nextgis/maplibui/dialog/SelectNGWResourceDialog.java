@@ -301,6 +301,8 @@ public class SelectNGWResourceDialog
                     newLayer.setTMSType(TMSTYPE_OSM);
                     newLayer.setVisible(true);
                     newLayer.setAccountName(connection.getName());
+                    newLayer.setMinZoom(0);
+                    newLayer.setMaxZoom(25);
 
                     mGroupLayer.addLayer(newLayer);
                 }
@@ -322,6 +324,8 @@ public class SelectNGWResourceDialog
                     newLayer.setRemoteId(layer.getRemoteId());
                     newLayer.setVisible(true);
                     newLayer.setAccountName(connection.getName());
+                    newLayer.setMinZoom(0);
+                    newLayer.setMaxZoom(25);
 
                     mGroupLayer.addLayer(newLayer);
 
