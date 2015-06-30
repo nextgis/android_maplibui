@@ -45,7 +45,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 public class NGWVectorLayerUI
         extends NGWVectorLayer
-        implements ILayerUI, IVectorLayerUI
+        implements IVectorLayerUI
 {
     public NGWVectorLayerUI(
             Context context,

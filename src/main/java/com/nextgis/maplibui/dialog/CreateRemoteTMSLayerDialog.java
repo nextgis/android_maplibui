@@ -179,6 +179,8 @@ public class CreateRemoteTMSLayerDialog
                         layer.setPassword(layerPassword);
                         layer.setTMSType(tmsType);
                         layer.setVisible(true);
+                        layer.setMinZoom(0);
+                        layer.setMaxZoom(22);
 
                         mGroupLayer.addLayer(layer);
                         mGroupLayer.save();

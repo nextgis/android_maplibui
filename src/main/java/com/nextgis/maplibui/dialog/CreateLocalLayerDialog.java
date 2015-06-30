@@ -379,6 +379,8 @@ public class CreateLocalLayerDialog
                         mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
                 layer.setName(name);
                 layer.setVisible(true);
+                layer.setMinZoom(0);
+                layer.setMaxZoom(100);
 
                 JSONObject geoJSONObject = new JSONObject(responseStrBuilder.toString());
                 String errorMessage = layer.createFromGeoJSON(geoJSONObject);
@@ -501,6 +503,8 @@ public class CreateLocalLayerDialog
                     layer.setRemoteId(resourceId);
                     layer.setVisible(true);
                     layer.setAccountName(accountName);
+                    layer.setMinZoom(0);
+                    layer.setMaxZoom(100);
 
                     mGroupLayer.addLayer(layer);
                     mGroupLayer.save();
@@ -513,6 +517,8 @@ public class CreateLocalLayerDialog
                     VectorLayerUI layer = new VectorLayerUI(mGroupLayer.getContext(), outputPath);
                     layer.setName(name);
                     layer.setVisible(true);
+                    layer.setMinZoom(0);
+                    layer.setMaxZoom(100);
 
                     File dataFile = new File(outputPath, FILE_DATA);
                     String jsonContent = FileUtil.readFromFile(dataFile);
