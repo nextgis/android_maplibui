@@ -1313,6 +1313,13 @@ public class EditLayerOverlay
     }
 
 
+    @Override
+    public void onBestLocationChanged(Location location)
+    {
+
+    }
+
+
     protected int getMinPointCount()
     {
         switch (mLayer.getGeometryType()) {

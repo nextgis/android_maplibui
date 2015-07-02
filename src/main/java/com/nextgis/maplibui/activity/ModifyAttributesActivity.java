@@ -468,6 +468,13 @@ public class ModifyAttributesActivity
 
 
     @Override
+    public void onBestLocationChanged(Location location)
+    {
+
+    }
+
+
+    @Override
     public void onGpsStatusChanged(int event)
     {
 
