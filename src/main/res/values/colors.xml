@@ -29,10 +29,10 @@
     <color name="primary_dark.Light">#01579b</color>
     <color name="accent.Light">#03a9f4</color>
     <color name="tabsScrollColor.Light">#4db6ac</color>
-    <color name="textColorPrimary.Light">#ffffff</color>
-    <color name="textColor.Light">#181818</color>
+    <color name="textColorPrimary.Light">#181818</color>
+    <color name="textColor.Light">#242424</color>
     <color name="textColorSecondary.Light">#616161</color>
-    <color name="textColorPrimaryInverse.Light">#212121</color>
+    <color name="textColorPrimaryInverse.Light">#ffffffff</color>
     <color name="textColorSecondaryInverse.Light">#eeeeee</color>
     <!-- Dark -->
     <color name="actionBarColor.Dark">#8003a9f4</color>

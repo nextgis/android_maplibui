@@ -40,8 +40,8 @@
         <item name="ThemeOverlay.NextGIS.ToolbarPopup">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="android:textColorPrimary">@color/textColorPrimary.Light</item>
         <item name="android:textColorSecondary">@color/textColorSecondary.Light</item>
-        <item name="android:textColor">@color/textColorPrimaryInverse.Light</item>
-        <item name="colorControlNormal">@color/textColorPrimaryInverse.Light</item>
+        <item name="android:textColor">@color/textColorPrimary.Light</item>
+        <item name="colorControlNormal">@color/textColorPrimary.Light</item>
         <item name="colorControlActivated">@color/accent.Light</item>
         <item name="colorControlHighlight">@color/accent.Light</item>
         <item name="android:editTextStyle">@style/EditTextStyle.Light</item>
@@ -60,8 +60,8 @@
         <item name="ThemeOverlay.NextGIS.ToolbarPopup">@style/ThemeOverlay.AppCompat</item>
         <item name="android:textColorPrimary">@color/textColorPrimary.Dark</item>
         <item name="android:textColorSecondary">@color/textColorSecondary.Dark</item>
-        <item name="android:textColor">@color/textColor.Dark</item>
-        <item name="colorControlNormal">@color/textColorPrimaryInverse.Dark</item>
+        <item name="android:textColor">@color/textColorPrimary.Dark</item>
+        <item name="colorControlNormal">@color/textColorPrimary.Dark</item>
         <item name="colorControlActivated">@color/accent.Dark</item>
         <item name="colorControlHighlight">@color/accent.Dark</item>
         <item name="android:editTextStyle">@style/EditTextStyle.Dark</item>
@@ -78,11 +78,11 @@
         <item name="actionButtonStyle">@style/Widget.AppCompat.Light.ActionButton</item>
         <item name="selectableItemBackground">?android:selectableItemBackground</item>
         <item name="selectableItemBackgroundBorderless">?android:selectableItemBackground</item>
-        <item name="android:textColorPrimary">@color/textColorPrimary.Light</item>
+        <item name="android:textColorPrimary">@color/textColorPrimaryInverse.Light</item>
         <item name="android:textColor">@color/textColorPrimaryInverse.Light</item>
-        <item name="android:textColorSecondary">@color/textColorSecondary.Light</item>
+        <item name="android:textColorSecondary">@color/textColorSecondaryInverse.Light</item>
         <item name="colorControlHighlight">@color/accent.Light</item>
-        <item name="colorControlNormal">@color/textColorPrimary.Light</item>
+        <item name="colorControlNormal">@color/textColorSecondaryInverse.Light</item>
     </style>
 
     <style name="Theme.NextGIS.AppCompat.Light.Dialog"

@@ -36,7 +36,6 @@
     <string name="create_tms_layer">Create TMS layer</string>
     <string name="tmstype_osm">XYZ (OSM)</string>
     <string name="tmstype_normal">TMS (OSGeo spec.)</string>
-    <string name="osm_url">http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png</string>
     <string name="error_invalid_url">The URL is invalid</string>
     <string name="nextgis_web">NextGIS Web</string>
     <string name="ngw_login_title">NextGIS Web account</string>

@@ -24,6 +24,9 @@ package com.nextgis.maplibui;
 import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.Application;
 import android.content.ContentResolver;
 import android.content.SharedPreferences;
@@ -31,6 +34,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 
 import com.nextgis.maplib.api.IGISApplication;
@@ -44,6 +48,8 @@ import com.nextgis.maplibui.mapui.LayerFactoryUI;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import static com.nextgis.maplib.util.Constants.MAP_EXT;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
@@ -145,7 +151,11 @@ public abstract class GISApplication extends Application
         }
 
         AccountManager accountManager = AccountManager.get(this);
+        if(accountManager == null)
+            return null;
         for (Account account : accountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
+            if(account == null)
+                continue;
             if (account.name.equals(accountName)) {
                 return account;
             }
@@ -153,6 +163,45 @@ public abstract class GISApplication extends Application
         return null;
     }
 
+    @Override
+    public AccountManagerFuture<Boolean> removeAccount(Account account) {
+        AccountManagerFuture<Boolean> bool = new AccountManagerFuture<Boolean>() {
+            @Override
+            public boolean cancel(boolean mayInterruptIfRunning) {
+                return false;
+            }
+
+            @Override
+            public boolean isCancelled() {
+                return false;
+            }
+
+            @Override
+            public boolean isDone() {
+                return false;
+            }
+
+            @Override
+            public Boolean getResult() throws OperationCanceledException, IOException, AuthenticatorException {
+                return null;
+            }
+
+            @Override
+            public Boolean getResult(long timeout, TimeUnit unit) throws OperationCanceledException, IOException, AuthenticatorException {
+                return null;
+            }
+        };
+
+        if(!checkPermission(Manifest.permission.MANAGE_ACCOUNTS)){
+            return bool;
+        }
+
+        AccountManager accountManager = AccountManager.get(this);
+        if(accountManager == null)
+            return bool;
+
+        return accountManager.removeAccount(account, null, new Handler());
+    }
 
     @Override
     public String getAccountUrl(Account account)
@@ -206,6 +255,8 @@ public abstract class GISApplication extends Application
 
     protected boolean checkPermission(String permission) {
         PackageManager pm = getPackageManager();
+        if(pm == null)
+            return false;
         int hasPerm = pm.checkPermission(permission, getPackageName());
         return hasPerm == PackageManager.PERMISSION_GRANTED;
     }

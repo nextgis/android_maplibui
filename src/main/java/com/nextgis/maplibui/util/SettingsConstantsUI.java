@@ -35,4 +35,6 @@ public interface SettingsConstantsUI
     String KEY_PREF_DARKTHEME            = "is_theme_dark";
     String KEY_PREF_APP_FIRST_RUN        = "app_first_run";
     String KEY_PREF_MAP_NAME             = "map_name";
+
+    String OSM_URL = "http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 }

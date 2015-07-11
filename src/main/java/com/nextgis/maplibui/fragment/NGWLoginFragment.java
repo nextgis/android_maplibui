@@ -284,7 +284,7 @@ public class NGWLoginFragment
     }
 
 
-    protected class LocalTextWatcher
+    public class LocalTextWatcher
             implements TextWatcher
     {
         public void afterTextChanged(Editable s)
@@ -320,7 +320,7 @@ public class NGWLoginFragment
 
     public interface OnAddAccountListener
     {
-        public void onAddAccount(
+        void onAddAccount(
                 Account account,
                 String token,
                 boolean accountAdded);
