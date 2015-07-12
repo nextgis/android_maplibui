@@ -80,7 +80,7 @@ public abstract class GISApplication extends Application
 
         getMap();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPreferences.getBoolean(SettingsConstantsUI.KEY_PREF_DARKTHEME, false)) {
+        if (sharedPreferences.getBoolean(SettingsConstantsUI.KEY_PREF_THEME, false)) {
             setTheme(getThemeId(true));
         }
         else{

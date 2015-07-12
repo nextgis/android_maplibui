@@ -43,16 +43,11 @@ import android.os.Handler;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.INGWLayer;
@@ -66,7 +61,6 @@ import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.fragment.NGWSettingsFragment;
-import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -267,13 +261,13 @@ public class NGWSettingsActivity
         screen.addPreference(syncCategory);
 
         // add auto sync property
-        addAutoSyncProperty(account, application, syncCategory);
+        addAutoSyncProperty(application, account, syncCategory);
 
         // add time for periodic sync
-        addPeriodicSyncTime(account, application, syncCategory);
+        addPeriodicSyncTime(application, account, syncCategory);
 
         // add account layers
-        addAccountLayers(screen, account);
+        addAccountLayers(screen, application, account);
 
         // add actions group
         PreferenceCategory actionCategory = new PreferenceCategory(this);
@@ -281,17 +275,17 @@ public class NGWSettingsActivity
         screen.addPreference(actionCategory);
 
         // add "Edit account" action
-        addEditAccountAction(account, actionCategory);
+        addEditAccountAction(application, account, actionCategory);
 
         // add delete account action
-        addDeleteAccountAction(account, actionCategory);
+        addDeleteAccountAction(application, account, actionCategory);
     }
 
 
     // for overriding in a subclass
     protected void addAutoSyncProperty(
-            final Account account,
             final IGISApplication application,
+            final Account account,
             PreferenceCategory syncCategory) {
         SharedPreferences sharedPreferences = getSharedPreferences(
                 Constants.PREFERENCES, Context.MODE_MULTI_PROCESS);
@@ -345,8 +339,8 @@ public class NGWSettingsActivity
 
     // for overriding in a subclass
     protected void addPeriodicSyncTime(
-            final Account account,
             final IGISApplication application,
+            final Account account,
             PreferenceCategory syncCategory) {
         final SharedPreferences sharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(this);
@@ -414,8 +408,9 @@ public class NGWSettingsActivity
     // for overriding in a subclass
     protected void addAccountLayers(
             PreferenceScreen screen,
+            final IGISApplication application,
             Account account) {
-        List<INGWLayer> layers = getLayersForAccount(this, account);
+        List<INGWLayer> layers = getLayersForAccount(application, account);
         if (!layers.isEmpty()) {
 
             PreferenceCategory layersCategory = null;
@@ -475,15 +470,15 @@ public class NGWSettingsActivity
 
     // for overriding in a subclass
     protected void addEditAccountAction(
+            final IGISApplication application,
             final Account account,
             PreferenceCategory actionCategory) {
         Preference preferenceEdit = new Preference(this);
         preferenceEdit.setTitle(R.string.edit_account);
         preferenceEdit.setSummary(R.string.edit_account_summary);
 
-        AccountManager accountManager = AccountManager.get(getApplicationContext());
-        String url = accountManager.getUserData(account, "url");
-        String login = accountManager.getUserData(account, "login");
+        String url = application.getAccountUrl(account);
+        String login = application.getAccountLogin(account);
 
         Intent intent = new Intent(this, NGWLoginActivity.class);
         intent.putExtra(NGWLoginActivity.FOR_NEW_ACCOUNT, false);
@@ -499,10 +494,10 @@ public class NGWSettingsActivity
 
     // for overriding in a subclass
     protected void addDeleteAccountAction(
+            final IGISApplication application,
             final Account account,
-            PreferenceCategory actionCategory) {
+             PreferenceCategory actionCategory) {
         final boolean[] wasCurrentSyncActive = {false};
-        final IGISApplication application = (IGISApplication) getApplicationContext();
 
         final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             final ProgressDialog mProgressDialog = new ProgressDialog(NGWSettingsActivity.this);
@@ -546,10 +541,7 @@ public class NGWSettingsActivity
 
                         wasCurrentSyncActive[0] = false;
 
-                        AccountManager accountManager = AccountManager.get(
-                                NGWSettingsActivity.this.getApplicationContext());
-                        accountManager.removeAccount(
-                                account, null, new Handler());
+                        application.removeAccount(account);
 
                         Log.d(Constants.TAG, "NGWSettingsActivity - account is removed");
 
@@ -620,9 +612,9 @@ public class NGWSettingsActivity
 
 
     public static void updateAccountLayersCacheData(
-            Context context,
+            final IGISApplication application,
             Account account) {
-        List<INGWLayer> layers = getLayersForAccount(context, account);
+        List<INGWLayer> layers = getLayersForAccount(application, account);
 
         for (INGWLayer layer : layers) {
             layer.setAccountCacheData();
@@ -631,9 +623,9 @@ public class NGWSettingsActivity
 
 
     protected void deleteAccountLayers(
-            IGISApplication application,
+            final IGISApplication application,
             Account account) {
-        List<INGWLayer> layers = getLayersForAccount(this, account);
+        List<INGWLayer> layers = getLayersForAccount(application, account);
 
         for (INGWLayer layer : layers) {
             ((Layer) layer).delete();
@@ -648,11 +640,10 @@ public class NGWSettingsActivity
 
 
     protected static List<INGWLayer> getLayersForAccount(
-            Context context,
+            final IGISApplication application,
             Account account) {
         List<INGWLayer> out = new ArrayList<>();
 
-        IGISApplication application = (IGISApplication) context.getApplicationContext();
         MapContentProviderHelper.getLayersByAccount(application.getMap(), account.name, out);
 
         return out;

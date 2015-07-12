@@ -39,7 +39,7 @@ public class NGActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (PreferenceManager.getDefaultSharedPreferences(this)
-                .getBoolean(SettingsConstantsUI.KEY_PREF_DARKTHEME, false)) {
+                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark")) {
             setTheme(getThemeId(true));
         }
         else{

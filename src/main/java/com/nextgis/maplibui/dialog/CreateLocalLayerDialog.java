@@ -55,6 +55,7 @@ import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
+import com.nextgis.maplib.util.NGWUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.mapui.LocalTMSLayerUI;
 import com.nextgis.maplibui.mapui.NGWVectorLayerUI;
@@ -532,14 +533,14 @@ public class CreateLocalLayerDialog
 
                         //read fields
                         List<Field> fields =
-                                NGWVectorLayer.getFieldsFromJson(metaJson.getJSONArray("fields"));
+                                NGWVectorLayer.getFieldsFromJson(metaJson.getJSONArray(NGWUtil.NGWKEY_FIELDS));
                         //read geometry type
                         String geomTypeString = metaJson.getString("geometry_type");
                         int geomType = GeoGeometryFactory.typeFromString(geomTypeString);
 
                         //read SRS -- not need as we will be fill layer with 3857
-                        //JSONObject srs = metaJson.getJSONObject("srs");
-                        //int nSRS = srs.getInt("id");
+                        //JSONObject srs = metaJson.getJSONObject(NGWUtil.NGWKEY_SRS);
+                        //int nSRS = srs.getInt(NGWUtil.NGWKEY_ID);
 
                         FileUtil.deleteRecursive(meta);
 
@@ -551,14 +552,14 @@ public class CreateLocalLayerDialog
 
                         //read fields
                         List<Field> fields =
-                                NGWVectorLayer.getFieldsFromJson(metaJson.getJSONArray("fields"));
+                                NGWVectorLayer.getFieldsFromJson(metaJson.getJSONArray(NGWUtil.NGWKEY_FIELDS));
                         //read geometry type
                         String geomTypeString = metaJson.getString("geometry_type");
                         int geomType = GeoGeometryFactory.typeFromString(geomTypeString);
 
                         //read SRS -- not need as we will be fill layer with 3857
                         JSONObject srs = metaJson.getJSONObject("srs");
-                        int nSRS = srs.getInt("id");
+                        int nSRS = srs.getInt(NGWUtil.NGWKEY_ID);
 
                         FileUtil.deleteRecursive(meta);
                         String errorMessage =

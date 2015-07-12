@@ -47,7 +47,7 @@ public class NGPreferenceActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         boolean bDarkTheme = PreferenceManager.getDefaultSharedPreferences(this)
-                .getBoolean(SettingsConstantsUI.KEY_PREF_DARKTHEME, false);
+                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
         setTheme(getThemeId(bDarkTheme));
 
         super.onCreate(savedInstanceState);

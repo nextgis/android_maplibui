@@ -32,7 +32,7 @@ public interface SettingsConstantsUI
     String KEY_PREF_SYNC_PERIOD_SEC_LONG = "sync_period_sec_long";
     String KEY_PREF_SHOW_STATUS_PANEL    = "show_status_panel";
     String KEY_PREF_SHOW_CURRENT_LOC     = "show_current_location";
-    String KEY_PREF_DARKTHEME            = "is_theme_dark";
+    String KEY_PREF_THEME                = "theme";
     String KEY_PREF_APP_FIRST_RUN        = "app_first_run";
     String KEY_PREF_MAP_NAME             = "map_name";
 
