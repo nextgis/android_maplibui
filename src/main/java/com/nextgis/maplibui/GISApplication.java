@@ -79,8 +79,9 @@ public abstract class GISApplication extends Application
         mGpsEventSource = new GpsEventSource(this);
 
         getMap();
+
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPreferences.getBoolean(SettingsConstantsUI.KEY_PREF_THEME, false)) {
+        if (sharedPreferences.getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark")) {
             setTheme(getThemeId(true));
         }
         else{
