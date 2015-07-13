@@ -257,7 +257,8 @@ public class NGWLoginFragment
             }
 
         } else {
-            Account account = ((IGISApplication) appContext).getAccount(accountName);
+            IGISApplication app = (IGISApplication) getActivity().getApplication();
+            Account account = app.getAccount(accountName);
 
             if (null != account) {
                 if (mChangeAccountUrl) {
@@ -269,7 +270,7 @@ public class NGWLoginFragment
                 }
 
                 am.setPassword(account, mPassword.getText().toString());
-                NGWSettingsActivity.updateAccountLayersCacheData(appContext, account);
+                NGWSettingsActivity.updateAccountLayersCacheData(app, account);
             }
 
             getActivity().finish();
