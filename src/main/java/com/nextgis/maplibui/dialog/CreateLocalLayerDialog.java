@@ -78,6 +78,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static com.nextgis.maplib.util.Constants.MAX_CONTENT_LENGTH;
 import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplib.util.GeoConstants.*;
@@ -365,6 +366,8 @@ public class CreateLocalLayerDialog
                 int nIncrement = 0;
                 task.setMax(nSize);
                 //read all geojson
+
+                //TODO: use JsonReader
                 BufferedReader streamReader = new BufferedReader(
                         new InputStreamReader(inputStream, "UTF-8"));
                 StringBuilder responseStrBuilder = new StringBuilder();
@@ -373,6 +376,8 @@ public class CreateLocalLayerDialog
                     nIncrement += inputStr.length();
                     task.setProgress(nIncrement);
                     responseStrBuilder.append(inputStr);
+                    if(responseStrBuilder.length() > MAX_CONTENT_LENGTH)
+                        return mGroupLayer.getContext().getString(R.string.error_layer_create);
                 }
                 task.setMessage(mGroupLayer.getContext().getString(R.string.message_opening));
 
@@ -521,6 +526,7 @@ public class CreateLocalLayerDialog
                     layer.setMinZoom(0);
                     layer.setMaxZoom(100);
 
+                    //TODO: use JsonReader
                     File dataFile = new File(outputPath, FILE_DATA);
                     String jsonContent = FileUtil.readFromFile(dataFile);
 
