@@ -173,7 +173,7 @@ public class VectorLayerUI
             obj.put(GEOJSON_CRS, crs);
 
             JSONArray geoJSONFeatures = new JSONArray();
-            Cursor featuresCursor = query(null, null, null, null);
+            Cursor featuresCursor = query(null, null, null, null, null);
 
             if (null == featuresCursor) {
                 fw.close();

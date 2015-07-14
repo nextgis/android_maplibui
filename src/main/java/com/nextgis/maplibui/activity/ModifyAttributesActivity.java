@@ -160,7 +160,7 @@ public class ModifyAttributesActivity
         Cursor featureCursor = null;
 
         if (mFeatureId != NOT_FOUND) {
-            featureCursor = mLayer.query(null, FIELD_ID + " = " + mFeatureId, null, null);
+            featureCursor = mLayer.query(null, FIELD_ID + " = " + mFeatureId, null, null, null);
             if (!featureCursor.moveToFirst()) {
                 featureCursor = null;
             }
