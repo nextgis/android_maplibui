@@ -37,7 +37,7 @@
         <item name="windowActionBarOverlay">true</item>
         <item name="windowActionModeOverlay">false</item>
         <item name="ThemeOverlay.NextGIS.Toolbar">@style/Theme.NextGIS.AppCompat.ActionBar</item>
-        <item name="ThemeOverlay.NextGIS.ToolbarPopup">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="ThemeOverlay.NextGIS.ToolbarPopup">@style/ThemeOverlay.NextGIS.AppCompat.Light</item>
         <item name="android:textColorPrimary">@color/textColorPrimary.Light</item>
         <item name="android:textColorSecondary">@color/textColorSecondary.Light</item>
         <item name="android:textColor">@color/textColorPrimary.Light</item>
@@ -57,7 +57,7 @@
         <item name="windowActionBarOverlay">true</item>
         <item name="windowActionModeOverlay">false</item>
         <item name="ThemeOverlay.NextGIS.Toolbar">@style/Theme.NextGIS.AppCompat.ActionBar</item>
-        <item name="ThemeOverlay.NextGIS.ToolbarPopup">@style/ThemeOverlay.AppCompat</item>
+        <item name="ThemeOverlay.NextGIS.ToolbarPopup">@style/ThemeOverlay.NextGIS.AppCompat.Dark</item>
         <item name="android:textColorPrimary">@color/textColorPrimary.Dark</item>
         <item name="android:textColorSecondary">@color/textColorSecondary.Dark</item>
         <item name="android:textColor">@color/textColorPrimary.Dark</item>
@@ -83,6 +83,24 @@
         <item name="android:textColorSecondary">@color/textColorSecondaryInverse.Light</item>
         <item name="colorControlHighlight">@color/accent.Light</item>
         <item name="colorControlNormal">@color/textColorSecondaryInverse.Light</item>
+    </style>
+
+    <style name="ThemeOverlay.NextGIS.AppCompat.Light" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:textColorPrimary">@color/textColorPrimary.Light</item>
+        <item name="android:textColor">@color/textColorPrimary.Light</item>
+        <item name="android:textColorPrimaryInverse">@color/textColorPrimaryInverse.Light</item>
+        <item name="android:textColorPrimaryDisableOnly">@color/textColorPrimary.Light</item>
+        <item name="android:textColorSecondary">@color/textColorSecondary.Light</item>
+        <item name="android:textColorSecondaryInverse">@color/textColorSecondaryInverse.Light</item>
+    </style>
+
+    <style name="ThemeOverlay.NextGIS.AppCompat.Dark" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="android:textColorPrimary">@color/textColorPrimary.Dark</item>
+        <item name="android:textColor">@color/textColorPrimary.Dark</item>
+        <item name="android:textColorPrimaryInverse">@color/textColorPrimaryInverse.Dark</item>
+        <item name="android:textColorPrimaryDisableOnly">@color/textColorPrimary.Dark</item>
+        <item name="android:textColorSecondary">@color/textColorSecondary.Dark</item>
+        <item name="android:textColorSecondaryInverse">@color/textColorSecondaryInverse.Dark</item>
     </style>
 
     <style name="Theme.NextGIS.AppCompat.Light.Dialog"

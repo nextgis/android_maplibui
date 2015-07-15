@@ -56,18 +56,15 @@ public class NGPreferenceActivity
         if (null != root) {
             View content = root.getChildAt(0);
             if (null != content) {
-
-                // create ContextThemeWrapper from the original Activity Context with the custom theme
-                final Context contextThemeWrapper = new ContextThemeWrapper(this, getThemeId(bDarkTheme));
-
-                LinearLayout toolbarContainer = (LinearLayout) View.inflate(
-                        contextThemeWrapper, R.layout.activity_settings, null);
+                LinearLayout toolbarContainer = (LinearLayout) View.inflate( this,
+                        R.layout.activity_settings, null);
 
                 root.removeAllViews();
                 toolbarContainer.addView(content);
                 root.addView(toolbarContainer);
 
                 Toolbar toolbar = (Toolbar) toolbarContainer.findViewById(R.id.main_toolbar);
+                toolbar.setTitleTextColor(getResources().getColor(R.color.textColorPrimary_Dark));
                 toolbar.getBackground().setAlpha(255);
                 toolbar.setTitle(getTitle());
                 toolbar.setNavigationIcon(R.drawable.ic_action_home_light);
