@@ -21,10 +21,16 @@
 
 package com.nextgis.maplibui.activity;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.MenuItem;
 
 import com.nextgis.maplibui.R;
@@ -38,16 +44,25 @@ public class NGActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark")) {
-            setTheme(getThemeId(true));
-        }
-        else{
-            setTheme(getThemeId(false));
-        }
+        setTheme();
         super.onCreate(savedInstanceState);
     }
 
+    protected void setTheme(){
+        boolean bDark = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
+        final SharedPreferences.Editor edit =
+                PreferenceManager.getDefaultSharedPreferences(this).edit();
+        if (bDark) {
+            setTheme(getThemeId(true));
+            edit.putString("current_theme", "dark");
+        }
+        else{
+            setTheme(getThemeId(false));
+            edit.putString("current_theme", "light");
+        }
+        edit.commit();
+    }
     /**
      * This hook is called whenever an item in your options menu is selected.
      * The default implementation simply returns false to have the normal
@@ -104,5 +119,30 @@ public class NGActivity
             return R.style.Theme_NextGIS_AppCompat_Dark;
         else
             return R.style.Theme_NextGIS_AppCompat_Light;
+    }
+
+    @Override
+    protected void onResume() {
+        String newTheme = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light");
+        String currentTheme = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString("current_theme", "light");
+
+        if (!newTheme.equals(currentTheme)) {
+            refreshActivityView();
+        }
+        super.onResume();
+    }
+
+    protected void refreshActivityView()
+    {
+        Intent intent = getIntent();
+        finish();
+        startActivity(intent);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 }

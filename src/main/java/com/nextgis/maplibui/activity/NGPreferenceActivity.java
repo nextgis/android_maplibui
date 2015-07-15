@@ -46,10 +46,7 @@ public class NGPreferenceActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        boolean bDarkTheme = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
-        setTheme(getThemeId(bDarkTheme));
-
+        setTheme();
         super.onCreate(savedInstanceState);
 
         ViewGroup root = ((ViewGroup) findViewById(android.R.id.content));
@@ -84,6 +81,11 @@ public class NGPreferenceActivity
         }
     }
 
+    protected void setTheme(){
+        boolean bDarkTheme = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
+        setTheme(getThemeId(bDarkTheme));
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
