@@ -69,8 +69,27 @@ public class DateTimeControl
             int defStyleAttr)
     {
         super(context, attrs, defStyleAttr);
+
+        mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+        setSingleLine(true);
+        setFocusable(false);
+        setOnClickListener(getDateUpdateWatcher(DATETIME));
+
+        String pattern = mDateFormat.toLocalizedPattern();
+        setHint(pattern);
     }
 
+    public DateTimeControl(Context context, AttributeSet attrs) {
+        super(context, attrs);
+
+        mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+        setSingleLine(true);
+        setFocusable(false);
+        setOnClickListener(getDateUpdateWatcher(DATETIME));
+
+        String pattern = mDateFormat.toLocalizedPattern();
+        setHint(pattern);
+    }
 
     public DateTimeControl(
             Context context,
@@ -99,6 +118,9 @@ public class DateTimeControl
         setHint(pattern);
     }
 
+    public void setCurrentDate(){
+        setText(mDateFormat.format(Calendar.getInstance().getTime()));
+    }
 
     protected View.OnClickListener getDateUpdateWatcher(final int pickerType)
     {
