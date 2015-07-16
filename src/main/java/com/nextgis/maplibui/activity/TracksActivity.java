@@ -27,10 +27,14 @@ import android.app.ActivityManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -67,6 +71,8 @@ public class TracksActivity
 {
     private static final int    TRACKS_ID             = 0;
     private static final String BUNDLE_SELECTED_ITEMS = "selected_items";
+    protected static String BUNDLE_ISCHECKED_KEY = "is_cjecked";
+    protected static String BUNDLE_TAG_KEY = "tag";
 
     private Uri                    mContentUriTracks;
     private SimpleCursorAdapter    mSimpleCursorAdapter;
@@ -75,8 +81,7 @@ public class TracksActivity
     private HashMap<Long, Integer> mTracksPositionsIds;
     private ActionMode             mActionMode;
     private boolean mSelectState = false;
-    private boolean mNeedRestore = false;
-
+    protected static Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -90,7 +95,6 @@ public class TracksActivity
 
         if (savedInstanceState != null) {
             mIds = savedInstanceState.getStringArrayList(BUNDLE_SELECTED_ITEMS);
-            mNeedRestore = true;
         }
 
         IGISApplication application = (IGISApplication) getApplication();
@@ -168,10 +172,17 @@ public class TracksActivity
                             View view,
                             boolean visibility)
                     {
-                        ((ImageView) view).setImageResource(
+                        int[] attrs = new int[] { R.attr.ic_action_visibility_on, R.attr.ic_action_visibility_off};
+                        TypedArray ta = obtainStyledAttributes(attrs);
+                        Drawable visibilityOn = ta.getDrawable(0);
+                        Drawable visibilityOff = ta.getDrawable(1);
+
+                        ((ImageView) view).setImageDrawable(
                                 visibility
-                                ? R.drawable.ic_action_visibility_on
-                                : R.drawable.ic_action_visibility_off);
+                                        ? visibilityOn
+                                        : visibilityOff);
+
+                        ta.recycle();
                     }
                 });
 
@@ -182,30 +193,42 @@ public class TracksActivity
         mTracks.setAdapter(mSimpleCursorAdapter);
 
         mTracks.setOnItemClickListener(
-                new AdapterView.OnItemClickListener()
-                {
+                new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(
                             AdapterView<?> parent,
                             View view,
                             int position,
-                            long id)
-                    {
-                        if (mActionMode == null) {
-                            mActionMode = startSupportActionMode(TracksActivity.this);
-                        }
-
+                            long id) {
                         CheckBox cb = (CheckBox) view.findViewById(R.id.cb_item);
                         boolean isChecked = !cb.isChecked();
                         cb.setChecked(isChecked);
-                        updateSelectedItems(isChecked, (String) cb.getTag());
-                        mTracks.setItemChecked(position, isChecked);
+                        onUpdateSelectedItems(isChecked, (String) cb.getTag());
                     }
                 });
 
+        mHandler = new Handler() {
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+
+                Bundle resultData = msg.getData();
+                updateSelectedItems(resultData.getBoolean(BUNDLE_ISCHECKED_KEY), resultData.getString(BUNDLE_TAG_KEY));
+            }
+        };
         getSupportLoaderManager().initLoader(TRACKS_ID, null, this);
+
+        onUpdateSelectedItems(false, "qqq");
     }
 
+    protected void onUpdateSelectedItems(boolean isChecked, String tag){
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(BUNDLE_ISCHECKED_KEY, isChecked);
+        bundle.putString(BUNDLE_TAG_KEY, tag);
+
+        Message msg = new Message();
+        msg.setData(bundle);
+        mHandler.sendMessage(msg);
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState)
@@ -255,8 +278,12 @@ public class TracksActivity
             mIds.remove(id);
         }
 
+        if (!mIds.isEmpty() && mActionMode == null) {
+            mActionMode = startSupportActionMode(this);
+        }
+
         if (mActionMode != null) {
-            if (mIds.size() == 0) {
+            if (mIds.isEmpty()) {
                 mActionMode.finish();
             } else {
                 mActionMode.setTitle("" + mIds.size());
@@ -305,14 +332,6 @@ public class TracksActivity
             mTracksPositionsIds.put(mTracks.getItemIdAtPosition(i), i);
         }
 
-        if (mNeedRestore) {
-            mNeedRestore = false;
-            mActionMode = startSupportActionMode(this);
-            if (null != mActionMode) {
-                mActionMode.setTitle("" + mIds.size());
-            }
-        }
-
         if (data.getCount() == 0) {
             findViewById(R.id.tv_empty_list).setVisibility(View.VISIBLE);
         } else {
@@ -350,12 +369,8 @@ public class TracksActivity
             Menu menu)
     {
         MenuInflater inflater = actionMode.getMenuInflater();
+        inflater.inflate(R.menu.tracks, menu);
 
-        //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            inflater.inflate(R.menu.tracks_v21, menu);
-        //} else {
-        //    inflater.inflate(R.menu.tracks, menu);
-        //}
 
         ActionBar bar = getSupportActionBar();
         if (null != bar) {

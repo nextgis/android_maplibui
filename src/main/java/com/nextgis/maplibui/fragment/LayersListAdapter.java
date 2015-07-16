@@ -24,6 +24,8 @@
 package com.nextgis.maplibui.fragment;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -161,11 +163,15 @@ public class LayersListAdapter
         //final int id = layer.getId();
 
         ImageButton btShow = (ImageButton) v.findViewById(R.id.btShow);
-        //Log.d(TAG, "Layer #" + id + " is visible " + layer.isVisible());
-        btShow.setImageResource(
+        int[] attrs = new int[] { R.attr.ic_action_visibility_on, R.attr.ic_action_visibility_off};
+        TypedArray ta = mContext.obtainStyledAttributes(attrs);
+        Drawable visibilityOn = ta.getDrawable(0);
+        Drawable visibilityOff = ta.getDrawable(1);
+
+        btShow.setImageDrawable(//setImageResource(
                 layer.isVisible()
-                ? R.drawable.ic_action_visibility_on
-                : R.drawable.ic_action_visibility_off);
+                ? visibilityOn
+                : visibilityOff);
         //btShow.refreshDrawableState();
         btShow.setOnClickListener(
                 new View.OnClickListener()
@@ -177,6 +183,7 @@ public class LayersListAdapter
                         layer.save();
                     }
                 });
+        ta.recycle();
 
         final ImageButton btMore = (ImageButton) v.findViewById(R.id.btMore);
         btMore.setOnClickListener(

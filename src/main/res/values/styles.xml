@@ -26,6 +26,16 @@
 
     <attr name="ThemeOverlay.NextGIS.Toolbar" format="reference"/>
     <attr name="ThemeOverlay.NextGIS.ToolbarPopup" format="reference"/>
+    <attr name="ic_action_visibility_on_inverse" format="reference"/>
+    <attr name="ic_action_visibility_on" format="reference"/>
+    <attr name="ic_action_visibility_off_inverse" format="reference"/>
+    <attr name="ic_action_visibility_off" format="reference"/>
+    <attr name="ic_action_delete_inverse" format="reference"/>
+    <attr name="ic_action_delete" format="reference"/>
+    <attr name="ic_action_content_select_all_inverse" format="reference"/>
+    <attr name="ic_action_content_select_all" format="reference"/>
+    <attr name="ic_menu_moreoverflow_inverse" format="reference"/>
+    <attr name="ic_menu_moreoverflow" format="reference"/>
 
     <style name="Theme.NextGIS.AppCompat.Light"
            parent="Theme.AppCompat.Light.NoActionBar">
@@ -46,6 +56,18 @@
         <item name="colorControlHighlight">@color/accent</item>
         <item name="android:editTextStyle">@style/EditTextStyle.Light</item>
         <item name="actionModeBackground">@drawable/action_mode</item>
+        <item name="actionMenuTextColor">@color/textColorPrimary.Light</item>
+
+        <item name="ic_action_visibility_on_inverse">@drawable/ic_action_visibility_on_dark</item>
+        <item name="ic_action_visibility_on">@drawable/ic_action_visibility_on_light</item>
+        <item name="ic_action_visibility_off_inverse">@drawable/ic_action_visibility_off_dark</item>
+        <item name="ic_action_visibility_off">@drawable/ic_action_visibility_off_light</item>
+        <item name="ic_action_delete_inverse">@drawable/ic_action_delete_dark</item>
+        <item name="ic_action_delete">@drawable/ic_action_delete_light</item>
+        <item name="ic_action_content_select_all_inverse">@drawable/ic_action_content_select_all_dark</item>
+        <item name="ic_action_content_select_all">@drawable/ic_action_content_select_all_light</item>
+        <item name="ic_menu_moreoverflow_inverse">@drawable/ic_menu_moreoverflow_dark</item>
+        <item name="ic_menu_moreoverflow">@drawable/ic_menu_moreoverflow_light</item>
     </style>
 
     <style name="Theme.NextGIS.AppCompat.Dark"
@@ -67,17 +89,18 @@
         <item name="colorControlHighlight">@color/accent</item>
         <item name="android:editTextStyle">@style/EditTextStyle.Dark</item>
         <item name="actionModeBackground">@drawable/action_mode</item>
-    </style>
+        <item name="actionMenuTextColor">@color/textColorPrimary.Dark</item>
 
-    <style name="Theme.NextGIS.ActionMode" parent="@style/Widget.AppCompat.ActionMode">
-        <item name="android:background">?attr/colorPrimaryDark</item>
-        <item name="backgroundSplit">?attr/colorPrimaryDark</item>
-        <item name="android:textColor">?android:textColorPrimary</item>
-    </style>
-
-    <style name="Base.TextAppearance.AppCompat.Title">
-        <item name="android:textSize">@dimen/abc_text_size_title_material</item>
-        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="ic_action_visibility_on_inverse">@drawable/ic_action_visibility_on_light</item>
+        <item name="ic_action_visibility_on">@drawable/ic_action_visibility_on_dark</item>
+        <item name="ic_action_visibility_off_inverse">@drawable/ic_action_visibility_off_light</item>
+        <item name="ic_action_visibility_off">@drawable/ic_action_visibility_off_dark</item>
+        <item name="ic_action_delete_inverse">@drawable/ic_action_delete_light</item>
+        <item name="ic_action_delete">@drawable/ic_action_delete_dark</item>
+        <item name="ic_action_content_select_all_inverse">@drawable/ic_action_content_select_all_light</item>
+        <item name="ic_action_content_select_all">@drawable/ic_action_content_select_all_dark</item>
+        <item name="ic_menu_moreoverflow_inverse">@drawable/ic_menu_moreoverflow_light</item>
+        <item name="ic_menu_moreoverflow">@drawable/ic_menu_moreoverflow_dark</item>
     </style>
 
     <style name="EditTextStyle.Light" parent="Widget.AppCompat.EditText">

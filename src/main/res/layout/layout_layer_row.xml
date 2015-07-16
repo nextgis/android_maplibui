@@ -54,7 +54,6 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:ellipsize="end"
         android:maxLines="2"
-        android:textColor="@color/abc_primary_text_material_light"
         />
 
     <ImageButton
@@ -76,7 +75,7 @@
         android:layout_gravity="center"
         android:layout_margin="5dp"
         android:background="@null"
-        android:src="@drawable/abc_ic_menu_moreoverflow_mtrl_alpha"
+        android:src="?attr/ic_menu_moreoverflow"
         android:tint="@color/primary_dark_material_light"
         tools:ignore="ContentDescription"
         />
