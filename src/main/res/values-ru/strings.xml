@@ -131,7 +131,6 @@
     <string name="menu_share">Поделиться</string>
     <string name="menu_visibility_on">Показать</string>
     <string name="menu_visibility_off">Скрыть</string>
-    <string name="cab_selected">"выбран(о)"</string>
     <string name="nothing_selected">Ничего не выбрано</string>
     <string name="unclosed_track_deleted">Текущий трек тоже удален</string>
     <string name="folder">Папка</string>

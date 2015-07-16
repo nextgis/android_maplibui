@@ -259,7 +259,7 @@ public class TracksActivity
             if (mIds.size() == 0) {
                 mActionMode.finish();
             } else {
-                mActionMode.setTitle("" + mIds.size());// + " " + getString(R.string.cab_selected));
+                mActionMode.setTitle("" + mIds.size());
             }
         }
     }
@@ -309,7 +309,7 @@ public class TracksActivity
             mNeedRestore = false;
             mActionMode = startSupportActionMode(this);
             if (null != mActionMode) {
-                mActionMode.setTitle(mIds.size() + getString(R.string.cab_selected));
+                mActionMode.setTitle("" + mIds.size());
             }
         }
 
@@ -351,11 +351,11 @@ public class TracksActivity
     {
         MenuInflater inflater = actionMode.getMenuInflater();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             inflater.inflate(R.menu.tracks_v21, menu);
-        } else {
-            inflater.inflate(R.menu.tracks, menu);
-        }
+        //} else {
+        //    inflater.inflate(R.menu.tracks, menu);
+        //}
 
         ActionBar bar = getSupportActionBar();
         if (null != bar) {
