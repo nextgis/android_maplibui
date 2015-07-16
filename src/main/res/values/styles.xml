@@ -30,9 +30,9 @@
     <style name="Theme.NextGIS.AppCompat.Light"
            parent="Theme.AppCompat.Light.NoActionBar">
         <item name="isLightTheme">true</item>
-        <item name="colorPrimary">@color/primary.Light</item>
-        <item name="colorPrimaryDark">@color/primary_dark.Light</item>
-        <item name="colorAccent">@color/accent.Light</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
         <item name="undoBarStyle">@style/UndoBarMaterialStyle</item>
         <item name="windowActionBarOverlay">true</item>
         <item name="windowActionModeOverlay">false</item>
@@ -42,17 +42,18 @@
         <item name="android:textColorSecondary">@color/textColorSecondary.Light</item>
         <item name="android:textColor">@color/textColorPrimary.Light</item>
         <item name="colorControlNormal">@color/textColorPrimary.Light</item>
-        <item name="colorControlActivated">@color/accent.Light</item>
-        <item name="colorControlHighlight">@color/accent.Light</item>
+        <item name="colorControlActivated">@color/accent</item>
+        <item name="colorControlHighlight">@color/accent</item>
         <item name="android:editTextStyle">@style/EditTextStyle.Light</item>
+        <item name="actionModeBackground">@drawable/action_mode</item>
     </style>
 
     <style name="Theme.NextGIS.AppCompat.Dark"
            parent="Theme.AppCompat.NoActionBar">
         <item name="isLightTheme">false</item>
-        <item name="colorPrimary">@color/primary.Dark</item>
-        <item name="colorPrimaryDark">@color/primary_dark.Dark</item>
-        <item name="colorAccent">@color/accent.Dark</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
         <item name="undoBarStyle">@style/UndoBarMaterialStyle</item>
         <item name="windowActionBarOverlay">true</item>
         <item name="windowActionModeOverlay">false</item>
@@ -62,9 +63,21 @@
         <item name="android:textColorSecondary">@color/textColorSecondary.Dark</item>
         <item name="android:textColor">@color/textColorPrimary.Dark</item>
         <item name="colorControlNormal">@color/textColorPrimary.Dark</item>
-        <item name="colorControlActivated">@color/accent.Dark</item>
-        <item name="colorControlHighlight">@color/accent.Dark</item>
+        <item name="colorControlActivated">@color/accent</item>
+        <item name="colorControlHighlight">@color/accent</item>
         <item name="android:editTextStyle">@style/EditTextStyle.Dark</item>
+        <item name="actionModeBackground">@drawable/action_mode</item>
+    </style>
+
+    <style name="Theme.NextGIS.ActionMode" parent="@style/Widget.AppCompat.ActionMode">
+        <item name="android:background">?attr/colorPrimaryDark</item>
+        <item name="backgroundSplit">?attr/colorPrimaryDark</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+    </style>
+
+    <style name="Base.TextAppearance.AppCompat.Title">
+        <item name="android:textSize">@dimen/abc_text_size_title_material</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
     </style>
 
     <style name="EditTextStyle.Light" parent="Widget.AppCompat.EditText">
@@ -81,7 +94,7 @@
         <item name="android:textColorPrimary">@color/textColorPrimaryInverse.Light</item>
         <item name="android:textColor">@color/textColorPrimaryInverse.Light</item>
         <item name="android:textColorSecondary">@color/textColorSecondaryInverse.Light</item>
-        <item name="colorControlHighlight">@color/accent.Light</item>
+        <item name="colorControlHighlight">@color/accent</item>
         <item name="colorControlNormal">@color/textColorSecondaryInverse.Light</item>
     </style>
 
