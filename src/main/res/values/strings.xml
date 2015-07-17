@@ -182,4 +182,6 @@
     <string name="make_grayscale">Make grayscale</string>
     <string name="contrast">Contrast</string>
     <string name="brightness">Brightness</string>
+    <string name="menu_zoom_extent">Zoom to extent</string>
+    <string name="menu_download_tiles">Download tiles</string>
 </resources>

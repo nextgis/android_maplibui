@@ -24,11 +24,18 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     >
+    <item
+        android:id="@+id/menu_zoom_extent"
+        android:title="@string/menu_zoom_extent"
+        android:orderInCategory="1"
+        android:visible="false"
+        />
 
     <item
-        android:id="@+id/menu_settings"
-        android:title="@string/action_settings"
+        android:id="@+id/menu_download_tiles"
+        android:title="@string/menu_download_tiles"
         android:orderInCategory="2"
+        android:visible="false"
         />
 
     <item
@@ -42,6 +49,11 @@
         android:id="@+id/menu_delete"
         android:title="@string/menu_delete"
         android:orderInCategory="4"
+        />
+    <item
+        android:id="@+id/menu_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="5"
         />
 
 </menu>

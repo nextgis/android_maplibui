@@ -36,11 +36,16 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.nextgis.maplib.api.MapEventListener;
+import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.Layer;
+import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.MapEventSource;
+import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
+import com.nextgis.maplibui.mapui.LocalTMSLayerUI;
+import com.nextgis.maplibui.mapui.MapView;
 import com.nextgis.maplibui.mapui.TrackLayerUI;
 import com.nextgis.maplibui.mapui.VectorLayerUI;
 
@@ -56,13 +61,13 @@ public class LayersListAdapter
         implements MapEventListener
 {
 
-    protected final MapEventSource mMap;
+    protected final MapDrawable mMap;
     protected final Context        mContext;
 
 
     public LayersListAdapter(
             Context context,
-            MapEventSource map)
+            MapDrawable map)
     {
         mMap = map;
         mContext = context;
@@ -201,9 +206,16 @@ public class LayersListAdapter
 
                         if (layerui instanceof TrackLayerUI) {
                             popup.getMenu().findItem(R.id.menu_delete).setVisible(false);
-                        } else if (layerui instanceof VectorLayerUI) {
-                            popup.getMenu().findItem(R.id.menu_share).setVisible(true);
                         }
+                        else if (layerui instanceof VectorLayerUI) {
+                            popup.getMenu().findItem(R.id.menu_share).setVisible(true);
+                            popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(true);
+                            popup.getMenu().findItem(R.id.menu_download_tiles).setVisible(true);
+                        }
+                        /*TODO: Extent fo local tms layer
+                        else if (layerui instanceof LocalTMSLayerUI) {
+                            popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(true);
+                        }*/
 
                         popup.setOnMenuItemClickListener(
                                 new PopupMenu.OnMenuItemClickListener()
@@ -215,17 +227,30 @@ public class LayersListAdapter
                                             //Layer layer = mMap.getLayerById(id);
                                             assert layerui != null;
                                             layerui.changeProperties(mContext);
-                                        } else if (i == R.id.menu_share) {
+                                        }
+                                        else if (i == R.id.menu_share) {
                                             assert (layerui) != null;
 
                                             if (layerui instanceof VectorLayerUI) {
                                                 ((VectorLayerUI) layerui).shareGeoJSON();
                                             }
 
-                                        } else if (i == R.id.menu_delete) {
+                                        }
+                                        else if (i == R.id.menu_delete) {
                                             layer.delete();
                                             mMap.save();
                                         }
+                                        else if (i == R.id.menu_zoom_extent) {
+                                            GeoEnvelope layerEnv = layer.getExtents();
+                                            if(layerEnv.isInit()) {
+                                                double size = GeoConstants.MERCATOR_MAX * 2;
+                                                double scale = Math.min(layerEnv.width() / size,
+                                                        layerEnv.height() / size);
+                                                double zoom = MapView.lg(1 / scale);
+                                                mMap.setZoomAndCenter((float) zoom, layerEnv.getCenter());
+                                            }
+                                        }
+
                                         return true;
                                     }
                                 });
