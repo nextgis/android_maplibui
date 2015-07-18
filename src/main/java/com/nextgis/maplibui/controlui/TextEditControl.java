@@ -24,9 +24,12 @@
 package com.nextgis.maplibui.controlui;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Build;
 import android.text.InputType;
+import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import com.nextgis.maplib.datasource.Field;
@@ -46,6 +49,16 @@ public class TextEditControl
         super(context);
     }
 
+    public TextEditControl(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    public TextEditControl(Context context, AttributeSet attrs, int defStyleAttr, Field field,
+                           Cursor featureCursor) {
+        super(context, attrs, defStyleAttr);
+
+        init(field, featureCursor);
+    }
 
     public TextEditControl(
             Context context,
@@ -54,6 +67,11 @@ public class TextEditControl
     {
         super(context);
 
+        init(field, featureCursor);
+    }
+
+    protected void init(Field field,
+                        Cursor featureCursor){
         mFieldName = field.getName();
 
         if (null != featureCursor) {
@@ -81,7 +99,6 @@ public class TextEditControl
                 break;
         }
     }
-
 
     public String getFieldName()
     {

@@ -35,6 +35,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -166,7 +167,11 @@ public class ModifyAttributesActivity
             }
         }
 
+        boolean bDark = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
+
         List<Field> fields = mLayer.getFields();
+
 
         for (Field field : fields) {
             //create static text with alias
@@ -181,7 +186,8 @@ public class ModifyAttributesActivity
                 case GeoConstants.FTString:
                 case GeoConstants.FTInteger:
                 case GeoConstants.FTReal:
-                    control = new TextEditControl(this, field, featureCursor);
+                    //ContextThemeWrapper ctw = new ContextThemeWrapper(this, getThemeId(bDark));null, getThemeId(bDark),
+                    control = new TextEditControl(layout.getContext(), field, featureCursor);
                     break;
 
                 case GeoConstants.FTDateTime:

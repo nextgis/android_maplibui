@@ -184,4 +184,7 @@
     <string name="brightness">Brightness</string>
     <string name="menu_zoom_extent">Zoom to extent</string>
     <string name="menu_download_tiles">Download tiles</string>
+    <string name="select_zoom_levels_to_download">Select min and max zoom levels to download tiles of current extent</string>
+    <string name="start">Start</string>
+    <string name="select_zoom_levels_to_download_title">Select zoom levels to download</string>
 </resources>

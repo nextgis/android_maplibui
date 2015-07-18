@@ -26,10 +26,16 @@ package com.nextgis.maplibui.mapui;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.FragmentActivity;
+
+import com.nextgis.maplib.datasource.GeoEnvelope;
+import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.RemoteTMSLayerSettingsActivity;
 import com.nextgis.maplibui.api.ILayerUI;
+import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
+import com.nextgis.maplibui.dialog.SelectZoomLevelsDialog;
 
 import java.io.File;
 
@@ -60,5 +66,12 @@ public class RemoteTMSLayerUI
         settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         settings.putExtra(RemoteTMSLayerSettingsActivity.LAYER_ID_KEY, getId());
         context.startActivity(settings);
+    }
+
+    public void downloadTiles(Context context, GeoEnvelope env) {
+        //TODO: set envelope and layer id
+        FragmentActivity fragmentActivity = (FragmentActivity) context;
+        SelectZoomLevelsDialog newFragment = new SelectZoomLevelsDialog();
+        newFragment.show(fragmentActivity.getSupportFragmentManager(), "select_zoom_levels");
     }
 }
