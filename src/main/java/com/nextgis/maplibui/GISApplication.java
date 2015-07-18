@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import static com.nextgis.maplib.util.Constants.MAP_EXT;
+import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_MAP;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIODICALLY;
@@ -260,5 +261,54 @@ public abstract class GISApplication extends Application
             return false;
         int hasPerm = pm.checkPermission(permission, getPackageName());
         return hasPerm == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @Override
+    public boolean addAccount(String name, String url, String login, String password, String token) {
+        if(!checkPermission(Manifest.permission.AUTHENTICATE_ACCOUNTS)){
+            return false;
+        }
+        final Account account = new Account(name, NGW_ACCOUNT_TYPE);
+
+        Bundle userData = new Bundle();
+        userData.putString("url", url.trim());
+        userData.putString("login", login);
+
+        AccountManager accountManager = AccountManager.get(this);
+
+        boolean accountAdded =
+                accountManager.addAccountExplicitly(account, password, userData);
+
+        if (accountAdded) {
+            accountManager.setAuthToken(account, account.type, token);
+        }
+
+        return accountAdded;
+    }
+
+    @Override
+    public void setPassword(String name, String value) {
+        if(!checkPermission(Manifest.permission.AUTHENTICATE_ACCOUNTS)){
+            return;
+        }
+        Account account = getAccount(name);
+
+        if (null != account) {
+            AccountManager accountManager = AccountManager.get(this);
+            accountManager.setPassword(account, value);
+        }
+    }
+
+    @Override
+    public void setUserData(String name, String key, String value) {
+        if(!checkPermission(Manifest.permission.AUTHENTICATE_ACCOUNTS)){
+            return;
+        }
+        Account account = getAccount(name);
+
+        if (null != account) {
+            AccountManager accountManager = AccountManager.get(this);
+            accountManager.setUserData(account, key, value);
+        }
     }
 }

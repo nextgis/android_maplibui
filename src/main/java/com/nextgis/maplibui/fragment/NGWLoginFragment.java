@@ -235,43 +235,32 @@ public class NGWLoginFragment
             String accountName,
             String token)
     {
-        Context appContext = getActivity().getApplicationContext();
-        final AccountManager am = AccountManager.get(appContext);
+        IGISApplication app = (IGISApplication) getActivity().getApplication();
 
         if (mForNewAccount) {
-            final Account account = new Account(accountName, NGW_ACCOUNT_TYPE);
-
-            Bundle userData = new Bundle();
-            userData.putString("url", mURL.getText().toString().trim());
-            userData.putString("login", mLogin.getText().toString());
-
-            boolean accountAdded =
-                    am.addAccountExplicitly(account, mPassword.getText().toString(), userData);
-
-            if (accountAdded) {
-                am.setAuthToken(account, account.type, token);
+            boolean accountAdded = app.addAccount(accountName, mURL.getText().toString(), mLogin.getText().toString(), mPassword.getText().toString(), token);
+            if(accountAdded) {
+                if (null != mOnAddAccountListener) {
+                    mOnAddAccountListener.onAddAccount(app.getAccount(accountName), token, accountAdded);
+                }
             }
-
-            if (null != mOnAddAccountListener) {
-                mOnAddAccountListener.onAddAccount(account, token, accountAdded);
+            else {
+                if (null != mOnAddAccountListener) {
+                    mOnAddAccountListener.onAddAccount(null, token, accountAdded);
+                }
             }
 
         } else {
-            IGISApplication app = (IGISApplication) getActivity().getApplication();
-            Account account = app.getAccount(accountName);
-
-            if (null != account) {
-                if (mChangeAccountUrl) {
-                    am.setUserData(account, "url", mURL.getText().toString().trim());
-                }
-
-                if (mChangeAccountLogin) {
-                    am.setUserData(account, "login", mLogin.getText().toString());
-                }
-
-                am.setPassword(account, mPassword.getText().toString());
-                NGWSettingsActivity.updateAccountLayersCacheData(app, account);
+            if (mChangeAccountUrl) {
+                app.setUserData(accountName, "url", mURL.getText().toString().trim());
             }
+
+            if (mChangeAccountLogin) {
+                app.setUserData(accountName, "login", mLogin.getText().toString());
+            }
+
+            app.setPassword(accountName, mPassword.getText().toString());
+            NGWSettingsActivity.updateAccountLayersCacheData(app, app.getAccount(accountName));
 
             getActivity().finish();
         }
