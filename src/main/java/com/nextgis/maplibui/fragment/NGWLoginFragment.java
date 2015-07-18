@@ -284,7 +284,7 @@ public class NGWLoginFragment
     }
 
 
-    protected class LocalTextWatcher
+    public class LocalTextWatcher
             implements TextWatcher
     {
         public void afterTextChanged(Editable s)
