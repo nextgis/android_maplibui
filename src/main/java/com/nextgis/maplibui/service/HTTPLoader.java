@@ -145,7 +145,7 @@ public class HTTPLoader
                 return null;
             }
             return head.getValue();
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             e.printStackTrace();
             return null;
         }
