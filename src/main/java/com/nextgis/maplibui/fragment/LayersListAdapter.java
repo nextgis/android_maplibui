@@ -41,6 +41,7 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.MapEventSource;
+import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
@@ -250,6 +251,13 @@ public class LayersListAdapter
                                                         layerEnv.height() / size);
                                                 double zoom = MapView.lg(1 / scale);
                                                 mMap.setZoomAndCenter((float) zoom, layerEnv.getCenter());
+                                            }
+                                        }
+                                        else if(i == R.id.menu_download_tiles){
+                                            GeoEnvelope env = mMap.getCurrentBounds();
+                                            if(layer instanceof RemoteTMSLayerUI) {
+                                                RemoteTMSLayerUI remoteTMSLayer = (RemoteTMSLayerUI) layer;
+                                                remoteTMSLayer.downloadTiles(mContext, env);
                                             }
                                         }
 

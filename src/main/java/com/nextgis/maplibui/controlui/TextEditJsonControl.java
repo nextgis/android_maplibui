@@ -27,6 +27,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.text.InputType;
+import android.util.AttributeSet;
+
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.GeoConstants;
 import org.json.JSONException;
@@ -44,16 +46,29 @@ public class TextEditJsonControl
 {
     protected boolean mIsShowLast;
 
+    public TextEditJsonControl(Context context, AttributeSet attrs, int defStyleAttr, JSONObject element,
+                               List<Field> fields,
+                               Cursor featureCursor) throws JSONException {
+        super(context, attrs, defStyleAttr);
+
+        init(element, fields, featureCursor);
+    }
 
     public TextEditJsonControl(
             Context context,
             JSONObject element,
             List<Field> fields,
-            Cursor featureCursor)
-            throws JSONException
+            Cursor featureCursor) throws JSONException
+
     {
         super(context);
 
+        init(element, fields, featureCursor);
+    }
+
+    protected void init(JSONObject element,
+                        List<Field> fields,
+                        Cursor featureCursor) throws JSONException{
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
 
         mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);
@@ -121,7 +136,5 @@ public class TextEditJsonControl
             }
         }
     }
-
-
 
 }

@@ -706,7 +706,7 @@ public class EditLayerOverlay
                                         return false;
                                     }
 
-                                    GeoPoint center = mapDrawable.getFullBounds().getCenter();
+                                    GeoPoint center = mapDrawable.getFullScreenBounds().getCenter();
 
                                     mDrawItems.clear();
 
@@ -753,7 +753,7 @@ public class EditLayerOverlay
                                         return false;
                                     }
 
-                                    GeoPoint center = mapDrawable.getFullBounds().getCenter();
+                                    GeoPoint center = mapDrawable.getFullScreenBounds().getCenter();
                                     if (mLayer.getGeometryType() == GeoConstants.GTPoint) {
                                         mItem = new VectorCacheItem(
                                                 new GeoPoint(), Constants.NOT_FOUND);

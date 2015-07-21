@@ -184,4 +184,16 @@
     <string name="brightness">Яркость</string>
     <string name="menu_zoom_extent">Увеличить до охвата</string>
     <string name="menu_download_tiles">Загрузить тайлы</string>
+    <string name="select_zoom_levels_to_download">Выберите уровни зума, что бы загрузить тайлы в текущем охвате</string>
+    <string name="start">Начать</string>
+    <string name="select_zoom_levels_to_download_title">Выберите уровни зума для загрузки</string>
+    <string name="download_complete">Загрузка завершена</string>
+    <string name="download_in_progress">Загрузка…</string>
+    <string name="cancel_download">Загрузка отменена</string>
+    <string name="download_tiles">Загрузка тайлов</string>
+    <string name="form_tiles_list">Form tiles list</string>
+    <string name="tracks_running">Записывается трек</string>
+    <string name="tracks_title">Трек %s</string>
+    <string name="tracks_stop">Стоп</string>
+    <string name="tracks_open">Открыть</string>
 </resources>

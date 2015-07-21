@@ -81,6 +81,15 @@
                 />
         </service>
 
+        <service
+            android:name="com.nextgis.maplibui.service.TileDownloadService"
+            />
+
+        <service
+            android:process=":tracks"
+            android:name="com.nextgis.maplibui.service.TrackerService"
+            />
+
     </application>
 
 </manifest>

@@ -27,6 +27,8 @@ import android.content.ContentValues;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v7.internal.view.ContextThemeWrapper;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import com.nextgis.maplib.datasource.Field;
@@ -40,6 +42,8 @@ import com.nextgis.maplibui.controlui.IControl;
 import com.nextgis.maplibui.controlui.RadioGroupJsonControl;
 import com.nextgis.maplibui.controlui.TextEditJsonControl;
 import com.nextgis.maplibui.controlui.TextLabelJsonControl;
+import com.nextgis.maplibui.util.SettingsConstantsUI;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -110,6 +114,9 @@ public class FormBuilderModifyAttributesActivity
             }
         }
 
+        boolean bDark = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
+
         List<Field> fields = mLayer.getFields();
 
         for (int i = 0; i < elements.length(); i++) {
@@ -121,27 +128,31 @@ public class FormBuilderModifyAttributesActivity
             switch (type) {
 
                 case JSON_TEXT_LABEL_VALUE:
-                    control = new TextLabelJsonControl(this, element);
+                    control = new TextLabelJsonControl(layout.getContext(), element);
                     break;
 
                 case JSON_TEXT_EDIT_VALUE:
-                    control = new TextEditJsonControl(this, element, fields, featureCursor);
+                    LinearLayout.LayoutParams mParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+                    TextEditJsonControl ed = new TextEditJsonControl(this, element, fields, featureCursor);
+                    ed.setLayoutParams(mParams);
+                    control = ed;
                     break;
 
                 case JSON_DATE_TIME_VALUE:
-                    control = new DateTimeJsonControl(this, element, fields, featureCursor);
+                    control = new DateTimeJsonControl(layout.getContext(), element, fields, featureCursor);
                     break;
 
                 case JSON_RADIO_GROUP_VALUE:
-                    control = new RadioGroupJsonControl(this, element, fields, featureCursor);
+                    control = new RadioGroupJsonControl(layout.getContext(), element, fields, featureCursor);
                     break;
 
                 case JSON_COMBOBOX_VALUE:
-                    control = new ComboboxJsonControl(this, element, fields, featureCursor);
+                    control = new ComboboxJsonControl(layout.getContext(), element, fields, featureCursor);
                     break;
 
                 case JSON_DOUBLE_COMBOBOX_VALUE:
-                    control = new DoubleComboboxJsonControl(this, element, fields, featureCursor);
+                    control = new DoubleComboboxJsonControl(layout.getContext(), element, fields, featureCursor);
                     break;
 
                 //TODO: add controls
@@ -170,6 +181,8 @@ public class FormBuilderModifyAttributesActivity
         if (null != featureCursor) {
             featureCursor.close();
         }
+
+        layout.requestLayout();
     }
 
 
