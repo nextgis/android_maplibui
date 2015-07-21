@@ -69,9 +69,9 @@ public class RemoteTMSLayerUI
     }
 
     public void downloadTiles(Context context, GeoEnvelope env) {
-        //TODO: set envelope and layer id
         FragmentActivity fragmentActivity = (FragmentActivity) context;
         SelectZoomLevelsDialog newFragment = new SelectZoomLevelsDialog();
-        newFragment.show(fragmentActivity.getSupportFragmentManager(), "select_zoom_levels");
+        newFragment.setEnvelope(env).setLayerId(getId()).
+                show(fragmentActivity.getSupportFragmentManager(), "select_zoom_levels");
     }
 }

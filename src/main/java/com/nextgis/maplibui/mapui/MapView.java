@@ -249,7 +249,7 @@ public class MapView
 
             float zoom = getZoomForScaleFactor(mScaleFactor);
 
-            GeoEnvelope env = mMap.getFullBounds();
+            GeoEnvelope env = mMap.getFullScreenBounds();
             GeoPoint focusPt = new GeoPoint(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y);
 
             double invertScale = 1 / mScaleFactor;
@@ -312,7 +312,7 @@ public class MapView
 
             //Log.d(TAG, "panMoveTo x - " + x + " y - " + y);
 
-            GeoEnvelope bounds = mMap.getFullBounds();
+            GeoEnvelope bounds = mMap.getFullScreenBounds();
             bounds.offset(x, y);
 
             GeoEnvelope limits = mMap.getLimits();
@@ -343,7 +343,7 @@ public class MapView
 
             Log.d(TAG, "panStop x - " + x + " y - " + y);
 
-            GeoEnvelope bounds = mMap.getFullBounds();
+            GeoEnvelope bounds = mMap.getFullScreenBounds();
             bounds.offset(x, y);
             GeoEnvelope mapBounds = mMap.screenToMap(bounds);
 
@@ -452,7 +452,7 @@ public class MapView
                     float x = mScroller.getCurrX();
                     float y = mScroller.getCurrY();
 
-                    GeoEnvelope bounds = mMap.getFullBounds();
+                    GeoEnvelope bounds = mMap.getFullScreenBounds();
                     bounds.offset(x, y);
 
                     GeoEnvelope limits = mMap.getLimits();
@@ -541,7 +541,7 @@ public class MapView
         mCurrentFocusLocation.set(-e.getX(), -e.getY());
         invalidate();
 
-        GeoEnvelope env = mMap.getFullBounds();
+        GeoEnvelope env = mMap.getFullScreenBounds();
         GeoPoint focusPt = new GeoPoint(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y);
 
         double invertScale = 1 / mScaleFactor;
