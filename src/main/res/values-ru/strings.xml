@@ -191,11 +191,10 @@
     <string name="download_in_progress">Загрузка…</string>
     <string name="cancel_download">Загрузка отменена</string>
     <string name="download_tiles">Загрузка тайлов</string>
-    <string name="form_tiles_list">Form tiles list</string>
+    <string name="form_tiles_list">Формирование списка тайлов</string>
     <string name="tracks_running">Записывается трек</string>
     <string name="tracks_title">Трек %s</string>
     <string name="tracks_stop">Стоп</string>
     <string name="tracks_open">Открыть</string>
-    <string name="download_tiles_finished">Tiles download finished</string>
-    <string name="not_implemented">Not implemented yet</string>
+    <string name="download_tiles_finished">Завершена загрузка тайлов</string>
 </resources>
