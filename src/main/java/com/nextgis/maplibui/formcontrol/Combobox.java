@@ -21,16 +21,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui.controlui;
+package com.nextgis.maplibui.formcontrol;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
+import android.support.v7.widget.AppCompatSpinner;
+import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplibui.api.IFormControl;
+import com.nextgis.maplibui.control.GreyLine;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,27 +43,37 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.nextgis.maplibui.util.ConstantsUI.*;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_DEFAULT_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_SHOW_LAST_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUES_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_ALIAS_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_NAME_KEY;
 
-
-@SuppressLint("ViewConstructor")
-public class ComboboxJsonControl
-        extends Spinner
-        implements IControl
+public class Combobox extends AppCompatSpinner implements IFormControl
 {
     protected String              mFieldName;
     protected boolean             mIsShowLast;
     protected Map<String, String> mAliasValueMap;
 
-
-    public ComboboxJsonControl(
-            Context context,
-            JSONObject element,
-            List<Field> fields,
-            Cursor featureCursor)
-            throws JSONException
-    {
+    public Combobox(Context context) {
         super(context);
+    }
+
+    public Combobox(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public Combobox(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+
+    @Override
+    public void init(JSONObject element,
+                     List<Field> fields,
+                     Cursor featureCursor) throws JSONException{
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
 
@@ -98,7 +112,7 @@ public class ComboboxJsonControl
         mAliasValueMap = new HashMap<>();
 
         ArrayAdapter<String> spinnerArrayAdapter =
-                new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
+                new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item);
         setAdapter(spinnerArrayAdapter);
 
         for (int j = 0; j < values.length(); j++) {

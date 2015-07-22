@@ -21,40 +21,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui.controlui;
+package com.nextgis.maplibui.control;
 
 import android.content.Context;
-import android.text.TextUtils;
+import android.database.Cursor;
+import android.support.v7.widget.AppCompatTextView;
+import android.util.AttributeSet;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import com.nextgis.maplibui.R;
+
+import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplibui.api.IControl;
+import com.nextgis.maplibui.api.ISimpleControl;
 
 
-public class TextLabelControl
-        extends TextView
-        implements IControl
+public class TextLabel
+        extends AppCompatTextView
+        implements ISimpleControl
 {
-    public TextLabelControl(Context context)
-    {
+
+
+    public TextLabel(Context context) {
         super(context);
-        init(context);
     }
 
-    public TextLabelControl(Context context, String text)
-    {
-        super(context);
-        init(context);
-        setText(text);
+    public TextLabel(Context context, AttributeSet attrs) {
+        super(context, attrs);
     }
 
-
-    protected void init(Context context)
-    {
-        setEllipsize(TextUtils.TruncateAt.END);
-        setTextAppearance(context, R.style.Base_TextAppearance_AppCompat_Medium);
-        setTextColor(getResources().getColor(R.color.hint_foreground_material_light));
+    public TextLabel(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
     }
-
 
     @Override
     public String getFieldName()
@@ -76,5 +72,10 @@ public class TextLabelControl
     {
         // do nothing
         return null;
+    }
+
+    @Override
+    public void init(Field field, Cursor featureCursor) {
+
     }
 }

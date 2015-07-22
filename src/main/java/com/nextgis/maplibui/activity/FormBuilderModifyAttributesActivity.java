@@ -28,20 +28,14 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.internal.view.ContextThemeWrapper;
+import android.text.TextUtils;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.controlui.ComboboxJsonControl;
-import com.nextgis.maplibui.controlui.DateTimeJsonControl;
-import com.nextgis.maplibui.controlui.DoubleComboboxJsonControl;
-import com.nextgis.maplibui.controlui.DoubleComboboxValue;
-import com.nextgis.maplibui.controlui.IControl;
-import com.nextgis.maplibui.controlui.RadioGroupJsonControl;
-import com.nextgis.maplibui.controlui.TextEditJsonControl;
-import com.nextgis.maplibui.controlui.TextLabelJsonControl;
+import com.nextgis.maplibui.api.IFormControl;
+import com.nextgis.maplibui.formcontrol.*;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import org.json.JSONArray;
@@ -73,23 +67,32 @@ public class FormBuilderModifyAttributesActivity
         boolean isLand = orientation == Configuration.ORIENTATION_LANDSCAPE;
 
         try {
-            JSONObject jsonFormContents = new JSONObject(FileUtil.readFromFile(form));
-            JSONArray tabs = jsonFormContents.getJSONArray(JSON_TABS_KEY);
-
-            for (int i = 0; i < tabs.length(); i++) {
-                JSONObject tab = tabs.getJSONObject(i);
-                JSONArray elements = null;
-
-                if (isLand && !tab.isNull(JSON_ALBUM_ELEMENTS_KEY)) {
-                    elements = tab.getJSONArray(JSON_ALBUM_ELEMENTS_KEY);
-                }
-
-                if (!isLand && !tab.isNull(JSON_PORTRAIT_ELEMENTS_KEY)) {
-                    elements = tab.getJSONArray(JSON_PORTRAIT_ELEMENTS_KEY);
-                }
-
-                if (null != elements && elements.length() > 0) {
+            String formString = FileUtil.readFromFile(form);
+            if(TextUtils.indexOf(formString, "tabs") == -1){
+                JSONArray elements = new JSONArray(formString);
+                if (elements.length() > 0) {
                     fillTabControls(layout, elements);
+                }
+            }
+            else {
+                JSONObject jsonFormContents = new JSONObject(formString);
+                JSONArray tabs = jsonFormContents.getJSONArray(JSON_TABS_KEY);
+
+                for (int i = 0; i < tabs.length(); i++) {
+                    JSONObject tab = tabs.getJSONObject(i);
+                    JSONArray elements = null;
+
+                    if (isLand && !tab.isNull(JSON_ALBUM_ELEMENTS_KEY)) {
+                        elements = tab.getJSONArray(JSON_ALBUM_ELEMENTS_KEY);
+                    }
+
+                    if (!isLand && !tab.isNull(JSON_PORTRAIT_ELEMENTS_KEY)) {
+                        elements = tab.getJSONArray(JSON_PORTRAIT_ELEMENTS_KEY);
+                    }
+
+                    if (null != elements && elements.length() > 0) {
+                        fillTabControls(layout, elements);
+                    }
                 }
             }
 
@@ -114,45 +117,38 @@ public class FormBuilderModifyAttributesActivity
             }
         }
 
-        boolean bDark = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
-
         List<Field> fields = mLayer.getFields();
 
         for (int i = 0; i < elements.length(); i++) {
             JSONObject element = elements.getJSONObject(i);
             String type = element.getString(JSON_TYPE_KEY);
 
-            IControl control = null;
+            IFormControl control = null;
 
             switch (type) {
 
                 case JSON_TEXT_LABEL_VALUE:
-                    control = new TextLabelJsonControl(layout.getContext(), element);
+                    control = (TextLabel)getLayoutInflater().inflate(R.layout.formtemplate_textlabel, null);
                     break;
 
                 case JSON_TEXT_EDIT_VALUE:
-                    LinearLayout.LayoutParams mParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-
-                    TextEditJsonControl ed = new TextEditJsonControl(this, element, fields, featureCursor);
-                    ed.setLayoutParams(mParams);
-                    control = ed;
+                    control = (TextEdit)getLayoutInflater().inflate(R.layout.formtemplate_edittext, null);
                     break;
 
                 case JSON_DATE_TIME_VALUE:
-                    control = new DateTimeJsonControl(layout.getContext(), element, fields, featureCursor);
+                    control = (DateTime)getLayoutInflater().inflate(R.layout.formtemplate_datetime, null);
                     break;
 
                 case JSON_RADIO_GROUP_VALUE:
-                    control = new RadioGroupJsonControl(layout.getContext(), element, fields, featureCursor);
+                    control = (RadioGroup)getLayoutInflater().inflate(R.layout.formtemplate_radiogroup, null);
                     break;
 
                 case JSON_COMBOBOX_VALUE:
-                    control = new ComboboxJsonControl(layout.getContext(), element, fields, featureCursor);
+                    control = (Combobox)getLayoutInflater().inflate(R.layout.formtemplate_combobox, null);
                     break;
 
                 case JSON_DOUBLE_COMBOBOX_VALUE:
-                    control = new DoubleComboboxJsonControl(layout.getContext(), element, fields, featureCursor);
+                    control = (DoubleCombobox)getLayoutInflater().inflate(R.layout.formtemplate_doublecombobox, null);
                     break;
 
                 //TODO: add controls
@@ -169,6 +165,7 @@ public class FormBuilderModifyAttributesActivity
             }
 
             if (null != control) {
+                control.init(element, fields, featureCursor);
                 control.addToLayout(layout);
                 String fieldName = control.getFieldName();
 

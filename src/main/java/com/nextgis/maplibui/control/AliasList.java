@@ -21,7 +21,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui.controlui;
+package com.nextgis.maplibui.control;
 
 import java.util.ArrayList;
 import java.util.List;

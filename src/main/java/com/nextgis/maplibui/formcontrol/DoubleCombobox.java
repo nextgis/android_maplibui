@@ -21,11 +21,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui.controlui;
+package com.nextgis.maplibui.formcontrol;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
+import android.support.v7.widget.AppCompatSpinner;
+import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplibui.api.IFormControl;
+import com.nextgis.maplibui.control.AliasList;
+import com.nextgis.maplibui.control.GreyLine;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,10 +49,7 @@ import java.util.Map;
 import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
-@SuppressLint("ViewConstructor")
-public class DoubleComboboxJsonControl
-        extends Spinner
-        implements IControl
+public class DoubleCombobox extends AppCompatSpinner implements IFormControl
 {
     protected Spinner mSubCombobox;
 
@@ -62,19 +64,25 @@ public class DoubleComboboxJsonControl
 
     protected boolean mFirstShow = true;
 
-
-    public DoubleComboboxJsonControl(
-            Context context,
-            JSONObject element,
-            List<Field> fields,
-            Cursor featureCursor)
-            throws JSONException
-    {
-        //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
-
+    public DoubleCombobox(Context context) {
         super(context);
+    }
 
-        mSubCombobox = new Spinner(context);
+    public DoubleCombobox(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public DoubleCombobox(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+
+    //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
+
+    @Override
+    public void init(JSONObject element, List<Field> fields, Cursor featureCursor) throws JSONException {
+
+        mSubCombobox = new Spinner(getContext());
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
 
@@ -101,7 +109,7 @@ public class DoubleComboboxJsonControl
         String subLastValue = null;
         if (mIsShowLast) {
             if (null != featureCursor) {
-                int column = featureCursor.getColumnIndex(mFieldName);
+               int column = featureCursor.getColumnIndex(mFieldName);
                 int subColumn = featureCursor.getColumnIndex(mSubFieldName);
                 if (column >= 0) {
                     lastValue = featureCursor.getString(column);
@@ -122,7 +130,7 @@ public class DoubleComboboxJsonControl
         mAliasSubListMap = new HashMap<>();
 
         final ArrayAdapter<String> comboboxAdapter =
-                new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
+                new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item);
         setAdapter(comboboxAdapter);
 
         for (int j = 0; j < values.length(); j++) {

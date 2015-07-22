@@ -21,15 +21,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui.controlui;
+package com.nextgis.maplibui.formcontrol;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
+import android.support.v7.widget.AppCompatRadioButton;
+import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
+
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplibui.api.IFormControl;
+import com.nextgis.maplibui.control.GreyLine;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,27 +42,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.nextgis.maplibui.util.ConstantsUI.*;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_DEFAULT_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_SHOW_LAST_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUES_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_ALIAS_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_NAME_KEY;
 
-
-@SuppressLint("ViewConstructor")
-public class RadioGroupJsonControl
-        extends RadioGroup
-        implements IControl
+public class RadioGroup extends android.widget.RadioGroup implements IFormControl
 {
     protected String              mFieldName;
     protected boolean             mIsShowLast;
     protected Map<String, String> mAliasValueMap;
 
-
-    public RadioGroupJsonControl(
-            Context context,
-            JSONObject element,
-            List<Field> fields,
-            Cursor featureCursor)
-            throws JSONException
-    {
+    public RadioGroup(Context context) {
         super(context);
+    }
+
+    public RadioGroup(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    @Override
+    public void init(JSONObject element,
+                     List<Field> fields,
+                     Cursor featureCursor) throws JSONException{
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
 
@@ -111,8 +120,7 @@ public class RadioGroupJsonControl
             }
 
             mAliasValueMap.put(value_alias, value);
-
-            RadioButton radioButton = new RadioButton(context);
+            AppCompatRadioButton radioButton = new AppCompatRadioButton(getContext());
             radioButton.setText(value_alias);
             addView(radioButton);
         }
@@ -143,4 +151,5 @@ public class RadioGroupJsonControl
         String value_alias = (String) radioButton.getText();
         return mAliasValueMap.get(value_alias);
     }
+
 }

@@ -21,16 +21,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui.controlui;
+package com.nextgis.maplibui.formcontrol;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.InputType;
 import android.util.AttributeSet;
+import android.view.ViewGroup;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplibui.api.IFormControl;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -41,32 +45,29 @@ import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
 @SuppressLint("ViewConstructor")
-public class TextEditJsonControl
-        extends TextEditControl
+public class TextEdit extends AppCompatEditText
+        implements IFormControl
 {
     protected boolean mIsShowLast;
+    protected String mFieldName;
 
-    public TextEditJsonControl(Context context, AttributeSet attrs, int defStyleAttr, JSONObject element,
-                               List<Field> fields,
-                               Cursor featureCursor) throws JSONException {
-        super(context, attrs, defStyleAttr);
-
-        init(element, fields, featureCursor);
-    }
-
-    public TextEditJsonControl(
-            Context context,
-            JSONObject element,
-            List<Field> fields,
-            Cursor featureCursor) throws JSONException
+    public TextEdit(
+            Context context)
 
     {
         super(context);
-
-        init(element, fields, featureCursor);
     }
 
-    protected void init(JSONObject element,
+    public TextEdit(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public TextEdit(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    @Override
+    public void init(JSONObject element,
                         List<Field> fields,
                         Cursor featureCursor) throws JSONException{
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
@@ -137,4 +138,18 @@ public class TextEditJsonControl
         }
     }
 
+    @Override
+    public String getFieldName() {
+        return mFieldName;
+    }
+
+    @Override
+    public void addToLayout(ViewGroup layout) {
+        layout.addView(this);
+    }
+
+    @Override
+    public Object getValue() {
+        return getText().toString();
+    }
 }

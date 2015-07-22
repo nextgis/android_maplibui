@@ -21,56 +21,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui.controlui;
+package com.nextgis.maplibui.control;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Build;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.InputType;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
-import android.widget.EditText;
+
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplibui.api.IControl;
+import com.nextgis.maplibui.api.ISimpleControl;
 
 
-@SuppressLint("ViewConstructor")
-public class TextEditControl
-        extends EditText
-        implements IControl
+public class TextEdit
+        extends AppCompatEditText
+        implements ISimpleControl
 {
     String mFieldName;
 
-
-    public TextEditControl(Context context)
-    {
+    public TextEdit(Context context) {
         super(context);
     }
 
-    public TextEditControl(Context context, AttributeSet attrs, int defStyleAttr) {
+    public TextEdit(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public TextEdit(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    public TextEditControl(Context context, AttributeSet attrs, int defStyleAttr, Field field,
-                           Cursor featureCursor) {
-        super(context, attrs, defStyleAttr);
-
-        init(field, featureCursor);
-    }
-
-    public TextEditControl(
-            Context context,
-            Field field,
-            Cursor featureCursor)
-    {
-        super(context);
-
-        init(field, featureCursor);
-    }
-
-    protected void init(Field field,
+    @Override
+    public void init(Field field,
                         Cursor featureCursor){
         mFieldName = field.getName();
 

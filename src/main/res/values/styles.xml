@@ -68,6 +68,8 @@
         <item name="ic_action_content_select_all">@drawable/ic_action_content_select_all_light</item>
         <item name="ic_menu_moreoverflow_inverse">@drawable/ic_menu_moreoverflow_dark</item>
         <item name="ic_menu_moreoverflow">@drawable/ic_menu_moreoverflow_light</item>
+
+        <item name="DatePickSpinnerBackground">@drawable/ic_spinner_calendar_light</item>
     </style>
 
     <style name="Theme.NextGIS.AppCompat.Dark"
@@ -101,6 +103,8 @@
         <item name="ic_action_content_select_all">@drawable/ic_action_content_select_all_dark</item>
         <item name="ic_menu_moreoverflow_inverse">@drawable/ic_menu_moreoverflow_light</item>
         <item name="ic_menu_moreoverflow">@drawable/ic_menu_moreoverflow_dark</item>
+
+        <item name="DatePickSpinnerBackground">@drawable/ic_spinner_calendar_dark</item>
     </style>
 
     <style name="EditTextStyle.Light" parent="Widget.AppCompat.EditText">
@@ -156,12 +160,10 @@
         <item name="listChoiceBackgroundIndicator">@drawable/abc_list_selector_holo_light</item>
     </style>
 
-    <attr name="DatePickSpinnerStyle" format="reference"/>
+    <attr name="DatePickSpinnerBackground" format="reference"/>
 
-    <style name="DatePickSpinner"
-           parent="Base.Widget.AppCompat.Spinner">
-        <item name="@attr/DatePickSpinnerStyle">@style/DatePickSpinner</item>
-        <item name="android:background">@drawable/ic_spinner_calendar</item>
+    <style name="DatePickSpinner" parent="Base.Widget.AppCompat.Spinner">
+        <item name="android:background">?attr/DatePickSpinnerBackground</item>
     </style>
 
 </resources>

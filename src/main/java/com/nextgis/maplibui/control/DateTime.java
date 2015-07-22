@@ -21,25 +21,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui.controlui;
+package com.nextgis.maplibui.control;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
-import android.widget.TextView;
 import android.widget.TimePicker;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.api.IControl;
+import com.nextgis.maplibui.api.ISimpleControl;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -48,74 +49,26 @@ import java.util.Calendar;
 import java.util.Date;
 
 import static com.nextgis.maplib.util.Constants.TAG;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
 
-
-@SuppressLint("ViewConstructor")
-public class DateTimeControl
-        extends TextView
-        implements IControl
+public class DateTime
+        extends AppCompatTextView
+        implements ISimpleControl
 {
-    protected final static int DATE     = 0;
-    protected final static int TIME     = 1;
-    protected final static int DATETIME = 2;
 
     String mFieldName;
     SimpleDateFormat mDateFormat;
 
-
-    public DateTimeControl(
-            Context context,
-            AttributeSet attrs,
-            int defStyleAttr)
-    {
-        super(context, attrs, defStyleAttr);
-
-        mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
-        setSingleLine(true);
-        setFocusable(false);
-        setOnClickListener(getDateUpdateWatcher(DATETIME));
-
-        String pattern = mDateFormat.toLocalizedPattern();
-        setHint(pattern);
+    public DateTime(Context context) {
+        super(context);
     }
 
-    public DateTimeControl(Context context, AttributeSet attrs) {
+    public DateTime(Context context, AttributeSet attrs) {
         super(context, attrs);
-
-        mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
-        setSingleLine(true);
-        setFocusable(false);
-        setOnClickListener(getDateUpdateWatcher(DATETIME));
-
-        String pattern = mDateFormat.toLocalizedPattern();
-        setHint(pattern);
     }
 
-    public DateTimeControl(
-            Context context,
-            Field field,
-            Cursor featureCursor)
-    {
-        super(context, null, R.attr.DatePickSpinnerStyle);
-
-        mFieldName = field.getName();
-        mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
-
-        if (null != featureCursor) {
-            int column = featureCursor.getColumnIndex(mFieldName);
-            if (column >= 0) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(featureCursor.getLong(column));
-                setText(mDateFormat.format(calendar.getTime()));
-            }
-        }
-
-        setSingleLine(true);
-        setFocusable(false);
-        setOnClickListener(getDateUpdateWatcher(DATETIME));
-
-        String pattern = mDateFormat.toLocalizedPattern();
-        setHint(pattern);
+    public DateTime(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
     }
 
     public void setCurrentDate(){
@@ -131,14 +84,14 @@ public class DateTimeControl
 
             protected void setValue()
             {
-                DateTimeControl.this.setText(mDateFormat.format(mCalendar.getTime()));
+                DateTime.this.setText(mDateFormat.format(mCalendar.getTime()));
             }
 
 
             @Override
             public void onClick(View view)
             {
-                Context context = DateTimeControl.this.getContext();
+                Context context = DateTime.this.getContext();
                 mCalendar.setTime(new Date());
 
                 switch (pickerType) {
@@ -298,5 +251,27 @@ public class DateTimeControl
             Log.d(TAG, "Date parse error, " + e.getLocalizedMessage());
             return null;
         }
+    }
+
+    @Override
+    public void init(Field field, Cursor featureCursor) {
+        mFieldName = field.getName();
+        mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+
+        if (null != featureCursor) {
+            int column = featureCursor.getColumnIndex(mFieldName);
+            if (column >= 0) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(featureCursor.getLong(column));
+                setText(mDateFormat.format(calendar.getTime()));
+            }
+        }
+
+        setSingleLine(true);
+        setFocusable(false);
+        setOnClickListener(getDateUpdateWatcher(DATETIME));
+
+        String pattern = mDateFormat.toLocalizedPattern();
+        setHint(pattern);
     }
 }

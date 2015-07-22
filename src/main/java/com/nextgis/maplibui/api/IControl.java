@@ -21,21 +21,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui.controlui;
+package com.nextgis.maplibui.api;
 
-public class DoubleComboboxValue
+import android.view.ViewGroup;
+
+
+public interface IControl
 {
-    public String mFieldName;
-    public String mValue;
+    String getFieldName();
 
-    public String mSubFieldName;
-    public String mSubValue;
+    void addToLayout(ViewGroup layout);
 
+    Object getValue();
 
-    @Override
-    public String toString()
-    {
-        return "mFieldName: " + mFieldName + ", mValue: " + mValue + ", mSubFieldName: " +
-               mSubFieldName + ", mSubValue: " + mSubValue;
-    }
 }

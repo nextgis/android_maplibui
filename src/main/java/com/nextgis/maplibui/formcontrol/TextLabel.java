@@ -21,29 +21,63 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui.controlui;
+package com.nextgis.maplibui.formcontrol;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.database.Cursor;
+import android.support.v7.widget.AppCompatTextView;
+import android.util.AttributeSet;
+import android.view.ViewGroup;
+
+import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplibui.api.IFormControl;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_KEY;
 
 
-@SuppressLint("ViewConstructor")
-public class TextLabelJsonControl
-        extends TextLabelControl
+public class TextLabel extends AppCompatTextView implements IFormControl
 {
-    public TextLabelJsonControl(
-            Context context,
-            JSONObject element)
-            throws JSONException
-    {
-        super(context);
 
+    protected String mFieldName;
+
+    public TextLabel(Context context) {
+        super(context);
+    }
+
+    public TextLabel(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public TextLabel(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+    }
+
+
+    @Override
+    public void init(JSONObject element, List<Field> fields, Cursor featureCursor) throws JSONException {
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         setText(attributes.getString(JSON_TEXT_KEY));
+    }
+
+    @Override
+    public String getFieldName() {
+        return mFieldName;
+    }
+
+    @Override
+    public void addToLayout(ViewGroup layout) {
+        layout.addView(this);
+    }
+
+    @Override
+    public Object getValue() {
+        return getText().toString();
     }
 }

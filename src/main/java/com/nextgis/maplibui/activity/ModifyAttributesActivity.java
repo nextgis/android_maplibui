@@ -31,11 +31,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,6 +40,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Field;
@@ -56,10 +53,11 @@ import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.controlui.DateTimeControl;
-import com.nextgis.maplibui.controlui.IControl;
-import com.nextgis.maplibui.controlui.TextEditControl;
-import com.nextgis.maplibui.controlui.TextLabelControl;
+import com.nextgis.maplibui.api.IControl;
+import com.nextgis.maplibui.api.ISimpleControl;
+import com.nextgis.maplibui.control.DateTime;
+import com.nextgis.maplibui.control.TextEdit;
+import com.nextgis.maplibui.control.TextLabel;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.IOException;
@@ -68,8 +66,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.nextgis.maplib.util.Constants.*;
-import static com.nextgis.maplibui.util.ConstantsUI.*;
+import static com.nextgis.maplib.util.Constants.FIELD_GEOM;
+import static com.nextgis.maplib.util.Constants.FIELD_ID;
+import static com.nextgis.maplib.util.Constants.NOT_FOUND;
+import static com.nextgis.maplib.util.Constants.TAG;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_LAYER_ID;
 
 
 /**
@@ -167,18 +170,16 @@ public class ModifyAttributesActivity
             }
         }
 
-        boolean bDark = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
-
         List<Field> fields = mLayer.getFields();
 
 
         for (Field field : fields) {
             //create static text with alias
-            TextLabelControl textLabel = new TextLabelControl(this, field.getAlias());
+            TextLabel textLabel = (TextLabel)getLayoutInflater().inflate(R.layout.template_textlabel, null);
+            textLabel.setText(field.getAlias());
             textLabel.addToLayout(layout);
 
-            IControl control = null;
+            ISimpleControl control = null;
 
             //create control
             switch (field.getType()) {
@@ -186,14 +187,11 @@ public class ModifyAttributesActivity
                 case GeoConstants.FTString:
                 case GeoConstants.FTInteger:
                 case GeoConstants.FTReal:
-                    //ContextThemeWrapper ctw = new ContextThemeWrapper(this, getThemeId(bDark));null, getThemeId(bDark),
-                    control = new TextEditControl(layout.getContext(), field, featureCursor);
+                    control = (TextEdit)getLayoutInflater().inflate(R.layout.template_textedit, null);
                     break;
-
                 case GeoConstants.FTDateTime:
-                    control = new DateTimeControl(this, field, featureCursor);
+                    control = (DateTime)getLayoutInflater().inflate(R.layout.template_datetime, null);
                     break;
-
                 case GeoConstants.FTBinary:
                 case GeoConstants.FTStringList:
                 case GeoConstants.FTIntegerList:
@@ -206,6 +204,7 @@ public class ModifyAttributesActivity
             }
 
             if (null != control) {
+                control.init(field, featureCursor);
                 control.addToLayout(layout);
                 String fieldName = control.getFieldName();
 
@@ -408,8 +407,10 @@ public class ModifyAttributesActivity
 
     protected void setLocationText(Location location)
     {
-        if (null == location || null == mLatView || null == mLongView || null == mAccView ||
-            null == mAltView) {
+        if(null == mLatView || null == mLongView || null == mAccView || null == mAltView)
+            return;
+
+        if (null == location) {
 
             mLatView.setText(
                     getString(R.string.latitude_caption_short) + ": " + getString(R.string.n_a));
