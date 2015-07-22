@@ -18,6 +18,7 @@ import com.edmodo.rangebar.RangeBar;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplibui.service.TileDownloadService;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.service.TrackerService;
 
 /**
  * Dialog to select which zoom levels to download
@@ -28,12 +29,6 @@ public class SelectZoomLevelsDialog
 
     protected GeoEnvelope mEnvelope;
     protected short       mLayerId;
-
-    protected static final String KEY_LAYER_ID = "layer_id";
-    protected static final String KEY_MINX = "env_minx";
-    protected static final String KEY_MAXX = "env_maxx";
-    protected static final String KEY_MINY = "env_miny";
-    protected static final String KEY_MAXY = "env_maxy";
 
     public GeoEnvelope getEnvelope() {
         return mEnvelope;
@@ -58,11 +53,11 @@ public class SelectZoomLevelsDialog
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         if (null != savedInstanceState) {
-            mLayerId = savedInstanceState.getShort(KEY_LAYER_ID);
-            double dfMinX = savedInstanceState.getDouble(KEY_MINX);
-            double dfMinY = savedInstanceState.getDouble(KEY_MINY);
-            double dfMaxX = savedInstanceState.getDouble(KEY_MAXX);
-            double dfMaxY = savedInstanceState.getDouble(KEY_MAXY);
+            mLayerId = savedInstanceState.getShort(TileDownloadService.KEY_LAYER_ID);
+            double dfMinX = savedInstanceState.getDouble(TileDownloadService.KEY_MINX);
+            double dfMinY = savedInstanceState.getDouble(TileDownloadService.KEY_MINY);
+            double dfMaxX = savedInstanceState.getDouble(TileDownloadService.KEY_MAXX);
+            double dfMaxY = savedInstanceState.getDouble(TileDownloadService.KEY_MAXY);
             mEnvelope = new GeoEnvelope(dfMinX, dfMaxX, dfMinY, dfMaxY);
         }
 
@@ -102,25 +97,17 @@ public class SelectZoomLevelsDialog
                         final GeoEnvelope env = getEnvelope();
 
                         //start download service
-                        ServiceConnection connection = new ServiceConnection() {
+                        Intent intent = new Intent(getActivity(), TileDownloadService.class);
+                        intent.setAction(TileDownloadService.ACTION_ADD_TASK);
+                        intent.putExtra(TileDownloadService.KEY_LAYER_ID, layerId);
+                        intent.putExtra(TileDownloadService.KEY_ZOOM_FROM, zoomFrom);
+                        intent.putExtra(TileDownloadService.KEY_ZOOM_TO, zoomTo);
+                        intent.putExtra(TileDownloadService.KEY_MINX, env.getMinX());
+                        intent.putExtra(TileDownloadService.KEY_MAXX, env.getMaxX());
+                        intent.putExtra(TileDownloadService.KEY_MINY, env.getMinY());
+                        intent.putExtra(TileDownloadService.KEY_MAXY, env.getMaxY());
 
-                            @Override
-                            public void onServiceConnected(ComponentName className, IBinder service) {
-
-                                TileDownloadService boundService = ((TileDownloadService.LocalBinder)service).getService();
-                                boundService.addTask(layerId, env, zoomFrom, zoomTo);
-
-                                getActivity().unbindService(this);
-                            }
-
-                            @Override
-                            public void onServiceDisconnected(ComponentName name) {
-
-                            }
-                        };
-
-                        getActivity().bindService(new Intent(getActivity(),
-                                TileDownloadService.class), connection, Context.BIND_AUTO_CREATE);
+                        getActivity().startService(intent);
 
                     }
                 }).setNegativeButton(
@@ -140,11 +127,11 @@ public class SelectZoomLevelsDialog
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
-        outState.putShort(KEY_LAYER_ID, mLayerId);
-        outState.putDouble(KEY_MINX, mEnvelope.getMinX());
-        outState.putDouble(KEY_MAXX, mEnvelope.getMaxX());
-        outState.putDouble(KEY_MINY, mEnvelope.getMinY());
-        outState.putDouble(KEY_MAXY, mEnvelope.getMaxY());
+        outState.putShort(TileDownloadService.KEY_LAYER_ID, mLayerId);
+        outState.putDouble(TileDownloadService.KEY_MINX, mEnvelope.getMinX());
+        outState.putDouble(TileDownloadService.KEY_MAXX, mEnvelope.getMaxX());
+        outState.putDouble(TileDownloadService.KEY_MINY, mEnvelope.getMinY());
+        outState.putDouble(TileDownloadService.KEY_MAXY, mEnvelope.getMaxY());
         super.onSaveInstanceState(outState);
     }
 }

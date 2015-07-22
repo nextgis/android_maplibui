@@ -38,6 +38,7 @@ import com.nextgis.maplib.datasource.TileItem;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 
 import java.util.ArrayList;
@@ -56,14 +57,22 @@ import static com.nextgis.maplib.util.Constants.TAG;
  */
 public class TileDownloadService extends Service{
     protected List<DownloadTask> mQueue;
-    protected final IBinder mBinder = new LocalBinder();
     protected NotificationManager mNotifyManager;
     protected static final int TILE_DOWNLOAD_NOTIFICATION_ID = 7;
-    protected static final String ACTION_STOP = "TILE_DOWNLOAD_STOP";
     protected final Object lock = new Object();
     protected ThreadPoolExecutor mThreadPool;
     protected NotificationCompat.Builder mBuilder;
     protected boolean mCanceled;
+
+    public static final String KEY_LAYER_ID = "layer_id";
+    public static final String KEY_MINX = "env_minx";
+    public static final String KEY_MAXX = "env_maxx";
+    public static final String KEY_MINY = "env_miny";
+    public static final String KEY_MAXY = "env_maxy";
+    public static final String KEY_ZOOM_FROM = "zoom_from";
+    public static final String KEY_ZOOM_TO = "zoom_to";
+    public static final String ACTION_STOP = "TILE_DOWNLOAD_STOP";
+    public static final String ACTION_ADD_TASK = "ADD_TILE_DOWNLOAD_TASK";
 
     @Override
     public void onCreate() {
@@ -83,16 +92,29 @@ public class TileDownloadService extends Service{
 
             if (!TextUtils.isEmpty(action)) {
                 switch (action) {
+                    case ACTION_ADD_TASK:
+                        short layerId = intent.getShortExtra(KEY_LAYER_ID, (short) -1);
+                        double dfMinX = intent.getDoubleExtra(KEY_MINX, 0);
+                        double dfMinY = intent.getDoubleExtra(KEY_MINY, 0);
+                        double dfMaxX = intent.getDoubleExtra(KEY_MAXX, GeoConstants.MERCATOR_MAX);
+                        double dfMaxY = intent.getDoubleExtra(KEY_MAXY, GeoConstants.MERCATOR_MAX);
+                        int zoomFrom = intent.getIntExtra(KEY_ZOOM_FROM, 0);
+                        int zoomTo = intent.getIntExtra(KEY_ZOOM_TO, 18);
+
+                        GeoEnvelope env = new GeoEnvelope(dfMinX, dfMaxX, dfMinY, dfMaxY);
+                        addTask(layerId, env, zoomFrom, zoomTo);
+                        return START_STICKY;
                     case ACTION_STOP:
                         synchronized (lock) {
                             cancelDownload();
                             if(!mQueue.isEmpty()) {
                                 mQueue.remove(0);
                             }
-                            startDownload();
                         }
-                        return START_STICKY;
+                        break;
                 }
+
+                startDownload();
             }
         }
         return START_STICKY;
@@ -101,7 +123,7 @@ public class TileDownloadService extends Service{
 
     @Override
     public IBinder onBind(Intent intent) {
-        return mBinder;
+        return null;
     }
 
     public void addTask(short layerId, GeoEnvelope env, int zoomFrom, int zoomTo) {
@@ -116,7 +138,18 @@ public class TileDownloadService extends Service{
     protected void startDownload(){
         if(mQueue.isEmpty()){
             if(!mCanceled) {
-                mBuilder.setOngoing(false);
+                String notifyTitle = getString(R.string.download_tiles_finished);
+                Bitmap largeIcon =
+                        BitmapFactory.decodeResource(getResources(), R.drawable.ic_notification_download);
+
+                mBuilder = new NotificationCompat.Builder(this);
+
+                mBuilder.setSmallIcon(R.drawable.ic_notification_download).setLargeIcon(largeIcon)
+                        .setWhen(System.currentTimeMillis())
+                        .setAutoCancel(false)
+                        .setContentTitle(notifyTitle)
+                        .setOngoing(false);
+
                 mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
             }
             stopSelf();
@@ -137,7 +170,7 @@ public class TileDownloadService extends Service{
         mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
 
         final List<TileItem> tiles = new ArrayList<>();
-        for(int zoom = task.getZoomFrom(); zoom < task.getZoomTo(); zoom++) {
+        for(int zoom = task.getZoomFrom(); zoom < task.getZoomTo() + 1; zoom++) {
             tiles.addAll(layer.getTielsForBounds(map.getFullBounds(), task.getEnvelope(), zoom));
         }
 
@@ -191,40 +224,41 @@ public class TileDownloadService extends Service{
         for (int i = 0; i < tiles.size(); ++i) {
             final TileItem tile = tiles.get(i);
             mThreadPool.execute(
-                    new Runnable()
+                new Runnable()
+                {
+                    @Override
+                    public void run()
                     {
-                        @Override
-                        public void run()
-                        {
-                            android.os.Process.setThreadPriority(
-                                    Constants.DEFAULT_DOWNLOAD_THREAD_PRIORITY);
+                        android.os.Process.setThreadPriority(
+                                Constants.DEFAULT_DOWNLOAD_THREAD_PRIORITY);
 
-                            layer.downloadTile(tile);
+                        layer.downloadTile(tile);
 
-                            synchronized (layer) {
-                                tileCompleteCount[0]++;
+                        synchronized (layer) {
+                            tileCompleteCount[0]++;
 
-                                if(tileCompleteCount[0] == tiles.size()) {
-                                    mBuilder.setContentText(getString(R.string.download_complete))
-                                            // Removes the progress bar
-                                            .setProgress(0, 0, false);
+                            if(tileCompleteCount[0] == tiles.size()) {
+                                mBuilder.setContentText(getString(R.string.download_complete))
+                                        // Removes the progress bar
+                                        .setProgress(0, 0, false);
+                                mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID,
+                                        mBuilder.build());
+                                mQueue.remove(0);
+                                startDownload();
+                            }
+                            else{
+                                if(tileCompleteCount[0] % tileCompleteCount[1] == 0) {
+                                    //progress
+                                    mBuilder.setProgress(tiles.size(), tileCompleteCount[0], false);
+                                    // Displays the progress bar for the first time.
                                     mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID,
                                             mBuilder.build());
-                                    mQueue.remove(0);
-                                    startDownload();
-                                }
-                                else{
-                                    if(tileCompleteCount[0] % tileCompleteCount[1] == 0) {
-                                        //progress
-                                        mBuilder.setProgress(tiles.size(), tileCompleteCount[0], false);
-                                        // Displays the progress bar for the first time.
-                                        mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID,
-                                                mBuilder.build());
-                                    }
                                 }
                             }
                         }
-                    });
+                    }
+                }
+            );
         }
         mThreadPool.shutdown();
     }
@@ -256,12 +290,6 @@ public class TileDownloadService extends Service{
 
         public int getZoomTo() {
             return mZoomTo;
-        }
-    }
-
-    public class LocalBinder extends Binder {
-        public TileDownloadService getService() {
-            return TileDownloadService.this;
         }
     }
 
