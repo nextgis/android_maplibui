@@ -196,4 +196,5 @@
     <string name="tracks_title">Трек %s</string>
     <string name="tracks_stop">Стоп</string>
     <string name="tracks_open">Открыть</string>
+    <string name="download_tiles_finished">Tiles download finished</string>
 </resources>

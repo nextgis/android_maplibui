@@ -71,7 +71,9 @@
             />
 
         <service
-            android:name=".account.NGWAuthenticatorService">
+            android:name=".account.NGWAuthenticatorService"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator"/>
             </intent-filter>
@@ -82,12 +84,17 @@
         </service>
 
         <service
+            android:process=":tile_download"
             android:name="com.nextgis.maplibui.service.TileDownloadService"
+            android:enabled="true"
+            android:exported="true"
             />
 
         <service
             android:process=":tracks"
             android:name="com.nextgis.maplibui.service.TrackerService"
+            android:enabled="true"
+            android:exported="true"
             />
 
     </application>
