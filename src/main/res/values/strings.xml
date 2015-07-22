@@ -197,4 +197,5 @@
     <string name="tracks_stop">Stop</string>
     <string name="tracks_open">Open</string>
     <string name="download_tiles_finished">Tiles download finished</string>
+    <string name="not_implemented">Not implemented yet</string>
 </resources>

@@ -39,14 +39,18 @@ import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.Layer;
+import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.MapEventSource;
 import com.nextgis.maplib.map.RemoteTMSLayer;
+import com.nextgis.maplib.map.TrackLayer;
+import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.mapui.LocalTMSLayerUI;
 import com.nextgis.maplibui.mapui.MapView;
+import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
 import com.nextgis.maplibui.mapui.TrackLayerUI;
 import com.nextgis.maplibui.mapui.VectorLayerUI;
@@ -206,17 +210,17 @@ public class LayersListAdapter
                             popup.getMenu().findItem(R.id.menu_share).setEnabled(false);
                         }
 
-                        if (layerui instanceof TrackLayerUI) {
+                        if (layerui instanceof TrackLayer) {
                             popup.getMenu().findItem(R.id.menu_delete).setVisible(false);
                         }
-                        else if (layerui instanceof VectorLayerUI) {
+                        else if (layerui instanceof VectorLayer) {
                             popup.getMenu().findItem(R.id.menu_share).setVisible(true);
                             popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(true);
                         }
-                        else if (layerui instanceof LocalTMSLayerUI) {
+                        else if (layerui instanceof LocalTMSLayer) {
                             popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(true);
                         }
-                        else if (layerui instanceof RemoteTMSLayerUI) {
+                        else if (layerui instanceof RemoteTMSLayer) {
                             popup.getMenu().findItem(R.id.menu_download_tiles).setVisible(true);
                         }
 
@@ -257,6 +261,10 @@ public class LayersListAdapter
                                             GeoEnvelope env = mMap.getCurrentBounds();
                                             if(layer instanceof RemoteTMSLayerUI) {
                                                 RemoteTMSLayerUI remoteTMSLayer = (RemoteTMSLayerUI) layer;
+                                                remoteTMSLayer.downloadTiles(mContext, env);
+                                            }
+                                            else if(layer instanceof NGWRasterLayerUI) {
+                                                NGWRasterLayerUI remoteTMSLayer = (NGWRasterLayerUI) layer;
                                                 remoteTMSLayer.downloadTiles(mContext, env);
                                             }
                                         }

@@ -25,9 +25,14 @@ package com.nextgis.maplibui.mapui;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.FragmentActivity;
+import android.widget.Toast;
+
+import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.map.NGWRasterLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
+import com.nextgis.maplibui.dialog.SelectZoomLevelsDialog;
 
 import java.io.File;
 
@@ -54,7 +59,13 @@ public class NGWRasterLayerUI
     @Override
     public void changeProperties(Context context)
     {
-
+        Toast.makeText(context, R.string.not_implemented, Toast.LENGTH_SHORT).show();
     }
 
+    public void downloadTiles(Context context, GeoEnvelope env) {
+        FragmentActivity fragmentActivity = (FragmentActivity) context;
+        SelectZoomLevelsDialog newFragment = new SelectZoomLevelsDialog();
+        newFragment.setEnvelope(env).setLayerId(getId()).
+                show(fragmentActivity.getSupportFragmentManager(), "select_zoom_levels");
+    }
 }
