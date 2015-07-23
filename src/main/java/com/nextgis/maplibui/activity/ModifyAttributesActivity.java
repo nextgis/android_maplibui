@@ -40,7 +40,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Field;
@@ -66,13 +65,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.nextgis.maplib.util.Constants.FIELD_GEOM;
-import static com.nextgis.maplib.util.Constants.FIELD_ID;
-import static com.nextgis.maplib.util.Constants.NOT_FOUND;
-import static com.nextgis.maplib.util.Constants.TAG;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_LAYER_ID;
+import static com.nextgis.maplib.util.Constants.*;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
 /**
@@ -305,9 +299,9 @@ public class ModifyAttributesActivity
 
         if (mFeatureId == NOT_FOUND) {
 
-            int nUniqId = mLayer.getUniqId();
-            if (nUniqId < 1000) {
-                nUniqId = 1000;// + mLayer.getCount();
+            long nUniqId = mLayer.getUniqId();
+            if (nUniqId < MIN_LOCAL_FEATURE_ID) {
+                nUniqId = MIN_LOCAL_FEATURE_ID;// + mLayer.getCount();
             }
 
             values.put(FIELD_ID, nUniqId);
