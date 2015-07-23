@@ -81,6 +81,7 @@ import java.util.zip.ZipInputStream;
 import static com.nextgis.maplib.util.Constants.MAX_CONTENT_LENGTH;
 import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
+import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplib.util.GeoConstants.*;
 
 
@@ -263,13 +264,14 @@ public class CreateLocalLayerDialog
                 int nSize = inputStream.available();
                 int nIncrement = 0;
                 task.setMax(nSize);
+                byte[] buffer = new byte[Constants.IO_BUFFER_SIZE];
 
                 File outputPath = mGroupLayer.createLayerStorage();
                 ZipInputStream zis = new ZipInputStream(inputStream);
 
                 ZipEntry ze;
                 while ((ze = zis.getNextEntry()) != null) {
-                    unzipEntry(zis, ze, outputPath);
+                    unzipEntry(zis, ze, buffer, outputPath);
                     nIncrement += ze.getSize();
                     zis.closeEntry();
                     task.setProgress(nIncrement);
@@ -283,7 +285,7 @@ public class CreateLocalLayerDialog
 
                 int nMaxLevel = 0;
                 int nMinLevel = 512;
-                File[] zoomLevels = outputPath.listFiles();
+                final File[] zoomLevels = outputPath.listFiles();
 
                 task.setMessage(mGroupLayer.getContext().getString(R.string.message_opening));
                 task.setMax(zoomLevels.length);
@@ -296,7 +298,7 @@ public class CreateLocalLayerDialog
                     int nMinX = 10000000;
                     int nMaxY = 0;
                     int nMinY = 10000000;
-                    Log.d(com.nextgis.maplib.util.Constants.TAG, zoomLevel.getName());
+
                     int nLevelZ = Integer.parseInt(zoomLevel.getName());
                     if (nLevelZ > nMaxLevel) {
                         nMaxLevel = nLevelZ;
@@ -304,11 +306,11 @@ public class CreateLocalLayerDialog
                     if (nLevelZ < nMinLevel) {
                         nMinLevel = nLevelZ;
                     }
-                    File[] levelsX = zoomLevel.listFiles();
+                    final File[] levelsX = zoomLevel.listFiles();
 
                     boolean bFirstTurn = true;
                     for (File inLevelX : levelsX) {
-                        Log.d(com.nextgis.maplib.util.Constants.TAG, inLevelX.getName());
+
                         int nX = Integer.parseInt(inLevelX.getName());
                         if (nX > nMaxX) {
                             nMaxX = nX;
@@ -317,7 +319,7 @@ public class CreateLocalLayerDialog
                             nMinX = nX;
                         }
 
-                        File[] levelsY = inLevelX.listFiles();
+                        final File[] levelsY = inLevelX.listFiles();
 
                         if (bFirstTurn) {
                             for (File inLevelY : levelsY) {
@@ -418,13 +420,14 @@ public class CreateLocalLayerDialog
                 int nSize = inputStream.available();
                 int nIncrement = 0;
                 task.setMax(nSize);
+                byte[] buffer = new byte[Constants.IO_BUFFER_SIZE];
 
                 File outputPath = mGroupLayer.createLayerStorage();
                 ZipInputStream zis = new ZipInputStream(inputStream);
 
                 ZipEntry ze;
                 while ((ze = zis.getNextEntry()) != null) {
-                    unzipEntry(zis, ze, outputPath);
+                    unzipEntry(zis, ze, buffer, outputPath);
                     nIncrement += ze.getSize();
                     zis.closeEntry();
                     task.setProgress(nIncrement);
@@ -590,33 +593,36 @@ public class CreateLocalLayerDialog
     protected void unzipEntry(
             ZipInputStream zis,
             ZipEntry entry,
+            byte[] buffer,
             File outputDir)
             throws IOException
     {
         String entryName = entry.getName();
+        int pos = entryName.indexOf('/');
+        String folderName = entryName.substring(0, pos);
 
-        //for backward capability where the zip haz root directory named "mapnik"
-        if (!TextUtils.isDigitsOnly(entryName.substring(0, 1))) {
-            int pos = entryName.indexOf('/');
+        //for backward capability where the zip has root directory named "mapnik"
+        if (!TextUtils.isDigitsOnly(folderName)) {
             if (pos != NOT_FOUND) {
                 entryName = entryName.substring(pos, entryName.length());
             }
+        }
+
+        if (entry.isDirectory()) {
+            FileUtil.createDir(new File(outputDir, entryName));
+            return;
         }
 
         //for prevent searching by media library
         entryName = entryName.replace(".png", com.nextgis.maplib.util.Constants.TILE_EXT);
         entryName = entryName.replace(".jpg", com.nextgis.maplib.util.Constants.TILE_EXT);
         entryName = entryName.replace(".jpeg", com.nextgis.maplib.util.Constants.TILE_EXT);
-        if (entry.isDirectory()) {
-            FileUtil.createDir(new File(outputDir, entryName));
-            return;
-        }
+
         File outputFile = new File(outputDir, entryName);
         if (!outputFile.getParentFile().exists()) {
             FileUtil.createDir(outputFile.getParentFile());
         }
         FileOutputStream fout = new FileOutputStream(outputFile);
-        byte[] buffer = new byte[Constants.IO_BUFFER_SIZE];
         FileUtil.copyStream(zis, fout, buffer, Constants.IO_BUFFER_SIZE);
         fout.close();
     }
