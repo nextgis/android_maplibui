@@ -56,7 +56,7 @@
         <item name="colorControlHighlight">@color/accent</item>
         <item name="android:editTextStyle">@style/EditTextStyle.Light</item>
         <item name="actionModeBackground">@drawable/action_mode</item>
-        <item name="actionMenuTextColor">@color/textColorPrimary.Light</item>
+        <item name="actionMenuTextColor">@color/textColorPrimary.Dark</item>
 
         <item name="ic_action_visibility_on_inverse">@drawable/ic_action_visibility_on_dark</item>
         <item name="ic_action_visibility_on">@drawable/ic_action_visibility_on_light</item>
@@ -120,7 +120,7 @@
         <item name="selectableItemBackgroundBorderless">?android:selectableItemBackground</item>
         <item name="android:textColorPrimary">@color/textColorPrimaryInverse.Light</item>
         <item name="android:textColor">@color/textColorPrimaryInverse.Light</item>
-        <item name="android:textColorSecondary">@color/textColorSecondaryInverse.Light</item>
+        <item name="android:textColorSecondary">@color/textColorSecondary.Light</item>
         <item name="colorControlHighlight">@color/accent</item>
         <item name="colorControlNormal">@color/textColorSecondaryInverse.Light</item>
     </style>

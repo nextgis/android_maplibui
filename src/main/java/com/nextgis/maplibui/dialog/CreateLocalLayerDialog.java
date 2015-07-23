@@ -500,7 +500,7 @@ public class CreateLocalLayerDialog
                             Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT);
                             msg.putExtra(
                                     ConstantsUI.KEY_MESSAGE,
-                                    getString(R.string.warning_different_credentials));
+                                    mGroupLayer.getContext().getString(R.string.warning_different_credentials));
                             context.sendBroadcast(msg);
                         }
                     }
