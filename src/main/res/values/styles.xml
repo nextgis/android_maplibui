@@ -120,7 +120,7 @@
         <item name="selectableItemBackgroundBorderless">?android:selectableItemBackground</item>
         <item name="android:textColorPrimary">@color/textColorPrimaryInverse.Light</item>
         <item name="android:textColor">@color/textColorPrimaryInverse.Light</item>
-        <item name="android:textColorSecondary">@color/textColorSecondary.Light</item>
+        <!--item name="android:textColorSecondary">@color/textColorSecondary.Light</item-->
         <item name="colorControlHighlight">@color/accent</item>
         <item name="colorControlNormal">@color/textColorSecondaryInverse.Light</item>
     </style>

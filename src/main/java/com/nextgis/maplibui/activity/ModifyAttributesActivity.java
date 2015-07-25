@@ -298,14 +298,6 @@ public class ModifyAttributesActivity
                 "content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
 
         if (mFeatureId == NOT_FOUND) {
-
-            long nUniqId = mLayer.getUniqId();
-            if (nUniqId < MIN_LOCAL_FEATURE_ID) {
-                nUniqId = MIN_LOCAL_FEATURE_ID;// + mLayer.getCount();
-            }
-
-            values.put(FIELD_ID, nUniqId);
-
             if (getContentResolver().insert(uri, values) == null) {
                 Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT).show();
             }
