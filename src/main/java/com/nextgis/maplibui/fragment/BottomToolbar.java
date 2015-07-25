@@ -78,6 +78,7 @@ public class BottomToolbar
             ActionMenuPresenter presenter = new ActionMenuPresenter(getContext());
             presenter.setWidthLimit(
                     getContext().getResources().getDisplayMetrics().widthPixels, true);
+            presenter.setReserveOverflow(true); //always show overflow menu
             presenter.setItemLimit(Integer.MAX_VALUE);
             menuBuilder.addMenuPresenter(
                     presenter, new ContextThemeWrapper(getContext(), getPopupTheme()));
