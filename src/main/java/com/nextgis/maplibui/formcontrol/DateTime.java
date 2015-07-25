@@ -254,7 +254,7 @@ public class DateTime extends AppCompatTextView implements IFormControl
                         LayoutInflater inflater = (LayoutInflater) context.getSystemService(
                                 Context.LAYOUT_INFLATER_SERVICE);
                         View datetimePickerLayout =
-                                inflater.inflate(R.layout.layout_datetimepicker, null);
+                                inflater.inflate(R.layout.dialog_datetimepicker, null);
                         alert.setView(datetimePickerLayout);
 
                         DatePicker dt =

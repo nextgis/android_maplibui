@@ -84,7 +84,7 @@ public class ChooseLayerListAdapter
         View v = view;
         if (v == null) {
             LayoutInflater inflater = LayoutInflater.from(mSelector.getContext());
-            v = inflater.inflate(R.layout.layout_select_layer_row, null);
+            v = inflater.inflate(R.layout.row_select_layer, null);
         }
 
         ILayerUI layerUI = (ILayerUI) layer;

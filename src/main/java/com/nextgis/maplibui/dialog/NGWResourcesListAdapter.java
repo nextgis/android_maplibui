@@ -208,7 +208,7 @@ public class NGWResourcesListAdapter
         if (null == v || v.getId() != R.id.loading_row) {
             Context context = mSelectNGWResourceDialog.getActivity();
             LayoutInflater inflater = LayoutInflater.from(context);
-            v = inflater.inflate(R.layout.layout_loading_row, null);
+            v = inflater.inflate(R.layout.row_loading, null);
             v.setId(R.id.loading_row);
         }
         return v;
@@ -224,7 +224,7 @@ public class NGWResourcesListAdapter
         if (null == connection) { //create add account button
             if (null == v || v.getId() != R.id.resourcegroup_row) {
                 LayoutInflater inflater = LayoutInflater.from(context);
-                v = inflater.inflate(R.layout.layout_resourcegroup_row, null);
+                v = inflater.inflate(R.layout.row_resourcegroup, null);
                 v.setId(R.id.resourcegroup_row);
             }
             ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
@@ -238,7 +238,7 @@ public class NGWResourcesListAdapter
         } else {
             if (null == v || v.getId() != R.id.resourcegroup_row) {
                 LayoutInflater inflater = LayoutInflater.from(context);
-                v = inflater.inflate(R.layout.layout_resourcegroup_row, null);
+                v = inflater.inflate(R.layout.row_resourcegroup, null);
                 v.setId(R.id.resourcegroup_row);
             }
             ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
@@ -264,7 +264,7 @@ public class NGWResourcesListAdapter
         if (null == resource) { //create up button
             if (null == v || v.getId() != R.id.resourcegroup_row) {
                 LayoutInflater inflater = LayoutInflater.from(context);
-                v = inflater.inflate(R.layout.layout_resourcegroup_row, null);
+                v = inflater.inflate(R.layout.row_resourcegroup, null);
                 v.setId(R.id.resourcegroup_row);
 
                 ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
@@ -286,7 +286,7 @@ public class NGWResourcesListAdapter
                 resourceType != Connection.NGWResourceTypeResourceGroup) {
                 if (null == v || v.getId() != R.id.empty_row) {
                     LayoutInflater inflater = LayoutInflater.from(context);
-                    v = inflater.inflate(R.layout.layout_empty_row, null);
+                    v = inflater.inflate(R.layout.row_empty, null);
                     v.setId(R.id.empty_row);
                 }
                 return v;
@@ -299,7 +299,7 @@ public class NGWResourcesListAdapter
                 case Connection.NGWResourceTypeResourceGroup:
                     if (null == v || v.getId() != R.id.resourcegroup_row) {
                         LayoutInflater inflater = LayoutInflater.from(context);
-                        v = inflater.inflate(R.layout.layout_resourcegroup_row, null);
+                        v = inflater.inflate(R.layout.row_resourcegroup, null);
                         v.setId(R.id.resourcegroup_row);
 
                         ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
@@ -313,7 +313,7 @@ public class NGWResourcesListAdapter
                 case Connection.NGWResourceTypeRasterLayer:
                     if (null == v || v.getId() != R.id.ngw_layer_check_row) {
                         LayoutInflater inflater = LayoutInflater.from(context);
-                        v = inflater.inflate(R.layout.layout_ngwlayer_check_row, null);
+                        v = inflater.inflate(R.layout.row_ngwlayer_check, null);
                         v.setId(R.id.ngw_layer_check_row);
                     }
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
@@ -330,7 +330,7 @@ public class NGWResourcesListAdapter
                 case Connection.NGWResourceTypeWMSClient:
                     if (null == v || v.getId() != R.id.ngw_layer_check_row) {
                         LayoutInflater inflater = LayoutInflater.from(context);
-                        v = inflater.inflate(R.layout.layout_ngwlayer_check_row, null);
+                        v = inflater.inflate(R.layout.row_ngwlayer_check, null);
                         v.setId(R.id.ngw_layer_check_row);
                     }
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
@@ -349,7 +349,7 @@ public class NGWResourcesListAdapter
                     if (layer.getStyleCount() > 0) {
                         if (null == v || v.getId() != R.id.ngw_layer_doublecheck_row) {
                             LayoutInflater inflater = LayoutInflater.from(context);
-                            v = inflater.inflate(R.layout.layout_ngwlayer_doublecheck_row, null);
+                            v = inflater.inflate(R.layout.row_ngwlayer_doublecheck, null);
                             v.setId(R.id.ngw_layer_doublecheck_row);
                         }
 
@@ -362,7 +362,7 @@ public class NGWResourcesListAdapter
                     } else {
                         if (null == v || v.getId() != R.id.ngw_layer_check_row) {
                             LayoutInflater inflater = LayoutInflater.from(context);
-                            v = inflater.inflate(R.layout.layout_ngwlayer_check_row, null);
+                            v = inflater.inflate(R.layout.row_ngwlayer_check, null);
                             v.setId(R.id.ngw_layer_check_row);
                         }
 
@@ -386,7 +386,7 @@ public class NGWResourcesListAdapter
                     if (pglayer.getStyleCount() > 0) {
                         if (null == v || v.getId() != R.id.ngw_layer_doublecheck_row) {
                             LayoutInflater inflater = LayoutInflater.from(context);
-                            v = inflater.inflate(R.layout.layout_ngwlayer_doublecheck_row, null);
+                            v = inflater.inflate(R.layout.row_ngwlayer_doublecheck, null);
                             v.setId(R.id.ngw_layer_doublecheck_row);
                         }
 
@@ -400,7 +400,7 @@ public class NGWResourcesListAdapter
                     } else {
                         if (null == v || v.getId() != R.id.ngw_layer_check_row) {
                             LayoutInflater inflater = LayoutInflater.from(context);
-                            v = inflater.inflate(R.layout.layout_ngwlayer_check_row, null);
+                            v = inflater.inflate(R.layout.row_ngwlayer_check, null);
                             v.setId(R.id.ngw_layer_check_row);
                         }
 

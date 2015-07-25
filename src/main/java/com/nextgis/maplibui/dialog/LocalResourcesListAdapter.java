@@ -204,7 +204,7 @@ public class LocalResourcesListAdapter
         if (null == file) {
             if (null == v || v.getId() != R.id.resourcegroup_row) {
                 LayoutInflater inflater = LayoutInflater.from(mDialog.getContext());
-                v = inflater.inflate(R.layout.layout_resourcegroup_row, null);
+                v = inflater.inflate(R.layout.row_resourcegroup, null);
                 v.setId(R.id.resourcegroup_row);
 
                 ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
@@ -230,7 +230,7 @@ public class LocalResourcesListAdapter
                         (mCanWrite && !FileUtil.isDirectoryWritable(
                                 file))) {
                         if (v == null || v.getId() != R.id.resourcegroup_row) {
-                            v = inflater.inflate(R.layout.layout_resourcegroup_row, null);
+                            v = inflater.inflate(R.layout.row_resourcegroup, null);
                             v.setId(R.id.resourcegroup_row);
                         }
                     } else {
@@ -238,7 +238,7 @@ public class LocalResourcesListAdapter
                         {
                             viewId = R.id.resource_check_row;
                             if (v == null || v.getId() != viewId) {
-                                v = inflater.inflate(R.layout.layout_resource_check_row, null);
+                                v = inflater.inflate(R.layout.row_resource_check, null);
                                 v.setId(viewId);
 
 
@@ -249,7 +249,7 @@ public class LocalResourcesListAdapter
                         } else {
                             viewId = R.id.resource_radio_row;
                             if (v == null || v.getId() != viewId) {
-                                v = inflater.inflate(R.layout.layout_resource_radio_row, null);
+                                v = inflater.inflate(R.layout.row_resource_radio, null);
                                 v.setId(viewId);
                             }
 
@@ -270,7 +270,7 @@ public class LocalResourcesListAdapter
                     {
                         viewId = R.id.resource_check_row;
                         if (v == null || v.getId() != viewId) {
-                            v = inflater.inflate(R.layout.layout_resource_check_row, null);
+                            v = inflater.inflate(R.layout.row_resource_check, null);
                             v.setId(viewId);
                         }
                         //add check listener
@@ -279,7 +279,7 @@ public class LocalResourcesListAdapter
                     } else {
                         viewId = R.id.resource_radio_row;
                         if (v == null || v.getId() != viewId) {
-                            v = inflater.inflate(R.layout.layout_resource_radio_row, null);
+                            v = inflater.inflate(R.layout.row_resource_radio, null);
                             v.setId(viewId);
                         }
                         //add check listener
@@ -300,7 +300,7 @@ public class LocalResourcesListAdapter
                     {
                         viewId = R.id.resource_check_row;
                         if (v == null || v.getId() != viewId) {
-                            v = inflater.inflate(R.layout.layout_resource_check_row, null);
+                            v = inflater.inflate(R.layout.row_resource_check, null);
                             v.setId(viewId);
                         }
                         //add check listener
@@ -309,7 +309,7 @@ public class LocalResourcesListAdapter
                     } else {
                         viewId = R.id.resource_radio_row;
                         if (v == null || v.getId() != viewId) {
-                            v = inflater.inflate(R.layout.layout_resource_radio_row, null);
+                            v = inflater.inflate(R.layout.row_resource_radio, null);
                             v.setId(viewId);
                         }
                         //add check listener
@@ -332,7 +332,7 @@ public class LocalResourcesListAdapter
                     {
                         viewId = R.id.resource_check_row;
                         if (v == null || v.getId() != viewId) {
-                            v = inflater.inflate(R.layout.layout_resource_check_row, null);
+                            v = inflater.inflate(R.layout.row_resource_check, null);
                             v.setId(viewId);
                         }
                         //add check listener
@@ -341,7 +341,7 @@ public class LocalResourcesListAdapter
                     } else {
                         viewId = R.id.resource_radio_row;
                         if (v == null || v.getId() != viewId) {
-                            v = inflater.inflate(R.layout.layout_resource_radio_row, null);
+                            v = inflater.inflate(R.layout.row_resource_radio, null);
                             v.setId(viewId);
                         }
                         //add check listener

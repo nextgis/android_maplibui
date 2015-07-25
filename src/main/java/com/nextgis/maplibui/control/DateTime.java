@@ -39,7 +39,6 @@ import android.widget.DatePicker;
 import android.widget.TimePicker;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.api.IControl;
 import com.nextgis.maplibui.api.ISimpleControl;
 
 import java.text.DateFormat;
@@ -169,7 +168,7 @@ public class DateTime
                         LayoutInflater inflater = (LayoutInflater) context.getSystemService(
                                 Context.LAYOUT_INFLATER_SERVICE);
                         View datetimePickerLayout =
-                                inflater.inflate(R.layout.layout_datetimepicker, null);
+                                inflater.inflate(R.layout.dialog_datetimepicker, null);
                         alert.setView(datetimePickerLayout);
 
                         DatePicker dt =
@@ -255,7 +254,9 @@ public class DateTime
 
     @Override
     public void init(Field field, Cursor featureCursor) {
-        mFieldName = field.getName();
+        if(null != field)
+            mFieldName = field.getName();
+
         mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
 
         if (null != featureCursor) {

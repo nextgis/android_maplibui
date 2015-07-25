@@ -103,7 +103,7 @@ public class TracksActivity
         int[] to = new int[] {R.id.tv_name, R.id.iv_visibility};
 
         mSimpleCursorAdapter = new SimpleCursorAdapter(
-                this, R.layout.layout_track_row, null, from, to,
+                this, R.layout.row_track, null, from, to,
                 CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
         mSimpleCursorAdapter.setViewBinder(

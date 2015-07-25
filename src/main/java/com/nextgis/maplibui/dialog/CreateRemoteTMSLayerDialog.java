@@ -94,7 +94,7 @@ public class CreateRemoteTMSLayerDialog
 
         //LayoutInflater inflater = getActivity().getLayoutInflater();
 
-        View view = View.inflate(context, R.layout.layout_create_tms, null);
+        View view = View.inflate(context, R.layout.dialog_create_tms, null);
 
         final ArrayAdapter<CharSequence> adapter =
                 new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);

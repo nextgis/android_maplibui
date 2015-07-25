@@ -73,6 +73,6 @@
         />
 
     <include
-        layout="@layout/layout_color_row"/>
+        layout="@layout/row_color"/>
 
 </LinearLayout>

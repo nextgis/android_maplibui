@@ -87,7 +87,7 @@ public class ChooseColorListAdapter
         View v = convertView;
         if (v == null) {
             LayoutInflater inflater = LayoutInflater.from(mContext);
-            v = inflater.inflate(R.layout.layout_color_row, null);
+            v = inflater.inflate(R.layout.row_color, null);
         }
 
         ImageView iv = (ImageView) v.findViewById(R.id.color_image);

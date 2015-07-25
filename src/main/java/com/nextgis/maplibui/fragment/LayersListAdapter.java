@@ -41,18 +41,15 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplib.map.MapDrawable;
-import com.nextgis.maplib.map.MapEventSource;
 import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
-import com.nextgis.maplibui.mapui.LocalTMSLayerUI;
 import com.nextgis.maplibui.mapui.MapView;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
-import com.nextgis.maplibui.mapui.TrackLayerUI;
 import com.nextgis.maplibui.mapui.VectorLayerUI;
 
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_REMOTE_TMS;
@@ -152,7 +149,7 @@ public class LayersListAdapter
         View v = view;
         if (v == null) {
             LayoutInflater inflater = LayoutInflater.from(mContext);
-            v = inflater.inflate(R.layout.layout_layer_row, null);
+            v = inflater.inflate(R.layout.row_layer, null);
         }
 
         final ILayerUI layerui;

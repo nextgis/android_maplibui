@@ -38,7 +38,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -81,7 +80,6 @@ import java.util.zip.ZipInputStream;
 import static com.nextgis.maplib.util.Constants.MAX_CONTENT_LENGTH;
 import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
-import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplib.util.GeoConstants.*;
 
 
@@ -177,9 +175,9 @@ public class CreateLocalLayerDialog
 
         View view;
         if (mLayerType < 3) {
-            view = View.inflate(context, R.layout.layout_create_vector_layer, null);
+            view = View.inflate(context, R.layout.dialog_create_vector_layer, null);
         } else {
-            view = View.inflate(context, R.layout.layout_create_local_tms, null);
+            view = View.inflate(context, R.layout.dialog_create_local_tms, null);
 
             final ArrayAdapter<CharSequence> adapter =
                     new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
