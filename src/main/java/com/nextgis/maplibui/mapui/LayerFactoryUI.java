@@ -31,6 +31,7 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
+import com.nextgis.maplib.map.NGWLookupTable;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.dialog.CreateLocalLayerDialog;
@@ -193,6 +194,9 @@ public class LayerFactoryUI
                 case LAYERTYPE_TRACKS:
                     layer = new TrackLayerUI(context, path);
                     break;
+                case LAYERTYPE_LOOKUPTABLE:
+                    layer = new NGWLookupTable(context, path); // TODO: 26.07.15 Do we need UI for this?
+                    break;
             }
         } catch (IOException | JSONException e) {
             Log.d(TAG, e.getLocalizedMessage());
@@ -201,8 +205,8 @@ public class LayerFactoryUI
         return layer;
     }
 
-
-    public static String getLayerTypeString(
+    @Override
+    public String getLayerTypeString(
             Context context,
             int type)
     {
@@ -219,9 +223,10 @@ public class LayerFactoryUI
                 return context.getString(R.string.layer_vector);
             case LAYERTYPE_LOCAL_TMS:
                 return context.getString(R.string.layer_tms);
+            case LAYERTYPE_LOOKUPTABLE:
+                return context.getString(R.string.layer_lookuptable);
             default:
                 return context.getString(R.string.layer_na);
         }
     }
-
 }

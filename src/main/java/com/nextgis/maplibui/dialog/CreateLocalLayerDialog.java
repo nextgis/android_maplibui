@@ -44,6 +44,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.Field;
@@ -478,22 +480,18 @@ public class CreateLocalLayerDialog
                         e.printStackTrace();
                     }
 
-                    Account account = LayerFactory.getAccountByName(context, accountName);
-                    final AccountManager am = AccountManager.get(context.getApplicationContext());
+                    IGISApplication app = (IGISApplication) context.getApplicationContext();
+                    Account account = app.getAccount(accountName);
                     if (null == account) {
                         //create account
-                        Bundle userData = new Bundle();
-                        userData.putString("url", url);
-                        userData.putString("login", login);
-                        account = new Account(accountName, NGW_ACCOUNT_TYPE);
-                        if (!am.addAccountExplicitly(account, password, userData)) {
+                        if (!app.addAccount(accountName, url, login, password, "ngw")) {
                             return mGroupLayer.getContext().getString(
                                     R.string.account_already_exists);
                         }
                     } else {
                         //compare login/password and report differences
-                        boolean same = am.getPassword(account).equals(password) &&
-                                       am.getUserData(account, "login").equals(login);
+                        boolean same = app.getAccountPassword(account).equals(password) &&
+                                       app.getAccountLogin(account).equals(login);
                         if (!same) {
                             Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT);
                             msg.putExtra(

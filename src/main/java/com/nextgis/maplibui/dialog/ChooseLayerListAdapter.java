@@ -31,6 +31,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.nextgis.maplib.api.ILayer;
+import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerSelector;
 import com.nextgis.maplibui.api.ILayerUI;
@@ -97,7 +98,8 @@ public class ChooseLayerListAdapter
         tvText.setText(layer.getName());
 
         TextView tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-        tvDesc.setText(LayerFactoryUI.getLayerTypeString(mSelector.getContext(), layer.getType()));
+        LayerGroup group = (LayerGroup) layer.getParent();
+        tvDesc.setText(group.getLayerFactory().getLayerTypeString(mSelector.getContext(), layer.getType()));
 
         return v;
     }
