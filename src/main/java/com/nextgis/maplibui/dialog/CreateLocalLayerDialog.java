@@ -595,15 +595,11 @@ public class CreateLocalLayerDialog
     {
         String entryName = entry.getName();
         int pos = entryName.indexOf('/');
-        String folderName;
-        if(pos == NOT_FOUND)
-            folderName = entryName;
-        else
-            folderName = entryName.substring(0, pos);
 
         //for backward capability where the zip has root directory named "mapnik"
-        if (!TextUtils.isDigitsOnly(folderName)) {
-            if (pos != NOT_FOUND) {
+        if (pos != NOT_FOUND) {
+            String folderName = entryName.substring(0, pos);
+            if (!TextUtils.isDigitsOnly(folderName)) {
                 entryName = entryName.substring(pos, entryName.length());
             }
         }
