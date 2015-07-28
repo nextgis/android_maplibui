@@ -63,6 +63,7 @@ public interface ConstantsUI
     String JSON_DATE_TYPE_KEY         = "date_type";
     String JSON_FIELD_LEVEL1_KEY      = "field_level1";
     String JSON_FIELD_LEVEL2_KEY      = "field_level2";
+    String JSON_CHECKBOX_INIT_KEY     = "init_value";
 
     String JSON_TEXT_LABEL_VALUE      = "text_label";
     String JSON_TEXT_EDIT_VALUE       = "text_edit";
@@ -71,6 +72,7 @@ public interface ConstantsUI
     String JSON_COMBOBOX_VALUE        = "combobox";
     String JSON_DOUBLE_COMBOBOX_VALUE = "double_combobox";
     String JSON_SPACE_VALUE           = "space";
+    String JSON_CHECKBOX_VALUE        = "checkbox";
 
     int DATE     = 0;
     int TIME     = 1;
