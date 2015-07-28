@@ -70,6 +70,7 @@ public interface ConstantsUI
     String JSON_RADIO_GROUP_VALUE     = "radio_group";
     String JSON_COMBOBOX_VALUE        = "combobox";
     String JSON_DOUBLE_COMBOBOX_VALUE = "double_combobox";
+    String JSON_SPACE_VALUE           = "space";
 
     int DATE     = 0;
     int TIME     = 1;

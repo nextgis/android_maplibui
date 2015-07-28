@@ -27,16 +27,22 @@ import android.content.ContentValues;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IFormControl;
-import com.nextgis.maplibui.formcontrol.*;
-import com.nextgis.maplibui.util.SettingsConstantsUI;
+import com.nextgis.maplibui.formcontrol.Combobox;
+import com.nextgis.maplibui.formcontrol.DateTime;
+import com.nextgis.maplibui.formcontrol.DoubleCombobox;
+import com.nextgis.maplibui.formcontrol.DoubleComboboxValue;
+import com.nextgis.maplibui.formcontrol.RadioGroup;
+import com.nextgis.maplibui.formcontrol.Space;
+import com.nextgis.maplibui.formcontrol.TextEdit;
+import com.nextgis.maplibui.formcontrol.TextLabel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,8 +52,20 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static com.nextgis.maplib.util.Constants.*;
-import static com.nextgis.maplibui.util.ConstantsUI.*;
+import static com.nextgis.maplib.util.Constants.FIELD_ID;
+import static com.nextgis.maplib.util.Constants.JSON_TYPE_KEY;
+import static com.nextgis.maplib.util.Constants.NOT_FOUND;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_ALBUM_ELEMENTS_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_COMBOBOX_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_DATE_TIME_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_DOUBLE_COMBOBOX_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_PORTRAIT_ELEMENTS_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_RADIO_GROUP_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_SPACE_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_TABS_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_EDIT_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_LABEL_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
 
 
 /**
@@ -128,34 +146,37 @@ public class FormBuilderModifyAttributesActivity
             switch (type) {
 
                 case JSON_TEXT_LABEL_VALUE:
-                    control = (TextLabel)getLayoutInflater().inflate(R.layout.formtemplate_textlabel, null);
+                    control = (TextLabel)getLayoutInflater().inflate(R.layout.formtemplate_textlabel, layout, false);
                     break;
 
                 case JSON_TEXT_EDIT_VALUE:
-                    control = (TextEdit)getLayoutInflater().inflate(R.layout.formtemplate_edittext, null);
+                    control = (TextEdit)getLayoutInflater().inflate(R.layout.formtemplate_edittext, layout, false);
                     break;
 
                 case JSON_DATE_TIME_VALUE:
-                    control = (DateTime)getLayoutInflater().inflate(R.layout.formtemplate_datetime, null);
+                    control = (DateTime)getLayoutInflater().inflate(R.layout.formtemplate_datetime, layout, false);
                     break;
 
                 case JSON_RADIO_GROUP_VALUE:
-                    control = (RadioGroup)getLayoutInflater().inflate(R.layout.formtemplate_radiogroup, null);
+                    control = (RadioGroup)getLayoutInflater().inflate(R.layout.formtemplate_radiogroup, layout, false);
                     break;
 
                 case JSON_COMBOBOX_VALUE:
-                    control = (Combobox)getLayoutInflater().inflate(R.layout.formtemplate_combobox, null);
+                    control = (Combobox)getLayoutInflater().inflate(R.layout.formtemplate_combobox, layout, false);
                     break;
 
                 case JSON_DOUBLE_COMBOBOX_VALUE:
-                    control = (DoubleCombobox)getLayoutInflater().inflate(R.layout.formtemplate_doublecombobox, null);
+                    control = (DoubleCombobox)getLayoutInflater().inflate(R.layout.formtemplate_doublecombobox, layout, false);
+                    break;
+
+                case JSON_SPACE_VALUE:
+                    control = (Space) getLayoutInflater().inflate(R.layout.formtemplate_space, layout, false);
                     break;
 
                 //TODO: add controls
                 //checkbox
                 //button
                 //group
-                //space
                 //orientation
                 //tabs
                 //compass
