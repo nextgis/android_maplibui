@@ -24,6 +24,7 @@
 package com.nextgis.maplibui.formcontrol;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.support.v7.widget.AppCompatSpinner;
 import android.util.AttributeSet;
@@ -80,7 +81,7 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
     //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
 
     @Override
-    public void init(JSONObject element, List<Field> fields, Cursor featureCursor) throws JSONException {
+    public void init(JSONObject element, List<Field> fields, Cursor featureCursor, SharedPreferences preferences) throws JSONException {
 
         mSubCombobox = new Spinner(getContext());
 
@@ -105,6 +106,7 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
             mIsShowLast = attributes.getBoolean(JSON_SHOW_LAST_KEY);
         }
 
+        // TODO proper show current / last saved feature attrs
         String lastValue = null;
         String subLastValue = null;
         if (mIsShowLast) {
@@ -225,6 +227,18 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
                     {
                     }
                 });
+    }
+
+    @Override
+    public void saveLastValue(SharedPreferences preferences) {
+        DoubleComboboxValue result = (DoubleComboboxValue) getValue();
+        preferences.edit().putString(result.mFieldName, result.mValue).commit();
+        preferences.edit().putString(result.mSubFieldName, result.mSubValue).commit();
+    }
+
+    @Override
+    public boolean isShowLast() {
+        return mIsShowLast;
     }
 
 

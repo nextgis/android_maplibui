@@ -24,6 +24,7 @@
 package com.nextgis.maplibui.formcontrol;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.support.v7.widget.AppCompatSpinner;
 import android.util.AttributeSet;
@@ -73,7 +74,8 @@ public class Combobox extends AppCompatSpinner implements IFormControl
     @Override
     public void init(JSONObject element,
                      List<Field> fields,
-                     Cursor featureCursor) throws JSONException{
+                     Cursor featureCursor,
+                     SharedPreferences preferences) throws JSONException{
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
 
@@ -142,6 +144,16 @@ public class Combobox extends AppCompatSpinner implements IFormControl
         float minHeight = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, 14, getResources().getDisplayMetrics());
         setPadding(0, (int) minHeight, 0, (int) minHeight);
+    }
+
+    @Override
+    public void saveLastValue(SharedPreferences preferences) {
+        preferences.edit().putString(mFieldName, (String) getValue()).commit();
+    }
+
+    @Override
+    public boolean isShowLast() {
+        return mIsShowLast;
     }
 
 

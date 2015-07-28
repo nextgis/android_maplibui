@@ -88,6 +88,7 @@ public class ModifyAttributesActivity
     protected TextView              mAccView;
     protected Location              mLocation;
 
+    protected SharedPreferences mSharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -141,6 +142,7 @@ public class ModifyAttributesActivity
             short layerId = extras.getShort(KEY_LAYER_ID);
             MapBase map = app.getMap();
             mLayer = (VectorLayer) map.getLayerById(layerId);
+            mSharedPreferences = getSharedPreferences(mLayer.getPath().getName(), MODE_PRIVATE);
 
             if (null != mLayer) {
                 mFields = new HashMap<>();
@@ -329,7 +331,8 @@ public class ModifyAttributesActivity
 
             if (value instanceof Long) {
                 values.put(field.getName(), (Long) value);
-
+            } else if (value instanceof Integer) {
+                values.put(field.getName(), (Integer) value);
             } else if (value instanceof String) {
                 values.put(field.getName(), (String) value);
             }

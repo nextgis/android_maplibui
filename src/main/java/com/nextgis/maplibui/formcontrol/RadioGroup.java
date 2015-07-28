@@ -24,6 +24,7 @@
 package com.nextgis.maplibui.formcontrol;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.util.AttributeSet;
@@ -67,7 +68,8 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
     @Override
     public void init(JSONObject element,
                      List<Field> fields,
-                     Cursor featureCursor) throws JSONException{
+                     Cursor featureCursor,
+                     SharedPreferences preferences) throws JSONException{
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
 
@@ -89,6 +91,7 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
             mIsShowLast = attributes.getBoolean(JSON_SHOW_LAST_KEY);
         }
 
+        // TODO proper show current / last saved feature attrs
         String lastValue = null;
         if (mIsShowLast) {
             if (null != featureCursor) {
@@ -127,6 +130,16 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
 
         check(getChildAt(lastValuePosition >= 0 ? lastValuePosition : defaultPosition).getId());
         setOrientation(RadioGroup.VERTICAL);
+    }
+
+    @Override
+    public void saveLastValue(SharedPreferences preferences) {
+        preferences.edit().putString(mFieldName, (String) getValue()).commit();
+    }
+
+    @Override
+    public boolean isShowLast() {
+        return mIsShowLast;
     }
 
 

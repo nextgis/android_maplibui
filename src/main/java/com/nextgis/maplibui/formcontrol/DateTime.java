@@ -28,6 +28,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
@@ -79,7 +80,7 @@ public class DateTime extends AppCompatTextView implements IFormControl
     }
 
     @Override
-    public void init(JSONObject element, List<Field> fields, Cursor featureCursor) throws JSONException {
+    public void init(JSONObject element, List<Field> fields, Cursor featureCursor, SharedPreferences preferences) throws JSONException {
         mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
 
 
@@ -154,6 +155,16 @@ public class DateTime extends AppCompatTextView implements IFormControl
 
         String pattern = mDateFormat.toLocalizedPattern();
         setHint(pattern);
+    }
+
+    @Override
+    public void saveLastValue(SharedPreferences preferences) {
+        preferences.edit().putString(mFieldName, (String) getValue()).commit();
+    }
+
+    @Override
+    public boolean isShowLast() {
+        return mIsShowLast;
     }
 
     public void setCurrentDate(){
