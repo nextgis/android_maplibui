@@ -317,15 +317,15 @@ public class TileDownloadService extends Service{
         if (mThreadPool != null) {
             synchronized (lock) {
                 mThreadPool.shutdownNow();
-            }
-            try {
-                mThreadPool.awaitTermination(Constants.TERMINATE_TIME, Constants.KEEP_ALIVE_TIME_UNIT);
-                mThreadPool.purge();
-                Log.d(TAG, "Cancel execution. Active count: " + mThreadPool.getActiveCount() + " Task count: " + mThreadPool.getTaskCount());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                mThreadPool.shutdownNow();
-                Thread.currentThread().interrupt();
+                try {
+                    mThreadPool.awaitTermination(Constants.TERMINATE_TIME, Constants.KEEP_ALIVE_TIME_UNIT);
+                    mThreadPool.purge();
+                    Log.d(TAG, "Cancel execution. Active count: " + mThreadPool.getActiveCount() + " Task count: " + mThreadPool.getTaskCount());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    mThreadPool.shutdownNow();
+                    Thread.currentThread().interrupt();
+                }
             }
         }
         mNotifyManager.cancel(TILE_DOWNLOAD_NOTIFICATION_ID);
