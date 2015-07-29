@@ -26,9 +26,11 @@ package com.nextgis.maplibui.mapui;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.widget.Toast;
+
 import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometry;
@@ -40,9 +42,9 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.activity.VectorLayerSettingsActivity;
-import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.util.ConstantsUI;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,8 +54,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
-import static com.nextgis.maplib.util.GeoConstants.*;
-import static com.nextgis.maplibui.util.ConstantsUI.*;
+import static com.nextgis.maplib.util.GeoConstants.GEOJSON_CRS;
+import static com.nextgis.maplib.util.GeoConstants.GEOJSON_GEOMETRY;
+import static com.nextgis.maplib.util.GeoConstants.GEOJSON_NAME;
+import static com.nextgis.maplib.util.GeoConstants.GEOJSON_PROPERTIES;
+import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE;
+import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FEATURES;
+import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_Feature;
+import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FeatureCollection;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_LAYER_ID;
 
 
 /**
@@ -138,6 +150,17 @@ public class VectorLayerUI
         }
     }
 
+    @Override
+    public boolean delete() throws SQLiteException {
+        File preference = new File(mContext.getApplicationInfo().dataDir, "shared_prefs");
+
+        if (preference.exists() && preference.isDirectory()) {
+            preference = new File(preference, getPath().getName() + ".xml");
+            preference.delete();
+        }
+
+        return super.delete();
+    }
 
     public void shareGeoJSON()
     {

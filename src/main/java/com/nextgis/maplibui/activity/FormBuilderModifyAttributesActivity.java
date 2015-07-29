@@ -35,6 +35,7 @@ import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IFormControl;
+import com.nextgis.maplibui.formcontrol.Checkbox;
 import com.nextgis.maplibui.formcontrol.Combobox;
 import com.nextgis.maplibui.formcontrol.DateTime;
 import com.nextgis.maplibui.formcontrol.DoubleCombobox;
@@ -56,6 +57,7 @@ import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.JSON_TYPE_KEY;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ALBUM_ELEMENTS_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_CHECKBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_COMBOBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DATE_TIME_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DOUBLE_COMBOBOX_VALUE;
@@ -173,8 +175,11 @@ public class FormBuilderModifyAttributesActivity
                     control = (Space) getLayoutInflater().inflate(R.layout.formtemplate_space, layout, false);
                     break;
 
+                case JSON_CHECKBOX_VALUE:
+                    control = (Checkbox) getLayoutInflater().inflate(R.layout.formtemplate_checkbox, layout, false);
+                    break;
+
                 //TODO: add controls
-                //checkbox
                 //button
                 //group
                 //orientation
@@ -186,12 +191,12 @@ public class FormBuilderModifyAttributesActivity
             }
 
             if (null != control) {
-                control.init(element, fields, featureCursor);
+                control.init(element, fields, featureCursor, mSharedPreferences);
                 control.addToLayout(layout);
                 String fieldName = control.getFieldName();
 
                 if (null != fieldName) {
-                    mFields.put(control.getFieldName(), control);
+                    mFields.put(fieldName, control);
                 }
             }
         }
@@ -209,8 +214,15 @@ public class FormBuilderModifyAttributesActivity
             Field field)
     {
         Object value = super.putFieldValue(values, field);
+        IFormControl control = (IFormControl) mFields.get(field.getName());
+
+        if (null == control) {
+            return null;
+        }
 
         if (null != value) {
+            if (control.isShowLast())
+                control.saveLastValue(mSharedPreferences);
 
             if (value instanceof DoubleComboboxValue) {
                 DoubleComboboxValue dcValue = (DoubleComboboxValue) value;
