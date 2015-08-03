@@ -24,11 +24,7 @@
 package com.nextgis.maplibui.activity;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
-import android.support.v7.widget.Toolbar;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
@@ -118,7 +114,7 @@ public class LocalTMSLayerSettingsActivity
             // set color
             TMSRenderer tmsRenderer = (TMSRenderer) mRasterLayer.getRenderer();
             if (null != tmsRenderer) {
-                SwitchCompat switchCompat = (SwitchCompat) findViewById(R.id.make_grayscale);
+                SwitchCompat switchCompat = (SwitchCompat) findViewById(R.id.make_greyscale);
                 mForceToGrayScale = tmsRenderer.isForceToGrayScale();
                 switchCompat.setChecked(mForceToGrayScale);
 

@@ -116,10 +116,11 @@
         />
 
     <android.support.v7.widget.SwitchCompat
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/make_grayscale"
-        android:id="@+id/make_grayscale"
+        android:id="@+id/make_greyscale"
         android:layout_margin="5dp"
         />
 
