@@ -114,7 +114,7 @@ public class LocalTMSLayerSettingsActivity
             // set color
             TMSRenderer tmsRenderer = (TMSRenderer) mRasterLayer.getRenderer();
             if (null != tmsRenderer) {
-                SwitchCompat switchCompat = (SwitchCompat) findViewById(R.id.make_greyscale);
+                SwitchCompat switchCompat = (SwitchCompat) findViewById(R.id.make_grayscale);
                 mForceToGrayScale = tmsRenderer.isForceToGrayScale();
                 switchCompat.setChecked(mForceToGrayScale);
 

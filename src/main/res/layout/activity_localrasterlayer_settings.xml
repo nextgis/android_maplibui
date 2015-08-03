@@ -120,7 +120,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/make_grayscale"
-        android:id="@+id/make_greyscale"
+        android:id="@+id/make_grayscale"
         android:layout_margin="5dp"
         />
 
