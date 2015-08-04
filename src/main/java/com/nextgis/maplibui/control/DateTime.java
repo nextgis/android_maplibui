@@ -275,4 +275,28 @@ public class DateTime
         String pattern = mDateFormat.toLocalizedPattern();
         setHint(pattern);
     }
+
+    public void setValue(Object val){
+        long nVal;
+        if(val instanceof Long)
+            nVal = (long) val;
+        else if(val instanceof Date)
+            nVal = ((Date)(val)).getTime();
+        else if(val instanceof Calendar)
+            nVal = ((Calendar)val).getTimeInMillis();
+        else
+            return;
+
+        mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(nVal);
+        setText(mDateFormat.format(calendar.getTime()));
+
+        setSingleLine(true);
+        setFocusable(false);
+        setOnClickListener(getDateUpdateWatcher(DATETIME));
+
+        String pattern = mDateFormat.toLocalizedPattern();
+        setHint(pattern);
+    }
 }
