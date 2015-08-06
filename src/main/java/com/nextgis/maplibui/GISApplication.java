@@ -53,7 +53,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.nextgis.maplib.util.Constants.MAP_EXT;
 import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
-import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_MAP;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIODICALLY;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
@@ -99,15 +98,17 @@ public abstract class GISApplication extends Application
         //turn on periodic sync. Can be set for each layer individually, but this is simpler
         if (sharedPreferences.getBoolean(KEY_PREF_SYNC_PERIODICALLY, true)) {
             long period =
-                    sharedPreferences.getLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, NOT_FOUND); //10 min
-            if (period != NOT_FOUND) {
-                Bundle params = new Bundle();
-                params.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, false);
-                params.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, false);
-                params.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
+                    sharedPreferences.getLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, Constants.DEFAULT_SYNC_PERIOD); //1 hour
 
-                SyncAdapter.setSyncPeriod(this, params, period);
-            }
+            if(-1 == period)
+                period = Constants.DEFAULT_SYNC_PERIOD;
+
+            Bundle params = new Bundle();
+            params.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, false);
+            params.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, false);
+            params.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
+
+            SyncAdapter.setSyncPeriod(this, params, period);
         }
     }
 

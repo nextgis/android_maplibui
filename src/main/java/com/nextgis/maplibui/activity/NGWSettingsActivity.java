@@ -344,17 +344,16 @@ public class NGWSettingsActivity
             PreferenceCategory syncCategory) {
         final SharedPreferences sharedPreferences =
                 PreferenceManager.getDefaultSharedPreferences(this);
-        String prefValue = "" + sharedPreferences.getLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, NOT_FOUND);
+        String prefValue = "" + sharedPreferences.getLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, Constants.DEFAULT_SYNC_PERIOD);
 
         final CharSequence[] keys = {
-                getString(R.string.system_default),
                 getString(R.string.five_minutes),
                 getString(R.string.ten_minutes),
                 getString(R.string.fifteen_minutes),
                 getString(R.string.thirty_minutes),
                 getString(R.string.one_hour),
                 getString(R.string.two_hours)};
-        final CharSequence[] values = {"" + NOT_FOUND, "300", "600", "900", "1800", "3600", "7200"};
+        final CharSequence[] values = {"300", "600", "900", "1800", "3600", "7200"};
 
         final ListPreference timeInterval = new ListPreference(this);
         timeInterval.setKey(KEY_PREF_SYNC_PERIOD);
