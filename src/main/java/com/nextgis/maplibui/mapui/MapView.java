@@ -694,7 +694,7 @@ public class MapView
         if (!(mDrawingState == DRAW_SATE_drawing_noclearbk || mDrawingState == DRAW_SATE_drawing)) {
             return;
         }
-        //Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent);
+        Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent);
         //mDrawingState = DRAW_SATE_drawing_noclearbk;
         if (percent >= 1.0 && id == mTopVisibleLayerId) {
             //Log.d(TAG, "LayerDrawFinished: id - " + id + ", percent - " + percent);
@@ -707,6 +707,11 @@ public class MapView
         } else if (System.currentTimeMillis() - mStartDrawTime > DISPLAY_REDRAW_TIMEOUT) {
             mStartDrawTime = System.currentTimeMillis();
 
+            mMap.buffer(0, 0, 1);
+
+            postInvalidate();
+        }
+        else if (percent >= 1.0) {
             mMap.buffer(0, 0, 1);
 
             postInvalidate();
