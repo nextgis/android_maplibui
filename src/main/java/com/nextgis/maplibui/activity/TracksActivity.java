@@ -66,10 +66,10 @@ public class TracksActivity
         extends NGActivity
         implements LoaderManager.LoaderCallbacks<Cursor>, ActionMode.Callback
 {
-    private static final int    TRACKS_ID             = 0;
-    private static final String BUNDLE_SELECTED_ITEMS = "selected_items";
-    protected static String BUNDLE_ISCHECKED_KEY = "is_cjecked";
-    protected static String BUNDLE_TAG_KEY = "tag";
+    protected static final int    TRACKS_ID             = 0;
+    protected static final String BUNDLE_SELECTED_ITEMS = "selected_items";
+    protected static final String BUNDLE_ISCHECKED_KEY = "is_cjecked";
+    protected static final String BUNDLE_TAG_KEY = "tag";
 
     private Uri                    mContentUriTracks;
     private SimpleCursorAdapter    mSimpleCursorAdapter;
