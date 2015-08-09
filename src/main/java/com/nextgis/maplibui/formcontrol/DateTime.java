@@ -39,6 +39,7 @@ import android.widget.DatePicker;
 import android.widget.TimePicker;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IFormControl;
 
@@ -46,11 +47,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
+import static com.nextgis.maplib.util.GeoConstants.FTDate;
+import static com.nextgis.maplib.util.GeoConstants.FTDateTime;
+import static com.nextgis.maplib.util.GeoConstants.FTTime;
 import static com.nextgis.maplibui.util.ConstantsUI.DATE;
 import static com.nextgis.maplibui.util.ConstantsUI.DATETIME;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
@@ -66,6 +72,7 @@ public class DateTime extends AppCompatTextView implements IFormControl
     protected boolean mIsShowLast;
     protected String mFieldName;
     SimpleDateFormat mDateFormat;
+    protected Calendar mCalendar = Calendar.getInstance();
 
     public DateTime(Context context) {
         super(context);
@@ -103,7 +110,7 @@ public class DateTime extends AppCompatTextView implements IFormControl
             mIsShowLast = attributes.getBoolean(JSON_SHOW_LAST_KEY);
         }
 
-        int picker_type = DATETIME;
+        int picker_type = DATETIME, dataType;
         if (attributes.has(JSON_DATE_TYPE_KEY)) {
             picker_type = attributes.getInt(JSON_DATE_TYPE_KEY);
         }
@@ -111,43 +118,66 @@ public class DateTime extends AppCompatTextView implements IFormControl
         switch (picker_type) {
             case DATE:
                 mDateFormat = (SimpleDateFormat) DateFormat.getDateInstance();
+                dataType = GeoConstants.FTDate;
                 break;
             case TIME:
                 mDateFormat = (SimpleDateFormat) DateFormat.getTimeInstance();
+                dataType = GeoConstants.FTTime;
                 break;
             case DATETIME:
                 mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+                dataType = GeoConstants.FTDateTime;
                 break;
             default:
                 picker_type = DATETIME;
                 mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+                dataType = GeoConstants.FTDateTime;
         }
 
-
-        String lastValue = null;
-        if (mIsShowLast) {
-            if (null != featureCursor) {
-                int column = featureCursor.getColumnIndex(mFieldName);
-                if (column >= 0) {
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTimeInMillis(featureCursor.getLong(column));
-                    lastValue = mDateFormat.format(calendar.getTime());
-                }
+        long timestamp = 0;
+        if (null != featureCursor) { // feature exists
+            int column = featureCursor.getColumnIndex(mFieldName);
+            if (column >= 0) {
+                timestamp = featureCursor.getLong(column);
             }
-        }
-
-        if (mIsShowLast && null != lastValue) {
-            setText(lastValue);
-        } else {
-            if (attributes.has(JSON_TEXT_KEY) && !attributes.isNull(
-                    JSON_TEXT_KEY)) {
+        } else {    // new feature
+            if (attributes.has(JSON_TEXT_KEY) && !attributes.isNull(JSON_TEXT_KEY)) {
                 String defaultValue = attributes.getString(JSON_TEXT_KEY);
-
-                // TODO: check format of defaultValue
-
-                setText(defaultValue);
+                timestamp = parseDateTime(defaultValue, dataType);
             }
+
+            if (mIsShowLast)
+                timestamp = preferences.getLong(mFieldName, timestamp);
         }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(timestamp);
+        setText(mDateFormat.format(calendar.getTime()));
+
+//        String lastValue = null;
+//        if (mIsShowLast) {
+//            if (null != featureCursor) {
+//                int column = featureCursor.getColumnIndex(mFieldName);
+//                if (column >= 0) {
+//                    Calendar calendar = Calendar.getInstance();
+//                    calendar.setTimeInMillis(featureCursor.getLong(column));
+//                    lastValue = mDateFormat.format(calendar.getTime());
+//                }
+//            }
+//        }
+
+//        if (mIsShowLast && null != lastValue) {
+//            setText(lastValue);
+//        } else {
+//            if (attributes.has(JSON_TEXT_KEY) && !attributes.isNull(
+//                    JSON_TEXT_KEY)) {
+//                String defaultValue = attributes.getString(JSON_TEXT_KEY);
+//
+//                // TODO: check format of defaultValue
+//
+//                setText(defaultValue);
+//            }
+//        }
 
         setSingleLine(true);
         setFocusable(false);
@@ -157,9 +187,37 @@ public class DateTime extends AppCompatTextView implements IFormControl
         setHint(pattern);
     }
 
+
+    protected long parseDateTime(String value, int type) {
+        long result = 0;
+        SimpleDateFormat sdf = null;
+
+        switch (type) {
+            case FTDate:
+                sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                break;
+            case FTTime:
+                sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                break;
+            case FTDateTime:
+                sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                break;
+        }
+
+        if (sdf != null)
+            try {
+                result = sdf.parse(value).getTime();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+        return result;
+    }
+
+
     @Override
     public void saveLastValue(SharedPreferences preferences) {
-        preferences.edit().putString(mFieldName, (String) getValue()).commit();
+        preferences.edit().putLong(mFieldName, (Long) getValue()).commit();
     }
 
     @Override
@@ -175,9 +233,6 @@ public class DateTime extends AppCompatTextView implements IFormControl
     {
         return new View.OnClickListener()
         {
-            protected Calendar mCalendar = Calendar.getInstance();
-
-
             protected void setValue()
             {
                 DateTime.this.setText(mDateFormat.format(mCalendar.getTime()));
@@ -332,6 +387,7 @@ public class DateTime extends AppCompatTextView implements IFormControl
 
     @Override
     public Object getValue() {
-        return getText().toString();
+        return mCalendar.getTimeInMillis();
+//        return getText().toString();
     }
 }
