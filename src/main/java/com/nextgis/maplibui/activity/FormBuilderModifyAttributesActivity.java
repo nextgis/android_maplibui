@@ -24,6 +24,7 @@
 package com.nextgis.maplibui.activity;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -40,6 +41,7 @@ import com.nextgis.maplibui.formcontrol.Combobox;
 import com.nextgis.maplibui.formcontrol.DateTime;
 import com.nextgis.maplibui.formcontrol.DoubleCombobox;
 import com.nextgis.maplibui.formcontrol.DoubleComboboxValue;
+import com.nextgis.maplibui.formcontrol.PhotoGallery;
 import com.nextgis.maplibui.formcontrol.RadioGroup;
 import com.nextgis.maplibui.formcontrol.Space;
 import com.nextgis.maplibui.formcontrol.TextEdit;
@@ -61,6 +63,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_CHECKBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_COMBOBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DATE_TIME_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DOUBLE_COMBOBOX_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_PHOTO_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_PORTRAIT_ELEMENTS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_RADIO_GROUP_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_SPACE_VALUE;
@@ -179,6 +182,10 @@ public class FormBuilderModifyAttributesActivity
                     control = (Checkbox) getLayoutInflater().inflate(R.layout.formtemplate_checkbox, layout, false);
                     break;
 
+                case JSON_PHOTO_VALUE:
+                    control = (PhotoGallery) getLayoutInflater().inflate(R.layout.formtemplate_photo, layout, false);
+                    break;
+
                 //TODO: add controls
                 //button
                 //group
@@ -232,5 +239,14 @@ public class FormBuilderModifyAttributesActivity
         }
 
         return value;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        PhotoGallery gallery = (PhotoGallery) findViewById(R.id.pg_photos);
+        if (gallery != null)
+            gallery.onActivityResult(requestCode, resultCode, data);
     }
 }
