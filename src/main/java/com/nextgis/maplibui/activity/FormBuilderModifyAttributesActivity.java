@@ -184,6 +184,7 @@ public class FormBuilderModifyAttributesActivity
 
                 case JSON_PHOTO_VALUE:
                     control = (PhotoGallery) getLayoutInflater().inflate(R.layout.formtemplate_photo, layout, false);
+                    ((PhotoGallery) control).init(mLayer, mFeatureId);
                     break;
 
                 //TODO: add controls
