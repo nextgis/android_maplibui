@@ -26,16 +26,14 @@ package com.nextgis.maplibui.activity;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Pair;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.edmodo.rangebar.RangeBar;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.display.SimpleFeatureRenderer;
@@ -127,6 +125,28 @@ public class VectorLayerSettingsActivity
                     setColor(color);
                 }
             }
+
+            //set range
+            // Gets the RangeBar
+            final RangeBar rangebar = (RangeBar) findViewById(R.id.rangebar);
+            int nMinZoom = mVectorLayer.getMinZoom() < rangebar.getRightIndex() ? (int) mVectorLayer.getMinZoom() : rangebar.getRightIndex();
+            int nMaxZoom = mVectorLayer.getMaxZoom() < rangebar.getRightIndex() ? (int) mVectorLayer.getMaxZoom() : rangebar.getRightIndex();
+            rangebar.setThumbIndices(nMinZoom, nMaxZoom);
+            // Gets the index value TextViews
+            final TextView leftIndexValue = (TextView) findViewById(R.id.leftIndexValue);
+            leftIndexValue.setText("min: " + nMinZoom);
+            final TextView rightIndexValue = (TextView) findViewById(R.id.rightIndexValue);
+            rightIndexValue.setText("max: " + nMaxZoom);
+
+            // Sets the display values of the indices
+            rangebar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
+                @Override
+                public void onIndexChangeListener(RangeBar rangeBar, int leftThumbIndex, int rightThumbIndex) {
+
+                    leftIndexValue.setText("min: " + leftThumbIndex);
+                    rightIndexValue.setText("max: " + rightThumbIndex);
+                }
+            });
         }
     }
 
@@ -179,6 +199,10 @@ public class VectorLayerSettingsActivity
                 style.setColor(mCurrentColor);
             }
         }
+
+        final RangeBar rangebar = (RangeBar) findViewById(R.id.rangebar);
+        mVectorLayer.setMinZoom(rangebar.getLeftIndex());
+        mVectorLayer.setMaxZoom(rangebar.getRightIndex());
 
         mVectorLayer.save();
     }

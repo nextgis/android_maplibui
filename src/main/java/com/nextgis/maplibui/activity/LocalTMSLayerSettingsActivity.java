@@ -32,6 +32,8 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.edmodo.rangebar.RangeBar;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.display.TMSRenderer;
@@ -110,6 +112,28 @@ public class LocalTMSLayerSettingsActivity
                             }
                         });
             }
+
+            //set range
+            // Gets the RangeBar
+            final RangeBar rangebar = (RangeBar) findViewById(R.id.rangebar);
+            int nMinZoom = mRasterLayer.getMinZoom() < rangebar.getRightIndex() ? (int) mRasterLayer.getMinZoom() : rangebar.getRightIndex();
+            int nMaxZoom = mRasterLayer.getMaxZoom() < rangebar.getRightIndex() ? (int) mRasterLayer.getMaxZoom() : rangebar.getRightIndex();
+            rangebar.setThumbIndices(nMinZoom, nMaxZoom);
+            // Gets the index value TextViews
+            final TextView leftIndexValue = (TextView) findViewById(R.id.leftIndexValue);
+            leftIndexValue.setText("min: " + nMinZoom);
+            final TextView rightIndexValue = (TextView) findViewById(R.id.rightIndexValue);
+            rightIndexValue.setText("max: " + nMaxZoom);
+
+            // Sets the display values of the indices
+            rangebar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
+                @Override
+                public void onIndexChangeListener(RangeBar rangeBar, int leftThumbIndex, int rightThumbIndex) {
+
+                    leftIndexValue.setText("min: " + leftThumbIndex);
+                    rightIndexValue.setText("max: " + rightThumbIndex);
+                }
+            });
 
             // set color
             TMSRenderer tmsRenderer = (TMSRenderer) mRasterLayer.getRenderer();
@@ -224,6 +248,10 @@ public class LocalTMSLayerSettingsActivity
         if (null != tmsRenderer) {
             tmsRenderer.setContrastBrightness(mContrast, mBrightness, mForceToGrayScale);
         }
+
+        final RangeBar rangebar = (RangeBar) findViewById(R.id.rangebar);
+        mRasterLayer.setMinZoom(rangebar.getLeftIndex());
+        mRasterLayer.setMaxZoom(rangebar.getRightIndex());
 
         mRasterLayer.save();
     }

@@ -23,6 +23,7 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:custom="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
@@ -55,6 +56,51 @@
         android:id="@+id/layer_name"
         android:layout_margin="5dp"
         />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/zoom_levels_to_show"
+        android:id="@+id/textView"
+        android:layout_margin="5dp"
+        />
+
+    <com.edmodo.rangebar.RangeBar
+        android:id="@+id/rangebar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        custom:tickCount="50"
+        />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Small Text"
+            android:id="@+id/leftIndexValue"
+            android:gravity="start|left"
+            android:textAlignment="textStart"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Small Text"
+            android:id="@+id/rightIndexValue"
+            android:gravity="right|end"
+            android:textAlignment="textEnd"
+            android:layout_weight="1"/>
+    </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"

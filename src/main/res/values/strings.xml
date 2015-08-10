@@ -199,4 +199,5 @@
     <string name="download_tiles_finished">Tiles download finished</string>
     <string name="not_implemented">Not implemented yet</string>
     <string name="layer_lookuptable">Lookup table</string>
+    <string name="zoom_levels_to_show">Zoom levels to show layer</string>
 </resources>

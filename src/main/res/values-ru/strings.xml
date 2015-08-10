@@ -197,6 +197,7 @@
     <string name="tracks_stop">Стоп</string>
     <string name="tracks_open">Открыть</string>
     <string name="download_tiles_finished">Завершена загрузка тайлов</string>
-    <string name="not_implemented">Not implemented yet</string>
-    <string name="layer_lookuptable">Lookup table</string>
+    <string name="not_implemented">Пока не сделано</string>
+    <string name="layer_lookuptable">Справочник</string>
+    <string name="zoom_levels_to_show">Уровни зума на которых виден слой</string>
 </resources>
