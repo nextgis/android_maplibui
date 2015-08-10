@@ -21,25 +21,40 @@
 
 package com.nextgis.maplibui.formcontrol;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
 import com.keenfin.easypicker.PhotoPicker;
+import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplibui.api.IFormControl;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import static com.nextgis.maplib.util.Constants.FIELD_ID;
+import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_MAX_PHOTO_KEY;
 
 public class PhotoGallery extends PhotoPicker implements IFormControl {
+    private long mFeatureId = NOT_FOUND;
+    private VectorLayer mLayer;
+    private Map<String, Integer> mAttaches;
+    private PhotoAdapter mAdapter;
+
     public PhotoGallery(Context context) {
         super(context);
     }
@@ -57,18 +72,41 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
                      List<Field> fields,
                      Cursor featureCursor,
                      SharedPreferences preferences) throws JSONException {
+        mAdapter = (PhotoAdapter) getAdapter();
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
 
-        // TODO
-//        if (null != featureCursor) { // feature exists
-//            int column = featureCursor.getColumnIndex(mFieldName);
-//            if (column >= 0) {
-//                value = featureCursor.getString(column);
-//            }
-//        }
+        if (null != featureCursor && mLayer != null && mFeatureId != NOT_FOUND) { // feature exists
+            MatrixCursor attachCursor;
+            mAttaches = new HashMap<>();
+            ArrayList<String> images = new ArrayList<>();
+
+            IGISApplication app = (IGISApplication) ((Activity) getContext()).getApplication();
+
+            Uri uri = Uri.parse("content://" + app.getAuthority() + "/" +
+                    mLayer.getPath().getName() + "/" + mFeatureId + "/attach");
+
+            attachCursor = (MatrixCursor) mLayer.query(uri,
+                    new String[]{VectorLayer.ATTACH_DATA, VectorLayer.ATTACH_ID},
+                    FIELD_ID + " = " + mFeatureId, null, null, null);
+
+            if (attachCursor.moveToFirst()) {
+                do {
+                    mAttaches.put(attachCursor.getString(0), attachCursor.getInt(1));
+                    images.add(attachCursor.getString(0));
+                } while (attachCursor.moveToNext());
+            }
+
+            mAdapter.restoreImages(images);
+            attachCursor.close();
+        }
 
         int maxPhotos = attributes.getInt(JSON_MAX_PHOTO_KEY);
         setMaxPhotos(maxPhotos);
+    }
+
+    public void init(VectorLayer layer, long featureId) {
+        mLayer = layer;
+        mFeatureId = featureId;
     }
 
     @Override
@@ -93,5 +131,28 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
     @Override
     public Object getValue() {
         return null;
+    }
+
+    public List<String> getNewAttaches() {
+        ArrayList<String> result = new ArrayList<>();
+
+        for (String image : mAdapter.getImagesPath())
+            if (!mAttaches.containsKey(image))
+                result.add(image);
+
+        return result;
+    }
+
+    public List<Integer> getDeletedAttaches() {
+        ArrayList<Integer> result = new ArrayList<>();
+
+        if (mAttaches != null) {
+            for (String attach : mAttaches.keySet()) {
+                if (!mAdapter.getImagesPath().contains(attach))
+                    result.add(mAttaches.get(attach));
+            }
+        }
+
+        return result;
     }
 }

@@ -27,6 +27,8 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -40,6 +42,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Field;
@@ -57,16 +60,23 @@ import com.nextgis.maplibui.api.ISimpleControl;
 import com.nextgis.maplibui.control.DateTime;
 import com.nextgis.maplibui.control.TextEdit;
 import com.nextgis.maplibui.control.TextLabel;
+import com.nextgis.maplibui.formcontrol.PhotoGallery;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.nextgis.maplib.util.Constants.*;
-import static com.nextgis.maplibui.util.ConstantsUI.*;
+import static com.nextgis.maplib.util.Constants.FIELD_GEOM;
+import static com.nextgis.maplib.util.Constants.FIELD_ID;
+import static com.nextgis.maplib.util.Constants.NOT_FOUND;
+import static com.nextgis.maplib.util.Constants.TAG;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_LAYER_ID;
 
 
 /**
@@ -288,7 +298,7 @@ public class ModifyAttributesActivity
         }
 
         putGeometry(values);
-
+        putAttaches();
 
         IGISApplication app = (IGISApplication) getApplication();
 
@@ -391,6 +401,53 @@ public class ModifyAttributesActivity
         }
 
         return true;
+    }
+
+    protected void putAttaches() {
+        PhotoGallery gallery = (PhotoGallery) findViewById(R.id.pg_photos);
+
+        if (gallery != null) {
+            List<Integer> deletedAttaches = gallery.getDeletedAttaches();
+            IGISApplication application = (IGISApplication) getApplication();
+            Uri uri = Uri.parse("content://" + application.getAuthority() + "/" +
+                    mLayer.getPath().getName() + "/" + mFeatureId + "/attach");
+
+            for (Integer attach : deletedAttaches) {
+                int result = getContentResolver().delete(Uri.withAppendedPath(uri, attach + ""), null, null);
+
+                if (result == 0) {
+                    Log.d(TAG, "attach delete failed");
+                } else {
+                    Log.d(TAG, "attach delete success: " + result);
+                }
+            }
+
+            List<String> imagesPath =  gallery.getNewAttaches();
+
+            for (String path : imagesPath) {
+                String[] segments = path.split("/");
+                String name = segments.length > 0 ? segments[segments.length - 1] : "image.jpg";
+                ContentValues values = new ContentValues();
+                values.put(VectorLayer.ATTACH_DISPLAY_NAME, name);
+                values.put(VectorLayer.ATTACH_MIME_TYPE, "image/jpeg");
+
+                Uri result = getContentResolver().insert(uri, values);
+                if (result == null) {
+                    Log.d(TAG, "attach insert failed");
+                } else {
+                    try {
+                        OutputStream outStream = getContentResolver().openOutputStream(result);
+                        Bitmap sourceBitmap = BitmapFactory.decodeFile(path);
+                        sourceBitmap.compress(Bitmap.CompressFormat.JPEG, 75, outStream);
+                        outStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    Log.d(TAG, "attach insert success: " + result.toString());
+                }
+            }
+        }
     }
 
 
