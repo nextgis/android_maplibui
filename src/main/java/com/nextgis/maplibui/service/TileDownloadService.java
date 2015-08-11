@@ -27,12 +27,10 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
-
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.TileItem;
 import com.nextgis.maplib.map.MapBase;
@@ -47,10 +45,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import static com.nextgis.maplib.util.Constants.DRAWING_SEPARATE_THREADS;
-import static com.nextgis.maplib.util.Constants.KEEP_ALIVE_TIME;
-import static com.nextgis.maplib.util.Constants.KEEP_ALIVE_TIME_UNIT;
-import static com.nextgis.maplib.util.Constants.TAG;
+import static com.nextgis.maplib.util.Constants.*;
 
 /**
  * The service to batch download tiles
@@ -93,7 +88,7 @@ public class TileDownloadService extends Service{
             if (!TextUtils.isEmpty(action)) {
                 switch (action) {
                     case ACTION_ADD_TASK:
-                        short layerId = intent.getShortExtra(KEY_LAYER_ID, (short) -1);
+                        long layerId = intent.getLongExtra(KEY_LAYER_ID, (short) -1);
                         double dfMinX = intent.getDoubleExtra(KEY_MINX, 0);
                         double dfMinY = intent.getDoubleExtra(KEY_MINY, 0);
                         double dfMaxX = intent.getDoubleExtra(KEY_MAXX, GeoConstants.MERCATOR_MAX);
@@ -126,7 +121,7 @@ public class TileDownloadService extends Service{
         return null;
     }
 
-    public void addTask(short layerId, GeoEnvelope env, int zoomFrom, int zoomTo) {
+    public void addTask(long layerId, GeoEnvelope env, int zoomFrom, int zoomTo) {
         DownloadTask task = new DownloadTask(layerId, env, zoomFrom, zoomTo);
         mQueue.add(task);
 
@@ -264,12 +259,12 @@ public class TileDownloadService extends Service{
     }
 
     public class DownloadTask{
-        protected short mLayerId;
+        protected long mLayerId;
         protected GeoEnvelope mEnvelope;
         protected int mZoomFrom;
         protected int mZoomTo;
 
-        public DownloadTask(short layerId, GeoEnvelope envelope, int zoomFrom, int zoomTo) {
+        public DownloadTask(long layerId, GeoEnvelope envelope, int zoomFrom, int zoomTo) {
             mEnvelope = envelope;
             mLayerId = layerId;
             mZoomFrom = zoomFrom;
@@ -280,7 +275,7 @@ public class TileDownloadService extends Service{
             return mEnvelope;
         }
 
-        public short getLayerId() {
+        public long getLayerId() {
             return mLayerId;
         }
 

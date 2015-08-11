@@ -48,7 +48,7 @@ public class SelectZoomLevelsDialog
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         if (null != savedInstanceState) {
-            mLayerId = savedInstanceState.getShort(TileDownloadService.KEY_LAYER_ID);
+            mLayerId = savedInstanceState.getLong(TileDownloadService.KEY_LAYER_ID);
             double dfMinX = savedInstanceState.getDouble(TileDownloadService.KEY_MINX);
             double dfMinY = savedInstanceState.getDouble(TileDownloadService.KEY_MINY);
             double dfMaxX = savedInstanceState.getDouble(TileDownloadService.KEY_MAXX);
