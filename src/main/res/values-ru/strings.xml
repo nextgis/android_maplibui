@@ -200,4 +200,5 @@
     <string name="not_implemented">Пока не сделано</string>
     <string name="layer_lookuptable">Справочник</string>
     <string name="zoom_levels_to_show">Уровни зума на которых виден слой</string>
+    <string name="alpha">Transparancy</string>
 </resources>

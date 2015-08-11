@@ -33,6 +33,15 @@
         layout="@layout/actionbar"
         />
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -131,6 +140,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/alpha"
+        android:id="@+id/alpha_seek"
+        android:layout_margin="5dp"
+        />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/alphaSeekBar"
+        android:max="255"
+        android:layout_margin="5dp"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/contrast"
         android:id="@+id/contrast_seek"
         android:layout_margin="5dp"
@@ -169,6 +195,9 @@
         android:id="@+id/make_grayscale"
         android:layout_margin="5dp"
         />
+
+        </LinearLayout>
+    </ScrollView>
 
 
 </LinearLayout>
