@@ -179,7 +179,7 @@ public class SelectNGWResourceDialog
     {
         outState.putString(KEY_TITLE, mTitle);
         outState.putInt(KEY_MASK, mTypeMask);
-        outState.putShort(KEY_ID, mGroupLayer.getId());
+        outState.putLong(KEY_ID, mGroupLayer.getId());
         outState.putInt(KEY_RESOURCEID, mListAdapter.getCurrentResourceId());
         outState.putParcelable(KEY_CONNECTIONS, mListAdapter.getConnections());
         outState.putParcelableArrayList(

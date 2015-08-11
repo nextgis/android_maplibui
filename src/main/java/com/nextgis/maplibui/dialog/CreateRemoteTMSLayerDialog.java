@@ -204,7 +204,7 @@ public class CreateRemoteTMSLayerDialog
     public void onSaveInstanceState(Bundle outState)
     {
         outState.putString(KEY_TITLE, mTitle);
-        outState.putShort(KEY_ID, mGroupLayer.getId());
+        outState.putLong(KEY_ID, mGroupLayer.getId());
         outState.putString(KEY_NAME, mInput.getText().toString());
         outState.putString(KEY_URL, mUrl.getText().toString());
         outState.putInt(KEY_POSITION, mSpinner.getSelectedItemPosition());

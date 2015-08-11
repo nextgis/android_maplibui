@@ -24,7 +24,6 @@
 package com.nextgis.maplibui.dialog;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -44,13 +43,11 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometryFactory;
-import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.NGWVectorLayer;
@@ -80,7 +77,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.nextgis.maplib.util.Constants.MAX_CONTENT_LENGTH;
-import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplib.util.GeoConstants.*;
 
@@ -239,7 +235,7 @@ public class CreateLocalLayerDialog
     public void onSaveInstanceState(Bundle outState)
     {
         outState.putString(KEY_TITLE, mTitle);
-        outState.putShort(KEY_ID, mGroupLayer.getId());
+        outState.putLong(KEY_ID, mGroupLayer.getId());
         outState.putString(KEY_NAME, mLayerName);
         outState.putParcelable(KEY_URI, mUri);
         outState.putInt(KEY_LAYER_TYPE, mLayerType);

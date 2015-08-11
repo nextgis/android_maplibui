@@ -2,23 +2,18 @@ package com.nextgis.maplibui.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.TextView;
-
 import com.edmodo.rangebar.RangeBar;
 import com.nextgis.maplib.datasource.GeoEnvelope;
-import com.nextgis.maplibui.service.TileDownloadService;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.service.TrackerService;
+import com.nextgis.maplibui.service.TileDownloadService;
 
 /**
  * Dialog to select which zoom levels to download
@@ -28,7 +23,7 @@ public class SelectZoomLevelsDialog
 
 
     protected GeoEnvelope mEnvelope;
-    protected short       mLayerId;
+    protected long        mLayerId;
 
     public GeoEnvelope getEnvelope() {
         return mEnvelope;
@@ -39,11 +34,11 @@ public class SelectZoomLevelsDialog
         return this;
     }
 
-    public short getLayerId() {
+    public long getLayerId() {
         return mLayerId;
     }
 
-    public SelectZoomLevelsDialog setLayerId(short layerId) {
+    public SelectZoomLevelsDialog setLayerId(long layerId) {
         mLayerId = layerId;
         return this;
     }
@@ -93,7 +88,7 @@ public class SelectZoomLevelsDialog
                     {
                         final int zoomFrom = rangebar.getLeftIndex();
                         final int zoomTo = rangebar.getRightIndex();
-                        final short layerId = getLayerId();
+                        final long layerId = getLayerId();
                         final GeoEnvelope env = getEnvelope();
 
                         //start download service
@@ -127,7 +122,7 @@ public class SelectZoomLevelsDialog
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
-        outState.putShort(TileDownloadService.KEY_LAYER_ID, mLayerId);
+        outState.putLong(TileDownloadService.KEY_LAYER_ID, mLayerId);
         outState.putDouble(TileDownloadService.KEY_MINX, mEnvelope.getMinX());
         outState.putDouble(TileDownloadService.KEY_MAXX, mEnvelope.getMaxX());
         outState.putDouble(TileDownloadService.KEY_MINY, mEnvelope.getMinY());

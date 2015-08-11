@@ -931,7 +931,7 @@ public class EditLayerOverlay
         if (null == mLayer) {
             bundle.putInt(BUNDLE_KEY_LAYER, Constants.NOT_FOUND);
         } else {
-            bundle.putInt(BUNDLE_KEY_LAYER, mLayer.getId());
+            bundle.putLong(BUNDLE_KEY_LAYER, mLayer.getId());
         }
 
         if (null == mItem) {
@@ -1184,14 +1184,14 @@ public class EditLayerOverlay
 
 
     @Override
-    public void onLayerAdded(int id)
+    public void onLayerAdded(long id)
     {
 
     }
 
 
     @Override
-    public void onLayerDeleted(int id)
+    public void onLayerDeleted(long id)
     {
         //if delete edited layer cancel edit session
         if (null != mLayer && mLayer.getId() == id) {
@@ -1202,7 +1202,7 @@ public class EditLayerOverlay
 
 
     @Override
-    public void onLayerChanged(int id)
+    public void onLayerChanged(long id)
     {
 
     }
@@ -1226,7 +1226,7 @@ public class EditLayerOverlay
 
     @Override
     public void onLayerDrawFinished(
-            int id,
+            long id,
             float percent)
     {
 
