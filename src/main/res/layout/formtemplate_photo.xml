@@ -22,7 +22,9 @@
 <com.nextgis.maplibui.formcontrol.PhotoGallery xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:photo="http://schemas.android.com/apk/res-auto"
     android:id="@+id/pg_photos"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    photo:oneLineGallery="true"
+    photo:newPhotosDirectory="@string/app_name"
     photo:accentColor="@android:color/transparent"
     photo:primaryColor="@color/accent" />

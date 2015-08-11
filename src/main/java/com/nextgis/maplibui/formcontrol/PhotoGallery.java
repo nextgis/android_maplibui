@@ -27,6 +27,8 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
@@ -50,10 +52,12 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_MAX_PHOTO_KEY;
 
 public class PhotoGallery extends PhotoPicker implements IFormControl {
+    private static final String BUNDLE_DELETED_IMAGES = "deleted_images";
     private long mFeatureId = NOT_FOUND;
     private VectorLayer mLayer;
     private Map<String, Integer> mAttaches;
     private PhotoAdapter mAdapter;
+    private List<Integer> mDeletedImages;
 
     public PhotoGallery(Context context) {
         super(context);
@@ -72,31 +76,25 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
                      List<Field> fields,
                      Cursor featureCursor,
                      SharedPreferences preferences) throws JSONException {
+        mAttaches = new HashMap<>();
+        mDeletedImages = new ArrayList<>();
         mAdapter = (PhotoAdapter) getAdapter();
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
 
-        if (null != featureCursor && mLayer != null && mFeatureId != NOT_FOUND) { // feature exists
-            MatrixCursor attachCursor;
-            mAttaches = new HashMap<>();
-            ArrayList<String> images = new ArrayList<>();
-
+        if (mLayer != null && mFeatureId != NOT_FOUND && mAdapter.getItemCount() < 2) { // feature exists
             IGISApplication app = (IGISApplication) ((Activity) getContext()).getApplication();
-
             Uri uri = Uri.parse("content://" + app.getAuthority() + "/" +
                     mLayer.getPath().getName() + "/" + mFeatureId + "/attach");
-
-            attachCursor = (MatrixCursor) mLayer.query(uri,
+            MatrixCursor attachCursor = (MatrixCursor) mLayer.query(uri,
                     new String[]{VectorLayer.ATTACH_DATA, VectorLayer.ATTACH_ID},
                     FIELD_ID + " = " + mFeatureId, null, null, null);
 
             if (attachCursor.moveToFirst()) {
                 do {
                     mAttaches.put(attachCursor.getString(0), attachCursor.getInt(1));
-                    images.add(attachCursor.getString(0));
                 } while (attachCursor.moveToNext());
             }
 
-            mAdapter.restoreImages(images);
             attachCursor.close();
         }
 
@@ -107,6 +105,45 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
     public void init(VectorLayer layer, long featureId) {
         mLayer = layer;
         mFeatureId = featureId;
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
+        if (mLayer != null && mFeatureId != NOT_FOUND && mAdapter.getItemCount() < 2) {
+            ArrayList<String> images = new ArrayList<>();
+
+            for (String attach : mAttaches.keySet())
+                if (!mDeletedImages.contains(mAttaches.get(attach)))
+                    images.add(attach);
+
+            mAdapter.restoreImages(images);
+        }
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Bundle bundle = (Bundle) super.onSaveInstanceState();
+        bundle.putIntegerArrayList(BUNDLE_DELETED_IMAGES, new ArrayList<>(getDeletedAttaches()));
+
+        return bundle;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (state instanceof Bundle) {
+            Bundle bundle = (Bundle) state;
+
+            if (bundle.containsKey(BUNDLE_DELETED_IMAGES)) {
+                ArrayList<Integer> deletedImages = bundle.getIntegerArrayList(BUNDLE_DELETED_IMAGES);
+
+                if (deletedImages != null)
+                    mDeletedImages.addAll(deletedImages);
+            }
+        }
+
+        super.onRestoreInstanceState(state);
     }
 
     @Override
