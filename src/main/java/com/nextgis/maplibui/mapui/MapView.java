@@ -66,7 +66,7 @@ public class MapView
     protected       long                 mStartDrawTime;
 
     //display redraw timeout ms
-    public static final int DISPLAY_REDRAW_TIMEOUT = 1500;
+    public static final int DISPLAY_REDRAW_TIMEOUT = 1050;
 
 
     public MapView(
@@ -91,8 +91,6 @@ public class MapView
         mCurrentFocusLocation = new PointF();
 
         mDrawingState = DRAW_SATE_drawing_noclearbk;
-
-        mMap.findTopVisibleLayer();
     }
 
 
@@ -439,7 +437,6 @@ public class MapView
                         bounds.getMaxX() >= limits.getMaxX()) {
                         x = mCurrentMouseOffset.x;
                     }
-                    mMap.findTopVisibleLayer();
 
                     mCurrentMouseOffset.set(x, y);
 
@@ -663,7 +660,7 @@ public class MapView
         if (!(mDrawingState == DRAW_SATE_drawing_noclearbk || mDrawingState == DRAW_SATE_drawing)) {
             return;
         }
-        //Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent);
+        Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent);
         //mDrawingState = DRAW_SATE_drawing_noclearbk;
 
         if (System.currentTimeMillis() - mStartDrawTime > DISPLAY_REDRAW_TIMEOUT) {
@@ -671,7 +668,7 @@ public class MapView
             mMap.buffer(0, 0, 1);
             postInvalidate();
 
-        } else if (id == mMap.getTopVisibleLayerId() && percent >= 1.0) {
+        } else if (id == mMap.getId() && percent >= 1.0) {
             //Log.d(TAG, "LayerDrawFinished: id - " + id + ", percent - " + percent);
 
             mMap.buffer(0, 0, 1);
