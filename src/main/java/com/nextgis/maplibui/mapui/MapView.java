@@ -34,14 +34,10 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Scroller;
-import com.nextgis.maplib.api.ILayer;
-import com.nextgis.maplib.api.ILayerView;
 import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
-import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapDrawable;
-import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.api.MapViewEventListener;
 
 import static com.nextgis.maplib.util.Constants.TAG;
@@ -63,8 +59,6 @@ public class MapView
     protected       double               mCurrentSpan;
     protected       Scroller             mScroller;
     protected       long                 mStartDrawTime;
-    protected       long                 mTopVisibleLayerId;
-    protected       int                  mVisibleLayerCount;
 
     //display redraw timeout ms
     public static final int DISPLAY_REDRAW_TIMEOUT = 1500;
@@ -93,35 +87,9 @@ public class MapView
 
         mDrawingState = DRAW_SATE_drawing_noclearbk;
 
-        findTopVisibleLayer(mMap);
+        mMap.findTopVisibleLayer();
     }
 
-
-    protected boolean findTopVisibleLayer(LayerGroup group)
-    {
-        if (null == group) {
-            return false;
-        }
-
-        mVisibleLayerCount = 0;
-        mTopVisibleLayerId = Constants.NOT_FOUND;
-        for (int i = group.getLayerCount() - 1; i >= 0; i--) {
-            ILayer layer = group.getLayer(i);
-            if (layer instanceof LayerGroup) {
-                if (findTopVisibleLayer((LayerGroup) layer)) {
-                    return true;
-                }
-            }
-            ILayerView view = (ILayerView) group.getLayer(i);
-            if (view.isVisible()) {
-                mVisibleLayerCount++;
-                if (mTopVisibleLayerId == Constants.NOT_FOUND) {
-                    mTopVisibleLayerId = layer.getId();
-                }
-            }
-        }
-        return true;
-    }
 
 
     @Override
@@ -466,7 +434,7 @@ public class MapView
                         bounds.getMaxX() >= limits.getMaxX()) {
                         x = mCurrentMouseOffset.x;
                     }
-                    findTopVisibleLayer(mMap);
+                    mMap.findTopVisibleLayer();
 
                     mCurrentMouseOffset.set(x, y);
 
@@ -636,25 +604,22 @@ public class MapView
 
 
     @Override
-    public void onLayerAdded(int id)
+    public void onLayerAdded(long id)
     {
-        findTopVisibleLayer(mMap);
         drawMapDrawable();
     }
 
 
     @Override
-    public void onLayerDeleted(int id)
+    public void onLayerDeleted(long id)
     {
-        findTopVisibleLayer(mMap);
         drawMapDrawable();
     }
 
 
     @Override
-    public void onLayerChanged(int id)
+    public void onLayerChanged(long id)
     {
-        findTopVisibleLayer(mMap);
         drawMapDrawable();
     }
 
@@ -671,7 +636,6 @@ public class MapView
     @Override
     public void onLayersReordered()
     {
-        findTopVisibleLayer(mMap);
         drawMapDrawable();
     }
 
@@ -688,32 +652,24 @@ public class MapView
 
     @Override
     public void onLayerDrawFinished(
-            int id,
+            long id,
             float percent)
     {
         if (!(mDrawingState == DRAW_SATE_drawing_noclearbk || mDrawingState == DRAW_SATE_drawing)) {
             return;
         }
-        Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent);
+        //Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent);
         //mDrawingState = DRAW_SATE_drawing_noclearbk;
-        if (percent >= 1.0 && id == mTopVisibleLayerId) {
-            //Log.d(TAG, "LayerDrawFinished: id - " + id + ", percent - " + percent);
-            //ILayer layer = mMap.getLastLayer();
-            //if(null != layer && layer.getId() == id)
 
-            mMap.buffer(0, 0, 1);
-
-            invalidate();
-        } else if (System.currentTimeMillis() - mStartDrawTime > DISPLAY_REDRAW_TIMEOUT) {
+        if (System.currentTimeMillis() - mStartDrawTime > DISPLAY_REDRAW_TIMEOUT) {
             mStartDrawTime = System.currentTimeMillis();
-
             mMap.buffer(0, 0, 1);
-
             postInvalidate();
-        }
-        else if (percent >= 1.0) {
-            mMap.buffer(0, 0, 1);
 
+        } else if (id == mMap.getTopVisibleLayerId() && percent >= 1.0) {
+            //Log.d(TAG, "LayerDrawFinished: id - " + id + ", percent - " + percent);
+
+            mMap.buffer(0, 0, 1);
             postInvalidate();
         }
     }
@@ -730,17 +686,5 @@ public class MapView
     {
         Log.d(TAG, "panTo: setZoomAndCenter");
         setZoomAndCenter(getZoomLevel(), center);
-    }
-
-
-    public long getTopVisibleLayerId()
-    {
-        return mTopVisibleLayerId;
-    }
-
-
-    public int getVisibleLayerCount()
-    {
-        return mVisibleLayerCount;
     }
 }
