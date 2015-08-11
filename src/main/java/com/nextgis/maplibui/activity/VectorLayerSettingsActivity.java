@@ -44,6 +44,7 @@ import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IChooseColorResult;
 import com.nextgis.maplibui.dialog.ChooseColorDialog;
+import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +57,6 @@ public class VectorLayerSettingsActivity
         extends NGActivity
         implements IChooseColorResult
 {
-    public final static String LAYER_ID_KEY = "layer_id";
     protected VectorLayer                 mVectorLayer;
     protected List<Pair<Integer, String>> mColors;
     protected int                         mCurrentColor;
@@ -78,11 +78,11 @@ public class VectorLayerSettingsActivity
         setContentView(R.layout.activity_vectorlayer_settings);
         setToolbar(R.id.main_toolbar);
 
-        short layerId = Constants.NOT_FOUND;
+        int layerId = Constants.NOT_FOUND;
         if (savedInstanceState != null) {
-            layerId = savedInstanceState.getShort(LAYER_ID_KEY);
+            layerId = savedInstanceState.getInt(ConstantsUI.KEY_LAYER_ID);
         } else {
-            layerId = getIntent().getShortExtra(LAYER_ID_KEY, layerId);
+            layerId = getIntent().getIntExtra(ConstantsUI.KEY_LAYER_ID, layerId);
         }
 
         IGISApplication application = (IGISApplication) getApplication();

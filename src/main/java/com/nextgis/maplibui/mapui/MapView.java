@@ -34,6 +34,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Scroller;
+
 import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
@@ -41,7 +42,11 @@ import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplibui.api.MapViewEventListener;
 
 import static com.nextgis.maplib.util.Constants.TAG;
-import static com.nextgis.maplibui.util.ConstantsUI.*;
+import static com.nextgis.maplibui.util.ConstantsUI.DRAW_SATE_drawing;
+import static com.nextgis.maplibui.util.ConstantsUI.DRAW_SATE_drawing_noclearbk;
+import static com.nextgis.maplibui.util.ConstantsUI.DRAW_SATE_panning;
+import static com.nextgis.maplibui.util.ConstantsUI.DRAW_SATE_panning_fling;
+import static com.nextgis.maplibui.util.ConstantsUI.DRAW_SATE_zooming;
 
 
 public class MapView
@@ -604,21 +609,21 @@ public class MapView
 
 
     @Override
-    public void onLayerAdded(long id)
+    public void onLayerAdded(int id)
     {
         drawMapDrawable();
     }
 
 
     @Override
-    public void onLayerDeleted(long id)
+    public void onLayerDeleted(int id)
     {
         drawMapDrawable();
     }
 
 
     @Override
-    public void onLayerChanged(long id)
+    public void onLayerChanged(int id)
     {
         drawMapDrawable();
     }
@@ -652,7 +657,7 @@ public class MapView
 
     @Override
     public void onLayerDrawFinished(
-            long id,
+            int id,
             float percent)
     {
         if (!(mDrawingState == DRAW_SATE_drawing_noclearbk || mDrawingState == DRAW_SATE_drawing)) {

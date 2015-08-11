@@ -149,7 +149,7 @@ public class ModifyAttributesActivity
         Bundle extras = getIntent().getExtras();
 
         if (extras != null) {
-            long layerId = extras.getLong(KEY_LAYER_ID);
+            int layerId = extras.getInt(KEY_LAYER_ID);
             MapBase map = app.getMap();
             mLayer = (VectorLayer) map.getLayerById(layerId);
             mSharedPreferences = getSharedPreferences(mLayer.getPath().getName(), MODE_PRIVATE);

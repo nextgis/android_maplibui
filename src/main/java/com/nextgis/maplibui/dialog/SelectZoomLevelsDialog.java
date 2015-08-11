@@ -10,10 +10,12 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.TextView;
+
 import com.edmodo.rangebar.RangeBar;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.TileDownloadService;
+import com.nextgis.maplibui.util.ConstantsUI;
 
 /**
  * Dialog to select which zoom levels to download
@@ -23,7 +25,7 @@ public class SelectZoomLevelsDialog
 
 
     protected GeoEnvelope mEnvelope;
-    protected long        mLayerId;
+    protected int        mLayerId;
 
     public GeoEnvelope getEnvelope() {
         return mEnvelope;
@@ -38,7 +40,7 @@ public class SelectZoomLevelsDialog
         return mLayerId;
     }
 
-    public SelectZoomLevelsDialog setLayerId(long layerId) {
+    public SelectZoomLevelsDialog setLayerId(int layerId) {
         mLayerId = layerId;
         return this;
     }
@@ -48,7 +50,7 @@ public class SelectZoomLevelsDialog
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         if (null != savedInstanceState) {
-            mLayerId = savedInstanceState.getLong(TileDownloadService.KEY_LAYER_ID);
+            mLayerId = savedInstanceState.getInt(ConstantsUI.KEY_LAYER_ID);
             double dfMinX = savedInstanceState.getDouble(TileDownloadService.KEY_MINX);
             double dfMinY = savedInstanceState.getDouble(TileDownloadService.KEY_MINY);
             double dfMaxX = savedInstanceState.getDouble(TileDownloadService.KEY_MAXX);
@@ -94,7 +96,7 @@ public class SelectZoomLevelsDialog
                         //start download service
                         Intent intent = new Intent(getActivity(), TileDownloadService.class);
                         intent.setAction(TileDownloadService.ACTION_ADD_TASK);
-                        intent.putExtra(TileDownloadService.KEY_LAYER_ID, layerId);
+                        intent.putExtra(ConstantsUI.KEY_LAYER_ID, layerId);
                         intent.putExtra(TileDownloadService.KEY_ZOOM_FROM, zoomFrom);
                         intent.putExtra(TileDownloadService.KEY_ZOOM_TO, zoomTo);
                         intent.putExtra(TileDownloadService.KEY_MINX, env.getMinX());
@@ -122,7 +124,7 @@ public class SelectZoomLevelsDialog
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
-        outState.putLong(TileDownloadService.KEY_LAYER_ID, mLayerId);
+        outState.putInt(ConstantsUI.KEY_LAYER_ID, mLayerId);
         outState.putDouble(TileDownloadService.KEY_MINX, mEnvelope.getMinX());
         outState.putDouble(TileDownloadService.KEY_MAXX, mEnvelope.getMaxX());
         outState.putDouble(TileDownloadService.KEY_MINY, mEnvelope.getMinY());

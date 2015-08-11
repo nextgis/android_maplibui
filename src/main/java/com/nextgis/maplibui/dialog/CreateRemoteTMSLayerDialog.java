@@ -37,6 +37,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
@@ -204,7 +205,7 @@ public class CreateRemoteTMSLayerDialog
     public void onSaveInstanceState(Bundle outState)
     {
         outState.putString(KEY_TITLE, mTitle);
-        outState.putLong(KEY_ID, mGroupLayer.getId());
+        outState.putInt(KEY_ID, mGroupLayer.getId());
         outState.putString(KEY_NAME, mInput.getText().toString());
         outState.putString(KEY_URL, mUrl.getText().toString());
         outState.putInt(KEY_POSITION, mSpinner.getSelectedItemPosition());

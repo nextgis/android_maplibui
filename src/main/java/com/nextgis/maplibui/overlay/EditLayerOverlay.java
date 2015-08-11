@@ -43,6 +43,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
+
 import com.cocosw.undobar.UndoBarController;
 import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
@@ -931,7 +932,7 @@ public class EditLayerOverlay
         if (null == mLayer) {
             bundle.putInt(BUNDLE_KEY_LAYER, Constants.NOT_FOUND);
         } else {
-            bundle.putLong(BUNDLE_KEY_LAYER, mLayer.getId());
+            bundle.putInt(BUNDLE_KEY_LAYER, mLayer.getId());
         }
 
         if (null == mItem) {
@@ -1184,14 +1185,14 @@ public class EditLayerOverlay
 
 
     @Override
-    public void onLayerAdded(long id)
+    public void onLayerAdded(int id)
     {
 
     }
 
 
     @Override
-    public void onLayerDeleted(long id)
+    public void onLayerDeleted(int id)
     {
         //if delete edited layer cancel edit session
         if (null != mLayer && mLayer.getId() == id) {
@@ -1202,7 +1203,7 @@ public class EditLayerOverlay
 
 
     @Override
-    public void onLayerChanged(long id)
+    public void onLayerChanged(int id)
     {
 
     }
@@ -1226,7 +1227,7 @@ public class EditLayerOverlay
 
     @Override
     public void onLayerDrawFinished(
-            long id,
+            int id,
             float percent)
     {
 

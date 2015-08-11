@@ -35,6 +35,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
@@ -279,21 +280,21 @@ public class LayersListAdapter
 
 
     @Override
-    public void onLayerAdded(long id)
+    public void onLayerAdded(int id)
     {
         notifyDataSetChanged();
     }
 
 
     @Override
-    public void onLayerDeleted(long id)
+    public void onLayerDeleted(int id)
     {
         notifyDataSetChanged();
     }
 
 
     @Override
-    public void onLayerChanged(long id)
+    public void onLayerChanged(int id)
     {
         notifyDataSetChanged();
     }
@@ -317,7 +318,7 @@ public class LayersListAdapter
 
     @Override
     public void onLayerDrawFinished(
-            long id,
+            int id,
             float percent)
     {
 

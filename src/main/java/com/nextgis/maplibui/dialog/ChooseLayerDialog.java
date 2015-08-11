@@ -33,6 +33,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.ListView;
+
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.MapBase;
@@ -130,7 +131,7 @@ public class ChooseLayerDialog
         outState.putString(KEY_TITLE, mTitle);
         ArrayList<Integer> ids = new ArrayList<>();
         for (ILayer layer : mLayers) {
-            ids.add((int) layer.getId());
+            ids.add(layer.getId());
         }
         outState.putIntegerArrayList(KEY_LAYERS_IDS, ids);
         outState.putInt(KEY_CODE, mCode);

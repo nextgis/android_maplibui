@@ -41,6 +41,7 @@ import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.util.ConstantsUI;
 
 
 /**
@@ -49,12 +50,12 @@ import com.nextgis.maplibui.R;
 public class RemoteTMSLayerSettingsActivity
         extends NGActivity
 {
-    public final static String LAYER_ID_KEY = "layer_id";
     protected RemoteTMSLayer mRasterLayer;
 
     protected int     mCacheSizeMult;
     protected float   mContrast;
     protected float   mBrightness;
+    protected int mAlpha;
     protected boolean mForceToGrayScale;
 
 
@@ -66,11 +67,11 @@ public class RemoteTMSLayerSettingsActivity
         setContentView(R.layout.activity_remoterasterlayer_settings);
         setToolbar(R.id.main_toolbar);
 
-        short layerId = Constants.NOT_FOUND;
+        int layerId = Constants.NOT_FOUND;
         if (savedInstanceState != null) {
-            layerId = savedInstanceState.getShort(LAYER_ID_KEY);
+            layerId = savedInstanceState.getInt(ConstantsUI.KEY_LAYER_ID);
         } else {
-            layerId = getIntent().getShortExtra(LAYER_ID_KEY, layerId);
+            layerId = getIntent().getIntExtra(ConstantsUI.KEY_LAYER_ID, layerId);
         }
 
         IGISApplication application = (IGISApplication) getApplication();
@@ -163,14 +164,12 @@ public class RemoteTMSLayerSettingsActivity
                 SeekBar contrastPicker = (SeekBar) findViewById(R.id.contrastSeekBar);
                 contrastPicker.setProgress((int) mContrast * 10);
                 contrastPicker.setOnSeekBarChangeListener(
-                        new SeekBar.OnSeekBarChangeListener()
-                        {
+                        new SeekBar.OnSeekBarChangeListener() {
                             @Override
                             public void onProgressChanged(
                                     SeekBar seekBar,
                                     int progress,
-                                    boolean fromUser)
-                            {
+                                    boolean fromUser) {
                                 if (fromUser) {
                                     float fProgress = progress;
                                     mContrast = fProgress / 10;
@@ -181,15 +180,13 @@ public class RemoteTMSLayerSettingsActivity
 
 
                             @Override
-                            public void onStartTrackingTouch(SeekBar seekBar)
-                            {
+                            public void onStartTrackingTouch(SeekBar seekBar) {
 
                             }
 
 
                             @Override
-                            public void onStopTrackingTouch(SeekBar seekBar)
-                            {
+                            public void onStopTrackingTouch(SeekBar seekBar) {
 
                             }
                         });
@@ -231,6 +228,46 @@ public class RemoteTMSLayerSettingsActivity
 
                             }
                         });
+
+
+                mAlpha = tmsRenderer.getAlpha();
+
+                final TextView mAlphaLabel = (TextView) findViewById(R.id.alpha_seek);
+                mAlphaLabel.setText(getString(R.string.alpha) + ": " + mAlpha);
+
+                SeekBar alphaPicker = (SeekBar) findViewById(R.id.alphaSeekBar);
+                alphaPicker.setProgress(mAlpha);
+                alphaPicker.setOnSeekBarChangeListener(
+                        new SeekBar.OnSeekBarChangeListener()
+                        {
+                            @Override
+                            public void onProgressChanged(
+                                    SeekBar seekBar,
+                                    int progress,
+                                    boolean fromUser)
+                            {
+                                if (fromUser) {
+                                    float fProgress = progress;
+                                    mAlpha = (int) fProgress;
+                                    mAlphaLabel.setText(
+                                            getString(R.string.alpha) + ": " + mAlpha);
+                                }
+                            }
+
+
+                            @Override
+                            public void onStartTrackingTouch(SeekBar seekBar)
+                            {
+
+                            }
+
+
+                            @Override
+                            public void onStopTrackingTouch(SeekBar seekBar)
+                            {
+
+                            }
+                        });
             }
         }
     }
@@ -248,6 +285,7 @@ public class RemoteTMSLayerSettingsActivity
         TMSRenderer tmsRenderer = (TMSRenderer) mRasterLayer.getRenderer();
         if (null != tmsRenderer) {
             tmsRenderer.setContrastBrightness(mContrast, mBrightness, mForceToGrayScale);
+            tmsRenderer.setAlpha(mAlpha);
         }
         final RangeBar rangebar = (RangeBar) findViewById(R.id.rangebar);
         mRasterLayer.setMinZoom(rangebar.getLeftIndex());

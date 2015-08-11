@@ -24,6 +24,7 @@
 package com.nextgis.maplibui.api;
 
 import android.content.Context;
+
 import com.nextgis.maplib.api.ILayer;
 
 import java.util.List;
@@ -40,15 +41,15 @@ public interface ILayerSelector
      * @param layer
      *         Selected layer
      */
-    public void onLayerSelect(ILayer layer);
+    void onLayerSelect(ILayer layer);
 
     /**
      * Get layers to choose one
      *
      * @return the layer list
      */
-    public List<ILayer> getLayers();
+    List<ILayer> getLayers();
 
-    public Context getContext();
+    Context getContext();
 
 }

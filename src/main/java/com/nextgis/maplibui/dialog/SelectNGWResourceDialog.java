@@ -39,6 +39,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.datasource.ngw.Connections;
@@ -179,7 +180,7 @@ public class SelectNGWResourceDialog
     {
         outState.putString(KEY_TITLE, mTitle);
         outState.putInt(KEY_MASK, mTypeMask);
-        outState.putLong(KEY_ID, mGroupLayer.getId());
+        outState.putInt(KEY_ID, mGroupLayer.getId());
         outState.putInt(KEY_RESOURCEID, mListAdapter.getCurrentResourceId());
         outState.putParcelable(KEY_CONNECTIONS, mListAdapter.getConnections());
         outState.putParcelableArrayList(

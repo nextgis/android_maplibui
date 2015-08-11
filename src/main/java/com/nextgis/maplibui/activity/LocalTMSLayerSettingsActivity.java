@@ -41,6 +41,7 @@ import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.util.ConstantsUI;
 
 
 /**
@@ -49,12 +50,12 @@ import com.nextgis.maplibui.R;
 public class LocalTMSLayerSettingsActivity
         extends NGActivity
 {
-    public final static String LAYER_ID_KEY = "layer_id";
     protected LocalTMSLayer mRasterLayer;
 
     protected int     mCacheSizeMult;
     protected float   mContrast;
     protected float   mBrightness;
+    protected int mAlpha;
     protected boolean mForceToGrayScale;
 
 
@@ -66,11 +67,11 @@ public class LocalTMSLayerSettingsActivity
         setContentView(R.layout.activity_localrasterlayer_settings);
         setToolbar(R.id.main_toolbar);
 
-        short layerId = Constants.NOT_FOUND;
+        int layerId = Constants.NOT_FOUND;
         if (savedInstanceState != null) {
-            layerId = savedInstanceState.getShort(LAYER_ID_KEY);
+            layerId = savedInstanceState.getInt(ConstantsUI.KEY_LAYER_ID);
         } else {
-            layerId = getIntent().getShortExtra(LAYER_ID_KEY, layerId);
+            layerId = getIntent().getIntExtra(ConstantsUI.KEY_LAYER_ID, layerId);
         }
 
         IGISApplication application = (IGISApplication) getApplication();
@@ -201,6 +202,40 @@ public class LocalTMSLayerSettingsActivity
                 SeekBar brightnessPicker = (SeekBar) findViewById(R.id.brightnessSeekBar);
                 brightnessPicker.setProgress((int) mBrightness + 255);
                 brightnessPicker.setOnSeekBarChangeListener(
+                        new SeekBar.OnSeekBarChangeListener() {
+                            @Override
+                            public void onProgressChanged(
+                                    SeekBar seekBar,
+                                    int progress,
+                                    boolean fromUser) {
+                                if (fromUser) {
+                                    mBrightness = progress - 255;
+                                    mBrightnessLabel.setText(
+                                            getString(R.string.brightness) + ": " + mBrightness);
+                                }
+                            }
+
+
+                            @Override
+                            public void onStartTrackingTouch(SeekBar seekBar) {
+
+                            }
+
+
+                            @Override
+                            public void onStopTrackingTouch(SeekBar seekBar) {
+
+                            }
+                        });
+
+                mAlpha = tmsRenderer.getAlpha();
+
+                final TextView mAlphaLabel = (TextView) findViewById(R.id.alpha_seek);
+                mAlphaLabel.setText(getString(R.string.alpha) + ": " + mAlpha);
+
+                SeekBar alphaPicker = (SeekBar) findViewById(R.id.alphaSeekBar);
+                alphaPicker.setProgress(mAlpha);
+                alphaPicker.setOnSeekBarChangeListener(
                         new SeekBar.OnSeekBarChangeListener()
                         {
                             @Override
@@ -210,9 +245,10 @@ public class LocalTMSLayerSettingsActivity
                                     boolean fromUser)
                             {
                                 if (fromUser) {
-                                    mBrightness = progress - 255;
-                                    mBrightnessLabel.setText(
-                                            getString(R.string.brightness) + ": " + mBrightness);
+                                    float fProgress = progress;
+                                    mAlpha = (int) fProgress;
+                                    mAlphaLabel.setText(
+                                            getString(R.string.alpha) + ": " + mAlpha);
                                 }
                             }
 
@@ -247,6 +283,7 @@ public class LocalTMSLayerSettingsActivity
         TMSRenderer tmsRenderer = (TMSRenderer) mRasterLayer.getRenderer();
         if (null != tmsRenderer) {
             tmsRenderer.setContrastBrightness(mContrast, mBrightness, mForceToGrayScale);
+            tmsRenderer.setAlpha(mAlpha);
         }
 
         final RangeBar rangebar = (RangeBar) findViewById(R.id.rangebar);

@@ -65,7 +65,6 @@ import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FeatureCollectio
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_LAYER_ID;
 
 
 /**
@@ -99,7 +98,7 @@ public class VectorLayerUI
     {
         Intent settings = new Intent(context, VectorLayerSettingsActivity.class);
         settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        settings.putExtra(VectorLayerSettingsActivity.LAYER_ID_KEY, getId());
+        settings.putExtra(ConstantsUI.KEY_LAYER_ID, getId());
         context.startActivity(settings);
     }
 
@@ -131,7 +130,7 @@ public class VectorLayerUI
         if (form.exists()) {
             //show custom form
             Intent intent = new Intent(context, FormBuilderModifyAttributesActivity.class);
-            intent.putExtra(KEY_LAYER_ID, getId());
+            intent.putExtra(ConstantsUI.KEY_LAYER_ID, getId());
             intent.putExtra(KEY_FEATURE_ID, featureId);
             intent.putExtra(KEY_FORM_PATH, form);
             if (null != geometry) {
@@ -141,7 +140,7 @@ public class VectorLayerUI
         } else {
             //if not exist show standard form
             Intent intent = new Intent(context, ModifyAttributesActivity.class);
-            intent.putExtra(KEY_LAYER_ID, getId());
+            intent.putExtra(ConstantsUI.KEY_LAYER_ID, getId());
             intent.putExtra(KEY_FEATURE_ID, featureId);
             if (null != geometry) {
                 intent.putExtra(KEY_GEOMETRY, geometry);

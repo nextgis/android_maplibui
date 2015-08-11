@@ -31,10 +31,10 @@ public interface EditEventListener
     /**
      * event on starts edit session
      */
-    public void onStartEditSession();
+    void onStartEditSession();
 
     /**
      * event on finished edit session
      */
-    public void onFinishEditSession();
+    void onFinishEditSession();
 }

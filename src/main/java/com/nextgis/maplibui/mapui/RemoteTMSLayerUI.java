@@ -29,13 +29,12 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.app.FragmentActivity;
 
 import com.nextgis.maplib.datasource.GeoEnvelope;
-import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.RemoteTMSLayerSettingsActivity;
 import com.nextgis.maplibui.api.ILayerUI;
-import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
 import com.nextgis.maplibui.dialog.SelectZoomLevelsDialog;
+import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.io.File;
 
@@ -64,7 +63,7 @@ public class RemoteTMSLayerUI
     {
         Intent settings = new Intent(context, RemoteTMSLayerSettingsActivity.class);
         settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        settings.putExtra(RemoteTMSLayerSettingsActivity.LAYER_ID_KEY, getId());
+        settings.putExtra(ConstantsUI.KEY_LAYER_ID, getId());
         context.startActivity(settings);
     }
 

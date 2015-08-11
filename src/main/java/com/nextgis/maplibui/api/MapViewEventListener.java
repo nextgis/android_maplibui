@@ -24,6 +24,7 @@
 package com.nextgis.maplibui.api;
 
 import android.view.MotionEvent;
+
 import com.nextgis.maplib.api.MapEventListener;
 
 
@@ -33,13 +34,13 @@ import com.nextgis.maplib.api.MapEventListener;
 public interface MapViewEventListener
         extends MapEventListener
 {
-    public void onLongPress(MotionEvent event);
+    void onLongPress(MotionEvent event);
 
-    public void onSingleTapUp(MotionEvent event);
+    void onSingleTapUp(MotionEvent event);
 
-    public void panStart(final MotionEvent e);
+    void panStart(final MotionEvent e);
 
-    public void panMoveTo(final MotionEvent e);
+    void panMoveTo(final MotionEvent e);
 
-    public void panStop();
+    void panStop();
 }

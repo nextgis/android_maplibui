@@ -28,19 +28,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.widget.Toast;
+
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.activity.VectorLayerSettingsActivity;
-import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.io.File;
 
-import static com.nextgis.maplibui.util.ConstantsUI.*;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_LAYER_ID;
 
 
 public class NGWVectorLayerUI
@@ -67,7 +70,7 @@ public class NGWVectorLayerUI
     {
         Intent settings = new Intent(context, VectorLayerSettingsActivity.class);
         settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        settings.putExtra(VectorLayerSettingsActivity.LAYER_ID_KEY, getId());
+        settings.putExtra(ConstantsUI.KEY_LAYER_ID, getId());
         context.startActivity(settings);
     }
 
