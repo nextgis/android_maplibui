@@ -200,5 +200,14 @@
     <string name="not_implemented">Not implemented yet</string>
     <string name="layer_lookuptable">Lookup table</string>
     <string name="zoom_levels_to_show">Zoom levels to show layer</string>
-    <string name="alpha">Transparancy</string>
+    <string name="alpha">Transparency</string>
+    <string name="layerInfo">Layer info</string>
+    <string name="geom_type">Geometry type</string>
+    <string name="feature_count">Feature count</string>
+    <string name="point">Point</string>
+    <string name="multi_point">Multipoint</string>
+    <string name="linestring">Linestring</string>
+    <string name="multi_linestring">Multilinestring</string>
+    <string name="polygon">Polygon</string>
+    <string name="multi_polygon">Multipolygon</string>
 </resources>

@@ -41,6 +41,7 @@ import com.nextgis.maplib.display.Style;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IChooseColorResult;
 import com.nextgis.maplibui.dialog.ChooseColorDialog;
@@ -90,7 +91,8 @@ public class VectorLayerSettingsActivity
         MapBase map = application.getMap();
         if (null != map) {
             ILayer layer = map.getLayerById(layerId);
-            if (null != layer && layer.getType() == Constants.LAYERTYPE_LOCAL_VECTOR) {
+            if (null != layer && (layer.getType() == Constants.LAYERTYPE_LOCAL_VECTOR ||
+            layer.getType() == Constants.LAYERTYPE_NGW_VECTOR)) {
                 mVectorLayer = (VectorLayer) layer;
             }
         }
@@ -147,7 +149,35 @@ public class VectorLayerSettingsActivity
                     rightIndexValue.setText("max: " + rightThumbIndex);
                 }
             });
+
+            TextView featureCount = (TextView) findViewById(R.id.layer_feature_count);
+            featureCount.setText(featureCount.getText() + ": " + mVectorLayer.getCount());
+
+            TextView geomType = (TextView) findViewById(R.id.layer_geom_type);
+            geomType.setText(geomType.getText() + ": " + getGeometryName(mVectorLayer.getGeometryType()));
+
         }
+    }
+
+    private String getGeometryName(int geometryType) {
+        switch (geometryType){
+            case GeoConstants.GTPoint:
+                return getString(R.string.point);
+            case GeoConstants.GTMultiPoint:
+                return getString(R.string.multi_point);
+            case GeoConstants.GTLineString:
+                return getString(R.string.linestring);
+            case GeoConstants.GTMultiLineString:
+                return getString(R.string.multi_linestring);
+            case GeoConstants.GTPolygon:
+                return getString(R.string.polygon);
+            case GeoConstants.GTMultiPolygon:
+                return getString(R.string.multi_polygon);
+            default:
+                return getString(R.string.n_a);
+
+        }
+
     }
 
 
