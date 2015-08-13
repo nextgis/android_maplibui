@@ -68,7 +68,7 @@ public class TracksActivity
 {
     protected static final int    TRACKS_ID             = 0;
     protected static final String BUNDLE_SELECTED_ITEMS = "selected_items";
-    protected static final String BUNDLE_ISCHECKED_KEY = "is_cjecked";
+    protected static final String BUNDLE_IS_CHECKED_KEY = "is_checked";
     protected static final String BUNDLE_TAG_KEY = "tag";
 
     private Uri                    mContentUriTracks;
@@ -209,7 +209,7 @@ public class TracksActivity
                 super.handleMessage(msg);
 
                 Bundle resultData = msg.getData();
-                updateSelectedItems(resultData.getBoolean(BUNDLE_ISCHECKED_KEY), resultData.getString(BUNDLE_TAG_KEY));
+                updateSelectedItems(resultData.getBoolean(BUNDLE_IS_CHECKED_KEY), resultData.getString(BUNDLE_TAG_KEY));
             }
         };
         getSupportLoaderManager().initLoader(TRACKS_ID, null, this);
@@ -219,7 +219,7 @@ public class TracksActivity
 
     protected void onUpdateSelectedItems(boolean isChecked, String tag){
         Bundle bundle = new Bundle();
-        bundle.putBoolean(BUNDLE_ISCHECKED_KEY, isChecked);
+        bundle.putBoolean(BUNDLE_IS_CHECKED_KEY, isChecked);
         bundle.putString(BUNDLE_TAG_KEY, tag);
 
         Message msg = new Message();
