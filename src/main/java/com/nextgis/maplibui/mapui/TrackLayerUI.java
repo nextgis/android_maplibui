@@ -25,9 +25,11 @@ package com.nextgis.maplibui.mapui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.v7.internal.widget.ThemeUtils;
 import android.widget.Toast;
+
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.TracksActivity;
@@ -51,9 +53,13 @@ public class TrackLayerUI
 
 
     @Override
-    public Drawable getIcon()
+    public Drawable getIcon(Context context)
     {
-        return mContext.getResources().getDrawable(R.drawable.ic_next);
+        int[] attrs = new int[] { R.attr.ic_track };
+        TypedArray ta = context.obtainStyledAttributes(attrs);
+        Drawable track = ta.getDrawable(0);
+        ta.recycle();
+        return track;
     }
 
 

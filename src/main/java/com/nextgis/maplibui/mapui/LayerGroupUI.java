@@ -25,6 +25,7 @@ package com.nextgis.maplibui.mapui;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+
 import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplibui.R;
@@ -50,7 +51,7 @@ public class LayerGroupUI
 
 
     @Override
-    public Drawable getIcon()
+    public Drawable getIcon(Context context)
     {
         return mContext.getResources().getDrawable(R.drawable.ic_ngw_folder);
     }

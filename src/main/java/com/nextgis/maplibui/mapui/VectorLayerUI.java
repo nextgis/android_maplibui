@@ -87,7 +87,7 @@ public class VectorLayerUI
 
 
     @Override
-    public Drawable getIcon()
+    public Drawable getIcon(Context context)
     {
         return mContext.getResources().getDrawable(R.drawable.ic_local_vector);
     }

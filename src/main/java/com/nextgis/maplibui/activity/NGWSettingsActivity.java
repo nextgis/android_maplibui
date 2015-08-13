@@ -434,7 +434,7 @@ public class NGWSettingsActivity
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB &&
                         ngwLayer instanceof ILayerUI) {
                     ILayerUI layerUI = (ILayerUI) ngwLayer;
-                    layerSync.setIcon(layerUI.getIcon());
+                    layerSync.setIcon(layerUI.getIcon(this));
                 }
 
                 layerSync.setOnPreferenceChangeListener(

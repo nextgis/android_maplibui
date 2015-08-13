@@ -52,7 +52,7 @@ public class RemoteTMSLayerUI
 
 
     @Override
-    public Drawable getIcon()
+    public Drawable getIcon(Context context)
     {
         return mContext.getResources().getDrawable(R.drawable.ic_remote_tms);
     }
