@@ -29,7 +29,7 @@ import android.graphics.drawable.Drawable;
 
 public interface ILayerUI
 {
-    Drawable getIcon();
+    Drawable getIcon(Context context);
 
     void changeProperties(Context context);
 

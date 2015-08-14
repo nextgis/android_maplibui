@@ -163,7 +163,7 @@ public class LayersListAdapter
 
         if (layerui != null) {
             ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-            ivIcon.setImageDrawable(layerui.getIcon());
+            ivIcon.setImageDrawable(layerui.getIcon(mContext));
         }
 
         TextView tvPaneName = (TextView) v.findViewById(R.id.tvLayerName);

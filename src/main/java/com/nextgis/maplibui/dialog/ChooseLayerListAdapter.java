@@ -30,12 +30,12 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerSelector;
 import com.nextgis.maplibui.api.ILayerUI;
-import com.nextgis.maplibui.mapui.LayerFactoryUI;
 
 
 /**
@@ -91,7 +91,7 @@ public class ChooseLayerListAdapter
         ILayerUI layerUI = (ILayerUI) layer;
         if (layerUI != null) {
             ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-            ivIcon.setImageDrawable(layerUI.getIcon());
+            ivIcon.setImageDrawable(layerUI.getIcon(mSelector.getContext()));
         }
 
         TextView tvText = (TextView) v.findViewById(R.id.tvName);

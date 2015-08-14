@@ -200,5 +200,14 @@
     <string name="not_implemented">Пока не сделано</string>
     <string name="layer_lookuptable">Справочник</string>
     <string name="zoom_levels_to_show">Уровни зума на которых виден слой</string>
-    <string name="alpha">Transparancy</string>
+    <string name="alpha">Прозрачность</string>
+    <string name="layerInfo">Информация о слое</string>
+    <string name="geom_type">Тип геотмерии</string>
+    <string name="feature_count">Количество записей</string>
+    <string name="point">Точка</string>
+    <string name="multi_point">Мультиточка</string>
+    <string name="linestring">Линия</string>
+    <string name="multi_linestring">Мультилиния</string>
+    <string name="polygon">Полигон</string>
+    <string name="multi_polygon">Мультиполигон</string>
 </resources>
