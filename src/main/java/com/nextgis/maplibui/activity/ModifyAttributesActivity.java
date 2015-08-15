@@ -38,6 +38,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -121,13 +123,20 @@ public class ModifyAttributesActivity
             mAltView = (TextView) findViewById(R.id.altitude_view);
             mAccView = (TextView) findViewById(R.id.accuracy_view);
 
-            ImageButton refreshLocation = (ImageButton) findViewById(R.id.refresh);
+            final ImageButton refreshLocation = (ImageButton) findViewById(R.id.refresh);
             refreshLocation.setOnClickListener(
                     new View.OnClickListener()
                     {
                         @Override
                         public void onClick(View view)
                         {
+                            RotateAnimation rotateAnimation = new RotateAnimation(
+                                    0, 360, Animation.RELATIVE_TO_SELF, 0.5f,
+                                    Animation.RELATIVE_TO_SELF, 0.5f);
+                            rotateAnimation.setDuration(700);
+                            rotateAnimation.setRepeatCount(0);
+                            refreshLocation.startAnimation(rotateAnimation);
+
                             if (null != app) {
                                 GpsEventSource gpsEventSource = app.getGpsEventSource();
                                 Location location = gpsEventSource.getLastKnownLocation();

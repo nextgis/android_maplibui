@@ -210,4 +210,5 @@
     <string name="multi_linestring">Мультилиния</string>
     <string name="polygon">Полигон</string>
     <string name="multi_polygon">Мультиполигон</string>
+    <string name="update_coordinates">Update coordinates</string>
 </resources>
