@@ -36,6 +36,6 @@
         android:id="@+id/menu_settings"
         android:title="@string/action_settings"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_action_settings_light"
+        android:icon="@drawable/ic_action_settings_dark"
         />
 </menu>

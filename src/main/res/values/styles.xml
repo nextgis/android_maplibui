@@ -39,6 +39,7 @@
     <attr name="ic_track_inverse" format="reference"/>
     <attr name="ic_track" format="reference"/>
     <attr name="ic_clear" format="reference"/>
+    <attr name="ic_action_refresh" format="reference"/>
 
     <style name="Theme.NextGIS.AppCompat.Light"
            parent="Theme.AppCompat.Light.NoActionBar">
@@ -74,6 +75,7 @@
         <item name="ic_track">@drawable/ic_track_light</item>
         <item name="ic_track_inverse">@drawable/ic_track_dark</item>
         <item name="ic_clear">@drawable/ic_clear_light</item>
+        <item name="ic_action_refresh">@drawable/ic_action_refresh_light</item>
 
         <item name="DatePickSpinnerBackground">@drawable/ic_spinner_calendar_light</item>
     </style>
@@ -112,6 +114,7 @@
         <item name="ic_track">@drawable/ic_track_dark</item>
         <item name="ic_track_inverse">@drawable/ic_track_light</item>
         <item name="ic_clear">@drawable/ic_clear_dark</item>
+        <item name="ic_action_refresh">@drawable/ic_action_refresh_dark</item>
 
         <item name="DatePickSpinnerBackground">@drawable/ic_spinner_calendar_dark</item>
     </style>
