@@ -791,6 +791,11 @@ public class EditLayerOverlay
                                     mHasEdits = true;
                                     setToolbarSaveState(true);
 
+                                    //store original geometry for cancel operation
+                                    if (null == mOriginalGeometry) {
+                                        mOriginalGeometry = mItem.getGeoGeometry().copy();
+                                    }
+
                                     mDrawItems.clear();
                                     mItem.setGeoGeometry(null);
 
