@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import android.widget.RadioButton;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.control.GreyLine;
 
@@ -91,21 +92,19 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
             mIsShowLast = attributes.getBoolean(JSON_SHOW_LAST_KEY);
         }
 
-        // TODO proper show current / last saved feature attrs
         String lastValue = null;
-        if (mIsShowLast) {
-            if (null != featureCursor) {
-                int column = featureCursor.getColumnIndex(mFieldName);
-                if (column >= 0) {
-                    lastValue = featureCursor.getString(column);
-                }
+        if (null != featureCursor) { // feature exists
+            int column = featureCursor.getColumnIndex(mFieldName);
+            if (column >= 0) {
+                lastValue = featureCursor.getString(column);
             }
+        } else {    // new feature
+            if (mIsShowLast)
+                lastValue = preferences.getString(mFieldName, null);
         }
 
-
         JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
-        int defaultPosition = 0;
-        int lastValuePosition = -1;
+        int position = Constants.NOT_FOUND;
         mAliasValueMap = new HashMap<>();
 
         for (int j = 0; j < values.length(); j++) {
@@ -113,13 +112,12 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
             String value = keyValue.getString(JSON_VALUE_NAME_KEY);
             String value_alias = keyValue.getString(JSON_VALUE_ALIAS_KEY);
 
-            if (keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(
-                    JSON_DEFAULT_KEY)) {
-                defaultPosition = j;
+            if (lastValue == null && keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(JSON_DEFAULT_KEY)) {
+                position = j;
             }
 
-            if (mIsShowLast && null != lastValue && lastValue.equals(value)) { // if modify data
-                lastValuePosition = j;
+            if (lastValue != null && lastValue.equals(value)) { // if modify data
+                position = j;
             }
 
             mAliasValueMap.put(value_alias, value);
@@ -128,7 +126,7 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
             addView(radioButton);
         }
 
-        check(getChildAt(lastValuePosition >= 0 ? lastValuePosition : defaultPosition).getId());
+        check(getChildAt(position).getId());
         setOrientation(RadioGroup.VERTICAL);
     }
 
