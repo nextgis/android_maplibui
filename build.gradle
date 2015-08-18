@@ -25,10 +25,10 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion '22.0.1'
+    buildToolsVersion '23.0.0'
     defaultConfig {
         minSdkVersion 8
-        targetSdkVersion 22
+        targetSdkVersion 23
         versionCode 10
         versionName '2.2'
     }
@@ -46,7 +46,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':maplib')
     compile 'com.cocosw:undobar:1.8.1'
-    compile 'com.android.support:appcompat-v7:22.2.1'
     compile 'com.edmodo:rangebar:1.0.0'
     compile 'com.4ert:easypicker:0.2'
+    compile 'com.android.support:appcompat-v7:22.2.1'
 }

@@ -46,6 +46,7 @@ public interface ConstantsUI
     String FILE_FORM = "form.json";
 
     int TOLERANCE_DP = 20;
+    int MIN_ZOOM_LEVEL = 18;
 
     String JSON_ATTRIBUTES_KEY        = "attributes";
     String JSON_TABS_KEY              = "tabs";

@@ -31,13 +31,14 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.widget.Toast;
 
+import com.nextgis.maplib.api.IGeometryCache;
+import com.nextgis.maplib.api.IGeometryCacheItem;
 import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
-import com.nextgis.maplib.util.VectorCacheItem;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
@@ -118,10 +119,9 @@ public class VectorLayerUI
 
         //get geometry
         if (geometry == null && featureId != Constants.NOT_FOUND) {
-            for (VectorCacheItem item : mVectorCacheItems) {
-                if (item.getId() == featureId) {
-                    geometry = item.getGeoGeometry();
-                }
+            IGeometryCacheItem item = mGeometryCache.getItem(featureId);
+            if(null != item) {
+                geometry = item.getGeometry();
             }
         }
 

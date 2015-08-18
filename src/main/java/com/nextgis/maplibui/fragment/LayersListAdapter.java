@@ -52,6 +52,7 @@ import com.nextgis.maplibui.mapui.MapView;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
 import com.nextgis.maplibui.mapui.VectorLayerUI;
+import com.nextgis.maplibui.util.ConstantsUI;
 
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_REMOTE_TMS;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
@@ -252,6 +253,8 @@ public class LayersListAdapter
                                                 double scale = Math.min(layerEnv.width() / size,
                                                         layerEnv.height() / size);
                                                 double zoom = MapView.lg(1 / scale);
+                                                if(zoom < ConstantsUI.MIN_ZOOM_LEVEL)
+                                                    zoom = ConstantsUI.MIN_ZOOM_LEVEL;
                                                 mMap.setZoomAndCenter((float) zoom, layerEnv.getCenter());
                                             }
                                         }
