@@ -925,6 +925,7 @@ public class EditLayerOverlay
                     mLayer.deleteCacheItem(Constants.NOT_FOUND);
                 }
                 mItem = null; // remove selection
+                mDrawItems.clear();
             }
         }
     }
