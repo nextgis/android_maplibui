@@ -195,7 +195,7 @@ public abstract class GISApplication extends Application
             }
         };
 
-        if(!checkPermission(Manifest.permission.MANAGE_ACCOUNTS)){
+        if(!checkPermission("android.permission.MANAGE_ACCOUNTS")){
             return bool;
         }
 
@@ -209,7 +209,7 @@ public abstract class GISApplication extends Application
     @Override
     public String getAccountUrl(Account account)
     {
-        if(!checkPermission(Manifest.permission.AUTHENTICATE_ACCOUNTS)){
+        if(!checkPermission("android.permission.AUTHENTICATE_ACCOUNTS")){
             return "";
         }
 
@@ -221,7 +221,7 @@ public abstract class GISApplication extends Application
     @Override
     public String getAccountLogin(Account account)
     {
-        if(!checkPermission(Manifest.permission.AUTHENTICATE_ACCOUNTS)){
+        if(!checkPermission("android.permission.AUTHENTICATE_ACCOUNTS")){
             return "";
         }
 
@@ -233,7 +233,7 @@ public abstract class GISApplication extends Application
     @Override
     public String getAccountPassword(Account account)
     {
-        if(!checkPermission(Manifest.permission.AUTHENTICATE_ACCOUNTS)){
+        if(!checkPermission("android.permission.AUTHENTICATE_ACCOUNTS")){
             return "";
         }
 
@@ -266,7 +266,7 @@ public abstract class GISApplication extends Application
 
     @Override
     public boolean addAccount(String name, String url, String login, String password, String token) {
-        if(!checkPermission(Manifest.permission.AUTHENTICATE_ACCOUNTS)){
+        if(!checkPermission("android.permission.AUTHENTICATE_ACCOUNTS")){
             return false;
         }
         final Account account = new Account(name, NGW_ACCOUNT_TYPE);
@@ -289,7 +289,7 @@ public abstract class GISApplication extends Application
 
     @Override
     public void setPassword(String name, String value) {
-        if(!checkPermission(Manifest.permission.AUTHENTICATE_ACCOUNTS)){
+        if(!checkPermission("android.permission.AUTHENTICATE_ACCOUNTS")){
             return;
         }
         Account account = getAccount(name);
@@ -302,7 +302,7 @@ public abstract class GISApplication extends Application
 
     @Override
     public void setUserData(String name, String key, String value) {
-        if(!checkPermission(Manifest.permission.AUTHENTICATE_ACCOUNTS)){
+        if(!checkPermission("android.permission.AUTHENTICATE_ACCOUNTS")){
             return;
         }
         Account account = getAccount(name);

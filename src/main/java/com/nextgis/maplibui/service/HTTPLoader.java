@@ -26,23 +26,12 @@ package com.nextgis.maplibui.service;
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
+
+import com.nextgis.maplib.util.NGWUtil;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-import static com.nextgis.maplib.util.Constants.*;
+import static com.nextgis.maplib.util.Constants.TAG;
 
 
 public class HTTPLoader
@@ -118,33 +107,12 @@ public class HTTPLoader
     {
         //1. fix url
         String url = mUrl.trim();
-        if (url.startsWith("http")) {
-            url = url + "/login";
-        } else {
-            url = "http://" + url + "/login";
+        if (!url.startsWith("http")) {
+            url = "http://" + url;
         }
 
         try {
-            HttpPost httppost = new HttpPost(url);
-            List<NameValuePair> nameValuePairs = new ArrayList<>(2);
-            nameValuePairs.add(new BasicNameValuePair("login", mLogin));
-            nameValuePairs.add(new BasicNameValuePair("password", mPassword));
-            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-            HttpClient httpclient = new DefaultHttpClient();
-            httpclient.getParams().setParameter(CoreProtocolPNames.USER_AGENT, APP_USER_AGENT);
-            httpclient.getParams()
-                    .setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, TIMEOUT_CONNECTION);
-            httpclient.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, TIMEOUT_SOKET);
-            httpclient.getParams().setParameter(ClientPNames.HANDLE_REDIRECTS, Boolean.FALSE);
-
-            HttpResponse response = httpclient.execute(httppost);
-            //2 get cookie
-            Header head = response.getFirstHeader("Set-Cookie");
-            if (head == null) {
-                return null;
-            }
-            return head.getValue();
+            return NGWUtil.getConnectionCookie(url, mLogin, mPassword);
         } catch (IllegalArgumentException | IllegalStateException e) {
             e.printStackTrace();
             return null;
