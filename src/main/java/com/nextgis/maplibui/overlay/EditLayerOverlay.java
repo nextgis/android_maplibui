@@ -788,8 +788,14 @@ public class EditLayerOverlay
                                         return false;
                                     }
 
-                                    mHasEdits = true;
-                                    setToolbarSaveState(true);
+                                    boolean isItemSaved = mItem.getId() != Constants.NOT_FOUND;
+                                    mHasEdits = isItemSaved;
+                                    setToolbarSaveState(isItemSaved);
+
+                                    //store original geometry for cancel operation
+                                    if (null == mOriginalGeometry && isItemSaved) {
+                                        mOriginalGeometry = mItem.getGeoGeometry().copy();
+                                    }
 
                                     mDrawItems.clear();
                                     mItem.setGeoGeometry(null);
@@ -800,11 +806,12 @@ public class EditLayerOverlay
                                         return false;
                                     }
 
-                                    mHasEdits = true;
-                                    setToolbarSaveState(true);
+                                    boolean isItemSaved = mItem.getId() != Constants.NOT_FOUND;
+                                    mHasEdits = isItemSaved;
+                                    setToolbarSaveState(isItemSaved);
 
                                     //store original geometry for cancel operation
-                                    if (null == mOriginalGeometry) {
+                                    if (null == mOriginalGeometry && isItemSaved) {
                                         mOriginalGeometry = mItem.getGeoGeometry().copy();
                                     }
 
@@ -918,6 +925,7 @@ public class EditLayerOverlay
                     mLayer.deleteCacheItem(Constants.NOT_FOUND);
                 }
                 mItem = null; // remove selection
+                mDrawItems.clear();
             }
         }
     }
