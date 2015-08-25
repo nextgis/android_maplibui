@@ -76,7 +76,6 @@
         android:layout_margin="5dp"
         android:background="@null"
         android:src="?attr/ic_menu_moreoverflow"
-        android:tint="@color/primary_dark_material_light"
         tools:ignore="ContentDescription"
         />
 
