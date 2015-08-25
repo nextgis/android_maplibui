@@ -39,6 +39,7 @@ import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
+import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.api.MapViewEventListener;
 
 import static com.nextgis.maplib.util.Constants.TAG;
@@ -186,7 +187,7 @@ public class MapView
             double scaleFactor =
                     scaleGestureDetector.getScaleFactor() * scaleGestureDetector.getCurrentSpan() /
                     mCurrentSpan;
-            double zoom = getZoomForScaleFactor(scaleFactor);
+            double zoom = MapUtil.getZoomForScaleFactor(scaleFactor, mMap.getZoomLevel());
             if (zoom < mMap.getMinZoom() || zoom > mMap.getMaxZoom()) {
                 return;
             }
@@ -197,28 +198,11 @@ public class MapView
         }
     }
 
-
-    protected float getZoomForScaleFactor(double scale)
-    {
-        if (mMap == null) {
-            return 1;
-        }
-        float zoom = mMap.getZoomLevel();
-
-        if (scale > 1) {
-            zoom = (float) (mMap.getZoomLevel() + lg(scale));
-        } else if (scale < 1) {
-            zoom = (float) (mMap.getZoomLevel() - lg(1 / scale));
-        }
-        return zoom;
-    }
-
-
     protected void zoomStop()
     {
         if (mDrawingState == DRAW_SATE_zooming && mMap != null) {
 
-            float zoom = getZoomForScaleFactor(mScaleFactor);
+            float zoom = MapUtil.getZoomForScaleFactor(mScaleFactor, mMap.getZoomLevel());
 
             GeoEnvelope env = mMap.getFullScreenBounds();
             GeoPoint focusPt = new GeoPoint(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y);
@@ -597,13 +581,6 @@ public class MapView
     {
         zoomStop();
     }
-
-
-    public static double lg(double x)
-    {
-        return Math.log(x) / Math.log(2.0);
-    }
-
 
     @Override
     public void onLayerAdded(int id)

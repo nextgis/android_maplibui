@@ -216,6 +216,12 @@ public class MapViewBase
         }
     }
 
+    public void zoomToExtent(GeoEnvelope envelope){
+        if (mMap != null) {
+            mMap.zoomToExtent(envelope);
+        }
+    }
+
 
     public void zoomIn()
     {
