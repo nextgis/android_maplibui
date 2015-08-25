@@ -119,10 +119,7 @@ public class VectorLayerUI
 
         //get geometry
         if (geometry == null && featureId != Constants.NOT_FOUND) {
-            IGeometryCacheItem item = mGeometryCache.getItem(featureId);
-            if(null != item) {
-                geometry = item.getGeometry();
-            }
+            geometry = getGeometryForId(featureId);
         }
 
         //check custom form

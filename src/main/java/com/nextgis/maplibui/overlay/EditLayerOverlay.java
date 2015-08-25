@@ -1865,7 +1865,7 @@ public class EditLayerOverlay
 
         public EditLayerCacheItem(IGeometryCacheItem item){
             mFeatureId = item.getFeatureId();
-            mGeometry = item.getGeometry().copy();
+            mGeometry = mLayer.getGeometryForId(mFeatureId);
         }
 
         public EditLayerCacheItem(long featureId, GeoGeometry geometry) {
@@ -1873,9 +1873,15 @@ public class EditLayerOverlay
             mGeometry = geometry;
         }
 
-        @Override
         public GeoGeometry getGeometry() {
             return mGeometry;
+        }
+
+        @Override
+        public GeoEnvelope getEnvelope() {
+            if(null != mGeometry)
+                return mGeometry.getEnvelope();
+            return null;
         }
 
         @Override
