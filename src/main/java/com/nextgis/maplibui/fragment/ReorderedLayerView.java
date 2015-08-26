@@ -32,6 +32,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.internal.widget.ThemeUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -82,6 +83,8 @@ public class ReorderedLayerView
     protected int mCurrentFirstVisibleItem;
     protected int mCurrentVisibleItemCount;
     protected int mCurrentScrollState;
+
+    protected DrawerLayout mDrawer;
 
 
     public ReorderedLayerView(Context context)
@@ -139,6 +142,8 @@ public class ReorderedLayerView
             int i,
             long l)
     {
+        setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN);
+
         mTotalOffset = 0;
 
         int position = pointToPosition(mDownX, mDownY);
@@ -158,6 +163,16 @@ public class ReorderedLayerView
         return true;
     }
 
+
+    public void setDrawer(DrawerLayout drawer) {
+        mDrawer = drawer;
+    }
+
+
+    protected void setDrawerLockMode(int lockMode) {
+        if (mDrawer!= null)
+            mDrawer.setDrawerLockMode(lockMode);
+    }
 
     /**
      * Creates the hover cell with the appropriate bitmap and of appropriate size. The hover cell's
@@ -330,9 +345,11 @@ public class ReorderedLayerView
                 break;
             case MotionEvent.ACTION_UP:
                 touchEventsEnded();
+                setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 break;
             case MotionEvent.ACTION_CANCEL:
                 touchEventsCancelled();
+                setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 break;
             case MotionEvent.ACTION_POINTER_UP:
                 /* If a multitouch event took place and the original touch dictating
@@ -345,6 +362,7 @@ public class ReorderedLayerView
                 if (pointerId == mActivePointerId) {
                     touchEventsEnded();
                 }
+                setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 break;
             default:
                 break;
