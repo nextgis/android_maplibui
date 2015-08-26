@@ -39,7 +39,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v7.app.ActionBar;
 import android.support.v7.view.ActionMode;
 import android.util.SparseBooleanArray;
 import android.view.Menu;
@@ -55,8 +54,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.map.TrackLayer;
-import com.nextgis.maplibui.service.TrackerService;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.service.TrackerService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -367,12 +366,6 @@ public class TracksActivity
     {
         MenuInflater inflater = actionMode.getMenuInflater();
         inflater.inflate(R.menu.tracks, menu);
-
-
-        ActionBar bar = getSupportActionBar();
-        if (null != bar) {
-            bar.hide();
-        }
         return true;
     }
 
@@ -453,10 +446,6 @@ public class TracksActivity
         mSelectState = false;
         setSelection();
         mActionMode = null;
-        ActionBar bar = getSupportActionBar();
-        if (null != bar) {
-            bar.show();
-        }
     }
 
 }
