@@ -81,7 +81,7 @@ public class NGWVectorLayerUI
             long featureId,
             GeoGeometry geometry)
     {
-        if (!mIsInitialized) {
+        if (mFields.isEmpty()) {
             Toast.makeText(
                     context, context.getString(R.string.error_layer_not_inited), Toast.LENGTH_SHORT)
                     .show();

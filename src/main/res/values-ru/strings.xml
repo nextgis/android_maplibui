@@ -61,7 +61,6 @@
     <string name="select">Выбор</string>
     <string name="select_ngw_layer">Выбрать слой NextGIS Web</string>
     <string name="ngw_account">Учетная запись NextGIS Web</string>
-    <string name="message_loading">Загрузка…</string>
     <string name="loading_summary">Подождите, идет загрузка данных</string>
     <string name="up_dots">..</string>
     <string name="up">Вверх</string>
@@ -107,7 +106,6 @@
     <string name="create_vector_layer">Создать векторный слой</string>
     <string name="new_layer">Новый слой</string>
     <string name="message_opening">Открывается…</string>
-    <string name="error_layer_create">Не удалось создать слой</string>
     <string name="message_layer_created">Слой создан</string>
     <string name="error_form_create">Не удалось создать форму</string>
     <string name="system_default">Системная настройка по умолчанию</string>
@@ -211,4 +209,5 @@
     <string name="polygon">Полигон</string>
     <string name="multi_polygon">Мультиполигон</string>
     <string name="update_coordinates">Update coordinates</string>
+    <string name="background_task_started">The layer initialisation task started</string>
 </resources>

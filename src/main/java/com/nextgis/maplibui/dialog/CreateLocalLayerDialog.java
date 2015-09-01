@@ -23,20 +23,15 @@
 
 package com.nextgis.maplibui.dialog;
 
-import android.accounts.Account;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.sqlite.SQLiteException;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -44,43 +39,15 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
-import com.nextgis.maplib.datasource.Feature;
-import com.nextgis.maplib.datasource.Field;
-import com.nextgis.maplib.datasource.GeoGeometryFactory;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
-import com.nextgis.maplib.map.NGWVectorLayer;
-import com.nextgis.maplib.util.Constants;
-import com.nextgis.maplib.util.FileUtil;
-import com.nextgis.maplib.util.NGWUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.mapui.LocalTMSLayerUI;
-import com.nextgis.maplibui.mapui.NGWVectorLayerUI;
 import com.nextgis.maplibui.mapui.VectorLayerUI;
+import com.nextgis.maplibui.service.LayerFillService;
 import com.nextgis.maplibui.util.ConstantsUI;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
-import static com.nextgis.maplib.util.Constants.MAX_CONTENT_LENGTH;
-import static com.nextgis.maplib.util.Constants.NOT_FOUND;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FEATURES;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_NORMAL;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
 
@@ -105,7 +72,6 @@ public class CreateLocalLayerDialog
 
     protected final static String FILE_META = "meta.json";
     protected final static String FILE_DATA = "data.geojson";
-
 
     protected String     mTitle;
     protected Uri        mUri;
@@ -208,17 +174,54 @@ public class CreateLocalLayerDialog
                                     int whichButton)
                             {
                                 mLayerName = layerName.getText().toString();
+                                String bkMessage = getString(R.string.background_task_started);
                                 if (mLayerType < 3) {
-                                    new CreateTask(context).execute(mLayerName);
+                                    VectorLayerUI layer = new VectorLayerUI(
+                                            mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
+                                    layer.setName(mLayerName);
+                                    layer.setVisible(false);
+                                    layer.setMinZoom(0);
+                                    layer.setMaxZoom(25);
+
+                                    mGroupLayer.addLayer(layer);
+                                    mGroupLayer.save();
+
+                                    // create or connect to fill layer with features
+                                    Intent intent = new Intent(getActivity(), LayerFillService.class);
+                                    intent.setAction(LayerFillService.ACTION_ADD_TASK);
+                                    intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
+                                    intent.putExtra(LayerFillService.KEY_URI, mUri);
+                                    intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
+                                    intent.putExtra(LayerFillService.KEY_HAS_FORM, mLayerType == 2);
+
+                                    getActivity().startService(intent);
+
+                                    Toast.makeText(getActivity(), bkMessage, Toast.LENGTH_SHORT).show();
                                 } else {
                                     int nType = mSpinner.getSelectedItemPosition();
-                                    String sTmsType = nType == 0 ? "XYZ" : "TMS";
-                                    new CreateTask(context).execute(mLayerName, sTmsType);
+                                    LocalTMSLayerUI layer = new LocalTMSLayerUI(
+                                            mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
+                                    layer.setName(mLayerName);
+                                    layer.setVisible(true);
+                                    layer.setTMSType(nType == 0 ? TMSTYPE_OSM : TMSTYPE_NORMAL);
+                                    layer.setVisible(false);
+
+                                    mGroupLayer.addLayer(layer);
+                                    mGroupLayer.save();
+
+                                    // create or connect to fill layer with features
+                                    Intent intent = new Intent(getActivity(), LayerFillService.class);
+                                    intent.setAction(LayerFillService.ACTION_ADD_TASK);
+                                    intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
+                                    intent.putExtra(LayerFillService.KEY_URI, mUri);
+                                    intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
+
+                                    getActivity().startService(intent);
+
+                                    Toast.makeText(getActivity(), bkMessage, Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }
-
-
                 )
                 .setNegativeButton(
                         R.string.cancel, new DialogInterface.OnClickListener()
@@ -250,7 +253,7 @@ public class CreateLocalLayerDialog
         super.onSaveInstanceState(outState);
     }
 
-
+    /* TODO: move this to appropriate classes
     protected String createTMSLayer(
             Context context,
             String name,
@@ -388,7 +391,7 @@ public class CreateLocalLayerDialog
                 layer.setName(name);
                 layer.setVisible(true);
                 layer.setMinZoom(0);
-                layer.setMaxZoom(100);
+                layer.setMaxZoom(25);
 
                 JSONObject geoJSONObject = new JSONObject(responseStrBuilder.toString());
                 String errorMessage = layer.createFromGeoJSON(geoJSONObject);
@@ -720,5 +723,5 @@ public class CreateLocalLayerDialog
         {
             mProgressDialog.setIndeterminate(b);
         }
-    }
+    }*/
 }
