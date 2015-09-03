@@ -127,4 +127,10 @@
         <item>dark</item>
         <item>light</item>
     </string-array>
+    <string-array name="accurate_ce" translatable="false">
+        <item>CE50</item>
+        <item>CE90</item>
+        <item>CE95</item>
+        <item>CE98</item>
+    </string-array>
 </resources>

@@ -23,8 +23,10 @@
 
 package com.nextgis.maplibui.activity;
 
+import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -33,6 +35,8 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.widget.AppCompatSpinner;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,6 +57,7 @@ import com.nextgis.maplib.datasource.GeoLinearRing;
 import com.nextgis.maplib.datasource.GeoMultiPoint;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.datasource.GeoPolygon;
+import com.nextgis.maplib.location.AccurateLocationTaker;
 import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.VectorLayer;
@@ -100,9 +105,13 @@ public class ModifyAttributesActivity
     protected TextView              mLongView;
     protected TextView              mAltView;
     protected TextView              mAccView;
+    protected SwitchCompat          mAccurateLocation;
+    protected AppCompatSpinner      mAccuracyCE;
     protected Location              mLocation;
 
     protected SharedPreferences mSharedPreferences;
+    protected int mMaxTakeCount = 60;
+    protected long mMaxTakeTime = 90000L, mProgressDelay = 1000L;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -124,6 +133,8 @@ public class ModifyAttributesActivity
             mLongView = (TextView) findViewById(R.id.longitude_view);
             mAltView = (TextView) findViewById(R.id.altitude_view);
             mAccView = (TextView) findViewById(R.id.accuracy_view);
+            mAccurateLocation = (SwitchCompat) findViewById(R.id.accurate_location);
+            mAccuracyCE = (AppCompatSpinner) findViewById(R.id.accurate_ce);
 
             final ImageButton refreshLocation = (ImageButton) findViewById(R.id.refresh);
             refreshLocation.setOnClickListener(
@@ -139,7 +150,41 @@ public class ModifyAttributesActivity
                             rotateAnimation.setRepeatCount(0);
                             refreshLocation.startAnimation(rotateAnimation);
 
-                            if (null != app) {
+                            if (mAccurateLocation.isChecked()) {
+                                final ProgressDialog progress = new ProgressDialog(view.getContext());
+                                final AccurateLocationTaker accurateLocation =
+                                        new AccurateLocationTaker(view.getContext(),
+                                                mMaxTakeCount, mMaxTakeTime, mProgressDelay, (String) mAccuracyCE.getSelectedItem());
+
+                                progress.setMax(mMaxTakeCount);
+                                progress.setCanceledOnTouchOutside(false);
+                                progress.setMessage(getString(R.string.accurate_taking));
+                                progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                                progress.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                    @Override
+                                    public void onCancel(DialogInterface dialog) {
+                                        accurateLocation.cancelTaking();
+                                    }
+                                });
+
+                                accurateLocation.setOnProgressUpdateListener(new AccurateLocationTaker.OnProgressUpdateListener() {
+                                    @Override
+                                    public void onProgressUpdate(Long... values) {
+                                        progress.setProgress(values[0].intValue());
+                                    }
+                                });
+
+                                accurateLocation.setOnGetAccurateLocationListener(new AccurateLocationTaker.OnGetAccurateLocationListener() {
+                                    @Override
+                                    public void onGetAccurateLocation(Location accurateLocation, Long... values) {
+                                        progress.dismiss();
+                                        setLocationText(accurateLocation);
+                                    }
+                                });
+
+                                progress.show();
+                                accurateLocation.startTaking();
+                            } else if (null != app) {
                                 GpsEventSource gpsEventSource = app.getGpsEventSource();
                                 Location location = gpsEventSource.getLastKnownLocation();
                                 setLocationText(location);
