@@ -176,7 +176,7 @@ public class NGWLoginFragment
     }
 
 
-    private boolean checkEditText(EditText edit)
+    protected boolean checkEditText(EditText edit)
     {
         return edit.getText().length() > 0;
     }
