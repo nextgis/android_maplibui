@@ -96,6 +96,13 @@
             />
 
         <service
+            android:process=":fill_layer"
+            android:name="com.nextgis.maplibui.service.LayerFillService"
+            android:enabled="true"
+            android:exported="true"
+             />
+
+        <service
             android:process=":tracks"
             android:name="com.nextgis.maplibui.service.TrackerService"
             android:enabled="true"

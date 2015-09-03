@@ -38,11 +38,16 @@ import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -50,7 +55,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import static com.nextgis.maplib.util.Constants.DRAWING_SEPARATE_THREADS;
 import static com.nextgis.maplib.util.Constants.KEEP_ALIVE_TIME;
 import static com.nextgis.maplib.util.Constants.KEEP_ALIVE_TIME_UNIT;
-import static com.nextgis.maplib.util.Constants.TAG;
 
 /**
  * The service to batch download tiles
@@ -59,10 +63,8 @@ public class TileDownloadService extends Service{
     protected List<DownloadTask> mQueue;
     protected NotificationManager mNotifyManager;
     protected static final int TILE_DOWNLOAD_NOTIFICATION_ID = 7;
-    protected final Object lock = new Object();
     protected ThreadPoolExecutor mThreadPool;
     protected NotificationCompat.Builder mBuilder;
-    protected boolean mCanceled;
 
     public static final String KEY_MINX = "env_minx";
     public static final String KEY_MAXX = "env_maxx";
@@ -76,8 +78,23 @@ public class TileDownloadService extends Service{
     @Override
     public void onCreate() {
         mNotifyManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        mQueue = new ArrayList<>();
-        mCanceled = false;
+        Bitmap largeIcon =
+                BitmapFactory.decodeResource(getResources(), R.drawable.ic_notification_download);
+
+        Intent intentStop = new Intent(this, TileDownloadService.class);
+        intentStop.setAction(ACTION_STOP);
+        PendingIntent stopService = PendingIntent.getService(this, 0, intentStop,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        mBuilder = new NotificationCompat.Builder(this);
+        mBuilder.setSmallIcon(R.drawable.ic_notification_download).setLargeIcon(largeIcon)
+                .setAutoCancel(false)
+                .setOngoing(true)
+                .addAction(
+                        android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.tracks_stop),
+                        stopService);
+
+        mQueue = new LinkedList<>();
     }
 
     @Override
@@ -104,12 +121,8 @@ public class TileDownloadService extends Service{
                         addTask(layerId, env, zoomFrom, zoomTo);
                         return START_STICKY;
                     case ACTION_STOP:
-                        synchronized (lock) {
-                            cancelDownload();
-                            if(!mQueue.isEmpty()) {
-                                mQueue.remove(0);
-                            }
-                        }
+                        mQueue.clear();
+                        cancelDownload();
                         break;
                 }
 
@@ -125,7 +138,7 @@ public class TileDownloadService extends Service{
         return null;
     }
 
-    public void addTask(int layerId, GeoEnvelope env, int zoomFrom, int zoomTo) {
+    protected void addTask(int layerId, GeoEnvelope env, int zoomFrom, int zoomTo) {
         DownloadTask task = new DownloadTask(layerId, env, zoomFrom, zoomTo);
         mQueue.add(task);
 
@@ -136,130 +149,104 @@ public class TileDownloadService extends Service{
 
     protected void startDownload(){
         if(mQueue.isEmpty()){
-            if(!mCanceled) {
-                String notifyTitle = getString(R.string.download_tiles_finished);
-                Bitmap largeIcon =
-                        BitmapFactory.decodeResource(getResources(), R.drawable.ic_notification_download);
-
-                mBuilder = new NotificationCompat.Builder(this);
-
-                mBuilder.setSmallIcon(R.drawable.ic_notification_download).setLargeIcon(largeIcon)
-                        .setWhen(System.currentTimeMillis())
-                        .setAutoCancel(false)
-                        .setContentTitle(notifyTitle)
-                        .setOngoing(false);
-
-                mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
-            }
+            mNotifyManager.cancel(TILE_DOWNLOAD_NOTIFICATION_ID);
             stopSelf();
             return;
         }
 
-        mCanceled = false;
-
-        DownloadTask task = mQueue.get(0);
         MapBase map = MapBase.getInstance();
         if(null == map)
             return;
 
+        DownloadTask task = mQueue.remove(0);
         final RemoteTMSLayer layer = (RemoteTMSLayer) map.getLayerById(task.getLayerId());
-        addNotification(layer.getName());
+        String notifyTitle = getString(R.string.download_tiles) + " (" + layer.getName() + ")";
 
-        mBuilder.setContentText(getString(R.string.form_tiles_list));
+        mBuilder.setWhen(System.currentTimeMillis())
+                .setContentTitle(notifyTitle);
         mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
 
-        final List<TileItem> tiles = new ArrayList<>();
+        final List<TileItem> tiles = new LinkedList<>();
+        int zoomCount = task.getZoomTo() + 1 - task.getZoomFrom();
         for(int zoom = task.getZoomFrom(); zoom < task.getZoomTo() + 1; zoom++) {
-            tiles.addAll(layer.getTielsForBounds(map.getFullBounds(), task.getEnvelope(), zoom));
-        }
-
-        if(tiles.isEmpty()){
-            mBuilder.setContentText(getString(R.string.download_complete))
-                    // Removes the progress bar
-                    .setProgress(0, 0, false);
-            mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID,
-                    mBuilder.build());
-            mQueue.remove(0);
-            startDownload();
-            return;
+            tiles.addAll(MapUtil.getTileItems(task.getEnvelope(), zoom, layer.getTMSType()));
+            mBuilder.setProgress(zoomCount, zoom, false)
+                    .setContentText(getString(R.string.form_tiles_list));
+            mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
         }
 
         int threadCount = DRAWING_SEPARATE_THREADS;
-        synchronized (lock) {
-            mThreadPool = new ThreadPoolExecutor(
-                    threadCount, threadCount, KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT,
-                    new LinkedBlockingQueue<Runnable>(), new RejectedExecutionHandler()
+
+        mThreadPool = new ThreadPoolExecutor(
+                threadCount, threadCount, KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT,
+                new LinkedBlockingQueue<Runnable>(), new RejectedExecutionHandler()
+        {
+            @Override
+            public void rejectedExecution(
+                    Runnable r,
+                    ThreadPoolExecutor executor)
             {
-                @Override
-                public void rejectedExecution(
-                        Runnable r,
-                        ThreadPoolExecutor executor)
-                {
-                    try {
-                        executor.getQueue().put(r);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        //throw new RuntimeException("Interrupted while submitting task", e);
-                    }
+                try {
+                    executor.getQueue().put(r);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    //throw new RuntimeException("Interrupted while submitting task", e);
                 }
-            });
-        }
+            }
+        });
 
-        final int[] tileCompleteCount = {0, tiles.size() / 100};
-        if(tileCompleteCount[1] == 0)
-            tileCompleteCount[1] = 1;
+        int tilesSize = tiles.size();
+        List<Future> futures = new ArrayList<>(tilesSize);
 
-        Intent intentStop = new Intent(this, TileDownloadService.class);
-        intentStop.setAction(ACTION_STOP);
-        PendingIntent stopService = PendingIntent.getService(this, 0, intentStop,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        mBuilder.addAction(
-                android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.tracks_stop),
-                stopService)
-                .setContentText(getString(R.string.download_in_progress));
-        mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID,
-                mBuilder.build());
+        for (int i = 0; i < tilesSize; ++i) {
+            if (Thread.currentThread().isInterrupted()) {
+                break;
+            }
 
-        for (int i = 0; i < tiles.size(); ++i) {
             final TileItem tile = tiles.get(i);
-            mThreadPool.execute(
-                new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        android.os.Process.setThreadPriority(
-                                Constants.DEFAULT_DOWNLOAD_THREAD_PRIORITY);
 
-                        layer.downloadTile(tile);
-
-                        synchronized (layer) {
-                            tileCompleteCount[0]++;
-
-                            if(tileCompleteCount[0] == tiles.size()) {
-                                mBuilder.setContentText(getString(R.string.download_complete))
-                                        // Removes the progress bar
-                                        .setProgress(0, 0, false);
-                                mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID,
-                                        mBuilder.build());
-                                mQueue.remove(0);
-                                startDownload();
-                            }
-                            else{
-                                if(tileCompleteCount[0] % tileCompleteCount[1] == 0) {
-                                    //progress
-                                    mBuilder.setProgress(tiles.size(), tileCompleteCount[0], false);
-                                    // Displays the progress bar for the first time.
-                                    mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID,
-                                            mBuilder.build());
+            futures.add(
+                    mThreadPool.submit(
+                            new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    android.os.Process.setThreadPriority(
+                                            Constants.DEFAULT_DRAW_THREAD_PRIORITY);
+                                    layer.downloadTile(tile);
                                 }
-                            }
-                        }
-                    }
-                }
-            );
+                            }));
         }
-        mThreadPool.shutdown();
+
+        // wait for download ending
+        int nStep = futures.size() / Constants.DRAW_NOTIFY_STEP_PERCENT;
+        if(nStep == 0)
+            nStep = 1;
+        for (int i = 0, futuresSize = futures.size(); i < futuresSize; i++) {
+            if (Thread.currentThread().isInterrupted()) {
+                break;
+            }
+
+            try {
+                Future future = futures.get(i);
+                future.get(); // wait for task ending
+
+                if(i % nStep == 0) {
+                    mBuilder.setProgress(futures.size(), i, false)
+                    .setContentText(getString(R.string.download_in_progress));
+                    // Displays the progress bar for the first time.
+                    mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
+                }
+
+            } catch (CancellationException | InterruptedException e) {
+                //e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+
+        startDownload();
     }
 
     public class DownloadTask{
@@ -292,41 +279,18 @@ public class TileDownloadService extends Service{
         }
     }
 
-    private void addNotification(String layerName)
-    {
-        String notifyTitle = getString(R.string.download_tiles) + " (" + layerName + ")";
-        Bitmap largeIcon =
-                BitmapFactory.decodeResource(getResources(), R.drawable.ic_notification_download);
-
-        mBuilder = new NotificationCompat.Builder(this);
-
-        mBuilder.setSmallIcon(R.drawable.ic_notification_download).setLargeIcon(largeIcon)
-                .setWhen(System.currentTimeMillis())
-                .setAutoCancel(false)
-                .setContentTitle(notifyTitle)
-                .setContentText(getString(R.string.download_in_progress))
-                .setOngoing(true);
-
-        mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
-    }
-
     public void cancelDownload()
     {
-        mCanceled = true;
         if (mThreadPool != null) {
-            synchronized (lock) {
-                mThreadPool.shutdownNow();
-                try {
-                    mThreadPool.awaitTermination(Constants.TERMINATE_TIME, Constants.KEEP_ALIVE_TIME_UNIT);
-                    mThreadPool.purge();
-                    Log.d(TAG, "Cancel execution. Active count: " + mThreadPool.getActiveCount() + " Task count: " + mThreadPool.getTaskCount());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    mThreadPool.shutdownNow();
-                    Thread.currentThread().interrupt();
-                }
+            //synchronized (lock) {
+            mThreadPool.shutdownNow();
+            try {
+                mThreadPool.awaitTermination(Constants.TERMINATE_TIME, Constants.KEEP_ALIVE_TIME_UNIT);
+                //mDrawThreadPool.purge();
+            } catch (InterruptedException e) {
+                //e.printStackTrace();
             }
+            //}
         }
-        mNotifyManager.cancel(TILE_DOWNLOAD_NOTIFICATION_ID);
     }
 }

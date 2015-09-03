@@ -247,16 +247,7 @@ public class LayersListAdapter
                                             mMap.save();
                                         }
                                         else if (i == R.id.menu_zoom_extent) {
-                                            GeoEnvelope layerEnv = layer.getExtents();
-                                            if(layerEnv.isInit()) {
-                                                double size = GeoConstants.MERCATOR_MAX * 2;
-                                                double scale = Math.min(layerEnv.width() / size,
-                                                        layerEnv.height() / size);
-                                                double zoom = MapView.lg(1 / scale);
-                                                if(zoom < ConstantsUI.MIN_ZOOM_LEVEL)
-                                                    zoom = ConstantsUI.MIN_ZOOM_LEVEL;
-                                                mMap.setZoomAndCenter((float) zoom, layerEnv.getCenter());
-                                            }
+                                            mMap.zoomToExtent(layer.getExtents());
                                         }
                                         else if(i == R.id.menu_download_tiles){
                                             GeoEnvelope env = mMap.getCurrentBounds();

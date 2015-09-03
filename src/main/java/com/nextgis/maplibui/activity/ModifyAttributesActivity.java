@@ -49,8 +49,10 @@ import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometry;
+import com.nextgis.maplib.datasource.GeoLinearRing;
 import com.nextgis.maplib.datasource.GeoMultiPoint;
 import com.nextgis.maplib.datasource.GeoPoint;
+import com.nextgis.maplib.datasource.GeoPolygon;
 import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.VectorLayer;
@@ -167,10 +169,29 @@ public class ModifyAttributesActivity
                 mFields = new HashMap<>();
                 mFeatureId = extras.getLong(KEY_FEATURE_ID);
                 mGeometry = (GeoGeometry) extras.getSerializable(KEY_GEOMETRY);
+                checkPolygon();
                 LinearLayout layout = (LinearLayout) findViewById(R.id.controls_list);
                 fillControls(layout);
             }
         }
+    }
+
+    protected void checkPolygon() {
+        if (mGeometry instanceof GeoPolygon) {
+            GeoPolygon polygon = (GeoPolygon) mGeometry;
+            GeoLinearRing ring = polygon.getOuterRing();
+
+            if (!ring.isClosed())
+                ring.add((GeoPoint) ring.getPoint(0).copy());
+
+            for (int i = 0; i < polygon.getInnerRingCount(); i++) {
+                ring = polygon.getInnerRing(i);
+
+                if (!ring.isClosed())
+                    ring.add((GeoPoint) ring.getPoint(0).copy());
+            }
+        }
+        // TODO GeoMultiPolygon
     }
 
 

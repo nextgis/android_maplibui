@@ -51,7 +51,9 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGWLoginActivity;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.NGWVectorLayerUI;
+import com.nextgis.maplibui.service.LayerFillService;
 import com.nextgis.maplibui.util.CheckState;
+import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,10 +76,10 @@ public class SelectNGWResourceDialog
     protected final static String KEY_MASK        = "mask";
     protected final static String KEY_ID          = "id";
     protected final static String KEY_CONNECTIONS = "connections";
-    protected final static String KEY_RESOURCEID  = "resource_id";
+    protected final static String KEY_RESOURCE_ID = "resource_id";
     protected final static String KEY_STATES      = "states";
 
-    protected final static int ADDACCOUNT_CODE = 777;
+    protected final static int ADD_ACCOUNT_CODE = 777;
 
 
     public SelectNGWResourceDialog setTitle(String title)
@@ -129,7 +131,7 @@ public class SelectNGWResourceDialog
 
             mListAdapter.setConnections(
                     (Connections) savedInstanceState.getParcelable(KEY_CONNECTIONS));
-            mListAdapter.setCurrentResourceId(savedInstanceState.getInt(KEY_RESOURCEID));
+            mListAdapter.setCurrentResourceId(savedInstanceState.getInt(KEY_RESOURCE_ID));
             mListAdapter.setCheckState(
                     savedInstanceState.<CheckState> getParcelableArrayList(
                             KEY_STATES));
@@ -181,7 +183,7 @@ public class SelectNGWResourceDialog
         outState.putString(KEY_TITLE, mTitle);
         outState.putInt(KEY_MASK, mTypeMask);
         outState.putInt(KEY_ID, mGroupLayer.getId());
-        outState.putInt(KEY_RESOURCEID, mListAdapter.getCurrentResourceId());
+        outState.putInt(KEY_RESOURCE_ID, mListAdapter.getCurrentResourceId());
         outState.putParcelable(KEY_CONNECTIONS, mListAdapter.getConnections());
         outState.putParcelableArrayList(
                 KEY_STATES,
@@ -195,8 +197,7 @@ public class SelectNGWResourceDialog
         Connections connections = new Connections(getString(R.string.accounts));
         final AccountManager accountManager =
                 AccountManager.get(getActivity().getApplicationContext());
-        for (Account account : accountManager.getAccountsByType(
-                NGW_ACCOUNT_TYPE)) {
+        for (Account account : accountManager.getAccountsByType(NGW_ACCOUNT_TYPE)) {
             String url = accountManager.getUserData(account, "url");
             String password = accountManager.getPassword(account);
             String login = accountManager.getUserData(account, "login");
@@ -209,7 +210,7 @@ public class SelectNGWResourceDialog
     public void onAddAccount()
     {
         Intent intent = new Intent(getActivity(), NGWLoginActivity.class);
-        startActivityForResult(intent, ADDACCOUNT_CODE);
+        startActivityForResult(intent, ADD_ACCOUNT_CODE);
     }
 
 
@@ -219,14 +220,13 @@ public class SelectNGWResourceDialog
             int resultCode,
             Intent data)
     {
-        if (requestCode == ADDACCOUNT_CODE) {
+        if (requestCode == ADD_ACCOUNT_CODE) {
             if (resultCode != Activity.RESULT_CANCELED) {
                 //search new account and add it
                 final AccountManager accountManager =
                         AccountManager.get(getActivity().getApplicationContext());
                 Connections connections = mListAdapter.getConnections();
-                for (Account account : accountManager.getAccountsByType(
-                        NGW_ACCOUNT_TYPE)) {
+                for (Account account : accountManager.getAccountsByType(NGW_ACCOUNT_TYPE)) {
                     boolean find = false;
                     for (int i = 0; i < connections.getChildrenCount(); i++) {
                         Connection connection = (Connection) connections.getChild(i);
@@ -323,14 +323,22 @@ public class SelectNGWResourceDialog
                             mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
                     newLayer.setName(layerName);
                     newLayer.setRemoteId(layer.getRemoteId());
-                    newLayer.setVisible(true);
+                    newLayer.setVisible(false);
                     newLayer.setAccountName(connection.getName());
                     newLayer.setMinZoom(0);
                     newLayer.setMaxZoom(25);
 
                     mGroupLayer.addLayer(newLayer);
 
-                    newLayer.downloadAsync();
+                    // create or connect to fill layer with features
+                    Intent intent = new Intent(getActivity(), LayerFillService.class);
+                    intent.setAction(LayerFillService.ACTION_ADD_TASK);
+                    intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
+                    intent.putExtra(LayerFillService.KEY_INPUT_TYPE, newLayer.getType());
+
+                    getActivity().startService(intent);
+
+                    Toast.makeText(getActivity(), getString(R.string.background_task_started), Toast.LENGTH_SHORT).show();
                 }
             }
         }

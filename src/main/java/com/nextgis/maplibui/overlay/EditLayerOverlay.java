@@ -905,7 +905,7 @@ public class EditLayerOverlay
 
         if (mItem.getGeometry() == null && mItem.getFeatureId() != Constants.NOT_FOUND) {
             if (mLayer.deleteAddChanges(mItem.getFeatureId()) > 0) {
-                mLayer.deleteCacheItem(mItem.getFeatureId());
+                //TODO: mLayer.deleteCacheItem(mItem.getFeatureId());
             }
         } else {
             //show attributes edit activity
@@ -914,7 +914,7 @@ public class EditLayerOverlay
                 vectorLayerUI.showEditForm(mContext, mItem.getFeatureId(), mItem.getGeometry());
 
                 if (mItem.getFeatureId() != Constants.NOT_FOUND) {
-                    mLayer.deleteCacheItem(Constants.NOT_FOUND);
+                    //TODO: mLayer.deleteCacheItem(Constants.NOT_FOUND);
                 }
             }
         }
@@ -976,7 +976,7 @@ public class EditLayerOverlay
                             e.printStackTrace();
                         }
                     } else {
-                        mItem = new EditLayerCacheItem(mLayer.getCacheItem(featureId));
+                        //TODO: mItem = new EditLayerCacheItem(mLayer.getCacheItem(featureId));
                     }
                 } else {
                     mItem = null;
@@ -1001,7 +1001,7 @@ public class EditLayerOverlay
             return;
         }
 
-        mLayer.deleteCacheItem(itemId);
+        //TODO: mLayer.deleteCacheItem(itemId);
         setFeature(mLayer, null);
 
         new UndoBarController.UndoBar((android.app.Activity) mContext).message(
@@ -1037,7 +1037,7 @@ public class EditLayerOverlay
                             Parcelable parcelable)
                     {
                         //mMapViewOverlays.setDelay(DELAY);
-                        mLayer.restoreCacheItem();
+                        //TODO: mLayer.restoreCacheItem();
 
                         if (mItem != null && mItem.getFeatureId() == itemId) {
                             setFeature(null, null);
@@ -1091,7 +1091,7 @@ public class EditLayerOverlay
             float x,
             float y)
     {
-        double dMinX = x - mTolerancePX;
+        /*double dMinX = x - mTolerancePX;
         double dMaxX = x + mTolerancePX;
         double dMinY = y - mTolerancePX;
         double dMaxY = y + mTolerancePX;
@@ -1118,7 +1118,7 @@ public class EditLayerOverlay
             mDrawItems.setSelectedRing(0);
         }
 
-        mMapViewOverlays.postInvalidate();
+        mMapViewOverlays.postInvalidate();*/
     }
 
 
@@ -1865,7 +1865,7 @@ public class EditLayerOverlay
 
         public EditLayerCacheItem(IGeometryCacheItem item){
             mFeatureId = item.getFeatureId();
-            mGeometry = item.getGeometry().copy();
+            mGeometry = mLayer.getGeometryForId(mFeatureId);
         }
 
         public EditLayerCacheItem(long featureId, GeoGeometry geometry) {
@@ -1873,9 +1873,15 @@ public class EditLayerOverlay
             mGeometry = geometry;
         }
 
-        @Override
         public GeoGeometry getGeometry() {
             return mGeometry;
+        }
+
+        @Override
+        public GeoEnvelope getEnvelope() {
+            if(null != mGeometry)
+                return mGeometry.getEnvelope();
+            return null;
         }
 
         @Override

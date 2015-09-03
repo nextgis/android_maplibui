@@ -110,7 +110,7 @@ public class VectorLayerUI
             long featureId,
             GeoGeometry geometry)
     {
-        if (!mIsInitialized) {
+        if (mFields.isEmpty()) {
             Toast.makeText(
                     context, context.getString(R.string.error_layer_not_inited), Toast.LENGTH_SHORT)
                     .show();
@@ -119,10 +119,7 @@ public class VectorLayerUI
 
         //get geometry
         if (geometry == null && featureId != Constants.NOT_FOUND) {
-            IGeometryCacheItem item = mGeometryCache.getItem(featureId);
-            if(null != item) {
-                geometry = item.getGeometry();
-            }
+            geometry = getGeometryForId(featureId);
         }
 
         //check custom form

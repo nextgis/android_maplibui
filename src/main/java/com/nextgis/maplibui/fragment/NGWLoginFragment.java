@@ -189,7 +189,7 @@ public class NGWLoginFragment
     {
         if (id == R.id.auth_token_loader) {
             return new HTTPLoader(
-                    getActivity().getApplicationContext(), mURL.getText().toString().trim(),
+                    getActivity().getApplicationContext(), mURL.getText().toString(),
                     mLogin.getText().toString(), mPassword.getText().toString());
         }
         return null;
