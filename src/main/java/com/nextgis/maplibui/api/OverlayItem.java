@@ -33,7 +33,7 @@ import com.nextgis.maplib.util.GeoConstants;
 public class OverlayItem
 {
 
-    public static enum Gravity
+    public enum Gravity
     {
         CENTER
     }
