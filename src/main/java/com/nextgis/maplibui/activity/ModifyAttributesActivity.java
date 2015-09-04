@@ -63,6 +63,7 @@ import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
+import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IControl;
 import com.nextgis.maplibui.api.ISimpleControl;
@@ -95,23 +96,25 @@ public class ModifyAttributesActivity
         extends NGActivity
         implements GpsEventListener
 {
-    protected Map<String, IControl> mFields;
+    protected long PROGRESS_DELAY = 1000L;
+    protected long MAX_TAKE_TIME  = Integer.MAX_VALUE;
 
+    protected Map<String, IControl> mFields;
     protected VectorLayer           mLayer;
     protected long                  mFeatureId;
-    protected GeoGeometry           mGeometry;
 
+    protected GeoGeometry           mGeometry;
     protected TextView              mLatView;
     protected TextView              mLongView;
     protected TextView              mAltView;
     protected TextView              mAccView;
     protected SwitchCompat          mAccurateLocation;
     protected AppCompatSpinner      mAccuracyCE;
-    protected Location              mLocation;
 
+    protected Location              mLocation;
     protected SharedPreferences mSharedPreferences;
-    protected int mMaxTakeCount = 60;
-    protected long mMaxTakeTime = 90000L, mProgressDelay = 1000L;
+
+    protected int mMaxTakeCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -154,7 +157,7 @@ public class ModifyAttributesActivity
                                 final ProgressDialog progress = new ProgressDialog(view.getContext());
                                 final AccurateLocationTaker accurateLocation =
                                         new AccurateLocationTaker(view.getContext(),
-                                                mMaxTakeCount, mMaxTakeTime, mProgressDelay, (String) mAccuracyCE.getSelectedItem());
+                                                mMaxTakeCount, MAX_TAKE_TIME, PROGRESS_DELAY, (String) mAccuracyCE.getSelectedItem());
 
                                 progress.setMax(mMaxTakeCount);
                                 progress.setCanceledOnTouchOutside(false);
@@ -325,6 +328,9 @@ public class ModifyAttributesActivity
                 gpsEventSource.addListener(this);
                 setLocationText(gpsEventSource.getLastKnownLocation());
             }
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            mMaxTakeCount = Integer.parseInt(prefs.getString(SettingsConstants.KEY_PREF_LOCATION_ACCURATE_COUNT, "20"));
         }
         super.onResume();
     }
