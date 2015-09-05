@@ -57,14 +57,13 @@ public class CurrentLocationOverlay
         extends Overlay
         implements GpsEventListener
 {
-    public static final long LOCATION_FORCE_UPDATE_TIMEOUT = 15000;
-
     public static final int WITH_MARKER   = 1;
     public static final int WITH_ACCURACY = 1 << 1;
 
     private GpsEventSource mGpsEventSource;
     private Location       mCurrentLocation;
-    private boolean        mIsInBounds;
+    private boolean        mIsInBounds, mIsInScreenBounds;
+    private boolean mIsAutopanningEnabled = false;
     private boolean mIsAccuracyEnabled = true;
     private boolean mIsAccuracyMarkerBiggest;
     private boolean mIsStandingMarkerCustom, mIsMovingMarkerCustom;
@@ -73,7 +72,6 @@ public class CurrentLocationOverlay
     private int         mMarkerColor;
     private OverlayItem mMarker, mAccuracy;
     private int mShowMode;
-
 
     public CurrentLocationOverlay(
             Context context,
@@ -85,14 +83,6 @@ public class CurrentLocationOverlay
         mMarkerColor = ThemeUtils.getThemeAttrColor(mContext, R.attr.colorAccent);
 
         double longitude = 0, latitude = 0;
-//        Location location = mGpsEventSource.getLastKnownLocation();
-//
-//        if (location != null) {
-//            mCurrentLocation = location;
-//            longitude = location.getLongitude();
-//            latitude = location.getLatitude();
-//        }
-
         mMarker =
                 new OverlayItem(mapViewOverlays.getMap(), longitude, latitude, getDefaultMarker());
         mAccuracy = new OverlayItem(mapViewOverlays.getMap(), longitude, latitude, null);
@@ -153,34 +143,41 @@ public class CurrentLocationOverlay
         if (mCurrentLocation != null && isMarkerEnabled()) {
             double lat = mCurrentLocation.getLatitude();
             double lon = mCurrentLocation.getLongitude();
+            GeoPoint lastMarkerPosition = mMarker.getCoordinates(GeoConstants.CRS_WEB_MERCATOR);
             mMarker.setMarker(getDefaultMarker());
             mMarker.setCoordinates(lon, lat);
 
             if (null != mapDrawable) {
-
+                // set accuracy marker with proper meter radius
                 double accuracy = mCurrentLocation.getAccuracy();
                 accuracy = getAccuracyRadius(lat, accuracy);
-
-                GeoPoint accuracyEdgePoint = new GeoPoint(lon, accuracy);
-                accuracyEdgePoint.setCRS(GeoConstants.CRS_WGS84);
-                accuracyEdgePoint.project(GeoConstants.CRS_WEB_MERCATOR);
-                accuracyEdgePoint = mapDrawable.mapToScreen(accuracyEdgePoint);
-
-                int radius = (int) (mMarker.getScreenY() - accuracyEdgePoint.getY());
+                GeoPoint newPoint = new GeoPoint(lon, accuracy);
+                newPoint.setCRS(GeoConstants.CRS_WGS84);
+                newPoint.project(GeoConstants.CRS_WEB_MERCATOR);
+                newPoint = mapDrawable.mapToScreen(newPoint);
+                int radius = (int) (mMarker.getScreenY() - newPoint.getY());
                 mAccuracy.setMarker(getAccuracyMarker(radius));
                 mAccuracy.setCoordinates(lon, lat);
-
                 mIsAccuracyMarkerBiggest = compareMarkers();
 
-                GeoEnvelope bounds = mapDrawable.getCurrentBounds();
-                mIsInBounds =
-                        bounds.contains(mMarker.getCoordinates(GeoConstants.CRS_WEB_MERCATOR));
+                // set marker in current map and screen bounds flags
+                newPoint = mMarker.getCoordinates(GeoConstants.CRS_WEB_MERCATOR);
+                mIsInBounds = mapDrawable.getCurrentBounds().contains(newPoint);
+                boolean wasInBounds = mIsInScreenBounds;
+                GeoEnvelope screenBounds = mapDrawable.getFullScreenBounds();
+                mIsInScreenBounds = mapDrawable.screenToMap(screenBounds).contains(newPoint);
 
-//            Paint p = new Paint();
-//            p.setColor(mMarkerColor);
-//            p.setAlpha(60);
-//            GeoPoint c = mAccuracy.getCoordinates(GeoConstants.CRS_WEB_MERCATOR);
-//            mapDrawable.getDisplay().drawCircle((float) c.getX(), (float) c.getY(), radius, p);
+                // autopan
+                if (mIsAutopanningEnabled && !mMapViewOverlays.isLockMap()) {
+                    GeoPoint center = mMapViewOverlays.getMapCenter();
+                    double dx = lastMarkerPosition.getX() - newPoint.getX();
+                    double dy = lastMarkerPosition.getY() - newPoint.getY();
+                    center.setX(center.getX() - dx);
+                    center.setY(center.getY() - dy);
+
+                    if (wasInBounds)
+                        mMapViewOverlays.panTo(center);
+                }
             } else {
                 mIsAccuracyMarkerBiggest = false;
             }
@@ -279,6 +276,11 @@ public class CurrentLocationOverlay
     }
 
 
+    public void setAutopanningEnabled(boolean isAutopanningEnabled) {
+        mIsAutopanningEnabled = isAutopanningEnabled;
+    }
+
+
     // TODO invalidate rect
     @Override
     public void onLocationChanged(Location location)
@@ -288,12 +290,6 @@ public class CurrentLocationOverlay
         if (location != null) {
             String provider = location.getProvider();
             update = LocationUtil.isProviderEnabled(mContext, provider, false);
-
-//            if (!update) {
-//                update = mCurrentLocation.getProvider().equals(provider) ||
-//                         location.getAccuracy() < mCurrentLocation.getAccuracy() ||
-//                         location.getTime() - mCurrentLocation.getTime() > LOCATION_FORCE_UPDATE_TIMEOUT;
-//            }
         }
 
         if (update) {
