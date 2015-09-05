@@ -234,7 +234,9 @@ public class CreateLocalLayerDialog
                             }
                         });
         // Create the AlertDialog object and return it
-        return builder.create();
+        AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        return dialog;
     }
 
 
@@ -648,6 +650,7 @@ public class CreateLocalLayerDialog
                     mGroupLayer.getContext().getString(R.string.message_loading));
             mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             mProgressDialog.setCancelable(true);
+            mProgressDialog.setCanceledOnTouchOutside(false);
             mProgressDialog.show();
         }
 

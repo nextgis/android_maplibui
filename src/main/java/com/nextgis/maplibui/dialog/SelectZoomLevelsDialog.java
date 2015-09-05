@@ -108,17 +108,17 @@ public class SelectZoomLevelsDialog
 
                     }
                 }).setNegativeButton(
-                R.string.cancel, new DialogInterface.OnClickListener()
-                {
+                R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(
                             DialogInterface dialog,
-                            int id)
-                    {
+                            int id) {
                         // User cancelled the dialog
                     }
                 });
         // Create the AlertDialog object and return it
-        return builder.create();
+        AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(false);
+        return dialog;
     }
 
     @Override

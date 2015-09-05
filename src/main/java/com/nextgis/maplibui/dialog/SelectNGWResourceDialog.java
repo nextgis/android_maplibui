@@ -173,6 +173,7 @@ public class SelectNGWResourceDialog
                         });
         // Create the AlertDialog object and return it
         mDialog = builder.create();
+        mDialog.setCanceledOnTouchOutside(false);
         return mDialog;
     }
 

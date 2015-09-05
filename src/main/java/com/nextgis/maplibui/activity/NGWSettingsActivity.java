@@ -288,7 +288,7 @@ public class NGWSettingsActivity
             final Account account,
             PreferenceCategory syncCategory) {
         SharedPreferences sharedPreferences = getSharedPreferences(
-                Constants.PREFERENCES, Context.MODE_MULTI_PROCESS);
+                Constants.PREFERENCES, Constants.MODE_MULTI_PROCESS);
 
         CheckBoxPreference enablePeriodicSync = new CheckBoxPreference(this);
         enablePeriodicSync.setTitle(R.string.auto_sync);

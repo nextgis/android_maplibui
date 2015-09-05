@@ -49,7 +49,7 @@
         <item name="colorAccent">@color/accent</item>
         <item name="undoBarStyle">@style/UndoBarMaterialStyle</item>
         <item name="windowActionBarOverlay">true</item>
-        <item name="windowActionModeOverlay">false</item>
+        <item name="windowActionModeOverlay">true</item>
         <item name="ThemeOverlay.NextGIS.Toolbar">@style/Theme.NextGIS.AppCompat.ActionBar</item>
         <item name="ThemeOverlay.NextGIS.ToolbarPopup">@style/ThemeOverlay.NextGIS.AppCompat.Light</item>
         <item name="android:textColorPrimary">@color/textColorPrimary.Light</item>
@@ -88,7 +88,7 @@
         <item name="colorAccent">@color/accent</item>
         <item name="undoBarStyle">@style/UndoBarMaterialStyle</item>
         <item name="windowActionBarOverlay">true</item>
-        <item name="windowActionModeOverlay">false</item>
+        <item name="windowActionModeOverlay">true</item>
         <item name="ThemeOverlay.NextGIS.Toolbar">@style/Theme.NextGIS.AppCompat.ActionBar</item>
         <item name="ThemeOverlay.NextGIS.ToolbarPopup">@style/ThemeOverlay.NextGIS.AppCompat.Dark</item>
         <item name="android:textColorPrimary">@color/textColorPrimary.Dark</item>

@@ -101,7 +101,7 @@ public class TrackerService
         mValues = new ContentValues();
 
         SharedPreferences sharedPreferences =
-                getSharedPreferences(getPackageName() + "_preferences", MODE_PRIVATE);
+                getSharedPreferences(getPackageName() + "_preferences", Constants.MODE_MULTI_PROCESS);
         mSharedPreferencesTemp = getSharedPreferences(TEMP_PREFERENCES, MODE_PRIVATE);
 
         String minTimeStr =

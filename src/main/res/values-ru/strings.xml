@@ -99,6 +99,8 @@
     <string name="longitude_caption_short">Д.</string>
     <string name="altitude_caption_short">В.</string>
     <string name="accuracy_caption_short">Т.</string>
+    <string name="accurate_location">Accurate location</string>
+    <string name="accurate_taking">Accumulating and averaging location…</string>
     <string name="action_settings">Настройки</string>
     <string name="apply">Применить</string>
     <string name="error_db_insert">Ошибка добавления объекта</string>
