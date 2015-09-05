@@ -39,6 +39,7 @@ import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.api.MapViewEventListener;
 
@@ -637,7 +638,10 @@ public class MapView
         if (!(mDrawingState == DRAW_SATE_drawing_noclearbk || mDrawingState == DRAW_SATE_drawing)) {
             return;
         }
-        Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent);
+
+        //if(Constants.DEBUG_MODE) {
+        //    Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent);
+        //}
         //mDrawingState = DRAW_SATE_drawing_noclearbk;
 
         if (System.currentTimeMillis() - mStartDrawTime > DISPLAY_REDRAW_TIMEOUT) {
