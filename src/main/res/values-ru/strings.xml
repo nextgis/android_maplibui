@@ -107,7 +107,6 @@
     <string name="error_db_update">Ошибка обновления объекта</string>
     <string name="create_vector_layer">Создать векторный слой</string>
     <string name="new_layer">Новый слой</string>
-    <string name="message_opening">Открывается…</string>
     <string name="message_layer_created">Слой создан</string>
     <string name="error_form_create">Не удалось создать форму</string>
     <string name="system_default">Системная настройка по умолчанию</string>
@@ -212,4 +211,5 @@
     <string name="multi_polygon">Мультиполигон</string>
     <string name="update_coordinates">Update coordinates</string>
     <string name="background_task_started">The layer initialisation task started</string>
+    <string name="proceed_layer">Proceed layer</string>
 </resources>

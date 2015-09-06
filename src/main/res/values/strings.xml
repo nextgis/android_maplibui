@@ -107,7 +107,6 @@
     <string name="error_db_update">Update feature failed</string>
     <string name="create_vector_layer">Create vector layer</string>
     <string name="new_layer">New layer</string>
-    <string name="message_opening">Opening…</string>
     <string name="message_layer_created">Layer created</string>
     <string name="error_form_create">Form create failed</string>
     <string name="system_default">System default</string>
@@ -212,4 +211,5 @@
     <string name="multi_polygon">Multipolygon</string>
     <string name="update_coordinates">Update coordinates</string>
     <string name="background_task_started">The layer initialisation task started</string>
+    <string name="proceed_layer">Proceed layer</string>
 </resources>

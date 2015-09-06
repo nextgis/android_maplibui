@@ -249,6 +249,21 @@ public class TileDownloadService extends Service{
         startDownload();
     }
 
+    public void cancelDownload()
+    {
+        if (mThreadPool != null) {
+            //synchronized (lock) {
+            mThreadPool.shutdownNow();
+            try {
+                mThreadPool.awaitTermination(Constants.TERMINATE_TIME, Constants.KEEP_ALIVE_TIME_UNIT);
+                //mDrawThreadPool.purge();
+            } catch (InterruptedException e) {
+                //e.printStackTrace();
+            }
+            //}
+        }
+    }
+
     public class DownloadTask{
         protected int mLayerId;
         protected GeoEnvelope mEnvelope;
@@ -276,21 +291,6 @@ public class TileDownloadService extends Service{
 
         public int getZoomTo() {
             return mZoomTo;
-        }
-    }
-
-    public void cancelDownload()
-    {
-        if (mThreadPool != null) {
-            //synchronized (lock) {
-            mThreadPool.shutdownNow();
-            try {
-                mThreadPool.awaitTermination(Constants.TERMINATE_TIME, Constants.KEEP_ALIVE_TIME_UNIT);
-                //mDrawThreadPool.purge();
-            } catch (InterruptedException e) {
-                //e.printStackTrace();
-            }
-            //}
         }
     }
 }

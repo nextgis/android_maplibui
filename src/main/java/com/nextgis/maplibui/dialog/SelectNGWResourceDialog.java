@@ -47,6 +47,7 @@ import com.nextgis.maplib.datasource.ngw.INGWResource;
 import com.nextgis.maplib.datasource.ngw.LayerWithStyles;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGWLoginActivity;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
@@ -303,8 +304,8 @@ public class SelectNGWResourceDialog
                     newLayer.setTMSType(TMSTYPE_OSM);
                     newLayer.setVisible(true);
                     newLayer.setAccountName(connection.getName());
-                    newLayer.setMinZoom(0);
-                    newLayer.setMaxZoom(25);
+                    newLayer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
+                    newLayer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
 
                     mGroupLayer.addLayer(newLayer);
                 }
@@ -326,8 +327,8 @@ public class SelectNGWResourceDialog
                     newLayer.setRemoteId(layer.getRemoteId());
                     newLayer.setVisible(false);
                     newLayer.setAccountName(connection.getName());
-                    newLayer.setMinZoom(0);
-                    newLayer.setMaxZoom(25);
+                    newLayer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
+                    newLayer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
 
                     mGroupLayer.addLayer(newLayer);
 

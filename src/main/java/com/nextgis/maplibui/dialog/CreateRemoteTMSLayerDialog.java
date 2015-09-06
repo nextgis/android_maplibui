@@ -41,6 +41,7 @@ import android.widget.Toast;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
 
@@ -180,8 +181,8 @@ public class CreateRemoteTMSLayerDialog
                         layer.setPassword(layerPassword);
                         layer.setTMSType(tmsType);
                         layer.setVisible(true);
-                        layer.setMinZoom(0);
-                        layer.setMaxZoom(22);
+                        layer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
+                        layer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
 
                         mGroupLayer.addLayer(layer);
                         mGroupLayer.save();

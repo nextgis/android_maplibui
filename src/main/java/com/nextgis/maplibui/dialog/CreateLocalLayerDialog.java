@@ -23,12 +23,15 @@
 
 package com.nextgis.maplibui.dialog;
 
+import android.accounts.Account;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -39,14 +42,30 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.FileUtil;
+import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.mapui.LocalTMSLayerUI;
+import com.nextgis.maplibui.mapui.NGWVectorLayerUI;
 import com.nextgis.maplibui.mapui.VectorLayerUI;
 import com.nextgis.maplibui.service.LayerFillService;
 import com.nextgis.maplibui.util.ConstantsUI;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_NORMAL;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
@@ -70,15 +89,15 @@ public class CreateLocalLayerDialog
     protected final static String KEY_TMS_TYPE   = "tms_type";
     protected final static String KEY_POSITION   = "pos";
 
-    protected final static String FILE_META = "meta.json";
-    protected final static String FILE_DATA = "data.geojson";
-
     protected String     mTitle;
     protected Uri        mUri;
     protected LayerGroup mGroupLayer;
     protected int        mLayerType;
     protected String     mLayerName;
     protected Spinner    mSpinner;
+
+    protected final static String NGFP_FILE_META = "meta.json";
+    protected final static String NGFP_FILE_DATA = "data.geojson";
 
 
     public CreateLocalLayerDialog setTitle(String title)
@@ -175,13 +194,13 @@ public class CreateLocalLayerDialog
                             {
                                 mLayerName = layerName.getText().toString();
                                 String bkMessage = getString(R.string.background_task_started);
-                                if (mLayerType < 3) {
+                                if (mLayerType == VECTOR_LAYER) {
                                     VectorLayerUI layer = new VectorLayerUI(
                                             mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
                                     layer.setName(mLayerName);
-                                    layer.setVisible(false);
-                                    layer.setMinZoom(0);
-                                    layer.setMaxZoom(25);
+                                    layer.setVisible(true);
+                                    layer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
+                                    layer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
 
                                     mGroupLayer.addLayer(layer);
                                     mGroupLayer.save();
@@ -192,19 +211,23 @@ public class CreateLocalLayerDialog
                                     intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
                                     intent.putExtra(LayerFillService.KEY_URI, mUri);
                                     intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
-                                    intent.putExtra(LayerFillService.KEY_HAS_FORM, mLayerType == 2);
 
                                     getActivity().startService(intent);
 
                                     Toast.makeText(getActivity(), bkMessage, Toast.LENGTH_SHORT).show();
-                                } else {
+                                }
+                                else if(mLayerType == VECTOR_LAYER_WITH_FORM){
+                                    new CreateTask(context).execute(mLayerName);
+                                }
+                                else if(mLayerType == TMS_LAYER){
                                     int nType = mSpinner.getSelectedItemPosition();
                                     LocalTMSLayerUI layer = new LocalTMSLayerUI(
                                             mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
                                     layer.setName(mLayerName);
-                                    layer.setVisible(true);
                                     layer.setTMSType(nType == 0 ? TMSTYPE_OSM : TMSTYPE_NORMAL);
-                                    layer.setVisible(false);
+                                    layer.setVisible(true);
+                                    layer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
+                                    layer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
 
                                     mGroupLayer.addLayer(layer);
                                     mGroupLayer.save();
@@ -224,12 +247,10 @@ public class CreateLocalLayerDialog
                         }
                 )
                 .setNegativeButton(
-                        R.string.cancel, new DialogInterface.OnClickListener()
-                        {
+                        R.string.cancel, new DialogInterface.OnClickListener() {
                             public void onClick(
                                     DialogInterface dialog,
-                                    int whichButton)
-                            {
+                                    int whichButton) {
                                 // Do nothing.
                             }
                         });
@@ -255,164 +276,6 @@ public class CreateLocalLayerDialog
         super.onSaveInstanceState(outState);
     }
 
-    /* TODO: move this to appropriate classes
-    protected String createTMSLayer(
-            Context context,
-            String name,
-            String type,
-            CreateTask task)
-    {
-        try {
-            InputStream inputStream = context.getContentResolver().openInputStream(mUri);
-            if (inputStream != null) {
-
-                int nSize = inputStream.available();
-                int nIncrement = 0;
-                task.setMax(nSize);
-                byte[] buffer = new byte[Constants.IO_BUFFER_SIZE];
-
-                File outputPath = mGroupLayer.createLayerStorage();
-                ZipInputStream zis = new ZipInputStream(inputStream);
-
-                ZipEntry ze;
-                while ((ze = zis.getNextEntry()) != null) {
-                    unzipEntry(zis, ze, buffer, outputPath);
-                    nIncrement += ze.getSize();
-                    zis.closeEntry();
-                    task.setProgress(nIncrement);
-                }
-
-                //create Layer
-                LocalTMSLayerUI layer = new LocalTMSLayerUI(mGroupLayer.getContext(), outputPath);
-                layer.setName(name);
-                layer.setVisible(true);
-                layer.setTMSType(type.equals("TMS") ? TMSTYPE_NORMAL : TMSTYPE_OSM);
-
-                int nMaxLevel = 0;
-                int nMinLevel = 512;
-                final File[] zoomLevels = outputPath.listFiles();
-
-                task.setMessage(mGroupLayer.getContext().getString(R.string.message_opening));
-                task.setMax(zoomLevels.length);
-                int counter = 0;
-
-                for (File zoomLevel : zoomLevels) {
-
-                    task.setProgress(counter++);
-                    int nMaxX = 0;
-                    int nMinX = 10000000;
-                    int nMaxY = 0;
-                    int nMinY = 10000000;
-
-                    int nLevelZ = Integer.parseInt(zoomLevel.getName());
-                    if (nLevelZ > nMaxLevel) {
-                        nMaxLevel = nLevelZ;
-                    }
-                    if (nLevelZ < nMinLevel) {
-                        nMinLevel = nLevelZ;
-                    }
-                    final File[] levelsX = zoomLevel.listFiles();
-
-                    boolean bFirstTurn = true;
-                    for (File inLevelX : levelsX) {
-
-                        int nX = Integer.parseInt(inLevelX.getName());
-                        if (nX > nMaxX) {
-                            nMaxX = nX;
-                        }
-                        if (nX < nMinX) {
-                            nMinX = nX;
-                        }
-
-                        final File[] levelsY = inLevelX.listFiles();
-
-                        if (bFirstTurn) {
-                            for (File inLevelY : levelsY) {
-                                String sLevelY = inLevelY.getName();
-
-                                //Log.d(TAG, sLevelY);
-                                int nY = Integer.parseInt(
-                                        sLevelY.replace(
-                                                com.nextgis.maplib.util.Constants.TILE_EXT, ""));
-                                if (nY > nMaxY) {
-                                    nMaxY = nY;
-                                }
-                                if (nY < nMinY) {
-                                    nMinY = nY;
-                                }
-                            }
-                            bFirstTurn = false;
-                        }
-                    }
-                    layer.addLimits(nLevelZ, nMaxX, nMaxY, nMinX, nMinY);
-                }
-
-                mGroupLayer.addLayer(layer);
-                mGroupLayer.save();
-
-                return null;
-            }
-        } catch (NumberFormatException | IOException | SecurityException e) {
-            e.printStackTrace();
-            return e.getLocalizedMessage();
-        }
-
-        return mGroupLayer.getContext().getString(R.string.error_layer_create);
-    }
-
-
-    protected String createVectorLayer(
-            Context context,
-            String name,
-            CreateTask task)
-    {
-        try {
-            InputStream inputStream = context.getContentResolver().openInputStream(mUri);
-            if (inputStream != null) {
-                int nSize = inputStream.available();
-                int nIncrement = 0;
-                task.setMax(nSize);
-                //read all geojson
-
-                //TODO: use JsonReader
-                BufferedReader streamReader = new BufferedReader(
-                        new InputStreamReader(inputStream, "UTF-8"));
-                StringBuilder responseStrBuilder = new StringBuilder();
-                String inputStr;
-                while ((inputStr = streamReader.readLine()) != null) {
-                    nIncrement += inputStr.length();
-                    task.setProgress(nIncrement);
-                    responseStrBuilder.append(inputStr);
-                    if(responseStrBuilder.length() > MAX_CONTENT_LENGTH)
-                        return mGroupLayer.getContext().getString(R.string.error_layer_create);
-                }
-                task.setMessage(mGroupLayer.getContext().getString(R.string.message_opening));
-
-                VectorLayerUI layer = new VectorLayerUI(
-                        mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
-                layer.setName(name);
-                layer.setVisible(true);
-                layer.setMinZoom(0);
-                layer.setMaxZoom(25);
-
-                JSONObject geoJSONObject = new JSONObject(responseStrBuilder.toString());
-                String errorMessage = layer.createFromGeoJSON(geoJSONObject);
-                if (TextUtils.isEmpty(errorMessage)) {
-                    mGroupLayer.addLayer(layer);
-                    mGroupLayer.save();
-                }
-
-                return errorMessage;
-            }
-        } catch (JSONException | IOException | SecurityException e) {
-            e.printStackTrace();
-            return e.getLocalizedMessage();
-        }
-
-        return mGroupLayer.getContext().getString(R.string.error_layer_create);
-    }
-
-
     protected String createVectorLayerWithForm(
             Context context,
             String name,
@@ -432,7 +295,7 @@ public class CreateLocalLayerDialog
 
                 ZipEntry ze;
                 while ((ze = zis.getNextEntry()) != null) {
-                    unzipEntry(zis, ze, buffer, outputPath);
+                    FileUtil.unzipEntry(zis, ze, buffer, outputPath);
                     nIncrement += ze.getSize();
                     zis.closeEntry();
                     task.setProgress(nIncrement);
@@ -440,14 +303,15 @@ public class CreateLocalLayerDialog
                 zis.close();
 
                 //read meta.json
-                File meta = new File(outputPath, FILE_META);
+                File meta = new File(outputPath, NGFP_FILE_META);
                 String jsonText = FileUtil.readFromFile(meta);
                 JSONObject metaJson = new JSONObject(jsonText);
 
+                File dataFile = new File(outputPath, NGFP_FILE_DATA);
+                String bkMessage = getString(R.string.background_task_started);
                 //read if this local o remote source
                 boolean isNgwConnection = metaJson.has("ngw_connection");
                 if (isNgwConnection && !metaJson.isNull("ngw_connection")) {
-                    File dataFile = new File(outputPath, FILE_DATA);
                     FileUtil.deleteRecursive(dataFile);
                     JSONObject connection = metaJson.getJSONObject("ngw_connection");
 
@@ -468,21 +332,16 @@ public class CreateLocalLayerDialog
                     FileUtil.deleteRecursive(meta);
 
                     String accountName = "";
-                    try {
-                        URI uri = new URI(url);
+                    URI uri = new URI(url);
 
-                        if (uri.getHost() != null && uri.getHost().length() > 0) {
-                            accountName += uri.getHost();
-                        }
-                        if (uri.getPort() != 80 && uri.getPort() > 0) {
-                            accountName += ":" + uri.getPort();
-                        }
-                        if (uri.getPath() != null && uri.getPath().length() > 0) {
-                            accountName += uri.getPath();
-                        }
-
-                    } catch (URISyntaxException e) {
-                        e.printStackTrace();
+                    if (uri.getHost() != null && uri.getHost().length() > 0) {
+                        accountName += uri.getHost();
+                    }
+                    if (uri.getPort() != 80 && uri.getPort() > 0) {
+                        accountName += ":" + uri.getPort();
+                    }
+                    if (uri.getPath() != null && uri.getPath().length() > 0) {
+                        accountName += uri.getPath();
                     }
 
                     IGISApplication app = (IGISApplication) context.getApplicationContext();
@@ -513,121 +372,51 @@ public class CreateLocalLayerDialog
                     layer.setRemoteId(resourceId);
                     layer.setVisible(true);
                     layer.setAccountName(accountName);
-                    layer.setMinZoom(0);
-                    layer.setMaxZoom(100);
+                    layer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
+                    layer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
 
                     mGroupLayer.addLayer(layer);
                     mGroupLayer.save();
 
-                    task.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                    task.setIndeterminate(true);
+                    // create or connect to fill layer with features
+                    Intent intent = new Intent(getActivity(), LayerFillService.class);
+                    intent.setAction(LayerFillService.ACTION_ADD_TASK);
+                    intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
+                    intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
 
-                    return layer.download();
+                    getActivity().startService(intent);
                 } else {
+                    // prevent overwrite meta.json by layer save routine
+                    meta.renameTo(new File(meta.getParentFile(), LayerFillService.NGFP_META));
+
                     VectorLayerUI layer = new VectorLayerUI(mGroupLayer.getContext(), outputPath);
                     layer.setName(name);
                     layer.setVisible(true);
-                    layer.setMinZoom(0);
-                    layer.setMaxZoom(100);
+                    layer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
+                    layer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
 
-                    //TODO: use JsonReader
-                    File dataFile = new File(outputPath, FILE_DATA);
-                    String jsonContent = FileUtil.readFromFile(dataFile);
+                    mGroupLayer.addLayer(layer);
+                    mGroupLayer.save();
 
-                    FileUtil.deleteRecursive(dataFile);
+                    Intent intent = new Intent(getActivity(), LayerFillService.class);
+                    intent.setAction(LayerFillService.ACTION_ADD_TASK);
+                    intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
+                    intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
+                    intent.putExtra(LayerFillService.KEY_PATH, new File(layer.getPath(), NGFP_FILE_DATA));
+                    intent.putExtra(LayerFillService.KEY_DELETE_SRC_FILE, true);
 
-                    JSONObject geoJSONObject = new JSONObject(jsonContent);
-                    JSONArray geoJSONFeatures = geoJSONObject.getJSONArray(GEOJSON_TYPE_FEATURES);
-                    if (0 == geoJSONFeatures.length()) {
-                        //create empty layer
-
-                        //read fields
-                        List<Field> fields =
-                                NGWVectorLayer.getFieldsFromJson(metaJson.getJSONArray(NGWUtil.NGWKEY_FIELDS));
-                        //read geometry type
-                        String geomTypeString = metaJson.getString("geometry_type");
-                        int geomType = GeoGeometryFactory.typeFromString(geomTypeString);
-
-                        //read SRS -- not need as we will be fill layer with 3857
-                        //JSONObject srs = metaJson.getJSONObject(NGWUtil.NGWKEY_SRS);
-                        //int nSRS = srs.getInt(NGWUtil.NGWKEY_ID);
-
-                        FileUtil.deleteRecursive(meta);
-
-                        mGroupLayer.addLayer(layer);
-                        mGroupLayer.save();
-
-                        return layer.initialize(fields, new ArrayList<Feature>(), geomType);
-                    } else {
-
-                        //read fields
-                        List<Field> fields =
-                                NGWVectorLayer.getFieldsFromJson(metaJson.getJSONArray(NGWUtil.NGWKEY_FIELDS));
-                        //read geometry type
-                        String geomTypeString = metaJson.getString("geometry_type");
-                        int geomType = GeoGeometryFactory.typeFromString(geomTypeString);
-
-                        //read SRS -- not need as we will be fill layer with 3857
-                        JSONObject srs = metaJson.getJSONObject("srs");
-                        int nSRS = srs.getInt(NGWUtil.NGWKEY_ID);
-
-                        FileUtil.deleteRecursive(meta);
-                        String errorMessage =
-                                layer.createFromGeoJSON(geoJSONObject, fields, geomType, nSRS);
-                        if (TextUtils.isEmpty(errorMessage)) {
-                            mGroupLayer.addLayer(layer);
-                            mGroupLayer.save();
-                        }
-                        return errorMessage;
-                    }
+                    getActivity().startService(intent);
                 }
+
+                return bkMessage;
             }
-        } catch (JSONException | IOException | SQLiteException | SecurityException e) {
+        } catch (JSONException | IOException | URISyntaxException | SecurityException e) {
             e.printStackTrace();
             return e.getLocalizedMessage();
         }
 
         return mGroupLayer.getContext().getString(R.string.error_layer_create);
     }
-
-
-    protected void unzipEntry(
-            ZipInputStream zis,
-            ZipEntry entry,
-            byte[] buffer,
-            File outputDir)
-            throws IOException
-    {
-        String entryName = entry.getName();
-        int pos = entryName.indexOf('/');
-
-        //for backward capability where the zip has root directory named "mapnik"
-        if (pos != NOT_FOUND) {
-            String folderName = entryName.substring(0, pos);
-            if (!TextUtils.isDigitsOnly(folderName)) {
-                entryName = entryName.substring(pos, entryName.length());
-            }
-        }
-
-        if (entry.isDirectory()) {
-            FileUtil.createDir(new File(outputDir, entryName));
-            return;
-        }
-
-        //for prevent searching by media library
-        entryName = entryName.replace(".png", com.nextgis.maplib.util.Constants.TILE_EXT);
-        entryName = entryName.replace(".jpg", com.nextgis.maplib.util.Constants.TILE_EXT);
-        entryName = entryName.replace(".jpeg", com.nextgis.maplib.util.Constants.TILE_EXT);
-
-        File outputFile = new File(outputDir, entryName);
-        if (!outputFile.getParentFile().exists()) {
-            FileUtil.createDir(outputFile.getParentFile());
-        }
-        FileOutputStream fout = new FileOutputStream(outputFile);
-        FileUtil.copyStream(zis, fout, buffer, Constants.IO_BUFFER_SIZE);
-        fout.close();
-    }
-
 
     protected class CreateTask
             extends AsyncTask<String, String, String>
@@ -658,15 +447,9 @@ public class CreateLocalLayerDialog
         @Override
         protected String doInBackground(String... names)
         {
-            if (mLayerType == VECTOR_LAYER) {
-                //create local layer from json
-                return createVectorLayer(mContext, names[0], this);
-            } else if (mLayerType == VECTOR_LAYER_WITH_FORM) {
+            if (mLayerType == VECTOR_LAYER_WITH_FORM) {
                 //create local layer from ngfb
                 return createVectorLayerWithForm(mContext, names[0], this);
-            } else if (mLayerType == TMS_LAYER) {
-                //create local TMS layer
-                return createTMSLayer(mContext, names[0], names[1], this);
             }
             return null;
         }
@@ -726,5 +509,5 @@ public class CreateLocalLayerDialog
         {
             mProgressDialog.setIndeterminate(b);
         }
-    }*/
+    }
 }
