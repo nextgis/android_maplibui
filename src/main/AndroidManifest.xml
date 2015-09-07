@@ -95,9 +95,8 @@
             android:exported="true"
             />
 
-        <!--android:process=":fill_layer"-->
+        <!-- android:process=":fill_layer" -->
         <service
-
             android:name="com.nextgis.maplibui.service.LayerFillService"
             android:enabled="true"
             android:exported="true"

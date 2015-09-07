@@ -96,6 +96,7 @@ public class LayerFillService extends Service implements IProgressor {
                         Uri uri = intent.getParcelableExtra(KEY_URI);
                         File path = intent.getParcelableExtra(KEY_PATH);
                         boolean deleteSourceFile = intent.getBooleanExtra(KEY_DELETE_SRC_FILE, false);
+
                         if(layerType == Constants.LAYERTYPE_LOCAL_VECTOR){
                             if(null != uri)
                                 addVectorLayerTask(layerId, uri);
@@ -147,17 +148,24 @@ public class LayerFillService extends Service implements IProgressor {
             return;
         }
 
-        LayerFillTask task = mQueue.remove(0);
-        String notifyTitle = task.getDescription();
+        final  IProgressor progressor = this;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                LayerFillTask task = mQueue.remove(0);
+                String notifyTitle = task.getDescription();
 
-        mBuilder.setWhen(System.currentTimeMillis())
-                .setContentTitle(notifyTitle)
-                .setTicker(notifyTitle);
-        mNotifyManager.notify(FILL_NOTIFICATION_ID, mBuilder.build());
+                mBuilder.setWhen(System.currentTimeMillis())
+                        .setContentTitle(notifyTitle)
+                        .setTicker(notifyTitle);
+                mNotifyManager.notify(FILL_NOTIFICATION_ID, mBuilder.build());
+                android.os.Process.setThreadPriority( Constants.DEFAULT_DOWNLOAD_THREAD_PRIORITY );
+                task.execute(progressor);
 
-        task.execute(this);
+                startNextTask();
+            }
+        }).start();
 
-        startNextTask();
     }
 
 
@@ -356,7 +364,6 @@ public class LayerFillService extends Service implements IProgressor {
                 return;
             try {
                 ngwVectorLayer.createFromNGW(progressor);
-
             } catch (JSONException | IOException | SQLiteException | NGException e) {
                 e.printStackTrace();
                 if(null != progressor){
