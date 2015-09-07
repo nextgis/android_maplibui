@@ -35,6 +35,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -77,6 +78,8 @@ public class LayerFillService extends Service implements IProgressor {
                 .setOngoing(true)
                 .addAction( android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.tracks_stop), stopService);
         mIsCanceled = false;
+
+        mQueue = new LinkedList<>();
     }
 
     @Override

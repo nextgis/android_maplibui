@@ -38,6 +38,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.location.Location;
 import android.preference.PreferenceManager;
 import android.support.v7.internal.widget.ThemeUtils;
+
 import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.GeoEnvelope;
@@ -168,7 +169,7 @@ public class CurrentLocationOverlay
                 mIsInScreenBounds = mapDrawable.screenToMap(screenBounds).contains(newPoint);
 
                 // autopan
-                if (mIsAutopanningEnabled && !mMapViewOverlays.isLockMap()) {
+                /*if (mIsAutopanningEnabled && !mMapViewOverlays.isLockMap()) {
                     GeoPoint center = mMapViewOverlays.getMapCenter();
                     double dx = lastMarkerPosition.getX() - newPoint.getX();
                     double dy = lastMarkerPosition.getY() - newPoint.getY();
@@ -177,7 +178,7 @@ public class CurrentLocationOverlay
 
                     if (wasInBounds)
                         mMapViewOverlays.panTo(center);
-                }
+                }*/
             } else {
                 mIsAccuracyMarkerBiggest = false;
             }
