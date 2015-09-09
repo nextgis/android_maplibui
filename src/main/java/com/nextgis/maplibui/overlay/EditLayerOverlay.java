@@ -188,26 +188,35 @@ public class EditLayerOverlay
             }
             mDrawItems.setSelectedPointIndex(0);
             mDrawItems.setSelectedRing(0);
-            mLayer.hideFeature(mItem.getFeatureId());
-            mMapViewOverlays.postInvalidate();
+            if(null != mLayer && null != mItem) {
+                mLayer.hideFeature(mItem.getFeatureId());
+                mMapViewOverlays.postInvalidate();
+            }
         } else if (mMode == MODE_NONE) {
-            mLayer.showFeature(mItem.getFeatureId());
-            mLayer = null;
-            mItem = null;
             mDrawItems.setSelectedPointIndex(Constants.NOT_FOUND);
             mDrawItems.setSelectedRing(Constants.NOT_FOUND);
-            mMapViewOverlays.postInvalidate();
+            if(null != mLayer && null != mItem) {
+                mLayer.showFeature(mItem.getFeatureId());
+                mMapViewOverlays.postInvalidate();
+            }
+            mLayer = null;
+            mItem = null;
         } else if (mMode == MODE_HIGHLIGHT) {
-            mLayer.showFeature(mItem.getFeatureId());
-            mMapViewOverlays.postInvalidate();
+            if(null != mLayer && null != mItem) {
+                mLayer.showFeature(mItem.getFeatureId());
+                mMapViewOverlays.postInvalidate();
+            }
         } else if (mMode == MODE_EDIT_BY_WALK) {
             for (EditEventListener listener : mListeners) {
                 listener.onStartEditSession();
             }
-            mLayer.hideFeature(mItem.getFeatureId());
+
             mDrawItems.setSelectedPointIndex(0);
             mDrawItems.setSelectedRing(0);
-            mMapViewOverlays.postInvalidate();
+            if(null != mLayer && null != mItem) {
+                mLayer.hideFeature(mItem.getFeatureId());
+                mMapViewOverlays.postInvalidate();
+            }
         }
     }
 
