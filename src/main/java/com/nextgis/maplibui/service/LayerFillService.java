@@ -60,6 +60,7 @@ public class LayerFillService extends Service implements IProgressor {
     protected String mProgressMessage;
     protected boolean mIndeterminate;
     protected boolean mIsCanceled;
+    protected boolean mIsRunnig;
 
     @Override
     public void onCreate() {
@@ -67,7 +68,7 @@ public class LayerFillService extends Service implements IProgressor {
         Bitmap largeIcon =
                 BitmapFactory.decodeResource(getResources(), R.drawable.ic_notification_download);
 
-        Intent intentStop = new Intent(this, TileDownloadService.class);
+        Intent intentStop = new Intent(this, LayerFillService.class);
         intentStop.setAction(ACTION_STOP);
         PendingIntent stopService = PendingIntent.getService(this, 0, intentStop,
                 PendingIntent.FLAG_UPDATE_CURRENT);
@@ -80,6 +81,7 @@ public class LayerFillService extends Service implements IProgressor {
         mIsCanceled = false;
 
         mQueue = new LinkedList<>();
+        mIsRunnig = false;
     }
 
     @Override
@@ -110,7 +112,7 @@ public class LayerFillService extends Service implements IProgressor {
                             addTMSTask(layerId, uri);
                         }
 
-                        if(mQueue.size() == 1){
+                        if(!mIsRunnig){
                             startNextTask();
                         }
 
@@ -152,6 +154,7 @@ public class LayerFillService extends Service implements IProgressor {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                mIsRunnig = true;
                 LayerFillTask task = mQueue.remove(0);
                 String notifyTitle = task.getDescription();
 
@@ -162,6 +165,7 @@ public class LayerFillService extends Service implements IProgressor {
                 android.os.Process.setThreadPriority( Constants.DEFAULT_DOWNLOAD_THREAD_PRIORITY );
                 task.execute(progressor);
 
+                mIsRunnig = false;
                 startNextTask();
             }
         }).start();
