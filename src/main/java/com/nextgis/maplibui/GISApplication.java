@@ -207,28 +207,15 @@ public abstract class GISApplication extends Application
     }
 
     @Override
-    public String getAccountUrl(Account account)
-    {
-        if(!checkPermission("android.permission.AUTHENTICATE_ACCOUNTS")){
-            return "";
-        }
-
-        AccountManager accountManager = AccountManager.get(this);
-        return accountManager.getUserData(account, "url");
+    public String getAccountUrl(Account account) {
+        return getAccountUserData(account, "url");
     }
 
 
     @Override
-    public String getAccountLogin(Account account)
-    {
-        if(!checkPermission("android.permission.AUTHENTICATE_ACCOUNTS")){
-            return "";
-        }
-
-        AccountManager accountManager = AccountManager.get(this);
-        return accountManager.getUserData(account, "login");
+    public String getAccountLogin(Account account) {
+        return getAccountUserData(account, "login");
     }
-
 
     @Override
     public String getAccountPassword(Account account)
@@ -311,5 +298,15 @@ public abstract class GISApplication extends Application
             AccountManager accountManager = AccountManager.get(this);
             accountManager.setUserData(account, key, value);
         }
+    }
+
+    @Override
+    public String getAccountUserData(Account account, String key) {
+        if(!checkPermission("android.permission.AUTHENTICATE_ACCOUNTS")){
+            return "";
+        }
+
+        AccountManager accountManager = AccountManager.get(this);
+        return accountManager.getUserData(account, key);
     }
 }
