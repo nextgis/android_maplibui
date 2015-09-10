@@ -228,7 +228,8 @@ public class EditLayerOverlay
         mLayer = layer;
         if(featureId == Constants.NOT_FOUND){
             mItem = null;
-            setMode(MODE_NONE);
+            if(null == mLayer)
+                setMode(MODE_NONE);
         }
         else {
             mItem = new EditLayerCacheItem(featureId);
