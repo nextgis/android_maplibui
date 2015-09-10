@@ -273,6 +273,8 @@ public class ModifyAttributesActivity
                 case GeoConstants.FTReal:
                     control = (TextEdit)getLayoutInflater().inflate(R.layout.template_textedit, null);
                     break;
+                case GeoConstants.FTDate:
+                case GeoConstants.FTTime:
                 case GeoConstants.FTDateTime:
                     control = (DateTime)getLayoutInflater().inflate(R.layout.template_datetime, null);
                     break;
