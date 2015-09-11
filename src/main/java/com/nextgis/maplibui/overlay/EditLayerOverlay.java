@@ -885,7 +885,7 @@ public class EditLayerOverlay
         setHasEdits(false);
         mMode = MODE_EDIT;
         if (mItem.getFeatureId() == Constants.NOT_FOUND) {
-            mItem.setGeometry(null);
+            mItem = null;
             mDrawItems.clear();
             mMapViewOverlays.postInvalidate();
         } else {
@@ -913,6 +913,8 @@ public class EditLayerOverlay
                 vectorLayerUI.showEditForm(mContext, mItem.getFeatureId(), mItem.getGeometry());
             }
         }
+        mLayer.showFeature(mItem.getFeatureId());
+        mDrawItems.clear();
         mItem = null;
     }
 
@@ -997,6 +999,7 @@ public class EditLayerOverlay
             return;
         }
 
+        mLayer.showFeature(mItem.getFeatureId());
         setFeature(mLayer, Constants.NOT_FOUND);
 
         new UndoBarController.UndoBar((android.app.Activity) mContext).message(
@@ -1108,6 +1111,8 @@ public class EditLayerOverlay
         else {
             mLayer.swapFeaturesVisibility(previousFeatureId, mItem.getFeatureId());
         }
+
+        mMapViewOverlays.postInvalidate();
     }
 
 
@@ -1155,6 +1160,7 @@ public class EditLayerOverlay
 
             setHasEdits(true);
             mMode = MODE_EDIT;
+            mDrawItems.fillGeometry(0, mItem.getGeometry(), mMapViewOverlays.getMap());
             updateMap(); // redraw the map
         }
     }
