@@ -260,6 +260,13 @@ public class EditLayerOverlay
             return;
         }
 
+        GeoGeometry geom = mItem.getGeometry();
+        if (null == geom) {
+            return;
+        }
+
+        fillDrawItems(geom);
+
         switch (mItem.getGeometryType()) {
             case GeoConstants.GTPoint:
             case GeoConstants.GTMultiPoint:
@@ -569,6 +576,7 @@ public class EditLayerOverlay
         setHasEdits(true);
 
         mDrawItems.setSelectedPoint(x, y);
+        mDrawItems.fillGeometry(0, mItem.getGeometry(), mMapViewOverlays.getMap());
 
         updateMap();
     }
@@ -744,6 +752,10 @@ public class EditLayerOverlay
 
                                     mDrawItems.setSelectedRing(0);
                                     mDrawItems.setSelectedPointIndex(0);
+
+                                    //set new coordinates to GeoPoint from screen coordinates
+                                    mDrawItems.fillGeometry(0, mItem.getGeometry(), mapDrawable);
+
                                     updateMap();
                                 /**
                                  * Add new point
@@ -776,6 +788,9 @@ public class EditLayerOverlay
                                         int lastIndex = mDrawItems.getLastPointIndex();
                                         mDrawItems.setSelectedPointIndex(lastIndex);
                                     }
+
+                                    //set new coordinates to GeoPoint from screen coordinates
+                                    mDrawItems.fillGeometry(0, mItem.getGeometry(), mapDrawable);
                                     updateMap();
                                 /**
                                  * Delete geometry
@@ -802,6 +817,13 @@ public class EditLayerOverlay
                                     setHasEdits(true);
 
                                     mDrawItems.deleteSelectedPoint();
+
+                                    GeoGeometry geom = mDrawItems.fillGeometry(
+                                            0, mItem.getGeometry(), mMapViewOverlays.getMap());
+                                    if (null == geom) {
+                                        mItem.setGeometry(null);
+                                    }
+
                                     updateMap();
                                 }
                         /*else if(menuItem.getItemId() == R.id.menu_edit_track){
