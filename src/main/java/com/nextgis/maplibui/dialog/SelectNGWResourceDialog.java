@@ -114,7 +114,7 @@ public class SelectNGWResourceDialog
 
         if (null == savedInstanceState) {
             //first launch, lets fill connections array
-            Connections connections = fillConnections();
+            Connections connections = fillConnections(context);
             mListAdapter.setConnections(connections);
             mListAdapter.setCurrentResourceId(connections.getId());
             mListAdapter.setCheckState(new ArrayList<CheckState>());
@@ -159,7 +159,7 @@ public class SelectNGWResourceDialog
                                     DialogInterface dialog,
                                     int id)
                             {
-                                createLayers();
+                                createLayers(context);
                             }
                         })
                 .setNegativeButton(
@@ -194,11 +194,11 @@ public class SelectNGWResourceDialog
     }
 
 
-    protected Connections fillConnections()
+    protected Connections fillConnections(Context context)
     {
         Connections connections = new Connections(getString(R.string.accounts));
         final AccountManager accountManager =
-                AccountManager.get(getActivity().getApplicationContext());
+                AccountManager.get(context.getApplicationContext());
         for (Account account : accountManager.getAccountsByType(NGW_ACCOUNT_TYPE)) {
             String url = accountManager.getUserData(account, "url");
             String password = accountManager.getPassword(account);
@@ -209,9 +209,9 @@ public class SelectNGWResourceDialog
     }
 
 
-    public void onAddAccount()
+    public void onAddAccount(Context context)
     {
-        Intent intent = new Intent(getActivity(), NGWLoginActivity.class);
+        Intent intent = new Intent(context, NGWLoginActivity.class);
         startActivityForResult(intent, ADD_ACCOUNT_CODE);
     }
 
@@ -269,7 +269,7 @@ public class SelectNGWResourceDialog
     }
 
 
-    public void createLayers()
+    public void createLayers(Context context)
     {
         List<CheckState> checkStates = mListAdapter.getCheckState();
         Connections connections = mListAdapter.getConnections();
@@ -286,7 +286,7 @@ public class SelectNGWResourceDialog
 
                     if (layerURL == null) {
                         Toast.makeText(
-                                getActivity(), getString(R.string.error_layer_create),
+                                context, getString(R.string.error_layer_create),
                                 Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -333,20 +333,20 @@ public class SelectNGWResourceDialog
                     mGroupLayer.addLayer(newLayer);
 
                     // create or connect to fill layer with features
-                    Intent intent = new Intent(getActivity(), LayerFillService.class);
+                    Intent intent = new Intent(context, LayerFillService.class);
                     intent.setAction(LayerFillService.ACTION_ADD_TASK);
                     intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
                     intent.putExtra(LayerFillService.KEY_INPUT_TYPE, newLayer.getType());
 
-                    getActivity().startService(intent);
+                    context.startService(intent);
 
-                    Toast.makeText(getActivity(), getString(R.string.background_task_started), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, getString(R.string.background_task_started), Toast.LENGTH_SHORT).show();
                 }
             }
         }
         mGroupLayer.save();
 
-        Toast.makeText(getActivity(), getString(R.string.message_layer_created), Toast.LENGTH_SHORT)
+        Toast.makeText(context, getString(R.string.message_layer_created), Toast.LENGTH_SHORT)
                 .show();
     }
 

@@ -190,21 +190,18 @@ public class EditLayerOverlay
             mDrawItems.setSelectedRing(0);
             if(null != mLayer && null != mItem) {
                 mLayer.hideFeature(mItem.getFeatureId());
-                mMapViewOverlays.postInvalidate();
             }
         } else if (mMode == MODE_NONE) {
             mDrawItems.setSelectedPointIndex(Constants.NOT_FOUND);
             mDrawItems.setSelectedRing(Constants.NOT_FOUND);
             if(null != mLayer && null != mItem) {
-                mLayer.showFeature(mItem.getFeatureId());
-                mMapViewOverlays.postInvalidate();
+                mLayer.showAllFeatures();
             }
             mLayer = null;
             mItem = null;
         } else if (mMode == MODE_HIGHLIGHT) {
             if(null != mLayer && null != mItem) {
                 mLayer.showFeature(mItem.getFeatureId());
-                mMapViewOverlays.postInvalidate();
             }
         } else if (mMode == MODE_EDIT_BY_WALK) {
             for (EditEventListener listener : mListeners) {
@@ -215,7 +212,6 @@ public class EditLayerOverlay
             mDrawItems.setSelectedRing(0);
             if(null != mLayer && null != mItem) {
                 mLayer.hideFeature(mItem.getFeatureId());
-                mMapViewOverlays.postInvalidate();
             }
         }
     }
@@ -1041,22 +1037,7 @@ public class EditLayerOverlay
             return;
         }
 
-        double dMinX = event.getX() - mTolerancePX;
-        double dMaxX = event.getX() + mTolerancePX;
-        double dMinY = event.getY() - mTolerancePX;
-        double dMaxY = event.getY() + mTolerancePX;
-        GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
-        //1. search current geometry point
-        if (null != mItem) {
-            if (mDrawItems.intersects(screenEnv)) {
-                mMapViewOverlays.postInvalidate();
-                return;
-            }
-        }
-
-        if (!mHasEdits) {
-            selectGeometryInScreenCoordinates(event.getX(), event.getY());
-        }
+        selectGeometryInScreenCoordinates(event.getX(), event.getY());
     }
 
 
@@ -1075,6 +1056,9 @@ public class EditLayerOverlay
             return;
         }
 
+        if(mHasEdits) // prevent select another geometry before saving current edited one.
+            return;
+
         //2 select another geometry
         GeoEnvelope mapEnv = mMapViewOverlays.screenToMap(screenEnv);
         if (null == mapEnv) {
@@ -1084,14 +1068,24 @@ public class EditLayerOverlay
         if (items.isEmpty()) {
             return;
         }
+
+        long previousFeatureId = Constants.NOT_FOUND;
+        if(null != mItem)
+            previousFeatureId = mItem.getFeatureId();
         mItem = new EditLayerCacheItem(items.get(0));
+        fillDrawItems(mItem.getGeometry());
 
         mDrawItems.setSelectedPointIndex(0);
         if (mMode != MODE_HIGHLIGHT) {
             mDrawItems.setSelectedRing(0);
         }
 
-        mMapViewOverlays.postInvalidate();
+        if(previousFeatureId == Constants.NOT_FOUND) {
+            mLayer.hideFeature(mItem.getFeatureId());
+        }
+        else {
+            mLayer.swapFeaturesVisibility(previousFeatureId, mItem.getFeatureId());
+        }
     }
 
 

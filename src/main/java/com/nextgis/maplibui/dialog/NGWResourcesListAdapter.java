@@ -38,6 +38,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.datasource.ngw.Connections;
 import com.nextgis.maplib.datasource.ngw.INGWResource;
@@ -515,7 +516,7 @@ public class NGWResourcesListAdapter
         if (mCurrentResource.getType() == Connection.NGWResourceTypeConnections) {
             if (i >= mCurrentResource.getChildrenCount()) {
                 //start add account activity
-                mSelectNGWResourceDialog.onAddAccount();
+                mSelectNGWResourceDialog.onAddAccount(mSelectNGWResourceDialog.getActivity());
             } else {
                 Connection connection = (Connection) mCurrentResource.getChild(i);
                 mCurrentResource = connection;

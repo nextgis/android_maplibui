@@ -206,15 +206,15 @@ public class CreateLocalLayerDialog
                                     mGroupLayer.save();
 
                                     // create or connect to fill layer with features
-                                    Intent intent = new Intent(getActivity(), LayerFillService.class);
+                                    Intent intent = new Intent(context, LayerFillService.class);
                                     intent.setAction(LayerFillService.ACTION_ADD_TASK);
                                     intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
                                     intent.putExtra(LayerFillService.KEY_URI, mUri);
                                     intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
 
-                                    getActivity().startService(intent);
+                                    context.startService(intent);
 
-                                    Toast.makeText(getActivity(), bkMessage, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, bkMessage, Toast.LENGTH_SHORT).show();
                                 }
                                 else if(mLayerType == VECTOR_LAYER_WITH_FORM){
                                     new CreateTask(context).execute(mLayerName);
@@ -233,15 +233,15 @@ public class CreateLocalLayerDialog
                                     mGroupLayer.save();
 
                                     // create or connect to fill layer with features
-                                    Intent intent = new Intent(getActivity(), LayerFillService.class);
+                                    Intent intent = new Intent(context, LayerFillService.class);
                                     intent.setAction(LayerFillService.ACTION_ADD_TASK);
                                     intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
                                     intent.putExtra(LayerFillService.KEY_URI, mUri);
                                     intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
 
-                                    getActivity().startService(intent);
+                                    context.startService(intent);
 
-                                    Toast.makeText(getActivity(), bkMessage, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, bkMessage, Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }
@@ -308,7 +308,7 @@ public class CreateLocalLayerDialog
                 JSONObject metaJson = new JSONObject(jsonText);
 
                 File dataFile = new File(outputPath, NGFP_FILE_DATA);
-                String bkMessage = getString(R.string.background_task_started);
+                String bkMessage = context.getString(R.string.background_task_started);
                 //read if this local o remote source
                 boolean isNgwConnection = metaJson.has("ngw_connection");
                 if (isNgwConnection && !metaJson.isNull("ngw_connection")) {
@@ -379,12 +379,12 @@ public class CreateLocalLayerDialog
                     mGroupLayer.save();
 
                     // create or connect to fill layer with features
-                    Intent intent = new Intent(getActivity(), LayerFillService.class);
+                    Intent intent = new Intent(context, LayerFillService.class);
                     intent.setAction(LayerFillService.ACTION_ADD_TASK);
                     intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
                     intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
 
-                    getActivity().startService(intent);
+                    context.startService(intent);
                 } else {
                     // prevent overwrite meta.json by layer save routine
                     meta.renameTo(new File(meta.getParentFile(), LayerFillService.NGFP_META));
@@ -398,14 +398,14 @@ public class CreateLocalLayerDialog
                     mGroupLayer.addLayer(layer);
                     mGroupLayer.save();
 
-                    Intent intent = new Intent(getActivity(), LayerFillService.class);
+                    Intent intent = new Intent(context, LayerFillService.class);
                     intent.setAction(LayerFillService.ACTION_ADD_TASK);
                     intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
                     intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
-                    intent.putExtra(LayerFillService.KEY_PATH, new File(layer.getPath(), NGFP_FILE_DATA));
+                    intent.putExtra(LayerFillService.KEY_PATH, new File(layer.getPath(), NGFP_FILE_DATA).toString());
                     intent.putExtra(LayerFillService.KEY_DELETE_SRC_FILE, true);
 
-                    getActivity().startService(intent);
+                    context.startService(intent);
                 }
 
                 return bkMessage;
