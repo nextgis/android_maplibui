@@ -308,6 +308,7 @@ public class SelectNGWResourceDialog
                     newLayer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
 
                     mGroupLayer.addLayer(newLayer);
+                    mGroupLayer.save();
                 }
             }
 
@@ -325,17 +326,18 @@ public class SelectNGWResourceDialog
                             mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
                     newLayer.setName(layerName);
                     newLayer.setRemoteId(layer.getRemoteId());
-                    newLayer.setVisible(false);
+                    newLayer.setVisible(true);
                     newLayer.setAccountName(connection.getName());
                     newLayer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
                     newLayer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
 
                     mGroupLayer.addLayer(newLayer);
+                    mGroupLayer.save();
 
                     // create or connect to fill layer with features
                     Intent intent = new Intent(context, LayerFillService.class);
                     intent.setAction(LayerFillService.ACTION_ADD_TASK);
-                    intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
+                    intent.putExtra(ConstantsUI.KEY_LAYER_ID, newLayer.getId());
                     intent.putExtra(LayerFillService.KEY_INPUT_TYPE, newLayer.getType());
 
                     context.startService(intent);

@@ -70,7 +70,7 @@ import com.nextgis.maplibui.api.ISimpleControl;
 import com.nextgis.maplibui.control.DateTime;
 import com.nextgis.maplibui.control.TextEdit;
 import com.nextgis.maplibui.control.TextLabel;
-import com.nextgis.maplibui.formcontrol.PhotoGallery;
+import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.IOException;

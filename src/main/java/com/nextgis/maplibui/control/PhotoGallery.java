@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui.formcontrol;
+package com.nextgis.maplibui.control;
 
 import android.app.Activity;
 import android.content.Context;

@@ -41,7 +41,7 @@ import com.nextgis.maplibui.formcontrol.Combobox;
 import com.nextgis.maplibui.formcontrol.DateTime;
 import com.nextgis.maplibui.formcontrol.DoubleCombobox;
 import com.nextgis.maplibui.formcontrol.DoubleComboboxValue;
-import com.nextgis.maplibui.formcontrol.PhotoGallery;
+import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.formcontrol.RadioGroup;
 import com.nextgis.maplibui.formcontrol.Space;
 import com.nextgis.maplibui.formcontrol.TextEdit;
@@ -109,8 +109,20 @@ public class FormBuilderModifyAttributesActivity
                         elements = tab.getJSONArray(JSON_ALBUM_ELEMENTS_KEY);
                     }
 
-                    if (!isLand && !tab.isNull(JSON_PORTRAIT_ELEMENTS_KEY)) {
-                        elements = tab.getJSONArray(JSON_PORTRAIT_ELEMENTS_KEY);
+                    if(null == elements) {
+                        if (!isLand && !tab.isNull(JSON_PORTRAIT_ELEMENTS_KEY)) {
+                            elements = tab.getJSONArray(JSON_PORTRAIT_ELEMENTS_KEY);
+                        }
+                    }
+
+                    if(null == elements) {
+                        if(!tab.isNull(JSON_ALBUM_ELEMENTS_KEY)) {
+                            elements = tab.getJSONArray(JSON_ALBUM_ELEMENTS_KEY);
+                        }
+
+                        if(!tab.isNull(JSON_PORTRAIT_ELEMENTS_KEY)) {
+                            elements = tab.getJSONArray(JSON_ALBUM_ELEMENTS_KEY);
+                        }
                     }
 
                     if (null != elements && elements.length() > 0) {
