@@ -143,7 +143,44 @@
             android:layout_weight="1"/>
     </LinearLayout>
 
-    <TextView
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/rebuild_cache"
+                android:id="@+id/textView2"
+                android:layout_margin="5dp"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="5dp">
+
+                <ProgressBar
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/rebuildCacheProgressBar"
+                    android:layout_weight="1"
+                    android:layout_margin="5dp"/>
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/buildCacheButton"
+                    android:background="?attr/ic_apply"
+                    android:layout_margin="5dp"/>
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/cancelBuildCahceButton"
+                    android:background="?attr/ic_cancel"
+                    android:layout_margin="5dp"/>
+            </LinearLayout>
+
+            <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/displaySettings"

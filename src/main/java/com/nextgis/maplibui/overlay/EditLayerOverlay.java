@@ -508,7 +508,7 @@ public class EditLayerOverlay
                 }
             }
         } else {
-            mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_apply);
+            mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_apply_dark);
             mCurrentToolbar.setNavigationContentDescription(R.string.apply);
 
             //hide cancel button as it has no sense at this state

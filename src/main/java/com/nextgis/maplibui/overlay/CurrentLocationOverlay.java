@@ -63,7 +63,7 @@ public class CurrentLocationOverlay
 
     private GpsEventSource mGpsEventSource;
     private Location       mCurrentLocation;
-    private boolean        mIsInBounds, mIsInScreenBounds;
+    private boolean        mIsInBounds; //, mIsInScreenBounds;
     private boolean mIsAutopanningEnabled = false;
     private boolean mIsAccuracyEnabled = true;
     private boolean mIsAccuracyMarkerBiggest;
@@ -164,9 +164,10 @@ public class CurrentLocationOverlay
                 // set marker in current map and screen bounds flags
                 newPoint = mMarker.getCoordinates(GeoConstants.CRS_WEB_MERCATOR);
                 mIsInBounds = mapDrawable.getCurrentBounds().contains(newPoint);
-                boolean wasInBounds = mIsInScreenBounds;
-                GeoEnvelope screenBounds = mapDrawable.getFullScreenBounds();
-                mIsInScreenBounds = mapDrawable.screenToMap(screenBounds).contains(newPoint);
+
+                //boolean wasInBounds = mIsInScreenBounds;
+                //GeoEnvelope screenBounds = mapDrawable.getFullScreenBounds();
+                //mIsInScreenBounds = mapDrawable.screenToMap(screenBounds).contains(newPoint);
 
                 // autopan
                 /*if (mIsAutopanningEnabled && !mMapViewOverlays.isLockMap()) {
@@ -373,7 +374,8 @@ public class CurrentLocationOverlay
                 mContext.getResources().getDisplayMetrics().heightPixels);
 
         if (accuracy * 2 > max) {
-            accuracy = max / 2; // temp fix
+            //accuracy = max / 2; // temp fix
+            return  null;
         }
 
         if (accuracy <= 0) {

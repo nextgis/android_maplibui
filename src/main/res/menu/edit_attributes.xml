@@ -31,7 +31,7 @@
         android:title="@string/apply"
         android:orderInCategory="100"
         app:showAsAction="always"
-        android:icon="@drawable/ic_action_apply"
+        android:icon="@drawable/ic_action_apply_dark"
         />
 
     <item
@@ -39,7 +39,7 @@
         android:title="@string/cancel"
         android:orderInCategory="100"
         app:showAsAction="always"
-        android:icon="@drawable/ic_action_cancel"
+        android:icon="@drawable/ic_action_cancel_dark"
         />
 
     <item

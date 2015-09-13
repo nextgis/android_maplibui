@@ -29,7 +29,7 @@
         android:id="@+id/menu_cancel"
         android:title="@string/cancel"
         app:showAsAction="always"
-        android:icon="@drawable/ic_action_cancel"
+        android:icon="@drawable/ic_action_cancel_dark"
         />
     <item
         android:id="@+id/menu_edit_add_new_line"
