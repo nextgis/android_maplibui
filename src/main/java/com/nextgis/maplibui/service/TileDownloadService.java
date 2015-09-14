@@ -32,6 +32,7 @@ import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.TileItem;
 import com.nextgis.maplib.map.MapBase;
@@ -159,91 +160,93 @@ public class TileDownloadService extends Service{
             return;
 
         DownloadTask task = mQueue.remove(0);
-        final RemoteTMSLayer layer = (RemoteTMSLayer) map.getLayerById(task.getLayerId());
-        String notifyTitle = getString(R.string.download_tiles) + " (" + layer.getName() + ")";
+        ILayer layer = map.getLayerById(task.getLayerId());
+        if(layer instanceof RemoteTMSLayer) {
+            final RemoteTMSLayer tmsLayer = (RemoteTMSLayer) layer;
+            String notifyTitle = getString(R.string.download_tiles) + " (" + tmsLayer.getName() + ")";
 
-        mBuilder.setWhen(System.currentTimeMillis())
-                .setContentTitle(notifyTitle);
-        mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
-
-        final List<TileItem> tiles = new LinkedList<>();
-        int zoomCount = task.getZoomTo() + 1 - task.getZoomFrom();
-        for(int zoom = task.getZoomFrom(); zoom < task.getZoomTo() + 1; zoom++) {
-            tiles.addAll(MapUtil.getTileItems(task.getEnvelope(), zoom, layer.getTMSType()));
-            mBuilder.setProgress(zoomCount, zoom, false)
-                    .setContentText(getString(R.string.form_tiles_list));
+            mBuilder.setWhen(System.currentTimeMillis())
+                    .setContentTitle(notifyTitle);
             mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
-        }
 
-        int threadCount = DRAWING_SEPARATE_THREADS;
+            final List<TileItem> tiles = new LinkedList<>();
+            int zoomCount = task.getZoomTo() + 1 - task.getZoomFrom();
+            for (int zoom = task.getZoomFrom(); zoom < task.getZoomTo() + 1; zoom++) {
+                tiles.addAll(MapUtil.getTileItems(task.getEnvelope(), zoom, tmsLayer.getTMSType()));
+                mBuilder.setProgress(zoomCount, zoom, false)
+                        .setContentText(getString(R.string.form_tiles_list));
+                mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
+            }
 
-        mThreadPool = new ThreadPoolExecutor(
-                threadCount, threadCount, KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT,
-                new LinkedBlockingQueue<Runnable>(), new RejectedExecutionHandler()
-        {
-            @Override
-            public void rejectedExecution(
-                    Runnable r,
-                    ThreadPoolExecutor executor)
-            {
+            int threadCount = DRAWING_SEPARATE_THREADS;
+
+            mThreadPool = new ThreadPoolExecutor(
+                    threadCount, threadCount, KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT,
+                    new LinkedBlockingQueue<Runnable>(), new RejectedExecutionHandler() {
+                @Override
+                public void rejectedExecution(
+                        Runnable r,
+                        ThreadPoolExecutor executor) {
+                    try {
+                        executor.getQueue().put(r);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        //throw new RuntimeException("Interrupted while submitting task", e);
+                    }
+                }
+            });
+
+            int tilesSize = tiles.size();
+            List<Future> futures = new ArrayList<>(tilesSize);
+
+            for (int i = 0; i < tilesSize; ++i) {
+                if (Thread.currentThread().isInterrupted()) {
+                    break;
+                }
+
+                final TileItem tile = tiles.get(i);
+
+                futures.add(
+                        mThreadPool.submit(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        android.os.Process.setThreadPriority(
+                                                Constants.DEFAULT_DRAW_THREAD_PRIORITY);
+                                        tmsLayer.downloadTile(tile);
+                                    }
+                                }));
+            }
+
+            // wait for download ending
+            int nStep = futures.size() / Constants.DRAW_NOTIFY_STEP_PERCENT;
+            if (nStep == 0)
+                nStep = 1;
+            for (int i = 0, futuresSize = futures.size(); i < futuresSize; i++) {
+                if (Thread.currentThread().isInterrupted()) {
+                    break;
+                }
+
                 try {
-                    executor.getQueue().put(r);
-                } catch (InterruptedException e) {
+                    Future future = futures.get(i);
+                    future.get(); // wait for task ending
+
+                    if (i % nStep == 0) {
+                        mBuilder.setProgress(futures.size(), i, false)
+                                .setContentText(getString(R.string.download_in_progress));
+                        // Displays the progress bar for the first time.
+                        mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
+                    }
+
+                } catch (CancellationException | InterruptedException e) {
+                    //e.printStackTrace();
+                } catch (ExecutionException e) {
                     e.printStackTrace();
-                    //throw new RuntimeException("Interrupted while submitting task", e);
                 }
             }
-        });
-
-        int tilesSize = tiles.size();
-        List<Future> futures = new ArrayList<>(tilesSize);
-
-        for (int i = 0; i < tilesSize; ++i) {
-            if (Thread.currentThread().isInterrupted()) {
-                break;
-            }
-
-            final TileItem tile = tiles.get(i);
-
-            futures.add(
-                    mThreadPool.submit(
-                            new Runnable()
-                            {
-                                @Override
-                                public void run()
-                                {
-                                    android.os.Process.setThreadPriority(
-                                            Constants.DEFAULT_DRAW_THREAD_PRIORITY);
-                                    layer.downloadTile(tile);
-                                }
-                            }));
         }
-
-        // wait for download ending
-        int nStep = futures.size() / Constants.DRAW_NOTIFY_STEP_PERCENT;
-        if(nStep == 0)
-            nStep = 1;
-        for (int i = 0, futuresSize = futures.size(); i < futuresSize; i++) {
-            if (Thread.currentThread().isInterrupted()) {
-                break;
-            }
-
-            try {
-                Future future = futures.get(i);
-                future.get(); // wait for task ending
-
-                if(i % nStep == 0) {
-                    mBuilder.setProgress(futures.size(), i, false)
-                    .setContentText(getString(R.string.download_in_progress));
-                    // Displays the progress bar for the first time.
-                    mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
-                }
-
-            } catch (CancellationException | InterruptedException e) {
-                //e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
+        else{
+            // skip non tms layer
         }
 
         startDownload();

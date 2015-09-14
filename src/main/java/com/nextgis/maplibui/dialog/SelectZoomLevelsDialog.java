@@ -36,7 +36,7 @@ public class SelectZoomLevelsDialog
         return this;
     }
 
-    public long getLayerId() {
+    public int getLayerId() {
         return mLayerId;
     }
 
@@ -90,7 +90,7 @@ public class SelectZoomLevelsDialog
                     {
                         final int zoomFrom = rangebar.getLeftIndex();
                         final int zoomTo = rangebar.getRightIndex();
-                        final long layerId = getLayerId();
+                        final int layerId = getLayerId();
                         final GeoEnvelope env = getEnvelope();
 
                         //start download service
