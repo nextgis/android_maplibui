@@ -549,15 +549,13 @@ public class EditLayerOverlay
             case GeoConstants.GTMultiLineString:
                 break;
             case GeoConstants.GTPolygon:
-                geoPoints = new float[8];
+                geoPoints = new float[6];
                 geoPoints[0] = (float) screenCenter.getX() - add;
                 geoPoints[1] = (float) screenCenter.getY() - add;
                 geoPoints[2] = (float) screenCenter.getX() - add;
                 geoPoints[3] = (float) screenCenter.getY() + add;
                 geoPoints[4] = (float) screenCenter.getX() + add;
                 geoPoints[5] = (float) screenCenter.getY() + add;
-                geoPoints[4] = (float) screenCenter.getX() + add;
-                geoPoints[5] = (float) screenCenter.getY() - add;
                 return geoPoints;
             case GeoConstants.GTMultiPolygon:
                 break;
@@ -889,6 +887,7 @@ public class EditLayerOverlay
             mDrawItems.clear();
             mMapViewOverlays.postInvalidate();
         } else {
+            mItem.restoreOriginalGeometry();
             fillDrawItems(mItem.getGeometry());
             updateMap();
         }
@@ -1787,7 +1786,16 @@ public class EditLayerOverlay
                     if (mDrawItemsVertex.isEmpty()) {
                         return null;
                     }
+                    points = mapDrawable.screenToMap(mDrawItemsVertex.get(ring));
                     GeoPolygon polygon = (GeoPolygon) geometry;
+                    polygon.clear();
+                    for (GeoPoint geoPoint : points) {
+                        if (null == geoPoint) {
+                            continue;
+                        }
+                        polygon.add(geoPoint);
+                    }
+
                     fillGeometry(ring, polygon.getOuterRing(), mapDrawable);
 
                     //  the geometry should be correspond the vertex list
@@ -1850,16 +1858,18 @@ public class EditLayerOverlay
 
     protected class EditLayerCacheItem implements IGeometryCacheItem{
         protected long mFeatureId;
-        protected GeoGeometry mGeometry;
+        protected GeoGeometry mGeometry, mOriginalGeometry;
 
         public EditLayerCacheItem(long featureId){
             mFeatureId = featureId;
             mGeometry = mLayer.getGeometryForId(mFeatureId);
+            saveOriginalGeometry();
         }
 
         public EditLayerCacheItem(long featureId, GeoGeometry geometry) {
             mFeatureId = featureId;
             mGeometry = geometry;
+            saveOriginalGeometry();
         }
 
         public GeoGeometry getGeometry() {
@@ -1885,6 +1895,17 @@ public class EditLayerOverlay
 
         public void setGeometry(GeoGeometry geometry){
             mGeometry = geometry;
+
+            if (geometry != null)
+                saveOriginalGeometry();
+        }
+
+        private void saveOriginalGeometry() {
+            mOriginalGeometry = mGeometry.copy();
+        }
+
+        public void restoreOriginalGeometry() {
+            mGeometry = mOriginalGeometry.copy();
         }
 
         public int getGeometryType() {

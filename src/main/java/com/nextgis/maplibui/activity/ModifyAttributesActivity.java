@@ -29,8 +29,6 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -68,12 +66,14 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IControl;
 import com.nextgis.maplibui.api.ISimpleControl;
 import com.nextgis.maplibui.control.DateTime;
+import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.control.TextEdit;
 import com.nextgis.maplibui.control.TextLabel;
-import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -520,9 +520,17 @@ public class ModifyAttributesActivity
                 } else {
                     try {
                         OutputStream outStream = getContentResolver().openOutputStream(result);
-                        Bitmap sourceBitmap = BitmapFactory.decodeFile(path);
-                        sourceBitmap.compress(Bitmap.CompressFormat.JPEG, 75, outStream);
+                        InputStream inStream = new FileInputStream(path);
+                        byte[] buffer = new byte[8192];
+                        int counter;
+
+                        while ((counter = inStream.read(buffer, 0, buffer.length)) > 0) {
+                            outStream.write(buffer, 0, counter);
+                            outStream.flush();
+                        }
+
                         outStream.close();
+                        inStream.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

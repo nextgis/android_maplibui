@@ -60,10 +60,11 @@ public class CurrentLocationOverlay
 {
     public static final int WITH_MARKER   = 1;
     public static final int WITH_ACCURACY = 1 << 1;
+    private static final int AUTOPAN_THRESHOLD = 2;
 
     private GpsEventSource mGpsEventSource;
-    private Location       mCurrentLocation;
-    private boolean        mIsInBounds; //, mIsInScreenBounds;
+    private Location       mCurrentLocation, mInitialLocation;
+    private boolean        mIsInBounds, mIsInScreenBounds;
     private boolean mIsAutopanningEnabled = false;
     private boolean mIsAccuracyEnabled = true;
     private boolean mIsAccuracyMarkerBiggest;
@@ -144,7 +145,6 @@ public class CurrentLocationOverlay
         if (mCurrentLocation != null && isMarkerEnabled()) {
             double lat = mCurrentLocation.getLatitude();
             double lon = mCurrentLocation.getLongitude();
-            GeoPoint lastMarkerPosition = mMarker.getCoordinates(GeoConstants.CRS_WEB_MERCATOR);
             mMarker.setMarker(getDefaultMarker());
             mMarker.setCoordinates(lon, lat);
 
@@ -164,22 +164,8 @@ public class CurrentLocationOverlay
                 // set marker in current map and screen bounds flags
                 newPoint = mMarker.getCoordinates(GeoConstants.CRS_WEB_MERCATOR);
                 mIsInBounds = mapDrawable.getCurrentBounds().contains(newPoint);
-
-                //boolean wasInBounds = mIsInScreenBounds;
-                //GeoEnvelope screenBounds = mapDrawable.getFullScreenBounds();
-                //mIsInScreenBounds = mapDrawable.screenToMap(screenBounds).contains(newPoint);
-
-                // autopan
-                /*if (mIsAutopanningEnabled && !mMapViewOverlays.isLockMap()) {
-                    GeoPoint center = mMapViewOverlays.getMapCenter();
-                    double dx = lastMarkerPosition.getX() - newPoint.getX();
-                    double dy = lastMarkerPosition.getY() - newPoint.getY();
-                    center.setX(center.getX() - dx);
-                    center.setY(center.getY() - dy);
-
-                    if (wasInBounds)
-                        mMapViewOverlays.panTo(center);
-                }*/
+                GeoEnvelope screenBounds = mapDrawable.getFullScreenBounds();
+                mIsInScreenBounds = mapDrawable.screenToMap(screenBounds).contains(newPoint);
             } else {
                 mIsAccuracyMarkerBiggest = false;
             }
@@ -287,16 +273,28 @@ public class CurrentLocationOverlay
     @Override
     public void onLocationChanged(Location location)
     {
-        boolean update = true;
-
+        boolean update;
         if (location != null) {
             String provider = location.getProvider();
             update = LocationUtil.isProviderEnabled(mContext, provider, false);
-        }
 
-        if (update) {
-            mCurrentLocation = location;
-            mMapViewOverlays.postInvalidate();
+            if (update) {
+                mCurrentLocation = location;
+                mMapViewOverlays.postInvalidate();
+            }
+
+            if (mIsAutopanningEnabled) {
+                if (mInitialLocation == null || mMapViewOverlays.isLockMap())
+                    mInitialLocation = location;
+
+                if (mInitialLocation.distanceTo(location) >= AUTOPAN_THRESHOLD) {
+                    if (mIsInScreenBounds) {
+                        autopanTo(mInitialLocation, location);
+                    }
+
+                    mInitialLocation = location;
+                }
+            }
         }
     }
 
@@ -312,6 +310,24 @@ public class CurrentLocationOverlay
     public void onGpsStatusChanged(int event)
     {
 
+    }
+
+
+    private void autopanTo(Location autopanLocation, Location location) {
+        GeoPoint oldLocation = new GeoPoint(autopanLocation.getLongitude(), autopanLocation.getLatitude());
+        GeoPoint newLocation = new GeoPoint(location.getLongitude(), location.getLatitude());
+        oldLocation.setCRS(GeoConstants.CRS_WGS84);
+        oldLocation.project(GeoConstants.CRS_WEB_MERCATOR);
+        newLocation.setCRS(GeoConstants.CRS_WGS84);
+        newLocation.project(GeoConstants.CRS_WEB_MERCATOR);
+
+        double dx = oldLocation.getX() - newLocation.getX();
+        double dy = oldLocation.getY() - newLocation.getY();
+        GeoPoint newCenter = mMapViewOverlays.getMapCenter();
+        newCenter.setX(newCenter.getX() - dx);
+        newCenter.setY(newCenter.getY() - dy);
+
+        mMapViewOverlays.panTo(newCenter);
     }
 
 
