@@ -549,15 +549,13 @@ public class EditLayerOverlay
             case GeoConstants.GTMultiLineString:
                 break;
             case GeoConstants.GTPolygon:
-                geoPoints = new float[8];
+                geoPoints = new float[6];
                 geoPoints[0] = (float) screenCenter.getX() - add;
                 geoPoints[1] = (float) screenCenter.getY() - add;
                 geoPoints[2] = (float) screenCenter.getX() - add;
                 geoPoints[3] = (float) screenCenter.getY() + add;
                 geoPoints[4] = (float) screenCenter.getX() + add;
                 geoPoints[5] = (float) screenCenter.getY() + add;
-                geoPoints[4] = (float) screenCenter.getX() + add;
-                geoPoints[5] = (float) screenCenter.getY() - add;
                 return geoPoints;
             case GeoConstants.GTMultiPolygon:
                 break;
@@ -1787,7 +1785,16 @@ public class EditLayerOverlay
                     if (mDrawItemsVertex.isEmpty()) {
                         return null;
                     }
+                    points = mapDrawable.screenToMap(mDrawItemsVertex.get(ring));
                     GeoPolygon polygon = (GeoPolygon) geometry;
+                    polygon.clear();
+                    for (GeoPoint geoPoint : points) {
+                        if (null == geoPoint) {
+                            continue;
+                        }
+                        polygon.add(geoPoint);
+                    }
+
                     fillGeometry(ring, polygon.getOuterRing(), mapDrawable);
 
                     //  the geometry should be correspond the vertex list
