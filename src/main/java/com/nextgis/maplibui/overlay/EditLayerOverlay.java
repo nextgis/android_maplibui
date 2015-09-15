@@ -887,6 +887,7 @@ public class EditLayerOverlay
             mDrawItems.clear();
             mMapViewOverlays.postInvalidate();
         } else {
+            mItem.restoreOriginalGeometry();
             fillDrawItems(mItem.getGeometry());
             updateMap();
         }
@@ -1857,16 +1858,18 @@ public class EditLayerOverlay
 
     protected class EditLayerCacheItem implements IGeometryCacheItem{
         protected long mFeatureId;
-        protected GeoGeometry mGeometry;
+        protected GeoGeometry mGeometry, mOriginalGeometry;
 
         public EditLayerCacheItem(long featureId){
             mFeatureId = featureId;
             mGeometry = mLayer.getGeometryForId(mFeatureId);
+            saveOriginalGeometry();
         }
 
         public EditLayerCacheItem(long featureId, GeoGeometry geometry) {
             mFeatureId = featureId;
             mGeometry = geometry;
+            saveOriginalGeometry();
         }
 
         public GeoGeometry getGeometry() {
@@ -1892,6 +1895,17 @@ public class EditLayerOverlay
 
         public void setGeometry(GeoGeometry geometry){
             mGeometry = geometry;
+
+            if (geometry != null)
+                saveOriginalGeometry();
+        }
+
+        private void saveOriginalGeometry() {
+            mOriginalGeometry = mGeometry.copy();
+        }
+
+        public void restoreOriginalGeometry() {
+            mGeometry = mOriginalGeometry.copy();
         }
 
         public int getGeometryType() {
