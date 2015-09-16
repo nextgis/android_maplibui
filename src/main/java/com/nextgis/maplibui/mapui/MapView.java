@@ -68,7 +68,7 @@ public class MapView
     protected       long                 mStartDrawTime;
 
     //display redraw timeout ms
-    public static final int DISPLAY_REDRAW_TIMEOUT = 1050;
+    public static final int DISPLAY_REDRAW_TIMEOUT = 750;
 
 
     public MapView(
