@@ -911,8 +911,9 @@ public class EditLayerOverlay
             if (null != vectorLayerUI) {
                 vectorLayerUI.showEditForm(mContext, mItem.getFeatureId(), mItem.getGeometry());
             }
+            mLayer.showFeature(mItem.getFeatureId());
         }
-        mLayer.showFeature(mItem.getFeatureId());
+
         mDrawItems.clear();
         mItem = null;
     }
@@ -1075,7 +1076,7 @@ public class EditLayerOverlay
         double dMaxY = y + mTolerancePX;
         GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
         //1. search current geometry point
-        if (mDrawItems.intersects(screenEnv)) {
+        if (mDrawItems.intersects(screenEnv, mItem.getGeometry(), mMapViewOverlays.getMap())) {
             mMapViewOverlays.postInvalidate();
             return;
         }
@@ -1588,7 +1589,9 @@ public class EditLayerOverlay
         }
 
 
-        public boolean intersects(GeoEnvelope screenEnv)
+        public boolean intersects(GeoEnvelope screenEnv,
+                                  GeoGeometry geometry,
+                                  MapDrawable mapDrawable)
         {
             int point;
             for (int ring = 0; ring < mDrawItemsVertex.size(); ring++) {
@@ -1614,6 +1617,10 @@ public class EditLayerOverlay
                             mSelectedPointIndex = i + 2;
                             mSelectedRing = ring;
                             insertNewPoint(mSelectedPointIndex, items[i], items[i + 1]);
+
+                            //fill geometry
+                            fillGeometry(0, geometry, mapDrawable);
+
                             return true;
                         }
                         point++;
