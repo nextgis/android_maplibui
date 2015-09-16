@@ -381,7 +381,6 @@ public class ModifyAttributesActivity
         }
 
         putGeometry(values);
-        putAttaches();
 
         IGISApplication app = (IGISApplication) getApplication();
 
@@ -393,10 +392,11 @@ public class ModifyAttributesActivity
                 "content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
 
         if (mFeatureId == NOT_FOUND) {
-            if (getContentResolver().insert(uri, values) == null) {
+            Uri result = getContentResolver().insert(uri, values);
+            if (result == null)
                 Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT).show();
-            }
-
+            else
+                mFeatureId = Long.parseLong(result.getLastPathSegment());
         } else {
             Uri updateUri = ContentUris.withAppendedId(uri, mFeatureId);
 
@@ -404,6 +404,8 @@ public class ModifyAttributesActivity
                 Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT).show();
             }
         }
+
+        putAttaches();  // we need to get proper mFeatureId for new features first
     }
 
 
