@@ -156,12 +156,17 @@ public abstract class GISApplication extends Application
         AccountManager accountManager = AccountManager.get(this);
         if(accountManager == null)
             return null;
-        for (Account account : accountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
-            if(account == null)
-                continue;
-            if (account.name.equals(accountName)) {
-                return account;
+        try {
+            for (Account account : accountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
+                if (account == null)
+                    continue;
+                if (account.name.equals(accountName)) {
+                    return account;
+                }
             }
+        }
+        catch (SecurityException e){
+            e.printStackTrace();
         }
         return null;
     }
@@ -203,7 +208,13 @@ public abstract class GISApplication extends Application
         if(accountManager == null)
             return bool;
 
-        return accountManager.removeAccount(account, null, new Handler());
+        try {
+            return accountManager.removeAccount(account, null, new Handler());
+        }
+        catch (SecurityException e){
+            e.printStackTrace();
+        }
+        return bool;
     }
 
     @Override
@@ -224,8 +235,14 @@ public abstract class GISApplication extends Application
             return "";
         }
 
-        AccountManager accountManager = AccountManager.get(this);
-        return accountManager.getPassword(account);
+        try {
+            AccountManager accountManager = AccountManager.get(this);
+            return accountManager.getPassword(account);
+        }
+        catch (SecurityException e){
+            e.printStackTrace();
+            return "";
+        }
     }
 
 
@@ -256,22 +273,29 @@ public abstract class GISApplication extends Application
         if(!checkPermission("android.permission.AUTHENTICATE_ACCOUNTS")){
             return false;
         }
-        final Account account = new Account(name, NGW_ACCOUNT_TYPE);
+        final Account account = new Account(name, Constants.NGW_ACCOUNT_TYPE);
 
         Bundle userData = new Bundle();
         userData.putString("url", url.trim());
         userData.putString("login", login);
 
-        AccountManager accountManager = AccountManager.get(this);
+        try {
 
-        boolean accountAdded =
-                accountManager.addAccountExplicitly(account, password, userData);
+            AccountManager accountManager = AccountManager.get(this);
 
-        if (accountAdded) {
-            accountManager.setAuthToken(account, account.type, token);
+            boolean accountAdded =
+                    accountManager.addAccountExplicitly(account, password, userData);
+
+            if (accountAdded) {
+                accountManager.setAuthToken(account, account.type, token);
+            }
+
+            return accountAdded;
         }
-
-        return accountAdded;
+        catch (SecurityException e){
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override

@@ -29,8 +29,6 @@ import android.accounts.AccountManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.fragment.NGWLoginFragment;
 
@@ -93,8 +91,7 @@ public class NGWLoginActivity
     }
 
 
-    protected void createView()
-    {
+    protected void createView() {
         setContentView(R.layout.activity_ngw_login);
         setToolbar(R.id.main_toolbar);
 
@@ -108,13 +105,14 @@ public class NGWLoginActivity
             ngwLoginFragment.setLoginText(mLoginText);
             ngwLoginFragment.setChangeAccountUrl(mChangeAccountUrl);
             ngwLoginFragment.setChangeAccountLogin(mChangeAccountLogin);
+
+
+            ngwLoginFragment.setOnAddAccountListener(this);
+
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.add(R.id.login_frame, ngwLoginFragment, "NGWLogin");
+            ft.commit();
         }
-
-        ngwLoginFragment.setOnAddAccountListener(this);
-
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.add(R.id.login_frame, ngwLoginFragment, "NGWLogin");
-        ft.commit();
     }
 
 

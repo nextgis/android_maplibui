@@ -47,6 +47,7 @@ import com.nextgis.maplib.datasource.ngw.INGWResource;
 import com.nextgis.maplib.datasource.ngw.LayerWithStyles;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGWLoginActivity;
@@ -199,7 +200,7 @@ public class SelectNGWResourceDialog
         Connections connections = new Connections(getString(R.string.accounts));
         final AccountManager accountManager =
                 AccountManager.get(context.getApplicationContext());
-        for (Account account : accountManager.getAccountsByType(NGW_ACCOUNT_TYPE)) {
+        for (Account account : accountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
             String url = accountManager.getUserData(account, "url");
             String password = accountManager.getPassword(account);
             String login = accountManager.getUserData(account, "login");
@@ -228,7 +229,7 @@ public class SelectNGWResourceDialog
                 final AccountManager accountManager =
                         AccountManager.get(getActivity().getApplicationContext());
                 Connections connections = mListAdapter.getConnections();
-                for (Account account : accountManager.getAccountsByType(NGW_ACCOUNT_TYPE)) {
+                for (Account account : accountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
                     boolean find = false;
                     for (int i = 0; i < connections.getChildrenCount(); i++) {
                         Connection connection = (Connection) connections.getChild(i);

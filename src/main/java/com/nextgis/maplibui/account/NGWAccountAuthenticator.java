@@ -31,6 +31,8 @@ import android.accounts.NetworkErrorException;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.activity.NGWLoginActivity;
 
 import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
@@ -68,7 +70,7 @@ public class NGWAccountAuthenticator
             throws NetworkErrorException
     {
         final Intent intent = new Intent(mContext, NGWLoginActivity.class);
-        intent.putExtra(NGW_ACCOUNT_TYPE, accountType);
+        intent.putExtra(Constants.NGW_ACCOUNT_TYPE, accountType);
         intent.putExtra(
                 AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, accountAuthenticatorResponse);
         final Bundle bundle = new Bundle();

@@ -122,7 +122,7 @@ public class NGWSettingsActivity
 
         if (null != mAccountManager) {
             for (Account account : mAccountManager.getAccountsByType(
-                    NGW_ACCOUNT_TYPE)) {
+                    Constants.NGW_ACCOUNT_TYPE)) {
                 header = new Header();
                 header.title = account.name;
                 header.fragment = NGWSettingsFragment.class.getName();
@@ -147,7 +147,7 @@ public class NGWSettingsActivity
     @Override
     public Header onGetInitialHeader() {
         if (null != mAccountManager) {
-            if (mAccountManager.getAccountsByType(NGW_ACCOUNT_TYPE).length > 0) {
+            if (mAccountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE).length > 0) {
                 return super.onGetInitialHeader();
             }
         }
@@ -220,7 +220,7 @@ public class NGWSettingsActivity
     protected void fillPreferences(PreferenceScreen screen) {
         if (null != mAccountManager) {
             for (Account account : mAccountManager.getAccountsByType(
-                    NGW_ACCOUNT_TYPE)) {
+                    Constants.NGW_ACCOUNT_TYPE)) {
                 Preference preference = new Preference(this);
                 preference.setTitle(account.name);
 
