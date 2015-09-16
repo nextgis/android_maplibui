@@ -83,23 +83,27 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
 
         if (mLayer != null && mFeatureId != NOT_FOUND && mAdapter.getItemCount() < 2) { // feature exists
             IGISApplication app = (IGISApplication) ((Activity) getContext()).getApplication();
-            Uri uri = Uri.parse("content://" + app.getAuthority() + "/" +
-                    mLayer.getPath().getName() + "/" + mFeatureId + "/attach");
-            MatrixCursor attachCursor = (MatrixCursor) mLayer.query(uri,
-                    new String[]{VectorLayer.ATTACH_DATA, VectorLayer.ATTACH_ID},
-                    FIELD_ID + " = " + mFeatureId, null, null, null);
-
-            if (attachCursor.moveToFirst()) {
-                do {
-                    mAttaches.put(attachCursor.getString(0), attachCursor.getInt(1));
-                } while (attachCursor.moveToNext());
-            }
-
-            attachCursor.close();
+            getAttaches(app, mLayer, mFeatureId, mAttaches);
         }
 
         int maxPhotos = attributes.getInt(JSON_MAX_PHOTO_KEY);
         setMaxPhotos(maxPhotos);
+    }
+
+    public static void getAttaches(IGISApplication app, VectorLayer layer, long featureId, Map<String, Integer> map) {
+        Uri uri = Uri.parse("content://" + app.getAuthority() + "/" +
+                layer.getPath().getName() + "/" + featureId + "/attach");
+        MatrixCursor attachCursor = (MatrixCursor) layer.query(uri,
+                new String[]{VectorLayer.ATTACH_DATA, VectorLayer.ATTACH_ID},
+                FIELD_ID + " = " + featureId, null, null, null);
+
+        if (attachCursor.moveToFirst()) {
+            do {
+                map.put(attachCursor.getString(0), attachCursor.getInt(1));
+            } while (attachCursor.moveToNext());
+        }
+
+        attachCursor.close();
     }
 
     public void init(VectorLayer layer, long featureId) {
@@ -118,7 +122,7 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
                 if (!mDeletedImages.contains(mAttaches.get(attach)))
                     images.add(attach);
 
-            mAdapter.restoreImages(images);
+            restoreImages(images);
         }
     }
 
