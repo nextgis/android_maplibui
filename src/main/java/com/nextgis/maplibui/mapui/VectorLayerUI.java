@@ -30,7 +30,6 @@ import android.database.sqlite.SQLiteException;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.widget.Toast;
-
 import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometry;
@@ -44,7 +43,6 @@ import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.activity.VectorLayerSettingsActivity;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.util.ConstantsUI;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -54,17 +52,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_CRS;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_GEOMETRY;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_NAME;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_PROPERTIES;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FEATURES;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_Feature;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FeatureCollection;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
+import static com.nextgis.maplib.util.GeoConstants.*;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
 /**
@@ -204,26 +193,31 @@ public class VectorLayerUI
 
             Feature feature;
 
-            if (featuresCursor.moveToFirst()) {
-                do {
-                    JSONObject featureJSON = new JSONObject();
-                    featureJSON.put(GEOJSON_TYPE, GEOJSON_TYPE_Feature);
+            try {
+                if (featuresCursor.moveToFirst()) {
+                    do {
+                        JSONObject featureJSON = new JSONObject();
+                        featureJSON.put(GEOJSON_TYPE, GEOJSON_TYPE_Feature);
 
-                    feature = new Feature((long) NOT_FOUND, getFields());
-                    feature.fromCursor(featuresCursor);
+                        feature = new Feature((long) NOT_FOUND, getFields());
+                        feature.fromCursor(featuresCursor);
 
-                    JSONObject properties = new JSONObject();
-                    for (Field field : feature.getFields()) {
-                        properties.put(field.getName(), feature.getFieldValue(field.getName()));
-                    }
+                        JSONObject properties = new JSONObject();
+                        for (Field field : feature.getFields()) {
+                            properties.put(field.getName(), feature.getFieldValue(field.getName()));
+                        }
 
-                    featureJSON.put(GEOJSON_PROPERTIES, properties);
-                    featureJSON.put(GEOJSON_GEOMETRY, feature.getGeometry().toJSON());
-                    geoJSONFeatures.put(featureJSON);
-                } while (featuresCursor.moveToNext());
+                        featureJSON.put(GEOJSON_PROPERTIES, properties);
+                        featureJSON.put(GEOJSON_GEOMETRY, feature.getGeometry().toJSON());
+                        geoJSONFeatures.put(featureJSON);
+                    } while (featuresCursor.moveToNext());
+                }
+
+            } catch (Exception e) {
+                //Log.d(TAG, e.getLocalizedMessage());
+            } finally {
+                featuresCursor.close();
             }
-
-            featuresCursor.close();
 
             obj.put(GEOJSON_TYPE_FEATURES, geoJSONFeatures);
 

@@ -31,13 +31,11 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
-
 import com.keenfin.easypicker.PhotoPicker;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplibui.api.IFormControl;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -83,19 +81,26 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
 
         if (mLayer != null && mFeatureId != NOT_FOUND && mAdapter.getItemCount() < 2) { // feature exists
             IGISApplication app = (IGISApplication) ((Activity) getContext()).getApplication();
-            Uri uri = Uri.parse("content://" + app.getAuthority() + "/" +
-                    mLayer.getPath().getName() + "/" + mFeatureId + "/attach");
-            MatrixCursor attachCursor = (MatrixCursor) mLayer.query(uri,
-                    new String[]{VectorLayer.ATTACH_DATA, VectorLayer.ATTACH_ID},
+            Uri uri = Uri.parse(
+                    "content://" + app.getAuthority() + "/" +
+                            mLayer.getPath().getName() + "/" + mFeatureId + "/attach");
+            MatrixCursor attachCursor = (MatrixCursor) mLayer.query(
+                    uri, new String[] {VectorLayer.ATTACH_DATA, VectorLayer.ATTACH_ID},
                     FIELD_ID + " = " + mFeatureId, null, null, null);
 
-            if (attachCursor.moveToFirst()) {
-                do {
-                    mAttaches.put(attachCursor.getString(0), attachCursor.getInt(1));
-                } while (attachCursor.moveToNext());
+            if (null != attachCursor) {
+                try {
+                    if (attachCursor.moveToFirst()) {
+                        do {
+                            mAttaches.put(attachCursor.getString(0), attachCursor.getInt(1));
+                        } while (attachCursor.moveToNext());
+                    }
+                } catch (Exception e) {
+                    //Log.d(TAG, e.getLocalizedMessage());
+                } finally {
+                    attachCursor.close();
+                }
             }
-
-            attachCursor.close();
         }
 
         int maxPhotos = attributes.getInt(JSON_MAX_PHOTO_KEY);
