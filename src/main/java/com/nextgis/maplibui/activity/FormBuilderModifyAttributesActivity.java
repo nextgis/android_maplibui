@@ -253,13 +253,4 @@ public class FormBuilderModifyAttributesActivity
 
         return value;
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        PhotoGallery gallery = (PhotoGallery) findViewById(R.id.pg_photos);
-        if (gallery != null)
-            gallery.onActivityResult(requestCode, resultCode, data);
-    }
 }

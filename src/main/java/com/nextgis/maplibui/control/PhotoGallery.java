@@ -79,15 +79,20 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
         mAttaches = new HashMap<>();
         mDeletedImages = new ArrayList<>();
         mAdapter = (PhotoAdapter) getAdapter();
-        JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+
+        if (element != null) {
+            JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+
+            if (attributes.has(JSON_MAX_PHOTO_KEY)) {
+                int maxPhotos = attributes.getInt(JSON_MAX_PHOTO_KEY);
+                setMaxPhotos(maxPhotos);
+            }
+        }
 
         if (mLayer != null && mFeatureId != NOT_FOUND && mAdapter.getItemCount() < 2) { // feature exists
             IGISApplication app = (IGISApplication) ((Activity) getContext()).getApplication();
             getAttaches(app, mLayer, mFeatureId, mAttaches);
         }
-
-        int maxPhotos = attributes.getInt(JSON_MAX_PHOTO_KEY);
-        setMaxPhotos(maxPhotos);
     }
 
     public static void getAttaches(IGISApplication app, VectorLayer layer, long featureId, Map<String, Integer> map) {
