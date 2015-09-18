@@ -1075,14 +1075,17 @@ public class EditLayerOverlay
         double dMinY = y - mTolerancePX;
         double dMaxY = y + mTolerancePX;
         GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
-        //1. search current geometry point
-        if (mDrawItems.intersects(screenEnv, mItem.getGeometry(), mMapViewOverlays.getMap())) {
-            mMapViewOverlays.postInvalidate();
-            return;
-        }
 
-        if(mHasEdits) // prevent select another geometry before saving current edited one.
-            return;
+        if(null != mItem && null != mItem.getGeometry()) {
+            //1. search current geometry point
+            if (mDrawItems.intersects(screenEnv, mItem.getGeometry(), mMapViewOverlays.getMap())) {
+                mMapViewOverlays.postInvalidate();
+                return;
+            }
+
+            if (mHasEdits) // prevent select another geometry before saving current edited one.
+                return;
+        }
 
         //2 select another geometry
         GeoEnvelope mapEnv = mMapViewOverlays.screenToMap(screenEnv);
