@@ -8,7 +8,11 @@ import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -61,6 +65,9 @@ public class LayerFillService extends Service implements IProgressor {
     protected boolean mIndeterminate;
     protected boolean mIsCanceled;
     protected boolean mIsRunnig;
+    protected Handler mHandler;
+
+    protected static final String BUNDLE_MSG_KEY = "error_message";
 
     @Override
     public void onCreate() {
@@ -82,6 +89,15 @@ public class LayerFillService extends Service implements IProgressor {
 
         mQueue = new LinkedList<>();
         mIsRunnig = false;
+        mHandler = new Handler(Looper.getMainLooper()){
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                Bundle resultData = msg.getData();
+                Toast.makeText(LayerFillService.this, resultData.getString(BUNDLE_MSG_KEY), Toast.LENGTH_LONG).show();
+            }
+        };
+
     }
 
     @Override
@@ -217,8 +233,13 @@ public class LayerFillService extends Service implements IProgressor {
         mNotifyManager.notify(FILL_NOTIFICATION_ID, mBuilder.build());
     }
 
-    private void notifyError() {
-        Toast.makeText(this, mProgressMessage, Toast.LENGTH_LONG).show();
+    private void notifyError(String error) {
+        Bundle bundle = new Bundle();
+        bundle.putString(BUNDLE_MSG_KEY, error);
+
+        Message msg = new Message();
+        msg.setData(bundle);
+        mHandler.sendMessage(msg);
     }
 
     /**
@@ -265,7 +286,7 @@ public class LayerFillService extends Service implements IProgressor {
                 if(null != progressor){
                     progressor.setMessage(e.getLocalizedMessage());
                 }
-                notifyError();
+                notifyError(mProgressMessage);
             }
         }
     }
@@ -331,7 +352,7 @@ public class LayerFillService extends Service implements IProgressor {
                 if (null != progressor) {
                     progressor.setMessage(e.getLocalizedMessage());
                 }
-                notifyError();
+                notifyError(mProgressMessage);
             }
         }
     }
@@ -354,7 +375,7 @@ public class LayerFillService extends Service implements IProgressor {
                 if(null != progressor){
                     progressor.setMessage(e.getLocalizedMessage());
                 }
-                notifyError();
+                notifyError(mProgressMessage);
             }
         }
     }
@@ -376,7 +397,7 @@ public class LayerFillService extends Service implements IProgressor {
                 if(null != progressor){
                     progressor.setMessage(e.getLocalizedMessage());
                 }
-                notifyError();
+                notifyError(mProgressMessage);
             }
         }
     }
