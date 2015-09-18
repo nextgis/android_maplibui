@@ -26,5 +26,6 @@
     android:layout_height="wrap_content"
     photo:oneLineGallery="true"
     photo:newPhotosDirectory="@string/app_name"
+    photo:newPhotosIcon="@drawable/ic_add_photo"
     photo:accentColor="@android:color/transparent"
     photo:primaryColor="@color/accent" />

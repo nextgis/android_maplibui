@@ -27,6 +27,7 @@ import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.Location;
@@ -64,12 +65,15 @@ import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IControl;
+import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.api.ISimpleControl;
 import com.nextgis.maplibui.control.DateTime;
 import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.control.TextEdit;
 import com.nextgis.maplibui.control.TextLabel;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
+
+import org.json.JSONException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -224,6 +228,7 @@ public class ModifyAttributesActivity
         }
     }
 
+
     protected void checkPolygon() {
         if (mGeometry instanceof GeoPolygon) {
             GeoPolygon polygon = (GeoPolygon) mGeometry;
@@ -300,6 +305,15 @@ public class ModifyAttributesActivity
             }
         }
 
+        try {
+            IFormControl control = (PhotoGallery) getLayoutInflater().inflate(R.layout.formtemplate_photo, layout, false);
+            ((PhotoGallery) control).init(mLayer, mFeatureId);
+            control.init(null, null, null, null);
+            control.addToLayout(layout);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         if (null != featureCursor) {
             featureCursor.close();
         }
@@ -367,6 +381,16 @@ public class ModifyAttributesActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        PhotoGallery gallery = (PhotoGallery) findViewById(R.id.pg_photos);
+        if (gallery != null)
+            gallery.onActivityResult(requestCode, resultCode, data);
     }
 
 
