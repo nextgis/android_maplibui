@@ -26,6 +26,7 @@ package com.nextgis.maplibui.fragment;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -68,6 +69,7 @@ public class LayersListAdapter
 
     protected final MapDrawable mMap;
     protected final Context        mContext;
+    protected DrawerLayout mDrawer;
 
 
     public LayersListAdapter(
@@ -248,6 +250,9 @@ public class LayersListAdapter
                                         }
                                         else if (i == R.id.menu_zoom_extent) {
                                             mMap.zoomToExtent(layer.getExtents());
+
+                                            if (mDrawer != null)
+                                                mDrawer.closeDrawers();
                                         }
                                         else if(i == R.id.menu_download_tiles){
                                             GeoEnvelope env = mMap.getCurrentBounds();
@@ -323,6 +328,11 @@ public class LayersListAdapter
     public void onLayerDrawStarted()
     {
 
+    }
+
+
+    public void setDrawer(DrawerLayout drawer) {
+        mDrawer = drawer;
     }
 
 
