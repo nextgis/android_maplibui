@@ -1911,11 +1911,13 @@ public class EditLayerOverlay
         }
 
         private void saveOriginalGeometry() {
-            mOriginalGeometry = mGeometry.copy();
+            if(null != mGeometry)
+                mOriginalGeometry = mGeometry.copy();
         }
 
         public void restoreOriginalGeometry() {
-            mGeometry = mOriginalGeometry.copy();
+            if(null != mOriginalGeometry)
+                mGeometry = mOriginalGeometry.copy();
         }
 
         public int getGeometryType() {
