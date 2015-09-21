@@ -341,16 +341,12 @@ public class SelectNGWResourceDialog
                     intent.putExtra(ConstantsUI.KEY_LAYER_ID, newLayer.getId());
                     intent.putExtra(LayerFillService.KEY_INPUT_TYPE, newLayer.getType());
 
-                    context.startService(intent);
-
-                    Toast.makeText(context, getString(R.string.background_task_started), Toast.LENGTH_SHORT).show();
+                    LayerFillProgressDialog progressDialog = new LayerFillProgressDialog(getActivity());
+                    progressDialog.execute(intent);
                 }
             }
         }
         mGroupLayer.save();
-
-        Toast.makeText(context, getString(R.string.message_layer_created), Toast.LENGTH_SHORT)
-                .show();
     }
 
 }

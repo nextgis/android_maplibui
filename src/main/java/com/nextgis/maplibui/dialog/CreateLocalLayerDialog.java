@@ -24,6 +24,7 @@
 package com.nextgis.maplibui.dialog;
 
 import android.accounts.Account;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -188,12 +189,14 @@ public class CreateLocalLayerDialog
                 .setPositiveButton(
                         R.string.create, new DialogInterface.OnClickListener()
                         {
+                            private Activity mActivity;
+
                             public void onClick(
                                     DialogInterface dialog,
                                     int whichButton)
                             {
+                                mActivity = getActivity();
                                 mLayerName = layerName.getText().toString();
-                                String bkMessage = getString(R.string.background_task_started);
                                 if (mLayerType == VECTOR_LAYER) {
                                     VectorLayerUI layer = new VectorLayerUI(
                                             mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
@@ -204,20 +207,10 @@ public class CreateLocalLayerDialog
 
                                     mGroupLayer.addLayer(layer);
                                     mGroupLayer.save();
-
-                                    // create or connect to fill layer with features
-                                    Intent intent = new Intent(context, LayerFillService.class);
-                                    intent.setAction(LayerFillService.ACTION_ADD_TASK);
-                                    intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
-                                    intent.putExtra(LayerFillService.KEY_URI, mUri);
-                                    intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
-
-                                    context.startService(intent);
-
-                                    Toast.makeText(context, bkMessage, Toast.LENGTH_SHORT).show();
+                                    startService(layer);
                                 }
                                 else if(mLayerType == VECTOR_LAYER_WITH_FORM){
-                                    new CreateTask(context).execute(mLayerName);
+                                    new CreateTask(mActivity).execute(mLayerName);
                                 }
                                 else if(mLayerType == TMS_LAYER){
                                     int nType = mSpinner.getSelectedItemPosition();
@@ -231,18 +224,20 @@ public class CreateLocalLayerDialog
 
                                     mGroupLayer.addLayer(layer);
                                     mGroupLayer.save();
-
-                                    // create or connect to fill layer with features
-                                    Intent intent = new Intent(context, LayerFillService.class);
-                                    intent.setAction(LayerFillService.ACTION_ADD_TASK);
-                                    intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
-                                    intent.putExtra(LayerFillService.KEY_URI, mUri);
-                                    intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
-
-                                    context.startService(intent);
-
-                                    Toast.makeText(context, bkMessage, Toast.LENGTH_SHORT).show();
+                                    startService(layer);
                                 }
+                            }
+
+                            private void startService(ILayer layer) {
+                                // create or connect to fill layer with features
+                                Intent intent = new Intent(context, LayerFillService.class);
+                                intent.setAction(LayerFillService.ACTION_ADD_TASK);
+                                intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
+                                intent.putExtra(LayerFillService.KEY_URI, mUri);
+                                intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
+
+                                LayerFillProgressDialog progressDialog = new LayerFillProgressDialog(mActivity);
+                                progressDialog.execute(intent);
                             }
                         }
                 )
@@ -276,165 +271,25 @@ public class CreateLocalLayerDialog
         super.onSaveInstanceState(outState);
     }
 
-    protected String createVectorLayerWithForm(
-            Context context,
-            String name,
-            CreateTask task)
-    {
-        try {
-            InputStream inputStream = context.getContentResolver().openInputStream(mUri);
-            if (inputStream != null) {
-
-                int nSize = inputStream.available();
-                int nIncrement = 0;
-                task.setMax(nSize);
-                byte[] buffer = new byte[Constants.IO_BUFFER_SIZE];
-
-                File outputPath = mGroupLayer.createLayerStorage();
-                ZipInputStream zis = new ZipInputStream(inputStream);
-
-                ZipEntry ze;
-                while ((ze = zis.getNextEntry()) != null) {
-                    FileUtil.unzipEntry(zis, ze, buffer, outputPath);
-                    nIncrement += ze.getSize();
-                    zis.closeEntry();
-                    task.setProgress(nIncrement);
-                }
-                zis.close();
-
-                //read meta.json
-                File meta = new File(outputPath, NGFP_FILE_META);
-                String jsonText = FileUtil.readFromFile(meta);
-                JSONObject metaJson = new JSONObject(jsonText);
-
-                File dataFile = new File(outputPath, NGFP_FILE_DATA);
-                String bkMessage = context.getString(R.string.background_task_started);
-                //read if this local o remote source
-                boolean isNgwConnection = metaJson.has("ngw_connection");
-                if (isNgwConnection && !metaJson.isNull("ngw_connection")) {
-                    FileUtil.deleteRecursive(dataFile);
-                    JSONObject connection = metaJson.getJSONObject("ngw_connection");
-
-                    //read url
-                    String url = connection.getString("url");
-                    if (!url.startsWith("http")) {
-                        url = "http://" + url;
-                    }
-
-                    //read login
-                    String login = connection.getString("login");
-                    //read password
-                    String password = connection.getString("password");
-                    //read id
-                    long resourceId = connection.getLong("id");
-                    //check account exist and try to create
-
-                    FileUtil.deleteRecursive(meta);
-
-                    String accountName = "";
-                    URI uri = new URI(url);
-
-                    if (uri.getHost() != null && uri.getHost().length() > 0) {
-                        accountName += uri.getHost();
-                    }
-                    if (uri.getPort() != 80 && uri.getPort() > 0) {
-                        accountName += ":" + uri.getPort();
-                    }
-                    if (uri.getPath() != null && uri.getPath().length() > 0) {
-                        accountName += uri.getPath();
-                    }
-
-                    IGISApplication app = (IGISApplication) context.getApplicationContext();
-                    Account account = app.getAccount(accountName);
-                    if (null == account) {
-                        //create account
-                        if (!app.addAccount(accountName, url, login, password, "ngw")) {
-                            return mGroupLayer.getContext().getString(
-                                    R.string.account_already_exists);
-                        }
-                    } else {
-                        //compare login/password and report differences
-                        boolean same = app.getAccountPassword(account).equals(password) &&
-                                       app.getAccountLogin(account).equals(login);
-                        if (!same) {
-                            Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT);
-                            msg.putExtra(
-                                    ConstantsUI.KEY_MESSAGE,
-                                    mGroupLayer.getContext().getString(R.string.warning_different_credentials));
-                            context.sendBroadcast(msg);
-                        }
-                    }
-
-                    //create NGWVectorLayer
-                    NGWVectorLayerUI layer =
-                            new NGWVectorLayerUI(mGroupLayer.getContext(), outputPath);
-                    layer.setName(name);
-                    layer.setRemoteId(resourceId);
-                    layer.setVisible(true);
-                    layer.setAccountName(accountName);
-                    layer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
-                    layer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
-
-                    mGroupLayer.addLayer(layer);
-                    mGroupLayer.save();
-
-                    // create or connect to fill layer with features
-                    Intent intent = new Intent(context, LayerFillService.class);
-                    intent.setAction(LayerFillService.ACTION_ADD_TASK);
-                    intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
-                    intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
-
-                    context.startService(intent);
-                } else {
-                    // prevent overwrite meta.json by layer save routine
-                    meta.renameTo(new File(meta.getParentFile(), LayerFillService.NGFP_META));
-
-                    VectorLayerUI layer = new VectorLayerUI(mGroupLayer.getContext(), outputPath);
-                    layer.setName(name);
-                    layer.setVisible(true);
-                    layer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
-                    layer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
-
-                    mGroupLayer.addLayer(layer);
-                    mGroupLayer.save();
-
-                    Intent intent = new Intent(context, LayerFillService.class);
-                    intent.setAction(LayerFillService.ACTION_ADD_TASK);
-                    intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
-                    intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
-                    intent.putExtra(LayerFillService.KEY_PATH, new File(layer.getPath(), NGFP_FILE_DATA).toString());
-                    intent.putExtra(LayerFillService.KEY_DELETE_SRC_FILE, true);
-
-                    context.startService(intent);
-                }
-
-                return bkMessage;
-            }
-        } catch (JSONException | IOException | URISyntaxException | SecurityException e) {
-            e.printStackTrace();
-            return e.getLocalizedMessage();
-        }
-
-        return mGroupLayer.getContext().getString(R.string.error_layer_create);
-    }
 
     protected class CreateTask
-            extends AsyncTask<String, String, String>
+            extends AsyncTask<String, String, Intent>
     {
-        protected ProgressDialog mProgressDialog;
-        protected Context        mContext;
+        protected ProgressDialog    mProgressDialog;
+        protected Activity          mActivity;
+        protected String            mError;
 
 
-        public CreateTask(Context context)
+        public CreateTask(Activity activity)
         {
-            mContext = context;
+            mActivity = activity;
         }
 
 
         @Override
         protected void onPreExecute()
         {
-            mProgressDialog = new ProgressDialog(mContext);
+            mProgressDialog = new ProgressDialog(mActivity);
             mProgressDialog.setMessage(
                     mGroupLayer.getContext().getString(R.string.message_loading));
             mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -445,18 +300,18 @@ public class CreateLocalLayerDialog
 
 
         @Override
-        protected String doInBackground(String... names)
+        protected Intent doInBackground(String... names)
         {
             if (mLayerType == VECTOR_LAYER_WITH_FORM) {
                 //create local layer from ngfb
-                return createVectorLayerWithForm(mContext, names[0], this);
+                return createVectorLayerWithForm(mActivity, names[0], this);
             }
             return null;
         }
 
 
         @Override
-        protected void onPostExecute(String error)
+        protected void onPostExecute(Intent layerFillIntent)
         {
             try { // if dialog is already detach from window catch exception
                 mProgressDialog.dismiss();
@@ -464,12 +319,11 @@ public class CreateLocalLayerDialog
                 e.printStackTrace();
             }
 
-            if (null != error && error.length() > 0) {
-                Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(
-                        mContext, mContext.getString(R.string.message_layer_created),
-                        Toast.LENGTH_SHORT).show();
+            LayerFillProgressDialog progressDialog = new LayerFillProgressDialog(mActivity);
+            progressDialog.execute(layerFillIntent);
+
+            if (null != mError && mError.length() > 0) {
+                Toast.makeText(mActivity, mError, Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -509,5 +363,144 @@ public class CreateLocalLayerDialog
         {
             mProgressDialog.setIndeterminate(b);
         }
+
+
+        protected Intent createVectorLayerWithForm(
+                Context context,
+                String name,
+                CreateTask task)
+        {
+            try {
+                InputStream inputStream = context.getContentResolver().openInputStream(mUri);
+                if (inputStream != null) {
+
+                    int nSize = inputStream.available();
+                    int nIncrement = 0;
+                    task.setMax(nSize);
+                    byte[] buffer = new byte[Constants.IO_BUFFER_SIZE];
+
+                    File outputPath = mGroupLayer.createLayerStorage();
+                    ZipInputStream zis = new ZipInputStream(inputStream);
+
+                    ZipEntry ze;
+                    while ((ze = zis.getNextEntry()) != null) {
+                        FileUtil.unzipEntry(zis, ze, buffer, outputPath);
+                        nIncrement += ze.getSize();
+                        zis.closeEntry();
+                        task.setProgress(nIncrement);
+                    }
+                    zis.close();
+
+                    //read meta.json
+                    File meta = new File(outputPath, NGFP_FILE_META);
+                    String jsonText = FileUtil.readFromFile(meta);
+                    JSONObject metaJson = new JSONObject(jsonText);
+
+                    File dataFile = new File(outputPath, NGFP_FILE_DATA);
+                    Intent intent = new Intent(context, LayerFillService.class);
+                    intent.setAction(LayerFillService.ACTION_ADD_TASK);
+                    //read if this local o remote source
+                    boolean isNgwConnection = metaJson.has("ngw_connection");
+                    if (isNgwConnection && !metaJson.isNull("ngw_connection")) {
+                        FileUtil.deleteRecursive(dataFile);
+                        JSONObject connection = metaJson.getJSONObject("ngw_connection");
+
+                        //read url
+                        String url = connection.getString("url");
+                        if (!url.startsWith("http")) {
+                            url = "http://" + url;
+                        }
+
+                        //read login
+                        String login = connection.getString("login");
+                        //read password
+                        String password = connection.getString("password");
+                        //read id
+                        long resourceId = connection.getLong("id");
+                        //check account exist and try to create
+
+                        FileUtil.deleteRecursive(meta);
+
+                        String accountName = "";
+                        URI uri = new URI(url);
+
+                        if (uri.getHost() != null && uri.getHost().length() > 0) {
+                            accountName += uri.getHost();
+                        }
+                        if (uri.getPort() != 80 && uri.getPort() > 0) {
+                            accountName += ":" + uri.getPort();
+                        }
+                        if (uri.getPath() != null && uri.getPath().length() > 0) {
+                            accountName += uri.getPath();
+                        }
+
+                        IGISApplication app = (IGISApplication) context.getApplicationContext();
+                        Account account = app.getAccount(accountName);
+                        if (null == account) {
+                            //create account
+                            if (!app.addAccount(accountName, url, login, password, "ngw")) {
+                                mError = mGroupLayer.getContext().getString(R.string.account_already_exists);
+                                return null;
+                            }
+                        } else {
+                            //compare login/password and report differences
+                            boolean same = app.getAccountPassword(account).equals(password) &&
+                                    app.getAccountLogin(account).equals(login);
+                            if (!same) {
+                                Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT);
+                                msg.putExtra(
+                                        ConstantsUI.KEY_MESSAGE,
+                                        mGroupLayer.getContext().getString(R.string.warning_different_credentials));
+                                context.sendBroadcast(msg);
+                            }
+                        }
+
+                        //create NGWVectorLayer
+                        NGWVectorLayerUI layer =
+                                new NGWVectorLayerUI(mGroupLayer.getContext(), outputPath);
+                        layer.setName(name);
+                        layer.setRemoteId(resourceId);
+                        layer.setVisible(true);
+                        layer.setAccountName(accountName);
+                        layer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
+                        layer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
+
+                        mGroupLayer.addLayer(layer);
+                        mGroupLayer.save();
+
+                        // create or connect to fill layer with features
+                        intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
+                        intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
+                    } else {
+                        // prevent overwrite meta.json by layer save routine
+                        meta.renameTo(new File(meta.getParentFile(), LayerFillService.NGFP_META));
+
+                        VectorLayerUI layer = new VectorLayerUI(mGroupLayer.getContext(), outputPath);
+                        layer.setName(name);
+                        layer.setVisible(true);
+                        layer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
+                        layer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
+
+                        mGroupLayer.addLayer(layer);
+                        mGroupLayer.save();
+
+                        intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
+                        intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
+                        intent.putExtra(LayerFillService.KEY_PATH, new File(layer.getPath(), NGFP_FILE_DATA).toString());
+                        intent.putExtra(LayerFillService.KEY_DELETE_SRC_FILE, true);
+                    }
+
+                    return intent;
+                }
+            } catch (JSONException | IOException | URISyntaxException | SecurityException e) {
+                e.printStackTrace();
+                mError = e.getLocalizedMessage();
+                return null;
+            }
+
+            mError = mGroupLayer.getContext().getString(R.string.error_layer_create);
+            return null;
+        }
+
     }
 }

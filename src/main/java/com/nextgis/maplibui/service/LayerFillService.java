@@ -53,11 +53,23 @@ public class LayerFillService extends Service implements IProgressor {
 
     public static final String ACTION_STOP = "FILL_LAYER_STOP";
     public static final String ACTION_ADD_TASK = "ADD_FILL_LAYER_TASK";
+    public static final String ACTION_SHOW = "SHOW_PROGRESS_DIALOG";
+    public static final String ACTION_UPDATE = "UPDATE_FILL_LAYER_PROGRESS";
+    public static final String KEY_STATUS = "status";
+    public static final String KEY_PROGRESS = "progress";
+    public static final String KEY_TOTAL = "count";
+    public static final String KEY_TITLE = "title";
+    public static final String KEY_TEXT = "message";
     public static final String KEY_URI = "uri";
     public static final String KEY_PATH = "path";
     public static final String KEY_INPUT_TYPE = "input_type";
     public static final String KEY_DELETE_SRC_FILE = "delete_source_file";
     public static final String NGFP_META = "ngfp_meta.json";
+
+    public static final short STATUS_START = 0;
+    public static final short STATUS_UPDATE = 1;
+    public static final short STATUS_STOP = 2;
+    public static final short STATUS_SHOW = 3;
 
     protected int mProgressMax;
     protected int mProgressValue;
@@ -66,6 +78,7 @@ public class LayerFillService extends Service implements IProgressor {
     protected boolean mIsCanceled;
     protected boolean mIsRunnig;
     protected Handler mHandler;
+    protected Intent mProgressIntent;
 
     protected static final String BUNDLE_MSG_KEY = "error_message";
 
@@ -75,16 +88,21 @@ public class LayerFillService extends Service implements IProgressor {
         Bitmap largeIcon =
                 BitmapFactory.decodeResource(getResources(), R.drawable.ic_notification_download);
 
-        Intent intentStop = new Intent(this, LayerFillService.class);
-        intentStop.setAction(ACTION_STOP);
-        PendingIntent stopService = PendingIntent.getService(this, 0, intentStop,
+        mProgressIntent = new Intent(ACTION_UPDATE);
+        Intent intent = new Intent(this, LayerFillService.class);
+        intent.setAction(ACTION_STOP);
+        PendingIntent stopService = PendingIntent.getService(this, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        intent.setAction(ACTION_SHOW);
+        PendingIntent showProgressDialog = PendingIntent.getService(this, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         mBuilder = new NotificationCompat.Builder(this);
         mBuilder.setSmallIcon(R.drawable.ic_notification_download).setLargeIcon(largeIcon)
                 .setAutoCancel(false)
                 .setOngoing(true)
-                .addAction( android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.tracks_stop), stopService);
+                .setContentIntent(showProgressDialog)
+                .addAction(android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.tracks_stop), stopService);
         mIsCanceled = false;
 
         mQueue = new LinkedList<>();
@@ -140,6 +158,10 @@ public class LayerFillService extends Service implements IProgressor {
                         mIsCanceled = true;
                         mQueue.clear();
                         break;
+                    case ACTION_SHOW:
+                        mProgressIntent.putExtra(KEY_STATUS, STATUS_SHOW).putExtra(KEY_TITLE, mBuilder.mContentTitle);
+                        sendBroadcast(mProgressIntent);
+                        break;
                 }
             }
         }
@@ -165,6 +187,8 @@ public class LayerFillService extends Service implements IProgressor {
     protected void startNextTask(){
         if(mQueue.isEmpty()){
             mNotifyManager.cancel(FILL_NOTIFICATION_ID);
+            mProgressIntent.putExtra(KEY_STATUS, STATUS_STOP);
+            sendBroadcast(mProgressIntent);
             stopSelf();
             return;
         }
@@ -181,6 +205,9 @@ public class LayerFillService extends Service implements IProgressor {
                         .setContentTitle(notifyTitle)
                         .setTicker(notifyTitle);
                 mNotifyManager.notify(FILL_NOTIFICATION_ID, mBuilder.build());
+                mProgressIntent.putExtra(KEY_STATUS, STATUS_START).putExtra(KEY_TITLE, notifyTitle);
+                sendBroadcast(mProgressIntent);
+
                 android.os.Process.setThreadPriority( Constants.DEFAULT_DOWNLOAD_THREAD_PRIORITY );
                 task.execute(progressor);
 
@@ -231,6 +258,9 @@ public class LayerFillService extends Service implements IProgressor {
                 .setContentText(mProgressMessage);
         // Displays the progress bar for the first time.
         mNotifyManager.notify(FILL_NOTIFICATION_ID, mBuilder.build());
+        mProgressIntent.putExtra(KEY_STATUS, STATUS_UPDATE).putExtra(KEY_TOTAL, mProgressMax)
+                .putExtra(KEY_PROGRESS, mProgressValue).putExtra(KEY_TEXT, mProgressMessage);
+        sendBroadcast(mProgressIntent);
     }
 
     private void notifyError(String error) {
