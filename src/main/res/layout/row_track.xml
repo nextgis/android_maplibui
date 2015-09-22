@@ -24,33 +24,28 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
-              android:orientation="horizontal"
               android:layout_width="match_parent"
               android:layout_height="?attr/listPreferredItemHeightSmall"
-    >
+              android:orientation="horizontal">
 
-    <TextView
+    <CheckedTextView
         android:id="@+id/tv_name"
         android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:textAppearance="?attr/textAppearanceListItem"
         android:layout_weight="1"
-        android:layout_height="wrap_content"
-        />
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+        android:gravity="center_vertical"
+        android:textAppearance="?attr/textAppearanceListItem"/>
 
     <ImageView
         android:id="@+id/iv_visibility"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:paddingEnd="16dp"
+        android:paddingLeft="8dp"
         android:paddingRight="16dp"
-        tools:ignore="ContentDescription"
-        />
+        android:paddingStart="8dp"
+        tools:ignore="ContentDescription"/>
 
-    <CheckBox
-        android:id="@+id/cb_item"
-        android:layout_gravity="center"
-        android:focusable="false"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        />
 </LinearLayout>
