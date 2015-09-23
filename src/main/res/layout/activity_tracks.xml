@@ -23,33 +23,31 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:orientation="vertical"
-    >
+              android:orientation="vertical">
 
     <include
-        layout="@layout/actionbar"
-        />
+        layout="@layout/actionbar"/>
 
     <TextView
         android:id="@+id/tv_empty_list"
-        android:text="@string/empty_tracks"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:gravity="center"
-        android:visibility="gone"
+        android:padding="16dp"
+        android:text="@string/empty_tracks"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+        android:textColor="?android:attr/textColorSecondary"
+        android:visibility="gone"/>
 
-    <ListView
+    <com.nextgis.maplibui.util.TrackView
         android:id="@+id/lv_tracks"
-        android:paddingLeft="?attr/listPreferredItemPaddingLeft"
-        android:paddingStart="?attr/listPreferredItemPaddingLeft"
-        android:paddingRight="?attr/listPreferredItemPaddingRight"
-        android:paddingEnd="?attr/listPreferredItemPaddingLeft"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        />
+        android:paddingLeft="?attr/listPreferredItemPaddingLeft"
+        android:paddingRight="?attr/listPreferredItemPaddingRight"
+        tools:ignore="RtlHardcoded"/>
 
 </LinearLayout>
