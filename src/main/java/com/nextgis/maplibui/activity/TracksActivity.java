@@ -23,9 +23,7 @@
 
 package com.nextgis.maplibui.activity;
 
-import android.app.ActivityManager;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -42,6 +40,8 @@ import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.TrackerService;
 import com.nextgis.maplibui.util.TrackView;
+
+import static com.nextgis.maplibui.service.TrackerService.isTrackerServiceRunning;
 
 
 public class TracksActivity
@@ -113,21 +113,6 @@ public class TracksActivity
         }
 
         return sb.toString();
-    }
-
-
-    public static boolean isTrackerServiceRunning(Context context) {
-        ActivityManager manager =
-                (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(
-                Integer.MAX_VALUE)) {
-            if (TrackerService.class.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
 
