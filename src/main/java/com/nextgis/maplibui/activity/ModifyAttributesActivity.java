@@ -215,9 +215,10 @@ public class ModifyAttributesActivity
             int layerId = extras.getInt(KEY_LAYER_ID);
             MapBase map = app.getMap();
             mLayer = (VectorLayer) map.getLayerById(layerId);
-            mSharedPreferences = getSharedPreferences(mLayer.getPath().getName(), MODE_PRIVATE);
 
             if (null != mLayer) {
+                mSharedPreferences = getSharedPreferences(mLayer.getPath().getName(), MODE_PRIVATE);
+
                 mFields = new HashMap<>();
                 mFeatureId = extras.getLong(KEY_FEATURE_ID);
                 mGeometry = (GeoGeometry) extras.getSerializable(KEY_GEOMETRY);
