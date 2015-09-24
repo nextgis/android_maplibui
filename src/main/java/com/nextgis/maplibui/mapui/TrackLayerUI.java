@@ -27,7 +27,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.support.v7.internal.widget.ThemeUtils;
 import android.widget.Toast;
 
 import com.nextgis.maplib.map.TrackLayer;
@@ -48,7 +47,10 @@ public class TrackLayerUI
     {
         super(context, path);
 
-        mColor = ThemeUtils.getThemeAttrColor(mContext, R.attr.colorAccent);
+        int[] attrs = new int[] { R.attr.colorAccent };
+        TypedArray ta = mContext.obtainStyledAttributes(R.style.AppTheme, attrs);
+        mColor = ta.getColor(0, mContext.getResources().getColor(R.color.accent));
+        ta.recycle();
     }
 
 

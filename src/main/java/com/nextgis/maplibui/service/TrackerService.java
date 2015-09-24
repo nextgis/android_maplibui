@@ -46,7 +46,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.map.TrackLayer;
@@ -183,17 +182,6 @@ public class TrackerService
     }
 
 
-    private Cursor getLastTrack()
-    {
-        String[] proj = new String[] {TrackLayer.FIELD_END, TrackLayer.FIELD_NAME};
-        String selection = TrackLayer.FIELD_ID + " = (SELECT MAX(" + TrackLayer.FIELD_ID +
-                           ") FROM " + TrackLayer.TABLE_TRACKS + ")";
-        String[] args = new String[] {};
-
-        return getContentResolver().query(mContentUriTracks, proj, selection, args, null);
-    }
-
-
     private void restoreData()
     {
         Uri mNewTrack = Uri.parse(mSharedPreferencesTemp.getString(TRACK_URI, ""));
@@ -254,7 +242,6 @@ public class TrackerService
     private int getAppendix(long today) {
         int result = 0;
         String previousAppendix = mSharedPreferencesTemp.getString(TRACK_DAILY_ID, "0-1");
-        Log.d("Tracker", "prev: " + previousAppendix + " today: " + today);
         if (Long.parseLong(previousAppendix.split("-")[0]) >= today)
             result = Integer.parseInt(previousAppendix.split("-")[1]);
 
