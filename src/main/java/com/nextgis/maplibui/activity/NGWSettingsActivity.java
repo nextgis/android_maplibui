@@ -36,6 +36,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.PeriodicSync;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -67,10 +68,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
-import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
 
 
 public class NGWSettingsActivity
@@ -287,6 +286,7 @@ public class NGWSettingsActivity
             final IGISApplication application,
             final Account account,
             PreferenceCategory syncCategory) {
+        final String accountNameHash = "_" + account.name.hashCode();
         SharedPreferences sharedPreferences = getSharedPreferences(
                 Constants.PREFERENCES, Constants.MODE_MULTI_PROCESS);
 
@@ -308,7 +308,7 @@ public class NGWSettingsActivity
                 });
 
         long timeStamp =
-                sharedPreferences.getLong(SettingsConstants.KEY_PREF_LAST_SYNC_TIMESTAMP, 0);
+                sharedPreferences.getLong(SettingsConstants.KEY_PREF_LAST_SYNC_TIMESTAMP + accountNameHash, 0);
         if (isAccountSyncEnabled && timeStamp > 0) {
             enablePeriodicSync.setSummary(
                     getString(R.string.last_sync_time) + ": " +
@@ -342,9 +342,16 @@ public class NGWSettingsActivity
             final IGISApplication application,
             final Account account,
             PreferenceCategory syncCategory) {
-        final SharedPreferences sharedPreferences =
-                PreferenceManager.getDefaultSharedPreferences(this);
-        String prefValue = "" + sharedPreferences.getLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, Constants.DEFAULT_SYNC_PERIOD);
+
+        String prefValue;
+        List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, application.getAuthority());
+        if(null == syncs || syncs.isEmpty()) {
+            prefValue = "" + Constants.DEFAULT_SYNC_PERIOD;
+        }
+        else {
+            PeriodicSync sync = syncs.get(syncs.size() - 1);
+            prefValue = "" + sync.period;
+        }
 
         final CharSequence[] keys = {
                 getString(R.string.five_minutes),
@@ -361,6 +368,10 @@ public class NGWSettingsActivity
         timeInterval.setDialogTitle(R.string.sync_set_interval);
         timeInterval.setEntries(keys);
         timeInterval.setEntryValues(values);
+
+        // set default values
+        timeInterval.setValueIndex(4);
+        timeInterval.setSummary(keys[4]);
 
         for (int i = 0; i < values.length; i++) {
             if (values[i].equals(prefValue)) {
@@ -389,14 +400,12 @@ public class NGWSettingsActivity
                             ContentResolver.removePeriodicSync(
                                     account, application.getAuthority(), Bundle.EMPTY);
                         } else {
+
                             ContentResolver.addPeriodicSync(
                                     account, application.getAuthority(), Bundle.EMPTY, interval);
                         }
 
-                        //set KEY_PREF_SYNC_PERIOD_SEC_LONG
-                        return sharedPreferences.edit()
-                                .putLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, interval)
-                                .commit();
+                        return true;
                     }
                 });
 
