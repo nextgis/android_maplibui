@@ -23,6 +23,8 @@
 
 package com.nextgis.maplibui.service;
 
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -65,6 +67,7 @@ public class TrackerService
     public static final  String TEMP_PREFERENCES      = "tracks_temp";
     public static final  String TARGET_CLASS          = "target_class";
     private static final String TRACK_URI             = "track_uri";
+    private static final String TRACK_DAILY_ID        = "track_daily_id";
     private static final String ACTION_STOP           = "TRACK_STOP";
     private static final String ACTION_SPLIT          = "TRACK_SPLIT";
     private static final int    TRACK_NOTIFICATION_ID = 1;
@@ -73,9 +76,8 @@ public class TrackerService
     private LocationManager mLocationManager;
 
     private SharedPreferences mSharedPreferencesTemp;
-    private String            mTrackName, mTrackId;
-    private Uri mContentUriTracks, mContentUriTrackpoints, mNewTrack;
-    private Cursor        mLastTrack;
+    private String            mTrackId;
+    private Uri mContentUriTracks, mContentUriTrackpoints;
     private ContentValues mValues;
 
     private NotificationManager mNotificationManager;
@@ -126,10 +128,8 @@ public class TrackerService
             mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
         }
 
-        mLastTrack = getLastTrack();
-
         mTicker = getString(R.string.tracks_running);
-        mSmallIcon = android.R.drawable.ic_menu_myplaces;
+        mSmallIcon = R.drawable.ic_action_maps_directions_walk;
 
         Intent intentSplit = new Intent(this, TrackerService.class);
         intentSplit.setAction(ACTION_SPLIT);
@@ -157,7 +157,6 @@ public class TrackerService
                         return START_NOT_STICKY;
                     case ACTION_SPLIT:
                         stopTrack();
-                        mLastTrack = getLastTrack();
                         startTrack();
                         addNotification();
                         return START_STICKY;
@@ -167,7 +166,7 @@ public class TrackerService
 
         if (!mIsRunning) {
             // there are no tracks or last track correctly ended
-            if (!hasLastTrack() || isLastTrackClosed()) {
+            if (mSharedPreferencesTemp.getString(TRACK_URI, null) == null) {
                 startTrack();
                 mSharedPreferencesTemp.edit().putString(TARGET_CLASS, targetActivity).commit();
             } else {
@@ -195,23 +194,9 @@ public class TrackerService
     }
 
 
-    private boolean hasLastTrack()
-    {
-        return mLastTrack != null && mLastTrack.moveToFirst();
-    }
-
-
-    private boolean isLastTrackClosed()
-    {
-        return mLastTrack.moveToFirst() && !TextUtils.isEmpty(
-                mLastTrack.getString(mLastTrack.getColumnIndex(TrackLayer.FIELD_END)));
-    }
-
-
     private void restoreData()
     {
-        mTrackName = mLastTrack.getString(mLastTrack.getColumnIndex(TrackLayer.FIELD_NAME));
-        mNewTrack = Uri.parse(mSharedPreferencesTemp.getString(TRACK_URI, ""));
+        Uri mNewTrack = Uri.parse(mSharedPreferencesTemp.getString(TRACK_URI, ""));
         mTrackId = mNewTrack.getLastPathSegment();
         mIsRunning = true;
     }
@@ -222,39 +207,27 @@ public class TrackerService
         Calendar today = Calendar.getInstance();
         today.set(Calendar.HOUR, 0);
         today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
         today.set(Calendar.MILLISECOND, 0);
 
         // get track name date unique appendix
         final SimpleDateFormat simpleDateFormat =
                 new SimpleDateFormat("yyyy-MM-dd-", Locale.getDefault());
-        String append = "1";
-
-        // there is at least one track
-        if (hasLastTrack()) {
-            long lastTrackEnd = mLastTrack.getLong(mLastTrack.getColumnIndex(TrackLayer.FIELD_END));
-
-            // last track recorded today, increase appendix
-            if (lastTrackEnd > today.getTimeInMillis()) {
-                String[] segments =
-                        mLastTrack.getString(mLastTrack.getColumnIndex(TrackLayer.FIELD_NAME))
-                                .split("-");
-                int newTrackDayId = Integer.parseInt(segments[segments.length - 1]) + 1;
-                append = Integer.toString(newTrackDayId);
-            }
-        }
+        int append = getAppendix(today.getTimeInMillis());
 
         // insert DB row
         final long started = System.currentTimeMillis();
-        mTrackName = simpleDateFormat.format(started) + append;
+        String mTrackName = simpleDateFormat.format(started) + append;
         mValues.clear();
         mValues.put(TrackLayer.FIELD_NAME, mTrackName);
         mValues.put(TrackLayer.FIELD_START, started);
         mValues.put(TrackLayer.FIELD_VISIBLE, true);
-        mNewTrack = getContentResolver().insert(mContentUriTracks, mValues);
+        Uri mNewTrack = getContentResolver().insert(mContentUriTracks, mValues);
 
         // save vars
         mTrackId = mNewTrack.getLastPathSegment();
         mSharedPreferencesTemp.edit().putString(TRACK_URI, mNewTrack.toString()).commit();
+        mSharedPreferencesTemp.edit().putString(TRACK_DAILY_ID, today.getTimeInMillis() + "-" + append).commit();
         mIsRunning = true;
 
         // set midnight track splitter
@@ -265,16 +238,8 @@ public class TrackerService
 
     private void stopTrack()
     {
-        if (null != mNewTrack && !mNewTrack.equals(Uri.parse(""))) {
-            Log.d(Constants.TAG, "uri: " + mNewTrack);
-            // update unclosed tracks in DB
-            mValues.clear();
-            mValues.put(TrackLayer.FIELD_END, System.currentTimeMillis());
-
-            String selection =
-                    TrackLayer.FIELD_END + " IS NULL OR " + TrackLayer.FIELD_END + " = ''";
-            getContentResolver().update(mNewTrack, mValues, selection, null);
-        }
+        // update unclosed tracks in DB
+        closeTracks(this, (IGISApplication) getApplication());
 
         mIsRunning = false;
 
@@ -286,11 +251,39 @@ public class TrackerService
     }
 
 
+    private int getAppendix(long today) {
+        int result = 0;
+        String previousAppendix = mSharedPreferencesTemp.getString(TRACK_DAILY_ID, "0-1");
+        Log.d("Tracker", "prev: " + previousAppendix + " today: " + today);
+        if (Long.parseLong(previousAppendix.split("-")[0]) >= today)
+            result = Integer.parseInt(previousAppendix.split("-")[1]);
+
+        return ++result;
+    }
+
+
+    public static void closeTracks(Context context, IGISApplication app) {
+        ContentValues cv = new ContentValues();
+        cv.put(TrackLayer.FIELD_END, System.currentTimeMillis());
+        String selection = TrackLayer.FIELD_END + " IS NULL OR " + TrackLayer.FIELD_END + " = ''";
+        Uri tracksUri = Uri.parse("content://" + app.getAuthority() + "/" + TrackLayer.TABLE_TRACKS);
+        context.getContentResolver().update(tracksUri, cv, selection, null);
+    }
+
+
     private void addNotification()
     {
-        String title = String.format(getString(R.string.tracks_title), mTrackName);
+        String name = "";
+
+        String selection = TrackLayer.FIELD_ID + " = ?";
+        Cursor currentTrack = getContentResolver().query(mContentUriTracks, new String[]{TrackLayer.FIELD_NAME}, selection, new String[]{mTrackId}, null);
+        if (currentTrack.moveToFirst())
+            name = currentTrack.getString(0);
+        currentTrack.close();
+
+        String title = String.format(getString(R.string.tracks_title), name);
         Bitmap largeIcon =
-                BitmapFactory.decodeResource(getResources(), android.R.drawable.ic_menu_myplaces);
+                BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_maps_directions_walk);
 
         Intent intentStop = new Intent(this, TrackerService.class);
         intentStop.setAction(ACTION_STOP);
@@ -310,14 +303,16 @@ public class TrackerService
                 .setOngoing(true);
 
         builder.addAction(
-                android.R.drawable.ic_menu_mapmode, getString(R.string.tracks_open),
+                R.drawable.ic_location, getString(R.string.tracks_open),
                 mOpenActivity);
         builder.addAction(
-                android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.tracks_stop),
+                R.drawable.ic_action_cancel_dark, getString(R.string.tracks_stop),
                 stopService);
 
         mNotificationManager.notify(TRACK_NOTIFICATION_ID, builder.build());
+        startForeground(TRACK_NOTIFICATION_ID, builder.build());
     }
+
 
     private void removeNotification()
     {
@@ -424,4 +419,32 @@ public class TrackerService
                 break;
         }
     }
+
+
+    public static boolean hasUnfinishedTracks(Context context) {
+        IGISApplication app = (IGISApplication) ((Activity) context).getApplication();
+        Uri tracksUri = Uri.parse("content://" + app.getAuthority() + "/" + TrackLayer.TABLE_TRACKS);
+        String selection = TrackLayer.FIELD_END + " IS NULL OR " + TrackLayer.FIELD_END + " = ''";
+        Cursor data = context.getContentResolver().query(tracksUri, new String[]{TrackLayer.FIELD_ID}, selection, null, null);
+        boolean hasUnfinishedTracks = data.moveToFirst();
+        data.close();
+
+        return hasUnfinishedTracks;
+    }
+
+
+    public static boolean isTrackerServiceRunning(Context context) {
+        ActivityManager manager =
+                (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(
+                Integer.MAX_VALUE)) {
+            if (TrackerService.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }
