@@ -493,6 +493,9 @@ public class EditLayerOverlay
 
     protected void setToolbarSaveState(boolean save)
     {
+        if(null == mCurrentToolbar)
+            return;
+
         if (save) {
             mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_save);
             mCurrentToolbar.setNavigationContentDescription(R.string.save);
