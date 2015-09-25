@@ -486,7 +486,7 @@ public class CreateLocalLayerDialog
 
                         intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
                         intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
-                        intent.putExtra(LayerFillService.KEY_PATH, new File(layer.getPath(), NGFP_FILE_DATA).toString());
+                        intent.putExtra(LayerFillService.KEY_PATH, dataFile);
                         intent.putExtra(LayerFillService.KEY_DELETE_SRC_FILE, true);
                     }
 
