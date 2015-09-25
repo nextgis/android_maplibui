@@ -516,7 +516,7 @@ public class ModifyAttributesActivity
     protected void putAttaches() {
         PhotoGallery gallery = (PhotoGallery) findViewById(R.id.pg_photos);
 
-        if (gallery != null) {
+        if (gallery != null && mFeatureId != NOT_FOUND) {
             List<Integer> deletedAttaches = gallery.getDeletedAttaches();
             IGISApplication application = (IGISApplication) getApplication();
             Uri uri = Uri.parse("content://" + application.getAuthority() + "/" +
