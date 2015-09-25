@@ -293,6 +293,11 @@ public class EditLayerOverlay
     {
         mDrawItems.clear();
 
+        if(null == geom){
+            Log.w(Constants.TAG, "the geometry is null in fillDrawItems method");
+            return;
+        }
+
         GeoPoint[] geoPoints;
         float[] points;
         GeoLineString lineString;
