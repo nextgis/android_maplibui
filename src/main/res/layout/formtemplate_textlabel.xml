@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Project:  NextGIS Mobile
   ~ Purpose:  Mobile GIS for Android.
   ~ Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
+  ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
   ~ Copyright (c) 2012-2015. NextGIS, info@nextgis.com
   ~
@@ -20,7 +20,7 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<com.nextgis.maplibui.formcontrol.TextLabel
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.nextgis.maplibui.formcontrol.TextLabel xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"/>
+    android:layout_height="wrap_content"
+    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
