@@ -400,8 +400,8 @@ public class CreateLocalLayerDialog
                     Intent intent = new Intent(context, LayerFillService.class);
                     intent.setAction(LayerFillService.ACTION_ADD_TASK);
                     //read if this local o remote source
-                    boolean isNgwConnection = metaJson.has("ngw_connection");
-                    if (isNgwConnection && !metaJson.isNull("ngw_connection")) {
+                    boolean isNgwConnection = metaJson.has("ngw_connection") && !metaJson.isNull("ngw_connection");
+                    if (isNgwConnection) {
                         FileUtil.deleteRecursive(dataFile);
                         JSONObject connection = metaJson.getJSONObject("ngw_connection");
 
@@ -486,7 +486,7 @@ public class CreateLocalLayerDialog
 
                         intent.putExtra(ConstantsUI.KEY_LAYER_ID, layer.getId());
                         intent.putExtra(LayerFillService.KEY_INPUT_TYPE, layer.getType());
-                        intent.putExtra(LayerFillService.KEY_PATH, dataFile);
+                        intent.putExtra(LayerFillService.KEY_PATH, dataFile.toString());
                         intent.putExtra(LayerFillService.KEY_DELETE_SRC_FILE, true);
                     }
 

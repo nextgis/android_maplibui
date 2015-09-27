@@ -128,13 +128,13 @@ public class LayerFillService extends Service implements IProgressor {
                 switch (action) {
                     case ACTION_ADD_TASK:
                         int layerId = intent.getIntExtra(ConstantsUI.KEY_LAYER_ID, Constants.NOT_FOUND);
-                        int layerType = intent.getIntExtra(KEY_INPUT_TYPE, Constants.NOT_FOUND);
-                        Uri uri = intent.getParcelableExtra(KEY_URI);
-                        String sPath = intent.getStringExtra(KEY_PATH);
+                        int layerType = intent.getIntExtra(LayerFillService.KEY_INPUT_TYPE, Constants.NOT_FOUND);
+                        Uri uri = intent.getParcelableExtra(LayerFillService.KEY_URI);
+                        String sPath = intent.getStringExtra(LayerFillService.KEY_PATH);
                         File path = null;
                         if(!TextUtils.isEmpty(sPath))
                             path = new File(sPath);
-                        boolean deleteSourceFile = intent.getBooleanExtra(KEY_DELETE_SRC_FILE, false);
+                        boolean deleteSourceFile = intent.getBooleanExtra(LayerFillService.KEY_DELETE_SRC_FILE, false);
 
                         if(layerType == Constants.LAYERTYPE_LOCAL_VECTOR){
                             if(null != uri)
