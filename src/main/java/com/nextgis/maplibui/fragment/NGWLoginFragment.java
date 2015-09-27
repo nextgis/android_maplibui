@@ -160,6 +160,7 @@ public class NGWLoginFragment
     public void onClick(View v)
     {
         if (v == mSignInButton) {
+            mSignInButton.setEnabled(false);
             getLoaderManager().restartLoader(R.id.auth_token_loader, null, this);
         }
     }
@@ -198,6 +199,7 @@ public class NGWLoginFragment
             Loader<String> loader,
             String token)
     {
+        mSignInButton.setEnabled(true);
         if (loader.getId() == R.id.auth_token_loader) {
             if (token != null && token.length() > 0) {
                 String accountName = "";
