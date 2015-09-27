@@ -309,7 +309,7 @@ public class ModifyAttributesActivity
         try {
             IFormControl control = (PhotoGallery) getLayoutInflater().inflate(R.layout.formtemplate_photo, layout, false);
             ((PhotoGallery) control).init(mLayer, mFeatureId);
-            control.init(null, null, null, null);
+            control.init(null, null, null, null, null);
             control.addToLayout(layout);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -327,8 +327,8 @@ public class ModifyAttributesActivity
 
         LinearLayout controlLayout = (LinearLayout) findViewById(R.id.controls_list);
         for (int i = 0; i < controlLayout.getChildCount(); i++)
-            if (controlLayout.getChildAt(i) instanceof ISimpleControl)
-                ((ISimpleControl) controlLayout.getChildAt(i)).saveState(outState);
+            if (controlLayout.getChildAt(i) instanceof IControl)
+                ((IControl) controlLayout.getChildAt(i)).saveState(outState);
     }
 
 

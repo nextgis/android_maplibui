@@ -30,6 +30,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -42,6 +43,7 @@ import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IFormControl;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -87,7 +89,7 @@ public class DateTime extends AppCompatTextView implements IFormControl
     }
 
     @Override
-    public void init(JSONObject element, List<Field> fields, Cursor featureCursor, SharedPreferences preferences) throws JSONException {
+    public void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences preferences) throws JSONException {
         mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
 
 
@@ -135,7 +137,10 @@ public class DateTime extends AppCompatTextView implements IFormControl
         }
 
         long timestamp = 0;
-        if (null != featureCursor) { // feature exists
+        String value = null;
+        if (ControlHelper.hasKey(savedState, mFieldName))
+            value = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
+        else if (null != featureCursor) { // feature exists
             int column = featureCursor.getColumnIndex(mFieldName);
             if (column >= 0) {
                 timestamp = featureCursor.getLong(column);
@@ -150,35 +155,13 @@ public class DateTime extends AppCompatTextView implements IFormControl
                 timestamp = preferences.getLong(mFieldName, timestamp);
         }
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(timestamp);
-        setText(mDateFormat.format(calendar.getTime()));
+        if (value == null) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(timestamp);
+            value = mDateFormat.format(calendar.getTime());
+        }
 
-//        String lastValue = null;
-//        if (mIsShowLast) {
-//            if (null != featureCursor) {
-//                int column = featureCursor.getColumnIndex(mFieldName);
-//                if (column >= 0) {
-//                    Calendar calendar = Calendar.getInstance();
-//                    calendar.setTimeInMillis(featureCursor.getLong(column));
-//                    lastValue = mDateFormat.format(calendar.getTime());
-//                }
-//            }
-//        }
-
-//        if (mIsShowLast && null != lastValue) {
-//            setText(lastValue);
-//        } else {
-//            if (attributes.has(JSON_TEXT_KEY) && !attributes.isNull(
-//                    JSON_TEXT_KEY)) {
-//                String defaultValue = attributes.getString(JSON_TEXT_KEY);
-//
-//                // TODO: check format of defaultValue
-//
-//                setText(defaultValue);
-//            }
-//        }
-
+        setText(value);
         setSingleLine(true);
         setFocusable(false);
         setOnClickListener(getDateUpdateWatcher(picker_type));
@@ -389,5 +372,10 @@ public class DateTime extends AppCompatTextView implements IFormControl
     public Object getValue() {
         return mCalendar.getTimeInMillis();
 //        return getText().toString();
+    }
+
+    @Override
+    public void saveState(Bundle outState) {
+        outState.putString(ControlHelper.getSavedStateKey(mFieldName), getText().toString());
     }
 }

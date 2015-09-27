@@ -32,5 +32,4 @@ import com.nextgis.maplib.datasource.Field;
 public interface ISimpleControl extends IControl {
 
     void init(Field field, Bundle savedState, Cursor featureCursor);
-    void saveState(Bundle outState);
 }

@@ -26,6 +26,7 @@ package com.nextgis.maplibui.formcontrol;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.v7.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -35,6 +36,7 @@ import android.widget.ArrayAdapter;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.control.GreyLine;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -74,6 +76,7 @@ public class Combobox extends AppCompatSpinner implements IFormControl
     @Override
     public void init(JSONObject element,
                      List<Field> fields,
+                     Bundle savedState,
                      Cursor featureCursor,
                      SharedPreferences preferences) throws JSONException{
 
@@ -98,15 +101,14 @@ public class Combobox extends AppCompatSpinner implements IFormControl
         }
 
         String lastValue = null;
-        if (mIsShowLast) {
-            if (null != featureCursor) {
+        if (ControlHelper.hasKey(savedState, mFieldName))
+            lastValue = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
+        else if (null != featureCursor) {
                 int column = featureCursor.getColumnIndex(mFieldName);
-                if (column >= 0) {
+                if (column >= 0)
                     lastValue = featureCursor.getString(column);
-                }
-            }
-        }
-
+        } else if (mIsShowLast)
+            lastValue = preferences.getString(mFieldName, null);
 
         JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
         int defaultPosition = 0;
@@ -122,21 +124,17 @@ public class Combobox extends AppCompatSpinner implements IFormControl
             String value = keyValue.getString(JSON_VALUE_NAME_KEY);
             String value_alias = keyValue.getString(JSON_VALUE_ALIAS_KEY);
 
-            if (keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(
-                    JSON_DEFAULT_KEY)) {
+            if (keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(JSON_DEFAULT_KEY))
                 defaultPosition = j;
-            }
 
-            if (mIsShowLast && null != lastValue && lastValue.equals(value)) { // if modify data
+            if (null != lastValue && lastValue.equals(value))
                 lastValuePosition = j;
-            }
 
             mAliasValueMap.put(value_alias, value);
             spinnerArrayAdapter.add(value_alias);
         }
 
         setSelection(lastValuePosition >= 0 ? lastValuePosition : defaultPosition);
-
 
         // The drop down view
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -146,10 +144,12 @@ public class Combobox extends AppCompatSpinner implements IFormControl
         setPadding(0, (int) minHeight, 0, (int) minHeight);
     }
 
+
     @Override
     public void saveLastValue(SharedPreferences preferences) {
         preferences.edit().putString(mFieldName, (String) getValue()).commit();
     }
+
 
     @Override
     public boolean isShowLast() {
@@ -176,5 +176,11 @@ public class Combobox extends AppCompatSpinner implements IFormControl
     {
         String valueAlias = (String) getSelectedItem();
         return mAliasValueMap.get(valueAlias);
+    }
+
+
+    @Override
+    public void saveState(Bundle outState) {
+        outState.putString(ControlHelper.getSavedStateKey(mFieldName), (String) getValue());
     }
 }

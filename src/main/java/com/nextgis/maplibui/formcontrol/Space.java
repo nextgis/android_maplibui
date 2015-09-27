@@ -24,6 +24,7 @@ package com.nextgis.maplibui.formcontrol;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -51,7 +52,7 @@ public class Space extends FrameLayout implements IFormControl {
 
 
     @Override
-    public void init(JSONObject element, List<Field> fields, Cursor featureCursor, SharedPreferences preferences) throws JSONException {
+    public void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences preferences) throws JSONException {
     }
 
     @Override
@@ -77,5 +78,10 @@ public class Space extends FrameLayout implements IFormControl {
     @Override
     public Object getValue() {
         return null;
+    }
+
+    @Override
+    public void saveState(Bundle outState) {
+
     }
 }

@@ -26,6 +26,7 @@ package com.nextgis.maplibui.formcontrol;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.control.GreyLine;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,6 +71,7 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
     @Override
     public void init(JSONObject element,
                      List<Field> fields,
+                     Bundle savedState,
                      Cursor featureCursor,
                      SharedPreferences preferences) throws JSONException{
 
@@ -93,15 +96,14 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
         }
 
         String lastValue = null;
-        if (null != featureCursor) { // feature exists
+        if (ControlHelper.hasKey(savedState, mFieldName))
+            lastValue = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
+        else if (null != featureCursor) { // feature exists
             int column = featureCursor.getColumnIndex(mFieldName);
-            if (column >= 0) {
+            if (column >= 0)
                 lastValue = featureCursor.getString(column);
-            }
-        } else {    // new feature
-            if (mIsShowLast)
-                lastValue = preferences.getString(mFieldName, null);
-        }
+        } else if (mIsShowLast)
+            lastValue = preferences.getString(mFieldName, null);
 
         JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
         int position = Constants.NOT_FOUND;
@@ -161,6 +163,11 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
         RadioButton radioButton = (RadioButton) findViewById(getCheckedRadioButtonId());
         String value_alias = (String) radioButton.getText();
         return mAliasValueMap.get(value_alias);
+    }
+
+    @Override
+    public void saveState(Bundle outState) {
+        outState.putString(ControlHelper.getSavedStateKey(mFieldName), (String) getValue());
     }
 
 }

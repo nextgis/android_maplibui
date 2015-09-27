@@ -24,7 +24,6 @@
 package com.nextgis.maplibui.activity;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -36,12 +35,12 @@ import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IFormControl;
+import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.formcontrol.Checkbox;
 import com.nextgis.maplibui.formcontrol.Combobox;
 import com.nextgis.maplibui.formcontrol.DateTime;
 import com.nextgis.maplibui.formcontrol.DoubleCombobox;
 import com.nextgis.maplibui.formcontrol.DoubleComboboxValue;
-import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.formcontrol.RadioGroup;
 import com.nextgis.maplibui.formcontrol.Space;
 import com.nextgis.maplibui.formcontrol.TextEdit;
@@ -79,7 +78,8 @@ import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
 public class FormBuilderModifyAttributesActivity
         extends ModifyAttributesActivity
 {
-    protected void fillControls(LinearLayout layout)
+    @Override
+    protected void fillControls(LinearLayout layout, Bundle savedState)
     {
         //TODO: add location control via fragment only defined by user space
 
@@ -94,7 +94,7 @@ public class FormBuilderModifyAttributesActivity
             if(TextUtils.indexOf(formString, "tabs") == -1){
                 JSONArray elements = new JSONArray(formString);
                 if (elements.length() > 0) {
-                    fillTabControls(layout, elements);
+                    fillTabControls(layout, savedState, elements);
                 }
             }
             else {
@@ -126,7 +126,7 @@ public class FormBuilderModifyAttributesActivity
                     }
 
                     if (null != elements && elements.length() > 0) {
-                        fillTabControls(layout, elements);
+                        fillTabControls(layout, savedState, elements);
                     }
                 }
             }
@@ -140,6 +140,7 @@ public class FormBuilderModifyAttributesActivity
 
     protected void fillTabControls(
             LinearLayout layout,
+            Bundle savedState,
             JSONArray elements)
             throws JSONException
     {
@@ -211,7 +212,7 @@ public class FormBuilderModifyAttributesActivity
             }
 
             if (null != control) {
-                control.init(element, fields, featureCursor, mSharedPreferences);
+                control.init(element, fields, savedState, featureCursor, mSharedPreferences);
                 control.addToLayout(layout);
                 String fieldName = control.getFieldName();
 

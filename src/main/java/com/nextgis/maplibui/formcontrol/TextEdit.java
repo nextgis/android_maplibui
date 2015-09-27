@@ -27,6 +27,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.InputType;
 import android.util.AttributeSet;
@@ -35,6 +36,7 @@ import android.view.ViewGroup;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.api.IFormControl;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -69,9 +71,10 @@ public class TextEdit extends AppCompatEditText
 
     @Override
     public void init(JSONObject element,
-                        List<Field> fields,
-                        Cursor featureCursor,
-                        SharedPreferences preferences) throws JSONException{
+                     List<Field> fields,
+                     Bundle savedState,
+                     Cursor featureCursor,
+                     SharedPreferences preferences) throws JSONException{
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
 
         mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);
@@ -94,11 +97,12 @@ public class TextEdit extends AppCompatEditText
         }
 
         String value = null;
-        if (null != featureCursor) { // feature exists
+        if (ControlHelper.hasKey(savedState, mFieldName))
+            value = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
+        else if (null != featureCursor) { // feature exists
             int column = featureCursor.getColumnIndex(mFieldName);
-            if (column >= 0) {
+            if (column >= 0)
                 value = featureCursor.getString(column);
-            }
         } else {    // new feature
             if (attributes.has(JSON_TEXT_KEY) && !attributes.isNull(JSON_TEXT_KEY))
                 value = attributes.getString(JSON_TEXT_KEY);
@@ -158,5 +162,10 @@ public class TextEdit extends AppCompatEditText
     @Override
     public Object getValue() {
         return getText().toString();
+    }
+
+    @Override
+    public void saveState(Bundle outState) {
+        outState.putString(ControlHelper.getSavedStateKey(mFieldName), getText().toString());
     }
 }

@@ -23,6 +23,7 @@ package com.nextgis.maplibui.api;
 
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.Bundle;
 
 import com.nextgis.maplib.datasource.Field;
 
@@ -35,7 +36,7 @@ import java.util.List;
  * Interface for formbuilder controls
  */
 public interface IFormControl extends IControl {
-    void init(JSONObject element, List<Field> fields, Cursor featureCursor, SharedPreferences lastValue) throws JSONException;
+    void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences lastValue) throws JSONException;
     void saveLastValue(SharedPreferences preferences);
     boolean isShowLast();
 }

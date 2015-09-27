@@ -23,6 +23,7 @@
 
 package com.nextgis.maplibui.api;
 
+import android.os.Bundle;
 import android.view.ViewGroup;
 
 
@@ -34,4 +35,5 @@ public interface IControl
 
     Object getValue();
 
+    void saveState(Bundle outState);
 }

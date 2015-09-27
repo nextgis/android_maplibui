@@ -24,12 +24,14 @@ package com.nextgis.maplibui.formcontrol;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.api.IFormControl;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,6 +59,7 @@ public class Checkbox extends CheckBox implements IFormControl {
     @Override
     public void init(JSONObject element,
                      List<Field> fields,
+                     Bundle savedState,
                      Cursor featureCursor,
                      SharedPreferences preferences) throws JSONException {
 
@@ -81,7 +84,9 @@ public class Checkbox extends CheckBox implements IFormControl {
         }
 
         Boolean value = null;
-        if (null != featureCursor) {
+        if (ControlHelper.hasKey(savedState, mFieldName))
+            value = savedState.getBoolean(ControlHelper.getSavedStateKey(mFieldName));
+        else if (null != featureCursor) {
             int column = featureCursor.getColumnIndex(mFieldName);
 
             if (column >= 0)
@@ -112,6 +117,11 @@ public class Checkbox extends CheckBox implements IFormControl {
     @Override
     public Object getValue() {
         return isChecked() ? 1 : 0;
+    }
+
+    @Override
+    public void saveState(Bundle outState) {
+        outState.putBoolean(ControlHelper.getSavedStateKey(mFieldName), isChecked());
     }
 
     @Override

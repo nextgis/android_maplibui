@@ -74,6 +74,7 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
     @Override
     public void init(JSONObject element,
                      List<Field> fields,
+                     Bundle savedState,
                      Cursor featureCursor,
                      SharedPreferences preferences) throws JSONException {
         mAttaches = new HashMap<>();
@@ -177,6 +178,11 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
     @Override
     public Object getValue() {
         return null;
+    }
+
+    @Override
+    public void saveState(Bundle outState) {
+
     }
 
     public List<String> getNewAttaches() {

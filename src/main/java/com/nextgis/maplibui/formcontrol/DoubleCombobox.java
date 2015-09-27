@@ -26,6 +26,7 @@ package com.nextgis.maplibui.formcontrol;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.v7.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -34,10 +35,12 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.control.AliasList;
 import com.nextgis.maplibui.control.GreyLine;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,7 +50,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.nextgis.maplibui.util.ConstantsUI.*;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_DEFAULT_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_LEVEL1_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_LEVEL2_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_SHOW_LAST_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUES_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_ALIAS_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_NAME_KEY;
 
 
 public class DoubleCombobox extends AppCompatSpinner implements IFormControl
@@ -81,8 +91,7 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
     //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
 
     @Override
-    public void init(JSONObject element, List<Field> fields, Cursor featureCursor, SharedPreferences preferences) throws JSONException {
-
+    public void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences preferences) throws JSONException {
         mSubCombobox = new Spinner(getContext());
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
@@ -106,22 +115,22 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
             mIsShowLast = attributes.getBoolean(JSON_SHOW_LAST_KEY);
         }
 
-        // TODO proper show current / last saved feature attrs
         String lastValue = null;
         String subLastValue = null;
-        if (mIsShowLast) {
-            if (null != featureCursor) {
-               int column = featureCursor.getColumnIndex(mFieldName);
-                int subColumn = featureCursor.getColumnIndex(mSubFieldName);
-                if (column >= 0) {
-                    lastValue = featureCursor.getString(column);
-                }
-                if (subColumn >= 0) {
-                    subLastValue = featureCursor.getString(subColumn);
-                }
-            }
+        if (ControlHelper.hasKey(savedState, mFieldName) && ControlHelper.hasKey(savedState, mSubFieldName)) {
+            lastValue = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
+            subLastValue = savedState.getString(ControlHelper.getSavedStateKey(mSubFieldName));
+        } else if (null != featureCursor) {
+            int column = featureCursor.getColumnIndex(mFieldName);
+            int subColumn = featureCursor.getColumnIndex(mSubFieldName);
+            if (column >= 0)
+                lastValue = featureCursor.getString(column);
+            if (subColumn >= 0)
+                subLastValue = featureCursor.getString(subColumn);
+        } else if (mIsShowLast) {
+            lastValue = preferences.getString(mFieldName, null);
+            subLastValue = preferences.getString(mSubFieldName, null);
         }
-
 
         JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
         int defaultPosition = 0;
@@ -148,17 +157,13 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
             mAliasSubListMap.put(valueAlias, subAliasList);
             comboboxAdapter.add(valueAlias);
 
-            if (keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(
-                    JSON_DEFAULT_KEY)) {
+            if (keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(JSON_DEFAULT_KEY))
                 defaultPosition = j;
-            }
 
-            if (mIsShowLast && null != lastValue && lastValue.equals(value)) { // if modify data
+            if (null != lastValue && lastValue.equals(value)) // if modify data
                 lastValuePosition = j;
-            }
 
             JSONArray subValues = keyValue.getJSONArray(JSON_VALUES_KEY);
-
             for (int k = 0; k < subValues.length(); k++) {
                 JSONObject subKeyValue = subValues.getJSONObject(k);
                 String subValue = subKeyValue.getString(JSON_VALUE_NAME_KEY);
@@ -167,14 +172,10 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
                 subAliasValueMap.put(subValueAlias, subValue);
                 subAliasList.aliasList.add(subValueAlias);
 
-                if (subKeyValue.has(JSON_DEFAULT_KEY) && subKeyValue.getBoolean(
-                        JSON_DEFAULT_KEY)) {
+                if (subKeyValue.has(JSON_DEFAULT_KEY) && subKeyValue.getBoolean(JSON_DEFAULT_KEY))
                     subAliasList.defaultPosition = k;
-                }
 
-                if (mIsShowLast && null != subLastValue &&
-                    subLastValue.equals(value)) { // if modify data
-
+                if (null != subLastValue && subLastValue.equals(subValue)) { // if modify data
                     lastValuePosition = j;
                     subLastValuePosition = k;
                 }
@@ -191,7 +192,6 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
                 TypedValue.COMPLEX_UNIT_DIP, 14, getResources().getDisplayMetrics());
         setPadding(0, (int) minHeight, 0, (int) minHeight);
         mSubCombobox.setPadding(0, (int) minHeight, 0, (int) minHeight);
-
 
         setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener()
@@ -283,5 +283,12 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
         retValue.mSubValue = subValue;
 
         return retValue;
+    }
+
+    @Override
+    public void saveState(Bundle outState) {
+        DoubleComboboxValue result = (DoubleComboboxValue) getValue();
+        outState.putString(ControlHelper.getSavedStateKey(mFieldName), result.mValue);
+        outState.putString(ControlHelper.getSavedStateKey(mSubFieldName), result.mSubValue);
     }
 }
