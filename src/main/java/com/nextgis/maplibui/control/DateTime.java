@@ -29,6 +29,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -40,6 +41,7 @@ import android.widget.TimePicker;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ISimpleControl;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -253,27 +255,36 @@ public class DateTime
     }
 
     @Override
-    public void init(Field field, Cursor featureCursor) {
+    public void init(Field field, Bundle savedState, Cursor featureCursor) {
         if(null != field)
             mFieldName = field.getName();
 
+        String text = "";
         mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
 
-        if (null != featureCursor) {
+        if (ControlHelper.hasKey(savedState, text))
+            text = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
+        else if (null != featureCursor) {
             int column = featureCursor.getColumnIndex(mFieldName);
             if (column >= 0) {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTimeInMillis(featureCursor.getLong(column));
-                setText(mDateFormat.format(calendar.getTime()));
+                text = mDateFormat.format(calendar.getTime());
             }
         }
 
+        setText(text);
         setSingleLine(true);
         setFocusable(false);
         setOnClickListener(getDateUpdateWatcher(DATETIME));
 
         String pattern = mDateFormat.toLocalizedPattern();
         setHint(pattern);
+    }
+
+    @Override
+    public void saveState(Bundle outState) {
+        outState.putString(ControlHelper.getSavedStateKey(mFieldName), getText().toString());
     }
 
     public void setValue(Object val){

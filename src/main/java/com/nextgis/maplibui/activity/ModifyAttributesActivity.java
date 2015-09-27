@@ -129,7 +129,7 @@ public class ModifyAttributesActivity
         setToolbar(R.id.main_toolbar);
 
         final IGISApplication app = (IGISApplication) getApplication();
-        createView(app);
+        createView(app, savedInstanceState);
         createLocationPanelView(app);
     }
 
@@ -206,7 +206,7 @@ public class ModifyAttributesActivity
     }
 
 
-    protected void createView(final IGISApplication app)
+    protected void createView(final IGISApplication app, Bundle savedState)
     {
         //create and fill controls
         Bundle extras = getIntent().getExtras();
@@ -224,7 +224,7 @@ public class ModifyAttributesActivity
                 mGeometry = (GeoGeometry) extras.getSerializable(KEY_GEOMETRY);
                 checkPolygon();
                 LinearLayout layout = (LinearLayout) findViewById(R.id.controls_list);
-                fillControls(layout);
+                fillControls(layout, savedState);
             }
         }
     }
@@ -249,7 +249,7 @@ public class ModifyAttributesActivity
     }
 
 
-    protected void fillControls(LinearLayout layout)
+    protected void fillControls(LinearLayout layout, Bundle savedState)
     {
         Cursor featureCursor = null;
 
@@ -296,7 +296,7 @@ public class ModifyAttributesActivity
             }
 
             if (null != control) {
-                control.init(field, featureCursor);
+                control.init(field, savedState, featureCursor);
                 control.addToLayout(layout);
                 String fieldName = control.getFieldName();
 
@@ -318,6 +318,17 @@ public class ModifyAttributesActivity
         if (null != featureCursor) {
             featureCursor.close();
         }
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        LinearLayout controlLayout = (LinearLayout) findViewById(R.id.controls_list);
+        for (int i = 0; i < controlLayout.getChildCount(); i++)
+            if (controlLayout.getChildAt(i) instanceof ISimpleControl)
+                ((ISimpleControl) controlLayout.getChildAt(i)).saveState(outState);
     }
 
 

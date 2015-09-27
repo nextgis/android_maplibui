@@ -25,12 +25,12 @@ package com.nextgis.maplibui.control;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
 import com.nextgis.maplib.datasource.Field;
-import com.nextgis.maplibui.api.IControl;
 import com.nextgis.maplibui.api.ISimpleControl;
 
 
@@ -75,7 +75,12 @@ public class TextLabel
     }
 
     @Override
-    public void init(Field field, Cursor featureCursor) {
+    public void init(Field field, Bundle savedState, Cursor featureCursor) {
+
+    }
+
+    @Override
+    public void saveState(Bundle outState) {
 
     }
 }

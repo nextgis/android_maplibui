@@ -1,9 +1,9 @@
 /*
  * Project:  NextGIS Mobile
  * Purpose:  Mobile GIS for Android.
- * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
+ * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2015 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,18 +19,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.nextgis.maplibui.api;
+package com.nextgis.maplibui.util;
 
-import android.database.Cursor;
 import android.os.Bundle;
 
-import com.nextgis.maplib.datasource.Field;
+public final class ControlHelper {
+    private final static String BUNDLE_SAVED_STATE = "nextgis_control_";
 
-/**
- * Controls for standard form
- */
-public interface ISimpleControl extends IControl {
+    public static boolean hasKey(Bundle savedState, String fieldName) {
+        return savedState != null && savedState.containsKey(getSavedStateKey(fieldName));
+    }
 
-    void init(Field field, Bundle savedState, Cursor featureCursor);
-    void saveState(Bundle outState);
+    public static String getSavedStateKey(String fieldName) {
+        return BUNDLE_SAVED_STATE + fieldName;
+    }
 }
