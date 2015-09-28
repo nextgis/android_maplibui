@@ -23,8 +23,30 @@ package com.nextgis.maplibui.util;
 
 import android.os.Bundle;
 
+import com.nextgis.maplib.datasource.Field;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.List;
+
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_SHOW_LAST_KEY;
+
 public final class ControlHelper {
     private final static String BUNDLE_SAVED_STATE = "nextgis_control_";
+
+    public static boolean isEnabled(List<Field> fields, String fieldName) {
+        for (Field field : fields)
+            if (field.getName().equals(fieldName))
+                return true;
+
+        return false;
+    }
+
+    public static boolean isSaveLastValue(JSONObject attributes) throws JSONException {
+        return attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(JSON_SHOW_LAST_KEY)
+                && attributes.getBoolean(JSON_SHOW_LAST_KEY);
+    }
 
     public static boolean hasKey(Bundle savedState, String fieldName) {
         return savedState != null && savedState.containsKey(getSavedStateKey(fieldName));

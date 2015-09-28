@@ -65,23 +65,7 @@ public class Checkbox extends CheckBox implements IFormControl {
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);
-        boolean isEnabled = false;
-
-        for (Field field : fields) {
-            String fieldName = field.getName();
-
-            if (fieldName.equals(mFieldName)) {
-                isEnabled = true;
-                break;
-            }
-        }
-
-        setEnabled(isEnabled);
-
-        mIsShowLast = false;
-        if (attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(JSON_SHOW_LAST_KEY)) {
-            mIsShowLast = attributes.getBoolean(JSON_SHOW_LAST_KEY);
-        }
+        mIsShowLast = ControlHelper.isSaveLastValue(attributes);
 
         Boolean value = null;
         if (ControlHelper.hasKey(savedState, mFieldName))
@@ -103,6 +87,7 @@ public class Checkbox extends CheckBox implements IFormControl {
 
         setChecked(value);
         setText(attributes.getString(JSON_TEXT_KEY));
+        setEnabled(ControlHelper.isEnabled(fields, mFieldName));
     }
 
     public String getFieldName() {

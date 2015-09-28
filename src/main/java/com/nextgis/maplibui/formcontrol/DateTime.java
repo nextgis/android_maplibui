@@ -92,25 +92,10 @@ public class DateTime extends AppCompatTextView implements IFormControl
     public void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences preferences) throws JSONException {
         mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
 
-
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
-
         mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);
-
-        boolean isEnabled = false;
-        for (Field field : fields) {
-            if (field.getName().equals(mFieldName)) {
-                isEnabled = true;
-                break;
-            }
-        }
-        setEnabled(isEnabled);
-
-        mIsShowLast = false;
-        if (attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(
-                JSON_SHOW_LAST_KEY)) {
-            mIsShowLast = attributes.getBoolean(JSON_SHOW_LAST_KEY);
-        }
+        mIsShowLast = ControlHelper.isSaveLastValue(attributes);
+        setEnabled(ControlHelper.isEnabled(fields, mFieldName));
 
         int picker_type = DATETIME, dataType;
         if (attributes.has(JSON_DATE_TYPE_KEY)) {

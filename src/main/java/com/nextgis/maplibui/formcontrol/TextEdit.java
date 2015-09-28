@@ -75,25 +75,18 @@ public class TextEdit extends AppCompatEditText
                      Bundle savedState,
                      Cursor featureCursor,
                      SharedPreferences preferences) throws JSONException{
+
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
-
         mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);
+        mIsShowLast = ControlHelper.isSaveLastValue(attributes);
+        setEnabled(ControlHelper.isEnabled(fields, mFieldName));
 
-        boolean isEnabled = false;
         int fieldType = NOT_FOUND;
         for (Field field : fields) {
             if (field.getName().equals(mFieldName)) {
-                isEnabled = true;
                 fieldType = field.getType();
                 break;
             }
-        }
-        setEnabled(isEnabled);
-
-        mIsShowLast = false;
-        if (attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(
-                JSON_SHOW_LAST_KEY)) {
-            mIsShowLast = attributes.getBoolean(JSON_SHOW_LAST_KEY);
         }
 
         String value = null;
