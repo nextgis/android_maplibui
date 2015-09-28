@@ -22,9 +22,9 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.api.IProgressor;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometryFactory;
-import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.NGWVectorLayer;
+import com.nextgis.maplib.map.TMSLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
@@ -76,7 +76,7 @@ public class LayerFillService extends Service implements IProgressor {
     protected String mProgressMessage;
     protected boolean mIndeterminate;
     protected boolean mIsCanceled;
-    protected boolean mIsRunnig;
+    protected boolean mIsRunning;
     protected Handler mHandler;
     protected Intent mProgressIntent;
 
@@ -102,11 +102,11 @@ public class LayerFillService extends Service implements IProgressor {
                 .setAutoCancel(false)
                 .setOngoing(true)
                 .setContentIntent(showProgressDialog)
-                .addAction(android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.tracks_stop), stopService);
+                .addAction(R.drawable.ic_action_cancel_dark, getString(R.string.tracks_stop), stopService);
         mIsCanceled = false;
 
         mQueue = new LinkedList<>();
-        mIsRunnig = false;
+        mIsRunning = false;
         mHandler = new Handler(Looper.getMainLooper()){
             @Override
             public void handleMessage(Message msg) {
@@ -149,7 +149,7 @@ public class LayerFillService extends Service implements IProgressor {
                             addTMSTask(layerId, uri);
                         }
 
-                        if(!mIsRunnig){
+                        if(!mIsRunning){
                             startNextTask();
                         }
 
@@ -197,7 +197,7 @@ public class LayerFillService extends Service implements IProgressor {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                mIsRunnig = true;
+                mIsRunning = true;
                 LayerFillTask task = mQueue.remove(0);
                 String notifyTitle = task.getDescription();
 
@@ -211,7 +211,7 @@ public class LayerFillService extends Service implements IProgressor {
                 android.os.Process.setThreadPriority( Constants.DEFAULT_DOWNLOAD_THREAD_PRIORITY );
                 task.execute(progressor);
 
-                mIsRunnig = false;
+                mIsRunning = false;
                 startNextTask();
             }
         }).start();
@@ -395,11 +395,11 @@ public class LayerFillService extends Service implements IProgressor {
 
         @Override
         public void execute(IProgressor progressor) {
-            LocalTMSLayer localTMSLayer = (LocalTMSLayer) mLayer;
-            if(null == localTMSLayer)
+            TMSLayer tmsLayer = (TMSLayer) mLayer;
+            if(null == tmsLayer)
                 return;
             try {
-                localTMSLayer.fillFromZip(mUri, progressor);
+                tmsLayer.fillFromZip(mUri, progressor);
             } catch (IOException | NumberFormatException | SecurityException | NGException e) {
                 e.printStackTrace();
                 if(null != progressor){
