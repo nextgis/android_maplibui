@@ -60,7 +60,6 @@ import com.nextgis.maplibui.util.ConstantsUI;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
 
 
@@ -164,12 +163,10 @@ public class SelectNGWResourceDialog
                             }
                         })
                 .setNegativeButton(
-                        R.string.cancel, new DialogInterface.OnClickListener()
-                        {
+                        R.string.cancel, new DialogInterface.OnClickListener() {
                             public void onClick(
                                     DialogInterface dialog,
-                                    int id)
-                            {
+                                    int id) {
                                 // User cancelled the dialog
                             }
                         });
@@ -183,14 +180,16 @@ public class SelectNGWResourceDialog
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
-        outState.putString(KEY_TITLE, mTitle);
-        outState.putInt(KEY_MASK, mTypeMask);
-        outState.putInt(KEY_ID, mGroupLayer.getId());
-        outState.putInt(KEY_RESOURCE_ID, mListAdapter.getCurrentResourceId());
-        outState.putParcelable(KEY_CONNECTIONS, mListAdapter.getConnections());
-        outState.putParcelableArrayList(
-                KEY_STATES,
-                (ArrayList<? extends android.os.Parcelable>) mListAdapter.getCheckState());
+        if(null != mGroupLayer && null != mListAdapter) {
+            outState.putString(KEY_TITLE, mTitle);
+            outState.putInt(KEY_MASK, mTypeMask);
+            outState.putInt(KEY_ID, mGroupLayer.getId());
+            outState.putInt(KEY_RESOURCE_ID, mListAdapter.getCurrentResourceId());
+            outState.putParcelable(KEY_CONNECTIONS, mListAdapter.getConnections());
+            outState.putParcelableArrayList(
+                    KEY_STATES,
+                    (ArrayList<? extends android.os.Parcelable>) mListAdapter.getCheckState());
+        }
         super.onSaveInstanceState(outState);
     }
 
