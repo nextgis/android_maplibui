@@ -92,12 +92,12 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
 
     @Override
     public void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences preferences) throws JSONException {
+        mSubCombobox = new Spinner(getContext());
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = attributes.getString(JSON_FIELD_LEVEL1_KEY);
         mSubFieldName = attributes.getString(JSON_FIELD_LEVEL2_KEY);
         mIsShowLast = ControlHelper.isSaveLastValue(attributes);
         setEnabled(ControlHelper.isEnabled(fields, mFieldName));
-        mSubCombobox = new Spinner(getContext());
 
         String lastValue = null;
         String subLastValue = null;
