@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Process;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -208,9 +209,10 @@ public class LayerFillService extends Service implements IProgressor {
                 mProgressIntent.putExtra(KEY_STATUS, STATUS_START).putExtra(KEY_TITLE, notifyTitle);
                 sendBroadcast(mProgressIntent);
 
-                android.os.Process.setThreadPriority( Constants.DEFAULT_DOWNLOAD_THREAD_PRIORITY );
+                Process.setThreadPriority(Constants.DEFAULT_DOWNLOAD_THREAD_PRIORITY);
                 task.execute(progressor);
 
+                task.getLayer().notifyUpdateAll();
                 mIsRunning = false;
                 startNextTask();
             }
@@ -295,6 +297,10 @@ public class LayerFillService extends Service implements IProgressor {
             if(null == mLayer)
                 return "";
             return getString(R.string.proceed_layer) + " " + mLayer.getName();
+        }
+
+        public ILayer getLayer() {
+            return mLayer;
         }
     }
 
