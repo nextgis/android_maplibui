@@ -147,9 +147,9 @@ public class CreateLocalLayerDialog
             mLayerName = savedInstanceState.getString(KEY_NAME);
             mTitle = savedInstanceState.getString(KEY_TITLE);
             mUri = savedInstanceState.getParcelable(KEY_URI);
-            short id = savedInstanceState.getShort(KEY_ID);
-            mLayerType = savedInstanceState.getShort(KEY_LAYER_TYPE);
-            tmsType = savedInstanceState.getShort(KEY_TMS_TYPE);
+            int id = savedInstanceState.getInt(KEY_ID);
+            mLayerType = savedInstanceState.getInt(KEY_LAYER_TYPE);
+            tmsType = savedInstanceState.getInt(KEY_TMS_TYPE);
 
             MapBase map = MapBase.getInstance();
             if (null != map) {
@@ -264,6 +264,7 @@ public class CreateLocalLayerDialog
         outState.putString(KEY_NAME, mLayerName);
         outState.putParcelable(KEY_URI, mUri);
         outState.putInt(KEY_LAYER_TYPE, mLayerType);
+        //todo: outState.putInt(KEY_TMS_TYPE, mT);
         if (null != mSpinner) {
             outState.putInt(KEY_POSITION, mSpinner.getSelectedItemPosition());
         }

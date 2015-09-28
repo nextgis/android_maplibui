@@ -120,7 +120,7 @@ public class CreateRemoteTMSLayerDialog
             mPassword.setText(savedInstanceState.getString(KEY_PASSWORD));
             mSpinner.setSelection(savedInstanceState.getInt(KEY_POSITION));
             mTitle = savedInstanceState.getString(KEY_TITLE);
-            short id = savedInstanceState.getShort(KEY_ID);
+            int id = savedInstanceState.getInt(KEY_ID);
             MapBase map = MapBase.getInstance();
             if (null != map) {
                 ILayer iLayer = map.getLayerById(id);

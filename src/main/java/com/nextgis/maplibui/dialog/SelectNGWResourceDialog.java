@@ -121,7 +121,7 @@ public class SelectNGWResourceDialog
         } else {
             mTitle = savedInstanceState.getString(KEY_TITLE);
             mTypeMask = savedInstanceState.getInt(KEY_MASK);
-            short id = savedInstanceState.getShort(KEY_ID);
+            int id = savedInstanceState.getInt(KEY_ID);
             MapBase map = MapBase.getInstance();
             if (null != map) {
                 ILayer iLayer = map.getLayerById(id);
