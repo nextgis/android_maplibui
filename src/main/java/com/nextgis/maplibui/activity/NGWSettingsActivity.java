@@ -70,6 +70,7 @@ import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
 
 
 public class NGWSettingsActivity
@@ -343,14 +344,17 @@ public class NGWSettingsActivity
             final Account account,
             PreferenceCategory syncCategory) {
 
-        String prefValue;
+        String prefValue = "" + Constants.DEFAULT_SYNC_PERIOD;
         List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, application.getAuthority());
-        if(null == syncs || syncs.isEmpty()) {
-            prefValue = "" + Constants.DEFAULT_SYNC_PERIOD;
-        }
-        else {
-            PeriodicSync sync = syncs.get(syncs.size() - 1);
-            prefValue = "" + sync.period;
+        if(null != syncs && !syncs.isEmpty()) {
+            for(PeriodicSync sync : syncs) {
+                Bundle bundle = sync.extras;
+                long period = bundle.getLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, Constants.NOT_FOUND);
+                if(period > 0){
+                    prefValue = "" + period;
+                    break;
+                }
+            }
         }
 
         final CharSequence[] keys = {
@@ -396,13 +400,16 @@ public class NGWSettingsActivity
                             }
                         }
 
+                        Bundle bundle = new Bundle();
+                        bundle.putLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, interval);
+
                         if (interval == NOT_FOUND) {
                             ContentResolver.removePeriodicSync(
-                                    account, application.getAuthority(), Bundle.EMPTY);
+                                    account, application.getAuthority(), bundle);
                         } else {
 
                             ContentResolver.addPeriodicSync(
-                                    account, application.getAuthority(), Bundle.EMPTY, interval);
+                                    account, application.getAuthority(), bundle, interval);
                         }
 
                         return true;
