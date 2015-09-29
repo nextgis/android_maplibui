@@ -34,6 +34,7 @@ import com.nextgis.maplib.util.NGException;
 import com.nextgis.maplib.util.NGWUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.ConstantsUI;
+import com.nextgis.maplibui.util.NotificationHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -86,8 +87,8 @@ public class LayerFillService extends Service implements IProgressor {
     @Override
     public void onCreate() {
         mNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        Bitmap largeIcon =
-                BitmapFactory.decodeResource(getResources(), R.drawable.ic_notification_download);
+        Bitmap largeIcon = NotificationHelper.getLargeIcon(
+                R.drawable.ic_notification_download, getResources());
 
         mProgressIntent = new Intent(ACTION_UPDATE);
         Intent intent = new Intent(this, LayerFillService.class);

@@ -42,6 +42,7 @@ import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.ConstantsUI;
+import com.nextgis.maplibui.util.NotificationHelper;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -79,8 +80,8 @@ public class TileDownloadService extends Service{
     @Override
     public void onCreate() {
         mNotifyManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        Bitmap largeIcon =
-                BitmapFactory.decodeResource(getResources(), R.drawable.ic_notification_download);
+        Bitmap largeIcon = NotificationHelper.getLargeIcon(
+                R.drawable.ic_notification_download, getResources());
 
         Intent intentStop = new Intent(this, TileDownloadService.class);
         intentStop.setAction(ACTION_STOP);

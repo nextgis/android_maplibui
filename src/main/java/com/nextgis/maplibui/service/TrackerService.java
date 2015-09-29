@@ -35,7 +35,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -53,6 +52,7 @@ import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.util.NotificationHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -269,8 +269,8 @@ public class TrackerService
         currentTrack.close();
 
         String title = String.format(getString(R.string.tracks_title), name);
-        Bitmap largeIcon =
-                BitmapFactory.decodeResource(getResources(), R.drawable.ic_action_maps_directions_walk);
+        Bitmap largeIcon = NotificationHelper.getLargeIcon(
+                R.drawable.ic_action_maps_directions_walk, getResources());
 
         Intent intentStop = new Intent(this, TrackerService.class);
         intentStop.setAction(ACTION_STOP);
