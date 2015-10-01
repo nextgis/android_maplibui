@@ -51,6 +51,7 @@ public class LayerFillService extends Service implements IProgressor {
     protected NotificationManager mNotifyManager;
     protected List<LayerFillTask> mQueue;
     protected static final int FILL_NOTIFICATION_ID = 9;
+    protected static final int FILL_NOTIFICATION_DELAY = 1500;
     protected NotificationCompat.Builder mBuilder;
 
     public static final String ACTION_STOP = "FILL_LAYER_STOP";
@@ -75,6 +76,7 @@ public class LayerFillService extends Service implements IProgressor {
 
     protected int mProgressMax;
     protected int mProgressValue;
+    protected long mLastUpdate = 0;
     protected String mProgressMessage;
     protected boolean mIndeterminate;
     protected boolean mIsCanceled;
@@ -257,10 +259,14 @@ public class LayerFillService extends Service implements IProgressor {
     }
 
     protected void updateNotify(){
-        mBuilder.setProgress(mProgressMax, mProgressValue, mIndeterminate)
-                .setContentText(mProgressMessage);
-        // Displays the progress bar for the first time.
-        mNotifyManager.notify(FILL_NOTIFICATION_ID, mBuilder.build());
+        if (mLastUpdate + FILL_NOTIFICATION_DELAY < System.currentTimeMillis()) {
+            mLastUpdate = System.currentTimeMillis();
+            mBuilder.setProgress(mProgressMax, mProgressValue, mIndeterminate)
+                    .setContentText(mProgressMessage);
+            // Displays the progress bar for the first time.
+            mNotifyManager.notify(FILL_NOTIFICATION_ID, mBuilder.build());
+        }
+
         mProgressIntent.putExtra(KEY_STATUS, STATUS_UPDATE).putExtra(KEY_TOTAL, mProgressMax)
                 .putExtra(KEY_PROGRESS, mProgressValue).putExtra(KEY_TEXT, mProgressMessage);
         sendBroadcast(mProgressIntent);
