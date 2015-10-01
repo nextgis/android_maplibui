@@ -54,6 +54,7 @@ import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
 import com.nextgis.maplibui.mapui.VectorLayerUI;
 import com.nextgis.maplibui.util.ConstantsUI;
+import com.nextgis.maplibui.util.LayerUtil;
 
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_REMOTE_TMS;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
@@ -239,8 +240,9 @@ public class LayersListAdapter
                                         else if (i == R.id.menu_share) {
                                             assert (layerui) != null;
 
-                                            if (layerui instanceof VectorLayerUI) {
-                                                ((VectorLayerUI) layerui).shareGeoJSON();
+                                            if (layerui instanceof VectorLayer) {
+                                                VectorLayer vectorLayer = (VectorLayer) layerui;
+                                                LayerUtil.shareLayerAsGeoJSON(vectorLayer);
                                             }
 
                                         }

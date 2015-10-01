@@ -75,9 +75,6 @@ public class VectorLayerUI
         extends VectorLayer
         implements IVectorLayerUI
 {
-    private static final long MAX_INTERNAL_CACHE_SIZE = 1048576; // 1MB
-    private static final long MAX_EXTERNAL_CACHE_SIZE = 5242880; // 5MB
-
 
     public VectorLayerUI(
             Context context,
@@ -158,88 +155,4 @@ public class VectorLayerUI
         return super.delete();
     }
 
-    public void shareGeoJSON()
-    {
-        try {
-            boolean clearCached;
-            File temp = mContext.getExternalCacheDir();
-
-            if (temp == null) {
-                temp = mContext.getCacheDir();
-                clearCached = FileUtil.getDirectorySize(temp) > MAX_INTERNAL_CACHE_SIZE;
-            } else {
-                clearCached = FileUtil.getDirectorySize(temp) > MAX_EXTERNAL_CACHE_SIZE;
-            }
-
-            temp = new File(temp, "shared_layers");
-            if (clearCached) {
-                FileUtil.deleteRecursive(temp);
-            }
-
-            FileUtil.createDir(temp);
-
-            temp = new File(temp, getName() + ".geojson");
-            FileWriter fw = new FileWriter(temp);
-
-            JSONObject obj = new JSONObject();
-            obj.put(GEOJSON_TYPE, GEOJSON_TYPE_FeatureCollection);
-
-            JSONObject crs = new JSONObject();
-            crs.put(GEOJSON_TYPE, GEOJSON_NAME);
-            JSONObject crsName = new JSONObject();
-            crsName.put(GEOJSON_NAME, "urn:ogc:def:crs:EPSG::3857");
-            crs.put(GEOJSON_PROPERTIES, crsName);
-            obj.put(GEOJSON_CRS, crs);
-
-            JSONArray geoJSONFeatures = new JSONArray();
-            Cursor featuresCursor = query(null, null, null, null, null);
-
-            if (null == featuresCursor) {
-                fw.close();
-                return;
-            }
-
-            Feature feature;
-
-            if (featuresCursor.moveToFirst()) {
-                do {
-                    JSONObject featureJSON = new JSONObject();
-                    featureJSON.put(GEOJSON_TYPE, GEOJSON_TYPE_Feature);
-
-                    feature = new Feature((long) NOT_FOUND, getFields());
-                    feature.fromCursor(featuresCursor);
-
-                    JSONObject properties = new JSONObject();
-                    for (Field field : feature.getFields()) {
-                        properties.put(field.getName(), feature.getFieldValue(field.getName()));
-                    }
-
-                    featureJSON.put(GEOJSON_PROPERTIES, properties);
-                    featureJSON.put(GEOJSON_GEOMETRY, feature.getGeometry().toJSON());
-                    geoJSONFeatures.put(featureJSON);
-                } while (featuresCursor.moveToNext());
-            }
-
-            featuresCursor.close();
-
-            obj.put(GEOJSON_TYPE_FEATURES, geoJSONFeatures);
-
-            fw.write(obj.toString());
-            fw.flush();
-            fw.close();
-
-            Intent shareIntent = new Intent();
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.setType("application/json,application/vnd.geo+json");
-            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(temp));
-//            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, urisArray); // multiple data
-
-            shareIntent = Intent.createChooser(
-                    shareIntent, mContext.getString(R.string.abc_shareactionprovider_share_with));
-            shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mContext.startActivity(shareIntent);
-        } catch (JSONException | IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
