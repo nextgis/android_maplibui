@@ -54,10 +54,7 @@ public class TextEdit extends AppCompatEditText
     protected boolean mIsShowLast;
     protected String mFieldName;
 
-    public TextEdit(
-            Context context)
-
-    {
+    public TextEdit(Context context) {
         super(context);
     }
 
@@ -117,10 +114,9 @@ public class TextEdit extends AppCompatEditText
 
         boolean onlyFigures = attributes.getBoolean(JSON_ONLY_FIGURES_KEY);
         if (onlyFigures) {
-
             //check field type
             switch (fieldType) {
-
+                default:
                 case GeoConstants.FTInteger:
                     setInputType(InputType.TYPE_CLASS_NUMBER);
                     break;
