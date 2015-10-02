@@ -209,7 +209,7 @@
     <string name="multi_linestring">Мультилиния</string>
     <string name="polygon">Полигон</string>
     <string name="multi_polygon">Мультиполигон</string>
-    <string name="update_coordinates">Update coordinates</string>
-    <string name="background_task_started">The layer initialisation task started</string>
-    <string name="proceed_layer">Proceed layer</string>
+    <string name="update_coordinates">Обновить координаты</string>
+    <string name="background_task_started">Задача инициализации слоя запущена</string>
+    <string name="process_layer">Обработка слоя</string>
 </resources>

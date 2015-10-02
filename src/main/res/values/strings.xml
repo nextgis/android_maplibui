@@ -211,5 +211,5 @@
     <string name="multi_polygon">Multipolygon</string>
     <string name="update_coordinates">Update coordinates</string>
     <string name="background_task_started">The layer initialisation task started</string>
-    <string name="proceed_layer">Proceed layer</string>
+    <string name="process_layer">Process layer</string>
 </resources>
