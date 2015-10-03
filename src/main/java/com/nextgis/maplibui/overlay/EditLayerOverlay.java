@@ -51,6 +51,7 @@ import com.nextgis.maplib.api.IGeometryCacheItem;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoGeometry;
+import com.nextgis.maplib.datasource.GeoGeometryCollection;
 import com.nextgis.maplib.datasource.GeoGeometryFactory;
 import com.nextgis.maplib.datasource.GeoLineString;
 import com.nextgis.maplib.datasource.GeoLinearRing;
@@ -179,10 +180,16 @@ public class EditLayerOverlay
     }
 
 
-    public void setMode(int mode)
+    public boolean setMode(int mode)
     {
-        mMode = mode;
-        if (mMode == MODE_EDIT) {
+        if((mode == MODE_EDIT || mode == MODE_EDIT_BY_WALK) && null != mLayer &&
+            (mLayer.getGeometryType() == GeoConstants.GTGeometryCollection ||
+            mLayer.getGeometryType() == GeoConstants.GTMultiPolygon ||
+            mLayer.getGeometryType() == GeoConstants.GTMultiLineString)){
+            return false;
+        }
+
+        if (mode == MODE_EDIT) {
             for (EditEventListener listener : mListeners) {
                 listener.onStartEditSession();
             }
@@ -191,7 +198,8 @@ public class EditLayerOverlay
             if(null != mLayer && null != mItem) {
                 mLayer.hideFeature(mItem.getFeatureId());
             }
-        } else if (mMode == MODE_NONE) {
+            mMapViewOverlays.postInvalidate();
+        } else if (mode == MODE_NONE) {
             mDrawItems.setSelectedPointIndex(Constants.NOT_FOUND);
             mDrawItems.setSelectedRing(Constants.NOT_FOUND);
             if(null != mLayer && null != mItem) {
@@ -199,11 +207,12 @@ public class EditLayerOverlay
             }
             mLayer = null;
             mItem = null;
-        } else if (mMode == MODE_HIGHLIGHT) {
+            mMapViewOverlays.postInvalidate();
+        } else if (mode == MODE_HIGHLIGHT) {
             if(null != mLayer && null != mItem) {
                 mLayer.showFeature(mItem.getFeatureId());
             }
-        } else if (mMode == MODE_EDIT_BY_WALK) {
+        } else if (mode == MODE_EDIT_BY_WALK) {
             for (EditEventListener listener : mListeners) {
                 listener.onStartEditSession();
             }
@@ -214,6 +223,10 @@ public class EditLayerOverlay
                 mLayer.hideFeature(mItem.getFeatureId());
             }
         }
+
+        mMode = mode;
+
+        return true;
     }
 
 
@@ -221,6 +234,7 @@ public class EditLayerOverlay
             VectorLayer layer,
             long featureId)
     {
+
         mLayer = layer;
         if(featureId == Constants.NOT_FOUND){
             mItem = null;
@@ -322,26 +336,28 @@ public class EditLayerOverlay
                 fillDrawLine(0, lineString);
                 break;
             case GeoConstants.GTMultiLineString:
-                /*TODO:
                 GeoMultiLineString multiLineString = (GeoMultiLineString)geom;
                 for(int i = 0; i < multiLineString.size(); i++){
                     fillDrawLine(i, multiLineString.get(i));
                 }
-                 */
                 break;
             case GeoConstants.GTPolygon:
                 GeoPolygon polygon = (GeoPolygon) geom;
                 fillDrawPolygon(polygon);
                 break;
             case GeoConstants.GTMultiPolygon:
-                /*TODO:
                 GeoMultiPolygon multiPolygon = (GeoMultiPolygon)geom;
                 for(int i = 0; i < multiPolygon.size(); i++){
                     fillDrawPolygon(multiPolygon.get(i));
                 }
-                */
                 break;
             case GeoConstants.GTGeometryCollection:
+                GeoGeometryCollection collection = (GeoGeometryCollection)geom;
+                for(int i = 0; i < collection.size(); i++){
+                    GeoGeometry geoGeometry = collection.get(i);
+                    fillDrawItems(geoGeometry);
+                }
+                break;
             default:
                 break;
         }
@@ -1087,7 +1103,13 @@ public class EditLayerOverlay
         if(null != mItem && null != mItem.getGeometry()) {
             //1. search current geometry point
             if (mDrawItems.intersects(screenEnv, mItem.getGeometry(), mMapViewOverlays.getMap())) {
-                mMapViewOverlays.postInvalidate();
+                if (mMode == MODE_HIGHLIGHT) { // highlight same geometry
+                    mDrawItems.setSelectedPointIndex(Constants.NOT_FOUND);
+                    mDrawItems.setSelectedRing(Constants.NOT_FOUND);
+                }
+                else {
+                    mMapViewOverlays.invalidate();
+                }
                 return;
             }
 
@@ -1111,10 +1133,14 @@ public class EditLayerOverlay
         mItem = new EditLayerCacheItem(items.get(0));
         fillDrawItems(mItem.getGeometry());
 
-        mDrawItems.setSelectedPointIndex(0);
-        if (mMode != MODE_HIGHLIGHT) {
-            mDrawItems.setSelectedRing(0);
+        if (mMode == MODE_HIGHLIGHT) {
+            mMapViewOverlays.invalidate();
+            return;
         }
+
+        // this part should execute only in edit mode
+        mDrawItems.setSelectedPointIndex(0);
+        mDrawItems.setSelectedRing(0);
 
         if(previousFeatureId == Constants.NOT_FOUND) {
             mLayer.hideFeature(mItem.getFeatureId());
@@ -1122,8 +1148,6 @@ public class EditLayerOverlay
         else {
             mLayer.swapFeaturesVisibility(previousFeatureId, mItem.getFeatureId());
         }
-
-        mMapViewOverlays.postInvalidate();
     }
 
 
