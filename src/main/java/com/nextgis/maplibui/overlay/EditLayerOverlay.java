@@ -1016,15 +1016,14 @@ public class EditLayerOverlay
             return;
         }
         final long itemId = mItem.getFeatureId();
-        //mMapViewOverlays.setDelay(DELAY);
 
         if (null == mLayer) {
             Log.d(Constants.TAG, "delete from null layer");
             return;
         }
 
-        mLayer.showFeature(mItem.getFeatureId());
         setFeature(mLayer, Constants.NOT_FOUND);
+        mLayer.hideFeature(itemId);
 
         new UndoBarController.UndoBar((android.app.Activity) mContext).message(
                 mContext.getString(R.string.delete_done)).listener(
@@ -1035,12 +1034,7 @@ public class EditLayerOverlay
                             @Nullable
                             Parcelable parcelable)
                     {
-                        //mMapViewOverlays.setSkipNextDraw(true);
                         mLayer.deleteAddChanges(itemId);
-
-                        if (mItem != null && mItem.getFeatureId() == itemId) {
-                            setFeature(null, Constants.NOT_FOUND);
-                        }
                     }
 
 
@@ -1058,9 +1052,7 @@ public class EditLayerOverlay
                             @Nullable
                             Parcelable parcelable)
                     {
-                        if (mItem != null && mItem.getFeatureId() == itemId) {
-                            setFeature(mLayer, itemId);
-                        }
+                        mLayer.showFeature(itemId);
                     }
                 }).show();
     }
