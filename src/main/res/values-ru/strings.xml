@@ -178,7 +178,7 @@
     <string name="edit_account">Редактировать учетную запись</string>
     <string name="edit_account_summary">Редатирование имени и пароля пользователя</string>
     <string name="tms_layer_cache_size">Размер кэша тайлов TMS</string>
-    <string name="make_grayscale">Сделать полутоновым</string>
+    <string name="make_grayscale">Градации серого</string>
     <string name="contrast">Контраст</string>
     <string name="brightness">Яркость</string>
     <string name="menu_zoom_extent">Увеличить до охвата</string>
