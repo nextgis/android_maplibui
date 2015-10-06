@@ -528,15 +528,19 @@ public class NGWResourcesListAdapter
                 mCurrentResource = resource;
                 notifyDataSetChanged();
             } else {
-                //go deep
-                ResourceGroup resourceGroup = (ResourceGroup) mCurrentResource.getChild(i - 1);
-                mCurrentResource = resourceGroup;
-                if (resourceGroup.isChildrenLoaded()) {
-                    notifyDataSetChanged();
-                } else {
-                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(
-                            mSelectNGWResourceDialog.getActivity(), resourceGroup);
-                    task.execute();
+                if(mCurrentResource.getChildrenCount() > 0) {
+                    //go deep
+                    ResourceGroup resourceGroup = (ResourceGroup) mCurrentResource.getChild(i - 1);
+                    if (null != resourceGroup) {
+                        mCurrentResource = resourceGroup;
+                        if (resourceGroup.isChildrenLoaded()) {
+                            notifyDataSetChanged();
+                        } else {
+                            NGWResourceAsyncTask task = new NGWResourceAsyncTask(
+                                    mSelectNGWResourceDialog.getActivity(), resourceGroup);
+                            task.execute();
+                        }
+                    }
                 }
             }
         }
