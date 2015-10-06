@@ -458,46 +458,32 @@ public class NGWResourcesListAdapter
                             CompoundButton compoundButton,
                             boolean b)
                     {
-                        if (b) {
-                            boolean exist = false;
-                            for (CheckState state : mCheckState) {
-                                if (state.getId() == id) {
-                                    exist = true;
-                                    if (checkNo == 1) {
-                                        state.setCheckState1(b);
-                                    } else if (checkNo == 2) {
-                                        state.setCheckState2(b);
-                                    }
-                                }
-                            }
-
-                            if (!exist) {
-                                if (checkNo == 1) {
-                                    mCheckState.add(new CheckState(id, b, false));
-                                } else if (checkNo == 2) {
-                                    mCheckState.add(new CheckState(id, false, b));
-                                }
-                            }
-                        } else {
-                            for (CheckState state : mCheckState) {
-                                if (state.getId() == id) {
-                                    if (checkNo == 1) {
-                                        if (!state.isCheckState1()) {
-                                            mCheckState.remove(state);
-                                        } else {
-                                            state.setCheckState2(b);
-                                        }
-                                    } else if (checkNo == 2) {
-                                        if (!state.isCheckState2()) {
-                                            mCheckState.remove(state);
-                                        } else {
-                                            state.setCheckState1(b);
-                                        }
-                                    }
-                                    break;
-                                }
+                        CheckState checkedState = null;
+                        for (CheckState state : mCheckState) {
+                            if (state.getId() == id) {
+                                checkedState = state;
+                                break;
                             }
                         }
+
+                        switch (checkNo) {
+                            case 1:
+                                if (checkedState != null)
+                                    checkedState.setCheckState1(b);
+                                else
+                                    mCheckState.add(new CheckState(id, true, false));
+                                break;
+                            case 2:
+                                if (checkedState != null)
+                                    checkedState.setCheckState2(b);
+                                else
+                                    mCheckState.add(new CheckState(id, false, true));
+                                break;
+                        }
+
+                        if (checkedState != null && !checkedState.isCheckState1() && !checkedState.isCheckState2())
+                            mCheckState.remove(checkedState);
+
                         mSelectNGWResourceDialog.updateSelectButton();
                     }
                 });
