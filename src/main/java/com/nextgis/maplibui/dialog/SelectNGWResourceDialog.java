@@ -271,6 +271,9 @@ public class SelectNGWResourceDialog
 
     public void createLayers(Context context)
     {
+        mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        mDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(false);
+
         List<CheckState> checkStates = mListAdapter.getCheckState();
         Connections connections = mListAdapter.getConnections();
         for (CheckState checkState : checkStates) {
