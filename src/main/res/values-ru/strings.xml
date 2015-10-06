@@ -178,7 +178,7 @@
     <string name="edit_account">Редактировать учетную запись</string>
     <string name="edit_account_summary">Редатирование имени и пароля пользователя</string>
     <string name="tms_layer_cache_size">Размер кэша тайлов TMS</string>
-    <string name="make_grayscale">Сделать однотоновым</string>
+    <string name="make_grayscale">Сделать полутоновым</string>
     <string name="contrast">Контраст</string>
     <string name="brightness">Яркость</string>
     <string name="menu_zoom_extent">Увеличить до охвата</string>
@@ -201,7 +201,7 @@
     <string name="zoom_levels_to_show">Уровни зума на которых виден слой</string>
     <string name="alpha">Прозрачность</string>
     <string name="layerInfo">Информация о слое</string>
-    <string name="geom_type">Тип геотмерии</string>
+    <string name="geom_type">Тип геометрии</string>
     <string name="feature_count">Количество записей</string>
     <string name="point">Точка</string>
     <string name="multi_point">Мультиточка</string>
