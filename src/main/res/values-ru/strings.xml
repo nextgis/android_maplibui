@@ -118,7 +118,7 @@
     <string name="two_hours">2 часа</string>
     <string name="sync_set_interval">Установить интервал синхронизации</string>
     <string name="last_sync_time">Последняя синхронизация</string>
-    <string name="warning_different_credentials">Существующая учетная запись отличается от введенных параметров. Бует использоваться существующая учетная запись.</string>
+    <string name="warning_different_credentials">Существующая учетная запись отличается от введенных параметров. Будет использоваться существующая учетная запись.</string>
     <string name="error_no_location">Координаты не определены</string>
     <string name="error_layer_not_inited">Слой не инициализирован. Отмена</string>
     <string name="n_a">н/д</string>
@@ -158,7 +158,7 @@
     <string name="error_create_feature">Ошибка создания записи</string>
     <string name="no">Нет</string>
     <string name="yes">Да</string>
-    <string name="has_edits">There are unsaved edits. Do you want to save them?</string>
+    <string name="has_edits">Есть несохраненные изменения. Хотите сохранить их?</string>
     <string name="attributes_next">Следующий</string>
     <string name="attributes_prev">Предыдущий</string>
     <string name="geometry_by_walk_no_points">Недостаточно точек для создания геометрии</string>
@@ -198,7 +198,7 @@
     <string name="download_tiles_finished">Завершена загрузка тайлов</string>
     <string name="not_implemented">Пока не сделано</string>
     <string name="layer_lookuptable">Справочник</string>
-    <string name="zoom_levels_to_show">Уровни зума на которых виден слой</string>
+    <string name="zoom_levels_to_show">Уровни зума, на которых виден слой</string>
     <string name="alpha">Прозрачность</string>
     <string name="layerInfo">Информация о слое</string>
     <string name="geom_type">Тип геометрии</string>
