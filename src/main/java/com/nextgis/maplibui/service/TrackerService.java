@@ -210,11 +210,12 @@ public class TrackerService
         mValues.put(TrackLayer.FIELD_NAME, mTrackName);
         mValues.put(TrackLayer.FIELD_START, started);
         mValues.put(TrackLayer.FIELD_VISIBLE, true);
-        Uri mNewTrack = getContentResolver().insert(mContentUriTracks, mValues);
-
-        // save vars
-        mTrackId = mNewTrack.getLastPathSegment();
-        mSharedPreferencesTemp.edit().putString(TRACK_URI, mNewTrack.toString()).commit();
+        Uri newTrack = getContentResolver().insert(mContentUriTracks, mValues);
+        if(null != newTrack) {
+            // save vars
+            mTrackId = newTrack.getLastPathSegment();
+            mSharedPreferencesTemp.edit().putString(TRACK_URI, newTrack.toString()).commit();
+        }
         mSharedPreferencesTemp.edit().putString(TRACK_DAILY_ID, today.getTimeInMillis() + "-" + append).commit();
         mIsRunning = true;
 
@@ -264,9 +265,11 @@ public class TrackerService
 
         String selection = TrackLayer.FIELD_ID + " = ?";
         Cursor currentTrack = getContentResolver().query(mContentUriTracks, new String[]{TrackLayer.FIELD_NAME}, selection, new String[]{mTrackId}, null);
-        if (currentTrack.moveToFirst())
-            name = currentTrack.getString(0);
-        currentTrack.close();
+        if(null != currentTrack) {
+            if (currentTrack.moveToFirst())
+                name = currentTrack.getString(0);
+            currentTrack.close();
+        }
 
         String title = String.format(getString(R.string.tracks_title), name);
         Bitmap largeIcon = NotificationHelper.getLargeIcon(
