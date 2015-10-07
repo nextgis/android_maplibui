@@ -29,7 +29,7 @@
                                    android:layout_width="match_parent"
                                    android:minHeight="?attr/actionBarSize"
                                    android:background="?attr/colorPrimary"
-                                   app:theme="?ThemeOverlay.NextGIS.Toolbar"
+                                   android:theme="?ThemeOverlay.NextGIS.Toolbar"
                                    app:popupTheme="?ThemeOverlay.NextGIS.ToolbarPopup"
                                    android:elevation="2dp"
     >
