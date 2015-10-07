@@ -413,9 +413,11 @@ public class TrackerService
         Uri tracksUri = Uri.parse("content://" + app.getAuthority() + "/" + TrackLayer.TABLE_TRACKS);
         String selection = TrackLayer.FIELD_END + " IS NULL OR " + TrackLayer.FIELD_END + " = ''";
         Cursor data = context.getContentResolver().query(tracksUri, new String[]{TrackLayer.FIELD_ID}, selection, null, null);
-        boolean hasUnfinishedTracks = data.moveToFirst();
-        data.close();
-
+        boolean hasUnfinishedTracks = false;
+        if(data != null) {
+            hasUnfinishedTracks = data.moveToFirst();
+            data.close();
+        }
         return hasUnfinishedTracks;
     }
 
