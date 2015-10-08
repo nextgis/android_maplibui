@@ -23,6 +23,7 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.api.IProgressor;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometryFactory;
+import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.TMSLayer;
@@ -408,7 +409,7 @@ public class LayerFillService extends Service implements IProgressor {
 
         @Override
         public void execute(IProgressor progressor) {
-            TMSLayer tmsLayer = (TMSLayer) mLayer;
+            LocalTMSLayer tmsLayer = (LocalTMSLayer) mLayer;
             if(null == tmsLayer)
                 return;
             try {
