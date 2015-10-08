@@ -160,8 +160,8 @@ public class LayerFillService extends Service implements IProgressor {
 
                         return START_STICKY;
                     case ACTION_STOP:
-                        mIsCanceled = true;
                         mQueue.clear();
+                        mIsCanceled = true;
                         break;
                     case ACTION_SHOW:
                         mProgressIntent.putExtra(KEY_STATUS, STATUS_SHOW).putExtra(KEY_TITLE, mBuilder.mContentTitle);
@@ -198,6 +198,7 @@ public class LayerFillService extends Service implements IProgressor {
             return;
         }
 
+        mIsCanceled = false;
         final  IProgressor progressor = this;
         new Thread(new Runnable() {
             @Override
@@ -409,7 +410,7 @@ public class LayerFillService extends Service implements IProgressor {
 
         @Override
         public void execute(IProgressor progressor) {
-            LocalTMSLayer tmsLayer = (LocalTMSLayer) mLayer;
+            TMSLayer tmsLayer = (TMSLayer) mLayer;
             if(null == tmsLayer)
                 return;
             try {
