@@ -127,7 +127,8 @@ public class TileDownloadService extends Service{
                         addTask(layerPathName, env, zoomFrom, zoomTo);
                         return START_STICKY;
                     case ACTION_STOP:
-                        Log.d(Constants.TAG, "Cancel download queue");
+                        if(Constants.DEBUG_MODE)
+                            Log.d(Constants.TAG, "Cancel download queue");
                         mQueue.clear();
                         mCanceled = true;
                         cancelDownload();
@@ -157,7 +158,8 @@ public class TileDownloadService extends Service{
     }
 
     protected void startDownload(){
-        Log.d(Constants.TAG, "Tile download queue size " + mQueue.size());
+        if(Constants.DEBUG_MODE)
+            Log.d(Constants.TAG, "Tile download queue size " + mQueue.size());
 
         if(mQueue.isEmpty()){
             mNotifyManager.cancel(TILE_DOWNLOAD_NOTIFICATION_ID);
@@ -291,7 +293,9 @@ public class TileDownloadService extends Service{
             } catch (InterruptedException e) {
                 //e.printStackTrace();
             }
-            Log.d(Constants.TAG, "Canceled download queue. Active count: " + mThreadPool.getActiveCount() + " queue size " + mQueue.size());
+
+            if(Constants.DEBUG_MODE)
+                Log.d(Constants.TAG, "Canceled download queue. Active count: " + mThreadPool.getActiveCount() + " queue size " + mQueue.size());
         }
     }
 
