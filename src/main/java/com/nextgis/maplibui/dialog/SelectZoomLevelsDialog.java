@@ -12,7 +12,10 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.edmodo.rangebar.RangeBar;
+import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
+import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.TileDownloadService;
 import com.nextgis.maplibui.util.ConstantsUI;
@@ -82,29 +85,33 @@ public class SelectZoomLevelsDialog
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.select_zoom_levels_to_download_title).setView(view).setPositiveButton(
-                R.string.start, new DialogInterface.OnClickListener()
-                {
+                R.string.start, new DialogInterface.OnClickListener() {
                     public void onClick(
                             DialogInterface dialog,
-                            int id)
-                    {
+                            int id) {
                         final int zoomFrom = rangebar.getLeftIndex();
                         final int zoomTo = rangebar.getRightIndex();
                         final int layerId = getLayerId();
                         final GeoEnvelope env = getEnvelope();
 
                         //start download service
-                        Intent intent = new Intent(getActivity(), TileDownloadService.class);
-                        intent.setAction(TileDownloadService.ACTION_ADD_TASK);
-                        intent.putExtra(ConstantsUI.KEY_LAYER_ID, layerId);
-                        intent.putExtra(TileDownloadService.KEY_ZOOM_FROM, zoomFrom);
-                        intent.putExtra(TileDownloadService.KEY_ZOOM_TO, zoomTo);
-                        intent.putExtra(TileDownloadService.KEY_MINX, env.getMinX());
-                        intent.putExtra(TileDownloadService.KEY_MAXX, env.getMaxX());
-                        intent.putExtra(TileDownloadService.KEY_MINY, env.getMinY());
-                        intent.putExtra(TileDownloadService.KEY_MAXY, env.getMaxY());
 
-                        getActivity().startService(intent);
+                        MapBase map = MapBase.getInstance();
+                        ILayer layer = map.getLayerById(layerId);
+                        if (null != layer) {
+                            Intent intent = new Intent(getActivity(), TileDownloadService.class);
+                            intent.setAction(TileDownloadService.ACTION_ADD_TASK);
+                            intent.putExtra(ConstantsUI.KEY_LAYER_ID, layerId);
+                            intent.putExtra(TileDownloadService.KEY_PATH, layer.getPath().getName());
+                            intent.putExtra(TileDownloadService.KEY_ZOOM_FROM, zoomFrom);
+                            intent.putExtra(TileDownloadService.KEY_ZOOM_TO, zoomTo);
+                            intent.putExtra(TileDownloadService.KEY_MINX, env.getMinX());
+                            intent.putExtra(TileDownloadService.KEY_MAXX, env.getMaxX());
+                            intent.putExtra(TileDownloadService.KEY_MINY, env.getMinY());
+                            intent.putExtra(TileDownloadService.KEY_MAXY, env.getMaxY());
+
+                            getActivity().startService(intent);
+                        }
 
                     }
                 }).setNegativeButton(

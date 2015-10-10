@@ -72,10 +72,13 @@ public class TileDownloadService extends Service{
     public static final String KEY_MAXX = "env_maxx";
     public static final String KEY_MINY = "env_miny";
     public static final String KEY_MAXY = "env_maxy";
+    public static final String KEY_PATH = "path";
     public static final String KEY_ZOOM_FROM = "zoom_from";
     public static final String KEY_ZOOM_TO = "zoom_to";
     public static final String ACTION_STOP = "TILE_DOWNLOAD_STOP";
     public static final String ACTION_ADD_TASK = "ADD_TILE_DOWNLOAD_TASK";
+
+    protected boolean mCanceled;
 
     @Override
     public void onCreate() {
@@ -97,6 +100,7 @@ public class TileDownloadService extends Service{
                         stopService);
 
         mQueue = new LinkedList<>();
+        mCanceled = false;
     }
 
     @Override
@@ -111,7 +115,7 @@ public class TileDownloadService extends Service{
             if (!TextUtils.isEmpty(action)) {
                 switch (action) {
                     case ACTION_ADD_TASK:
-                        int layerId = intent.getIntExtra(ConstantsUI.KEY_LAYER_ID, Constants.NOT_FOUND);
+                        String layerPathName = intent.getStringExtra(KEY_PATH);
                         double dfMinX = intent.getDoubleExtra(KEY_MINX, 0);
                         double dfMinY = intent.getDoubleExtra(KEY_MINY, 0);
                         double dfMaxX = intent.getDoubleExtra(KEY_MAXX, GeoConstants.MERCATOR_MAX);
@@ -120,10 +124,12 @@ public class TileDownloadService extends Service{
                         int zoomTo = intent.getIntExtra(KEY_ZOOM_TO, 18);
 
                         GeoEnvelope env = new GeoEnvelope(dfMinX, dfMaxX, dfMinY, dfMaxY);
-                        addTask(layerId, env, zoomFrom, zoomTo);
+                        addTask(layerPathName, env, zoomFrom, zoomTo);
                         return START_STICKY;
                     case ACTION_STOP:
+                        Log.d(Constants.TAG, "Cancel download queue");
                         mQueue.clear();
+                        mCanceled = true;
                         cancelDownload();
                         break;
                 }
@@ -140,9 +146,10 @@ public class TileDownloadService extends Service{
         return null;
     }
 
-    protected void addTask(int layerId, GeoEnvelope env, int zoomFrom, int zoomTo) {
-        DownloadTask task = new DownloadTask(layerId, env, zoomFrom, zoomTo);
+    protected void addTask(String layerPathName, GeoEnvelope env, int zoomFrom, int zoomTo) {
+        DownloadTask task = new DownloadTask(layerPathName, env, zoomFrom, zoomTo);
         mQueue.add(task);
+        mCanceled = false;
 
         if(mQueue.size() == 1){
             startDownload();
@@ -150,20 +157,33 @@ public class TileDownloadService extends Service{
     }
 
     protected void startDownload(){
+        Log.d(Constants.TAG, "Tile download queue size " + mQueue.size());
+
         if(mQueue.isEmpty()){
             mNotifyManager.cancel(TILE_DOWNLOAD_NOTIFICATION_ID);
             stopSelf();
             return;
         }
 
+        final DownloadTask task = mQueue.remove(0);
+        new Thread() {
+            @Override
+            public void run() {
+                download(task);
+                startDownload();
+            }
+        }.start();
+    }
+
+    private void download(DownloadTask task) {
         MapBase map = MapBase.getInstance();
         if(null == map)
             return;
 
-        DownloadTask task = mQueue.remove(0);
-        ILayer layer = map.getLayerById(task.getLayerId());
-        if(layer instanceof RemoteTMSLayer) {
+        ILayer layer = map.getLayerByPathName(task.getLayerPathName());
+        if(null != layer && layer instanceof RemoteTMSLayer) {
             final RemoteTMSLayer tmsLayer = (RemoteTMSLayer) layer;
+
             String notifyTitle = getString(R.string.download_tiles) + " (" + tmsLayer.getName() + ")";
 
             mBuilder.setWhen(System.currentTimeMillis())
@@ -174,9 +194,16 @@ public class TileDownloadService extends Service{
             int zoomCount = task.getZoomTo() + 1 - task.getZoomFrom();
             for (int zoom = task.getZoomFrom(); zoom < task.getZoomTo() + 1; zoom++) {
                 tiles.addAll(MapUtil.getTileItems(task.getEnvelope(), zoom, tmsLayer.getTMSType()));
+
+                if(mCanceled)
+                    break;
+
                 mBuilder.setProgress(zoomCount, zoom, false)
                         .setContentText(getString(R.string.form_tiles_list));
                 mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
+
+                if(tiles.size() > Constants.MAX_TILES_COUNT)
+                    break;
             }
 
             int threadCount = DRAWING_SEPARATE_THREADS;
@@ -201,7 +228,7 @@ public class TileDownloadService extends Service{
             List<Future> futures = new ArrayList<>(tilesSize);
 
             for (int i = 0; i < tilesSize; ++i) {
-                if (Thread.currentThread().isInterrupted()) {
+                if (mCanceled) {
                     break;
                 }
 
@@ -219,12 +246,14 @@ public class TileDownloadService extends Service{
                                 }));
             }
 
+            //in separate thread
+
             // wait for download ending
             int nStep = futures.size() / Constants.DRAW_NOTIFY_STEP_PERCENT;
             if (nStep == 0)
                 nStep = 1;
             for (int i = 0, futuresSize = futures.size(); i < futuresSize; i++) {
-                if (Thread.currentThread().isInterrupted()) {
+                if (mCanceled) {
                     break;
                 }
 
@@ -233,7 +262,7 @@ public class TileDownloadService extends Service{
                     future.get(); // wait for task ending
 
                     if (i % nStep == 0) {
-                        mBuilder.setProgress(futures.size(), i, false)
+                        mBuilder.setProgress(futuresSize, i, false)
                                 .setContentText(getString(R.string.download_in_progress));
                         // Displays the progress bar for the first time.
                         mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
@@ -249,8 +278,6 @@ public class TileDownloadService extends Service{
         else{
             // skip non tms layer
         }
-
-        startDownload();
     }
 
     public void cancelDownload()
@@ -259,24 +286,24 @@ public class TileDownloadService extends Service{
             //synchronized (lock) {
             mThreadPool.shutdownNow();
             try {
-                mThreadPool.awaitTermination(Constants.TERMINATE_TIME, Constants.KEEP_ALIVE_TIME_UNIT);
-                //mDrawThreadPool.purge();
+                mThreadPool.awaitTermination(2000, Constants.KEEP_ALIVE_TIME_UNIT);
+                //mThreadPool.purge();
             } catch (InterruptedException e) {
                 //e.printStackTrace();
             }
-            //}
+            Log.d(Constants.TAG, "Canceled download queue. Active count: " + mThreadPool.getActiveCount() + " queue size " + mQueue.size());
         }
     }
 
     public class DownloadTask{
-        protected int mLayerId;
+        protected String mLayerPathName;
         protected GeoEnvelope mEnvelope;
         protected int mZoomFrom;
         protected int mZoomTo;
 
-        public DownloadTask(int layerId, GeoEnvelope envelope, int zoomFrom, int zoomTo) {
+        public DownloadTask(String layerPathName, GeoEnvelope envelope, int zoomFrom, int zoomTo) {
             mEnvelope = envelope;
-            mLayerId = layerId;
+            mLayerPathName = layerPathName;
             mZoomFrom = zoomFrom;
             mZoomTo = zoomTo;
         }
@@ -285,8 +312,8 @@ public class TileDownloadService extends Service{
             return mEnvelope;
         }
 
-        public int getLayerId() {
-            return mLayerId;
+        public String getLayerPathName() {
+            return mLayerPathName;
         }
 
         public int getZoomFrom() {
