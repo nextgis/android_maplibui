@@ -60,9 +60,9 @@
         <item name="colorControlNormal">@color/textColorPrimary.Light</item>
         <item name="colorControlActivated">@color/accent</item>
         <item name="colorControlHighlight">@color/accent</item>
-        <item name="android:editTextStyle">@style/EditTextStyle.Light</item>
         <item name="actionModeBackground">@drawable/action_mode</item>
         <item name="actionMenuTextColor">@color/textColorPrimary.Dark</item>
+        <item name="android:editTextStyle">@style/EditTextStyle.Light</item>
 
         <item name="ic_action_visibility_on_inverse">@drawable/ic_action_visibility_on_dark</item>
         <item name="ic_action_visibility_on">@drawable/ic_action_visibility_on_light</item>
@@ -101,9 +101,9 @@
         <item name="colorControlNormal">@color/textColorPrimary.Dark</item>
         <item name="colorControlActivated">@color/accent</item>
         <item name="colorControlHighlight">@color/accent</item>
-        <item name="android:editTextStyle">@style/EditTextStyle.Dark</item>
         <item name="actionModeBackground">@drawable/action_mode</item>
         <item name="actionMenuTextColor">@color/textColorPrimary.Dark</item>
+        <item name="android:editTextStyle">@style/EditTextStyle.Dark</item>
 
         <item name="ic_action_visibility_on_inverse">@drawable/ic_action_visibility_on_light</item>
         <item name="ic_action_visibility_on">@drawable/ic_action_visibility_on_dark</item>
@@ -134,8 +134,8 @@
 
     <style name="Theme.NextGIS.AppCompat.ActionBar" parent="ThemeOverlay.AppCompat.ActionBar">
         <item name="actionButtonStyle">@style/Widget.AppCompat.Light.ActionButton</item>
-        <item name="selectableItemBackground">?android:selectableItemBackground</item>
-        <item name="selectableItemBackgroundBorderless">?android:selectableItemBackground</item>
+        <!--item name="selectableItemBackground">?android:selectableItemBackground</item>
+        <item name="selectableItemBackgroundBorderless">?android:selectableItemBackground</item-->
         <item name="android:textColorPrimary">@color/textColorPrimaryInverse.Light</item>
         <item name="android:textColor">@color/textColorPrimary.Light</item>
         <!--item name="android:textColorSecondary">@color/textColorSecondary.Light</item-->

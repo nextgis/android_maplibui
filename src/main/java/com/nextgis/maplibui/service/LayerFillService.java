@@ -424,7 +424,6 @@ public class LayerFillService extends Service implements IProgressor {
                 }
                 notifyError(mProgressMessage);
             }
-            }
         }
     }
 

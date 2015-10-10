@@ -88,6 +88,7 @@
                 />
         </service>
 
+        <!-- android:process=":tile_download" -->
         <service
             android:process=":tile_download"
             android:name="com.nextgis.maplibui.service.TileDownloadService"

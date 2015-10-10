@@ -101,6 +101,8 @@ public class NGActivity
 
     protected void setToolbar(int toolbarId){
         Toolbar toolbar = (Toolbar) findViewById(toolbarId);
+        if(null == toolbar)
+            return;
         toolbar.getBackground().setAlpha(getToolbarAlpha());
         setSupportActionBar(toolbar);
 
@@ -119,6 +121,7 @@ public class NGActivity
             return R.style.Theme_NextGIS_AppCompat_Dark;
         else
             return R.style.Theme_NextGIS_AppCompat_Light;
+        //return R.style.Theme_AppCompat_Light_NoActionBar;
     }
 
     @Override
