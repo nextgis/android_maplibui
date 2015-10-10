@@ -321,12 +321,13 @@ public class LayerFillService extends Service implements IProgressor {
 
         @Override
         public void execute(IProgressor progressor) {
-            VectorLayer vectorLayer = (VectorLayer) mLayer;
-            if(null == vectorLayer)
-                return;
             try {
+                VectorLayer vectorLayer = (VectorLayer) mLayer;
+                if(null == vectorLayer)
+                    return;
+            
                 vectorLayer.createFromGeoJson(mUri, progressor);
-            } catch (IOException | JSONException | SQLiteException | NGException e) {
+            } catch (IOException | JSONException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();
                 if(null != progressor){
                     progressor.setMessage(e.getLocalizedMessage());
@@ -349,11 +350,12 @@ public class LayerFillService extends Service implements IProgressor {
 
         @Override
         public void execute(IProgressor progressor) {
-            VectorLayer vectorLayer = (VectorLayer) mLayer;
-            if (null == vectorLayer)
-                return;
-            File meta = new File(mPath.getParentFile(), NGFP_META);
             try {
+                VectorLayer vectorLayer = (VectorLayer) mLayer;
+                if (null == vectorLayer)
+                    return;
+                File meta = new File(mPath.getParentFile(), NGFP_META);
+            
                 if (GeoJSONUtil.isGeoJsonHasFeatures(mPath)) {
                     if (meta.exists()) {
                         String jsonText = FileUtil.readFromFile(meta);
@@ -392,7 +394,7 @@ public class LayerFillService extends Service implements IProgressor {
 
                     FileUtil.deleteRecursive(meta);
                 }
-            } catch (IOException | JSONException | SQLiteException | NGException e) {
+            } catch (IOException | JSONException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();
                 if (null != progressor) {
                     progressor.setMessage(e.getLocalizedMessage());
@@ -410,17 +412,18 @@ public class LayerFillService extends Service implements IProgressor {
 
         @Override
         public void execute(IProgressor progressor) {
-            TMSLayer tmsLayer = (TMSLayer) mLayer;
-            if(null == tmsLayer)
-                return;
             try {
+                TMSLayer tmsLayer = (TMSLayer) mLayer;
+                if(null == tmsLayer)
+                    return;
                 tmsLayer.fillFromZip(mUri, progressor);
-            } catch (IOException | NumberFormatException | SecurityException | NGException e) {
+            } catch (IOException | NumberFormatException | SecurityException | NGException | ClassCastException e) {
                 e.printStackTrace();
                 if(null != progressor){
                     progressor.setMessage(e.getLocalizedMessage());
                 }
                 notifyError(mProgressMessage);
+            }
             }
         }
     }
@@ -432,12 +435,12 @@ public class LayerFillService extends Service implements IProgressor {
 
         @Override
         public void execute(IProgressor progressor) {
-            NGWVectorLayer ngwVectorLayer = (NGWVectorLayer) mLayer;
-            if(null == ngwVectorLayer)
-                return;
             try {
+                NGWVectorLayer ngwVectorLayer = (NGWVectorLayer) mLayer;
+                if(null == ngwVectorLayer)
+                    return;
                 ngwVectorLayer.createFromNGW(progressor);
-            } catch (JSONException | IOException | SQLiteException | NGException e) {
+            } catch (JSONException | IOException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();
                 if(null != progressor){
                     progressor.setMessage(e.getLocalizedMessage());
