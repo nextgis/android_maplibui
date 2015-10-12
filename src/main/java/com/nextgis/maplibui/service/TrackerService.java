@@ -23,6 +23,7 @@
 
 package com.nextgis.maplibui.service;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
@@ -50,6 +51,7 @@ import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.LocationUtil;
+import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.NotificationHelper;
@@ -112,7 +114,20 @@ public class TrackerService
         long minTime = Long.parseLong(minTimeStr) * 1000;
         float minDistance = Float.parseFloat(minDistanceStr);
 
+        mTicker = getString(R.string.tracks_running);
+        mSmallIcon = R.drawable.ic_action_maps_directions_walk;
+
+        Intent intentSplit = new Intent(this, TrackerService.class);
+        intentSplit.setAction(ACTION_SPLIT);
+        mSplitService =
+                PendingIntent.getService(this, 0, intentSplit, PendingIntent.FLAG_UPDATE_CURRENT);
+
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        if(!PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                || !PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION))
+            return;
+
         mLocationManager.addGpsStatusListener(this);
 
         String provider = LocationManager.GPS_PROVIDER;
@@ -126,14 +141,6 @@ public class TrackerService
             mLocationManager.getAllProviders().contains(provider)) {
             mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
         }
-
-        mTicker = getString(R.string.tracks_running);
-        mSmallIcon = R.drawable.ic_action_maps_directions_walk;
-
-        Intent intentSplit = new Intent(this, TrackerService.class);
-        intentSplit.setAction(ACTION_SPLIT);
-        mSplitService =
-                PendingIntent.getService(this, 0, intentSplit, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
 
@@ -338,10 +345,15 @@ public class TrackerService
     public void onDestroy()
     {
         stopTrack();
-        mLocationManager.removeUpdates(this);
-        mLocationManager.removeGpsStatusListener(this);
         removeNotification();
         stopSelf();
+
+        if(PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                && !PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            mLocationManager.removeUpdates(this);
+            mLocationManager.removeGpsStatusListener(this);
+        }
+
         super.onDestroy();
     }
 

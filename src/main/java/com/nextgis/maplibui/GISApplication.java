@@ -30,7 +30,6 @@ import android.accounts.OperationCanceledException;
 import android.app.Application;
 import android.content.ContentResolver;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -43,8 +42,10 @@ import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.mapui.LayerFactoryUI;
+import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.File;
@@ -52,7 +53,6 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import static com.nextgis.maplib.util.Constants.MAP_EXT;
-import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_MAP;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIODICALLY;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
@@ -149,7 +149,7 @@ public abstract class GISApplication extends Application
     @Override
     public Account getAccount(String accountName)
     {
-        if(!checkPermission(Manifest.permission.GET_ACCOUNTS)){
+        if(!PermissionUtil.hasPermission(this, Manifest.permission.GET_ACCOUNTS)){
             return null;
         }
 
@@ -200,7 +200,7 @@ public abstract class GISApplication extends Application
             }
         };
 
-        if(!checkPermission("android.permission.MANAGE_ACCOUNTS")){
+        if(!PermissionUtil.hasPermission(this, ConstantsUI.PERMISSION_MANAGE_ACCOUNTS)){
             return bool;
         }
 
@@ -231,7 +231,7 @@ public abstract class GISApplication extends Application
     @Override
     public String getAccountPassword(Account account)
     {
-        if(!checkPermission("android.permission.AUTHENTICATE_ACCOUNTS")){
+        if(!PermissionUtil.hasPermission(this, ConstantsUI.PERMISSION_AUTHENTICATE_ACCOUNTS)){
             return "";
         }
 
@@ -260,17 +260,10 @@ public abstract class GISApplication extends Application
 
     }
 
-    protected boolean checkPermission(String permission) {
-        PackageManager pm = getPackageManager();
-        if(pm == null)
-            return false;
-        int hasPerm = pm.checkPermission(permission, getPackageName());
-        return hasPerm == PackageManager.PERMISSION_GRANTED;
-    }
 
     @Override
     public boolean addAccount(String name, String url, String login, String password, String token) {
-        if(!checkPermission("android.permission.AUTHENTICATE_ACCOUNTS")){
+        if(!PermissionUtil.hasPermission(this, ConstantsUI.PERMISSION_AUTHENTICATE_ACCOUNTS)){
             return false;
         }
         final Account account = new Account(name, Constants.NGW_ACCOUNT_TYPE);
@@ -300,7 +293,7 @@ public abstract class GISApplication extends Application
 
     @Override
     public void setPassword(String name, String value) {
-        if(!checkPermission("android.permission.AUTHENTICATE_ACCOUNTS")){
+        if(!PermissionUtil.hasPermission(this, ConstantsUI.PERMISSION_AUTHENTICATE_ACCOUNTS)){
             return;
         }
         Account account = getAccount(name);
@@ -313,7 +306,7 @@ public abstract class GISApplication extends Application
 
     @Override
     public void setUserData(String name, String key, String value) {
-        if(!checkPermission("android.permission.AUTHENTICATE_ACCOUNTS")){
+        if(!PermissionUtil.hasPermission(this, ConstantsUI.PERMISSION_AUTHENTICATE_ACCOUNTS)){
             return;
         }
         Account account = getAccount(name);
@@ -326,7 +319,7 @@ public abstract class GISApplication extends Application
 
     @Override
     public String getAccountUserData(Account account, String key) {
-        if(!checkPermission("android.permission.AUTHENTICATE_ACCOUNTS")){
+        if(!PermissionUtil.hasPermission(this, ConstantsUI.PERMISSION_AUTHENTICATE_ACCOUNTS)){
             return "";
         }
 

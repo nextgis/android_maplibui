@@ -80,4 +80,7 @@ public interface ConstantsUI
     int DATE     = 0;
     int TIME     = 1;
     int DATETIME = 2;
+
+    String PERMISSION_AUTHENTICATE_ACCOUNTS = "android.permission.AUTHENTICATE_ACCOUNTS";
+    String PERMISSION_MANAGE_ACCOUNTS = "android.permission.MANAGE_ACCOUNTS";
 }
