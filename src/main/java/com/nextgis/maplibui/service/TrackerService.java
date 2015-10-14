@@ -349,7 +349,7 @@ public class TrackerService
         stopSelf();
 
         if(PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                && !PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                && PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
             mLocationManager.removeUpdates(this);
             mLocationManager.removeGpsStatusListener(this);
         }
@@ -368,6 +368,9 @@ public class TrackerService
     @Override
     public void onLocationChanged(Location location)
     {
+        if (!mIsRunning)
+            return;
+
         String fixType = location.hasAltitude() ? "3d" : "2d";
 
         mValues.clear();
