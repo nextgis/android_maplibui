@@ -26,6 +26,9 @@ package com.nextgis.maplibui.fragment;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
@@ -37,6 +40,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.cocosw.undobar.UndoBarController;
 import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
@@ -46,14 +50,10 @@ import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.map.VectorLayer;
-import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
-import com.nextgis.maplibui.mapui.MapView;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
-import com.nextgis.maplibui.mapui.VectorLayerUI;
-import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.LayerUtil;
 
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_REMOTE_TMS;
@@ -183,14 +183,12 @@ public class LayersListAdapter
 
         btShow.setImageDrawable(//setImageResource(
                 layer.isVisible()
-                ? visibilityOn
-                : visibilityOff);
+                        ? visibilityOn
+                        : visibilityOff);
         //btShow.refreshDrawableState();
         btShow.setOnClickListener(
-                new View.OnClickListener()
-                {
-                    public void onClick(View arg0)
-                    {
+                new View.OnClickListener() {
+                    public void onClick(View arg0) {
                         //Layer layer = mMap.getLayerById(id);
                         layer.setVisible(!layer.isVisible());
                         layer.save();
@@ -247,8 +245,27 @@ public class LayersListAdapter
 
                                         }
                                         else if (i == R.id.menu_delete) {
-                                            layer.delete();
-                                            mMap.save();
+                                            final int position = mMap.removeLayer(layer);
+
+                                            new UndoBarController.UndoBar((android.app.Activity) mContext).message(
+                                                    mContext.getString(R.string.delete_done)).listener(
+                                                    new UndoBarController.AdvancedUndoListener() {
+                                                        @Override
+                                                        public void onHide(@Nullable Parcelable parcelable) {
+                                                            layer.delete();
+                                                            mMap.save();
+                                                        }
+
+                                                        @Override
+                                                        public void onClear(@NonNull Parcelable[] parcelables) {
+
+                                                        }
+
+                                                        @Override
+                                                        public void onUndo(@Nullable Parcelable parcelable) {
+                                                            mMap.insertLayer(position, layer);
+                                                        }
+                                                    }).show();
                                         }
                                         else if (i == R.id.menu_zoom_extent) {
                                             mMap.zoomToExtent(layer.getExtents());
