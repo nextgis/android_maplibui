@@ -40,6 +40,7 @@ import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.ConstantsUI;
+import com.nextgis.maplibui.util.ControlHelper;
 
 
 /**
@@ -192,7 +193,7 @@ public class NGWRasterLayerSettingsActivity
                 mBrightness = tmsRenderer.getBrightness();
 
                 final TextView mBrightnessLabel = (TextView) findViewById(R.id.brightness_seek);
-                mBrightnessLabel.setText(getString(R.string.brightness) + ": " + mBrightness);
+                mBrightnessLabel.setText((ControlHelper.getPercentValue(this, R.string.brightness, mBrightness)));
 
                 SeekBar brightnessPicker = (SeekBar) findViewById(R.id.brightnessSeekBar);
                 brightnessPicker.setProgress((int) mBrightness + 255);
@@ -207,8 +208,8 @@ public class NGWRasterLayerSettingsActivity
                             {
                                 if (fromUser) {
                                     mBrightness = progress - 255;
-                                    mBrightnessLabel.setText(
-                                            getString(R.string.brightness) + ": " + mBrightness);
+                                    mBrightnessLabel.setText(ControlHelper.getPercentValue(
+                                            NGWRasterLayerSettingsActivity.this, R.string.brightness, mBrightness));
                                 }
                             }
 
@@ -231,7 +232,7 @@ public class NGWRasterLayerSettingsActivity
                 mAlpha = tmsRenderer.getAlpha();
 
                 final TextView mAlphaLabel = (TextView) findViewById(R.id.alpha_seek);
-                mAlphaLabel.setText(getString(R.string.alpha) + ": " + mAlpha);
+                mAlphaLabel.setText(ControlHelper.getPercentValue(this, R.string.alpha, mAlpha));
 
                 SeekBar alphaPicker = (SeekBar) findViewById(R.id.alphaSeekBar);
                 alphaPicker.setProgress(mAlpha);
@@ -245,10 +246,9 @@ public class NGWRasterLayerSettingsActivity
                                     boolean fromUser)
                             {
                                 if (fromUser) {
-                                    float fProgress = progress;
-                                    mAlpha = (int) fProgress;
-                                    mAlphaLabel.setText(
-                                            getString(R.string.alpha) + ": " + mAlpha);
+                                    mAlpha = progress;
+                                    mAlphaLabel.setText(ControlHelper.getPercentValue(
+                                            NGWRasterLayerSettingsActivity.this, R.string.alpha, mAlpha));
                                 }
                             }
 

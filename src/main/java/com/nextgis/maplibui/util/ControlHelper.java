@@ -21,6 +21,7 @@
 
 package com.nextgis.maplibui.util;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import com.nextgis.maplib.datasource.Field;
@@ -34,6 +35,10 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_SHOW_LAST_KEY;
 
 public final class ControlHelper {
     private final static String BUNDLE_SAVED_STATE = "nextgis_control_";
+
+    public static String getPercentValue(Context context, int stringLabel, float value) {
+        return context.getString(stringLabel) + ": " + ((int) value * 100 / 255) + "%";
+    }
 
     public static boolean isEnabled(List<Field> fields, String fieldName) {
         for (Field field : fields)

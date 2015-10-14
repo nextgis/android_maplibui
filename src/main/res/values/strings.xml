@@ -199,7 +199,7 @@
     <string name="not_implemented">Not implemented yet</string>
     <string name="layer_lookuptable">Lookup table</string>
     <string name="zoom_levels_to_show">Zoom levels to show layer</string>
-    <string name="alpha">Transparency</string>
+    <string name="alpha">Opacity</string>
     <string name="layerInfo">Layer info</string>
     <string name="geom_type">Geometry type</string>
     <string name="feature_count">Feature count</string>
