@@ -25,44 +25,24 @@ package com.nextgis.maplibui.mapui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.widget.Toast;
 
-import com.nextgis.maplib.api.IGeometryCache;
-import com.nextgis.maplib.api.IGeometryCacheItem;
-import com.nextgis.maplib.datasource.Feature;
-import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometry;
+import com.nextgis.maplib.display.SimpleFeatureRenderer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
-import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.activity.VectorLayerSettingsActivity;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.util.ConstantsUI;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
-import static com.nextgis.maplib.util.Constants.NOT_FOUND;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_CRS;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_GEOMETRY;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_NAME;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_PROPERTIES;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FEATURES;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_Feature;
-import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FeatureCollection;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
@@ -87,7 +67,8 @@ public class VectorLayerUI
     @Override
     public Drawable getIcon(Context context)
     {
-        return mContext.getResources().getDrawable(R.drawable.ic_local_vector);
+        int color = ((SimpleFeatureRenderer) mRenderer).getStyle().getColor();
+        return ControlHelper.getIconByVectorType(mContext, mGeometryType, color, R.drawable.ic_local_vector, false);
     }
 
 
