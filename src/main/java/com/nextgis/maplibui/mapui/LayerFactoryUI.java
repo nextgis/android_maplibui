@@ -37,6 +37,8 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.dialog.CreateLocalLayerDialog;
 import com.nextgis.maplibui.dialog.CreateRemoteTMSLayerDialog;
 import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
+import com.nextgis.maplibui.service.LayerFillService;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -86,7 +88,7 @@ public class LayerFactoryUI
             CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
             newFragment.setTitle(context.getString(R.string.create_tms_layer))
                     .setLayerGroup(groupLayer)
-                    .setLayerType(CreateLocalLayerDialog.TMS_LAYER)
+                    .setLayerType(LayerFillService.TMS_LAYER)
                     .setUri(uri)
                     .setLayerName(layerName)
                     .show(fragmentActivity.getSupportFragmentManager(), "create_tms_layer");
@@ -111,7 +113,7 @@ public class LayerFactoryUI
             CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
             newFragment.setTitle(context.getString(R.string.create_vector_layer))
                     .setLayerGroup(groupLayer)
-                    .setLayerType(CreateLocalLayerDialog.VECTOR_LAYER)
+                    .setLayerType(LayerFillService.VECTOR_LAYER)
                     .setUri(uri)
                     .setLayerName(layerName)
                     .show(fragmentActivity.getSupportFragmentManager(), "create_vector_layer");
@@ -136,7 +138,7 @@ public class LayerFactoryUI
             CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
             newFragment.setTitle(context.getString(R.string.create_vector_layer))
                     .setLayerGroup(groupLayer)
-                    .setLayerType(CreateLocalLayerDialog.VECTOR_LAYER_WITH_FORM)
+                    .setLayerType(LayerFillService.VECTOR_LAYER_WITH_FORM)
                     .setUri(uri)
                     .setLayerName(layerName)
                     .show(

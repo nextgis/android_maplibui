@@ -71,7 +71,7 @@ public class LayerFillProgressDialog extends AsyncTask<Object, Intent, Boolean> 
                 mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mProgressDialog.setMessage(intent.getStringExtra(LayerFillService.KEY_TEXT));
+                        mProgressDialog.setMessage(intent.getStringExtra(LayerFillService.KEY_MESSAGE));
                     }
                 });
                 mProgressDialog.setMax(intent.getIntExtra(LayerFillService.KEY_TOTAL, 0));
@@ -79,7 +79,8 @@ public class LayerFillProgressDialog extends AsyncTask<Object, Intent, Boolean> 
                 break;
             case LayerFillService.STATUS_STOP:
                 mProgressDialog.dismiss();
-                Toast.makeText(mActivity, mActivity.getString(R.string.message_layer_created), Toast.LENGTH_SHORT).show();
+                int toast = intent.getBooleanExtra(LayerFillService.KEY_MESSAGE, false) ? R.string.canceled : R.string.message_layer_created;
+                Toast.makeText(mActivity, mActivity.getString(toast), Toast.LENGTH_SHORT).show();
                 mActivity.unregisterReceiver(mLayerFillReceiver);
                 mIsFinished = true;
                 break;

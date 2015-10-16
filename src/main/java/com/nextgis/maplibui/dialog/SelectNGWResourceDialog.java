@@ -321,27 +321,14 @@ public class SelectNGWResourceDialog
                     LayerWithStyles layer = (LayerWithStyles) resource;
                     //1. get connection for url
                     Connection connection = layer.getConnection();
-
-                    //3. create layer
-                    String layerName = layer.getName();
-
-                    final NGWVectorLayerUI newLayer = new NGWVectorLayerUI(
-                            mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
-                    newLayer.setName(layerName);
-                    newLayer.setRemoteId(layer.getRemoteId());
-                    newLayer.setVisible(true);
-                    newLayer.setAccountName(connection.getName());
-                    newLayer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
-                    newLayer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
-
-                    mGroupLayer.addLayer(newLayer);
-                    mGroupLayer.save();
-
                     // create or connect to fill layer with features
                     Intent intent = new Intent(context, LayerFillService.class);
                     intent.setAction(LayerFillService.ACTION_ADD_TASK);
-                    intent.putExtra(ConstantsUI.KEY_LAYER_ID, newLayer.getId());
-                    intent.putExtra(LayerFillService.KEY_INPUT_TYPE, newLayer.getType());
+                    intent.putExtra(LayerFillService.KEY_NAME, layer.getName());
+                    intent.putExtra(LayerFillService.KEY_ACCOUNT, connection.getName());
+                    intent.putExtra(LayerFillService.KEY_REMOTE_ID, layer.getRemoteId());
+                    intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, mGroupLayer.getId());
+                    intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.NGW_LAYER);
 
                     LayerFillProgressDialog progressDialog = new LayerFillProgressDialog(getActivity());
                     progressDialog.execute(intent);
