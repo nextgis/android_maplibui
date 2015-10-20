@@ -224,7 +224,6 @@ public class TrackView extends ListView implements LoaderManager.LoaderCallbacks
 
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
-            super.bindView(view, context, cursor);
 
             final Integer id = cursor.getInt(0);
             final ImageView visibility = (ImageView) view.findViewById(R.id.iv_visibility);
