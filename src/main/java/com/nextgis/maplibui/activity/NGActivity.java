@@ -137,7 +137,7 @@ public class NGActivity
         super.onResume();
     }
 
-    protected void refreshActivityView()
+    public void refreshActivityView()
     {
         Intent intent = getIntent();
         finish();
