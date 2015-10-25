@@ -69,10 +69,10 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
     protected CompassImage mCompass, mCompassNeedle, mCompassNeedleMagnetic;
     protected TextView mTvAzimuth;
 
-    private SensorManager mSensorManager;
+    protected SensorManager mSensorManager;
     protected Vibrator mVibrator;
 
-    private boolean mIsVibrationOn, mIsNeedleOnly;
+    protected boolean mIsVibrationOn, mIsNeedleOnly;
 
     public void setStyle(boolean isNeedleOnly) {
         mIsNeedleOnly = isNeedleOnly;
@@ -81,7 +81,6 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_compass, container, false);
-
         mParent = (FrameLayout) view.findViewById(R.id.compass_fragment);
 
         if (!mIsNeedleOnly) {
