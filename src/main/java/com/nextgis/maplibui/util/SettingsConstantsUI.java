@@ -35,6 +35,10 @@ public interface SettingsConstantsUI
     String KEY_PREF_THEME                = "theme";
     String KEY_PREF_APP_FIRST_RUN        = "app_first_run";
     String KEY_PREF_MAP_NAME             = "map_name";
+    String KEY_PREF_COMPASS_VIBRATE      = "compass_vibration";
+    String KEY_PREF_COMPASS_TRUE_NORTH   = "compass_true_north";
+    String KEY_PREF_COMPASS_MAGNETIC     = "compass_show_magnetic";
+    String KEY_PREF_COMPASS_KEEP_SCREEN  = "compass_wake_lock";
 
     String OSM_URL = "http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 }

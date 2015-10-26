@@ -26,7 +26,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.hardware.GeomagneticField;
@@ -38,7 +37,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -72,7 +70,7 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
     protected SensorManager mSensorManager;
     protected Vibrator mVibrator;
 
-    protected boolean mIsVibrationOn, mIsNeedleOnly;
+    protected boolean mIsVibrationOn, mIsNeedleOnly, mTrueNorth = true, mShowMagnetic;
 
     public void setStyle(boolean isNeedleOnly) {
         mIsNeedleOnly = isNeedleOnly;
@@ -120,9 +118,6 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
 
         // reference to vibrator service
         mVibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
-        // vibrate or not?
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        mIsVibrationOn = prefs.getBoolean("compass_vibration", true);
 
         if (mCurrentLocation == null) {
             LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
@@ -153,7 +148,6 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
             mBubbleView.pause();
 
         getActivity().unregisterReceiver(compassBroadcastReceiver);
-
         super.onPause();
     }
 
@@ -162,12 +156,8 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
         if(mBubbleView != null)
             mBubbleView.resume();
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        mParent.setKeepScreenOn(prefs.getBoolean("compass_wake_lock", true));
-
         // registering receiver for compass updates
         getActivity().registerReceiver(compassBroadcastReceiver, new IntentFilter(ACTION_COMPASS_UPDATES));
-
         super.onResume();
     }
 
@@ -211,14 +201,10 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
     }
 
     public void updateCompass(float azimuth) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        boolean trueNorth = prefs.getBoolean("compass_true_north", true);
-        boolean showMagnetic = prefs.getBoolean("compass_show_magnetic", true);
-
         float rotation;
 
         // are we taking declination into account?
-        if (!trueNorth || mCurrentLocation == null) {
+        if (!mTrueNorth || mCurrentLocation == null) {
             mDeclination = 0;
         }
 
@@ -238,10 +224,9 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
         }
 
         // magnetic north compass
-        if (showMagnetic) {
+        if (mShowMagnetic) {
             mCompassNeedleMagnetic.setVisibility(View.VISIBLE);
             mCompassNeedleMagnetic.setAngle(360 - rotation + mDeclination);
-            mCompassNeedleMagnetic.getDrawable().setAlpha(100);
             mCompassNeedleMagnetic.invalidate();
         } else {
             mCompassNeedleMagnetic.setVisibility(View.INVISIBLE);
