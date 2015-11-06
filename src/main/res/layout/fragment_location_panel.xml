@@ -27,7 +27,7 @@
     android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:gravity="center_vertical"
@@ -92,6 +92,7 @@
     </LinearLayout>
 
     <FrameLayout
+        android:id="@+id/accurate_location_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
