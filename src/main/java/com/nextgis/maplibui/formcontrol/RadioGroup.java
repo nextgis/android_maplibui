@@ -77,7 +77,7 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);
-        mIsShowLast = ControlHelper.isSaveLastValue(attributes);;
+        mIsShowLast = ControlHelper.isSaveLastValue(attributes);
         setEnabled(ControlHelper.isEnabled(fields, mFieldName));
 
         String lastValue = null;
