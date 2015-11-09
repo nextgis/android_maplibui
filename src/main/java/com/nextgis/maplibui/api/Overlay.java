@@ -71,6 +71,9 @@ public abstract class Overlay
             Canvas canvas,
             OverlayItem overlayItem)
     {
+        if (!isVisible())
+            return;
+
         canvas.drawBitmap(
                 overlayItem.getMarker(), overlayItem.getScreenX(), overlayItem.getScreenY(), null);
     }
@@ -81,6 +84,9 @@ public abstract class Overlay
             PointF currentMouseOffset,
             OverlayItem overlayItem)
     {
+        if (!isVisible())
+            return;
+
         canvas.drawBitmap(
                 overlayItem.getMarker(), overlayItem.getScreenX() - currentMouseOffset.x,
                 overlayItem.getScreenY() - currentMouseOffset.y, null);
@@ -94,6 +100,9 @@ public abstract class Overlay
             OverlayItem overlayItem,
             boolean scaleMarker)
     {
+        if (!isVisible())
+            return;
+
         GeoPoint offset = getScaledOffset(currentFocusLocation, overlayItem, scale, scaleMarker);
         float zoomedX = (float) (overlayItem.getScreenX() - offset.getX());
         float zoomedY = (float) (overlayItem.getScreenY() - offset.getY());
