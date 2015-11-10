@@ -120,12 +120,12 @@
         <item>3</item>
     </string-array>
     <string-array name="theme">
-        <item>Dark</item>
         <item>Light</item>
+        <item>Dark</item>
     </string-array>
     <string-array name="theme_val" translatable="false">
-        <item>dark</item>
         <item>light</item>
+        <item>dark</item>
     </string-array>
     <string-array name="accurate_ce" translatable="false">
         <item>CE50</item>
