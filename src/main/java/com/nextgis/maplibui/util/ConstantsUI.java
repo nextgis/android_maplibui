@@ -66,6 +66,8 @@ public interface ConstantsUI
     String JSON_FIELD_LEVEL2_KEY      = "field_level2";
     String JSON_CHECKBOX_INIT_KEY     = "init_value";
     String JSON_MAX_PHOTO_KEY         = "gallery_size";
+    String JSON_INPUT_SEARCH          = "input_search";
+    String JSON_ALLOW_NEW_VALUES      = "allow_adding_values";
 
     String JSON_TEXT_LABEL_VALUE      = "text_label";
     String JSON_TEXT_EDIT_VALUE       = "text_edit";

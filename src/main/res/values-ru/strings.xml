@@ -214,4 +214,5 @@
     <string name="background_task_started">Задача инициализации слоя запущена</string>
     <string name="process_layer">Обработка слоя</string>
     <string name="error_unsupported_layer_type">Данный тип слоя не поддерживается</string>
+    <string name="value_not_from_list">Значение не из списка</string>
 </resources>

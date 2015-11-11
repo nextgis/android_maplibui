@@ -36,6 +36,7 @@ import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.control.PhotoGallery;
+import com.nextgis.maplibui.formcontrol.AutoTextEdit;
 import com.nextgis.maplibui.formcontrol.Checkbox;
 import com.nextgis.maplibui.formcontrol.Combobox;
 import com.nextgis.maplibui.formcontrol.DateTime;
@@ -45,6 +46,7 @@ import com.nextgis.maplibui.formcontrol.RadioGroup;
 import com.nextgis.maplibui.formcontrol.Space;
 import com.nextgis.maplibui.formcontrol.TextEdit;
 import com.nextgis.maplibui.formcontrol.TextLabel;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -58,6 +60,7 @@ import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.JSON_TYPE_KEY;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ALBUM_ELEMENTS_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_CHECKBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_COMBOBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DATE_TIME_VALUE;
@@ -180,7 +183,10 @@ public class FormBuilderModifyAttributesActivity
                     break;
 
                 case JSON_COMBOBOX_VALUE:
-                    control = (Combobox)getLayoutInflater().inflate(R.layout.formtemplate_combobox, layout, false);
+                    if (ControlHelper.isAutoComplete(element.getJSONObject(JSON_ATTRIBUTES_KEY)))
+                        control = (AutoTextEdit) getLayoutInflater().inflate(R.layout.formtemplate_autoedittext, layout, false);
+                    else
+                        control = (Combobox) getLayoutInflater().inflate(R.layout.formtemplate_combobox, layout, false);
                     break;
 
                 case JSON_DOUBLE_COMBOBOX_VALUE:

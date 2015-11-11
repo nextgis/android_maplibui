@@ -47,6 +47,7 @@ import static com.nextgis.maplib.util.GeoConstants.GTMultiPoint;
 import static com.nextgis.maplib.util.GeoConstants.GTMultiPolygon;
 import static com.nextgis.maplib.util.GeoConstants.GTPoint;
 import static com.nextgis.maplib.util.GeoConstants.GTPolygon;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_INPUT_SEARCH;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_SHOW_LAST_KEY;
 
 public final class ControlHelper {
@@ -67,6 +68,10 @@ public final class ControlHelper {
     public static boolean isSaveLastValue(JSONObject attributes) throws JSONException {
         return attributes.has(JSON_SHOW_LAST_KEY) && !attributes.isNull(JSON_SHOW_LAST_KEY)
                 && attributes.getBoolean(JSON_SHOW_LAST_KEY);
+    }
+
+    public static boolean isAutoComplete(JSONObject attributes) throws JSONException {
+        return attributes.has(JSON_INPUT_SEARCH) && attributes.getBoolean(JSON_INPUT_SEARCH);
     }
 
     public static boolean hasKey(Bundle savedState, String fieldName) {
