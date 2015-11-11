@@ -58,6 +58,7 @@
     <string name="delete_account_warn_msg">Учетная запись будет удалена!\nВсе слои будут удалены!\nСинхронизация будет остановлена!</string>
     <string name="waiting">Ожидание</string>
     <string name="wait_sync_stopping">Ожидание остановки синхронизации</string>
+    <string name="add">Добавить</string>
     <string name="select">Выбор</string>
     <string name="select_ngw_layer">Выбрать слой NextGIS Web</string>
     <string name="ngw_account">Учетная запись NextGIS Web</string>

@@ -153,7 +153,7 @@ public class SelectNGWResourceDialog
                 .setView(view)
                 .setInverseBackgroundForced(true)
                 .setPositiveButton(
-                        R.string.select, new DialogInterface.OnClickListener()
+                        R.string.add, new DialogInterface.OnClickListener()
                         {
                             public void onClick(
                                     DialogInterface dialog,
