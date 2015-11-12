@@ -30,14 +30,14 @@
         android:id="@+id/menu_visibility_on"
         android:title="@string/menu_visibility_on"
         app:showAsAction="ifRoom"
-        android:icon="?attr/ic_action_visibility_on_inverse"
+        android:icon="@drawable/ic_action_visibility_on_dark"
         />
 
     <item
         android:id="@+id/menu_visibility_off"
         android:title="@string/menu_visibility_off"
         app:showAsAction="ifRoom"
-        android:icon="?attr/ic_action_visibility_off_inverse"
+        android:icon="@drawable/ic_action_visibility_off_dark"
         />
 
     <item

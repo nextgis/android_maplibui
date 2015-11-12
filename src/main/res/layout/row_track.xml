@@ -36,7 +36,8 @@
         android:layout_weight="1"
         android:checkMark="?android:attr/listChoiceIndicatorMultiple"
         android:gravity="center_vertical"
-        android:textAppearance="?attr/textAppearanceListItem"/>
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:textColor="?android:attr/textColor"/>
 
     <ImageView
         android:id="@+id/iv_visibility"

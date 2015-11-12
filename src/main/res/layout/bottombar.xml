@@ -22,17 +22,17 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<com.nextgis.maplibui.fragment.BottomToolbar xmlns:android="http://schemas.android.com/apk/res/android"
-                                             xmlns:app="http://schemas.android.com/apk/res-auto"
-                                             android:id="@+id/bottom_toolbar"
-                                             android:layout_height="?attr/actionBarSize"
-                                             android:layout_width="match_parent"
-                                             android:minHeight="?attr/actionBarSize"
-                                             android:background="?attr/colorPrimary"
-                                             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-                                             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                                             android:layout_gravity="bottom"
-                                             android:layout_alignParentBottom="true"
-    >
+<com.nextgis.maplibui.fragment.BottomToolbar
+    android:id="@+id/bottom_toolbar"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:layout_alignParentBottom="true"
+    android:layout_gravity="bottom"
+    android:background="?attr/colorPrimary"
+    android:minHeight="?attr/actionBarSize"
+    android:theme="?ThemeOverlay.NextGIS.Toolbar"
+    app:popupTheme="?ThemeOverlay.NextGIS.ToolbarPopup">
 
 </com.nextgis.maplibui.fragment.BottomToolbar>

@@ -238,6 +238,7 @@ public class TrackView extends ListView implements LoaderManager.LoaderCallbacks
 
             CheckedTextView name = (CheckedTextView) view.findViewById(R.id.tv_name);
             name.setChecked(mSelectedIds.contains(id + ""));
+            name.setText(cursor.getString(1));
         }
 
         private void updateRecord(int id, boolean visibility) {
