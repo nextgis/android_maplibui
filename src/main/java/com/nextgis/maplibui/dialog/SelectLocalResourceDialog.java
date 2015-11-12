@@ -23,17 +23,15 @@
 
 package com.nextgis.maplibui.dialog;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
-import android.view.ContextThemeWrapper;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ISelectResourceDialog;
 
@@ -45,10 +43,9 @@ import java.util.ArrayList;
  * Local folder/file select dialog
  */
 public class SelectLocalResourceDialog
-        extends DialogFragment
+        extends NGDialog
         implements ISelectResourceDialog
 {
-    protected String                    mTitle;
     protected int                       mTypeMask;
     protected boolean                   mCanSelectMulti;
     protected boolean                   mCanWrite;
@@ -57,19 +54,11 @@ public class SelectLocalResourceDialog
 
     protected AlertDialog mDialog;
 
-    protected final static String KEY_TITLE       = "title";
     protected final static String KEY_MASK        = "mask";
     protected final static String KEY_STATES      = "states";
     protected final static String KEY_CANMULTISEL = "can_multiselect";
     protected final static String KEY_WRITABLE    = "can_write";
     protected final static String KEY_PATH        = "path";
-
-
-    public SelectLocalResourceDialog setTitle(String title)
-    {
-        mTitle = title;
-        return this;
-    }
 
 
     public SelectLocalResourceDialog setTypeMask(int typeMask)
@@ -104,15 +93,13 @@ public class SelectLocalResourceDialog
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        final Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_NextGIS_AppCompat_Light_Dialog);
-
+        super.onCreateDialog(savedInstanceState);
         mListAdapter = new LocalResourcesListAdapter(this);
 
         if (null == savedInstanceState) {
             //first launch, lets fill connections array
             mListAdapter.setCheckState(new ArrayList<String>());
         } else {
-            mTitle = savedInstanceState.getString(KEY_TITLE);
             mTypeMask = savedInstanceState.getInt(KEY_MASK);
             mCanSelectMulti = savedInstanceState.getBoolean(KEY_CANMULTISEL);
             mCanWrite = savedInstanceState.getBoolean(KEY_WRITABLE);
@@ -120,7 +107,7 @@ public class SelectLocalResourceDialog
             mPath = (File) savedInstanceState.getSerializable(KEY_PATH);
         }
 
-        View view = View.inflate(context, R.layout.layout_resources, null);
+        View view = View.inflate(mContext, R.layout.layout_resources, null);
         ListView dialogListView = (ListView) view.findViewById(R.id.listView);
         mListAdapter.setTypeMask(mTypeMask);
         mListAdapter.setCurrentPath(mPath);
@@ -132,7 +119,7 @@ public class SelectLocalResourceDialog
         LinearLayout pathView = (LinearLayout) view.findViewById(R.id.path);
         mListAdapter.setPathLayout(pathView);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, mDialogTheme);
         builder.setTitle(mTitle).setView(view).setInverseBackgroundForced(true).setPositiveButton(
                 R.string.select, new DialogInterface.OnClickListener()
                 {
@@ -160,20 +147,12 @@ public class SelectLocalResourceDialog
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
-        outState.putString(KEY_TITLE, mTitle);
         outState.putInt(KEY_MASK, mTypeMask);
         outState.putBoolean(KEY_CANMULTISEL, mCanSelectMulti);
         outState.putBoolean(KEY_WRITABLE, mCanWrite);
         outState.putStringArrayList(KEY_STATES, (ArrayList<String>) mListAdapter.getCheckState());
         outState.putSerializable(KEY_PATH, mListAdapter.getCurrentPath());
         super.onSaveInstanceState(outState);
-    }
-
-
-    @Override
-    public Context getContext()
-    {
-        return getActivity();
     }
 
 

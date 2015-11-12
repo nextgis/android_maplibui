@@ -25,8 +25,8 @@ package com.nextgis.maplibui.mapui;
 
 import android.content.Context;
 import android.net.Uri;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.LayerFactory;
@@ -34,6 +34,7 @@ import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.NGWLookupTable;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.dialog.CreateLocalLayerDialog;
 import com.nextgis.maplibui.dialog.CreateRemoteTMSLayerDialog;
 import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
@@ -45,7 +46,17 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 
-import static com.nextgis.maplib.util.Constants.*;
+import static com.nextgis.maplib.util.Constants.CONFIG;
+import static com.nextgis.maplib.util.Constants.JSON_TYPE_KEY;
+import static com.nextgis.maplib.util.Constants.LAYERTYPE_GROUP;
+import static com.nextgis.maplib.util.Constants.LAYERTYPE_LOCAL_TMS;
+import static com.nextgis.maplib.util.Constants.LAYERTYPE_LOCAL_VECTOR;
+import static com.nextgis.maplib.util.Constants.LAYERTYPE_LOOKUPTABLE;
+import static com.nextgis.maplib.util.Constants.LAYERTYPE_NGW_RASTER;
+import static com.nextgis.maplib.util.Constants.LAYERTYPE_NGW_VECTOR;
+import static com.nextgis.maplib.util.Constants.LAYERTYPE_REMOTE_TMS;
+import static com.nextgis.maplib.util.Constants.LAYERTYPE_TRACKS;
+import static com.nextgis.maplib.util.Constants.TAG;
 
 
 public class LayerFactoryUI
@@ -56,16 +67,17 @@ public class LayerFactoryUI
             final Context context,
             final LayerGroup groupLayer)
     {
-        if (context instanceof FragmentActivity) {
-            FragmentActivity fragmentActivity = (FragmentActivity) context;
+        if (context instanceof NGActivity) {
+            NGActivity fragmentActivity = (NGActivity) context;
             SelectNGWResourceDialog newFragment = new SelectNGWResourceDialog();
-            newFragment.setTitle(context.getString(R.string.select_ngw_layer))
-                    .setLayerGroup(groupLayer)
+            newFragment.setLayerGroup(groupLayer)
                     .setTypeMask(
                             Connection.NGWResourceTypePostgisLayer |
-                            Connection.NGWResourceTypeVectorLayer |
-                            Connection.NGWResourceTypeRasterLayer |
-                            Connection.NGWResourceTypeWMSClient)
+                                    Connection.NGWResourceTypeVectorLayer |
+                                    Connection.NGWResourceTypeRasterLayer |
+                                    Connection.NGWResourceTypeWMSClient)
+                    .setTitle(context.getString(R.string.select_ngw_layer))
+                    .setTheme(fragmentActivity.getThemeId())
                     .show(fragmentActivity.getSupportFragmentManager(), "create_ngw_layer");
         }
     }
@@ -83,14 +95,15 @@ public class LayerFactoryUI
         if (lastPeriodPos > 0) {
             layerName = layerName.substring(0, lastPeriodPos);
         }
-        if (context instanceof FragmentActivity) {
-            FragmentActivity fragmentActivity = (FragmentActivity) context;
+        if (context instanceof NGActivity) {
+            NGActivity fragmentActivity = (NGActivity) context;
             CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
-            newFragment.setTitle(context.getString(R.string.create_tms_layer))
-                    .setLayerGroup(groupLayer)
+            newFragment.setLayerGroup(groupLayer)
                     .setLayerType(LayerFillService.TMS_LAYER)
                     .setUri(uri)
                     .setLayerName(layerName)
+                    .setTitle(context.getString(R.string.create_tms_layer))
+                    .setTheme(fragmentActivity.getThemeId())
                     .show(fragmentActivity.getSupportFragmentManager(), "create_tms_layer");
         }
     }
@@ -108,14 +121,15 @@ public class LayerFactoryUI
         if (lastPeriodPos > 0) {
             layerName = layerName.substring(0, lastPeriodPos);
         }
-        if (context instanceof FragmentActivity) {
-            FragmentActivity fragmentActivity = (FragmentActivity) context;
+        if (context instanceof NGActivity) {
+            NGActivity fragmentActivity = (NGActivity) context;
             CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
-            newFragment.setTitle(context.getString(R.string.create_vector_layer))
-                    .setLayerGroup(groupLayer)
+            newFragment.setLayerGroup(groupLayer)
                     .setLayerType(LayerFillService.VECTOR_LAYER)
                     .setUri(uri)
                     .setLayerName(layerName)
+                    .setTitle(context.getString(R.string.create_vector_layer))
+                    .setTheme(fragmentActivity.getThemeId())
                     .show(fragmentActivity.getSupportFragmentManager(), "create_vector_layer");
         }
     }
@@ -133,17 +147,16 @@ public class LayerFactoryUI
         if (lastPeriodPos > 0) {
             layerName = layerName.substring(0, lastPeriodPos);
         }
-        if (context instanceof FragmentActivity) {
-            FragmentActivity fragmentActivity = (FragmentActivity) context;
+        if (context instanceof NGActivity) {
+            NGActivity fragmentActivity = (NGActivity) context;
             CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
-            newFragment.setTitle(context.getString(R.string.create_vector_layer))
-                    .setLayerGroup(groupLayer)
+            newFragment.setLayerGroup(groupLayer)
                     .setLayerType(LayerFillService.VECTOR_LAYER_WITH_FORM)
                     .setUri(uri)
                     .setLayerName(layerName)
-                    .show(
-                            fragmentActivity.getSupportFragmentManager(),
-                            "create_vector_with_form_layer");
+                    .setTitle(context.getString(R.string.create_vector_layer))
+                    .setTheme(fragmentActivity.getThemeId())
+                    .show(fragmentActivity.getSupportFragmentManager(), "create_vector_with_form_layer");
         }
     }
 
@@ -152,11 +165,12 @@ public class LayerFactoryUI
             final Context context,
             final LayerGroup groupLayer)
     {
-        if (context instanceof FragmentActivity) {
-            FragmentActivity fragmentActivity = (FragmentActivity) context;
+        if (context instanceof NGActivity) {
+            NGActivity fragmentActivity = (NGActivity) context;
             CreateRemoteTMSLayerDialog newFragment = new CreateRemoteTMSLayerDialog();
-            newFragment.setTitle(context.getString(R.string.create_tms_layer))
-                    .setLayerGroup(groupLayer)
+            newFragment.setLayerGroup(groupLayer)
+                    .setTitle(context.getString(R.string.create_tms_layer))
+                    .setTheme(fragmentActivity.getThemeId())
                     .show(fragmentActivity.getSupportFragmentManager(), "create_tms_layer");
         }
     }

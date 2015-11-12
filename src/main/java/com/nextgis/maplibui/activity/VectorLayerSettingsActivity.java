@@ -119,8 +119,9 @@ public class VectorLayerSettingsActivity
                         {
                             //show colors list
                             ChooseColorDialog newChooseColorDialog = new ChooseColorDialog();
-                            newChooseColorDialog.setTitle(getString(R.string.select_color))
-                                    .setColors(mColors)
+                            newChooseColorDialog.setColors(mColors)
+                                    .setTitle(getString(R.string.select_color))
+                                    .setTheme(getThemeId())
                                     .show(
                                             VectorLayerSettingsActivity.this.getSupportFragmentManager(),
                                             "choose_color");

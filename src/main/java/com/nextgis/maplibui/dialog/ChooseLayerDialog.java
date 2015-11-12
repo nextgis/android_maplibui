@@ -23,14 +23,11 @@
 
 package com.nextgis.maplibui.dialog;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
-import android.view.ContextThemeWrapper;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.ListView;
 
@@ -49,24 +46,15 @@ import java.util.List;
  * A dialog to choose layer and start attributes edit form
  */
 public class ChooseLayerDialog
-        extends DialogFragment
+        extends NGDialog
         implements ILayerSelector
 {
-    protected String                 mTitle;
     protected List<ILayer>           mLayers;
     protected ChooseLayerListAdapter mListAdapter;
     protected int                    mCode;
 
-    protected final static String KEY_TITLE      = "title";
     protected final static String KEY_LAYERS_IDS = "ids";
     protected final static String KEY_CODE       = "code";
-
-
-    public ChooseLayerDialog setTitle(String title)
-    {
-        mTitle = title;
-        return this;
-    }
 
 
     public ChooseLayerDialog setLayerList(List<ILayer> list)
@@ -87,14 +75,12 @@ public class ChooseLayerDialog
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        final Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_NextGIS_AppCompat_Light_Dialog);
-
+        super.onCreateDialog(savedInstanceState);
         mListAdapter = new ChooseLayerListAdapter(this);
 
         if (null != savedInstanceState) {
-            mTitle = savedInstanceState.getString(KEY_TITLE);
             List<Integer> ids = savedInstanceState.getIntegerArrayList(KEY_LAYERS_IDS);
-            IGISApplication app = (IGISApplication) getActivity().getApplication();
+            IGISApplication app = (IGISApplication) mActivity.getApplication();
             MapBase map = app.getMap();
             mLayers = new ArrayList<>();
             for (Integer id : ids) {
@@ -104,12 +90,12 @@ public class ChooseLayerDialog
             mCode = savedInstanceState.getInt(KEY_CODE);
         }
 
-        View view = View.inflate(context, R.layout.layout_layers, null);
+        View view = View.inflate(mContext, R.layout.layout_layers, null);
         ListView dialogListView = (ListView) view.findViewById(R.id.listView);
         dialogListView.setAdapter(mListAdapter);
         dialogListView.setOnItemClickListener(mListAdapter);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, mDialogTheme);
         builder.setTitle(mTitle).setView(view).setInverseBackgroundForced(true).setNegativeButton(
                 R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(
@@ -128,7 +114,6 @@ public class ChooseLayerDialog
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
-        outState.putString(KEY_TITLE, mTitle);
         ArrayList<Integer> ids = new ArrayList<>();
         for (ILayer layer : mLayers) {
             ids.add(layer.getId());
@@ -142,7 +127,7 @@ public class ChooseLayerDialog
     @Override
     public void onLayerSelect(ILayer layer)
     {
-        IChooseLayerResult activity = (IChooseLayerResult) getActivity();
+        IChooseLayerResult activity = (IChooseLayerResult) mActivity;
         if (null != activity) {
             activity.onFinishChooseLayerDialog(mCode, layer);
         }
@@ -158,9 +143,4 @@ public class ChooseLayerDialog
     }
 
 
-    @Override
-    public Context getContext()
-    {
-        return getActivity();
-    }
 }

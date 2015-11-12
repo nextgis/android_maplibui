@@ -23,19 +23,17 @@
 
 package com.nextgis.maplibui.dialog;
 
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.util.Pair;
-import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IChooseColorResult;
 
@@ -46,22 +44,13 @@ import java.util.List;
  * Color picker
  */
 public class ChooseColorDialog
-        extends DialogFragment
+        extends NGDialog
         implements AdapterView.OnItemClickListener
 {
-    protected String                      mTitle;
     protected List<Pair<Integer, String>> mColors;
     protected ChooseColorListAdapter      mColorsListAdapter;
 
-    protected final static String KEY_TITLE  = "title";
     protected final static String KEY_COLORS = "color";
-
-
-    public ChooseColorDialog setTitle(String title)
-    {
-        mTitle = title;
-        return this;
-    }
 
 
     public ChooseColorDialog setColors(List<Pair<Integer, String>> colors)
@@ -74,7 +63,6 @@ public class ChooseColorDialog
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
-        outState.putString(KEY_TITLE, mTitle);
         outState.putSerializable(KEY_COLORS, (java.io.Serializable) mColors);
         super.onSaveInstanceState(outState);
     }
@@ -84,22 +72,19 @@ public class ChooseColorDialog
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        final Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_NextGIS_AppCompat_Light_Dialog);
-
-
+        super.onCreateDialog(savedInstanceState);
         if (null != savedInstanceState) {
-            mTitle = savedInstanceState.getString(KEY_TITLE);
             mColors = (List<Pair<Integer, String>>) savedInstanceState.getSerializable(KEY_COLORS);
         }
 
-        mColorsListAdapter = new ChooseColorListAdapter(getActivity(), mColors);
+        mColorsListAdapter = new ChooseColorListAdapter(mActivity, mColors);
 
-        View view = View.inflate(context, R.layout.layout_layers, null);
+        View view = View.inflate(mContext, R.layout.layout_layers, null);
         ListView dialogListView = (ListView) view.findViewById(R.id.listView);
         dialogListView.setAdapter(mColorsListAdapter);
         dialogListView.setOnItemClickListener(this);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, mDialogTheme);
         builder.setTitle(mTitle).setView(view).setInverseBackgroundForced(true).setNegativeButton(
                 R.string.cancel, new DialogInterface.OnClickListener()
                 {
@@ -123,7 +108,7 @@ public class ChooseColorDialog
             long id)
     {
         //send event to parent
-        IChooseColorResult activity = (IChooseColorResult) getActivity();
+        IChooseColorResult activity = (IChooseColorResult) mActivity;
         if (null != activity) {
             TextView tv = (TextView) view.findViewById(R.id.color_name);
             String colorName = (String) tv.getText();

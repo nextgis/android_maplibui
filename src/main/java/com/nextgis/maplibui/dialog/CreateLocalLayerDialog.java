@@ -23,17 +23,13 @@
 
 package com.nextgis.maplibui.dialog;
 
-import android.app.Activity;
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
-import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -53,26 +49,17 @@ import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
  * The dialog to pick layer name and create the vector layer by input Uri
  */
 public class CreateLocalLayerDialog
-        extends DialogFragment
+        extends NGDialog
 {
-    protected final static String KEY_TITLE      = "title";
     protected final static String KEY_ID         = "id";
     protected final static String KEY_URI        = "uri";
     protected final static String KEY_LAYER_TYPE = "layer_type";
 
-    protected String     mTitle;
     protected Uri        mUri;
     protected LayerGroup mGroupLayer;
     protected int        mLayerType;
     protected String     mLayerName;
     protected Spinner    mSpinner;
-
-
-    public CreateLocalLayerDialog setTitle(String title)
-    {
-        mTitle = title;
-        return this;
-    }
 
 
     public CreateLocalLayerDialog setLayerName(String layerName)
@@ -107,11 +94,9 @@ public class CreateLocalLayerDialog
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        final Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_NextGIS_AppCompat_Light_Dialog);
-
+        super.onCreateDialog(savedInstanceState);
         if (null != savedInstanceState) {
             mLayerName = savedInstanceState.getString(LayerFillService.KEY_NAME);
-            mTitle = savedInstanceState.getString(KEY_TITLE);
             mUri = savedInstanceState.getParcelable(KEY_URI);
             int id = savedInstanceState.getInt(KEY_ID);
             mLayerType = savedInstanceState.getInt(KEY_LAYER_TYPE);
@@ -127,40 +112,38 @@ public class CreateLocalLayerDialog
 
         View view;
         if (mLayerType < 3) {
-            view = View.inflate(context, R.layout.dialog_create_vector_layer, null);
+            view = View.inflate(mContext, R.layout.dialog_create_vector_layer, null);
         } else {
-            view = View.inflate(context, R.layout.dialog_create_local_tms, null);
+            view = View.inflate(mContext, R.layout.dialog_create_local_tms, null);
 
             final ArrayAdapter<CharSequence> adapter =
-                    new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
+                    new ArrayAdapter<>(mContext, android.R.layout.simple_spinner_item);
             mSpinner = (Spinner) view.findViewById(R.id.layer_type);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mSpinner.setAdapter(adapter);
 
-            adapter.add(context.getString(R.string.tmstype_osm));
-            adapter.add(context.getString(R.string.tmstype_normal));
+            adapter.add(mContext.getString(R.string.tmstype_osm));
+            adapter.add(mContext.getString(R.string.tmstype_normal));
         }
 
         final EditText layerName = (EditText) view.findViewById(R.id.layer_name);
         layerName.setText(mLayerName);
+        layerName.setSelection(mLayerName.length());
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, mDialogTheme);
         builder.setTitle(mTitle)
                 .setIcon(mLayerType < 3 ? R.drawable.ic_local_vector : R.drawable.ic_local_tms)
                 .setView(view)
                 .setPositiveButton(
                         R.string.create, new DialogInterface.OnClickListener()
                         {
-                            private Activity mActivity;
-
                             public void onClick(
                                     DialogInterface dialog,
                                     int whichButton)
                             {
-                                mActivity = getActivity();
                                 mLayerName = layerName.getText().toString();
                                 // create or connect to fill layer with features
-                                Intent intent = new Intent(context, LayerFillService.class);
+                                Intent intent = new Intent(mContext, LayerFillService.class);
                                 intent.setAction(LayerFillService.ACTION_ADD_TASK);
                                 intent.putExtra(LayerFillService.KEY_URI, mUri);
                                 intent.putExtra(LayerFillService.KEY_NAME, mLayerName);
@@ -190,7 +173,6 @@ public class CreateLocalLayerDialog
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
-        outState.putString(KEY_TITLE, mTitle);
         outState.putInt(KEY_ID, mGroupLayer.getId());
         outState.putString(LayerFillService.KEY_NAME, mLayerName);
         outState.putParcelable(KEY_URI, mUri);

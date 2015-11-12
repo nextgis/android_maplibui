@@ -23,14 +23,10 @@ package com.nextgis.maplibui.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.TypedValue;
 import android.view.MenuItem;
 
 import com.nextgis.maplibui.R;
@@ -41,27 +37,22 @@ import com.nextgis.maplibui.util.SettingsConstantsUI;
  */
 public class NGActivity
         extends AppCompatActivity {
+    protected final static String KEY_CURRENT_THEME = "current_theme";
+
+    protected SharedPreferences mPreferences;
+    protected boolean mIsDarkTheme;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         setTheme();
         super.onCreate(savedInstanceState);
     }
 
     protected void setTheme(){
-        boolean bDark = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
-        final SharedPreferences.Editor edit =
-                PreferenceManager.getDefaultSharedPreferences(this).edit();
-        if (bDark) {
-            setTheme(getThemeId(true));
-            edit.putString("current_theme", "dark");
-        }
-        else{
-            setTheme(getThemeId(false));
-            edit.putString("current_theme", "light");
-        }
-        edit.commit();
+        mIsDarkTheme = mPreferences.getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
+        mPreferences.edit().putString(KEY_CURRENT_THEME, mIsDarkTheme ? "dark" : "light").commit();
+        setTheme(getThemeId());
     }
     /**
      * This hook is called whenever an item in your options menu is selected.
@@ -116,24 +107,18 @@ public class NGActivity
         return 255; // not transparent
     }
 
-    protected int getThemeId(boolean isDark){
-        if(isDark)
-            return R.style.Theme_NextGIS_AppCompat_Dark;
-        else
-            return R.style.Theme_NextGIS_AppCompat_Light;
-        //return R.style.Theme_AppCompat_Light_NoActionBar;
+    public int getThemeId(){
+        return mIsDarkTheme ? R.style.Theme_NextGIS_AppCompat_Dark : R.style.Theme_NextGIS_AppCompat_Light;
     }
 
     @Override
     protected void onResume() {
-        String newTheme = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light");
-        String currentTheme = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString("current_theme", "light");
+        String newTheme = mPreferences.getString(SettingsConstantsUI.KEY_PREF_THEME, "light");
+        String currentTheme = mPreferences.getString(KEY_CURRENT_THEME, "light");
 
-        if (!newTheme.equals(currentTheme)) {
+        if (!newTheme.equals(currentTheme))
             refreshActivityView();
-        }
+
         super.onResume();
     }
 

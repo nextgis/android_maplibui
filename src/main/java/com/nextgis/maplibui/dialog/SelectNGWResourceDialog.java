@@ -26,15 +26,13 @@ package com.nextgis.maplibui.dialog;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
-import android.view.ContextThemeWrapper;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -52,10 +50,8 @@ import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGWLoginActivity;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
-import com.nextgis.maplibui.mapui.NGWVectorLayerUI;
 import com.nextgis.maplibui.service.LayerFillService;
 import com.nextgis.maplibui.util.CheckState;
-import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,16 +60,14 @@ import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
 
 
 public class SelectNGWResourceDialog
-        extends DialogFragment
+        extends NGDialog
 {
-    protected String     mTitle;
     protected LayerGroup mGroupLayer;
     protected int        mTypeMask;
 
     protected NGWResourcesListAdapter mListAdapter;
     protected AlertDialog             mDialog;
 
-    protected final static String KEY_TITLE       = "title";
     protected final static String KEY_MASK        = "mask";
     protected final static String KEY_ID          = "id";
     protected final static String KEY_CONNECTIONS = "connections";
@@ -81,13 +75,6 @@ public class SelectNGWResourceDialog
     protected final static String KEY_STATES      = "states";
 
     protected final static int ADD_ACCOUNT_CODE = 777;
-
-
-    public SelectNGWResourceDialog setTitle(String title)
-    {
-        mTitle = title;
-        return this;
-    }
 
 
     public SelectNGWResourceDialog setLayerGroup(LayerGroup groupLayer)
@@ -108,18 +95,16 @@ public class SelectNGWResourceDialog
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        final Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_NextGIS_AppCompat_Light_Dialog);
-
+        super.onCreateDialog(savedInstanceState);
         mListAdapter = new NGWResourcesListAdapter(this);
 
         if (null == savedInstanceState) {
             //first launch, lets fill connections array
-            Connections connections = fillConnections(context);
+            Connections connections = fillConnections(mContext);
             mListAdapter.setConnections(connections);
             mListAdapter.setCurrentResourceId(connections.getId());
             mListAdapter.setCheckState(new ArrayList<CheckState>());
         } else {
-            mTitle = savedInstanceState.getString(KEY_TITLE);
             mTypeMask = savedInstanceState.getInt(KEY_MASK);
             int id = savedInstanceState.getInt(KEY_ID);
             MapBase map = MapBase.getInstance();
@@ -138,7 +123,7 @@ public class SelectNGWResourceDialog
                             KEY_STATES));
         }
 
-        View view = View.inflate(context, R.layout.layout_resources, null);
+        View view = View.inflate(mContext, R.layout.layout_resources, null);
         ListView dialogListView = (ListView) view.findViewById(R.id.listView);
         mListAdapter.setTypeMask(mTypeMask);
         dialogListView.setAdapter(mListAdapter);
@@ -147,7 +132,7 @@ public class SelectNGWResourceDialog
         LinearLayout pathView = (LinearLayout) view.findViewById(R.id.path);
         mListAdapter.setPathLayout(pathView);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, mDialogTheme);
         builder.setTitle(mTitle)
                 .setIcon(R.drawable.ic_ngw)
                 .setView(view)
@@ -159,7 +144,7 @@ public class SelectNGWResourceDialog
                                     DialogInterface dialog,
                                     int id)
                             {
-                                createLayers(context);
+                                createLayers(mContext);
                             }
                         })
                 .setNegativeButton(
@@ -181,7 +166,6 @@ public class SelectNGWResourceDialog
     public void onSaveInstanceState(Bundle outState)
     {
         if(null != mGroupLayer && null != mListAdapter) {
-            outState.putString(KEY_TITLE, mTitle);
             outState.putInt(KEY_MASK, mTypeMask);
             outState.putInt(KEY_ID, mGroupLayer.getId());
             outState.putInt(KEY_RESOURCE_ID, mListAdapter.getCurrentResourceId());
@@ -226,7 +210,7 @@ public class SelectNGWResourceDialog
             if (resultCode != Activity.RESULT_CANCELED) {
                 //search new account and add it
                 final AccountManager accountManager =
-                        AccountManager.get(getActivity().getApplicationContext());
+                        AccountManager.get(mActivity.getApplicationContext());
                 Connections connections = mListAdapter.getConnections();
                 for (Account account : accountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
                     boolean find = false;
@@ -330,7 +314,7 @@ public class SelectNGWResourceDialog
                     intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, mGroupLayer.getId());
                     intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.NGW_LAYER);
 
-                    LayerFillProgressDialog progressDialog = new LayerFillProgressDialog(getActivity());
+                    LayerFillProgressDialog progressDialog = new LayerFillProgressDialog(mActivity);
                     progressDialog.execute(intent);
                 }
             }

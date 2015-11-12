@@ -23,14 +23,11 @@
 
 package com.nextgis.maplibui.dialog;
 
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
-import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.ArrayAdapter;
@@ -50,9 +47,8 @@ import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
 
 
 public class CreateRemoteTMSLayerDialog
-        extends DialogFragment
+        extends NGDialog
 {
-    protected String     mTitle;
     protected LayerGroup mGroupLayer;
     protected Spinner    mSpinner;
     protected EditText   mInput;
@@ -60,20 +56,12 @@ public class CreateRemoteTMSLayerDialog
     protected EditText   mLogin;
     protected EditText   mPassword;
 
-    protected final static String KEY_TITLE    = "title";
     protected final static String KEY_ID       = "id";
     protected final static String KEY_NAME     = "name";
     protected final static String KEY_URL      = "url";
     protected final static String KEY_POSITION = "pos";
     protected final static String KEY_LOGIN    = "login";
     protected final static String KEY_PASSWORD = "password";
-
-
-    public CreateRemoteTMSLayerDialog setTitle(String title)
-    {
-        mTitle = title;
-        return this;
-    }
 
 
     public CreateRemoteTMSLayerDialog setLayerGroup(LayerGroup groupLayer)
@@ -91,21 +79,18 @@ public class CreateRemoteTMSLayerDialog
         //fix: http://stackoverflow.com/q/25684940
         //context.setTheme(android.R.style.Theme_Holo_Light);
         //context.setTheme(android.R.style.Theme_Light_NoTitleBar);
-
-        final Context context = new ContextThemeWrapper(getActivity(), R.style.Theme_NextGIS_AppCompat_Light_Dialog);
-
         //LayoutInflater inflater = getActivity().getLayoutInflater();
-
-        View view = View.inflate(context, R.layout.dialog_create_tms, null);
+        super.onCreateDialog(savedInstanceState);
+        View view = View.inflate(mContext, R.layout.dialog_create_tms, null);
 
         final ArrayAdapter<CharSequence> adapter =
-                new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
+                new ArrayAdapter<>(mContext, android.R.layout.simple_spinner_item);
         mSpinner = (Spinner) view.findViewById(R.id.layer_type);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinner.setAdapter(adapter);
 
-        adapter.add(context.getString(R.string.tmstype_osm));
-        adapter.add(context.getString(R.string.tmstype_normal));
+        adapter.add(mContext.getString(R.string.tmstype_osm));
+        adapter.add(mContext.getString(R.string.tmstype_normal));
 
         mInput = (EditText) view.findViewById(R.id.layer_name);
         mUrl = (EditText) view.findViewById(R.id.layer_url);
@@ -119,7 +104,6 @@ public class CreateRemoteTMSLayerDialog
             mLogin.setText(savedInstanceState.getString(KEY_LOGIN));
             mPassword.setText(savedInstanceState.getString(KEY_PASSWORD));
             mSpinner.setSelection(savedInstanceState.getInt(KEY_POSITION));
-            mTitle = savedInstanceState.getString(KEY_TITLE);
             int id = savedInstanceState.getInt(KEY_ID);
             MapBase map = MapBase.getInstance();
             if (null != map) {
@@ -130,7 +114,7 @@ public class CreateRemoteTMSLayerDialog
             }
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, mDialogTheme);
         builder.setTitle(mTitle).setIcon(R.drawable.ic_remote_tms).setView(view).setPositiveButton(
                 R.string.create, new DialogInterface.OnClickListener()
                 {
@@ -155,7 +139,7 @@ public class CreateRemoteTMSLayerDialog
                         //check if {x}, {y} or {z} present
                         if (!layerURL.contains("{x}") || !layerURL.contains("{y}") ||
                             !layerURL.contains("{z}")) {
-                            Toast.makeText(context, R.string.error_invalid_url, Toast.LENGTH_SHORT)
+                            Toast.makeText(mContext, R.string.error_invalid_url, Toast.LENGTH_SHORT)
                                     .show();
                             return;
                         }
@@ -167,7 +151,7 @@ public class CreateRemoteTMSLayerDialog
                         boolean isURL = URLUtil.isValidUrl(layerURL);
 
                         if (!isURL) {
-                            Toast.makeText(context, R.string.error_invalid_url, Toast.LENGTH_SHORT)
+                            Toast.makeText(mContext, R.string.error_invalid_url, Toast.LENGTH_SHORT)
                                     .show();
                             return;
                         }
@@ -207,7 +191,6 @@ public class CreateRemoteTMSLayerDialog
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
-        outState.putString(KEY_TITLE, mTitle);
         outState.putInt(KEY_ID, mGroupLayer.getId());
         outState.putString(KEY_NAME, mInput.getText().toString());
         outState.putString(KEY_URL, mUrl.getText().toString());
