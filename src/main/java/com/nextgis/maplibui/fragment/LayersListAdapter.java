@@ -97,6 +97,11 @@ public class LayersListAdapter
     }
 
 
+    public void onResume() {
+        notifyDataSetChanged();
+    }
+
+
     @Override
     public int getCount()
     {
