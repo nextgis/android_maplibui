@@ -160,7 +160,7 @@ public class ModifyAttributesActivity
                             if (mAccurateLocation.isChecked()) {
                                 final ProgressDialog progress = new ProgressDialog(view.getContext());
                                 final AccurateLocationTaker accurateLocation =
-                                        new AccurateLocationTaker(view.getContext(),
+                                        new AccurateLocationTaker(view.getContext(), 100f,
                                                 mMaxTakeCount, MAX_TAKE_TIME, PROGRESS_DELAY, (String) mAccuracyCE.getSelectedItem());
 
                                 progress.setMax(mMaxTakeCount);
