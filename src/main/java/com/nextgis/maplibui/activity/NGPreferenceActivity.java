@@ -41,7 +41,7 @@ import com.nextgis.maplibui.util.SettingsConstantsUI;
 public class NGPreferenceActivity
         extends PreferenceActivity
 {
-    boolean mIsDarkTheme;
+    protected boolean mIsDarkTheme;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
