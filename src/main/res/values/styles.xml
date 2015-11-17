@@ -146,6 +146,8 @@
         <!--item name="android:textColorSecondary">@color/textColorSecondary.Light</item-->
         <item name="colorControlHighlight">@color/accent</item>
         <item name="colorControlNormal">@color/textColorSecondaryInverse.Light</item>
+        <item name="titleTextColor">@color/textColorPrimaryInverse.Light</item>
+        <item name="subtitleTextColor">@color/textColorSecondaryInverse.Light</item>
     </style>
 
     <style name="Theme.NextGIS.AppCompat.ActionBar.Dark" parent="Theme.NextGIS.AppCompat.ActionBar">
