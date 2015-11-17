@@ -22,6 +22,7 @@
 package com.nextgis.maplibui.util;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -105,7 +106,7 @@ public final class ControlHelper {
                 drawableId = R.drawable.ic_type_multipolygon;
                 break;
             default:
-                return context.getResources().getDrawable(R.drawable.ic_local_vector);
+                return context.getResources().getDrawable(defaultIcon);
         }
 
         BitmapDrawable icon = (BitmapDrawable) context.getResources().getDrawable(drawableId);
@@ -132,5 +133,15 @@ public final class ControlHelper {
         }
 
         return icon;
+    }
+
+    public static int getDialogTheme(Context context, int theme) {
+        int dialogTheme = R.style.Theme_NextGIS_AppCompat_Light_Dialog;
+        int[] attrs = {android.R.attr.alertDialogStyle};
+        TypedArray ta = context.obtainStyledAttributes(theme, attrs);
+        dialogTheme = ta.getResourceId(0, dialogTheme);
+        ta.recycle();
+
+        return dialogTheme;
     }
 }

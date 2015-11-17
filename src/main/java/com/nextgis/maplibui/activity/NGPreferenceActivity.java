@@ -23,11 +23,9 @@
 
 package com.nextgis.maplibui.activity;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.support.v7.internal.view.ContextThemeWrapper;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,6 +41,8 @@ import com.nextgis.maplibui.util.SettingsConstantsUI;
 public class NGPreferenceActivity
         extends PreferenceActivity
 {
+    boolean mIsDarkTheme;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -82,9 +82,9 @@ public class NGPreferenceActivity
     }
 
     protected void setTheme(){
-        boolean bDarkTheme = PreferenceManager.getDefaultSharedPreferences(this)
+        mIsDarkTheme = PreferenceManager.getDefaultSharedPreferences(this)
                 .getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
-        setTheme(getThemeId(bDarkTheme));
+        setTheme(getThemeId());
     }
 
     @Override
@@ -99,8 +99,8 @@ public class NGPreferenceActivity
         }
     }
 
-    protected int getThemeId(boolean isDark){
-        if(isDark)
+    protected int getThemeId(){
+        if (mIsDarkTheme)
             return com.nextgis.maplibui.R.style.Theme_NextGIS_AppCompat_Dark;
         else
             return com.nextgis.maplibui.R.style.Theme_NextGIS_AppCompat_Light;
