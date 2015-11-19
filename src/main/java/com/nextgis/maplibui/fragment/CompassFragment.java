@@ -46,7 +46,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.BubbleSurfaceView;
 import com.nextgis.maplibui.util.CompassImage;
@@ -114,7 +113,10 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+
+        if (null == getParentFragment()) {
+            setRetainInstance(true);
+        }
 
         // reference to vibrator service
         mVibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);

@@ -24,8 +24,6 @@
 package com.nextgis.maplibui.fragment;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -71,7 +69,10 @@ public class NGWLoginFragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+
+        if (null == getParentFragment()) {
+            setRetainInstance(true);
+        }
     }
 
 
