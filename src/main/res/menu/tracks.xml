@@ -44,14 +44,14 @@
         android:id="@+id/menu_delete"
         android:title="@string/menu_delete"
         app:showAsAction="ifRoom"
-        android:icon="?attr/ic_action_delete_inverse"
+        android:icon="@drawable/ic_action_delete_dark"
         />
 
     <item
         android:id="@+id/menu_select_all"
         android:title="@string/menu_select_all"
         app:showAsAction="ifRoom"
-        android:icon="?attr/ic_action_content_select_all_inverse"
+        android:icon="@drawable/ic_action_content_select_all_dark"
         />
 
 </menu>
