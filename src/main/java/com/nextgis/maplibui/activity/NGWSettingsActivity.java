@@ -77,6 +77,7 @@ public class NGWSettingsActivity
         extends NGPreferenceActivity
         implements OnAccountsUpdateListener {
     protected static final String ACCOUNT_ACTION = "com.nextgis.maplibui.ACCOUNT";
+    protected static final String KEY_SYNC = "synchronization";
 
     protected AccountManager mAccountManager;
     protected final Handler mHandler = new Handler();
@@ -292,6 +293,8 @@ public class NGWSettingsActivity
                 Constants.PREFERENCES, Constants.MODE_MULTI_PROCESS);
 
         CheckBoxPreference enablePeriodicSync = new CheckBoxPreference(this);
+        enablePeriodicSync.setKey(KEY_SYNC);
+        enablePeriodicSync.setPersistent(false);
         enablePeriodicSync.setTitle(R.string.auto_sync);
 
         boolean isAccountSyncEnabled = isAccountSyncEnabled(account, application.getAuthority());
@@ -417,6 +420,7 @@ public class NGWSettingsActivity
                 });
 
         syncCategory.addPreference(timeInterval);
+        timeInterval.setDependency(KEY_SYNC);
     }
 
 
