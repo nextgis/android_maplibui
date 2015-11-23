@@ -44,6 +44,15 @@
     <attr name="ic_cancel" format="reference"/>
     <attr name="layer_list_background" format="reference"/>
 
+    <attr name="sdf_background" format="reference"/>
+    <attr name="sdf_titleBackground" format="reference"/>
+    <attr name="sdf_titleTextColor" format="reference"/>
+    <attr name="sdf_titleDividerColor" format="reference"/>
+    <attr name="sdf_titleDividerVisibility" format="reference"/>
+    <attr name="sdf_buttonBackground" format="reference"/>
+    <attr name="sdf_buttonTextColor" format="reference"/>
+    <attr name="sdf_messageTextColor" format="reference"/>
+
     <style name="Theme.NextGIS.AppCompat.Light"
            parent="Theme.AppCompat.Light.NoActionBar">
         <item name="isLightTheme">true</item>
@@ -208,6 +217,46 @@
 
     <style name="DatePickSpinner" parent="Base.Widget.AppCompat.Spinner">
         <item name="android:background">?attr/DatePickSpinnerBackground</item>
+    </style>
+
+    <!-- StyledDialogFragment themes. These are fixed. To change the colors see colors.xml -->
+
+    <style name="SdfTheme.Light" parent="">
+        <item name="sdf_background">@drawable/sdf_background_light</item>
+        <item name="sdf_titleBackground">@drawable/sdf_title_background_light</item>
+        <item name="sdf_titleTextColor">@color/sdf_titleTextColorLight</item>
+        <item name="sdf_titleDividerColor">@color/sdf_titleDividerColorLight</item>
+        <item name="sdf_titleDividerVisibility">@integer/sdf_titleDividerVisibilityLight</item>
+        <item name="sdf_buttonBackground">@drawable/sdf_button_background_light</item>
+        <item name="sdf_buttonTextColor">@color/sdf_button_text_color_light</item>
+        <item name="sdf_messageTextColor">@color/sdf_messageTextColorLight</item>
+    </style>
+
+    <style name="SdfTheme.Dark" parent="">
+        <item name="sdf_background">@drawable/sdf_background_dark</item>
+        <item name="sdf_titleBackground">@drawable/sdf_title_background_dark</item>
+        <item name="sdf_titleTextColor">@color/sdf_titleTextColorDark</item>
+        <item name="sdf_titleDividerColor">@color/sdf_titleDividerColorDark</item>
+        <item name="sdf_titleDividerVisibility">@integer/sdf_titleDividerVisibilityDark</item>
+        <item name="sdf_buttonBackground">@drawable/sdf_button_background_dark</item>
+        <item name="sdf_buttonTextColor">@color/sdf_button_text_color_dark</item>
+        <item name="sdf_messageTextColor">@color/sdf_messageTextColorDark</item>
+    </style>
+
+    <style name="sdf_button_style" parent="@android:style/Widget.Button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginLeft">2dp</item>
+        <item name="android:layout_marginRight">2dp</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:background">?attr/sdf_buttonBackground</item>
+        <item name="android:textColor">?attr/sdf_buttonTextColor</item>
+        <item name="android:textAllCaps">true</item>>
     </style>
 
 </resources>

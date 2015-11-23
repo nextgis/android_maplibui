@@ -23,6 +23,25 @@
   -->
 
 <resources>
+
+    <color name="color_black">#000000</color>
+    <color name="color_white">#ffffff</color>
+
+    <!--Grey color palette, http://www.google.co.uk/design/spec/style/color.html#color-color-palette -->
+    <color name="color_grey_000">@color/color_white</color>
+    <color name="color_grey_050">#fafafa</color>
+    <color name="color_grey_100">#f5f5f5</color>
+    <color name="color_grey_200">#eeeeee</color>
+    <color name="color_grey_300">#e0e0e0</color>
+    <color name="color_grey_400">#bdbdbd</color>
+    <color name="color_grey_500">#9e9e9e</color>
+    <color name="color_grey_600">#757575</color>
+    <color name="color_grey_700">#616161</color>
+    <color name="color_grey_800">#424242</color>
+    <color name="color_grey_900">#212121</color>
+    <color name="color_grey_999">@color/color_black</color>
+
+
     <!-- Common -->
     <color name="actionBarColor">#8003a9f4</color>
     <color name="primary">#03a9f4</color>
@@ -32,14 +51,50 @@
     <!-- Light -->
     <color name="textColorPrimary.Light">#181818</color>
     <color name="textColor.Light">#242424</color>
-    <color name="textColorSecondary.Light">#616161</color>
-    <color name="textColorPrimaryInverse.Light">#ffffffff</color>
-    <color name="textColorSecondaryInverse.Light">#eeeeee</color>
+    <color name="textColorSecondary.Light">@color/color_grey_700</color>
+    <color name="textColorPrimaryInverse.Light">@color/color_white</color>
+    <color name="textColorSecondaryInverse.Light">@color/color_grey_200</color>
     <!-- Dark -->
-    <color name="textColorPrimary.Dark">#ffffff</color>
-    <color name="textColor.Dark">#fafafa</color>
-    <color name="textColorSecondary.Dark">#eeeeee</color>
-    <color name="textColorPrimaryInverse.Dark">#212121</color>
-    <color name="textColorSecondaryInverse.Dark">#616161</color>
+    <color name="textColorPrimary.Dark">@color/color_white</color>
+    <color name="textColor.Dark">@color/color_grey_050</color>
+    <color name="textColorSecondary.Dark">@color/color_grey_200</color>
+    <color name="textColorPrimaryInverse.Dark">@color/color_grey_900</color>
+    <color name="textColorSecondaryInverse.Dark">@color/color_grey_700</color>
     <!--indigo from http://www.google.co.uk/design/spec/style/color.html#color-color-palette -->
+
+
+    <!-- These are alias to the android:visibility values -->
+    <integer name="view_visible">0</integer> <!-- This is VISIBLE -->
+    <integer name="view_invisible">1</integer> <!-- This is INVISIBLE -->
+    <integer name="view_gone">2</integer> <!-- This is GONE -->
+
+
+    <!--StyledDialogFragment light colors-->
+    <color name="sdf_backgroundSolidColorLight">@color/color_white</color>
+    <color name="sdf_titleBackgroundColorLight">@color/color_grey_500</color>
+    <color name="sdf_titleTextColorLight">@color/color_white</color>
+    <color name="sdf_titleDividerColorLight">@color/color_black</color>
+    <integer name="sdf_titleDividerVisibilityLight">@integer/view_gone</integer>
+    <color name="sdf_buttonNormalBackgroundColorLight">@color/sdf_backgroundSolidColorLight</color>
+    <color name="sdf_buttonNormalTextColorLight">@color/color_grey_700</color>
+    <color name="sdf_buttonPressedBackgroundColorLight">@color/color_grey_400</color>
+    <color name="sdf_buttonPressedTextColorLight">@color/color_grey_700</color>
+    <color name="sdf_buttonDisabledBackgroundColorLight">@color/sdf_backgroundSolidColorLight</color>
+    <color name="sdf_buttonDisabledTextColorLight">@color/color_grey_400</color>
+    <color name="sdf_messageTextColorLight">@color/color_black</color>
+
+    <!--StyledDialogFragment dark colors-->
+    <color name="sdf_backgroundSolidColorDark">@color/color_grey_800</color>
+    <color name="sdf_titleBackgroundColorDark">@color/color_grey_500</color>
+    <color name="sdf_titleTextColorDark">@color/color_white</color>
+    <color name="sdf_titleDividerColorDark">@color/color_white</color>
+    <integer name="sdf_titleDividerVisibilityDark">@integer/view_gone</integer>
+    <color name="sdf_buttonNormalBackgroundColorDark">@color/sdf_backgroundSolidColorDark</color>
+    <color name="sdf_buttonNormalTextColorDark">@color/color_grey_300</color>
+    <color name="sdf_buttonPressedBackgroundColorDark">@color/color_grey_400</color>
+    <color name="sdf_buttonPressedTextColorDark">@color/color_grey_300</color>
+    <color name="sdf_buttonDisabledBackgroundColorDark">@color/sdf_backgroundSolidColorDark</color>
+    <color name="sdf_buttonDisabledTextColorDark">@color/color_grey_600</color>
+    <color name="sdf_messageTextColorDark">@color/color_white</color>
+
 </resources>
