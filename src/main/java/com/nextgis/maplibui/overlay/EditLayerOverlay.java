@@ -31,6 +31,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.graphics.RectF;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -70,6 +71,7 @@ import com.nextgis.maplibui.api.EditEventListener;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.api.MapViewEventListener;
 import com.nextgis.maplibui.api.Overlay;
+import com.nextgis.maplibui.api.OverlayItem;
 import com.nextgis.maplibui.fragment.BottomToolbar;
 import com.nextgis.maplibui.mapui.MapViewOverlays;
 import com.nextgis.maplibui.util.ConstantsUI;
@@ -130,13 +132,15 @@ public class EditLayerOverlay
     protected static final String BUNDLE_KEY_LAYER         = "layer";
     protected static final String BUNDLE_KEY_FEATURE_ID    = "feature";
     protected static final String BUNDLE_KEY_SAVED_FEATURE = "feature_blob";
-    protected static final String BUNDLE_KEY_HAS_EDITS = "has_edits";
+    protected static final String BUNDLE_KEY_HAS_EDITS     = "has_edits";
+    protected static final String BUNDLE_KEY_OVERLAY_POINT = "overlay_point";
 
     protected final float mTolerancePX;
     protected final float mAnchorTolerancePX;
 
     protected PointF      mTempPointOffset;
     protected boolean     mHasEdits;
+    protected OverlayItem mOverlayPoint;
 
     protected BottomToolbar mCurrentToolbar;
 
@@ -176,6 +180,7 @@ public class EditLayerOverlay
         mListeners = new LinkedList<>();
 
         mMapViewOverlays.addListener(this);
+        mOverlayPoint = new OverlayItem(mMapViewOverlays.getMap(), 0, 0, getMarker());
         mHasEdits = false;
     }
 
@@ -225,6 +230,7 @@ public class EditLayerOverlay
         }
 
         mMode = mode;
+        hideOverlayPoint();
 
         return true;
     }
@@ -249,6 +255,61 @@ public class EditLayerOverlay
     }
 
 
+    public void setOverlayPoint(MotionEvent event) {
+        GeoPoint mapPoint = mMapViewOverlays.getMap().screenToMap(new GeoPoint(event.getX(), event.getY()));
+        mapPoint.setCRS(GeoConstants.CRS_WEB_MERCATOR);
+        mapPoint.project(GeoConstants.CRS_WGS84);
+        mOverlayPoint.setCoordinates(mapPoint);
+        mOverlayPoint.setVisible(true);
+    }
+
+
+    public void createPointFromOverlay() {
+        if (mOverlayPoint != null && mOverlayPoint.isVisible() && mLayer != null) {
+            setHasEdits(true);
+
+
+            GeoPoint point = mOverlayPoint.getCoordinates(GeoConstants.CRS_WEB_MERCATOR);
+            if (mLayer.getGeometryType() == GeoConstants.GTMultiPoint) {
+                GeoMultiPoint mpt = new GeoMultiPoint();
+                mpt.add(point);
+                mItem = new EditLayerCacheItem(Constants.NOT_FOUND, mpt);
+            } else {
+                mItem = new EditLayerCacheItem(Constants.NOT_FOUND, point);
+            }
+
+            mDrawItems.clear();
+            GeoPoint[] geoPoints = new GeoPoint[1];
+            geoPoints[0] = point;
+            mDrawItems.addItems(0, mapToScreen(geoPoints), DrawItems.TYPE_VERTEX);
+            mDrawItems.setSelectedRing(0);
+            mDrawItems.setSelectedPointIndex(0);
+            mDrawItems.fillGeometry(0, mItem.getGeometry(), mMapViewOverlays.getMap());
+
+            updateMap();
+        }
+    }
+
+
+    public void hideOverlayPoint() {
+        mOverlayPoint.setVisible(false);
+    }
+
+
+    protected Bitmap getMarker() {
+        float scaledDensity = mContext.getResources().getDisplayMetrics().scaledDensity;
+        int size = (int) (12 * scaledDensity);
+        Bitmap marker = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(marker);
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        //noinspection deprecation
+        p.setColor(mContext.getResources().getColor(R.color.accent));
+        p.setAlpha(128);
+        c.drawOval(new RectF(0, 0, size * 3 / 4, size * 3 / 4), p);
+        return marker;
+    }
+
+
     public long getSelectedItemId()
     {
         if (mItem == null) {
@@ -270,6 +331,9 @@ public class EditLayerOverlay
             Canvas canvas,
             MapDrawable mapDrawable)
     {
+        if (mOverlayPoint.isVisible())
+            drawOverlayItem(canvas, mOverlayPoint);
+
         if (null == mItem || mMode == MODE_CHANGE) {
             return;
         }
@@ -418,6 +482,9 @@ public class EditLayerOverlay
             Canvas canvas,
             PointF currentMouseOffset)
     {
+        if (mOverlayPoint.isVisible())
+            drawOnPanning(canvas, currentMouseOffset, mOverlayPoint);
+
         if (null == mItem) {
             return;
         }
@@ -452,6 +519,9 @@ public class EditLayerOverlay
             PointF currentFocusLocation,
             float scale)
     {
+        if (mOverlayPoint.isVisible())
+            drawOnZooming(canvas, currentFocusLocation, scale, mOverlayPoint, false);
+
         if (null == mItem) {
             return;
         }
@@ -520,30 +590,19 @@ public class EditLayerOverlay
         if (save) {
             mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_save);
             mCurrentToolbar.setNavigationContentDescription(R.string.save);
-
-            Menu toolbarMenu = mCurrentToolbar.getMenu();
-            if (null != toolbarMenu) {
-                for (int i = 0; i < toolbarMenu.size(); i++) {
-                    MenuItem item = toolbarMenu.getItem(i);
-                    if (item.getItemId() == R.id.menu_cancel) {
-                        item.setVisible(true);
-                        break;
-                    }
-                }
-            }
         } else {
             mCurrentToolbar.setNavigationIcon(R.drawable.ic_action_apply_dark);
             mCurrentToolbar.setNavigationContentDescription(R.string.apply);
+        }
 
-            //hide cancel button as it has no sense at this state
-            Menu toolbarMenu = mCurrentToolbar.getMenu();
-            if (null != toolbarMenu) {
-                for (int i = 0; i < toolbarMenu.size(); i++) {
-                    MenuItem item = toolbarMenu.getItem(i);
-                    if (item.getItemId() == R.id.menu_cancel) {
-                        item.setVisible(false);
-                        break;
-                    }
+        //hide cancel button as it has no sense at this state
+        Menu toolbarMenu = mCurrentToolbar.getMenu();
+        if (null != toolbarMenu) {
+            for (int i = 0; i < toolbarMenu.size(); i++) {
+                MenuItem item = toolbarMenu.getItem(i);
+                if (item.getItemId() == R.id.menu_cancel) {
+                    item.setVisible(save);
+                    break;
                 }
             }
         }
@@ -836,12 +895,14 @@ public class EditLayerOverlay
                                         return false;
                                     }
 
-                                    setHasEdits(true);
-
                                     mDrawItems.deleteSelectedPoint();
 
+                                    boolean hasEdits = mItem.getFeatureId() != Constants.NOT_FOUND;
                                     GeoGeometry geom = mDrawItems.fillGeometry(
                                             0, mItem.getGeometry(), mMapViewOverlays.getMap());
+                                    hasEdits = hasEdits || geom != null;
+                                    setHasEdits(hasEdits);
+
                                     if (null == geom) {
                                         mItem.setGeometry(null);
                                     }
@@ -970,6 +1031,9 @@ public class EditLayerOverlay
             bundle.putLong(BUNDLE_KEY_FEATURE_ID, mItem.getFeatureId());
         }
 
+        if (mOverlayPoint.isVisible())
+            bundle.putSerializable(BUNDLE_KEY_OVERLAY_POINT, mOverlayPoint.getCoordinates(GeoConstants.CRS_WGS84));
+
         return bundle;
     }
 
@@ -1002,6 +1066,16 @@ public class EditLayerOverlay
                     }
                 } else {
                     mItem = null;
+                }
+            }
+
+            if (bundle.containsKey(BUNDLE_KEY_OVERLAY_POINT)) {
+                GeoPoint point = (GeoPoint) bundle.getSerializable(BUNDLE_KEY_OVERLAY_POINT);
+
+                if (point != null) {
+                    point.setCRS(GeoConstants.CRS_WGS84);
+                    mOverlayPoint.setCoordinates(point);
+                    mOverlayPoint.setVisible(true);
                 }
             }
         }
