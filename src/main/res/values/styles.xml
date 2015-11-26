@@ -220,6 +220,7 @@
     </style>
 
     <!-- StyledDialogFragment themes. These are fixed. To change the colors see colors.xml -->
+    <!-- Or use StyledDialogFragment.setThemeResId() -->
 
     <style name="SdfTheme.Light" parent="">
         <item name="sdf_background">@drawable/sdf_background_light</item>

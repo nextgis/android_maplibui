@@ -25,8 +25,11 @@ package com.nextgis.maplibui.dialog;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -40,6 +43,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.nextgis.maplibui.R;
 
@@ -47,6 +51,8 @@ import com.nextgis.maplibui.R;
 public class StyledDialogFragment
         extends DialogFragment
 {
+    ContextThemeWrapper mContext;
+
     protected Integer mIconId;
 
     protected Integer mTitleId;
@@ -62,16 +68,17 @@ public class StyledDialogFragment
     protected Integer mThemeResId;
     protected boolean mIsThemeDark = false;
 
-    protected LinearLayout mTitleView;
-    protected ImageView    mTitleIconView;
-    protected TextView     mTitleTextView;
-    protected View         mTitleDivider;
-    protected LinearLayout mDialogLayout;
-    protected TextView     mMessage;
-    protected View         mView;
-    protected LinearLayout mButtons;
-    protected Button       mButtonPositive;
-    protected Button       mButtonNegative;
+    protected RelativeLayout mBaseView;
+    protected LinearLayout   mTitleView;
+    protected ImageView      mTitleIconView;
+    protected TextView       mTitleTextView;
+    protected View           mTitleDivider;
+    protected LinearLayout   mDialogLayout;
+    protected TextView       mMessage;
+    protected View           mView;
+    protected LinearLayout   mButtons;
+    protected Button         mButtonPositive;
+    protected Button         mButtonNegative;
 
     protected OnPositiveClickedListener mOnPositiveClickedListener;
     protected OnNegativeClickedListener mOnNegativeClickedListener;
@@ -91,19 +98,16 @@ public class StyledDialogFragment
         if (null == getParentFragment()) {
             setRetainInstance(mKeepInstance);
         }
-    }
 
-
-    @Override
-    public void onDestroyView()
-    {
-        if (getDialog() != null && getRetainInstance()) {
-            getDialog().setOnDismissListener(null);
+        // StyledDialogFragment themes. These are fixed. To change the colors see colors.xml
+        // Or use setThemeResId()
+        if (null != mThemeResId) {
+            mContext = new ContextThemeWrapper(getActivity(), mThemeResId);
+        } else if (mIsThemeDark) {
+            mContext = new ContextThemeWrapper(getActivity(), R.style.SdfTheme_Dark);
+        } else {
+            mContext = new ContextThemeWrapper(getActivity(), R.style.SdfTheme_Light);
         }
-
-        mDialogLayout.removeAllViews();
-
-        super.onDestroyView();
     }
 
 
@@ -114,19 +118,7 @@ public class StyledDialogFragment
         // Idea from here
         // http://thanhcs.blogspot.ru/2014/10/android-custom-dialog-fragment.html
 
-        // StyledDialogFragment themes. These are fixed. To change the colors see colors.xml
-        // Or use setThemeResId()
-        ContextThemeWrapper context;
-
-        if (null != mThemeResId) {
-            context = new ContextThemeWrapper(getActivity(), mThemeResId);
-        } else if (mIsThemeDark) {
-            context = new ContextThemeWrapper(getActivity(), R.style.SdfTheme_Dark);
-        } else {
-            context = new ContextThemeWrapper(getActivity(), R.style.SdfTheme_Light);
-        }
-
-        Dialog dialog = new Dialog(context);
+        Dialog dialog = new Dialog(mContext);
 
         Window window = dialog.getWindow();
         window.requestFeature(Window.FEATURE_NO_TITLE);
@@ -146,8 +138,11 @@ public class StyledDialogFragment
             ViewGroup container,
             Bundle savedInstanceState)
     {
-        View view = inflater.inflate(R.layout.sdf_layout, null);
+        // http://stackoverflow.com/a/15496425
+        LayoutInflater localInflater = inflater.cloneInContext(mContext);
+        View view = localInflater.inflate(R.layout.sdf_layout, container, false);
 
+        mBaseView = (RelativeLayout) view.findViewById(R.id.base);
         mTitleView = (LinearLayout) view.findViewById(R.id.title);
         mTitleIconView = (ImageView) view.findViewById(R.id.title_icon);
         mTitleTextView = (TextView) view.findViewById(R.id.title_text);
@@ -176,6 +171,19 @@ public class StyledDialogFragment
 
 
         if (getShowsDialog()) {
+
+            // http://stackoverflow.com/a/9409391
+            int[] attrs = new int[] { R.attr.sdf_background};
+            TypedArray ta = mContext.obtainStyledAttributes(attrs);
+            Drawable background = ta.getDrawable(0);
+            ta.recycle();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                mBaseView.setBackground(background);
+            } else {
+                mBaseView.setBackgroundDrawable(background);
+            }
+
             mTitleView.setVisibility(View.VISIBLE);
 
             if (null != mIconId) {
@@ -253,6 +261,19 @@ public class StyledDialogFragment
         }
 
         return view;
+    }
+
+
+    @Override
+    public void onDestroyView()
+    {
+        if (getDialog() != null && getRetainInstance()) {
+            getDialog().setOnDismissListener(null);
+        }
+
+        mDialogLayout.removeAllViews();
+
+        super.onDestroyView();
     }
 
 
