@@ -29,9 +29,12 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.internal.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -59,8 +62,9 @@ public class StyledDialogFragment
     protected Integer mThemeResId;
     protected boolean mIsThemeDark = false;
 
-    protected ImageView    mIcon;
-    protected TextView     mTitle;
+    protected LinearLayout mTitleView;
+    protected ImageView    mTitleIconView;
+    protected TextView     mTitleTextView;
     protected View         mTitleDivider;
     protected LinearLayout mDialogLayout;
     protected TextView     mMessage;
@@ -131,30 +135,30 @@ public class StyledDialogFragment
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN);
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        dialog.setContentView(R.layout.sdf_layout);
+        return dialog;
+    }
 
-        mIcon = (ImageView) dialog.findViewById(R.id.title_icon);
-        mTitle = (TextView) dialog.findViewById(R.id.title_text);
-        mTitleDivider = dialog.findViewById(R.id.title_divider);
-        mDialogLayout = (LinearLayout) dialog.findViewById(R.id.dialog_body);
-        mButtons = (LinearLayout) dialog.findViewById(R.id.buttons);
-        mButtonPositive = (Button) dialog.findViewById(R.id.button_positive);
-        mButtonNegative = (Button) dialog.findViewById(R.id.button_negative);
 
-        if (null != mIconId) {
-            mIcon.setVisibility(View.VISIBLE);
-            mIcon.setImageResource(mIconId);
-        }
+    @Nullable
+    @Override
+    public View onCreateView(
+            LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState)
+    {
+        View view = inflater.inflate(R.layout.sdf_layout, null);
 
-        if (null != mTitleId) {
-            mTitle.setText(mTitleId);
-        }
-        if (null != mTitleText) {
-            mTitle.setText(mTitleText);
-        }
-        if (null != mTitleDividerVisibility) {
-            mTitleDivider.setVisibility(mTitleDividerVisibility);
-        }
+        mTitleView = (LinearLayout) view.findViewById(R.id.title);
+        mTitleIconView = (ImageView) view.findViewById(R.id.title_icon);
+        mTitleTextView = (TextView) view.findViewById(R.id.title_text);
+        mTitleDivider = view.findViewById(R.id.title_divider);
+
+        mDialogLayout = (LinearLayout) view.findViewById(R.id.dialog_body);
+
+        mButtons = (LinearLayout) view.findViewById(R.id.buttons);
+        mButtonPositive = (Button) view.findViewById(R.id.button_positive);
+        mButtonNegative = (Button) view.findViewById(R.id.button_negative);
+
 
         if (null != mMessageId) {
             setMessageView();
@@ -170,64 +174,85 @@ public class StyledDialogFragment
             mDialogLayout.addView(mView);
         }
 
-        if (null != mPositiveTextId) {
-            mButtons.setVisibility(View.VISIBLE);
-            mButtonPositive.setVisibility(View.VISIBLE);
-            mButtonPositive.setText(mPositiveTextId);
-        }
-        if (null != mPositiveText) {
-            mButtons.setVisibility(View.VISIBLE);
-            mButtonPositive.setVisibility(View.VISIBLE);
-            mButtonPositive.setText(mPositiveText);
-        }
 
-        if (null != mNegativeTextId) {
-            mButtons.setVisibility(View.VISIBLE);
-            mButtonNegative.setVisibility(View.VISIBLE);
-            mButtonNegative.setText(mNegativeTextId);
-        }
-        if (null != mNegativeText) {
-            mButtons.setVisibility(View.VISIBLE);
-            mButtonNegative.setVisibility(View.VISIBLE);
-            mButtonNegative.setText(mNegativeText);
-        }
+        if (getShowsDialog()) {
+            mTitleView.setVisibility(View.VISIBLE);
+
+            if (null != mIconId) {
+                mTitleIconView.setVisibility(View.VISIBLE);
+                mTitleIconView.setImageResource(mIconId);
+            }
+
+            if (null != mTitleId) {
+                mTitleTextView.setText(mTitleId);
+            }
+            if (null != mTitleText) {
+                mTitleTextView.setText(mTitleText);
+            }
+            if (null != mTitleDividerVisibility) {
+                mTitleDivider.setVisibility(mTitleDividerVisibility);
+            }
 
 
-        if (null != mOnPositiveClickedListener) {
-            mButtons.setVisibility(View.VISIBLE);
-            mButtonPositive.setVisibility(View.VISIBLE);
-            mButtonPositive.setOnClickListener(
-                    new View.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(View v)
+            if (null != mPositiveTextId) {
+                mButtons.setVisibility(View.VISIBLE);
+                mButtonPositive.setVisibility(View.VISIBLE);
+                mButtonPositive.setText(mPositiveTextId);
+            }
+            if (null != mPositiveText) {
+                mButtons.setVisibility(View.VISIBLE);
+                mButtonPositive.setVisibility(View.VISIBLE);
+                mButtonPositive.setText(mPositiveText);
+            }
+
+            if (null != mNegativeTextId) {
+                mButtons.setVisibility(View.VISIBLE);
+                mButtonNegative.setVisibility(View.VISIBLE);
+                mButtonNegative.setText(mNegativeTextId);
+            }
+            if (null != mNegativeText) {
+                mButtons.setVisibility(View.VISIBLE);
+                mButtonNegative.setVisibility(View.VISIBLE);
+                mButtonNegative.setText(mNegativeText);
+            }
+
+
+            if (null != mOnPositiveClickedListener) {
+                mButtons.setVisibility(View.VISIBLE);
+                mButtonPositive.setVisibility(View.VISIBLE);
+                mButtonPositive.setOnClickListener(
+                        new View.OnClickListener()
                         {
-                            if (null != mOnPositiveClickedListener) {
-                                mOnPositiveClickedListener.onPositiveClicked();
+                            @Override
+                            public void onClick(View v)
+                            {
+                                if (null != mOnPositiveClickedListener) {
+                                    mOnPositiveClickedListener.onPositiveClicked();
+                                }
+                                dismiss();
                             }
-                            dismiss();
-                        }
-                    });
-        }
+                        });
+            }
 
-        if (null != mOnNegativeClickedListener) {
-            mButtons.setVisibility(View.VISIBLE);
-            mButtonNegative.setVisibility(View.VISIBLE);
-            mButtonNegative.setOnClickListener(
-                    new View.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(View v)
+            if (null != mOnNegativeClickedListener) {
+                mButtons.setVisibility(View.VISIBLE);
+                mButtonNegative.setVisibility(View.VISIBLE);
+                mButtonNegative.setOnClickListener(
+                        new View.OnClickListener()
                         {
-                            if (null != mOnNegativeClickedListener) {
-                                mOnNegativeClickedListener.onNegativeClicked();
+                            @Override
+                            public void onClick(View v)
+                            {
+                                if (null != mOnNegativeClickedListener) {
+                                    mOnNegativeClickedListener.onNegativeClicked();
+                                }
+                                dismiss();
                             }
-                            dismiss();
-                        }
-                    });
+                        });
+            }
         }
 
-        return dialog;
+        return view;
     }
 
 

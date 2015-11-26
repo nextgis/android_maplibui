@@ -115,6 +115,7 @@
     </FrameLayout>
 
     <View
+        android:id="@+id/coordinates_divider"
         android:layout_width="wrap_content"
         android:layout_height="1dp"
         android:layout_margin="2dp"
