@@ -215,4 +215,7 @@
     <string name="process_layer">Process layer</string>
     <string name="error_unsupported_layer_type">Current layer type is unsupported </string>
     <string name="value_not_from_list">Value is not from list</string>
+    <string name="share_gpx_multiple">How do you want to save selected tracks?</string>
+    <string name="share_gpx_separate">Separate files</string>
+    <string name="share_gpx_together">All in one</string>
 </resources>

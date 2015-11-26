@@ -1,14 +1,22 @@
 package com.nextgis.maplibui.util;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.SystemClock;
+import android.support.v7.app.AlertDialog;
 
+import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.NGActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,6 +27,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Formatter;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -40,26 +56,33 @@ public class LayerUtil {
     private static final long MAX_INTERNAL_CACHE_SIZE = 1048576; // 1MB
     private static final long MAX_EXTERNAL_CACHE_SIZE = 5242880; // 5MB
 
-    public static void shareLayerAsGeoJSON(VectorLayer layer)
-    {
+    public static File prepareTempDir(Context context) {
+        boolean clearCached;
+        File temp = context.getExternalCacheDir();
+
+        if (temp == null) {
+            temp = context.getCacheDir();
+            clearCached = FileUtil.getDirectorySize(temp) > MAX_INTERNAL_CACHE_SIZE;
+        } else {
+            clearCached = FileUtil.getDirectorySize(temp) > MAX_EXTERNAL_CACHE_SIZE;
+        }
+
+        temp = new File(temp, "shared_layers");
+        if (clearCached)
+            FileUtil.deleteRecursive(temp);
+
+        FileUtil.createDir(temp);
+        return temp;
+    }
+
+    public static void shareTrackAsGPX(NGActivity activity, String creator, String[] tracksId) {
+        ExportGPXTask exportTask = new ExportGPXTask(activity, creator, tracksId);
+        exportTask.execute();
+    }
+
+    public static void shareLayerAsGeoJSON(VectorLayer layer) {
         try {
-            boolean clearCached;
-            File temp = layer.getContext().getExternalCacheDir();
-
-            if (temp == null) {
-                temp = layer.getContext().getCacheDir();
-                clearCached = FileUtil.getDirectorySize(temp) > MAX_INTERNAL_CACHE_SIZE;
-            } else {
-                clearCached = FileUtil.getDirectorySize(temp) > MAX_EXTERNAL_CACHE_SIZE;
-            }
-
-            temp = new File(temp, "shared_layers");
-            if (clearCached) {
-                FileUtil.deleteRecursive(temp);
-            }
-
-            FileUtil.createDir(temp);
-
+            File temp = prepareTempDir(layer.getContext());
             temp = new File(temp, layer.getName() + ".zip");
             FileOutputStream fos = new FileOutputStream(temp);
             ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(fos));
@@ -140,6 +163,179 @@ public class LayerUtil {
             layer.getContext().startActivity(shareIntent);
         } catch (JSONException | IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static class ExportGPXTask extends AsyncTask<Void, Void, Void> implements DialogInterface.OnClickListener {
+        private static final String XML_VERSION = "<?xml version=\"1.0\"?>";
+        private static final String GPX_VERSION = "1.1";
+        private static final String GPX_TAG = "<gpx version=\""
+                + GPX_VERSION
+                + "\" creator=\"%s\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">";
+        private static final String GPX_TAG_CLOSE = "</gpx>";
+        private static final String GPX_TAG_TRACK = "<trk>";
+        private static final String GPX_TAG_TRACK_CLOSE = "</trk>";
+        private static final String GPX_TAG_TRACK_SEGMENT = "<trkseg>";
+        private static final String GPX_TAG_TRACK_SEGMENT_CLOSE = "</trkseg>";
+        public static final String GPX_TAG_TRACK_SEGMENT_POINT = "<trkpt lat=\"%s\" lon=\"%s\">";
+        public static final String GPX_TAG_TRACK_SEGMENT_POINT_CLOSE = "</trkpt>";
+        public static final String GPX_TAG_TRACK_SEGMENT_POINT_TIME = "<time>%s</time>";
+        public static final String GPX_TAG_TRACK_SEGMENT_POINT_SAT = "<sat>%s</sat>";
+        public static final String GPX_TAG_TRACK_SEGMENT_POINT_ELE = "<ele>%s</ele>";
+        public static final String GPX_TAG_TRACK_SEGMENT_POINT_FIX = "<fix>%s</fix>";
+
+        protected NGActivity mActivity;
+        protected AlertDialog.Builder mDialog;
+        protected String[] mTracksId;
+        protected boolean mIsCanceled, mIsChosen = true, mSeparateFiles = true;
+        protected String mHeader;
+        protected ArrayList<Uri> mUris;
+
+        public ExportGPXTask(NGActivity activity, String creator, String[] tracksId) {
+            mTracksId = tracksId;
+            mActivity = activity;
+            mHeader = XML_VERSION + "\r\n" + String.format(GPX_TAG, creator) + "\r\n";
+            mUris = new ArrayList<>();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (mTracksId.length > 1) {
+                mIsChosen = false;
+                mDialog = new AlertDialog.Builder(mActivity);
+                mDialog.setTitle(R.string.menu_share).setMessage(R.string.share_gpx_multiple)
+                        .setPositiveButton(R.string.share_gpx_together, this)
+                        .setNeutralButton(android.R.string.cancel, this)
+                        .setNegativeButton(R.string.share_gpx_separate, this).show();
+            }
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            while (!mIsChosen)
+                SystemClock.sleep(500);
+
+            if (mIsCanceled)
+                return null;
+
+            File temp = null, parent = prepareTempDir(mActivity);
+            try {
+                IGISApplication application = (IGISApplication) mActivity.getApplication();
+                Uri mContentUriTracks = Uri.parse("content://" + application.getAuthority() + "/" + TrackLayer.TABLE_TRACKS);
+                Cursor track, trackpoints;
+                final StringBuilder sb = new StringBuilder();
+                final Formatter f = new Formatter(sb);
+                if (!mSeparateFiles) {
+                    sb.append(mHeader);
+                    temp = new File(parent, "tracks.gpx");
+                }
+
+                for (String trackId : mTracksId) {
+                    track = mActivity.getContentResolver().query(mContentUriTracks,
+                            new String[]{TrackLayer.FIELD_NAME}, TrackLayer.FIELD_ID + " = ?", new String[]{trackId}, null);
+                    trackpoints = mActivity.getContentResolver().query(Uri.withAppendedPath(mContentUriTracks,
+                            trackId), null, null, null, TrackLayer.FIELD_TIMESTAMP + " ASC");
+
+                    if (track != null && track.moveToFirst()) {
+                        if (mSeparateFiles) {
+                            sb.setLength(0);
+                            temp = new File(parent, track.getString(0) + ".gpx");
+                        }
+
+                        if (trackpoints != null && trackpoints.moveToFirst()) {
+                            if (mSeparateFiles) {
+                                sb.append(mHeader);
+                                appendTrack(sb, f, trackpoints);
+                                sb.append(GPX_TAG_CLOSE);
+                                FileUtil.writeToFile(temp, sb.toString());
+                                mUris.add(Uri.fromFile(temp));
+                            } else
+                                appendTrack(sb, f, trackpoints);
+
+                            trackpoints.close();
+                        }
+
+                        track.close();
+                    }
+                }
+
+                if (!mSeparateFiles) {
+                    sb.append(GPX_TAG_CLOSE);
+                    FileUtil.writeToFile(temp, sb.toString());
+                    mUris.add(Uri.fromFile(temp));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        protected void appendTrack(StringBuilder sb, Formatter f, Cursor trackpoints) {
+            int latId = trackpoints.getColumnIndex(TrackLayer.FIELD_LAT);
+            int lonId = trackpoints.getColumnIndex(TrackLayer.FIELD_LON);
+            int timeId = trackpoints.getColumnIndex(TrackLayer.FIELD_TIMESTAMP);
+            int eleId = trackpoints.getColumnIndex(TrackLayer.FIELD_ELE);
+            int satId = trackpoints.getColumnIndex(TrackLayer.FIELD_SAT);
+            int fixId = trackpoints.getColumnIndex(TrackLayer.FIELD_FIX);
+
+            DecimalFormat df = new DecimalFormat("0", new DecimalFormatSymbols(Locale.ENGLISH));
+            df.setMaximumFractionDigits(340); //340 = DecimalFormat.DOUBLE_FRACTION_DIGITS
+
+            sb.append(GPX_TAG_TRACK);
+            sb.append(GPX_TAG_TRACK_SEGMENT);
+            do {
+                String sLat = df.format(trackpoints.getDouble(latId));
+                String sLon = df.format(trackpoints.getDouble(lonId));
+                f.format(GPX_TAG_TRACK_SEGMENT_POINT, sLat, sLon);
+                f.format(GPX_TAG_TRACK_SEGMENT_POINT_TIME, getTimeStampAsString(trackpoints.getLong(timeId)));
+                f.format(GPX_TAG_TRACK_SEGMENT_POINT_ELE, df.format(trackpoints.getDouble(eleId)));
+                f.format(GPX_TAG_TRACK_SEGMENT_POINT_SAT, trackpoints.getString(satId));
+                f.format(GPX_TAG_TRACK_SEGMENT_POINT_FIX, trackpoints.getString(fixId));
+                sb.append(GPX_TAG_TRACK_SEGMENT_POINT_CLOSE);
+            } while (trackpoints.moveToNext());
+            sb.append(GPX_TAG_TRACK_SEGMENT_CLOSE);
+            sb.append(GPX_TAG_TRACK_CLOSE);
+        }
+
+        protected String getTimeStampAsString(long nTimeStamp) {
+            final SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+            utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            return utcFormat.format(new Date(nTimeStamp));
+        }
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which) {
+                case AlertDialog.BUTTON_POSITIVE:
+                    mSeparateFiles = false;
+                    break;
+                case AlertDialog.BUTTON_NEUTRAL:
+                    mIsCanceled = true;
+                    break;
+            }
+            mIsChosen = true;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            Intent shareIntent = new Intent();
+            shareIntent.setType("application/gpx+xml");
+
+            if (mUris.size() > 1) {
+                shareIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+                shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, mUris);
+            } else {
+                shareIntent.setAction(Intent.ACTION_SEND);
+                shareIntent.putExtra(Intent.EXTRA_STREAM, mUris.get(0));
+            }
+
+            shareIntent = Intent.createChooser(shareIntent, mActivity.getString(R.string.abc_shareactionprovider_share_with));
+            shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mActivity.startActivity(shareIntent);
         }
     }
 }

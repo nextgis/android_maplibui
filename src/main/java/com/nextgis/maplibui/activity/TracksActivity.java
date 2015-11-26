@@ -39,6 +39,7 @@ import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.TrackerService;
+import com.nextgis.maplibui.util.LayerUtil;
 import com.nextgis.maplibui.util.TrackView;
 
 import static com.nextgis.maplibui.service.TrackerService.isTrackerServiceRunning;
@@ -160,6 +161,9 @@ public class TracksActivity
             changeVisibility(true);
         } else if (id == R.id.menu_visibility_off) {
             changeVisibility(false);
+        } else if (id == R.id.menu_share) {
+            String[] args = mTracks.getSelectedItemsIds();
+            LayerUtil.shareTrackAsGPX(this, "NextGIS Mobile", args);
         }
 
         if (id != R.id.menu_select_all) {
