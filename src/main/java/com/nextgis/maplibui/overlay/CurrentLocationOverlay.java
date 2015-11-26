@@ -146,7 +146,7 @@ public class CurrentLocationOverlay
             double lat = mCurrentLocation.getLatitude();
             double lon = mCurrentLocation.getLongitude();
             mMarker.setMarker(getDefaultMarker());
-            mMarker.setCoordinates(lon, lat);
+            mMarker.setCoordinatesFromWGS(lon, lat);
 
             if (null != mapDrawable) {
                 // set accuracy marker with proper meter radius
@@ -158,7 +158,7 @@ public class CurrentLocationOverlay
                 newPoint = mapDrawable.mapToScreen(newPoint);
                 int radius = (int) (mMarker.getScreenY() - newPoint.getY());
                 mAccuracy.setMarker(getAccuracyMarker(radius));
-                mAccuracy.setCoordinates(lon, lat);
+                mAccuracy.setCoordinatesFromWGS(lon, lat);
                 mIsAccuracyMarkerBiggest = compareMarkers();
 
                 // set marker in current map and screen bounds flags
@@ -382,7 +382,6 @@ public class CurrentLocationOverlay
     }
 
 
-    // TODO huge radius > possible out of memory
     private Bitmap getAccuracyMarker(int accuracy)
     {
         int max = Math.max(
@@ -390,7 +389,6 @@ public class CurrentLocationOverlay
                 mContext.getResources().getDisplayMetrics().heightPixels);
 
         if (accuracy * 2 > max) {
-            //accuracy = max / 2; // temp fix
             return  null;
         }
 
@@ -405,7 +403,6 @@ public class CurrentLocationOverlay
         paint.setColor(mMarkerColor);
         paint.setAlpha(64);
         canvas.drawCircle(accuracy, accuracy, accuracy, paint);
-//        canvas.drawArc(0, 0, accuracy*2, accuracy*2, 0, 180, false, paint);
         paint.setAlpha(255);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(2);

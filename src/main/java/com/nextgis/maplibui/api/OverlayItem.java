@@ -32,7 +32,7 @@ import com.nextgis.maplib.util.GeoConstants;
 
 public class OverlayItem
 {
-
+    // TODO different gravities
     public enum Gravity
     {
         CENTER
@@ -44,7 +44,8 @@ public class OverlayItem
     private Bitmap      mMarker;
     private MapDrawable mMapDrawable;
     private float       mOffsetX, mOffsetY;
-    private Gravity mMarkerGravity;
+    private Gravity     mMarkerGravity;
+    private boolean     mIsVisible = true;
 
 
     public OverlayItem(
@@ -56,8 +57,7 @@ public class OverlayItem
         mScreenCoordinates = new PointF();
 
         mCoordinates = new GeoPoint();
-        setCoordinates(coordinates.getX(), coordinates.getY());
-        mCoordinates.setCRS(GeoConstants.CRS_WGS84);
+        setCoordinates(coordinates);
 
         mMarker = marker;
         setMarkerGravity(Gravity.CENTER);
@@ -74,17 +74,39 @@ public class OverlayItem
     }
 
 
-    public void setCoordinates(
+    public void setCoordinatesFromWGS(
             double longitude,
             double latitude)
     {
         mCoordinates.setCoordinates(longitude, latitude);
+        mCoordinates.setCRS(GeoConstants.CRS_WGS84);
+        mCoordinates.project(GeoConstants.CRS_WEB_MERCATOR);
 
-        GeoPoint transform = new GeoPoint(longitude, latitude);
-        transform.setCRS(GeoConstants.CRS_WGS84);
-        transform.project(GeoConstants.CRS_WEB_MERCATOR);
+        updateScreenCoordinates();
+    }
 
-        GeoPoint mts = mMapDrawable.mapToScreen(transform);
+
+    public void setCoordinates(GeoPoint point)
+    {
+        if (point != null) {
+            switch (point.getCRS()) {
+                case GeoConstants.CRS_WGS84:
+                    setCoordinatesFromWGS(point.getX(), point.getY());
+                    break;
+                case GeoConstants.CRS_WEB_MERCATOR:
+                    mCoordinates.setCoordinates(point.getX(), point.getY());
+                    break;
+            }
+
+            mCoordinates.setCRS(point.getCRS());
+        }
+
+        updateScreenCoordinates();
+    }
+
+
+    public void updateScreenCoordinates() {
+        GeoPoint mts = mMapDrawable.mapToScreen((GeoPoint) mCoordinates.copy());
         mScreenCoordinates.x = (float) (mts.getX() - mOffsetX);
         mScreenCoordinates.y = (float) (mts.getY() - mOffsetY);
     }
@@ -92,11 +114,11 @@ public class OverlayItem
 
     public GeoPoint getCoordinates(int CRS)
     {
-        if (CRS == GeoConstants.CRS_WEB_MERCATOR) {
-            GeoPoint mercator = new GeoPoint(mCoordinates.getX(), mCoordinates.getY());
-            mercator.setCRS(GeoConstants.CRS_WGS84);
-            mercator.project(GeoConstants.CRS_WEB_MERCATOR);
-            return mercator;
+        if (CRS == GeoConstants.CRS_WGS84) {
+            GeoPoint wgs = new GeoPoint(mCoordinates.getX(), mCoordinates.getY());
+            wgs.setCRS(GeoConstants.CRS_WEB_MERCATOR);
+            wgs.project(GeoConstants.CRS_WGS84);
+            return wgs;
         }
 
         return mCoordinates;
@@ -163,5 +185,13 @@ public class OverlayItem
     public float getOffsetY()
     {
         return mOffsetY;
+    }
+
+    public void setVisible(boolean isVisible) {
+        mIsVisible = isVisible;
+    }
+
+    public boolean isVisible() {
+        return mIsVisible;
     }
 }

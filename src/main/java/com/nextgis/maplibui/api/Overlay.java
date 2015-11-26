@@ -71,6 +71,8 @@ public abstract class Overlay
             Canvas canvas,
             OverlayItem overlayItem)
     {
+        overlayItem.updateScreenCoordinates();
+
         if (!isVisible())
             return;
 
