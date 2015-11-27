@@ -70,6 +70,7 @@ public abstract class GISApplication extends Application
 
     protected MapDrawable mMap;
     protected GpsEventSource mGpsEventSource;
+    protected SharedPreferences mSharedPreferences;
 
     @Override
     public void onCreate()
@@ -77,24 +78,24 @@ public abstract class GISApplication extends Application
         super.onCreate();
 
         mGpsEventSource = new GpsEventSource(this);
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         getMap();
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean mIsDarkTheme = sharedPreferences.getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
+        boolean mIsDarkTheme = mSharedPreferences.getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
         setTheme(getThemeId(mIsDarkTheme));
 
-        if (sharedPreferences.getBoolean(SettingsConstantsUI.KEY_PREF_APP_FIRST_RUN, true)) {
+        if (mSharedPreferences.getBoolean(SettingsConstantsUI.KEY_PREF_APP_FIRST_RUN, true)) {
             onFirstRun();
-            SharedPreferences.Editor edit = sharedPreferences.edit();
+            SharedPreferences.Editor edit = mSharedPreferences.edit();
             edit.putBoolean(SettingsConstantsUI.KEY_PREF_APP_FIRST_RUN, false);
             edit.commit();
         }
 
         //turn on periodic sync. Can be set for each layer individually, but this is simpler
-        if (sharedPreferences.getBoolean(KEY_PREF_SYNC_PERIODICALLY, true)) {
+        if (mSharedPreferences.getBoolean(KEY_PREF_SYNC_PERIODICALLY, true)) {
             long period =
-                    sharedPreferences.getLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, Constants.DEFAULT_SYNC_PERIOD); //1 hour
+                    mSharedPreferences.getLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, Constants.DEFAULT_SYNC_PERIOD); //1 hour
 
             if(-1 == period)
                 period = Constants.DEFAULT_SYNC_PERIOD;
@@ -122,14 +123,14 @@ public abstract class GISApplication extends Application
             return mMap;
         }
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         File defaultPath = getExternalFilesDir(KEY_PREF_MAP);
         if (defaultPath == null) {
             defaultPath = new File(getFilesDir(), KEY_PREF_MAP);
         }
 
-        String mapPath = sharedPreferences.getString(SettingsConstants.KEY_PREF_MAP_PATH, defaultPath.getPath());
-        String mapName = sharedPreferences.getString(SettingsConstantsUI.KEY_PREF_MAP_NAME, "default");
+        String mapPath = mSharedPreferences.getString(SettingsConstants.KEY_PREF_MAP_PATH, defaultPath.getPath());
+        String mapName = mSharedPreferences.getString(SettingsConstantsUI.KEY_PREF_MAP_NAME, "default");
 
         File mapFullPath = new File(mapPath, mapName + MAP_EXT);
 
@@ -140,6 +141,23 @@ public abstract class GISApplication extends Application
         mMap.load();
 
         return mMap;
+    }
+
+    public Bitmap getMapBackground() {
+        int backgroundResId;
+        switch (mSharedPreferences.getString(SettingsConstantsUI.KEY_PREF_MAP_BG, "neutral")) {
+            case "light":
+                backgroundResId = com.nextgis.maplibui.R.drawable.bk_tile_light;
+                break;
+            case "dark":
+                backgroundResId = com.nextgis.maplibui.R.drawable.bk_tile_dark;
+                break;
+            default:
+                backgroundResId = com.nextgis.maplibui.R.drawable.bk_tile;
+                break;
+        }
+
+        return BitmapFactory.decodeResource(getResources(), backgroundResId);
     }
 
     @Override

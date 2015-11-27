@@ -40,6 +40,7 @@ public interface SettingsConstantsUI
     String KEY_PREF_COMPASS_MAGNETIC     = "compass_show_magnetic";
     String KEY_PREF_COMPASS_KEEP_SCREEN  = "compass_wake_lock";
     String KEY_PREF_RESET_SETTINGS       = "reset_settings";
+    String KEY_PREF_MAP_BG               = "map_bg";
 
     String OSM_URL = "http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 }
