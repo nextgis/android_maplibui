@@ -189,8 +189,7 @@ public class EditLayerOverlay
     {
         if((mode == MODE_EDIT || mode == MODE_EDIT_BY_WALK) && null != mLayer &&
             (mLayer.getGeometryType() == GeoConstants.GTGeometryCollection ||
-            mLayer.getGeometryType() == GeoConstants.GTMultiPolygon ||
-            mLayer.getGeometryType() == GeoConstants.GTMultiLineString)){
+            mLayer.getGeometryType() == GeoConstants.GTMultiPolygon)){
             return false;
         }
 
@@ -623,14 +622,13 @@ public class EditLayerOverlay
                 geoPoints[1] = (float) screenCenter.getY();
                 return geoPoints;
             case GeoConstants.GTLineString:
+            case GeoConstants.GTMultiLineString:
                 geoPoints = new float[4];
                 geoPoints[0] = (float) screenCenter.getX() - add;
                 geoPoints[1] = (float) screenCenter.getY() - add;
                 geoPoints[2] = (float) screenCenter.getX() + add;
                 geoPoints[3] = (float) screenCenter.getY() + add;
                 return geoPoints;
-            case GeoConstants.GTMultiLineString:
-                break;
             case GeoConstants.GTPolygon:
                 geoPoints = new float[6];
                 geoPoints[0] = (float) screenCenter.getX() - add;
@@ -710,7 +708,7 @@ public class EditLayerOverlay
                         toolbar.inflateMenu(R.menu.edit_line);
                         break;
                     case GeoConstants.GTMultiLineString:
-                        //toolbar.inflateMenu(R.menu.edit_multiline);
+                        toolbar.inflateMenu(R.menu.edit_multiline);
                         break;
                     case GeoConstants.GTPolygon:
                         toolbar.inflateMenu(R.menu.edit_polygon);
@@ -806,6 +804,12 @@ public class EditLayerOverlay
                                 } else if (
                                         menuItem.getItemId() == R.id.menu_edit_add_new_line) {
                                     addGeometry(GeoConstants.GTLineString);
+                                /**
+                                 * Add new multiline
+                                 */
+                                } else if (
+                                        menuItem.getItemId() == R.id.menu_edit_add_new_multiline) {
+                                    addGeometry(GeoConstants.GTMultiLineString);
                                 /**
                                  * Add new polygon
                                  */
@@ -920,18 +924,23 @@ public class EditLayerOverlay
 
 
     protected void addGeometryToExistent(int geometryType, GeoPoint center) {
+        //insert geometry in appropriate position
         switch (geometryType) {
             case GeoConstants.GTPoint:
                 mDrawItems.addNewPoint((float) center.getX(), (float) center.getY());
+                int lastIndex = mDrawItems.getLastPointIndex();
+                mDrawItems.setSelectedPointIndex(lastIndex);
                 break;
             case GeoConstants.GTLineString:
+                int lastRing = mDrawItems.mDrawItemsVertex.size();
+                float[] geoPoints = getNewGeometry(geometryType, center);
+                mDrawItems.addItems(lastRing, geoPoints, DrawItems.TYPE_VERTEX);
+                mDrawItems.setSelectedRing(lastRing);
+                mDrawItems.setSelectedPointIndex(0);
                 break;
             case GeoConstants.GTPolygon:
                 break;
         }
-        //insert geometry in appropriate position
-        int lastIndex = mDrawItems.getLastPointIndex();
-        mDrawItems.setSelectedPointIndex(lastIndex);
     }
 
 
@@ -953,7 +962,7 @@ public class EditLayerOverlay
                 mItem = new EditLayerCacheItem(Constants.NOT_FOUND, new GeoPolygon());
                 break;
             case GeoConstants.GTMultiPolygon:
-                mItem = new EditLayerCacheItem(Constants.NOT_FOUND, new GeoMultiPoint());
+                mItem = new EditLayerCacheItem(Constants.NOT_FOUND, new GeoMultiPolygon());
                 break;
         }
 
@@ -1891,12 +1900,19 @@ public class EditLayerOverlay
                     break;
                 case GeoConstants.GTMultiLineString:
                     GeoMultiLineString multiLineString = (GeoMultiLineString) geometry;
+                    GeoLineString line;
+                    multiLineString.clear();
+                    for (int i = 0; i < mDrawItemsVertex.size(); i++) {
+                        points = mapDrawable.screenToMap(mDrawItemsVertex.get(i));
+                        line = new GeoLineString();
+                        for (GeoPoint geoPoint : points) {
+                            if (null == geoPoint)
+                                continue;
 
-                    //  the geometry should be correspond the vertex list
+                            line.add(geoPoint);
+                        }
 
-                    for (int currentRing = 0; currentRing < multiLineString.size(); currentRing++) {
-                        fillGeometry(
-                                ring + currentRing, multiLineString.get(currentRing), mapDrawable);
+                        multiLineString.add(line);
                     }
                     break;
                 case GeoConstants.GTPolygon:
@@ -1911,8 +1927,6 @@ public class EditLayerOverlay
                     }
 
                     fillGeometry(ring, polygon.getOuterRing(), mapDrawable);
-
-                    //  the geometry should be correspond the vertex list
 
                     for (int currentRing = 0;
                          currentRing < polygon.getInnerRingCount();
