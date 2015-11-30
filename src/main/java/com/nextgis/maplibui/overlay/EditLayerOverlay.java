@@ -791,31 +791,31 @@ public class EditLayerOverlay
                                  * Add new point
                                  */
                                 } else if (menuItem.getItemId() == R.id.menu_edit_add_new_point) {
-                                    addGeometry(GeoConstants.GTPoint);
+                                    return addGeometry(GeoConstants.GTPoint);
                                 /**
                                  * Add new multipoint
                                  */
                                 } else if (
                                         menuItem.getItemId() == R.id.menu_edit_add_new_multipoint) {
-                                    addGeometry(GeoConstants.GTMultiPoint);
+                                    return addGeometry(GeoConstants.GTMultiPoint);
                                 /**
                                  * Add new line
                                  */
                                 } else if (
                                         menuItem.getItemId() == R.id.menu_edit_add_new_line) {
-                                    addGeometry(GeoConstants.GTLineString);
+                                    return addGeometry(GeoConstants.GTLineString);
                                 /**
                                  * Add new multiline
                                  */
                                 } else if (
                                         menuItem.getItemId() == R.id.menu_edit_add_new_multiline) {
-                                    addGeometry(GeoConstants.GTMultiLineString);
+                                    return addGeometry(GeoConstants.GTMultiLineString);
                                 /**
                                  * Add new polygon
                                  */
                                 } else if (
                                         menuItem.getItemId() == R.id.menu_edit_add_new_polygon) {
-                                    addGeometry(GeoConstants.GTPolygon);
+                                    return addGeometry(GeoConstants.GTPolygon);
                                 /**
                                  * Delete geometry
                                  */
@@ -824,25 +824,9 @@ public class EditLayerOverlay
                                         menuItem.getItemId() == R.id.menu_edit_delete_line ||
                                         menuItem.getItemId() == R.id.menu_edit_delete_multiline ||
                                         menuItem.getItemId() == R.id.menu_edit_delete_polygon) {
-                                    deleteGeometry();
+                                    return deleteGeometry();
                                 } else if (menuItem.getItemId() == R.id.menu_edit_delete_point) {
-                                    if (!isItemValid()) {
-                                        return false;
-                                    }
-
-                                    mDrawItems.deleteSelectedPoint();
-
-                                    boolean hasEdits = mItem.getFeatureId() != Constants.NOT_FOUND;
-                                    GeoGeometry geom = mDrawItems.fillGeometry(
-                                            0, mItem.getGeometry(), mMapViewOverlays.getMap());
-                                    hasEdits = hasEdits || geom != null;
-                                    setHasEdits(hasEdits);
-
-                                    if (null == geom) {
-                                        mItem.setGeometry(null);
-                                    }
-
-                                    updateMap();
+                                    return deletePoint();
                                 }
                         /*else if(menuItem.getItemId() == R.id.menu_edit_track){
                             if(mLayer.getGeometryType() == GeoConstants.GTPoint ||
@@ -891,9 +875,9 @@ public class EditLayerOverlay
     }
 
 
-    protected void deleteGeometry() {
+    protected boolean deleteGeometry() {
         if (!isItemValid())
-            return;
+            return false;
 
         setHasEdits(true);
 
@@ -904,20 +888,43 @@ public class EditLayerOverlay
             mDrawItems.clear();
 
         updateMap();
+        return true;
     }
 
 
-    protected void addGeometry(int geometryType) {
+    protected boolean deletePoint() {
+        if (!isItemValid()) {
+            return false;
+        }
+
+        mDrawItems.deleteSelectedPoint();
+
+        boolean hasEdits = mItem.getFeatureId() != Constants.NOT_FOUND;
+        GeoGeometry geom = mDrawItems.fillGeometry(
+                0, mItem.getGeometry(), mMapViewOverlays.getMap());
+        hasEdits = hasEdits || geom != null;
+        setHasEdits(hasEdits);
+
+        if (null == geom) {
+            mItem.setGeometry(null);
+        }
+
+        updateMap();
+        return true;
+    }
+
+
+    protected boolean addGeometry(int geometryType) {
         boolean isGeometryTypesIdentical = mLayer.getGeometryType() == geometryType;
         if (!isItemValid())
             if (!isGeometryTypesIdentical)
-                return;
+                return false;
 
         setHasEdits(true);
 
         MapDrawable mapDrawable = mMapViewOverlays.getMap();
         if (null == mapDrawable)
-            return;
+            return false;
 
         GeoPoint center = mapDrawable.getFullScreenBounds().getCenter();
         if (isGeometryTypesIdentical)
@@ -928,6 +935,7 @@ public class EditLayerOverlay
         //set new coordinates to GeoPoint from screen coordinates
         mDrawItems.fillGeometry(0, mItem.getGeometry(), mapDrawable);
         updateMap();
+        return true;
     }
 
 
