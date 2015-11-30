@@ -822,17 +822,9 @@ public class EditLayerOverlay
                                 } else if (
                                         menuItem.getItemId() == R.id.menu_edit_delete_multipoint ||
                                         menuItem.getItemId() == R.id.menu_edit_delete_line ||
+                                        menuItem.getItemId() == R.id.menu_edit_delete_multiline ||
                                         menuItem.getItemId() == R.id.menu_edit_delete_polygon) {
-                                    if (!isItemValid()) {
-                                        return false;
-                                    }
-
-                                    setHasEdits(true);
-
-                                    mDrawItems.clear();
-                                    mItem.setGeometry(null);
-
-                                    updateMap();
+                                    deleteGeometry();
                                 } else if (menuItem.getItemId() == R.id.menu_edit_delete_point) {
                                     if (!isItemValid()) {
                                         return false;
@@ -896,6 +888,22 @@ public class EditLayerOverlay
 
     protected boolean isItemValid() {
         return null != mItem && null != mItem.getGeometry();
+    }
+
+
+    protected void deleteGeometry() {
+        if (!isItemValid())
+            return;
+
+        setHasEdits(true);
+
+        mDrawItems.deleteSelectedRing();
+        mItem.setGeometry(mDrawItems.fillGeometry(0, mItem.getGeometry(), mMapViewOverlays.getMap()));
+
+        if (mDrawItems.mDrawItemsVertex.size() <= 0)
+            mDrawItems.clear();
+
+        updateMap();
     }
 
 
@@ -1849,6 +1857,13 @@ public class EditLayerOverlay
             }
 
             mDrawItemsVertex.set(mSelectedRing, newPoints);
+        }
+
+
+        public void deleteSelectedRing() {
+            mDrawItemsVertex.remove(mSelectedRing);
+            mSelectedRing = mDrawItemsVertex.size() > 0 ? 0 : Constants.NOT_FOUND;
+            mSelectedPointIndex = Constants.NOT_FOUND;
         }
 
 
