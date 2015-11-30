@@ -1653,32 +1653,38 @@ public class EditLayerOverlay
 
         public void drawLines(Canvas canvas)
         {
-            for (float[] items : mDrawItemsVertex) {
+            float[] itemsVertex;
+            for (int j = 0; j < mDrawItemsVertex.size(); j++) {
+                itemsVertex = mDrawItemsVertex.get(j);
 
-                mPaint.setColor(mFillColor);
+                if (mSelectedRing == j)
+                    mPaint.setColor(mSelectColor);
+                else
+                    mPaint.setColor(mFillColor);
+
                 mPaint.setStrokeWidth(LINE_WIDTH);
 
-                for (int i = 0; i < items.length - 3; i += 2) {
-                    canvas.drawLine(items[i], items[i + 1], items[i + 2], items[i + 3], mPaint);
+                for (int i = 0; i < itemsVertex.length - 3; i += 2) {
+                    canvas.drawLine(itemsVertex[i], itemsVertex[i + 1], itemsVertex[i + 2], itemsVertex[i + 3], mPaint);
                 }
 
                 if (mItem.getGeometry().getType() == GeoConstants.GTPolygon ||
                     mItem.getGeometry().getType() == GeoConstants.GTMultiPolygon) {
-                    if (items.length >= 2) {
+                    if (itemsVertex.length >= 2) {
                         canvas.drawLine(
-                                items[0], items[1], items[items.length - 2],
-                                items[items.length - 1], mPaint);
+                                itemsVertex[0], itemsVertex[1], itemsVertex[itemsVertex.length - 2],
+                                itemsVertex[itemsVertex.length - 1], mPaint);
                     }
                 }
 
                 if (mMode == MODE_EDIT || mMode == MODE_CHANGE) {
                     mPaint.setColor(mOutlineColor);
                     mPaint.setStrokeWidth(VERTEX_RADIUS + 2);
-                    canvas.drawPoints(items, mPaint);
+                    canvas.drawPoints(itemsVertex, mPaint);
 
                     mPaint.setColor(mFillColor);
                     mPaint.setStrokeWidth(VERTEX_RADIUS);
-                    canvas.drawPoints(items, mPaint);
+                    canvas.drawPoints(itemsVertex, mPaint);
                 }
             }
 
