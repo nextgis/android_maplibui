@@ -188,8 +188,7 @@ public class EditLayerOverlay
     public boolean setMode(int mode)
     {
         if((mode == MODE_EDIT || mode == MODE_EDIT_BY_WALK) && null != mLayer &&
-            (mLayer.getGeometryType() == GeoConstants.GTGeometryCollection ||
-            mLayer.getGeometryType() == GeoConstants.GTMultiPolygon)){
+            (mLayer.getGeometryType() == GeoConstants.GTGeometryCollection)){
             return false;
         }
 
@@ -630,6 +629,7 @@ public class EditLayerOverlay
                 geoPoints[3] = (float) screenCenter.getY() + add;
                 return geoPoints;
             case GeoConstants.GTPolygon:
+            case GeoConstants.GTMultiPolygon:
                 geoPoints = new float[6];
                 geoPoints[0] = (float) screenCenter.getX() - add;
                 geoPoints[1] = (float) screenCenter.getY() - add;
@@ -638,8 +638,6 @@ public class EditLayerOverlay
                 geoPoints[4] = (float) screenCenter.getX() + add;
                 geoPoints[5] = (float) screenCenter.getY() + add;
                 return geoPoints;
-            case GeoConstants.GTMultiPolygon:
-                break;
             default:
                 break;
         }
@@ -714,7 +712,7 @@ public class EditLayerOverlay
                         toolbar.inflateMenu(R.menu.edit_polygon);
                         break;
                     case GeoConstants.GTMultiPolygon:
-                        //toolbar.inflateMenu(R.menu.edit_multipolygon);
+                        toolbar.inflateMenu(R.menu.edit_multipolygon);
                         break;
                     case GeoConstants.GTGeometryCollection:
                     default:
@@ -816,6 +814,12 @@ public class EditLayerOverlay
                                 } else if (
                                         menuItem.getItemId() == R.id.menu_edit_add_new_polygon) {
                                     return addGeometry(GeoConstants.GTPolygon);
+                                /**
+                                 * Add new multipolygon
+                                 */
+                                } else if (
+                                        menuItem.getItemId() == R.id.menu_edit_add_new_multipolygon) {
+                                    return addGeometry(GeoConstants.GTMultiPolygon);
                                 /**
                                  * Delete geometry
                                  */
@@ -948,13 +952,12 @@ public class EditLayerOverlay
                 mDrawItems.setSelectedPointIndex(lastIndex);
                 break;
             case GeoConstants.GTLineString:
+            case GeoConstants.GTPolygon:
                 int lastRing = mDrawItems.mDrawItemsVertex.size();
                 float[] geoPoints = getNewGeometry(geometryType, center);
                 mDrawItems.addItems(lastRing, geoPoints, DrawItems.TYPE_VERTEX);
                 mDrawItems.setSelectedRing(lastRing);
                 mDrawItems.setSelectedPointIndex(0);
-                break;
-            case GeoConstants.GTPolygon:
                 break;
         }
     }
@@ -1967,14 +1970,19 @@ public class EditLayerOverlay
                     break;
                 case GeoConstants.GTMultiPolygon:
                     GeoMultiPolygon multiPolygon = (GeoMultiPolygon) geometry;
+                    GeoPolygon geoPolygon;
+                    multiPolygon.clear();
+                    for (int i = 0; i < mDrawItemsVertex.size(); i++) {
+                        points = mapDrawable.screenToMap(mDrawItemsVertex.get(i));
+                        geoPolygon = new GeoPolygon();
+                        for (GeoPoint geoPoint : points) {
+                            if (null == geoPoint)
+                                continue;
 
-                    //  the geometry should be correspond the vertex list
+                            geoPolygon.add(geoPoint);
+                        }
 
-                    int currentRing = 0;
-                    for (int i = 0; i < multiPolygon.size(); i++) {
-                        GeoPolygon geoPolygon = multiPolygon.get(i);
-                        fillGeometry(ring + currentRing, geoPolygon, mapDrawable);
-                        currentRing += 1 + geoPolygon.getInnerRingCount();
+                        multiPolygon.add(geoPolygon);
                     }
                     break;
                 default:
