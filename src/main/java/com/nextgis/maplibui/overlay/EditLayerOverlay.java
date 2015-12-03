@@ -694,7 +694,7 @@ public class EditLayerOverlay
                 }
                 break;
             case GeoConstants.GTPolygon:
-                geoPoints = mapDrawable.screenToMap(mSelectedItem.getSelectedRing());
+                geoPoints = mapDrawable.screenToMap(mSelectedItem.getRing(0));
                 GeoPolygon polygon = (GeoPolygon) geometry;
                 polygon.clear();
 
