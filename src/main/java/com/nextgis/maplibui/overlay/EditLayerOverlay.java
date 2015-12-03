@@ -619,6 +619,24 @@ public class EditLayerOverlay
     }
 
 
+    protected void movePointToLocation() {
+        Activity parent = (Activity) mContext;
+        GpsEventSource gpsEventSource =
+                ((IGISApplication) parent.getApplication()).getGpsEventSource();
+        Location location = gpsEventSource.getLastKnownLocation();
+        if (null != location) {
+            //change to screen coordinates
+            GeoPoint pt = new GeoPoint(
+                    location.getLongitude(), location.getLatitude());
+            pt.setCRS(GeoConstants.CRS_WGS84);
+            pt.project(GeoConstants.CRS_WEB_MERCATOR);
+            MapDrawable mapDrawable = mMapViewOverlays.getMap();
+            GeoPoint screenPt = mapDrawable.mapToScreen(pt);
+            moveSelectedPoint((float) screenPt.getX(), (float) screenPt.getY());
+        }
+    }
+
+
     protected GeoGeometry fillGeometry() {
         GeoGeometry geometry = mItem.getGeometry();
         MapDrawable mapDrawable = mMapViewOverlays.getMap();
@@ -867,20 +885,7 @@ public class EditLayerOverlay
                                         return false;
                                     }
 
-                                    Activity parent = (Activity) mContext;
-                                    GpsEventSource gpsEventSource =
-                                            ((IGISApplication) parent.getApplication()).getGpsEventSource();
-                                    Location location = gpsEventSource.getLastKnownLocation();
-                                    if (null != location) {
-                                        //change to screen coordinates
-                                        GeoPoint pt = new GeoPoint(
-                                                location.getLongitude(), location.getLatitude());
-                                        pt.setCRS(GeoConstants.CRS_WGS84);
-                                        pt.project(GeoConstants.CRS_WEB_MERCATOR);
-                                        MapDrawable mapDrawable = mMapViewOverlays.getMap();
-                                        GeoPoint screenPt = mapDrawable.mapToScreen(pt);
-                                        moveSelectedPoint((float) screenPt.getX(), (float) screenPt.getY());
-                                    }
+                                    movePointToLocation();
                                 /**
                                  * Add new point
                                  */
