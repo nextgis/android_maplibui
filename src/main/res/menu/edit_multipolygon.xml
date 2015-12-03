@@ -61,12 +61,12 @@
         android:icon="@drawable/ic_action_delete_polygon"
         android:title="@string/delete_polygon"
         />
-    <!--<item-->
-        <!--android:id="@+id/menu_edit_delete_inner_ring"-->
-        <!--app:showAsAction="ifRoom"-->
-        <!--android:icon="@drawable/ic_action_delete_hole"-->
-        <!--android:title="@string/delete_hole"-->
-        <!--/>-->
+    <item
+        android:id="@+id/menu_edit_delete_inner_ring"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_delete_hole"
+        android:title="@string/delete_hole"
+        />
     <item
         android:id="@+id/menu_edit_delete_point"
         app:showAsAction="ifRoom"

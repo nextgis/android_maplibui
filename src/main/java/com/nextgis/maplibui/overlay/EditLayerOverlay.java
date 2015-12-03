@@ -917,6 +917,12 @@ public class EditLayerOverlay
                                         menuItem.getItemId() == R.id.menu_edit_add_new_multipolygon) {
                                     return addGeometry(GeoConstants.GTMultiPolygon);
                                 /**
+                                 * Delete inner ring
+                                 */
+                                } else if (
+                                        menuItem.getItemId() == R.id.menu_edit_delete_inner_ring) {
+                                    return deleteInnerRing();
+                                /**
                                  * Delete geometry
                                  */
                                 } else if (
@@ -1028,6 +1034,19 @@ public class EditLayerOverlay
 
         updateMap();
         return true;
+    }
+
+
+    protected boolean deleteInnerRing() {
+        if (mSelectedItem != null && mSelectedItem.getSelectedRingId() != 0) {
+            mSelectedItem.deleteSelectedRing();
+            setHasEdits(true);
+            fillGeometry();
+            updateMap();
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -1950,7 +1969,6 @@ public class EditLayerOverlay
             return mDrawItemsVertex.size();
         }
 
-//TODO polygon's holes
         public void deleteSelectedRing() {
             mDrawItemsVertex.remove(mSelectedRing);
 
