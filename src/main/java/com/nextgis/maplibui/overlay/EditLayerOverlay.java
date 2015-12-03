@@ -922,6 +922,12 @@ public class EditLayerOverlay
                                         menuItem.getItemId() == R.id.menu_edit_add_new_multipolygon) {
                                     return addGeometry(GeoConstants.GTMultiPolygon);
                                 /**
+                                 * Add inner ring
+                                 */
+                                } else if (
+                                        menuItem.getItemId() == R.id.menu_edit_add_new_inner_ring) {
+                                    return addInnerRing();
+                                /**
                                  * Delete inner ring
                                  */
                                 } else if (
@@ -1052,6 +1058,23 @@ public class EditLayerOverlay
         }
 
         return false;
+    }
+
+
+
+    protected boolean addInnerRing() {
+        MapDrawable mapDrawable = mMapViewOverlays.getMap();
+        if (null == mapDrawable)
+            return false;
+
+        GeoPoint center = mapDrawable.getFullScreenBounds().getCenter();
+        mSelectedItem.addVertices(getNewGeometry(GeoConstants.GTPolygon, center));
+        mSelectedItem.setSelectedRing(mSelectedItem.getRingCount() - 1);
+        mSelectedItem.setSelectedPoint(0);
+        setHasEdits(true);
+        fillGeometry();
+        updateMap();
+        return true;
     }
 
 
