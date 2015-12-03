@@ -37,24 +37,24 @@
         android:icon="@drawable/ic_action_add_polygon"
         android:title="@string/add_polygon"
         />
-    <!-- TODO: item
+    <item
         android:id="@+id/menu_edit_add_new_inner_ring"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_add_hole"
         android:title="@string/add_hole"
-        /-->
+        />
     <item
         android:id="@+id/menu_edit_delete_polygon"
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_delete_polygon"
         android:title="@string/delete_polygon"
         />
-    <!--item
+    <item
         android:id="@+id/menu_edit_delete_inner_ring"
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_delete_hole"
         android:title="@string/delete_hole"
-        /-->
+        />
     <item
         android:id="@+id/menu_edit_delete_point"
         app:showAsAction="ifRoom"

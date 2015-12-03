@@ -39,7 +39,6 @@ import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
-import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.api.MapViewEventListener;
 

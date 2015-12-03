@@ -119,7 +119,8 @@ public class EditLayerOverlay
     protected EditLayerCacheItem mItem;
     protected int             mMode;
 
-    protected DrawItems mDrawItems;
+    protected List<DrawItem> mDrawItems;
+    protected DrawItem mSelectedItem;
 
     protected List<EditEventListener> mListeners;
 
@@ -175,8 +176,7 @@ public class EditLayerOverlay
         mAnchorCenterY = mAnchor.getHeight() * 0.75f;
         mAnchorTolerancePX = mAnchor.getScaledWidth(context.getResources().getDisplayMetrics());
 
-        mDrawItems = new DrawItems();
-
+        mDrawItems = new ArrayList<>();
         mListeners = new LinkedList<>();
 
         mMapViewOverlays.addListener(this);
@@ -187,44 +187,36 @@ public class EditLayerOverlay
 
     public boolean setMode(int mode)
     {
-        if((mode == MODE_EDIT || mode == MODE_EDIT_BY_WALK) && null != mLayer &&
-            (mLayer.getGeometryType() == GeoConstants.GTGeometryCollection)){
+        if ((mode == MODE_EDIT || mode == MODE_EDIT_BY_WALK) && null != mLayer &&
+            mLayer.getGeometryType() == GeoConstants.GTGeometryCollection)
             return false;
-        }
 
         if (mode == MODE_EDIT) {
-            for (EditEventListener listener : mListeners) {
+            for (EditEventListener listener : mListeners)
                 listener.onStartEditSession();
-            }
-            mDrawItems.setSelectedPointIndex(0);
-            mDrawItems.setSelectedRing(0);
-            if(null != mLayer && null != mItem) {
+
+            if (null != mLayer && null != mItem)
                 mLayer.hideFeature(mItem.getFeatureId());
-            }
+
             mMapViewOverlays.postInvalidate();
         } else if (mode == MODE_NONE) {
-            mDrawItems.setSelectedPointIndex(Constants.NOT_FOUND);
-            mDrawItems.setSelectedRing(Constants.NOT_FOUND);
-            if(null != mLayer && null != mItem) {
+            if (null != mLayer && null != mItem)
                 mLayer.showAllFeatures();
-            }
+
+            mSelectedItem = null;
+            mDrawItems.clear();
             mLayer = null;
             mItem = null;
             mMapViewOverlays.postInvalidate();
         } else if (mode == MODE_HIGHLIGHT) {
-            if(null != mLayer && null != mItem) {
+            if (null != mLayer && null != mItem)
                 mLayer.showFeature(mItem.getFeatureId());
-            }
         } else if (mode == MODE_EDIT_BY_WALK) {
-            for (EditEventListener listener : mListeners) {
+            for (EditEventListener listener : mListeners)
                 listener.onStartEditSession();
-            }
 
-            mDrawItems.setSelectedPointIndex(0);
-            mDrawItems.setSelectedRing(0);
-            if(null != mLayer && null != mItem) {
+            if (null != mLayer && null != mItem)
                 mLayer.hideFeature(mItem.getFeatureId());
-            }
         }
 
         mMode = mode;
@@ -240,12 +232,11 @@ public class EditLayerOverlay
     {
 
         mLayer = layer;
-        if(featureId == Constants.NOT_FOUND){
+        if (featureId == Constants.NOT_FOUND) {
             mItem = null;
             if(null == mLayer)
                 setMode(MODE_NONE);
-        }
-        else {
+        } else {
             mItem = new EditLayerCacheItem(featureId);
             fillDrawItems(mItem.getGeometry());
             setMode(MODE_HIGHLIGHT);
@@ -266,7 +257,6 @@ public class EditLayerOverlay
         if (mOverlayPoint != null && mOverlayPoint.isVisible() && mLayer != null) {
             setHasEdits(true);
 
-
             GeoPoint point = mOverlayPoint.getCoordinates(GeoConstants.CRS_WEB_MERCATOR);
             if (mLayer.getGeometryType() == GeoConstants.GTMultiPoint) {
                 GeoMultiPoint mpt = new GeoMultiPoint();
@@ -279,10 +269,9 @@ public class EditLayerOverlay
             mDrawItems.clear();
             GeoPoint[] geoPoints = new GeoPoint[1];
             geoPoints[0] = point;
-            mDrawItems.addItems(0, mapToScreen(geoPoints), DrawItems.TYPE_VERTEX);
-            mDrawItems.setSelectedRing(0);
-            mDrawItems.setSelectedPointIndex(0);
-            mDrawItems.fillGeometry(0, mItem.getGeometry(), mMapViewOverlays.getMap());
+            mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, mapToScreen(geoPoints));
+            mDrawItems.add(mSelectedItem);
+            fillGeometry();
 
             updateMap();
         }
@@ -325,37 +314,22 @@ public class EditLayerOverlay
 
 
     @Override
-    public void draw(
-            Canvas canvas,
-            MapDrawable mapDrawable)
-    {
+    public void draw(Canvas canvas, MapDrawable mapDrawable) {
         if (mOverlayPoint.isVisible())
             drawOverlayItem(canvas, mOverlayPoint);
 
-        if (null == mItem || mMode == MODE_CHANGE) {
+        if (null == mItem || mMode == MODE_CHANGE)
             return;
-        }
 
         GeoGeometry geom = mItem.getGeometry();
-        if (null == geom) {
+        if (null == geom)
             return;
-        }
 
         fillDrawItems(geom);
 
-        switch (mItem.getGeometryType()) {
-            case GeoConstants.GTPoint:
-            case GeoConstants.GTMultiPoint:
-                mDrawItems.drawPoints(canvas);
-                break;
-            case GeoConstants.GTLineString:
-            case GeoConstants.GTMultiLineString:
-            case GeoConstants.GTPolygon:
-            case GeoConstants.GTMultiPolygon:
-                mDrawItems.drawLines(canvas);
-                break;
-            default:
-                break;
+        for (DrawItem drawItem : mDrawItems) {
+            boolean isSelected = mSelectedItem == drawItem;
+            drawItem(drawItem, canvas, isSelected);
         }
 
         drawCross(canvas);
@@ -365,57 +339,55 @@ public class EditLayerOverlay
         return mMapViewOverlays.getMap().mapToScreen(geoPoints);
     }
 
-    protected void fillDrawItems(GeoGeometry geom)
-    {
+    protected void fillDrawItems(GeoGeometry geom) {
+        int lastItemsCount = mDrawItems.size();
+        int lastSelectedItemPosition = mDrawItems.indexOf(mSelectedItem);
+        DrawItem lastSelectedItem = mSelectedItem;
         mDrawItems.clear();
 
-        if(null == geom){
+        if (null == geom) {
             Log.w(Constants.TAG, "the geometry is null in fillDrawItems method");
             return;
         }
 
         GeoPoint[] geoPoints;
-        float[] points;
-        GeoLineString lineString;
         switch (geom.getType()) {
             case GeoConstants.GTPoint:
                 geoPoints = new GeoPoint[1];
                 geoPoints[0] = (GeoPoint) geom;
-                points = mapToScreen(geoPoints);
-                mDrawItems.addItems(0, points, DrawItems.TYPE_VERTEX);
+                mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, mapToScreen(geoPoints));
+                mDrawItems.add(mSelectedItem);
                 break;
             case GeoConstants.GTMultiPoint:
                 GeoMultiPoint geoMultiPoint = (GeoMultiPoint) geom;
                 geoPoints = new GeoPoint[geoMultiPoint.size()];
-                for (int i = 0; i < geoMultiPoint.size(); i++) {
+                for (int i = 0; i < geoMultiPoint.size(); i++)
                     geoPoints[i] = geoMultiPoint.get(i);
-                }
-                points = mapToScreen(geoPoints);
-                mDrawItems.addItems(0, points, DrawItems.TYPE_VERTEX);
+
+                mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, mapToScreen(geoPoints));
+                mDrawItems.add(mSelectedItem);
                 break;
             case GeoConstants.GTLineString:
-                lineString = (GeoLineString) geom;
-                fillDrawLine(0, lineString);
+                GeoLineString lineString = (GeoLineString) geom;
+                fillDrawLine(lineString);
                 break;
             case GeoConstants.GTMultiLineString:
-                GeoMultiLineString multiLineString = (GeoMultiLineString)geom;
-                for(int i = 0; i < multiLineString.size(); i++){
-                    fillDrawLine(i, multiLineString.get(i));
-                }
+                GeoMultiLineString multiLineString = (GeoMultiLineString) geom;
+                for (int i = 0; i < multiLineString.size(); i++)
+                    fillDrawLine(multiLineString.get(i));
                 break;
             case GeoConstants.GTPolygon:
                 GeoPolygon polygon = (GeoPolygon) geom;
                 fillDrawPolygon(polygon);
                 break;
             case GeoConstants.GTMultiPolygon:
-                GeoMultiPolygon multiPolygon = (GeoMultiPolygon)geom;
-                for(int i = 0; i < multiPolygon.size(); i++){
+                GeoMultiPolygon multiPolygon = (GeoMultiPolygon) geom;
+                for (int i = 0; i < multiPolygon.size(); i++)
                     fillDrawPolygon(multiPolygon.get(i));
-                }
                 break;
             case GeoConstants.GTGeometryCollection:
-                GeoGeometryCollection collection = (GeoGeometryCollection)geom;
-                for(int i = 0; i < collection.size(); i++){
+                GeoGeometryCollection collection = (GeoGeometryCollection) geom;
+                for (int i = 0; i < collection.size(); i++) {
                     GeoGeometry geoGeometry = collection.get(i);
                     fillDrawItems(geoGeometry);
                 }
@@ -423,55 +395,63 @@ public class EditLayerOverlay
             default:
                 break;
         }
-    }
 
-
-    protected void fillDrawPolygon(GeoPolygon polygon)
-    {
-        fillDrawRing(0, polygon.getOuterRing());
-        for (int i = 0; i < polygon.getInnerRingCount(); i++) {
-            fillDrawRing(i + 1, polygon.getInnerRing(i));
+        if (mDrawItems.size() == lastItemsCount && lastSelectedItem != null &&
+                lastSelectedItemPosition != Constants.NOT_FOUND) {
+            mSelectedItem = mDrawItems.get(lastSelectedItemPosition);
+            mSelectedItem.setSelectedRing(lastSelectedItem.getSelectedRingId());
+            mSelectedItem.setSelectedPoint(lastSelectedItem.getSelectedPointId());
         }
     }
 
 
-    protected void fillDrawLine(int ring, GeoLineString lineString)
-    {
+    protected void fillDrawPolygon(GeoPolygon polygon) {
+        mSelectedItem = new DrawItem();
+
+        fillDrawRing(polygon.getOuterRing());
+        for (int i = 0; i < polygon.getInnerRingCount(); i++)
+            fillDrawRing(polygon.getInnerRing(i));
+
+        mDrawItems.add(mSelectedItem);
+    }
+
+
+    protected void fillDrawLine(GeoLineString lineString) {
         GeoPoint[] geoPoints =
                 lineString.getPoints().toArray(new GeoPoint[lineString.getPointCount()]);
         float[] points = mapToScreen(geoPoints);
 
-        if (points.length < 2) {
+        if (points.length < 2)
             return;
-        }
 
-        mDrawItems.addItems(ring, points, DrawItems.TYPE_VERTEX);
+        mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, points);
+        mDrawItems.add(mSelectedItem);
+
         float[] edgePoints = new float[points.length - 2];
-        for (int i = 0; i < points.length - 2; i++) {
+        for (int i = 0; i < points.length - 2; i++)
             edgePoints[i] = (points[i] + points[i + 2]) * .5f;
-        }
-        mDrawItems.addItems(ring, edgePoints, DrawItems.TYPE_EDGE);
+
+        mSelectedItem.addEdges(edgePoints);
     }
 
 
-    protected void fillDrawRing(int ring, GeoLinearRing geoLinearRing)
-    {
+    protected void fillDrawRing(GeoLinearRing geoLinearRing) {
         GeoPoint[] geoPoints =
                 geoLinearRing.getPoints().toArray(new GeoPoint[geoLinearRing.getPointCount()]);
         float[] points = mapToScreen(geoPoints);
-        mDrawItems.addItems(ring, points, DrawItems.TYPE_VERTEX);
         float[] edgePoints = new float[points.length];
 
-        if (points.length == 0 || edgePoints.length < 2) {
+        if (points.length == 0 || edgePoints.length < 2)
             return;
-        }
 
-        for (int i = 0; i < points.length - 2; i++) {
+        for (int i = 0; i < points.length - 2; i++)
             edgePoints[i] = (points[i] + points[i + 2]) * .5f;
-        }
+
         edgePoints[edgePoints.length - 2] = (points[0] + points[points.length - 2]) * .5f;
         edgePoints[edgePoints.length - 1] = (points[1] + points[points.length - 1]) * .5f;
-        mDrawItems.addItems(ring, edgePoints, DrawItems.TYPE_EDGE);
+
+        mSelectedItem.addVertices(points);
+        mSelectedItem.addEdges(edgePoints);
     }
 
 
@@ -487,24 +467,14 @@ public class EditLayerOverlay
             return;
         }
 
-        DrawItems drawItems = mDrawItems;
-        if (mMode != MODE_CHANGE) {
-            drawItems = mDrawItems.pan(currentMouseOffset);
-        }
+        List<DrawItem> drawItems = mDrawItems;
+        for (DrawItem drawItem : drawItems) {
+            boolean isSelected = mSelectedItem == drawItem;
 
-        switch (mItem.getGeometryType()) {
-            case GeoConstants.GTPoint:
-            case GeoConstants.GTMultiPoint:
-                drawItems.drawPoints(canvas);
-                break;
-            case GeoConstants.GTLineString:
-            case GeoConstants.GTMultiLineString:
-            case GeoConstants.GTPolygon:
-            case GeoConstants.GTMultiPolygon:
-                drawItems.drawLines(canvas);
-                break;
-            default:
-                break;
+            if (mMode != MODE_CHANGE)
+                drawItem = drawItem.pan(currentMouseOffset);
+
+            drawItem(drawItem, canvas, isSelected);
         }
 
         drawCross(canvas);
@@ -524,21 +494,11 @@ public class EditLayerOverlay
             return;
         }
 
-        DrawItems drawItems = mDrawItems.zoom(currentFocusLocation, scale);
-
-        switch (mItem.getGeometryType()) {
-            case GeoConstants.GTPoint:
-            case GeoConstants.GTMultiPoint:
-                drawItems.drawPoints(canvas);
-                break;
-            case GeoConstants.GTLineString:
-            case GeoConstants.GTMultiLineString:
-            case GeoConstants.GTPolygon:
-            case GeoConstants.GTMultiPolygon:
-                drawItems.drawLines(canvas);
-                break;
-            default:
-                break;
+        List<DrawItem> drawItems = mDrawItems;
+        for (DrawItem drawItem : drawItems) {
+            boolean isSelected = mSelectedItem == drawItem;
+            drawItem = drawItem.zoom(currentFocusLocation, scale);
+            drawItem(drawItem, canvas, isSelected);
         }
 
         drawCross(canvas);
@@ -649,19 +609,175 @@ public class EditLayerOverlay
         setToolbarSaveState(hasEdits);
     }
 
-    protected void moveSelectedPoint(float x, float y){
+    protected void moveSelectedPoint(float x, float y) {
         setHasEdits(true);
 
-        mDrawItems.setSelectedPoint(x, y);
-        mDrawItems.fillGeometry(0, mItem.getGeometry(), mMapViewOverlays.getMap());
+        mSelectedItem.setSelectedPointCoordinates(x, y);
+        fillGeometry();
 
         updateMap();
     }
 
-    protected void fillGeometry(){
-        MapDrawable mapDrawable = mMapViewOverlays.getMap();
-        mDrawItems.fillGeometry(0, mItem.getGeometry(), mapDrawable);
+
+    protected void movePointToLocation() {
+        Activity parent = (Activity) mContext;
+        GpsEventSource gpsEventSource =
+                ((IGISApplication) parent.getApplication()).getGpsEventSource();
+        Location location = gpsEventSource.getLastKnownLocation();
+        if (null != location) {
+            //change to screen coordinates
+            GeoPoint pt = new GeoPoint(
+                    location.getLongitude(), location.getLatitude());
+            pt.setCRS(GeoConstants.CRS_WGS84);
+            pt.project(GeoConstants.CRS_WEB_MERCATOR);
+            MapDrawable mapDrawable = mMapViewOverlays.getMap();
+            GeoPoint screenPt = mapDrawable.mapToScreen(pt);
+            moveSelectedPoint((float) screenPt.getX(), (float) screenPt.getY());
+        }
     }
+
+
+    protected GeoGeometry fillGeometry() {
+        GeoGeometry geometry = mItem.getGeometry();
+        MapDrawable mapDrawable = mMapViewOverlays.getMap();
+        if (null == geometry || null == mapDrawable ||
+                mDrawItems.isEmpty() || mSelectedItem == null)
+            return null;
+
+        float[] points;
+        GeoPoint[] geoPoints;
+        switch (geometry.getType()) {
+            case GeoConstants.GTPoint:
+                geoPoints = mapDrawable.screenToMap(mSelectedItem.getSelectedRing());
+                GeoPoint point = (GeoPoint) geometry;
+                point.setCoordinates(geoPoints[0].getX(), geoPoints[0].getY());
+                break;
+            case GeoConstants.GTMultiPoint:
+                GeoMultiPoint multiPoint = (GeoMultiPoint) geometry;
+                multiPoint.clear();
+
+                for (DrawItem drawItem : mDrawItems) {
+                    points = drawItem.getRing(0);
+                    geoPoints = mapDrawable.screenToMap(points);
+                    multiPoint.add(geoPoints[1]);
+                }
+                break;
+            case GeoConstants.GTLineString:
+                geoPoints = mapDrawable.screenToMap(mSelectedItem.getSelectedRing());
+                GeoLineString lineString = (GeoLineString) geometry;
+                lineString.clear();
+
+                for (GeoPoint geoPoint : geoPoints) {
+                    if (null == geoPoint)
+                        continue;
+
+                    lineString.add(geoPoint);
+                }
+                break;
+            case GeoConstants.GTMultiLineString:
+                GeoMultiLineString multiLineString = (GeoMultiLineString) geometry;
+                GeoLineString line;
+                multiLineString.clear();
+
+                for (DrawItem drawItem : mDrawItems) {
+                    geoPoints = mapDrawable.screenToMap(drawItem.getRing(0));
+                    line = new GeoLineString();
+
+                    for (GeoPoint geoPoint : geoPoints) {
+                        if (null == geoPoint)
+                            continue;
+
+                        line.add(geoPoint);
+                    }
+
+                    multiLineString.add(line);
+                }
+                break;
+            case GeoConstants.GTPolygon:
+                geoPoints = mapDrawable.screenToMap(mSelectedItem.getRing(0));
+                GeoPolygon polygon = (GeoPolygon) geometry;
+                polygon.clear();
+
+                for (GeoPoint geoPoint : geoPoints) {
+                    if (null == geoPoint)
+                        continue;
+
+                    polygon.add(geoPoint);
+                }
+
+                for (int i = 1; i < mSelectedItem.getRingCount(); i++) {
+                    geoPoints = mapDrawable.screenToMap(mSelectedItem.getRing(i));
+                    GeoLinearRing ring = new GeoLinearRing();
+
+                    for (GeoPoint geoPoint : geoPoints) {
+                        if (null == geoPoint)
+                            continue;
+
+                        ring.add(geoPoint);
+                    }
+
+                    polygon.addInnerRing(ring);
+                }
+                break;
+            case GeoConstants.GTMultiPolygon:
+                GeoMultiPolygon multiPolygon = (GeoMultiPolygon) geometry;
+                GeoPolygon geoPolygon;
+                multiPolygon.clear();
+
+                for (DrawItem drawItem : mDrawItems) {
+                    geoPoints = mapDrawable.screenToMap(drawItem.getRing(0));
+                    geoPolygon = new GeoPolygon();
+
+                    for (GeoPoint geoPoint : geoPoints) {
+                        if (null == geoPoint)
+                            continue;
+
+                        geoPolygon.add(geoPoint);
+                    }
+
+                    for (int i = 1; i < drawItem.getRingCount(); i++) {
+                        geoPoints = mapDrawable.screenToMap(mSelectedItem.getRing(i));
+                        GeoLinearRing ring = new GeoLinearRing();
+
+                        for (GeoPoint geoPoint : geoPoints) {
+                            if (null == geoPoint)
+                                continue;
+
+                            ring.add(geoPoint);
+                        }
+
+                        geoPolygon.addInnerRing(ring);
+                    }
+
+                    multiPolygon.add(geoPolygon);
+                }
+                break;
+            default:
+                break;
+        }
+
+        return geometry;
+    }
+
+
+    protected void drawItem(DrawItem drawItem, Canvas canvas, boolean isSelected) {
+        isSelected = isSelected && mMode == MODE_EDIT;
+        switch (mItem.getGeometryType()) {
+            case GeoConstants.GTPoint:
+            case GeoConstants.GTMultiPoint:
+                drawItem.drawPoints(canvas, isSelected);
+                break;
+            case GeoConstants.GTLineString:
+            case GeoConstants.GTMultiLineString:
+            case GeoConstants.GTPolygon:
+            case GeoConstants.GTMultiPolygon:
+                drawItem.drawLines(canvas, isSelected);
+                break;
+            default:
+                break;
+        }
+    }
+
 
     public void setToolbar(final BottomToolbar toolbar)
     {
@@ -674,11 +790,9 @@ public class EditLayerOverlay
         switch (mMode) {
             case MODE_EDIT:
                 toolbar.setNavigationOnClickListener(
-                        new View.OnClickListener()
-                        {
+                        new View.OnClickListener() {
                             @Override
-                            public void onClick(View view)
-                            {
+                            public void onClick(View view) {
                                 if (mHasEdits) {
                                     saveEdits();
                                 } else {
@@ -771,20 +885,7 @@ public class EditLayerOverlay
                                         return false;
                                     }
 
-                                    Activity parent = (Activity) mContext;
-                                    GpsEventSource gpsEventSource =
-                                            ((IGISApplication) parent.getApplication()).getGpsEventSource();
-                                    Location location = gpsEventSource.getLastKnownLocation();
-                                    if (null != location) {
-                                        //change to screen coordinates
-                                        GeoPoint pt = new GeoPoint(
-                                                location.getLongitude(), location.getLatitude());
-                                        pt.setCRS(GeoConstants.CRS_WGS84);
-                                        pt.project(GeoConstants.CRS_WEB_MERCATOR);
-                                        MapDrawable mapDrawable = mMapViewOverlays.getMap();
-                                        GeoPoint screenPt = mapDrawable.mapToScreen(pt);
-                                        moveSelectedPoint((float) screenPt.getX(), (float) screenPt.getY());
-                                    }
+                                    movePointToLocation();
                                 /**
                                  * Add new point
                                  */
@@ -821,12 +922,30 @@ public class EditLayerOverlay
                                         menuItem.getItemId() == R.id.menu_edit_add_new_multipolygon) {
                                     return addGeometry(GeoConstants.GTMultiPolygon);
                                 /**
+                                 * Add inner ring
+                                 */
+                                } else if (
+                                        menuItem.getItemId() == R.id.menu_edit_add_new_inner_ring) {
+                                    return addInnerRing();
+                                /**
+                                 * Delete inner ring
+                                 */
+                                } else if (
+                                        menuItem.getItemId() == R.id.menu_edit_delete_inner_ring) {
+                                    return deleteInnerRing();
+                                /**
                                  * Delete geometry
                                  */
                                 } else if (
                                         menuItem.getItemId() == R.id.menu_edit_delete_multipoint ||
-                                        menuItem.getItemId() == R.id.menu_edit_delete_line ||
                                         menuItem.getItemId() == R.id.menu_edit_delete_multiline ||
+                                        menuItem.getItemId() == R.id.menu_edit_delete_multipolygon) {
+                                    return deleteEntireGeometry();
+                                /**
+                                 * Delete geometry
+                                 */
+                                } else if (
+                                        menuItem.getItemId() == R.id.menu_edit_delete_line ||
                                         menuItem.getItemId() == R.id.menu_edit_delete_polygon) {
                                     return deleteGeometry();
                                 } else if (menuItem.getItemId() == R.id.menu_edit_delete_point) {
@@ -879,40 +998,81 @@ public class EditLayerOverlay
     }
 
 
+    protected boolean deleteEntireGeometry() {
+        if (!isItemValid())
+            return false;
+
+        mDrawItems.clear();
+        mSelectedItem = null;
+        mItem.setGeometry(fillGeometry());
+
+        setHasEdits(true);
+        updateMap();
+        return true;
+    }
+
+
     protected boolean deleteGeometry() {
         if (!isItemValid())
             return false;
 
+        mDrawItems.remove(mSelectedItem);
+        GeoGeometry geom = fillGeometry();
+        if (null == geom)
+            mItem.setGeometry(null);
+
         setHasEdits(true);
-
-        mDrawItems.deleteSelectedRing();
-        mItem.setGeometry(mDrawItems.fillGeometry(0, mItem.getGeometry(), mMapViewOverlays.getMap()));
-
-        if (mDrawItems.mDrawItemsVertex.size() <= 0)
-            mDrawItems.clear();
-
         updateMap();
         return true;
     }
 
 
     protected boolean deletePoint() {
-        if (!isItemValid()) {
+        if (!isItemValid())
             return false;
-        }
 
-        mDrawItems.deleteSelectedPoint();
+        mSelectedItem.deleteSelectedPoint();
+        if (mSelectedItem.getRingCount() == 0)
+            mDrawItems.remove(mSelectedItem);
 
         boolean hasEdits = mItem.getFeatureId() != Constants.NOT_FOUND;
-        GeoGeometry geom = mDrawItems.fillGeometry(
-                0, mItem.getGeometry(), mMapViewOverlays.getMap());
+        GeoGeometry geom = fillGeometry();
         hasEdits = hasEdits || geom != null;
         setHasEdits(hasEdits);
 
-        if (null == geom) {
+        if (null == geom)
             mItem.setGeometry(null);
+
+        updateMap();
+        return true;
+    }
+
+
+    protected boolean deleteInnerRing() {
+        if (mSelectedItem != null && mSelectedItem.getSelectedRingId() != 0) {
+            mSelectedItem.deleteSelectedRing();
+            setHasEdits(true);
+            fillGeometry();
+            updateMap();
+            return true;
         }
 
+        return false;
+    }
+
+
+
+    protected boolean addInnerRing() {
+        MapDrawable mapDrawable = mMapViewOverlays.getMap();
+        if (null == mapDrawable)
+            return false;
+
+        GeoPoint center = mapDrawable.getFullScreenBounds().getCenter();
+        mSelectedItem.addVertices(getNewGeometry(GeoConstants.GTPolygon, center));
+        mSelectedItem.setSelectedRing(mSelectedItem.getRingCount() - 1);
+        mSelectedItem.setSelectedPoint(0);
+        setHasEdits(true);
+        fillGeometry();
         updateMap();
         return true;
     }
@@ -937,7 +1097,7 @@ public class EditLayerOverlay
             addGeometryToExistent(geometryType, center);
 
         //set new coordinates to GeoPoint from screen coordinates
-        mDrawItems.fillGeometry(0, mItem.getGeometry(), mapDrawable);
+        fillGeometry();
         updateMap();
         return true;
     }
@@ -947,17 +1107,11 @@ public class EditLayerOverlay
         //insert geometry in appropriate position
         switch (geometryType) {
             case GeoConstants.GTPoint:
-                mDrawItems.addNewPoint((float) center.getX(), (float) center.getY());
-                int lastIndex = mDrawItems.getLastPointIndex();
-                mDrawItems.setSelectedPointIndex(lastIndex);
-                break;
             case GeoConstants.GTLineString:
             case GeoConstants.GTPolygon:
-                int lastRing = mDrawItems.mDrawItemsVertex.size();
                 float[] geoPoints = getNewGeometry(geometryType, center);
-                mDrawItems.addItems(lastRing, geoPoints, DrawItems.TYPE_VERTEX);
-                mDrawItems.setSelectedRing(lastRing);
-                mDrawItems.setSelectedPointIndex(0);
+                mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, geoPoints);
+                mDrawItems.add(mSelectedItem);
                 break;
         }
     }
@@ -987,9 +1141,8 @@ public class EditLayerOverlay
 
         mDrawItems.clear();
         float[] geoPoints = getNewGeometry(geometryType, center);
-        mDrawItems.addItems(0, geoPoints, DrawItems.TYPE_VERTEX);
-        mDrawItems.setSelectedRing(0);
-        mDrawItems.setSelectedPointIndex(0);
+        mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, geoPoints);
+        mDrawItems.add(mSelectedItem);
     }
 
 
@@ -1188,34 +1341,28 @@ public class EditLayerOverlay
      *         Motion event
      */
     @Override
-    public void onSingleTapUp(MotionEvent event)
-    {
-        if (null == mLayer) {
+    public void onSingleTapUp(MotionEvent event) {
+        if (null == mLayer)
             return;
-        }
 
         selectGeometryInScreenCoordinates(event.getX(), event.getY());
     }
 
 
-    protected void selectGeometryInScreenCoordinates(
-            float x,
-            float y)
-    {
+    protected void selectGeometryInScreenCoordinates(float x, float y) {
         double dMinX = x - mTolerancePX;
         double dMaxX = x + mTolerancePX;
         double dMinY = y - mTolerancePX;
         double dMaxY = y + mTolerancePX;
         GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
 
-        if(null != mItem && null != mItem.getGeometry()) {
+        if (null != mItem && null != mItem.getGeometry()) {
             //1. search current geometry point
-            if (mDrawItems.intersects(screenEnv, mItem.getGeometry(), mMapViewOverlays.getMap())) {
+            if (intersects(screenEnv)) {
                 if (mMode == MODE_HIGHLIGHT) { // highlight same geometry
-                    mDrawItems.setSelectedPointIndex(Constants.NOT_FOUND);
-                    mDrawItems.setSelectedRing(Constants.NOT_FOUND);
-                }
-                else {
+                    mSelectedItem = null;
+                } else {
+                    fillGeometry();
                     mMapViewOverlays.invalidate();
                 }
                 return;
@@ -1227,17 +1374,17 @@ public class EditLayerOverlay
 
         //2 select another geometry
         GeoEnvelope mapEnv = mMapViewOverlays.screenToMap(screenEnv);
-        if (null == mapEnv) {
+        if (null == mapEnv)
             return;
-        }
+
         List<Long> items = mLayer.query(mapEnv);
-        if (items.isEmpty()) {
+        if (items.isEmpty())
             return;
-        }
 
         long previousFeatureId = Constants.NOT_FOUND;
-        if(null != mItem)
+        if (null != mItem)
             previousFeatureId = mItem.getFeatureId();
+
         mItem = new EditLayerCacheItem(items.get(0));
         fillDrawItems(mItem.getGeometry());
 
@@ -1247,15 +1394,22 @@ public class EditLayerOverlay
         }
 
         // this part should execute only in edit mode
-        mDrawItems.setSelectedPointIndex(0);
-        mDrawItems.setSelectedRing(0);
-
-        if(previousFeatureId == Constants.NOT_FOUND) {
+        if (previousFeatureId == Constants.NOT_FOUND)
             mLayer.hideFeature(mItem.getFeatureId());
-        }
-        else {
+        else
             mLayer.swapFeaturesVisibility(previousFeatureId, mItem.getFeatureId());
+    }
+
+
+    protected boolean intersects(GeoEnvelope screenEnv) {
+        for (DrawItem drawItem : mDrawItems) {
+            if (drawItem.intersects(screenEnv)) {
+                mSelectedItem = drawItem;
+                return true;
+            }
         }
+
+        return false;
     }
 
 
@@ -1273,8 +1427,8 @@ public class EditLayerOverlay
                 double dMaxY = event.getY() + mTolerancePX;
                 GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
 
-                if (mDrawItems.isTapNearSelectedPoint(screenEnv)) {
-                    PointF tempPoint = mDrawItems.getSelectedPoint();
+                if (mSelectedItem.isTapNearSelectedPoint(screenEnv)) {
+                    PointF tempPoint = mSelectedItem.getSelectedPoint();
                     mTempPointOffset =
                             new PointF(tempPoint.x - event.getX(), tempPoint.y - event.getY());
                     mMapViewOverlays.setLockMap(true);
@@ -1289,7 +1443,7 @@ public class EditLayerOverlay
     public void panMoveTo(MotionEvent e)
     {
         if (mMode == MODE_CHANGE) {
-            mDrawItems.setSelectedPoint(
+            mSelectedItem.setSelectedPointCoordinates(
                     e.getX() + mTempPointOffset.x, e.getY() + mTempPointOffset.y);
         }
     }
@@ -1303,7 +1457,7 @@ public class EditLayerOverlay
 
             setHasEdits(true);
             mMode = MODE_EDIT;
-            mDrawItems.fillGeometry(0, mItem.getGeometry(), mMapViewOverlays.getMap());
+            fillGeometry();
             updateMap(); // redraw the map
         }
     }
@@ -1429,7 +1583,7 @@ public class EditLayerOverlay
             GeoPoint screenPoint = mMapViewOverlays.getMap().mapToScreen(currentPoint);
 
             //add point drawItem
-            mDrawItems.addNewPoint((float) screenPoint.getX(), (float) screenPoint.getY());
+            mSelectedItem.addNewPoint((float) screenPoint.getX(), (float) screenPoint.getY());
 
             if (isCurrentGeometryValid()) {
                 setToolbarSaveState(true);
@@ -1465,22 +1619,25 @@ public class EditLayerOverlay
     }
 
 
-    protected boolean isCurrentGeometryValid()
-    {
-        if (null == mItem || null == mItem.getGeometry() ||
-            mLayer.getGeometryType() != mItem.getGeometry().getType()) {
-            return false;
-        }
+    protected boolean isCurrentGeometryValid() {
+        return !(null == mItem || mLayer.getGeometryType() != mItem.getGeometry().getType()) &&
+                isGeometryValid(mItem.getGeometry());
+    }
 
-        switch (mLayer.getGeometryType()) {
+
+    public boolean isGeometryValid(GeoGeometry geometry) {
+        if (null == geometry)
+            return false;
+
+        switch (geometry.getType()) {
             case GeoConstants.GTPoint:
             case GeoConstants.GTMultiPoint:
                 return true;
             case GeoConstants.GTLineString:
-                GeoLineString line = (GeoLineString) mItem.getGeometry();
+                GeoLineString line = (GeoLineString) geometry;
                 return line.getPointCount() > 1;
             case GeoConstants.GTMultiLineString:
-                GeoMultiLineString multiLine = (GeoMultiLineString) mItem.getGeometry();
+                GeoMultiLineString multiLine = (GeoMultiLineString) geometry;
                 for (int i = 0; i < multiLine.size(); i++) {
                     GeoLineString subLine = multiLine.get(i);
                     if (subLine.getPointCount() > 1) {
@@ -1489,11 +1646,11 @@ public class EditLayerOverlay
                 }
                 return false;
             case GeoConstants.GTPolygon:
-                GeoPolygon polygon = (GeoPolygon) mItem.getGeometry();
+                GeoPolygon polygon = (GeoPolygon) geometry;
                 GeoLinearRing ring = polygon.getOuterRing();
                 return ring.getPointCount() > 2;
             case GeoConstants.GTMultiPolygon:
-                GeoMultiPolygon multiPolygon = (GeoMultiPolygon) mItem.getGeometry();
+                GeoMultiPolygon multiPolygon = (GeoMultiPolygon) geometry;
                 for (int i = 0; i < multiPolygon.size(); i++) {
                     GeoPolygon subPolygon = multiPolygon.get(i);
                     if (subPolygon.getOuterRing().getPointCount() > 2) {
@@ -1514,134 +1671,124 @@ public class EditLayerOverlay
     }
 
 
-    protected class DrawItems
+    protected class DrawItem
     {
-        List<float[]> mDrawItemsVertex;
-        List<float[]> mDrawItemsEdge;
-
         public static final int TYPE_VERTEX = 1;
         public static final int TYPE_EDGE   = 2;
 
-        protected int mSelectedRing, mSelectedPointIndex;
+        List<float[]> mDrawItemsVertex;
+        List<float[]> mDrawItemsEdge;
+        protected int mSelectedRing = 0, mSelectedPoint = 0;
 
-
-        public DrawItems()
-        {
+        public DrawItem() {
             mDrawItemsVertex = new ArrayList<>();
             mDrawItemsEdge = new ArrayList<>();
-
-            mSelectedRing = Constants.NOT_FOUND;
-            mSelectedPointIndex = Constants.NOT_FOUND;
         }
 
+        public DrawItem(int type, float[] points) {
+            this();
 
-        public void setSelectedRing(int selectedRing)
-        {
-            if (selectedRing >= mDrawItemsVertex.size()) {
+            if (type == TYPE_VERTEX)
+                addVertices(points);
+            else if (type == TYPE_EDGE)
+                addEdges(points);
+        }
+
+        public void addVertices(float[] points) {
+            mDrawItemsVertex.add(points);
+        }
+
+        public void addEdges(float[] points) {
+            mDrawItemsEdge.add(points);
+        }
+
+        public void addNewPoint(float x, float y) {
+            float[] points = getSelectedRing();
+            if (null == points) {
                 return;
             }
-            mSelectedRing = selectedRing;
+            float[] newPoints = new float[points.length + 2];
+            System.arraycopy(points, 0, newPoints, 0, points.length);
+            newPoints[points.length] = x;
+            newPoints[points.length + 1] = y;
+
+            setRing(mSelectedRing, newPoints);
         }
 
-
-        public void setSelectedPointIndex(int selectedPoint)
-        {
-            mSelectedPointIndex = selectedPoint;
-        }
-
-
-        public int getSelectedPointIndex()
-        {
-            return mSelectedPointIndex;
-        }
-
-
-        public void addItems(
-                int ring,
-                float[] points,
-                int type)
-        {
-            if (type == TYPE_VERTEX) {
-                mDrawItemsVertex.add(ring, points);
-            } else if (type == TYPE_EDGE) {
-                mDrawItemsEdge.add(ring, points);
+        public void insertNewPoint(int insertPosition, float x, float y) {
+            float[] points = getSelectedRing();
+            if (null == points) {
+                return;
             }
-        }
-
-
-        public void clear()
-        {
-            mDrawItemsVertex.clear();
-            mDrawItemsEdge.clear();
-        }
-
-
-        public DrawItems zoom(
-                PointF location,
-                float scale)
-        {
-            DrawItems drawItems = new DrawItems();
-            drawItems.setSelectedRing(mSelectedRing);
-            drawItems.setSelectedPointIndex(mSelectedPointIndex);
-
+            float[] newPoints = new float[points.length + 2];
             int count = 0;
+            for (int i = 0; i < newPoints.length - 1; i += 2) {
+                if (i == insertPosition) {
+                    newPoints[i] = x;
+                    newPoints[i + 1] = y;
+                } else {
+                    newPoints[i] = points[count++];
+                    newPoints[i + 1] = points[count++];
+                }
+            }
+
+            setRing(mSelectedRing, newPoints);
+        }
+
+        public DrawItem zoom(PointF location, float scale) {
+            DrawItem drawItem = new DrawItem();
+            drawItem.setSelectedRing(mSelectedRing);
+            drawItem.setSelectedPoint(mSelectedPoint);
+
             for (float[] items : mDrawItemsVertex) {
                 float[] newItems = new float[items.length];
                 for (int i = 0; i < items.length - 1; i += 2) {
                     newItems[i] = items[i] - (1 - scale) * (items[i] + location.x);
                     newItems[i + 1] = items[i + 1] - (1 - scale) * (items[i + 1] + location.y);
                 }
-                drawItems.addItems(count++, newItems, TYPE_VERTEX);
+                drawItem.addVertices(newItems);
             }
 
-            count = 0;
             for (float[] items : mDrawItemsEdge) {
                 float[] newItems = new float[items.length];
                 for (int i = 0; i < items.length - 1; i += 2) {
                     newItems[i] = items[i] - (1 - scale) * (items[i] + location.x);
                     newItems[i + 1] = items[i + 1] - (1 - scale) * (items[i + 1] + location.y);
                 }
-                drawItems.addItems(count++, newItems, TYPE_EDGE);
+                drawItem.addEdges(newItems);
             }
 
-            return drawItems;
+            return drawItem;
         }
 
+        public DrawItem pan(PointF offset) {
+            DrawItem drawItem = new DrawItem();
+            drawItem.setSelectedRing(mSelectedRing);
+            drawItem.setSelectedPoint(mSelectedPoint);
 
-        public DrawItems pan(PointF offset)
-        {
-            DrawItems drawItems = new DrawItems();
-            drawItems.setSelectedRing(mSelectedRing);
-            drawItems.setSelectedPointIndex(mSelectedPointIndex);
-
-            int count = 0;
             for (float[] items : mDrawItemsVertex) {
                 float[] newItems = new float[items.length];
                 for (int i = 0; i < items.length - 1; i += 2) {
                     newItems[i] = items[i] - offset.x;
                     newItems[i + 1] = items[i + 1] - offset.y;
                 }
-                drawItems.addItems(count++, newItems, TYPE_VERTEX);
+                drawItem.addVertices(newItems);
             }
 
-            count = 0;
             for (float[] items : mDrawItemsEdge) {
                 float[] newItems = new float[items.length];
                 for (int i = 0; i < items.length - 1; i += 2) {
                     newItems[i] = items[i] - offset.x;
                     newItems[i + 1] = items[i + 1] - offset.y;
                 }
-                drawItems.addItems(count++, newItems, TYPE_EDGE);
+                drawItem.addEdges(newItems);
             }
 
-            return drawItems;
+            return drawItem;
         }
 
-
-        public void drawPoints(Canvas canvas)
-        {
+        public void drawPoints(Canvas canvas, boolean isSelected) {
             for (float[] items : mDrawItemsVertex) {
-
                 mPaint.setColor(mOutlineColor);
                 mPaint.setStrokeWidth(VERTEX_RADIUS + 2);
                 canvas.drawPoints(items, mPaint);
@@ -1652,31 +1799,28 @@ public class EditLayerOverlay
             }
 
             //draw selected point
-            if (mSelectedPointIndex != Constants.NOT_FOUND) {
-
+            if (isSelected && mSelectedRing != Constants.NOT_FOUND && mSelectedPoint != Constants.NOT_FOUND) {
                 float[] items = getSelectedRing();
                 if (null != items) {
                     mPaint.setColor(mSelectColor);
                     mPaint.setStrokeWidth(VERTEX_RADIUS);
 
                     canvas.drawPoint(
-                            items[mSelectedPointIndex], items[mSelectedPointIndex + 1], mPaint);
+                            items[mSelectedPoint], items[mSelectedPoint + 1], mPaint);
 
-                    float anchorX = items[mSelectedPointIndex] + mAnchorRectOffsetX;
-                    float anchorY = items[mSelectedPointIndex + 1] + mAnchorRectOffsetY;
+                    float anchorX = items[mSelectedPoint] + mAnchorRectOffsetX;
+                    float anchorY = items[mSelectedPoint + 1] + mAnchorRectOffsetY;
                     canvas.drawBitmap(mAnchor, anchorX, anchorY, null);
                 }
             }
         }
 
-
-        public void drawLines(Canvas canvas)
-        {
+        public void drawLines(Canvas canvas, boolean isSelected) {
             float[] itemsVertex;
             for (int j = 0; j < mDrawItemsVertex.size(); j++) {
                 itemsVertex = mDrawItemsVertex.get(j);
 
-                if (mSelectedRing == j)
+                if (isSelected && mSelectedRing == j)
                     mPaint.setColor(mSelectColor);
                 else
                     mPaint.setColor(mFillColor);
@@ -1684,7 +1828,8 @@ public class EditLayerOverlay
                 mPaint.setStrokeWidth(LINE_WIDTH);
 
                 for (int i = 0; i < itemsVertex.length - 3; i += 2) {
-                    canvas.drawLine(itemsVertex[i], itemsVertex[i + 1], itemsVertex[i + 2], itemsVertex[i + 3], mPaint);
+                    canvas.drawLine(itemsVertex[i], itemsVertex[i + 1],
+                            itemsVertex[i + 2], itemsVertex[i + 3], mPaint);
                 }
 
                 if (mItem.getGeometry().getType() == GeoConstants.GTPolygon ||
@@ -1721,27 +1866,23 @@ public class EditLayerOverlay
             }
 
             //draw selected point
-            if (mSelectedPointIndex != Constants.NOT_FOUND) {
+            if (isSelected && mSelectedPoint != Constants.NOT_FOUND) {
                 float[] items = getSelectedRing();
-                if (null != items && mSelectedPointIndex + 1 < items.length) {
+                if (null != items && mSelectedPoint + 1 < items.length) {
                     mPaint.setColor(mSelectColor);
                     mPaint.setStrokeWidth(VERTEX_RADIUS);
 
                     canvas.drawPoint(
-                            items[mSelectedPointIndex], items[mSelectedPointIndex + 1], mPaint);
+                            items[mSelectedPoint], items[mSelectedPoint + 1], mPaint);
 
-                    float anchorX = items[mSelectedPointIndex] + mAnchorRectOffsetX;
-                    float anchorY = items[mSelectedPointIndex + 1] + mAnchorRectOffsetY;
+                    float anchorX = items[mSelectedPoint] + mAnchorRectOffsetX;
+                    float anchorY = items[mSelectedPoint + 1] + mAnchorRectOffsetY;
                     canvas.drawBitmap(mAnchor, anchorX, anchorY, null);
                 }
             }
         }
 
-
-        public boolean intersects(GeoEnvelope screenEnv,
-                                  GeoGeometry geometry,
-                                  MapDrawable mapDrawable)
-        {
+        public boolean intersects(GeoEnvelope screenEnv) {
             int point;
             for (int ring = 0; ring < mDrawItemsVertex.size(); ring++) {
                 point = 0;
@@ -1749,11 +1890,10 @@ public class EditLayerOverlay
                 for (int i = 0; i < items.length - 1; i += 2) {
                     if (screenEnv.contains(new GeoPoint(items[i], items[i + 1]))) {
                         mSelectedRing = ring;
-                        mSelectedPointIndex = point;
+                        mSelectedPoint = point;
                         return true;
                     }
                     point += 2;
-
                 }
             }
 
@@ -1763,12 +1903,12 @@ public class EditLayerOverlay
                     float[] items = mDrawItemsEdge.get(ring);
                     for (int i = 0; i < items.length - 1; i += 2) {
                         if (screenEnv.contains(new GeoPoint(items[i], items[i + 1]))) {
-                            mSelectedPointIndex = i + 2;
+                            mSelectedPoint = i + 2;
                             mSelectedRing = ring;
-                            insertNewPoint(mSelectedPointIndex, items[i], items[i + 1]);
+                            insertNewPoint(mSelectedPoint, items[i], items[i + 1]);
 
                             //fill geometry
-                            fillGeometry(0, geometry, mapDrawable);
+//                            fillGeometry(0, geometry, mapDrawable);
 
                             return true;
                         }
@@ -1779,247 +1919,107 @@ public class EditLayerOverlay
             return false;
         }
 
-
-        public PointF getSelectedPoint()
-        {
+        public void setSelectedPointCoordinates(float x, float y) {
             float[] points = getSelectedRing();
-            if (null == points || mSelectedPointIndex < 0 || points.length <= mSelectedPointIndex) {
+            if (null != points && mSelectedPoint >= 0 && mSelectedPoint < points.length - 1) {
+                points[mSelectedPoint] = x;
+                points[mSelectedPoint + 1] = y;
+            }
+        }
+
+        public PointF getSelectedPoint() {
+            float[] points = getSelectedRing();
+            if (null != points &&  mSelectedPoint >= 0 && mSelectedPoint < points.length - 1)
+                return new PointF(points[mSelectedPoint], points[mSelectedPoint + 1]);
+            else
                 return null;
-            }
-            return new PointF(points[mSelectedPointIndex], points[mSelectedPointIndex + 1]);
         }
 
+        public int getSelectedPointId() {
+            return mSelectedPoint;
+        }
 
-        public void addNewPoint(
-                float x,
-                float y)
-        {
+        public void deleteSelectedPoint() {
             float[] points = getSelectedRing();
-            if (null == points) {
+            if (null == points || mSelectedPoint < 0)
                 return;
-            }
-            float[] newPoints = new float[points.length + 2];
-            System.arraycopy(points, 0, newPoints, 0, points.length);
-            newPoints[points.length] = x;
-            newPoints[points.length + 1] = y;
 
-            mDrawItemsVertex.set(mSelectedRing, newPoints);
-        }
-
-
-        public void insertNewPoint(
-                int insertPosition,
-                float x,
-                float y)
-        {
-            float[] points = getSelectedRing();
-            if (null == points) {
-                return;
-            }
-            float[] newPoints = new float[points.length + 2];
-            int count = 0;
-            for (int i = 0; i < newPoints.length - 1; i += 2) {
-                if (i == insertPosition) {
-                    newPoints[i] = x;
-                    newPoints[i + 1] = y;
-                } else {
-                    newPoints[i] = points[count++];
-                    newPoints[i + 1] = points[count++];
-                }
-            }
-
-            mDrawItemsVertex.set(mSelectedRing, newPoints);
-        }
-
-
-        protected float[] getSelectedRing()
-        {
-            if (mDrawItemsVertex.isEmpty() || mSelectedRing < 0 ||
-                mSelectedRing >= mDrawItemsVertex.size()) {
-                return null;
-            }
-            return mDrawItemsVertex.get(mSelectedRing);
-        }
-
-
-        public void deleteSelectedPoint()
-        {
-            float[] points = getSelectedRing();
-            if (null == points || mSelectedPointIndex < 0) {
-                return;
-            }
             if (points.length <= getMinPointCount() * 2) {
                 mDrawItemsVertex.remove(mSelectedRing);
-                mSelectedRing--;
-                mSelectedPointIndex = Constants.NOT_FOUND;
+                mSelectedRing = mDrawItemsVertex.size() > 0 ? 0 : Constants.NOT_FOUND;
+                mSelectedPoint = Constants.NOT_FOUND;
                 return;
             }
+
             float[] newPoints = new float[points.length - 2];
             int counter = 0;
             for (int i = 0; i < points.length; i++) {
-                if (i == mSelectedPointIndex || i == mSelectedPointIndex + 1) {
+                if (i == mSelectedPoint || i == mSelectedPoint + 1)
                     continue;
-                }
+
                 newPoints[counter++] = points[i];
             }
 
-            if (mSelectedPointIndex >= newPoints.length) {
-                mSelectedPointIndex = 0;
-            }
+            if (mSelectedPoint >= newPoints.length)
+                mSelectedPoint = 0;
 
-            mDrawItemsVertex.set(mSelectedRing, newPoints);
+            setRing(mSelectedRing, newPoints);
         }
 
+        public void setSelectedPoint(int selectedPoint) {
+            mSelectedPoint = selectedPoint;
+        }
+
+        public void setRing(int ring, float[] points) {
+            if (ring >= 0 && ring < mDrawItemsVertex.size())
+                mDrawItemsVertex.set(ring, points);
+        }
+
+        public void setSelectedRing(int selectedRing) {
+            if (mSelectedRing >= 0 && mSelectedRing < mDrawItemsVertex.size())
+                mSelectedRing = selectedRing;
+        }
+
+        public float[] getSelectedRing() {
+            return getRing(mSelectedRing);
+        }
+
+        public int getSelectedRingId() {
+            return mSelectedRing;
+        }
+
+        public float[] getRing(int ring) {
+            return ring < 0 || ring >= mDrawItemsVertex.size() ? null :
+                    mDrawItemsVertex.get(ring);
+        }
+
+        public int getRingCount() {
+            return mDrawItemsVertex.size();
+        }
 
         public void deleteSelectedRing() {
             mDrawItemsVertex.remove(mSelectedRing);
-            mSelectedRing = mDrawItemsVertex.size() > 0 ? 0 : Constants.NOT_FOUND;
-            mSelectedPointIndex = Constants.NOT_FOUND;
+
+            if (mLayer.getGeometryType() == GeoConstants.GTPolygon ||
+                    mLayer.getGeometryType() == GeoConstants.GTMultiPolygon)
+                if (mSelectedRing == 0)
+                    mDrawItemsVertex.clear();
+
+            mSelectedRing = mSelectedPoint = mDrawItemsVertex.size() > 0 ? 0 : Constants.NOT_FOUND;
         }
 
-
-        public void setSelectedPoint(
-                float x,
-                float y)
-        {
+        public boolean isTapNearSelectedPoint(GeoEnvelope screenEnv) {
             float[] points = getSelectedRing();
-            if (null != points && mSelectedPointIndex > Constants.NOT_FOUND) {
-                points[mSelectedPointIndex] = x;
-                points[mSelectedPointIndex + 1] = y;
-            }
-        }
-
-
-        public GeoGeometry fillGeometry(
-                int ring,
-                GeoGeometry geometry,
-                MapDrawable mapDrawable)
-        {
-            if (null == geometry || null == mapDrawable || ring < 0 ||
-                ring >= mDrawItemsVertex.size()) {
-                return null;
-            }
-
-            if (mDrawItemsVertex.isEmpty()) {
-                return null;
-            }
-
-            GeoPoint[] points;
-            switch (geometry.getType()) {
-                case GeoConstants.GTPoint:
-                    points = mapDrawable.screenToMap(mDrawItemsVertex.get(ring));
-                    GeoPoint point = (GeoPoint) geometry;
-                    point.setCoordinates(points[0].getX(), points[0].getY());
-                    break;
-                case GeoConstants.GTMultiPoint:
-                    points = mapDrawable.screenToMap(mDrawItemsVertex.get(ring));
-                    GeoMultiPoint multiPoint = (GeoMultiPoint) geometry;
-                    multiPoint.clear();
-                    for (GeoPoint geoPoint : points) {
-                        multiPoint.add(geoPoint);
-                    }
-                    break;
-                case GeoConstants.GTLineString:
-                    points = mapDrawable.screenToMap(mDrawItemsVertex.get(ring));
-                    GeoLineString lineString = (GeoLineString) geometry;
-                    lineString.clear();
-                    for (GeoPoint geoPoint : points) {
-                        if (null == geoPoint) {
-                            continue;
-                        }
-                        lineString.add(geoPoint);
-                    }
-                    break;
-                case GeoConstants.GTMultiLineString:
-                    GeoMultiLineString multiLineString = (GeoMultiLineString) geometry;
-                    GeoLineString line;
-                    multiLineString.clear();
-                    for (int i = 0; i < mDrawItemsVertex.size(); i++) {
-                        points = mapDrawable.screenToMap(mDrawItemsVertex.get(i));
-                        line = new GeoLineString();
-                        for (GeoPoint geoPoint : points) {
-                            if (null == geoPoint)
-                                continue;
-
-                            line.add(geoPoint);
-                        }
-
-                        multiLineString.add(line);
-                    }
-                    break;
-                case GeoConstants.GTPolygon:
-                    points = mapDrawable.screenToMap(mDrawItemsVertex.get(ring));
-                    GeoPolygon polygon = (GeoPolygon) geometry;
-                    polygon.clear();
-                    for (GeoPoint geoPoint : points) {
-                        if (null == geoPoint) {
-                            continue;
-                        }
-                        polygon.add(geoPoint);
-                    }
-
-                    fillGeometry(ring, polygon.getOuterRing(), mapDrawable);
-
-                    for (int currentRing = 0;
-                         currentRing < polygon.getInnerRingCount();
-                         currentRing++) {
-                        fillGeometry(
-                                ring + currentRing + 1, polygon.getInnerRing(currentRing),
-                                mapDrawable);
-                    }
-                    break;
-                case GeoConstants.GTMultiPolygon:
-                    GeoMultiPolygon multiPolygon = (GeoMultiPolygon) geometry;
-                    GeoPolygon geoPolygon;
-                    multiPolygon.clear();
-                    for (int i = 0; i < mDrawItemsVertex.size(); i++) {
-                        points = mapDrawable.screenToMap(mDrawItemsVertex.get(i));
-                        geoPolygon = new GeoPolygon();
-                        for (GeoPoint geoPoint : points) {
-                            if (null == geoPoint)
-                                continue;
-
-                            geoPolygon.add(geoPoint);
-                        }
-
-                        multiPolygon.add(geoPolygon);
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-            return geometry;
-        }
-
-
-        public int getLastPointIndex()
-        {
-            float[] points = getSelectedRing();
-            if (null == points) {
-                return Constants.NOT_FOUND;
-            }
-            if (points.length < 2) {
-                return Constants.NOT_FOUND;
-            }
-            return points.length - 2;
-        }
-
-
-        public boolean isTapNearSelectedPoint(GeoEnvelope screenEnv)
-        {
-            float[] points = getSelectedRing();
-            if (null != points && mSelectedPointIndex > Constants.NOT_FOUND &&
-                points.length > mSelectedPointIndex + 1) {
-                if (screenEnv.contains(
-                        new GeoPoint(
-                                points[mSelectedPointIndex], points[mSelectedPointIndex + 1]))) {
+            if (null != points && mSelectedPoint >= 0 && points.length > mSelectedPoint + 1) {
+                if (screenEnv.contains(new GeoPoint(
+                                points[mSelectedPoint], points[mSelectedPoint + 1]))) {
                     return true;
                 }
             }
             return false;
         }
     }
+
 
     protected class EditLayerCacheItem implements IGeometryCacheItem{
         protected long mFeatureId;
