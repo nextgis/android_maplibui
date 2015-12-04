@@ -47,6 +47,7 @@ public interface ConstantsUI
 
     int TOLERANCE_DP = 20;
     int MIN_ZOOM_LEVEL = 18;
+    int NOTIFICATION_DELAY = 1500;
 
     String JSON_ATTRIBUTES_KEY        = "attributes";
     String JSON_TABS_KEY              = "tabs";

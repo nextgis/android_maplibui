@@ -86,7 +86,6 @@ public class LayerFillService extends Service implements IProgressor {
     protected NotificationManager mNotifyManager;
     protected List<LayerFillTask> mQueue;
     protected static final int FILL_NOTIFICATION_ID = 9;
-    protected static final int FILL_NOTIFICATION_DELAY = 1500;
     protected NotificationCompat.Builder mBuilder;
 
     public final static int VECTOR_LAYER           = 1;
@@ -300,7 +299,7 @@ public class LayerFillService extends Service implements IProgressor {
     }
 
     protected void updateNotify(){
-        if (mLastUpdate + FILL_NOTIFICATION_DELAY < System.currentTimeMillis()) {
+        if (mLastUpdate + ConstantsUI.NOTIFICATION_DELAY < System.currentTimeMillis()) {
             mLastUpdate = System.currentTimeMillis();
             mBuilder.setProgress(mProgressMax, mProgressValue, mIndeterminate)
                     .setContentText(mProgressMessage);
