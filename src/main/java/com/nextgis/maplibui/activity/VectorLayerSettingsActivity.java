@@ -23,12 +23,12 @@
 
 package com.nextgis.maplibui.activity;
 
-import android.app.Activity;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.View;
@@ -42,7 +42,6 @@ import android.widget.TextView;
 import com.edmodo.rangebar.RangeBar;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
-import com.nextgis.maplib.api.IProgressor;
 import com.nextgis.maplib.display.SimpleFeatureRenderer;
 import com.nextgis.maplib.display.Style;
 import com.nextgis.maplib.map.MapBase;
@@ -52,6 +51,7 @@ import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IChooseColorResult;
 import com.nextgis.maplibui.dialog.ChooseColorDialog;
+import com.nextgis.maplibui.service.RebuildCacheService;
 import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.util.ArrayList;
@@ -68,14 +68,11 @@ public class VectorLayerSettingsActivity
     protected VectorLayer                 mVectorLayer;
     protected List<Pair<Integer, String>> mColors;
     protected int                         mCurrentColor;
-    protected BackgroundTask mBackgroundTask;
+    protected BroadcastReceiver           mRebuildCacheReceiver;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mBackgroundTask = null;
 
         mColors = new ArrayList<>();
         mColors.add(new Pair<>(Color.RED, getString(R.string.red)));
@@ -167,24 +164,32 @@ public class VectorLayerSettingsActivity
             geomType.setText(geomType.getText() + ": " + getGeometryName(mVectorLayer.getGeometryType()));
 
             // rebuild cache
+            final Intent intent = new Intent(this, RebuildCacheService.class);
+            intent.putExtra(ConstantsUI.KEY_LAYER_ID, mVectorLayer.getId());
             final ProgressBar rebuildCacheProgress = (ProgressBar) findViewById(R.id.rebuildCacheProgressBar);
             final ImageButton buildCacheButton = (ImageButton) findViewById(R.id.buildCacheButton);
             buildCacheButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mBackgroundTask = new BackgroundTask(VectorLayerSettingsActivity.this, mVectorLayer, rebuildCacheProgress);
-                    mBackgroundTask.execute();
+                    intent.setAction(RebuildCacheService.ACTION_ADD_TASK);
+                    startService(intent);
                 }
             });
             final ImageButton cancelBuildCacheButton = (ImageButton) findViewById(R.id.cancelBuildCahceButton);
             cancelBuildCacheButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(null != mBackgroundTask)
-                        mBackgroundTask.setCancel(true);
+                    intent.setAction(RebuildCacheService.ACTION_STOP);
+                    startService(intent);
                 }
             });
 
+            mRebuildCacheReceiver = new BroadcastReceiver() {
+                public void onReceive(Context context, Intent intent) {
+                    rebuildCacheProgress.setMax(intent.getIntExtra(RebuildCacheService.KEY_MAX, 0));
+                    rebuildCacheProgress.setProgress(intent.getIntExtra(RebuildCacheService.KEY_PROGRESS, 0));
+                }
+            };
         }
     }
 
@@ -204,14 +209,10 @@ public class VectorLayerSettingsActivity
                 return getString(R.string.multi_polygon);
             default:
                 return getString(R.string.n_a);
-
         }
-
     }
 
-
-    protected void setColor(int color)
-    {
+    protected void setColor(int color) {
         // set color
         ImageView iv = (ImageView) findViewById(R.id.color_image);
         GradientDrawable sd = (GradientDrawable) iv.getDrawable();
@@ -225,8 +226,7 @@ public class VectorLayerSettingsActivity
         mCurrentColor = color;
     }
 
-    protected String getColorName(int color)
-    {
+    protected String getColorName(int color) {
         for (Pair<Integer, String> colorEntry : mColors) {
             if (colorEntry.first == color) {
                 return colorEntry.second;
@@ -235,16 +235,12 @@ public class VectorLayerSettingsActivity
         return "#" + Integer.toHexString(color & 0x00FFFFFF);
     }
 
-
     @Override
-    public void onFinishChooseColorDialog(int color)
-    {
+    public void onFinishChooseColorDialog(int color) {
         setColor(color);
     }
 
-
-    protected void saveSettings()
-    {
+    protected void saveSettings() {
         if (null == mVectorLayer) {
             return;
         }
@@ -266,96 +262,17 @@ public class VectorLayerSettingsActivity
         mVectorLayer.save();
     }
 
-
     @Override
-    protected void onPause()
-    {
-        super.onPause();
-        saveSettings();
+    protected void onResume() {
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter(RebuildCacheService.ACTION_UPDATE);
+        registerReceiver(mRebuildCacheReceiver, intentFilter);
     }
 
-    protected static class BackgroundTask
-            extends AsyncTask<Void, Void, Void> implements IProgressor
-    {
-        protected ProgressBar mProgress;
-        protected Activity mActivity;
-        protected VectorLayer mVectorLayer;
-        protected boolean mCancel;
-
-        public BackgroundTask(Activity activity, VectorLayer layer, ProgressBar progressBar)
-        {
-            mProgress = progressBar;
-            mActivity = activity;
-            mVectorLayer = layer;
-        }
-
-
-        @Override
-        protected Void doInBackground(Void... voids)
-        {
-            mVectorLayer.rebuildCache(this);
-            return null;
-        }
-
-
-        @Override
-        protected void onPreExecute()
-        {
-            //not good solution but rare used so let it be
-            lockScreenOrientation();
-        }
-
-
-        @Override
-        protected void onPostExecute(Void aVoid)
-        {
-            mProgress.setProgress(0);
-            unlockScreenOrientation();
-        }
-
-
-        protected void lockScreenOrientation()
-        {
-            int currentOrientation = mActivity.getResources().getConfiguration().orientation;
-            if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-                mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            } else {
-                mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            }
-        }
-
-
-        protected void unlockScreenOrientation()
-        {
-            mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-        }
-
-        @Override
-        public void setMax(int maxValue) {
-            mProgress.setMax(maxValue);
-        }
-
-        @Override
-        public boolean isCanceled() {
-            return false;
-        }
-
-        public void setCancel(boolean cancel) {
-            mCancel = cancel;
-        }
-
-        @Override
-        public void setValue(int value) {
-            mProgress.setProgress(value);
-        }
-
-        @Override
-        public void setIndeterminate(boolean indeterminate) {
-            mProgress.setIndeterminate(indeterminate);
-        }
-
-        @Override
-        public void setMessage(String message) {
-        }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mRebuildCacheReceiver);
+        saveSettings();
     }
 }
