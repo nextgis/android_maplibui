@@ -46,7 +46,7 @@ public class RebuildCacheService extends Service implements IProgressor {
     public static final String ACTION_ADD_TASK = "REBUILD_CACHE_ADD_TASK";
     public static final String ACTION_STOP = "REBUILD_CACHE_STOP";
     public static final String ACTION_SHOW = "REBUILD_CACHE_SHOW";
-    public static final String ACTION_UPDATE = "UPDATE_FILL_LAYER_PROGRESS";
+    public static final String ACTION_UPDATE = "REBUILD_CACHE_UPDATE_PROGRESS";
     public static final String KEY_PROGRESS = "progress";
     public static final String KEY_MAX = "max";
 
@@ -65,7 +65,7 @@ public class RebuildCacheService extends Service implements IProgressor {
     public void onCreate() {
         mNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Bitmap largeIcon = NotificationHelper.getLargeIcon(
-                R.drawable.ic_notification_download, getResources());
+                R.drawable.ic_notification_rebuild_cache, getResources());
 
         mProgressIntent = new Intent(ACTION_UPDATE);
         Intent intent = new Intent(this, RebuildCacheService.class);
@@ -77,7 +77,7 @@ public class RebuildCacheService extends Service implements IProgressor {
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         mBuilder = new NotificationCompat.Builder(this);
-        mBuilder.setSmallIcon(R.drawable.ic_notification_download).setLargeIcon(largeIcon)
+        mBuilder.setSmallIcon(R.drawable.ic_notification_rebuild_cache).setLargeIcon(largeIcon)
                 .setAutoCancel(false)
                 .setOngoing(true)
                 .setContentIntent(showProgressDialog)
@@ -120,11 +120,11 @@ public class RebuildCacheService extends Service implements IProgressor {
 
     protected void startNextTask(){
         if(mQueue.isEmpty()){
-            mLayer = null;
             mTotalTasks = mCurrentTasks = 0;
             mNotifyManager.cancel(NOTIFICATION_ID);
             mProgressIntent.putExtra(KEY_PROGRESS, 0);
             sendBroadcast(mProgressIntent);
+            mLayer = null;
             stopSelf();
             return;
         }
