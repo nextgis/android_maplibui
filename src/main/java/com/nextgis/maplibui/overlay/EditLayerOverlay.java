@@ -598,6 +598,15 @@ public class EditLayerOverlay
                 geoPoints[4] = (float) screenCenter.getX() + add;
                 geoPoints[5] = (float) screenCenter.getY() + add;
                 return geoPoints;
+            case GeoConstants.GTLinearRing:
+                geoPoints = new float[6];
+                geoPoints[0] = (float) screenCenter.getX() + add;
+                geoPoints[1] = (float) screenCenter.getY() + add;
+                geoPoints[2] = (float) screenCenter.getX() - add;
+                geoPoints[3] = (float) screenCenter.getY() + add;
+                geoPoints[4] = (float) screenCenter.getX() - add;
+                geoPoints[5] = (float) screenCenter.getY() - add;
+                return geoPoints;
             default:
                 break;
         }
@@ -1071,7 +1080,7 @@ public class EditLayerOverlay
             return false;
 
         GeoPoint center = mapDrawable.getFullScreenBounds().getCenter();
-        mSelectedItem.addVertices(getNewGeometry(GeoConstants.GTPolygon, center));
+        mSelectedItem.addVertices(getNewGeometry(GeoConstants.GTLinearRing, center));
         mSelectedItem.setSelectedRing(mSelectedItem.getRingCount() - 1);
         mSelectedItem.setSelectedPoint(0);
         setHasEdits(true);
