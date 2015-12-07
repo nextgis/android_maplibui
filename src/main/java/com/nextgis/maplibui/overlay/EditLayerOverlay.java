@@ -694,6 +694,9 @@ public class EditLayerOverlay
                 }
                 break;
             case GeoConstants.GTPolygon:
+                if (mSelectedItem.getRingCount() == 0 || mSelectedItem.getRing(0) == null)
+                    return null;
+
                 geoPoints = mapDrawable.screenToMap(mSelectedItem.getRing(0));
                 GeoPolygon polygon = (GeoPolygon) geometry;
                 polygon.clear();
@@ -1541,6 +1544,9 @@ public class EditLayerOverlay
                 setToolbarSaveState(true);
             }
         }
+
+        mSelectedItem = new DrawItem();
+        mDrawItems.add(mSelectedItem);
 
         Activity parent = (Activity) mContext;
         GpsEventSource gpsEventSource =
