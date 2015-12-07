@@ -564,20 +564,31 @@ public class LayerFillService extends Service implements IProgressor {
     }
 
     private class LocalTMSFillTask extends LayerFillTask{
+        protected boolean mIsNgrc;
+
         public LocalTMSFillTask(Bundle bundle) {
             super(bundle);
             mLayer = new LocalTMSLayerUI(mLayerGroup.getContext(), mLayerPath);
-            ((LocalTMSLayerUI) mLayer).setTMSType(bundle.getInt(KEY_TMS_TYPE));
-            initLayer();
+            mIsNgrc = !bundle.containsKey(KEY_TMS_TYPE);
+
+            if (!mIsNgrc) { // it's zip
+                ((LocalTMSLayerUI) mLayer).setTMSType(bundle.getInt(KEY_TMS_TYPE));
+                initLayer();
+            } else
+                mLayerName = mUri.getLastPathSegment();
         }
 
         @Override
         public void execute(IProgressor progressor) {
             try {
                 TMSLayer tmsLayer = (TMSLayer) mLayer;
-                if(null == tmsLayer)
+                if (null == tmsLayer)
                     return;
-                tmsLayer.fillFromZip(mUri, progressor);
+
+                if (mIsNgrc)
+                    tmsLayer.fillFromNgrc(mUri, progressor);
+                else
+                    tmsLayer.fillFromZip(mUri, progressor);
             } catch (IOException | NumberFormatException | SecurityException | NGException | ClassCastException e) {
                 e.printStackTrace();
                 if(null != progressor){
@@ -585,6 +596,11 @@ public class LayerFillService extends Service implements IProgressor {
                 }
                 notifyError(mProgressMessage);
             }
+        }
+
+        @Override
+        public String getDescription() {
+            return mIsNgrc ? mLayerName : super.getDescription();
         }
     }
 

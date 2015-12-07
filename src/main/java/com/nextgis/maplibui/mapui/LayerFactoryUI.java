@@ -24,6 +24,7 @@
 package com.nextgis.maplibui.mapui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
@@ -37,6 +38,7 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.dialog.CreateLocalLayerDialog;
 import com.nextgis.maplibui.dialog.CreateRemoteTMSLayerDialog;
+import com.nextgis.maplibui.dialog.LayerFillProgressDialog;
 import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
 import com.nextgis.maplibui.service.LayerFillService;
 
@@ -89,14 +91,29 @@ public class LayerFactoryUI
             final LayerGroup groupLayer,
             final Uri uri)
     {
+        String ext = "zip";
         String layerName =
                 FileUtil.getFileNameByUri(context, uri, context.getString(R.string.new_layer));
         final int lastPeriodPos = layerName.lastIndexOf('.');
         if (lastPeriodPos > 0) {
+            ext = layerName.substring(lastPeriodPos).toLowerCase();
             layerName = layerName.substring(0, lastPeriodPos);
         }
         if (context instanceof NGActivity) {
             NGActivity fragmentActivity = (NGActivity) context;
+
+            if (ext.equals(".ngrc")) {
+                Intent intent = new Intent(context, LayerFillService.class);
+                intent.setAction(LayerFillService.ACTION_ADD_TASK);
+                intent.putExtra(LayerFillService.KEY_URI, uri);
+                intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.TMS_LAYER);
+                intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, groupLayer.getId());
+
+                LayerFillProgressDialog progressDialog = new LayerFillProgressDialog(fragmentActivity);
+                progressDialog.execute(intent);
+                return;
+            }
+
             CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
             newFragment.setLayerGroup(groupLayer)
                     .setLayerType(LayerFillService.TMS_LAYER)
