@@ -33,6 +33,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.graphics.drawable.DrawableCompat;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.R;
@@ -133,6 +134,15 @@ public final class ControlHelper {
         }
 
         return icon;
+    }
+
+    public static Drawable tintDrawable(Drawable drawable, int color) {
+        if (drawable == null)
+            return null;
+
+        drawable = DrawableCompat.wrap(drawable);
+        DrawableCompat.setTint(drawable, color);
+        return drawable;
     }
 
     public static int getDialogTheme(Context context, int theme) {

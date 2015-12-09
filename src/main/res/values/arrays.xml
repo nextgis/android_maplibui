@@ -133,4 +133,36 @@
         <item>CE95</item>
         <item>CE98</item>
     </string-array>
+    <string-array name="geom_names" translatable="false">
+        <item>@string/point</item>
+        <item>@string/linestring</item>
+        <item>@string/polygon</item>
+        <item>@string/multi_point</item>
+        <item>@string/multi_linestring</item>
+        <item>@string/multi_polygon</item>
+    </string-array>
+    <integer-array name="geom_types" translatable="false">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </integer-array>
+    <string-array name="field_names" translatable="false">
+        <item>@string/field_type_string</item>
+        <item>@string/field_type_int</item>
+        <item>@string/field_type_real</item>
+        <item>@string/field_type_datetime</item>
+        <item>@string/field_type_date</item>
+        <item>@string/field_type_time</item>
+    </string-array>
+    <integer-array name="field_types" translatable="false">
+        <item>4</item>
+        <item>0</item>
+        <item>2</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+    </integer-array>
 </resources>
