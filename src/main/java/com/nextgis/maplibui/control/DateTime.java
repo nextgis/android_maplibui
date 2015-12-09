@@ -29,10 +29,10 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,37 +44,51 @@ import com.nextgis.maplibui.api.ISimpleControl;
 import com.nextgis.maplibui.util.ControlHelper;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplibui.util.ConstantsUI.*;
+
 
 public class DateTime
         extends AppCompatTextView
         implements ISimpleControl
 {
-
-    String mFieldName;
+    String           mFieldName;
     SimpleDateFormat mDateFormat;
+    Long mValue = null;
 
-    public DateTime(Context context) {
+
+    public DateTime(Context context)
+    {
         super(context);
     }
 
-    public DateTime(Context context, AttributeSet attrs) {
+
+    public DateTime(
+            Context context,
+            AttributeSet attrs)
+    {
         super(context, attrs);
     }
 
-    public DateTime(Context context, AttributeSet attrs, int defStyle) {
+
+    public DateTime(
+            Context context,
+            AttributeSet attrs,
+            int defStyle)
+    {
         super(context, attrs, defStyle);
     }
 
-    public void setCurrentDate(){
-        setText(mDateFormat.format(Calendar.getInstance().getTime()));
+
+    public void setCurrentDate()
+    {
+        mValue = Calendar.getInstance().getTimeInMillis();
+        setText(getFormattedValue(mValue));
     }
+
 
     protected View.OnClickListener getDateUpdateWatcher(final int pickerType)
     {
@@ -85,7 +99,8 @@ public class DateTime
 
             protected void setValue()
             {
-                DateTime.this.setText(mDateFormat.format(mCalendar.getTime()));
+                mValue = mCalendar.getTimeInMillis();
+                DateTime.this.setText(getFormattedValue(mValue));
             }
 
 
@@ -93,7 +108,12 @@ public class DateTime
             public void onClick(View view)
             {
                 Context context = DateTime.this.getContext();
-                mCalendar.setTime(new Date());
+
+                if (null != mValue) {
+                    mCalendar.setTimeInMillis(mValue);
+                } else {
+                    mCalendar.setTime(new Date());
+                }
 
                 switch (pickerType) {
 
@@ -201,6 +221,15 @@ public class DateTime
                                 (TimePicker) datetimePickerLayout.findViewById(R.id.timePicker);
                         tp.setIs24HourView(
                                 android.text.format.DateFormat.is24HourFormat(context));
+
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                            tp.setCurrentHour(mCalendar.get(Calendar.HOUR_OF_DAY));
+                            tp.setCurrentMinute(mCalendar.get(Calendar.MINUTE));
+                        } else {
+                            tp.setHour(mCalendar.get(Calendar.HOUR_OF_DAY));
+                            tp.setMinute(mCalendar.get(Calendar.MINUTE));
+                        }
+
                         tp.setOnTimeChangedListener(
                                 new TimePicker.OnTimeChangedListener()
                                 {
@@ -242,35 +271,35 @@ public class DateTime
     @Override
     public Object getValue()
     {
-        String stringVal = getText().toString();
-
-        try {
-            Date date = mDateFormat.parse(stringVal);
-            return date.getTime();
-
-        } catch (ParseException e) {
-            Log.d(TAG, "Date parse error, " + e.getLocalizedMessage());
-            return null;
-        }
+        return mValue;
     }
 
+
     @Override
-    public void init(Field field, Bundle savedState, Cursor featureCursor) {
-        if(null != field)
+    public void init(
+            Field field,
+            Bundle savedState,
+            Cursor featureCursor)
+    {
+        if (null != field) {
             mFieldName = field.getName();
+        }
 
         String text = "";
         mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+        mValue = null;
 
-        if (ControlHelper.hasKey(savedState, text))
-            text = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
-        else if (null != featureCursor) {
+        if (ControlHelper.hasKey(savedState, text)) {
+            mValue = savedState.getLong(ControlHelper.getSavedStateKey(mFieldName));
+        } else if (null != featureCursor) {
             int column = featureCursor.getColumnIndex(mFieldName);
             if (column >= 0) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(featureCursor.getLong(column));
-                text = mDateFormat.format(calendar.getTime());
+                mValue = featureCursor.getLong(column);
             }
+        }
+
+        if (null != mValue) {
+            text = getFormattedValue(mValue);
         }
 
         setText(text);
@@ -282,26 +311,35 @@ public class DateTime
         setHint(pattern);
     }
 
+
     @Override
-    public void saveState(Bundle outState) {
-        outState.putString(ControlHelper.getSavedStateKey(mFieldName), getText().toString());
+    public void saveState(Bundle outState)
+    {
+        outState.putLong(ControlHelper.getSavedStateKey(mFieldName), mValue);
     }
 
-    public void setValue(Object val){
-        long nVal;
-        if(val instanceof Long)
-            nVal = (long) val;
-        else if(val instanceof Date)
-            nVal = ((Date)(val)).getTime();
-        else if(val instanceof Calendar)
-            nVal = ((Calendar)val).getTimeInMillis();
-        else
-            return;
 
-        mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+    protected String getFormattedValue(long value)
+    {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(nVal);
-        setText(mDateFormat.format(calendar.getTime()));
+        calendar.setTimeInMillis(value);
+        return mDateFormat.format(calendar.getTime());
+    }
+
+
+    public void setValue(Object val)
+    {
+        if (val instanceof Long) {
+            mValue = (long) val;
+        } else if (val instanceof Date) {
+            mValue = ((Date) val).getTime();
+        } else if (val instanceof Calendar) {
+            mValue = ((Calendar) val).getTimeInMillis();
+        } else {
+            return;
+        }
+
+        setText(getFormattedValue(mValue));
 
         setSingleLine(true);
         setFocusable(false);
