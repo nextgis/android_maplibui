@@ -67,6 +67,8 @@ import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
+
+import com.nextgis.maplibui.api.DrawItem;
 import com.nextgis.maplibui.api.EditEventListener;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.api.MapViewEventListener;
@@ -472,7 +474,7 @@ public class EditLayerOverlay
             boolean isSelected = mSelectedItem == drawItem;
 
             if (mMode != MODE_CHANGE)
-                drawItem = (DrawItem) drawItem.pan(currentMouseOffset);
+                drawItem = drawItem.pan(currentMouseOffset);
 
             drawItem(drawItem, canvas, isSelected);
         }
@@ -497,7 +499,7 @@ public class EditLayerOverlay
         List<DrawItem> drawItems = mDrawItems;
         for (DrawItem drawItem : drawItems) {
             boolean isSelected = mSelectedItem == drawItem;
-            drawItem = (DrawItem) drawItem.zoom(currentFocusLocation, scale);
+            drawItem = drawItem.zoom(currentFocusLocation, scale);
             drawItem(drawItem, canvas, isSelected);
         }
 
@@ -668,7 +670,7 @@ public class EditLayerOverlay
                 for (DrawItem drawItem : mDrawItems) {
                     points = drawItem.getRing(0);
                     geoPoints = mapDrawable.screenToMap(points);
-                    multiPoint.add(geoPoints[1]);
+                    multiPoint.add(geoPoints[0]);
                 }
                 break;
             case GeoConstants.GTLineString:
@@ -777,13 +779,13 @@ public class EditLayerOverlay
         switch (mItem.getGeometryType()) {
             case GeoConstants.GTPoint:
             case GeoConstants.GTMultiPoint:
-                drawItem.drawPoints(canvas, isSelected);
+                drawPoints(drawItem, canvas, isSelected);
                 break;
             case GeoConstants.GTLineString:
             case GeoConstants.GTMultiLineString:
             case GeoConstants.GTPolygon:
             case GeoConstants.GTMultiPolygon:
-                drawItem.drawLines(canvas, isSelected);
+                drawLines(drawItem, canvas, isSelected);
                 break;
             default:
                 break;
@@ -1415,7 +1417,7 @@ public class EditLayerOverlay
 
     protected boolean intersects(GeoEnvelope screenEnv) {
         for (DrawItem drawItem : mDrawItems) {
-            if (drawItem.intersects(screenEnv)) {
+            if (drawItem.intersects(screenEnv, mMode == MODE_EDIT)) {
                 mSelectedItem = drawItem;
                 return true;
             }
@@ -1668,146 +1670,106 @@ public class EditLayerOverlay
     }
 
 
-    protected class DrawItem extends com.nextgis.maplibui.api.DrawItem
-    {
-        public DrawItem() {
-            super();
+    public void drawPoints(DrawItem drawItem, Canvas canvas, boolean isSelected) {
+        for (int i = 0; i < drawItem.getRingCount(); i++) {
+            float[] items = drawItem.getRing(i);
+
+            if (items == null)
+                continue;
+
+            mPaint.setColor(mOutlineColor);
+            mPaint.setStrokeWidth(VERTEX_RADIUS + 2);
+            canvas.drawPoints(items, mPaint);
+
+            mPaint.setColor(mFillColor);
+            mPaint.setStrokeWidth(VERTEX_RADIUS);
+            canvas.drawPoints(items, mPaint);
         }
 
-        public DrawItem(int type, float[] points) {
-            super(type, points);
-        }
+        //draw selected point
+        if (isSelected && drawItem.getSelectedRingId() != Constants.NOT_FOUND
+                && drawItem.getSelectedPointId() != Constants.NOT_FOUND) {
+            float[] items = drawItem.getSelectedRing();
+            if (null != items) {
+                mPaint.setColor(mSelectColor);
+                mPaint.setStrokeWidth(VERTEX_RADIUS);
 
-        public void drawPoints(Canvas canvas, boolean isSelected) {
-            for (float[] items : mDrawItemsVertex) {
+                canvas.drawPoint(
+                        items[drawItem.getSelectedPointId()], items[drawItem.getSelectedPointId() + 1], mPaint);
+
+                float anchorX = items[drawItem.getSelectedPointId()] + mAnchorRectOffsetX;
+                float anchorY = items[drawItem.getSelectedPointId() + 1] + mAnchorRectOffsetY;
+                canvas.drawBitmap(mAnchor, anchorX, anchorY, null);
+            }
+        }
+    }
+
+    public void drawLines(DrawItem drawItem, Canvas canvas, boolean isSelected) {
+        for (int j = 0; j < drawItem.getRingCount(); j++) {
+            float[] itemsVertex = drawItem.getRing(j);
+
+            if (itemsVertex == null)
+                continue;
+
+            if (isSelected && drawItem.getSelectedRingId() == j)
+                mPaint.setColor(mSelectColor);
+            else
+                mPaint.setColor(mFillColor);
+
+            mPaint.setStrokeWidth(LINE_WIDTH);
+
+            for (int i = 0; i < itemsVertex.length - 3; i += 2) {
+                canvas.drawLine(itemsVertex[i], itemsVertex[i + 1],
+                        itemsVertex[i + 2], itemsVertex[i + 3], mPaint);
+            }
+
+            if (mItem.getGeometry().getType() == GeoConstants.GTPolygon ||
+                    mItem.getGeometry().getType() == GeoConstants.GTMultiPolygon) {
+                if (itemsVertex.length >= 2) {
+                    canvas.drawLine(
+                            itemsVertex[0], itemsVertex[1], itemsVertex[itemsVertex.length - 2],
+                            itemsVertex[itemsVertex.length - 1], mPaint);
+                }
+            }
+
+            if (mMode == MODE_EDIT || mMode == MODE_CHANGE) {
                 mPaint.setColor(mOutlineColor);
                 mPaint.setStrokeWidth(VERTEX_RADIUS + 2);
-                canvas.drawPoints(items, mPaint);
+                canvas.drawPoints(itemsVertex, mPaint);
 
                 mPaint.setColor(mFillColor);
                 mPaint.setStrokeWidth(VERTEX_RADIUS);
+                canvas.drawPoints(itemsVertex, mPaint);
+            }
+        }
+
+        if (mMode == MODE_EDIT) {
+            for (float[] items : drawItem.getEdges()) {
+
+                mPaint.setColor(mOutlineColor);
+                mPaint.setStrokeWidth(EDGE_RADIUS + 2);
+                canvas.drawPoints(items, mPaint);
+
+                mPaint.setColor(mFillColor);
+                mPaint.setStrokeWidth(EDGE_RADIUS);
                 canvas.drawPoints(items, mPaint);
             }
-
-            //draw selected point
-            if (isSelected && mSelectedRing != Constants.NOT_FOUND && mSelectedPoint != Constants.NOT_FOUND) {
-                float[] items = getSelectedRing();
-                if (null != items) {
-                    mPaint.setColor(mSelectColor);
-                    mPaint.setStrokeWidth(VERTEX_RADIUS);
-
-                    canvas.drawPoint(
-                            items[mSelectedPoint], items[mSelectedPoint + 1], mPaint);
-
-                    float anchorX = items[mSelectedPoint] + mAnchorRectOffsetX;
-                    float anchorY = items[mSelectedPoint + 1] + mAnchorRectOffsetY;
-                    canvas.drawBitmap(mAnchor, anchorX, anchorY, null);
-                }
-            }
         }
 
-        public void drawLines(Canvas canvas, boolean isSelected) {
-            float[] itemsVertex;
-            for (int j = 0; j < mDrawItemsVertex.size(); j++) {
-                itemsVertex = mDrawItemsVertex.get(j);
+        //draw selected point
+        if (isSelected && drawItem.getSelectedPointId() != Constants.NOT_FOUND) {
+            float[] items = drawItem.getSelectedRing();
+            if (null != items && drawItem.getSelectedPointId() + 1 < items.length) {
+                mPaint.setColor(mSelectColor);
+                mPaint.setStrokeWidth(VERTEX_RADIUS);
 
-                if (isSelected && mSelectedRing == j)
-                    mPaint.setColor(mSelectColor);
-                else
-                    mPaint.setColor(mFillColor);
+                canvas.drawPoint(
+                        items[drawItem.getSelectedPointId()], items[drawItem.getSelectedPointId() + 1], mPaint);
 
-                mPaint.setStrokeWidth(LINE_WIDTH);
-
-                for (int i = 0; i < itemsVertex.length - 3; i += 2) {
-                    canvas.drawLine(itemsVertex[i], itemsVertex[i + 1],
-                            itemsVertex[i + 2], itemsVertex[i + 3], mPaint);
-                }
-
-                if (mItem.getGeometry().getType() == GeoConstants.GTPolygon ||
-                    mItem.getGeometry().getType() == GeoConstants.GTMultiPolygon) {
-                    if (itemsVertex.length >= 2) {
-                        canvas.drawLine(
-                                itemsVertex[0], itemsVertex[1], itemsVertex[itemsVertex.length - 2],
-                                itemsVertex[itemsVertex.length - 1], mPaint);
-                    }
-                }
-
-                if (mMode == MODE_EDIT || mMode == MODE_CHANGE) {
-                    mPaint.setColor(mOutlineColor);
-                    mPaint.setStrokeWidth(VERTEX_RADIUS + 2);
-                    canvas.drawPoints(itemsVertex, mPaint);
-
-                    mPaint.setColor(mFillColor);
-                    mPaint.setStrokeWidth(VERTEX_RADIUS);
-                    canvas.drawPoints(itemsVertex, mPaint);
-                }
+                float anchorX = items[drawItem.getSelectedPointId()] + mAnchorRectOffsetX;
+                float anchorY = items[drawItem.getSelectedPointId() + 1] + mAnchorRectOffsetY;
+                canvas.drawBitmap(mAnchor, anchorX, anchorY, null);
             }
-
-            if (mMode == MODE_EDIT) {
-                for (float[] items : mDrawItemsEdge) {
-
-                    mPaint.setColor(mOutlineColor);
-                    mPaint.setStrokeWidth(EDGE_RADIUS + 2);
-                    canvas.drawPoints(items, mPaint);
-
-                    mPaint.setColor(mFillColor);
-                    mPaint.setStrokeWidth(EDGE_RADIUS);
-                    canvas.drawPoints(items, mPaint);
-                }
-            }
-
-            //draw selected point
-            if (isSelected && mSelectedPoint != Constants.NOT_FOUND) {
-                float[] items = getSelectedRing();
-                if (null != items && mSelectedPoint + 1 < items.length) {
-                    mPaint.setColor(mSelectColor);
-                    mPaint.setStrokeWidth(VERTEX_RADIUS);
-
-                    canvas.drawPoint(
-                            items[mSelectedPoint], items[mSelectedPoint + 1], mPaint);
-
-                    float anchorX = items[mSelectedPoint] + mAnchorRectOffsetX;
-                    float anchorY = items[mSelectedPoint + 1] + mAnchorRectOffsetY;
-                    canvas.drawBitmap(mAnchor, anchorX, anchorY, null);
-                }
-            }
-        }
-
-        public boolean intersects(GeoEnvelope screenEnv) {
-            int point;
-            for (int ring = 0; ring < mDrawItemsVertex.size(); ring++) {
-                point = 0;
-                float[] items = mDrawItemsVertex.get(ring);
-                for (int i = 0; i < items.length - 1; i += 2) {
-                    if (screenEnv.contains(new GeoPoint(items[i], items[i + 1]))) {
-                        mSelectedRing = ring;
-                        mSelectedPoint = point;
-                        return true;
-                    }
-                    point += 2;
-                }
-            }
-
-            if (mMode == MODE_EDIT) {
-                for (int ring = 0; ring < mDrawItemsEdge.size(); ring++) {
-                    point = 0;
-                    float[] items = mDrawItemsEdge.get(ring);
-                    for (int i = 0; i < items.length - 1; i += 2) {
-                        if (screenEnv.contains(new GeoPoint(items[i], items[i + 1]))) {
-                            mSelectedPoint = i + 2;
-                            mSelectedRing = ring;
-                            insertNewPoint(mSelectedPoint, items[i], items[i + 1]);
-
-                            //fill geometry
-//                            fillGeometry(0, geometry, mapDrawable);
-
-                            return true;
-                        }
-                        point++;
-                    }
-                }
-            }
-            return false;
         }
     }
 

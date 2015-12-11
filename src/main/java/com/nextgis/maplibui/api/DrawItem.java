@@ -93,6 +93,10 @@ public class DrawItem {
         mDrawItemsEdge.add(points);
     }
 
+    public List<float[]> getEdges() {
+        return mDrawItemsEdge;
+    }
+
     public void addNewPoint(float x, float y) {
         float[] points = getSelectedRing();
         if (null == points) {
@@ -221,6 +225,40 @@ public class DrawItem {
             if (screenEnv.contains(new GeoPoint(
                     points[mSelectedPoint], points[mSelectedPoint + 1]))) {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean intersects(GeoEnvelope screenEnv, boolean editMode) {
+        int point;
+        for (int ring = 0; ring < mDrawItemsVertex.size(); ring++) {
+            point = 0;
+            float[] items = mDrawItemsVertex.get(ring);
+            for (int i = 0; i < items.length - 1; i += 2) {
+                if (screenEnv.contains(new GeoPoint(items[i], items[i + 1]))) {
+                    mSelectedRing = ring;
+                    mSelectedPoint = point;
+                    return true;
+                }
+                point += 2;
+            }
+        }
+
+        if (editMode) {
+            for (int ring = 0; ring < mDrawItemsEdge.size(); ring++) {
+                point = 0;
+                float[] items = mDrawItemsEdge.get(ring);
+                for (int i = 0; i < items.length - 1; i += 2) {
+                    if (screenEnv.contains(new GeoPoint(items[i], items[i + 1]))) {
+                        mSelectedPoint = i + 2;
+                        mSelectedRing = ring;
+                        insertNewPoint(mSelectedPoint, items[i], items[i + 1]);
+
+                        return true;
+                    }
+                    point++;
+                }
             }
         }
         return false;
