@@ -218,4 +218,5 @@
     <string name="share_gpx_multiple">How do you want to save selected tracks?</string>
     <string name="share_gpx_separate">Separate files</string>
     <string name="share_gpx_together">All in one</string>
+    <string name="action_edit">Edit</string>
 </resources>

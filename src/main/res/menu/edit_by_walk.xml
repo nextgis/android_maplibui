@@ -31,7 +31,12 @@
         app:showAsAction="always"
         android:icon="@drawable/ic_action_cancel_dark"
         />
-
+    <item
+        android:id="@+id/menu_add_geometry"
+        android:title="@string/action_edit"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_edit_light"
+        />
     <item
         android:id="@+id/menu_settings"
         android:title="@string/action_settings"
