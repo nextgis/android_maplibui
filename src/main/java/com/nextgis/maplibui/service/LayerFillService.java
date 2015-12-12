@@ -93,10 +93,10 @@ public class LayerFillService extends Service implements IProgressor {
     public final static int TMS_LAYER              = 3;
     public final static int NGW_LAYER              = 4;
 
-    public static final String ACTION_STOP = "FILL_LAYER_STOP";
-    public static final String ACTION_ADD_TASK = "ADD_FILL_LAYER_TASK";
-    public static final String ACTION_SHOW = "SHOW_PROGRESS_DIALOG";
-    public static final String ACTION_UPDATE = "UPDATE_FILL_LAYER_PROGRESS";
+    public static final String ACTION_STOP = "com.nextgis.maplibui.FILL_LAYER_STOP";
+    public static final String ACTION_ADD_TASK = "com.nextgis.maplibui.ADD_FILL_LAYER_TASK";
+    public static final String ACTION_SHOW = "com.nextgis.maplibui.SHOW_PROGRESS_DIALOG";
+    public static final String ACTION_UPDATE = "com.nextgis.maplibui.UPDATE_FILL_LAYER_PROGRESS";
     public static final String KEY_STATUS = "status";
     public static final String KEY_PROGRESS = "progress";
     public static final String KEY_TOTAL = "count";

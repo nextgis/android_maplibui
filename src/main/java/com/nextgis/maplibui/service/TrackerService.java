@@ -54,6 +54,7 @@ import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.NotificationHelper;
 
 import java.text.SimpleDateFormat;
@@ -66,11 +67,10 @@ public class TrackerService
         implements LocationListener, GpsStatus.Listener
 {
     public static final  String TEMP_PREFERENCES      = "tracks_temp";
-    public static final  String TARGET_CLASS          = "target_class";
     private static final String TRACK_URI             = "track_uri";
     private static final String TRACK_DAILY_ID        = "track_daily_id";
-    private static final String ACTION_STOP           = "TRACK_STOP";
-    private static final String ACTION_SPLIT          = "TRACK_SPLIT";
+    private static final String ACTION_STOP           = "com.nextgis.maplibui.TRACK_STOP";
+    private static final String ACTION_SPLIT          = "com.nextgis.maplibui.TRACK_SPLIT";
     private static final int    TRACK_NOTIFICATION_ID = 1;
 
     private boolean         mIsRunning;
@@ -78,7 +78,7 @@ public class TrackerService
 
     private SharedPreferences mSharedPreferencesTemp;
     private String            mTrackId;
-    private Uri mContentUriTracks, mContentUriTrackpoints;
+    private Uri mContentUriTracks, mContentUriTrackPoints;
     private ContentValues mValues;
 
     private NotificationManager mNotificationManager;
@@ -87,7 +87,7 @@ public class TrackerService
     private String mTicker;
     private int    mSmallIcon, mSatellitesCount;
 
-
+    @Override
     public void onCreate()
     {
         super.onCreate();
@@ -98,7 +98,7 @@ public class TrackerService
         IGISApplication application = (IGISApplication) getApplication();
         String authority = application.getAuthority();
         mContentUriTracks = Uri.parse("content://" + authority + "/" + TrackLayer.TABLE_TRACKS);
-        mContentUriTrackpoints =
+        mContentUriTrackPoints =
                 Uri.parse("content://" + authority + "/" + TrackLayer.TABLE_TRACKPOINTS);
 
         mValues = new ContentValues();
@@ -144,6 +144,7 @@ public class TrackerService
     }
 
 
+    @Override
     public int onStartCommand(
             Intent intent,
             int flags,
@@ -153,7 +154,7 @@ public class TrackerService
         String targetActivity = "";
 
         if (intent != null) {
-            targetActivity = intent.getStringExtra(TARGET_CLASS);
+            targetActivity = intent.getStringExtra(ConstantsUI.TARGET_CLASS);
             String action = intent.getAction();
 
             if (!TextUtils.isEmpty(action)) {
@@ -174,11 +175,11 @@ public class TrackerService
             // there are no tracks or last track correctly ended
             if (mSharedPreferencesTemp.getString(TRACK_URI, null) == null) {
                 startTrack();
-                mSharedPreferencesTemp.edit().putString(TARGET_CLASS, targetActivity).commit();
+                mSharedPreferencesTemp.edit().putString(ConstantsUI.TARGET_CLASS, targetActivity).commit();
             } else {
                 // looks like service was killed, restore data
                 restoreData();
-                targetActivity = mSharedPreferencesTemp.getString(TARGET_CLASS, "");
+                targetActivity = mSharedPreferencesTemp.getString(ConstantsUI.TARGET_CLASS, "");
             }
 
             initTargetIntent(targetActivity);
@@ -242,7 +243,7 @@ public class TrackerService
         // cancel midnight splitter
         mAlarmManager.cancel(mSplitService);
 
-        mSharedPreferencesTemp.edit().remove(TARGET_CLASS).commit();
+        mSharedPreferencesTemp.edit().remove(ConstantsUI.TARGET_CLASS).commit();
         mSharedPreferencesTemp.edit().remove(TRACK_URI).commit();
     }
 
@@ -381,7 +382,7 @@ public class TrackerService
         mValues.put(TrackLayer.FIELD_FIX, fixType);
         mValues.put(TrackLayer.FIELD_SAT, mSatellitesCount);
         mValues.put(TrackLayer.FIELD_TIMESTAMP, location.getTime());
-        getContentResolver().insert(mContentUriTrackpoints, mValues);
+        getContentResolver().insert(mContentUriTrackPoints, mValues);
     }
 
 

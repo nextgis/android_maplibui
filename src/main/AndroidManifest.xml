@@ -116,6 +116,12 @@
             android:exported="true"
             />
 
+        <service
+            android:name="com.nextgis.maplibui.service.WalkEditService"
+            android:enabled="true"
+            android:exported="true"
+            />
+
     </application>
 
 </manifest>
