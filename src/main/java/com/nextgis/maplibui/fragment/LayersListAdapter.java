@@ -23,6 +23,7 @@
 
 package com.nextgis.maplibui.fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -69,16 +70,17 @@ public class LayersListAdapter
 {
 
     protected final MapDrawable mMap;
-    protected final Context        mContext;
+    protected final Context mContext;
+    protected final Activity mActivity;
     protected DrawerLayout mDrawer;
 
 
     public LayersListAdapter(
-            Context context,
+            Activity activity,
             MapDrawable map)
     {
         mMap = map;
-        mContext = context;
+        mContext = mActivity = activity;
 
         if (null != mMap) {
             mMap.addListener(this);
@@ -305,21 +307,21 @@ public class LayersListAdapter
     @Override
     public void onLayerAdded(int id)
     {
-        notifyDataSetChanged();
+        notifyDataChanged();
     }
 
 
     @Override
     public void onLayerDeleted(int id)
     {
-        notifyDataSetChanged();
+        notifyDataChanged();
     }
 
 
     @Override
     public void onLayerChanged(int id)
     {
-        notifyDataSetChanged();
+        notifyDataChanged();
     }
 
 
@@ -335,7 +337,7 @@ public class LayersListAdapter
     @Override
     public void onLayersReordered()
     {
-        notifyDataSetChanged();
+        notifyDataChanged();
     }
 
 
@@ -352,6 +354,16 @@ public class LayersListAdapter
     public void onLayerDrawStarted()
     {
 
+    }
+
+
+    protected void notifyDataChanged() {
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                notifyDataSetChanged();
+            }
+        });
     }
 
 
