@@ -383,7 +383,7 @@ public class ModifyAttributesActivity
 
         } else if (id == R.id.menu_settings) {
             final IGISApplication app = (IGISApplication) getApplication();
-            app.showSettings();
+            app.showSettings(SettingsConstantsUI.ACTION_PREFS_GENERAL);
             return true;
 
         } else if (id == R.id.menu_apply) {

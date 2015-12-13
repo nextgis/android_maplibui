@@ -24,7 +24,10 @@
 package com.nextgis.maplibui.overlay;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -33,6 +36,7 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -46,7 +50,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.cocosw.undobar.UndoBarController;
-import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.IGeometryCacheItem;
 import com.nextgis.maplib.api.ILayer;
@@ -76,7 +79,9 @@ import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.api.OverlayItem;
 import com.nextgis.maplibui.fragment.BottomToolbar;
 import com.nextgis.maplibui.mapui.MapViewOverlays;
+import com.nextgis.maplibui.service.WalkEditService;
 import com.nextgis.maplibui.util.ConstantsUI;
+import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -87,9 +92,7 @@ import java.util.List;
 /**
  * The class for edit vector features
  */
-public class EditLayerOverlay
-        extends Overlay
-        implements MapViewEventListener, GpsEventListener
+public class EditLayerOverlay extends Overlay implements MapViewEventListener
 {
 
     /**
@@ -125,6 +128,7 @@ public class EditLayerOverlay
     protected DrawItem mSelectedItem;
 
     protected List<EditEventListener> mListeners;
+    protected WalkEditReceiver mReceiver;
 
     protected static final int mType = 3;
 
@@ -981,12 +985,16 @@ public class EditLayerOverlay
                         });
                 break;
             case MODE_EDIT_BY_WALK:
+                if (toolbar.getMenu() != null) {
+                    toolbar.getMenu().clear();
+                }
+
+                toolbar.inflateMenu(R.menu.edit_by_walk);
+
                 toolbar.setNavigationOnClickListener(
-                        new View.OnClickListener()
-                        {
+                        new View.OnClickListener() {
                             @Override
-                            public void onClick(View view)
-                            {
+                            public void onClick(View view) {
                                 stopGeometryByWalk();
 
                                 if (isCurrentGeometryValid()) {
@@ -1003,6 +1011,43 @@ public class EditLayerOverlay
                             }
                         });
 
+                toolbar.setOnMenuItemClickListener(
+                        new BottomToolbar.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem menuItem) {
+                                if (null == mLayer) {
+                                    return false;
+                                }
+
+                                /**
+                                 * create a new geometry during walk edit
+                                 */
+                                if (menuItem.getItemId() == R.id.menu_add_geometry) {
+                                    Toast.makeText(mContext, mContext.getString(R.string.not_implemented), Toast.LENGTH_SHORT).show();
+                                }
+                                /**
+                                 * cancel edit by walk
+                                 */
+                                else if (menuItem.getItemId() == R.id.menu_cancel) {
+                                    stopGeometryByWalk();
+                                    //mEditLayerOverlay.setFeature(
+                                    //        mEditLayerOverlay.getSelectedLayer(), Constants.NOT_FOUND);
+                                    setMode(MODE_EDIT);
+                                    setToolbar(toolbar);
+                                }
+                                /**
+                                 * show setting dialog
+                                 */
+                                else if (menuItem.getItemId() == R.id.menu_settings) {
+                                    Activity parent = (Activity) mContext;
+                                    IGISApplication app = (IGISApplication) parent.getApplication();
+                                    app.showSettings(SettingsConstantsUI.ACTION_PREFS_LOCATION);
+                                }
+
+                                return true;
+                            }
+                        }
+                );
                 setToolbarSaveState(false);
                 startGeometryByWalk();
                 break;
@@ -1550,6 +1595,12 @@ public class EditLayerOverlay
                 case GeoConstants.GTPolygon:
                     geometry = new GeoPolygon();
                     break;
+                case GeoConstants.GTMultiLineString:
+                    geometry = new GeoMultiLineString();
+                    break;
+                case GeoConstants.GTMultiPolygon:
+                    geometry = new GeoMultiPolygon();
+                    break;
                 default:
                     return;
             }
@@ -1563,64 +1614,68 @@ public class EditLayerOverlay
         mSelectedItem = new DrawItem();
         mDrawItems.add(mSelectedItem);
 
-        Activity parent = (Activity) mContext;
-        GpsEventSource gpsEventSource =
-                ((IGISApplication) parent.getApplication()).getGpsEventSource();
-        gpsEventSource.addListener(this);
+        // register broadcast events
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WalkEditService.WALKEDIT_CHANGE);
+        mReceiver = new WalkEditReceiver();
+        mContext.registerReceiver(mReceiver, intentFilter);
+
+        // start service
+        Intent trackerService = new Intent(mContext, WalkEditService.class);
+        trackerService.setAction(WalkEditService.ACTION_START);
+        trackerService.putExtra(ConstantsUI.KEY_GEOMETRY_TYPE, mLayer.getGeometryType());
+        if(null != mLayer)
+            trackerService.putExtra(ConstantsUI.KEY_LAYER_ID, mLayer.getId());
+        trackerService.putExtra(ConstantsUI.KEY_GEOMETRY, mItem.getGeometry());
+        trackerService.putExtra(ConstantsUI.TARGET_CLASS, mContext.getClass().getName());
+        mContext.startService(trackerService);
     }
 
 
     public void stopGeometryByWalk()
     {
-        Activity parent = (Activity) mContext;
-        GpsEventSource gpsEventSource =
-                ((IGISApplication) parent.getApplication()).getGpsEventSource();
-        gpsEventSource.removeListener(this);
+        // stop service
+        Intent trackerService = new Intent(mContext, WalkEditService.class);
+        trackerService.setAction(WalkEditService.ACTION_STOP);
+        mContext.stopService(trackerService);
+
+        // unregister events
+        mContext.unregisterReceiver(mReceiver);
     }
 
 
-    @Override
-    public void onLocationChanged(Location location)
+    public class WalkEditReceiver
+            extends BroadcastReceiver
     {
-        if (mItem != null && location != null) {
-            GeoPoint currentPoint = new GeoPoint(location.getLongitude(), location.getLatitude());
-            currentPoint.setCRS(GeoConstants.CRS_WGS84);
-            currentPoint.project(GeoConstants.CRS_WEB_MERCATOR);
 
-            //add point to mItem
-            switch (mItem.getGeometry().getType()) {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            GeoGeometry geometry = (GeoGeometry) intent.getSerializableExtra(ConstantsUI.KEY_GEOMETRY);
+            switch (mLayer.getGeometryType()) {
                 case GeoConstants.GTLineString:
-                    GeoLineString line = (GeoLineString) mItem.getGeometry();
-                    line.add(currentPoint);
-                    break;
                 case GeoConstants.GTPolygon:
-                    GeoPolygon polygon = (GeoPolygon) mItem.getGeometry();
-                    polygon.add(currentPoint);
+                    mItem.setGeometry(geometry);
+                    break;
+                case GeoConstants.GTMultiLineString:
+                case GeoConstants.GTMultiPolygon:
+                    GeoGeometryCollection collection = (GeoGeometryCollection) mItem.getGeometry();
+                    // TODO: 13.12.15 Select gometry index to update via walk
+                    collection.set(0, geometry);
+                    mItem.setGeometry(collection);
                     break;
                 default:
                     return;
             }
-
-            GeoPoint screenPoint = mMapViewOverlays.getMap().mapToScreen(currentPoint);
-
-            //add point drawItem
-            mSelectedItem.addNewPoint((float) screenPoint.getX(), (float) screenPoint.getY());
 
             if (isCurrentGeometryValid()) {
                 setToolbarSaveState(true);
             } else {
                 setToolbarSaveState(false);
             }
+
+            mMapViewOverlays.postInvalidate();
         }
     }
-
-
-    @Override
-    public void onBestLocationChanged(Location location)
-    {
-
-    }
-
 
     protected boolean isCurrentGeometryValid() {
         return !(null == mItem || mLayer.getGeometryType() != mItem.getGeometry().getType()) &&
@@ -1665,14 +1720,6 @@ public class EditLayerOverlay
                 return false;
         }
     }
-
-
-    @Override
-    public void onGpsStatusChanged(int event)
-    {
-
-    }
-
 
     public void drawPoints(DrawItem drawItem, Canvas canvas, boolean isSelected) {
         for (int i = 0; i < drawItem.getRingCount(); i++) {

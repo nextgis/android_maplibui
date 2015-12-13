@@ -91,9 +91,9 @@ public class WalkEditService
                 getSharedPreferences(getPackageName() + "_preferences", Constants.MODE_MULTI_PROCESS);
 
         String minTimeStr =
-                sharedPreferences.getString(SettingsConstants.KEY_PREF_TRACKS_MIN_TIME, "2");
+                sharedPreferences.getString(SettingsConstants.KEY_PREF_LOCATION_MIN_TIME, "2");
         String minDistanceStr =
-                sharedPreferences.getString(SettingsConstants.KEY_PREF_TRACKS_MIN_DISTANCE, "10");
+                sharedPreferences.getString(SettingsConstants.KEY_PREF_LOCATION_MIN_DISTANCE, "10");
         long minTime = Long.parseLong(minTimeStr) * 1000;
         float minDistance = Float.parseFloat(minDistanceStr);
 
