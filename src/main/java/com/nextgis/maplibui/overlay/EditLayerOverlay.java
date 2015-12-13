@@ -649,6 +649,9 @@ public class EditLayerOverlay
 
 
     protected GeoGeometry fillGeometry() {
+        if (mItem == null)
+            return null;
+
         GeoGeometry geometry = mItem.getGeometry();
         MapDrawable mapDrawable = mMapViewOverlays.getMap();
         if (null == geometry || null == mapDrawable ||
@@ -1078,7 +1081,7 @@ public class EditLayerOverlay
 
     protected boolean addInnerRing() {
         MapDrawable mapDrawable = mMapViewOverlays.getMap();
-        if (null == mapDrawable)
+        if (null == mapDrawable || mSelectedItem == null)
             return false;
 
         GeoPoint center = mapDrawable.getFullScreenBounds().getCenter();
@@ -1208,6 +1211,7 @@ public class EditLayerOverlay
             mLayer.showFeature(mItem.getFeatureId());
         }
 
+        mSelectedItem = null;
         mDrawItems.clear();
         mItem = null;
     }
