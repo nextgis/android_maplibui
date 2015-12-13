@@ -118,7 +118,7 @@
     <string name="one_hour">1 час</string>
     <string name="two_hours">2 часа</string>
     <string name="sync_set_interval">Установить интервал синхронизации</string>
-    <string name="last_sync_time">Последняя синхронизация</string>
+    <string name="last_sync_time">Обновлено %1$s в %2$s</string>
     <string name="warning_different_credentials">Существующая учетная запись отличается от введенных параметров. Будет использоваться существующая учетная запись.</string>
     <string name="error_no_location">Координаты не определены</string>
     <string name="error_layer_not_inited">Слой не инициализирован. Отмена</string>

@@ -85,20 +85,20 @@ public class MapViewOverlays
             switch (mDrawingState) {
                 case DRAW_SATE_drawing:
                 case DRAW_SATE_drawing_noclearbk:
-                    for (Overlay overlay : mOverlays) {
-                        overlay.draw(canvas, mMap);
-                    }
+                    for (Overlay overlay : mOverlays)
+                        if (overlay.isVisible())
+                            overlay.draw(canvas, mMap);
                     break;
                 case DRAW_SATE_panning:
                 case DRAW_SATE_panning_fling:
-                    for (Overlay overlay : mOverlays) {
-                        overlay.drawOnPanning(canvas, mCurrentMouseOffset);
-                    }
+                    for (Overlay overlay : mOverlays)
+                        if (overlay.isVisible())
+                            overlay.drawOnPanning(canvas, mCurrentMouseOffset);
                     break;
                 case DRAW_SATE_zooming:
-                    for (Overlay overlay : mOverlays) {
-                        overlay.drawOnZooming(canvas, mCurrentFocusLocation, (float) mScaleFactor);
-                    }
+                    for (Overlay overlay : mOverlays)
+                        if (overlay.isVisible())
+                            overlay.drawOnZooming(canvas, mCurrentFocusLocation, (float) mScaleFactor);
                     break;
             }
         }
