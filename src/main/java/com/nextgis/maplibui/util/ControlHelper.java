@@ -41,7 +41,10 @@ import com.nextgis.maplibui.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static com.nextgis.maplib.util.GeoConstants.GTLineString;
 import static com.nextgis.maplib.util.GeoConstants.GTMultiLineString;
@@ -154,4 +157,11 @@ public final class ControlHelper {
 
         return dialogTheme;
     }
+
+    public static String getSyncTime(Context context, long timeStamp) {
+        String date = new SimpleDateFormat("dd MMM", Locale.getDefault()).format(new Date(timeStamp));
+        String time = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date(timeStamp));
+        return String.format(context.getString(R.string.last_sync_time), date, time);
+    }
+
 }

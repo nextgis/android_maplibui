@@ -45,7 +45,6 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
-import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.util.Log;
 import android.view.MenuItem;
@@ -62,10 +61,9 @@ import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.fragment.NGWSettingsFragment;
+import com.nextgis.maplibui.util.ControlHelper;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
@@ -314,9 +312,7 @@ public class NGWSettingsActivity
         long timeStamp =
                 sharedPreferences.getLong(SettingsConstants.KEY_PREF_LAST_SYNC_TIMESTAMP + accountNameHash, 0);
         if (isAccountSyncEnabled && timeStamp > 0) {
-            enablePeriodicSync.setSummary(
-                    getString(R.string.last_sync_time) + ": " +
-                            new SimpleDateFormat().format(new Date(timeStamp)));
+            enablePeriodicSync.setSummary(ControlHelper.getSyncTime(this, timeStamp));
         } else {
             enablePeriodicSync.setSummary(R.string.auto_sync_summary);
         }
