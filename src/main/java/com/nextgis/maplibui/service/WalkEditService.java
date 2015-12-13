@@ -259,7 +259,7 @@ public class WalkEditService
         if(null != layer)
             name = layer.getName();
 
-        String title = String.format(getString(R.string.tracks_title), name);
+        String title = String.format(getString(R.string.walkedit_title), name);
         Bitmap largeIcon = NotificationHelper.getLargeIcon(
                 R.drawable.ic_action_maps_directions_walk, getResources());
 
