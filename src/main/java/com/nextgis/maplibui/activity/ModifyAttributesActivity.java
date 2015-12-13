@@ -225,6 +225,9 @@ public class ModifyAttributesActivity
                 checkPolygon();
                 LinearLayout layout = (LinearLayout) findViewById(R.id.controls_list);
                 fillControls(layout, savedState);
+            } else {
+                Toast.makeText(this, R.string.error_layer_not_inited, Toast.LENGTH_SHORT).show();
+                finish();
             }
         }
     }
