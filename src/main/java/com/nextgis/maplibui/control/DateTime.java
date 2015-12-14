@@ -33,6 +33,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,10 +45,12 @@ import com.nextgis.maplibui.api.ISimpleControl;
 import com.nextgis.maplibui.util.ControlHelper;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
@@ -86,7 +89,7 @@ public class DateTime
     public void setCurrentDate()
     {
         mValue = Calendar.getInstance().getTimeInMillis();
-        setText(getFormattedValue(mValue));
+        setText(getText());
     }
 
 
@@ -100,7 +103,7 @@ public class DateTime
             protected void setValue()
             {
                 mValue = mCalendar.getTimeInMillis();
-                DateTime.this.setText(getFormattedValue(mValue));
+                DateTime.this.setText(getText());
             }
 
 
@@ -299,7 +302,7 @@ public class DateTime
         }
 
         if (null != mValue) {
-            text = getFormattedValue(mValue);
+            text = getText();
         }
 
         setText(text);
@@ -319,10 +322,15 @@ public class DateTime
     }
 
 
-    protected String getFormattedValue(long value)
+    @Override
+    public String getText()
     {
+        if (null == mValue) {
+            return "";
+        }
+
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(value);
+        calendar.setTimeInMillis(mValue);
         return mDateFormat.format(calendar.getTime());
     }
 
@@ -335,11 +343,20 @@ public class DateTime
             mValue = ((Date) val).getTime();
         } else if (val instanceof Calendar) {
             mValue = ((Calendar) val).getTimeInMillis();
+        } else if (val instanceof String) {
+            try {
+                String stringVal = (String) val;
+                Date date = mDateFormat.parse(stringVal);
+                mValue = date.getTime();
+            } catch (ParseException e) {
+                Log.d(TAG, "Date parse error, " + e.getLocalizedMessage());
+                mValue = null;
+            }
         } else {
             return;
         }
 
-        setText(getFormattedValue(mValue));
+        setText(getText());
 
         setSingleLine(true);
         setFocusable(false);
