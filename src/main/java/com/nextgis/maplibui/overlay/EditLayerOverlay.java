@@ -1223,6 +1223,10 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
         // restore
         setHasEdits(false);
         mMode = MODE_EDIT;
+
+        if (mItem == null)
+            return;
+
         if (mItem.getFeatureId() == Constants.NOT_FOUND) {
             mItem = null;
             mDrawItems.clear();
