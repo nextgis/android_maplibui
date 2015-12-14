@@ -62,6 +62,7 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
     protected float mDownX, mDownY;
 
     protected FrameLayout mParent;
+    protected View mBasePlate;
     protected BubbleSurfaceView mBubbleView;
     protected CompassImage mCompass, mCompassNeedle, mCompassNeedleMagnetic;
     protected TextView mTvAzimuth;
@@ -75,20 +76,13 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
         mIsNeedleOnly = isNeedleOnly;
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_compass, container, false);
-        mParent = (FrameLayout) view.findViewById(R.id.compass_fragment);
-
+    protected void setInterface() {
         if (!mIsNeedleOnly) {
-            view.findViewById(R.id.base_plate).setVisibility(View.VISIBLE);
-            mBubbleView = (BubbleSurfaceView) view.findViewById(R.id.bubble_view);
+            mBasePlate.setVisibility(View.VISIBLE);
             mBubbleView.setVisibility(View.VISIBLE);
             // magnetic north compass
-            mCompass = (CompassImage) view.findViewById(R.id.compass);
             mCompass.setOnTouchListener(this);
             mCompass.setVisibility(View.VISIBLE);
-            mTvAzimuth = (TextView) view.findViewById(R.id.azimuth);
             mTvAzimuth.setVisibility(View.VISIBLE);
             mTvAzimuth.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -103,7 +97,16 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
             });
         } else
             mParent.setBackgroundColor(Color.TRANSPARENT);
+    }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_compass, container, false);
+        mParent = (FrameLayout) view.findViewById(R.id.compass_fragment);
+        mBasePlate = view.findViewById(R.id.base_plate);
+        mBubbleView = (BubbleSurfaceView) view.findViewById(R.id.bubble_view);
+        mCompass = (CompassImage) view.findViewById(R.id.compass);
+        mTvAzimuth = (TextView) view.findViewById(R.id.azimuth);
         mCompassNeedle = (CompassImage) view.findViewById(R.id.needle);
         mCompassNeedleMagnetic = (CompassImage) view.findViewById(R.id.needle_magnetic);
 
@@ -155,6 +158,7 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
 
     @Override
     public void onResume() {
+        setInterface();
         if(mBubbleView != null)
             mBubbleView.resume();
 
