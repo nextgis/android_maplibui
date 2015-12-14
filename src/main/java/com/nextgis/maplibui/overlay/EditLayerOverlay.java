@@ -36,7 +36,6 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -1224,6 +1223,10 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
         // restore
         setHasEdits(false);
         mMode = MODE_EDIT;
+
+        if (mItem == null)
+            return;
+
         if (mItem.getFeatureId() == Constants.NOT_FOUND) {
             mItem = null;
             mDrawItems.clear();
@@ -1358,7 +1361,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
         mLayer.hideFeature(itemId);
 
         new UndoBarController.UndoBar((android.app.Activity) mContext).message(
-                mContext.getString(R.string.delete_done)).listener(
+                mContext.getString(R.string.delete_item_done)).listener(
                 new UndoBarController.AdvancedUndoListener()
                 {
                     @Override

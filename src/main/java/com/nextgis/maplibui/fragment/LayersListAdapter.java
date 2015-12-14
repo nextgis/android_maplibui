@@ -255,7 +255,7 @@ public class LayersListAdapter
                                             final int position = mMap.removeLayer(layer);
 
                                             new UndoBarController.UndoBar((android.app.Activity) mContext).message(
-                                                    mContext.getString(R.string.delete_done)).listener(
+                                                    mContext.getString(R.string.delete_layer_done)).listener(
                                                     new UndoBarController.AdvancedUndoListener() {
                                                         @Override
                                                         public void onHide(@Nullable Parcelable parcelable) {

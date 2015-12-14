@@ -29,6 +29,7 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.widget.Toast;
 
+import com.nextgis.maplib.display.TrackRenderer;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.TracksActivity;
@@ -51,6 +52,7 @@ public class TrackLayerUI
         TypedArray ta = mContext.obtainStyledAttributes(R.style.AppTheme, attrs);
         mColor = ta.getColor(0, mContext.getResources().getColor(R.color.accent));
         ta.recycle();
+        ((TrackRenderer) mRenderer).setEndingMarker(R.drawable.ic_track_flag);
     }
 
 
