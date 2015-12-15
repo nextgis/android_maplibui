@@ -1681,8 +1681,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
     }
 
     protected boolean isCurrentGeometryValid() {
-        return !(null == mItem || mLayer.getGeometryType() != mItem.getGeometry().getType()) &&
-                isGeometryValid(mItem.getGeometry());
+        return null != mItem && isGeometryValid(mItem.getGeometry()) &&
+                mLayer.getGeometryType() == mItem.getGeometry().getType();
     }
 
 
