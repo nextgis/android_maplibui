@@ -1179,26 +1179,33 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
 
 
     protected void createNewGeometry(int geometryType, GeoPoint center) {
+        GeoGeometry geometry;
         switch (geometryType) {
+            default:
             case GeoConstants.GTPoint:
-                mItem = new EditLayerCacheItem(Constants.NOT_FOUND, new GeoPoint());
+                geometry = new GeoPoint();
                 break;
             case GeoConstants.GTMultiPoint:
-                mItem = new EditLayerCacheItem(Constants.NOT_FOUND, new GeoMultiPoint());
+                geometry = new GeoMultiPoint();
                 break;
             case GeoConstants.GTLineString:
-                mItem = new EditLayerCacheItem(Constants.NOT_FOUND, new GeoLineString());
+                geometry = new GeoLineString();
                 break;
             case GeoConstants.GTMultiLineString:
-                mItem = new EditLayerCacheItem(Constants.NOT_FOUND, new GeoMultiLineString());
+                geometry = new GeoMultiLineString();
                 break;
             case GeoConstants.GTPolygon:
-                mItem = new EditLayerCacheItem(Constants.NOT_FOUND, new GeoPolygon());
+                geometry = new GeoPolygon();
                 break;
             case GeoConstants.GTMultiPolygon:
-                mItem = new EditLayerCacheItem(Constants.NOT_FOUND, new GeoMultiPolygon());
+                geometry = new GeoMultiPolygon();
                 break;
         }
+
+        if (!mHasEdits)
+            mItem = new EditLayerCacheItem(Constants.NOT_FOUND, geometry);
+        else
+            mItem.setGeometry(geometry);
 
         mDrawItems.clear();
         float[] geoPoints = getNewGeometry(geometryType, center);
