@@ -1145,8 +1145,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
             if (!isGeometryTypesIdentical)
                 return false;
 
-        setHasEdits(true);
-
         MapDrawable mapDrawable = mMapViewOverlays.getMap();
         if (null == mapDrawable)
             return false;
@@ -1156,6 +1154,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
             createNewGeometry(geometryType, center);
         else
             addGeometryToExistent(geometryType, center);
+
+        setHasEdits(true);
 
         //set new coordinates to GeoPoint from screen coordinates
         fillGeometry();
