@@ -275,4 +275,11 @@ public class VectorLayerSettingsActivity
         unregisterReceiver(mRebuildCacheReceiver);
         saveSettings();
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(ConstantsUI.KEY_LAYER_ID, mVectorLayer.getId());
+    }
+
 }

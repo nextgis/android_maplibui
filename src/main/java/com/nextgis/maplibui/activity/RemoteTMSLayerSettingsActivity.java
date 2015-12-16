@@ -301,4 +301,11 @@ public class RemoteTMSLayerSettingsActivity
         super.onPause();
         saveSettings();
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(ConstantsUI.KEY_LAYER_ID, mRasterLayer.getId());
+    }
+
 }
