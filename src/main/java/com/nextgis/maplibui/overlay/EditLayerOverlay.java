@@ -235,7 +235,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
             VectorLayer layer,
             long featureId)
     {
-
         mLayer = layer;
         if (featureId == Constants.NOT_FOUND) {
             mItem = null;
@@ -246,6 +245,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
             fillDrawItems(mItem.getGeometry());
             setMode(MODE_HIGHLIGHT);
         }
+
+        mMapViewOverlays.postInvalidate();
     }
 
 
