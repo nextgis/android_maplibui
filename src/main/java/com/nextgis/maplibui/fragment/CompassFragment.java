@@ -22,6 +22,7 @@
 
 package com.nextgis.maplibui.fragment;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -46,6 +47,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+
+import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.BubbleSurfaceView;
 import com.nextgis.maplibui.util.CompassImage;
@@ -122,7 +125,14 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
         }
 
         // reference to vibrator service
+        mDeclination = 0;
         mVibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+        mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        mSensorManager.registerListener(sensorListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_NORMAL);
+
+        if(!PermissionUtil.hasPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                || !PermissionUtil.hasPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION))
+            return;
 
         if (mCurrentLocation == null) {
             LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
@@ -133,12 +143,8 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
             }
         }
 
-        mDeclination = 0;
         if (mCurrentLocation != null)
             mDeclination = getDeclination(mCurrentLocation, System.currentTimeMillis());
-
-        mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-        mSensorManager.registerListener(sensorListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     @Override
