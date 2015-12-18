@@ -854,11 +854,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
                         break;
                 }
 
-                if (isCurrentGeometryValid() && mItem.getFeatureId() == Constants.NOT_FOUND) {
-                    setToolbarSaveState(true);
-                } else {
-                    setToolbarSaveState(false);
-                }
+                setToolbarSaveState((isCurrentGeometryValid() && mItem.getFeatureId() == Constants.NOT_FOUND) || mHasEdits);
 
                 toolbar.setOnMenuItemClickListener(
                         new BottomToolbar.OnMenuItemClickListener()
@@ -1279,6 +1275,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
         Bundle bundle = super.onSaveState();
         bundle.putInt(BUNDLE_KEY_TYPE, mType);
         bundle.putInt(BUNDLE_KEY_MODE, mMode);
+        bundle.putBoolean(BUNDLE_KEY_HAS_EDITS, mHasEdits);
+
         if (null == mLayer) {
             bundle.putInt(BUNDLE_KEY_LAYER, Constants.NOT_FOUND);
         } else {
@@ -1288,11 +1286,10 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
         if (null == mItem) {
             bundle.putLong(BUNDLE_KEY_FEATURE_ID, Constants.NOT_FOUND);
         } else {
-            if (mItem.getFeatureId() == Constants.NOT_FOUND && mItem.getGeometry() != null) {
+            if (mItem.getGeometry() != null) {
                 try {
                     fillGeometry();
                     bundle.putByteArray(BUNDLE_KEY_SAVED_FEATURE, mItem.getGeometry().toBlob());
-                    bundle.putBoolean(BUNDLE_KEY_HAS_EDITS, mHasEdits);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -1314,24 +1311,25 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
             int type = bundle.getInt(BUNDLE_KEY_TYPE);
             if (mType == type) {
                 mMode = bundle.getInt(BUNDLE_KEY_MODE);
+                mHasEdits = bundle.getBoolean(BUNDLE_KEY_HAS_EDITS);
                 int layerId = bundle.getInt(BUNDLE_KEY_LAYER);
                 ILayer layer = mMapViewOverlays.getLayerById(layerId);
                 mLayer = null;
                 if (null != layer && layer instanceof VectorLayer) {
                     mLayer = (VectorLayer) layer;
+                    GeoGeometry geometry = null;
+                    try {
+                        geometry = GeoGeometryFactory.fromBlob(bundle.getByteArray(BUNDLE_KEY_SAVED_FEATURE));
+                    } catch (IOException | ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
 
                     long featureId = bundle.getLong(BUNDLE_KEY_FEATURE_ID);
                     if (featureId == Constants.NOT_FOUND) {
-                        try {
-                            mItem = new EditLayerCacheItem(Constants.NOT_FOUND,
-                                    GeoGeometryFactory.fromBlob(
-                                            bundle.getByteArray(BUNDLE_KEY_SAVED_FEATURE)));
-                            mHasEdits = bundle.getBoolean(BUNDLE_KEY_HAS_EDITS);
-                        } catch (IOException | ClassNotFoundException e) {
-                            e.printStackTrace();
-                        }
+                        mItem = new EditLayerCacheItem(Constants.NOT_FOUND, geometry);
                     } else {
                         mItem = new EditLayerCacheItem(featureId);
+                        mItem.mGeometry = geometry;
                     }
                 } else {
                     mItem = null;
