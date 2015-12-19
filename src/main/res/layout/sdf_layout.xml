@@ -97,22 +97,34 @@
             <!--http://stackoverflow.com/a/15961335/4727406-->
 
             <ScrollView
+                android:id="@+id/dialog_body_scroll"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
+                android:visibility="gone"
                 >
 
                 <LinearLayout
-                    android:id="@+id/dialog_body"
+                    android:id="@+id/dialog_body_scrolled"
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"
                     android:orientation="vertical"
-                    android:visibility="gone"
                     >
 
                 </LinearLayout>
 
             </ScrollView>
+
+            <LinearLayout
+                android:id="@+id/dialog_body"
+                android:layout_height="0dp"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:visibility="gone"
+                >
+
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/buttons"

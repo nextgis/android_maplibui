@@ -44,6 +44,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import com.nextgis.maplibui.R;
 
@@ -51,7 +52,7 @@ import com.nextgis.maplibui.R;
 public class StyledDialogFragment
         extends DialogFragment
 {
-    ContextThemeWrapper mContext;
+    protected ContextThemeWrapper mContextThemeWrapper;
 
     protected Integer mIconId;
 
@@ -73,12 +74,16 @@ public class StyledDialogFragment
     protected ImageView      mTitleIconView;
     protected TextView       mTitleTextView;
     protected View           mTitleDivider;
-    protected LinearLayout   mDialogLayout;
+    protected ScrollView     mDialogBodyScroll;
+    protected LinearLayout   mDialogBodyLayoutScrolled;
+    protected LinearLayout   mDialogBodyLayout;
     protected TextView       mMessage;
     protected View           mView;
     protected LinearLayout   mButtons;
     protected Button         mButtonPositive;
     protected Button         mButtonNegative;
+
+    protected boolean mAddScrollForView = false;
 
     protected OnPositiveClickedListener mOnPositiveClickedListener;
     protected OnNegativeClickedListener mOnNegativeClickedListener;
@@ -102,11 +107,11 @@ public class StyledDialogFragment
         // StyledDialogFragment themes. These are fixed. To change the colors see colors.xml
         // Or use setThemeResId()
         if (null != mThemeResId) {
-            mContext = new ContextThemeWrapper(getActivity(), mThemeResId);
+            mContextThemeWrapper = new ContextThemeWrapper(getActivity(), mThemeResId);
         } else if (mIsThemeDark) {
-            mContext = new ContextThemeWrapper(getActivity(), R.style.SdfTheme_Dark);
+            mContextThemeWrapper = new ContextThemeWrapper(getActivity(), R.style.SdfTheme_Dark);
         } else {
-            mContext = new ContextThemeWrapper(getActivity(), R.style.SdfTheme_Light);
+            mContextThemeWrapper = new ContextThemeWrapper(getActivity(), R.style.SdfTheme_Light);
         }
     }
 
@@ -118,7 +123,7 @@ public class StyledDialogFragment
         // Idea from here
         // http://thanhcs.blogspot.ru/2014/10/android-custom-dialog-fragment.html
 
-        Dialog dialog = new Dialog(mContext);
+        Dialog dialog = new Dialog(mContextThemeWrapper);
 
         Window window = dialog.getWindow();
         window.requestFeature(Window.FEATURE_NO_TITLE);
@@ -139,7 +144,7 @@ public class StyledDialogFragment
             Bundle savedInstanceState)
     {
         // http://stackoverflow.com/a/15496425
-        LayoutInflater localInflater = inflater.cloneInContext(mContext);
+        LayoutInflater localInflater = inflater.cloneInContext(mContextThemeWrapper);
         View view = localInflater.inflate(R.layout.sdf_layout, container, false);
 
         mBaseView = (RelativeLayout) view.findViewById(R.id.base);
@@ -148,7 +153,9 @@ public class StyledDialogFragment
         mTitleTextView = (TextView) view.findViewById(R.id.title_text);
         mTitleDivider = view.findViewById(R.id.title_divider);
 
-        mDialogLayout = (LinearLayout) view.findViewById(R.id.dialog_body);
+        mDialogBodyScroll = (ScrollView) view.findViewById(R.id.dialog_body_scroll);
+        mDialogBodyLayoutScrolled = (LinearLayout) view.findViewById(R.id.dialog_body_scrolled);
+        mDialogBodyLayout = (LinearLayout) view.findViewById(R.id.dialog_body);
 
         mButtons = (LinearLayout) view.findViewById(R.id.buttons);
         mButtonPositive = (Button) view.findViewById(R.id.button_positive);
@@ -165,16 +172,21 @@ public class StyledDialogFragment
         }
 
         if (null != mView) {
-            mDialogLayout.setVisibility(View.VISIBLE);
-            mDialogLayout.addView(mView);
+            if (mAddScrollForView) {
+                mDialogBodyScroll.setVisibility(View.VISIBLE);
+                mDialogBodyLayoutScrolled.addView(mView);
+            } else {
+                mDialogBodyLayout.setVisibility(View.VISIBLE);
+                mDialogBodyLayout.addView(mView);
+            }
         }
 
 
         if (getShowsDialog()) {
 
             // http://stackoverflow.com/a/9409391
-            int[] attrs = new int[] { R.attr.sdf_background};
-            TypedArray ta = mContext.obtainStyledAttributes(attrs);
+            int[] attrs = new int[] {R.attr.sdf_background};
+            TypedArray ta = mContextThemeWrapper.obtainStyledAttributes(attrs);
             Drawable background = ta.getDrawable(0);
             ta.recycle();
 
@@ -271,7 +283,8 @@ public class StyledDialogFragment
             getDialog().setOnDismissListener(null);
         }
 
-        mDialogLayout.removeAllViews();
+        mDialogBodyLayout.removeAllViews();
+        mDialogBodyLayoutScrolled.removeAllViews();
 
         super.onDestroyView();
     }
@@ -325,16 +338,19 @@ public class StyledDialogFragment
     protected void setMessageView()
     {
         LinearLayout layout =
-                (LinearLayout) View.inflate(getActivity(), R.layout.sdf_message, null);
+                (LinearLayout) View.inflate(mContextThemeWrapper, R.layout.sdf_message, null);
         mMessage = (TextView) layout.findViewById(R.id.dialog_message);
-        mDialogLayout.setVisibility(View.VISIBLE);
-        mDialogLayout.addView(layout);
+        mDialogBodyScroll.setVisibility(View.VISIBLE);
+        mDialogBodyLayoutScrolled.addView(layout);
     }
 
 
-    public void setView(View view)
+    public void setView(
+            View view,
+            boolean addScrollForView)
     {
         mView = view;
+        mAddScrollForView = addScrollForView;
     }
 
 
