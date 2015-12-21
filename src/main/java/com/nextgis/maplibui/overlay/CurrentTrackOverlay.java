@@ -74,18 +74,19 @@ public class CurrentTrackOverlay
         mPaint.setColor(ThemeUtils.getThemeAttrColor(mContext, R.attr.colorAccent));
         mPaint.setStrokeWidth(4);
 
+        mTrackpoints = new ArrayList<>();
         IGISApplication app = (IGISApplication) parent.getApplication();
         String authority = app.getAuthority();
         mContentUriTracks = Uri.parse("content://" + authority + "/" + TrackLayer.TABLE_TRACKS);
         mCursor = mContext.getContentResolver()
                 .query(mContentUriTracks, mProjection, mSelection, null, null);
 
-        mCursor.setNotificationUri(mContext.getContentResolver(), mContentUriTracks);
+        if (mCursor == null)
+            return;
 
+        mCursor.setNotificationUri(mContext.getContentResolver(), mContentUriTracks);
         ContentObserver test = new TrackObserver(new Handler());
         mCursor.registerContentObserver(test);
-
-        mTrackpoints = new ArrayList<>();
     }
 
 
@@ -156,7 +157,7 @@ public class CurrentTrackOverlay
     {
         mTrackpoints.clear();
 
-        if (mCursor.getCount() == 0 || !mCursor.moveToFirst()) {
+        if (mCursor == null || mCursor.getCount() == 0 || !mCursor.moveToFirst()) {
             return;
         }
 
