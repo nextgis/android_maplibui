@@ -223,9 +223,6 @@ public class LayerFillService extends Service implements IProgressor {
     protected void startNextTask(){
         if(mQueue.isEmpty()){
             mNotifyManager.cancel(FILL_NOTIFICATION_ID);
-            mProgressIntent.putExtra(KEY_STATUS, STATUS_STOP);
-            mProgressIntent.putExtra(KEY_MESSAGE, mIsCanceled);
-            sendBroadcast(mProgressIntent);
             stopSelf();
             return;
         }
@@ -248,9 +245,14 @@ public class LayerFillService extends Service implements IProgressor {
 
                 Process.setThreadPriority(Constants.DEFAULT_DOWNLOAD_THREAD_PRIORITY);
                 progressor.setValue(0);
-                task.execute(progressor);
+                boolean result = task.execute(progressor) && !mIsCanceled;
 
-                if (!mIsCanceled) {
+                mProgressIntent.putExtra(KEY_STATUS, STATUS_STOP);
+                mProgressIntent.putExtra(KEY_MESSAGE, result);
+                mProgressIntent.putExtra(KEY_TOTAL, mQueue.size());
+                sendBroadcast(mProgressIntent);
+
+                if (result) {
                     mLayerGroup.addLayer(task.getLayer());
                     mLayerGroup.save();
                 } else
@@ -346,7 +348,7 @@ public class LayerFillService extends Service implements IProgressor {
             mLayer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
         }
 
-        public abstract void execute(IProgressor progressor);
+        public abstract boolean execute(IProgressor progressor);
 
         public String getDescription(){
             if(null == mLayer)
@@ -374,11 +376,11 @@ public class LayerFillService extends Service implements IProgressor {
         }
 
         @Override
-        public void execute(IProgressor progressor) {
+        public boolean execute(IProgressor progressor) {
             try {
                 VectorLayer vectorLayer = (VectorLayer) mLayer;
                 if(null == vectorLayer)
-                    return;
+                    return false;
 
                 vectorLayer.createFromGeoJson(mUri, progressor);
             } catch (IOException | JSONException | SQLiteException | NGException | ClassCastException e) {
@@ -387,7 +389,10 @@ public class LayerFillService extends Service implements IProgressor {
                     progressor.setMessage(e.getLocalizedMessage());
                 }
                 notifyError(mProgressMessage);
+                return false;
             }
+
+            return true;
         }
     }
 
@@ -398,7 +403,7 @@ public class LayerFillService extends Service implements IProgressor {
         }
 
         @Override
-        public void execute(IProgressor progressor) {
+        public boolean execute(IProgressor progressor) {
             try {
                 InputStream inputStream = getContentResolver().openInputStream(mUri);
                 if (inputStream != null) {
@@ -412,7 +417,7 @@ public class LayerFillService extends Service implements IProgressor {
                     ZipEntry ze;
                     while ((ze = zis.getNextEntry()) != null) {
                         if (isCanceled())
-                            return;
+                            return false;
 
                         FileUtil.unzipEntry(zis, ze, buffer, mLayerPath);
                         nIncrement += ze.getSize();
@@ -505,7 +510,10 @@ public class LayerFillService extends Service implements IProgressor {
                     progressor.setMessage(e.getLocalizedMessage());
                 }
                 notifyError(mProgressMessage);
+                return false;
             }
+
+            return true;
         }
     }
 
@@ -522,11 +530,11 @@ public class LayerFillService extends Service implements IProgressor {
         }
 
         @Override
-        public void execute(IProgressor progressor) {
+        public boolean execute(IProgressor progressor) {
             try {
                 VectorLayer vectorLayer = (VectorLayer) mLayer;
                 if (null == vectorLayer)
-                    return;
+                    return false;
                 File meta = new File(mPath.getParentFile(), NGFP_META);
 
                 if (meta.exists()) {
@@ -556,10 +564,13 @@ public class LayerFillService extends Service implements IProgressor {
                     progressor.setMessage(e.getLocalizedMessage());
                 }
                 notifyError(mProgressMessage);
+                return false;
             }
 
             if (mDeletePath)
                 FileUtil.deleteRecursive(mPath);
+
+            return true;
         }
     }
 
@@ -579,11 +590,11 @@ public class LayerFillService extends Service implements IProgressor {
         }
 
         @Override
-        public void execute(IProgressor progressor) {
+        public boolean execute(IProgressor progressor) {
             try {
                 TMSLayer tmsLayer = (TMSLayer) mLayer;
                 if (null == tmsLayer)
-                    return;
+                    return false;
 
                 if (mIsNgrc)
                     tmsLayer.fillFromNgrc(mUri, progressor);
@@ -595,7 +606,10 @@ public class LayerFillService extends Service implements IProgressor {
                     progressor.setMessage(e.getLocalizedMessage());
                 }
                 notifyError(mProgressMessage);
+                return false;
             }
+
+            return true;
         }
 
         @Override
@@ -614,11 +628,11 @@ public class LayerFillService extends Service implements IProgressor {
         }
 
         @Override
-        public void execute(IProgressor progressor) {
+        public boolean execute(IProgressor progressor) {
             try {
                 NGWVectorLayer ngwVectorLayer = (NGWVectorLayer) mLayer;
                 if(null == ngwVectorLayer)
-                    return;
+                    return false;
                 ngwVectorLayer.createFromNGW(progressor);
             } catch (JSONException | IOException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();
@@ -626,7 +640,10 @@ public class LayerFillService extends Service implements IProgressor {
                     progressor.setMessage(e.getLocalizedMessage());
                 }
                 notifyError(mProgressMessage);
+                return false;
             }
+
+            return true;
         }
     }
 }
