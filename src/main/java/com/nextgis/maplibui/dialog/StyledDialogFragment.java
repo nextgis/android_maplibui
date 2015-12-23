@@ -49,10 +49,14 @@ import android.widget.TextView;
 import com.nextgis.maplibui.R;
 
 
+/**
+ * You must use the inflateThemedLayout() for inflate a view for the setView() for a correct theme's
+ * work.
+ */
 public class StyledDialogFragment
         extends DialogFragment
 {
-    protected ContextThemeWrapper mContextThemeWrapper;
+    protected ContextThemeWrapper mContext;
 
     protected Integer mIconId;
 
@@ -107,11 +111,11 @@ public class StyledDialogFragment
         // StyledDialogFragment themes. These are fixed. To change the colors see colors.xml
         // Or use setThemeResId()
         if (null != mThemeResId) {
-            mContextThemeWrapper = new ContextThemeWrapper(getActivity(), mThemeResId);
+            mContext = new ContextThemeWrapper(getActivity(), mThemeResId);
         } else if (mIsThemeDark) {
-            mContextThemeWrapper = new ContextThemeWrapper(getActivity(), R.style.SdfTheme_Dark);
+            mContext = new ContextThemeWrapper(getActivity(), R.style.SdfTheme_Dark);
         } else {
-            mContextThemeWrapper = new ContextThemeWrapper(getActivity(), R.style.SdfTheme_Light);
+            mContext = new ContextThemeWrapper(getActivity(), R.style.SdfTheme_Light);
         }
     }
 
@@ -123,7 +127,7 @@ public class StyledDialogFragment
         // Idea from here
         // http://thanhcs.blogspot.ru/2014/10/android-custom-dialog-fragment.html
 
-        Dialog dialog = new Dialog(mContextThemeWrapper);
+        Dialog dialog = new Dialog(mContext);
 
         Window window = dialog.getWindow();
         window.requestFeature(Window.FEATURE_NO_TITLE);
@@ -136,6 +140,16 @@ public class StyledDialogFragment
     }
 
 
+    /**
+     * You must use the inflateThemedLayout() for inflate a view for the setView() for a correct
+     * theme's work.
+     */
+    protected View inflateThemedLayout(int resource)
+    {
+        return View.inflate(mContext, resource, null);
+    }
+
+
     @Nullable
     @Override
     public View onCreateView(
@@ -144,7 +158,7 @@ public class StyledDialogFragment
             Bundle savedInstanceState)
     {
         // http://stackoverflow.com/a/15496425
-        LayoutInflater localInflater = inflater.cloneInContext(mContextThemeWrapper);
+        LayoutInflater localInflater = inflater.cloneInContext(mContext);
         View view = localInflater.inflate(R.layout.sdf_layout, container, false);
 
         mBaseView = (RelativeLayout) view.findViewById(R.id.base);
@@ -186,7 +200,7 @@ public class StyledDialogFragment
 
             // http://stackoverflow.com/a/9409391
             int[] attrs = new int[] {R.attr.sdf_background};
-            TypedArray ta = mContextThemeWrapper.obtainStyledAttributes(attrs);
+            TypedArray ta = mContext.obtainStyledAttributes(attrs);
             Drawable background = ta.getDrawable(0);
             ta.recycle();
 
@@ -337,14 +351,17 @@ public class StyledDialogFragment
 
     protected void setMessageView()
     {
-        LinearLayout layout =
-                (LinearLayout) View.inflate(mContextThemeWrapper, R.layout.sdf_message, null);
-        mMessage = (TextView) layout.findViewById(R.id.dialog_message);
+        View view = inflateThemedLayout(R.layout.sdf_message);
+        mMessage = (TextView) view.findViewById(R.id.dialog_message);
         mDialogBodyScroll.setVisibility(View.VISIBLE);
-        mDialogBodyLayoutScrolled.addView(layout);
+        mDialogBodyLayoutScrolled.addView(view);
     }
 
 
+    /**
+     * You must use the inflateThemedLayout() for inflate a view for the setView() for a correct
+     * theme's work.
+     */
     public void setView(
             View view,
             boolean addScrollForView)
