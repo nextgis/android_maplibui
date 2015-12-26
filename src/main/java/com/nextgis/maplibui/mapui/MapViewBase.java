@@ -88,6 +88,17 @@ public class MapViewBase
     }
 
 
+    @Override
+    protected void onDetachedFromWindow()
+    {
+        if (null != mMap) {
+            mMap.cancelDraw();
+        }
+
+        super.onDetachedFromWindow();
+    }
+
+
     protected void setKeepScreenOnByPref()
     {
         SharedPreferences sharedPreferences =
