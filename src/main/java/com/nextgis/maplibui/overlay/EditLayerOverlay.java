@@ -1199,7 +1199,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
                 break;
         }
 
-        if (!mHasEdits)
+        if (!mHasEdits || mItem == null)
             mItem = new EditLayerCacheItem(Constants.NOT_FOUND, geometry);
         else
             mItem.setGeometry(geometry);
