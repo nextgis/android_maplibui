@@ -40,6 +40,7 @@ public interface ConstantsUI
     String KEY_FEATURE_ID = "feature_id";
     String KEY_GEOMETRY   = "geometry";
     String KEY_GEOMETRY_TYPE   = "geometry_type";
+    String KEY_GEOMETRY_CHANGED   = "geometry_changed";
     String KEY_FORM_PATH  = "form_path";
 
     String MESSAGE_INTENT = "com.nextgis.malibui.MESSAGE";

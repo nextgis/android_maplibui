@@ -876,7 +876,13 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
                                         // fill geometry with edits
                                         fillGeometry();
                                         IVectorLayerUI vectorLayerUI = (IVectorLayerUI) mLayer;
-                                        vectorLayerUI.showEditForm(mContext, mItem.getFeatureId(), mItem.getGeometry());
+                                        vectorLayerUI.showEditForm(mContext, mItem.getFeatureId(), null);
+                                        mLayer.showFeature(mItem.getFeatureId());
+
+                                        setHasEdits(false);
+                                        mSelectedItem = null;
+                                        mDrawItems.clear();
+                                        mItem = null;
                                     }
                                 /**
                                  * Cancel edits
@@ -1146,13 +1152,13 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
         if (null == mapDrawable)
             return false;
 
+        setHasEdits(true);
+
         GeoPoint center = mapDrawable.getFullScreenBounds().getCenter();
         if (isGeometryTypesIdentical)
             createNewGeometry(geometryType, center);
         else
             addGeometryToExistent(geometryType, center);
-
-        setHasEdits(true);
 
         //set new coordinates to GeoPoint from screen coordinates
         fillGeometry();
@@ -1199,7 +1205,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
                 break;
         }
 
-        if (!mHasEdits || mItem == null)
+        if (mItem == null)
             mItem = new EditLayerCacheItem(Constants.NOT_FOUND, geometry);
         else
             mItem.setGeometry(geometry);

@@ -90,6 +90,7 @@ import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY_CHANGED;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_LAYER_ID;
 
 
@@ -119,6 +120,7 @@ public class ModifyAttributesActivity
     protected SharedPreferences mSharedPreferences;
 
     protected int mMaxTakeCount;
+    protected boolean mIsGeometryChanged;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -221,6 +223,7 @@ public class ModifyAttributesActivity
 
                 mFields = new HashMap<>();
                 mFeatureId = extras.getLong(KEY_FEATURE_ID);
+                mIsGeometryChanged = extras.getBoolean(KEY_GEOMETRY_CHANGED, true);
                 mGeometry = (GeoGeometry) extras.getSerializable(KEY_GEOMETRY);
                 checkPolygon();
                 LinearLayout layout = (LinearLayout) findViewById(R.id.controls_list);
@@ -419,7 +422,8 @@ public class ModifyAttributesActivity
             putFieldValue(values, field);
         }
 
-        putGeometry(values);
+        if (mIsGeometryChanged)
+            putGeometry(values);
 
         IGISApplication app = (IGISApplication) getApplication();
 

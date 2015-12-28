@@ -46,6 +46,7 @@ import java.io.File;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY_CHANGED;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_LAYER_ID;
 
 
@@ -92,28 +93,32 @@ public class NGWVectorLayerUI
                     .show();
             return;
         }
+
+        boolean isGeometryChanged = geometry != null;
+        //get geometry
+        if (geometry == null && featureId != Constants.NOT_FOUND) {
+            geometry = getGeometryForId(featureId);
+        }
+
+        Intent intent;
         //check custom form
         File form = new File(mPath, ConstantsUI.FILE_FORM);
         if (form.exists()) {
             //show custom form
-            Intent intent = new Intent(context, FormBuilderModifyAttributesActivity.class);
-            intent.putExtra(KEY_LAYER_ID, getId());
-            intent.putExtra(KEY_FEATURE_ID, featureId);
+            intent = new Intent(context, FormBuilderModifyAttributesActivity.class);
             intent.putExtra(KEY_FORM_PATH, form);
-            if (null != geometry) {
-                intent.putExtra(KEY_GEOMETRY, geometry);
-            }
-            context.startActivity(intent);
         } else {
             //if not exist show standard form
-            Intent intent = new Intent(context, ModifyAttributesActivity.class);
-            intent.putExtra(KEY_LAYER_ID, getId());
-            intent.putExtra(KEY_FEATURE_ID, featureId);
-            if (null != geometry) {
-                intent.putExtra(KEY_GEOMETRY, geometry);
-            }
-            context.startActivity(intent);
+            intent = new Intent(context, ModifyAttributesActivity.class);
         }
+
+        intent.putExtra(KEY_LAYER_ID, getId());
+        intent.putExtra(KEY_FEATURE_ID, featureId);
+        intent.putExtra(KEY_GEOMETRY_CHANGED, isGeometryChanged);
+        if (null != geometry)
+            intent.putExtra(KEY_GEOMETRY, geometry);
+
+        context.startActivity(intent);
     }
 
 
