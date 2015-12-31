@@ -39,13 +39,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
-
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.util.ControlHelper;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -56,100 +54,125 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import static com.nextgis.maplib.util.GeoConstants.FTDate;
-import static com.nextgis.maplib.util.GeoConstants.FTDateTime;
-import static com.nextgis.maplib.util.GeoConstants.FTTime;
-import static com.nextgis.maplibui.util.ConstantsUI.DATE;
-import static com.nextgis.maplibui.util.ConstantsUI.DATETIME;
-import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
-import static com.nextgis.maplibui.util.ConstantsUI.JSON_DATE_TYPE_KEY;
-import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
-import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_KEY;
-import static com.nextgis.maplibui.util.ConstantsUI.TIME;
+import static com.nextgis.maplib.util.GeoConstants.*;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
-public class DateTime extends AppCompatTextView implements IFormControl
+public class DateTime
+        extends AppCompatTextView
+        implements IFormControl
 {
-    protected boolean mIsShowLast;
-    protected String mFieldName;
-    SimpleDateFormat mDateFormat;
+    protected int mPickerType = DATETIME;
+
+    protected boolean          mIsShowLast;
+    protected String           mFieldName;
+    protected SimpleDateFormat mDateFormat;
+
     protected Calendar mCalendar = Calendar.getInstance();
 
-    public DateTime(Context context) {
+
+    public DateTime(Context context)
+    {
         super(context);
     }
 
-    public DateTime(Context context, AttributeSet attrs) {
+
+    public DateTime(
+            Context context,
+            AttributeSet attrs)
+    {
         super(context, attrs);
     }
 
-    public DateTime(Context context, AttributeSet attrs, int defStyle) {
+
+    public DateTime(
+            Context context,
+            AttributeSet attrs,
+            int defStyle)
+    {
         super(context, attrs, defStyle);
     }
 
-    @Override
-    public void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences preferences) throws JSONException {
-        mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
 
+    public void setPickerType(int pickerType)
+    {
+        mPickerType = pickerType;
+    }
+
+
+    @Override
+    public void init(
+            JSONObject element,
+            List<Field> fields,
+            Bundle savedState,
+            Cursor featureCursor,
+            SharedPreferences preferences)
+            throws JSONException
+    {
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);
         mIsShowLast = ControlHelper.isSaveLastValue(attributes);
         setEnabled(ControlHelper.isEnabled(fields, mFieldName));
 
-        int picker_type = DATETIME, dataType;
+        int dataType;
+
         if (attributes.has(JSON_DATE_TYPE_KEY)) {
-            picker_type = attributes.getInt(JSON_DATE_TYPE_KEY);
+            mPickerType = attributes.getInt(JSON_DATE_TYPE_KEY);
         }
 
-        switch (picker_type) {
+        switch (mPickerType) {
+
             case DATE:
                 mDateFormat = (SimpleDateFormat) DateFormat.getDateInstance();
                 dataType = GeoConstants.FTDate;
                 break;
+
             case TIME:
                 mDateFormat = (SimpleDateFormat) DateFormat.getTimeInstance();
                 dataType = GeoConstants.FTTime;
                 break;
+
+            default:
+                mPickerType = DATETIME;
             case DATETIME:
                 mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
                 dataType = GeoConstants.FTDateTime;
                 break;
-            default:
-                picker_type = DATETIME;
-                mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
-                dataType = GeoConstants.FTDateTime;
         }
 
         long timestamp = System.currentTimeMillis();
-        if (ControlHelper.hasKey(savedState, mFieldName))
+        if (ControlHelper.hasKey(savedState, mFieldName)) {
             timestamp = savedState.getLong(ControlHelper.getSavedStateKey(mFieldName));
-        else if (null != featureCursor) { // feature exists
+        } else if (null != featureCursor) { // feature exists
             int column = featureCursor.getColumnIndex(mFieldName);
             if (column >= 0) {
                 timestamp = featureCursor.getLong(column);
             }
         } else {    // new feature
-            if (attributes.has(JSON_TEXT_KEY) && !TextUtils.isEmpty(attributes.getString(JSON_TEXT_KEY).trim())) {
+            if (attributes.has(JSON_TEXT_KEY) && !TextUtils.isEmpty(
+                    attributes.getString(JSON_TEXT_KEY).trim())) {
                 String defaultValue = attributes.getString(JSON_TEXT_KEY);
                 timestamp = parseDateTime(defaultValue, dataType);
             }
 
-            if (mIsShowLast)
-                timestamp = preferences.getLong(mFieldName, timestamp);
+            if (mIsShowLast) { timestamp = preferences.getLong(mFieldName, timestamp); }
         }
 
         mCalendar.setTimeInMillis(timestamp);
         setText(mDateFormat.format(mCalendar.getTime()));
         setSingleLine(true);
         setFocusable(false);
-        setOnClickListener(getDateUpdateWatcher(picker_type));
+        setOnClickListener(getDateUpdateWatcher(mPickerType));
 
         String pattern = mDateFormat.toLocalizedPattern();
         setHint(pattern);
     }
 
 
-    protected long parseDateTime(String value, int type) {
+    protected long parseDateTime(
+            String value,
+            int type)
+    {
         long result = 0;
         SimpleDateFormat sdf = null;
 
@@ -165,30 +188,37 @@ public class DateTime extends AppCompatTextView implements IFormControl
                 break;
         }
 
-        if (sdf != null)
+        if (sdf != null) {
             try {
                 result = sdf.parse(value).getTime();
             } catch (ParseException e) {
                 e.printStackTrace();
             }
+        }
 
         return result;
     }
 
 
     @Override
-    public void saveLastValue(SharedPreferences preferences) {
+    public void saveLastValue(SharedPreferences preferences)
+    {
         preferences.edit().putLong(mFieldName, (Long) getValue()).commit();
     }
 
+
     @Override
-    public boolean isShowLast() {
+    public boolean isShowLast()
+    {
         return mIsShowLast;
     }
 
-    public void setCurrentDate(){
+
+    public void setCurrentDate()
+    {
         setText(mDateFormat.format(Calendar.getInstance().getTime()));
     }
+
 
     protected View.OnClickListener getDateUpdateWatcher(final int pickerType)
     {
@@ -336,22 +366,29 @@ public class DateTime extends AppCompatTextView implements IFormControl
 
 
     @Override
-    public String getFieldName() {
+    public String getFieldName()
+    {
         return mFieldName;
     }
 
+
     @Override
-    public void addToLayout(ViewGroup layout) {
+    public void addToLayout(ViewGroup layout)
+    {
         layout.addView(this);
     }
 
+
     @Override
-    public Object getValue() {
+    public Object getValue()
+    {
         return mCalendar.getTimeInMillis();
     }
 
+
     @Override
-    public void saveState(Bundle outState) {
+    public void saveState(Bundle outState)
+    {
         outState.putLong(ControlHelper.getSavedStateKey(mFieldName), mCalendar.getTimeInMillis());
     }
 }

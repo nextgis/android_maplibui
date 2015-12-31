@@ -58,9 +58,12 @@ public class DateTime
         extends AppCompatTextView
         implements ISimpleControl
 {
-    String           mFieldName;
-    SimpleDateFormat mDateFormat;
-    Long mValue = null;
+    protected int mPickerType = DATETIME;
+
+    protected String           mFieldName;
+    protected SimpleDateFormat mDateFormat;
+
+    protected Long mValue = null;
 
 
     public DateTime(Context context)
@@ -83,6 +86,12 @@ public class DateTime
             int defStyle)
     {
         super(context, attrs, defStyle);
+    }
+
+
+    public void setPickerType(int pickerType)
+    {
+        mPickerType = pickerType;
     }
 
 
@@ -288,8 +297,24 @@ public class DateTime
             mFieldName = field.getName();
         }
 
+        switch (mPickerType) {
+
+            case DATE:
+                mDateFormat = (SimpleDateFormat) DateFormat.getDateInstance();
+                break;
+
+            case TIME:
+                mDateFormat = (SimpleDateFormat) DateFormat.getTimeInstance();
+                break;
+
+            default:
+                mPickerType = DATETIME;
+            case DATETIME:
+                mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
+                break;
+        }
+
         String text = "";
-        mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
         mValue = null;
 
         if (ControlHelper.hasKey(savedState, text)) {
@@ -308,7 +333,7 @@ public class DateTime
         setText(text);
         setSingleLine(true);
         setFocusable(false);
-        setOnClickListener(getDateUpdateWatcher(DATETIME));
+        setOnClickListener(getDateUpdateWatcher(mPickerType));
 
         String pattern = mDateFormat.toLocalizedPattern();
         setHint(pattern);
@@ -360,7 +385,7 @@ public class DateTime
 
         setSingleLine(true);
         setFocusable(false);
-        setOnClickListener(getDateUpdateWatcher(DATETIME));
+        setOnClickListener(getDateUpdateWatcher(mPickerType));
 
         String pattern = mDateFormat.toLocalizedPattern();
         setHint(pattern);
