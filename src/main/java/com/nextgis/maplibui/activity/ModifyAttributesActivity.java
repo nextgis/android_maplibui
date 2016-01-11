@@ -422,9 +422,7 @@ public class ModifyAttributesActivity
             putFieldValue(values, field);
         }
 
-        if (mIsGeometryChanged)
-            putGeometry(values);
-
+        putGeometry(values);
         IGISApplication app = (IGISApplication) getApplication();
 
         if (null == app) {
@@ -440,15 +438,16 @@ public class ModifyAttributesActivity
                 Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT).show();
             else
                 mFeatureId = Long.parseLong(result.getLastPathSegment());
+
+            putAttaches();  // we need to get proper mFeatureId for new features first
         } else {
             Uri updateUri = ContentUris.withAppendedId(uri, mFeatureId);
+            int attaches = putAttaches();
 
-            if (getContentResolver().update(updateUri, values, null, null) == 0) {
+            if (getContentResolver().update(updateUri, values, null, null) == 0 && attaches == 0) {
                 Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT).show();
             }
         }
-
-        putAttaches();  // we need to get proper mFeatureId for new features first
     }
 
 
@@ -484,14 +483,11 @@ public class ModifyAttributesActivity
     {
         GeoGeometry geometry = null;
 
-        if (null != mGeometry) {
+        if (null != mGeometry && mIsGeometryChanged) {
             geometry = mGeometry;
-
         } else if (NOT_FOUND == mFeatureId) {
-
             if (null == mLocation) {
-                Toast.makeText(
-                        this, getText(R.string.error_no_location), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getText(R.string.error_no_location), Toast.LENGTH_SHORT).show();
                 return false;
             }
 
@@ -499,7 +495,6 @@ public class ModifyAttributesActivity
             GeoPoint pt;
 
             switch (mLayer.getGeometryType()) {
-
                 case GeoConstants.GTPoint:
                     pt = new GeoPoint(mLocation.getLongitude(), mLocation.getLatitude());
                     pt.setCRS(GeoConstants.CRS_WGS84);
@@ -507,7 +502,6 @@ public class ModifyAttributesActivity
 
                     geometry = pt;
                     break;
-
                 case GeoConstants.GTMultiPoint:
                     pt = new GeoPoint(mLocation.getLongitude(), mLocation.getLatitude());
                     pt.setCRS(GeoConstants.CRS_WGS84);
@@ -531,7 +525,8 @@ public class ModifyAttributesActivity
         return true;
     }
 
-    protected void putAttaches() {
+    protected int putAttaches() {
+        int total = 0;
         PhotoGallery gallery = (PhotoGallery) findViewById(R.id.pg_photos);
 
         if (gallery != null && mFeatureId != NOT_FOUND) {
@@ -542,6 +537,7 @@ public class ModifyAttributesActivity
 
             for (Integer attach : deletedAttaches) {
                 int result = getContentResolver().delete(Uri.withAppendedPath(uri, attach + ""), null, null);
+                total += result;
 
                 if (result == 0) {
                     Log.d(TAG, "attach delete failed");
@@ -565,17 +561,21 @@ public class ModifyAttributesActivity
                 } else {
                     try {
                         OutputStream outStream = getContentResolver().openOutputStream(result);
-                        InputStream inStream = new FileInputStream(path);
-                        byte[] buffer = new byte[8192];
-                        int counter;
 
-                        while ((counter = inStream.read(buffer, 0, buffer.length)) > 0) {
-                            outStream.write(buffer, 0, counter);
-                            outStream.flush();
+                        if (outStream != null) {
+                            InputStream inStream = new FileInputStream(path);
+                            byte[] buffer = new byte[8192];
+                            int counter;
+
+                            while ((counter = inStream.read(buffer, 0, buffer.length)) > 0) {
+                                outStream.write(buffer, 0, counter);
+                                outStream.flush();
+                            }
+
+                            outStream.close();
+                            inStream.close();
+                            total++;
                         }
-
-                        outStream.close();
-                        inStream.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -584,6 +584,8 @@ public class ModifyAttributesActivity
                 }
             }
         }
+
+        return total;
     }
 
 
