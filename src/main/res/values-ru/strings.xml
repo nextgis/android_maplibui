@@ -106,6 +106,8 @@
     <string name="apply">Применить</string>
     <string name="error_db_insert">Ошибка добавления объекта</string>
     <string name="error_db_update">Ошибка обновления объекта</string>
+    <string name="error_db_query">Ошибка чтения объекта</string>
+    <string name="error_db_delete">Ошибка удаления объекта</string>
     <string name="create_vector_layer">Создать векторный слой</string>
     <string name="new_layer">Новый слой</string>
     <string name="message_layer_created">Слой создан</string>

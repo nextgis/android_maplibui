@@ -47,7 +47,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Field;
@@ -60,6 +59,7 @@ import com.nextgis.maplib.location.AccurateLocationTaker;
 import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.VectorLayer;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplib.util.SettingsConstants;
@@ -72,7 +72,6 @@ import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.control.TextEdit;
 import com.nextgis.maplibui.control.TextLabel;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
-
 import org.json.JSONException;
 
 import java.io.FileInputStream;
@@ -84,14 +83,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.nextgis.maplib.util.Constants.FIELD_GEOM;
-import static com.nextgis.maplib.util.Constants.FIELD_ID;
-import static com.nextgis.maplib.util.Constants.NOT_FOUND;
-import static com.nextgis.maplib.util.Constants.TAG;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY_CHANGED;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_LAYER_ID;
+import static com.nextgis.maplib.util.Constants.*;
+import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
 /**
@@ -538,7 +531,7 @@ public class ModifyAttributesActivity
             List<Integer> deletedAttaches = gallery.getDeletedAttaches();
             IGISApplication application = (IGISApplication) getApplication();
             Uri uri = Uri.parse("content://" + application.getAuthority() + "/" +
-                    mLayer.getPath().getName() + "/" + mFeatureId + "/attach");
+                    mLayer.getPath().getName() + "/" + mFeatureId + "/" + Constants.URI_ATTACH);
 
             for (Integer attach : deletedAttaches) {
                 int result = getContentResolver().delete(Uri.withAppendedPath(uri, attach + ""), null, null);

@@ -31,13 +31,12 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
-
 import com.keenfin.easypicker.PhotoPicker;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.map.VectorLayer;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.api.IFormControl;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -98,7 +97,7 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
 
     public static void getAttaches(IGISApplication app, VectorLayer layer, long featureId, Map<String, Integer> map) {
         Uri uri = Uri.parse("content://" + app.getAuthority() + "/" +
-                layer.getPath().getName() + "/" + featureId + "/attach");
+                layer.getPath().getName() + "/" + featureId + "/" + Constants.URI_ATTACH);
         MatrixCursor attachCursor = (MatrixCursor) layer.query(uri,
                 new String[]{VectorLayer.ATTACH_DATA, VectorLayer.ATTACH_ID},
                 FIELD_ID + " = " + featureId, null, null, null);
