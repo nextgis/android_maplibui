@@ -74,7 +74,7 @@ public class NGWSettingsActivity
         extends NGPreferenceActivity
         implements OnAccountsUpdateListener {
     protected static final String ACCOUNT_ACTION = "com.nextgis.maplibui.ACCOUNT";
-    protected static final String KEY_SYNC = "synchronization";
+    protected static final String KEY_SYNC       = "synchronization";
 
     protected AccountManager mAccountManager;
     protected final Handler mHandler = new Handler();
@@ -517,7 +517,7 @@ public class NGWSettingsActivity
 
 
     // for overriding in a subclass
-    protected void addDeleteAccountAction(
+    protected Preference addDeleteAccountAction(
             final IGISApplication application,
             final Account account,
              PreferenceCategory actionCategory) {
@@ -590,11 +590,13 @@ public class NGWSettingsActivity
                 .setMessage(mDeleteAccountWarnMsg)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(
-                        R.string.ok, new DialogInterface.OnClickListener() {
+                        R.string.ok, new DialogInterface.OnClickListener()
+                        {
                             @Override
                             public void onClick(
                                     DialogInterface dialog,
-                                    int which) {
+                                    int which)
+                            {
                                 Log.d(Constants.TAG, "NGWSettingsActivity - OK pressed");
 
                                 IntentFilter intentFilter = new IntentFilter();
@@ -631,7 +633,11 @@ public class NGWSettingsActivity
                             return true;
                         }
                     });
+
+            return preferenceDelete;
         }
+
+        return null;
     }
 
 
