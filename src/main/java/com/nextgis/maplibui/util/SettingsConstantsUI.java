@@ -47,6 +47,7 @@ public interface SettingsConstantsUI
     /**
      * preference pages
      */
+    String PREFS_SETTINGS        = "com.nextgis.mobile.PREFS_SETTINGS";
     String ACTION_PREFS_GENERAL  = "com.nextgis.mobile.PREFS_GENERAL";
     String ACTION_PREFS_MAP      = "com.nextgis.mobile.PREFS_MAP";
     String ACTION_PREFS_NGW      = "com.nextgis.mobile.PREFS_NGW";

@@ -48,7 +48,6 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.util.Log;
 import android.view.MenuItem;
-
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.INGWLayer;
 import com.nextgis.maplib.datasource.ngw.SyncAdapter;
@@ -323,7 +322,12 @@ public class NGWSettingsActivity
     // for overriding in a subclass
     protected boolean isAccountSyncEnabled(
             Account account,
-            String authority) {
+            String authority)
+    {
+        if (null == account) {
+            return false;
+        }
+
         return ContentResolver.getSyncAutomatically(account, authority);
     }
 
@@ -332,7 +336,12 @@ public class NGWSettingsActivity
     protected void setAccountSyncEnabled(
             Account account,
             String authority,
-            boolean isEnabled) {
+            boolean isEnabled)
+    {
+        if (null == account) {
+            return;
+        }
+
         ContentResolver.setSyncAutomatically(account, authority, isEnabled);
     }
 

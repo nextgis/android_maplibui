@@ -238,16 +238,16 @@ public class NGWLoginFragment
         IGISApplication app = (IGISApplication) getActivity().getApplication();
 
         if (mForNewAccount) {
-            boolean accountAdded = app.addAccount(accountName, mURL.getText().toString(), mLogin.getText().toString(), mPassword.getText().toString(), token);
-            if(accountAdded) {
-                if (null != mOnAddAccountListener) {
-                    mOnAddAccountListener.onAddAccount(app.getAccount(accountName), token, accountAdded);
+            boolean accountAdded = app.addAccount(
+                    accountName, mURL.getText().toString(), mLogin.getText().toString(),
+                    mPassword.getText().toString(), token);
+
+            if (null != mOnAddAccountListener) {
+                Account account = null;
+                if (accountAdded) {
+                    account = app.getAccount(accountName);
                 }
-            }
-            else {
-                if (null != mOnAddAccountListener) {
-                    mOnAddAccountListener.onAddAccount(null, token, accountAdded);
-                }
+                mOnAddAccountListener.onAddAccount(account, token, accountAdded);
             }
 
         } else {
