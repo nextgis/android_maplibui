@@ -82,7 +82,9 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
     protected void setInterface() {
         if (!mIsNeedleOnly) {
             mBasePlate.setVisibility(View.VISIBLE);
-            mBubbleView.setVisibility(View.VISIBLE);
+
+            if(null != mBubbleView)
+                mBubbleView.setVisibility(View.VISIBLE);
             // magnetic north compass
             mCompass.setOnTouchListener(this);
             mCompass.setVisibility(View.VISIBLE);
@@ -92,7 +94,7 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
                 public boolean onLongClick(View v) {
                     if (mCompass != null) {
                         mCompass.setAngle(0);
-                        mCompass.invalidate();
+                        mCompass.postInvalidate();
                     }
 
                     return true;
@@ -128,7 +130,6 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
         mDeclination = 0;
         mVibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-        mSensorManager.registerListener(sensorListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_NORMAL);
 
         if(!PermissionUtil.hasPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                 || !PermissionUtil.hasPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION))
@@ -149,27 +150,20 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
 
     @Override
     public void onDestroy() {
-        mSensorManager.unregisterListener(sensorListener);
         super.onDestroy();
     }
 
     @Override
     public void onPause() {
-        if(mBubbleView != null)
-            mBubbleView.pause();
-
-        getActivity().unregisterReceiver(compassBroadcastReceiver);
+        mSensorManager.unregisterListener(sensorListener);
         super.onPause();
     }
 
     @Override
     public void onResume() {
-        setInterface();
-        if(mBubbleView != null)
-            mBubbleView.resume();
+        mSensorManager.registerListener(sensorListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_NORMAL);
 
-        // registering receiver for compass updates
-        getActivity().registerReceiver(compassBroadcastReceiver, new IntentFilter(ACTION_COMPASS_UPDATES));
+        setInterface();
         super.onResume();
     }
 
@@ -208,7 +202,7 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
         // magnetic north compass
         if (mCompass != null) {
             mCompass.setAngle(mCompass.getAngle() + angle);
-            mCompass.invalidate();
+            mCompass.postInvalidate();
         }
     }
 
@@ -232,14 +226,14 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
         // true north compass
         if (mCompassNeedle.getVisibility() == View.VISIBLE) {
             mCompassNeedle.setAngle(360 - rotation);
-            mCompassNeedle.invalidate();
+            mCompassNeedle.postInvalidate();
         }
 
         // magnetic north compass
         if (mShowMagnetic) {
             mCompassNeedleMagnetic.setVisibility(View.VISIBLE);
             mCompassNeedleMagnetic.setAngle(360 - rotation + mDeclination);
-            mCompassNeedleMagnetic.invalidate();
+            mCompassNeedleMagnetic.postInvalidate();
         } else {
             mCompassNeedleMagnetic.setVisibility(View.INVISIBLE);
         }
@@ -283,21 +277,34 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
     }
 
     protected SensorEventListener sensorListener = new SensorEventListener() {
+
+        private float mPrevAzimuth;
+
         public void onSensorChanged(SensorEvent event) {
-            // let's broadcast compass data to any activity waiting for updates
-            Intent intent = new Intent(ACTION_COMPASS_UPDATES);
+            float roll, pitch;
+            float azimuth = event.values[0];
 
-            // packing azimuth value into bundle
-            Bundle bundle = new Bundle();
-            bundle.putFloat("azimuth", event.values[0]);
-            bundle.putFloat("pitch", event.values[1]);
-            bundle.putFloat("roll", event.values[2]);
+            if(Math.abs(mPrevAzimuth - azimuth) < 0.4f)
+                return;
 
-            intent.putExtras(bundle);
+            mPrevAzimuth = azimuth;
 
-            // broadcasting compass updates
-            if(getActivity() != null)
-                getActivity().sendBroadcast(intent);
+            updateCompass(azimuth);
+            int rotation = getDeviceRotation();
+
+            if (rotation == 90) {
+                roll = event.values[1];
+                pitch = -event.values[2];
+            } else if (rotation == 270) {
+                roll = -event.values[1];
+                pitch = event.values[2];
+            } else {
+                roll = event.values[2];
+                pitch = event.values[1];
+            }
+
+            if(null != mBubbleView)
+                mBubbleView.setSensorData(azimuth, roll, pitch);
         }
 
         public void onAccuracyChanged(Sensor arg0, int arg1) {
@@ -328,28 +335,4 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
 
         return 0;
     }
-
-    protected BroadcastReceiver compassBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            float roll, pitch;
-            Bundle bundle = intent.getExtras();
-            updateCompass(bundle.getFloat("azimuth"));
-            int rotation = getDeviceRotation();
-
-            if (rotation == 90) {
-                roll = bundle.getFloat("pitch");
-                pitch = -bundle.getFloat("roll");
-            } else if (rotation == 270) {
-                roll = -bundle.getFloat("pitch");
-                pitch = bundle.getFloat("roll");
-            } else {
-                roll = bundle.getFloat("roll");
-                pitch = bundle.getFloat("pitch");
-            }
-
-            if(mBubbleView != null)
-                mBubbleView.setSensorData(bundle.getFloat("azimuth"), roll, pitch);
-        }
-    };
 }

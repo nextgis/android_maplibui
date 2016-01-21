@@ -26,27 +26,26 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.PixelFormat;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.util.AttributeSet;
-import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 import com.nextgis.maplibui.R;
 
-public class BubbleSurfaceView extends SurfaceView implements Runnable {
+public class BubbleSurfaceView extends View {
 
-    private Thread thread;
-
-    private SurfaceHolder holder;
-
-    private boolean isRunning = false;
-
-    private Bitmap bubble, bubbleCircle, bubbleCircleRed, bubbleCircleGreen;
-
-    float azimuth, roll, pitch;
-
-    float x, y;
+    private Bitmap mBubble, mBubbleCircle, mBubbleCircleRed, mBubbleCircleGreen;
+    private float mAzimuth, mRoll, mPitch;
+    private float mX, mY;
+    //private float mScaleRollAdds, mScalePitchAdds;
+    private float mHalfWidth;
+    private float mHalfHeight;
+    private float mHalfBubbleW;
+    private float mHalfBubbleH;
+    private float mScaleRoll;
+    private float mScalePitch;
 
     public BubbleSurfaceView(Context context) {
         super(context);
@@ -63,127 +62,81 @@ public class BubbleSurfaceView extends SurfaceView implements Runnable {
         init();
     }
 
+    @Override
+    public void onDraw(Canvas canvas) {
+
+        /*while (Math.sqrt(mRoll * mRoll + mPitch * mPitch) > 26) {
+
+            if (mRoll < 0)
+                mRoll += 0.01;
+            else
+                mRoll -= 0.01;
+
+            if (mPitch < 0)
+                mPitch += 0.01;
+            else
+                mPitch -= 0.01;
+        }*/
+        // top left corner of the mBubble
+        mX = -mRoll * mScaleRoll + mHalfWidth - mHalfBubbleW;;
+        mY = -mPitch * mScalePitch + mHalfHeight - mHalfBubbleH;
+
+        // clearing canvas
+        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.MULTIPLY);
+
+        // distance between center of the circle and center of the mBubble
+        float dist = (float) Math.sqrt(Math.pow(mX + mHalfBubbleW - mHalfWidth, 2)
+                + Math.pow(mY + mHalfBubbleH - mHalfHeight, 2));
+
+        if (dist + mHalfBubbleW > getHeight() / 3) {
+            // drawing mBubble circle
+            canvas.drawBitmap(mBubbleCircleRed, 0, 0, null);
+        } else {
+            if (dist + mHalfBubbleW > getHeight() / 4) {
+                // drawing mBubble circle
+                canvas.drawBitmap(mBubbleCircleGreen, 0, 0, null);
+            } else {
+                // drawing mBubble circle
+                canvas.drawBitmap(mBubbleCircle, 0, 0, null);
+            }
+        }
+
+        // drawing mBubble last
+        canvas.drawBitmap(mBubble, mX, mY, null);
+    }
+
     private void init() {
+        mBubble = BitmapFactory.decodeResource(getResources(), R.drawable.ball);
+        mBubbleCircle = BitmapFactory.decodeResource(getResources(), R.drawable.bubble_circle);
+        mBubbleCircleRed = BitmapFactory.decodeResource(getResources(), R.drawable.bubble_circle_red);
+        mBubbleCircleGreen = BitmapFactory.decodeResource(getResources(), R.drawable.bubble_circle_green);
 
-        holder = getHolder();
+    }
 
-        setZOrderOnTop(true);
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        mScaleRoll = getWidth() * 0.7F / 90F;
+        mScalePitch = getHeight() * 0.7F / 90F;
 
-        // making surface transparent
-        holder.setFormat(PixelFormat.TRANSPARENT);
-
-        bubble = BitmapFactory.decodeResource(getResources(), R.drawable.ball);
-        bubbleCircle = BitmapFactory.decodeResource(getResources(), R.drawable.bubble_circle);
-        bubbleCircleRed = BitmapFactory.decodeResource(getResources(), R.drawable.bubble_circle_red);
-        bubbleCircleGreen = BitmapFactory.decodeResource(getResources(), R.drawable.bubble_circle_green);
+        mHalfWidth = getWidth() / 2;
+        mHalfHeight = getHeight() / 2;
+        mHalfBubbleW = mBubble.getWidth() / 2;
+        mHalfBubbleH = mBubble.getHeight() / 2;
 
         // center of the circle
-        x = y = this.getWidth() / 2;
+        mX = mY = mHalfWidth;
+
+//        mScaleRollAdds = scaleRoll + mHalfWidth - mHalfBubbleW;
+//        mScalePitchAdds = scalePitch + mHalfHeight - mHalfBubbleH;
 
     }
 
     public void setSensorData(float a, float r, float p) {
-        this.azimuth = a;
-        this.roll = r;
-        this.pitch = p;
-    }
+        this.mAzimuth = a;
+        this.mRoll = r;
+        this.mPitch = p;
 
-    public void run() {
-
-        while (isRunning) {
-
-            if (!holder.getSurface().isValid()) {
-                continue;
-            }
-
-            try {
-                Thread.sleep(100);
-            } catch (Exception ignored) {
-            }
-
-            Canvas canvas = holder.lockCanvas();
-
-            // scale
-            float scaleRoll = this.getWidth() * 0.7F / 90F;
-            float scalePitch = this.getHeight() * 0.7F / 90F;
-
-            synchronized (this) {
-                // controlling the circle bounds
-                while (Math.sqrt(this.roll * this.roll + this.pitch * this.pitch) > 26) {
-
-                    if (this.roll < 0)
-                        this.roll += 0.01;
-                    else
-                        this.roll -= 0.01;
-
-                    if (this.pitch < 0)
-                        this.pitch += 0.01;
-                    else
-                        this.pitch -= 0.01;
-                }
-                // top left corner of the bubble
-                x = this.roll * scaleRoll + this.getWidth() / 2 - bubble.getWidth() / 2;
-                y = this.pitch * scalePitch + this.getHeight() / 2 - bubble.getHeight() / 2;
-            }
-
-            // clearing canvas
-            canvas.drawColor(0, PorterDuff.Mode.CLEAR);
-
-
-            //Paint paint = new Paint();
-            //paint.setXfermode(new PorterDuffXfermode(Mode.CLEAR));
-            //canvas.drawPaint(paint);
-            //paint.setXfermode(new PorterDuffXfermode(Mode.SRC));
-
-            // distance between center of the circle and center of the bubble
-            float dist = (float) Math.sqrt(Math.pow(x + bubble.getWidth() / 2 - (this.getWidth() / 2), 2)
-                    + Math.pow(y + bubble.getHeight() / 2 - (this.getHeight() / 2), 2));
-
-            if (dist + bubble.getWidth() / 2 > this.getHeight() / 3) {
-                // drawing bubble circle
-                canvas.drawBitmap(bubbleCircleRed, 0, 0, null);
-            } else {
-                if (dist + bubble.getWidth() / 2 > this.getHeight() / 4) {
-                    // drawing bubble circle
-                    canvas.drawBitmap(bubbleCircleGreen, 0, 0, null);
-                } else {
-                    // drawing bubble circle
-                    canvas.drawBitmap(bubbleCircle, 0, 0, null);
-                }
-            }
-
-            // drawing bubble last
-            canvas.drawBitmap(bubble, x, y, null);
-
-            // drawing bubble cover
-            // canvas.draw Bitmap(bubbleCover, 0, 0, null);
-
-            try{
-                holder.unlockCanvasAndPost(canvas);
-            }
-            catch(Exception ignored){
-            }
-
-        }
-
-    }
-
-    public void pause() {
-        isRunning = false;
-
-        try {
-            thread.join();
-        } catch (InterruptedException ignored) {
-        }
-
-        thread = null;
-    }
-
-    public void resume() {
-
-        isRunning = true;
-
-        thread = new Thread(this);
-        thread.start();
+        invalidate();
     }
 }

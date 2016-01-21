@@ -60,7 +60,7 @@ public class CurrentLocationOverlay
 {
     public static final int WITH_MARKER   = 1;
     public static final int WITH_ACCURACY = 1 << 1;
-    private static final int AUTOPAN_THRESHOLD = 2;
+    private static final int AUTOPAN_THRESHOLD = 20;  // distance in meters
 
     private GpsEventSource mGpsEventSource;
     private Location       mCurrentLocation, mInitialLocation;
