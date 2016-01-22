@@ -35,21 +35,22 @@ public interface ConstantsUI
     int DRAW_SATE_zooming           = 4;
     int DRAW_SATE_panning_fling     = 5;
 
-    String KEY_MESSAGE    = "msg";
-    String KEY_LAYER_ID   = "layer_id";
-    String KEY_FEATURE_ID = "feature_id";
-    String KEY_GEOMETRY   = "geometry";
-    String KEY_GEOMETRY_TYPE   = "geometry_type";
-    String KEY_GEOMETRY_CHANGED   = "geometry_changed";
-    String KEY_FORM_PATH  = "form_path";
+    String KEY_MESSAGE          = "msg";
+    String KEY_LAYER_ID         = "layer_id";
+    String KEY_FEATURE_ID       = "feature_id";
+    String KEY_GEOMETRY         = "geometry";
+    String KEY_GEOMETRY_TYPE    = "geometry_type";
+    String KEY_GEOMETRY_CHANGED = "geometry_changed";
+    String KEY_FORM_PATH        = "form_path";
+    String KEY_VIEW_ONLY        = "view_only";
 
     String MESSAGE_INTENT = "com.nextgis.malibui.MESSAGE";
     String TARGET_CLASS   = "target_class";
 
     String FILE_FORM = "form.json";
 
-    int TOLERANCE_DP = 20;
-    int MIN_ZOOM_LEVEL = 18;
+    int TOLERANCE_DP       = 20;
+    int MIN_ZOOM_LEVEL     = 18;
     int NOTIFICATION_DELAY = 1500;
 
     String JSON_ATTRIBUTES_KEY        = "attributes";
@@ -88,5 +89,5 @@ public interface ConstantsUI
     int DATETIME = 2;
 
     String PERMISSION_AUTHENTICATE_ACCOUNTS = "android.permission.AUTHENTICATE_ACCOUNTS";
-    String PERMISSION_MANAGE_ACCOUNTS = "android.permission.MANAGE_ACCOUNTS";
+    String PERMISSION_MANAGE_ACCOUNTS       = "android.permission.MANAGE_ACCOUNTS";
 }
