@@ -61,7 +61,7 @@ public class CurrentLocationOverlay
 {
     public static final int WITH_MARKER   = 1;
     public static final int WITH_ACCURACY = 1 << 1;
-    private static final int AUTOPAN_THRESHOLD = 25;  // distance in pixels
+    private static final int AUTOPAN_THRESHOLD = 10;  // distance in pixels
     protected final float mTolerancePX;
 
     private GpsEventSource mGpsEventSource;
