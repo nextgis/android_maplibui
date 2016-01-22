@@ -51,6 +51,7 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.api.OverlayItem;
 import com.nextgis.maplibui.mapui.MapViewOverlays;
+import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 
@@ -60,7 +61,8 @@ public class CurrentLocationOverlay
 {
     public static final int WITH_MARKER   = 1;
     public static final int WITH_ACCURACY = 1 << 1;
-    private static final int AUTOPAN_THRESHOLD = 20;  // distance in meters
+    private static final int AUTOPAN_THRESHOLD = 25;  // distance in pixels
+    protected final float mTolerancePX;
 
     private GpsEventSource mGpsEventSource;
     private Location       mCurrentLocation, mInitialLocation;
@@ -83,6 +85,8 @@ public class CurrentLocationOverlay
         Activity parent = (Activity) context;
         mGpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
         mMarkerColor = ThemeUtils.getThemeAttrColor(mContext, R.attr.colorAccent);
+
+        mTolerancePX = context.getResources().getDisplayMetrics().density * AUTOPAN_THRESHOLD;
 
         double longitude = 0, latitude = 0;
         mMarker =
@@ -268,8 +272,6 @@ public class CurrentLocationOverlay
         mIsAutopanningEnabled = isAutopanningEnabled;
     }
 
-
-    // TODO invalidate rect
     @Override
     public void onLocationChanged(Location location)
     {
@@ -287,7 +289,9 @@ public class CurrentLocationOverlay
                 if (mInitialLocation == null || mMapViewOverlays.isLockMap())
                     mInitialLocation = location;
 
-                if (mInitialLocation.distanceTo(location) >= AUTOPAN_THRESHOLD) {
+
+
+                if (mInitialLocation.distanceTo(location) >= getPanThreshold()) {
                     if (mIsInScreenBounds) {
                         autopanTo(mInitialLocation, location);
                     }
@@ -296,6 +300,16 @@ public class CurrentLocationOverlay
                 }
             }
         }
+    }
+
+    double getPanThreshold(){
+        double dMinX = - mTolerancePX;
+        double dMaxX = + mTolerancePX;
+        double dMinY = - mTolerancePX;
+        double dMaxY = + mTolerancePX;
+        GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
+        GeoEnvelope mapEnv = mMapViewOverlays.screenToMap(screenEnv);
+        return (mapEnv.width() + mapEnv.height()) / 4;
     }
 
 
