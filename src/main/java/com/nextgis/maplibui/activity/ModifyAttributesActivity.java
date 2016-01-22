@@ -114,6 +114,7 @@ public class ModifyAttributesActivity
 
     protected int mMaxTakeCount;
     protected boolean mIsGeometryChanged;
+    protected boolean mIsViewOnly;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -216,6 +217,7 @@ public class ModifyAttributesActivity
 
                 mFields = new HashMap<>();
                 mFeatureId = extras.getLong(KEY_FEATURE_ID);
+                mIsViewOnly = extras.getBoolean(KEY_VIEW_ONLY, false);
                 mIsGeometryChanged = extras.getBoolean(KEY_GEOMETRY_CHANGED, true);
                 mGeometry = (GeoGeometry) extras.getSerializable(KEY_GEOMETRY);
                 checkPolygon();
@@ -276,12 +278,22 @@ public class ModifyAttributesActivity
                 case GeoConstants.FTString:
                 case GeoConstants.FTInteger:
                 case GeoConstants.FTReal:
-                    control = (TextEdit)getLayoutInflater().inflate(R.layout.template_textedit, null);
+                    TextEdit textEdit = (TextEdit) getLayoutInflater().inflate(
+                            R.layout.template_textedit, null);
+                    if (mIsViewOnly) {
+                        textEdit.setEnabled(false);
+                    }
+                    control = textEdit;
                     break;
                 case GeoConstants.FTDate:
                 case GeoConstants.FTTime:
                 case GeoConstants.FTDateTime:
-                    control = (DateTime)getLayoutInflater().inflate(R.layout.template_datetime, null);
+                    DateTime dateTime = (DateTime) getLayoutInflater().inflate(
+                            R.layout.template_datetime, null);
+                    if (mIsViewOnly) {
+                        dateTime.setEnabled(false);
+                    }
+                    control = dateTime;
                     break;
                 case GeoConstants.FTBinary:
                 case GeoConstants.FTStringList:
@@ -306,10 +318,13 @@ public class ModifyAttributesActivity
         }
 
         try {
-            IFormControl control = (PhotoGallery) getLayoutInflater().inflate(R.layout.formtemplate_photo, layout, false);
-            ((PhotoGallery) control).init(mLayer, mFeatureId);
-            control.init(null, null, null, null, null);
-            control.addToLayout(layout);
+            if (!mIsViewOnly) {
+                IFormControl control = (PhotoGallery) getLayoutInflater().inflate(
+                        R.layout.formtemplate_photo, layout, false);
+                ((PhotoGallery) control).init(mLayer, mFeatureId);
+                control.init(null, null, null, null, null);
+                control.addToLayout(layout);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
