@@ -46,6 +46,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.map.TrackLayer;
@@ -86,11 +87,14 @@ public class TrackerService
     private PendingIntent       mSplitService, mOpenActivity;
     private String mTicker;
     private int    mSmallIcon, mSatellitesCount;
+    private boolean             mHasGPSFix;
 
     @Override
     public void onCreate()
     {
         super.onCreate();
+
+        mHasGPSFix = false;
 
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
@@ -134,12 +138,18 @@ public class TrackerService
         if (LocationUtil.isProviderEnabled(this, provider, true) &&
             mLocationManager.getAllProviders().contains(provider)) {
             mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
+
+            if(Constants.DEBUG_MODE)
+                Log.d(Constants.TAG, "Tracker service request location updates for " + provider);
         }
 
         provider = LocationManager.NETWORK_PROVIDER;
         if (LocationUtil.isProviderEnabled(this, provider, true) &&
             mLocationManager.getAllProviders().contains(provider)) {
             mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
+
+            if(Constants.DEBUG_MODE)
+                Log.d(Constants.TAG, "Tracker service request location updates for " + provider);
         }
     }
 
@@ -372,6 +382,9 @@ public class TrackerService
         if (!mIsRunning)
             return;
 
+        if(mHasGPSFix && !location.getProvider().equals(LocationManager.GPS_PROVIDER))
+            return;
+
         String fixType = location.hasAltitude() ? "3d" : "2d";
 
         mValues.clear();
@@ -414,6 +427,14 @@ public class TrackerService
     public void onGpsStatusChanged(int event)
     {
         switch (event) {
+            case GpsStatus.GPS_EVENT_STARTED:
+            case GpsStatus.GPS_EVENT_STOPPED:
+                mHasGPSFix = false;
+                break;
+            case GpsStatus.GPS_EVENT_FIRST_FIX:
+                mHasGPSFix = true;
+                break;
+
             case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
                 mSatellitesCount = 0;
 
