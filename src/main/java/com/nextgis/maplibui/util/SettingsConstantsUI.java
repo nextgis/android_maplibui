@@ -42,7 +42,7 @@ public interface SettingsConstantsUI
     String KEY_PREF_RESET_SETTINGS       = "reset_settings";
     String KEY_PREF_MAP_BG               = "map_bg";
 
-    String OSM_URL = "http://{a,b,c}.tile.openstreetmap.org/{z}/{mX}/{mY}.png";
+    String OSM_URL = "http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
     /**
      * preference pages
