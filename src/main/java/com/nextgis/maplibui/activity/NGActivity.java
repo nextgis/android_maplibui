@@ -157,4 +157,10 @@ public class NGActivity
         finish();
         startActivity(intent);
     }
+
+
+    public void updateMenuView()
+    {
+        supportInvalidateOptionsMenu();
+    }
 }
