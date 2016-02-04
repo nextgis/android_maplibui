@@ -524,14 +524,20 @@ public class NGWSettingsActivity
         final boolean[] wasCurrentSyncActive = {false};
 
         final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-            final ProgressDialog mProgressDialog = new ProgressDialog(NGWSettingsActivity.this);
-
+            private ProgressDialog mProgressDialog;
 
             @Override
             public void onReceive(
                     Context context,
                     Intent intent) {
                 Log.d(Constants.TAG, "NGWSettingsActivity - broadcastReceiver.onReceive()");
+
+                if (mProgressDialog == null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                        mProgressDialog = new ProgressDialog(NGWSettingsActivity.this, android.R.style.Theme_Material_Light_Dialog_Alert);
+                    else
+                        mProgressDialog = new ProgressDialog(NGWSettingsActivity.this);
+                }
 
                 if (!mProgressDialog.isShowing()) {
                     Log.d(Constants.TAG, "NGWSettingsActivity - show ProgressDialog");

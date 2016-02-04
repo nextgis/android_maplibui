@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.SystemClock;
 import android.widget.Toast;
 
@@ -104,7 +105,11 @@ public class LayerFillProgressDialog extends AsyncTask<Object, Intent, Boolean> 
     }
 
     private void createProgressDialog() {
-        mProgressDialog = new ProgressDialog(mActivity);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            mProgressDialog = new ProgressDialog(mActivity, android.R.style.Theme_Material_Light_Dialog_Alert);
+        else
+            mProgressDialog = new ProgressDialog(mActivity);
+
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         mProgressDialog.setCanceledOnTouchOutside(false);
         mProgressDialog.setButton(DialogInterface.BUTTON_POSITIVE,

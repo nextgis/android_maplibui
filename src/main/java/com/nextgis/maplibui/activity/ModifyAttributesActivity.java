@@ -32,6 +32,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.AppCompatSpinner;
@@ -154,7 +155,12 @@ public class ModifyAttributesActivity
                             refreshLocation.startAnimation(rotateAnimation);
 
                             if (mAccurateLocation.isChecked()) {
-                                final ProgressDialog progress = new ProgressDialog(view.getContext());
+                                final ProgressDialog progress;
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                                    progress = new ProgressDialog(view.getContext(), android.R.style.Theme_Material_Light_Dialog_Alert);
+                                else
+                                    progress = new ProgressDialog(view.getContext());
+
                                 final AccurateLocationTaker accurateLocation =
                                         new AccurateLocationTaker(view.getContext(), 100f,
                                                 mMaxTakeCount, MAX_TAKE_TIME, PROGRESS_DELAY, (String) mAccuracyCE.getSelectedItem());
