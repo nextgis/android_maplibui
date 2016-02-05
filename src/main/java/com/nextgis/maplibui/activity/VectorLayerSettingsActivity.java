@@ -54,6 +54,7 @@ import com.nextgis.maplibui.dialog.ChooseColorDialog;
 import com.nextgis.maplibui.service.RebuildCacheService;
 import com.nextgis.maplibui.util.ConstantsUI;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,6 +105,10 @@ public class VectorLayerSettingsActivity
         }
 
         if (null != mVectorLayer) {
+            TextView form = (TextView) findViewById(R.id.layer_custom_form);
+            File formPath = new File(mVectorLayer.getPath(), ConstantsUI.FILE_FORM);
+            form.setText(formPath.exists() ? R.string.layer_has_form : R.string.layer_has_no_form);
+
             EditText editText = (EditText) findViewById(R.id.layer_name);
             editText.setText(mVectorLayer.getName());
 

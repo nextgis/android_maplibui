@@ -208,6 +208,8 @@
     <string name="layerInfo">Информация о слое</string>
     <string name="geom_type">Тип геометрии</string>
     <string name="feature_count">Количество записей</string>
+    <string name="layer_has_form">У слоя есть пользовательская форма</string>
+    <string name="layer_has_no_form">У слоя нет пользовательской формы</string>
     <string name="point">Точка</string>
     <string name="multi_point">Мультиточка</string>
     <string name="linestring">Линия</string>
