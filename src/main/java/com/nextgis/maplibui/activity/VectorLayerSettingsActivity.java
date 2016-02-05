@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -45,6 +45,7 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.display.SimpleFeatureRenderer;
 import com.nextgis.maplib.display.Style;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
@@ -109,6 +110,15 @@ public class VectorLayerSettingsActivity
             File formPath = new File(mVectorLayer.getPath(), ConstantsUI.FILE_FORM);
             form.setText(formPath.exists() ? R.string.layer_has_form : R.string.layer_has_no_form);
 
+            TextView path = (TextView) findViewById(R.id.layer_local_lath);
+            path.setText(String.format(getString(R.string.layer_local_path), mVectorLayer.getPath()));
+
+            if (mVectorLayer instanceof NGWVectorLayer) {
+                TextView remote = (TextView) findViewById(R.id.layer_remote_path);
+                remote.setText(String.format(getString(R.string.layer_remote_path), ((NGWVectorLayer) mVectorLayer).getRemoteUrl()));
+                remote.setVisibility(View.VISIBLE);
+            }
+
             EditText editText = (EditText) findViewById(R.id.layer_name);
             editText.setText(mVectorLayer.getName());
 
@@ -156,7 +166,6 @@ public class VectorLayerSettingsActivity
             rangebar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
                 @Override
                 public void onIndexChangeListener(RangeBar rangeBar, int leftThumbIndex, int rightThumbIndex) {
-
                     leftIndexValue.setText("min: " + leftThumbIndex);
                     rightIndexValue.setText("max: " + rightThumbIndex);
                 }

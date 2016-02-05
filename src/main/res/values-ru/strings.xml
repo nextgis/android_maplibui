@@ -5,7 +5,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -208,6 +208,8 @@
     <string name="layerInfo">Информация о слое</string>
     <string name="geom_type">Тип геометрии</string>
     <string name="feature_count">Количество записей</string>
+    <string name="layer_local_path">Локальный путь: %1$s</string>
+    <string name="layer_remote_path">Удаленный: %1$s</string>
     <string name="layer_has_form">У слоя есть пользовательская форма</string>
     <string name="layer_has_no_form">У слоя нет пользовательской формы</string>
     <string name="point">Точка</string>

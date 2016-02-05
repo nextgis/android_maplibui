@@ -73,6 +73,21 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/layer_local_lath"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+            <TextView
+                android:id="@+id/layer_remote_path"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:visibility="gone"/>
+
+            <TextView
                 android:id="@+id/layer_custom_form"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
