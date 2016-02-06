@@ -31,6 +31,7 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
@@ -157,24 +158,22 @@ public class VectorLayerSettingsActivity
             rangebar.setThumbIndices(nMinZoom, nMaxZoom);
             // Gets the index value TextViews
             final TextView leftIndexValue = (TextView) findViewById(R.id.leftIndexValue);
-            leftIndexValue.setText("min: " + nMinZoom);
+            leftIndexValue.setText(String.format(getString(R.string.min), nMinZoom));
             final TextView rightIndexValue = (TextView) findViewById(R.id.rightIndexValue);
-            rightIndexValue.setText("max: " + nMaxZoom);
+            rightIndexValue.setText(String.format(getString(R.string.max), nMaxZoom));
 
             // Sets the display values of the indices
             rangebar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
                 @Override
                 public void onIndexChangeListener(RangeBar rangeBar, int leftThumbIndex, int rightThumbIndex) {
-                    leftIndexValue.setText("min: " + leftThumbIndex);
-                    rightIndexValue.setText("max: " + rightThumbIndex);
+                    leftIndexValue.setText(String.format(getString(R.string.min), leftThumbIndex));
+                    rightIndexValue.setText(String.format(getString(R.string.max), rightThumbIndex));
                 }
             });
 
-            TextView featureCount = (TextView) findViewById(R.id.layer_feature_count);
-            featureCount.setText(featureCount.getText() + ": " + mVectorLayer.getCount());
-
-            TextView geomType = (TextView) findViewById(R.id.layer_geom_type);
-            geomType.setText(geomType.getText() + ": " + getGeometryName(mVectorLayer.getGeometryType()));
+            Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+            setTitle(String.format(getString(R.string.layer_geom_type), getGeometryName(mVectorLayer.getGeometryType())));
+            toolbar.setSubtitle(String.format(getString(R.string.feature_count), mVectorLayer.getCount()));
 
             final ProgressBar rebuildCacheProgress = (ProgressBar) findViewById(R.id.rebuildCacheProgressBar);
             final ImageButton buildCacheButton = (ImageButton) findViewById(R.id.buildCacheButton);

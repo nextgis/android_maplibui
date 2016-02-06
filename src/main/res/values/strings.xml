@@ -204,10 +204,13 @@
     <string name="not_implemented">Not implemented yet</string>
     <string name="layer_lookuptable">Lookup table</string>
     <string name="zoom_levels_to_show">Zoom levels to show layer</string>
+    <string name="min" translatable="false">min: %1$d</string>
+    <string name="max" translatable="false">max: %1$d</string>
     <string name="alpha">Opacity</string>
     <string name="layerInfo">Layer info</string>
     <string name="geom_type">Geometry type</string>
-    <string name="feature_count">Feature count</string>
+    <string name="layer_geom_type">%1$s layer</string>
+    <string name="feature_count">%1$s features</string>
     <string name="layer_local_path">Local path: %1$s</string>
     <string name="layer_remote_path">Remote: %1$s</string>
     <string name="layer_has_form">Layer has custom form</string>
