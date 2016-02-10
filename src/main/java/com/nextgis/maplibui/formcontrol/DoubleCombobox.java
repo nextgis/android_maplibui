@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -37,9 +37,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.control.AliasList;
-import com.nextgis.maplibui.control.GreyLine;
 import com.nextgis.maplibui.util.ControlHelper;
 
 import org.json.JSONArray;
@@ -54,7 +54,6 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DEFAULT_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_LEVEL1_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_LEVEL2_KEY;
-import static com.nextgis.maplibui.util.ConstantsUI.JSON_SHOW_LAST_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_ALIAS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_NAME_KEY;
@@ -124,8 +123,7 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
         mSubAliasValueMaps = new HashMap<>();
         mAliasSubListMap = new HashMap<>();
 
-        final ArrayAdapter<String> comboboxAdapter =
-                new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item);
+        final ArrayAdapter<String> comboboxAdapter = new ArrayAdapter<>(getContext(), R.layout.formtemplate_double_spinner);
         setAdapter(comboboxAdapter);
 
         for (int j = 0; j < values.length(); j++) {
@@ -190,7 +188,7 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
                         AliasList subAliasList = mAliasSubListMap.get(selectedValueAlias);
 
                         ArrayAdapter<String> subComboboxAdapter = new ArrayAdapter<>(
-                                view.getContext(), android.R.layout.simple_spinner_item,
+                                view.getContext(), R.layout.formtemplate_double_spinner,
                                 subAliasList.aliasList);
                         subComboboxAdapter.setDropDownViewResource(
                                 android.R.layout.simple_spinner_dropdown_item);
@@ -245,7 +243,6 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
     {
         layout.addView(this);
         layout.addView(mSubCombobox);
-        GreyLine.addToLayout(layout);
     }
 
 

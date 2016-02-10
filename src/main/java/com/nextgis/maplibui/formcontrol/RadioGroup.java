@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -49,7 +49,6 @@ import java.util.Map;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DEFAULT_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
-import static com.nextgis.maplibui.util.ConstantsUI.JSON_SHOW_LAST_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_ALIAS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_NAME_KEY;
@@ -78,7 +77,8 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);
         mIsShowLast = ControlHelper.isSaveLastValue(attributes);
-        setEnabled(ControlHelper.isEnabled(fields, mFieldName));
+        boolean isEnabled = ControlHelper.isEnabled(fields, mFieldName);
+        setEnabled(isEnabled);
 
         String lastValue = null;
         if (ControlHelper.hasKey(savedState, mFieldName))
@@ -110,6 +110,7 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
             mAliasValueMap.put(value_alias, value);
             AppCompatRadioButton radioButton = new AppCompatRadioButton(getContext());
             radioButton.setText(value_alias);
+            radioButton.setEnabled(isEnabled);
             addView(radioButton);
         }
 
