@@ -6,7 +6,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -192,7 +192,7 @@
         <item name="actionModeCopyDrawable">@drawable/ic_action_content_copy</item>
         <item name="actionModePasteDrawable">@drawable/ic_action_content_paste</item>
         <item name="actionModeSelectAllDrawable">@drawable/ic_action_content_select_all</item>
-        <item name="actionModeShareDrawable">@drawable/ic_action_social_share</item>
+        <item name="actionModeShareDrawable">@drawable/ic_action_social_share_light</item>
 
         <item name="listChoiceBackgroundIndicator">@drawable/abc_list_selector_holo_light</item>
     </style>
@@ -208,7 +208,7 @@
         <item name="actionModeCopyDrawable">@drawable/ic_action_content_copy</item>
         <item name="actionModePasteDrawable">@drawable/ic_action_content_paste</item>
         <item name="actionModeSelectAllDrawable">@drawable/ic_action_content_select_all</item>
-        <item name="actionModeShareDrawable">@drawable/ic_action_social_share</item>
+        <item name="actionModeShareDrawable">@drawable/ic_action_social_share_light</item>
 
         <item name="listChoiceBackgroundIndicator">@drawable/abc_list_selector_holo_light</item>
     </style>

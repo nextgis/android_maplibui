@@ -228,4 +228,5 @@
     <string name="share_gpx_separate">По отдельности</string>
     <string name="share_gpx_together">В один файл</string>
     <string name="action_edit">Редактировать</string>
+    <string name="track_list">Список</string>
 </resources>

@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -219,6 +219,7 @@ public class LayersListAdapter
 
                         if (layerui instanceof TrackLayer) {
                             popup.getMenu().findItem(R.id.menu_delete).setVisible(false);
+                            popup.getMenu().findItem(R.id.menu_settings).setTitle(R.string.track_list);
                         }
                         else if (layerui instanceof VectorLayer) {
                             popup.getMenu().findItem(R.id.menu_share).setVisible(true);

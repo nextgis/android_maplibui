@@ -230,4 +230,5 @@
     <string name="share_gpx_separate">Separate files</string>
     <string name="share_gpx_together">All in one</string>
     <string name="action_edit">Edit</string>
+    <string name="track_list">List</string>
 </resources>
