@@ -366,12 +366,12 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
                 break;
             case GeoConstants.GTMultiPoint:
                 GeoMultiPoint geoMultiPoint = (GeoMultiPoint) geom;
-                geoPoints = new GeoPoint[geoMultiPoint.size()];
-                for (int i = 0; i < geoMultiPoint.size(); i++)
-                    geoPoints[i] = geoMultiPoint.get(i);
-
-                mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, mapToScreen(geoPoints));
-                mDrawItems.add(mSelectedItem);
+                geoPoints = new GeoPoint[1];
+                for (int i = 0; i < geoMultiPoint.size(); i++) {
+                    geoPoints[0] = geoMultiPoint.get(i);
+                    mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, mapToScreen(geoPoints));
+                    mDrawItems.add(mSelectedItem);
+                }
                 break;
             case GeoConstants.GTLineString:
                 GeoLineString lineString = (GeoLineString) geom;
