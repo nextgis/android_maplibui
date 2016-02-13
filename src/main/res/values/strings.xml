@@ -91,7 +91,9 @@
     <string name="longitude_caption">Longitude</string>
     <string name="altitude_caption">Altitude</string>
     <string name="unit_meter">m</string>
+    <string name="unit_square_meter">m²</string>
     <string name="unit_kilometer">km</string>
+    <string name="unit_square_kilometer">km²</string>
     <string name="unit_second">s</string>
     <string name="unit_hour">h</string>
     <string name="accuracy_caption">Accuracy</string>
