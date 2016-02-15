@@ -609,44 +609,44 @@ public class ModifyAttributesActivity
             return;
 
         if (null == location) {
-
-            mLatView.setText(
-                    getString(R.string.latitude_caption_short) + ": " + getString(R.string.n_a));
-            mLongView.setText(
-                    getString(R.string.longitude_caption_short) + ": " + getString(R.string.n_a));
-            mAltView.setText(
-                    getString(R.string.altitude_caption_short) + ": " + getString(R.string.n_a));
-            mAccView.setText(
-                    getString(R.string.accuracy_caption_short) + ": " + getString(R.string.n_a));
-
+            mLatView.setText(formatCoordinates(Double.NaN, R.string.latitude_caption_short));
+            mLongView.setText(formatCoordinates(Double.NaN, R.string.longitude_caption_short));
+            mAltView.setText(formatMeters(Double.NaN, R.string.altitude_caption_short));
+            mAccView.setText(formatMeters(Double.NaN, R.string.accuracy_caption_short));
             return;
         }
 
         mLocation = location;
+        mLatView.setText(formatCoordinates(location.getLatitude(), R.string.latitude_caption_short));
+        mLongView.setText(formatCoordinates(location.getLongitude(), R.string.longitude_caption_short));
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        mAltView.setText(formatMeters(location.getAltitude(), R.string.altitude_caption_short));
+        mAccView.setText(formatMeters(location.getAccuracy(), R.string.accuracy_caption_short));
+    }
 
-        int nFormat = prefs.getInt(
-                SettingsConstantsUI.KEY_PREF_COORD_FORMAT + "_int", Location.FORMAT_SECONDS);
-        DecimalFormat df = new DecimalFormat("0.0");
+    private String formatCoordinates(double value, int caption) {
+        String appendix;
+        if (value != Double.NaN) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            int nFormat = prefs.getInt(SettingsConstantsUI.KEY_PREF_COORD_FORMAT + "_int", Location.FORMAT_SECONDS);
+            int nFraction = prefs.getInt(SettingsConstantsUI.KEY_PREF_COORD_FRACTION, 6);
+            appendix = LocationUtil.formatLatitude(value, nFormat, nFraction, getResources());
+        } else
+            appendix = getString(R.string.n_a);
 
-        mLatView.setText(
-                getString(R.string.latitude_caption_short) + ": " +
-                LocationUtil.formatLatitude(location.getLatitude(), nFormat, getResources()));
+        return getString(caption) + ": " + appendix;
+    }
 
-        mLongView.setText(
-                getString(R.string.longitude_caption_short) + ": " +
-                LocationUtil.formatLongitude(location.getLongitude(), nFormat, getResources()));
 
-        double altitude = location.getAltitude();
-        mAltView.setText(
-                getString(R.string.altitude_caption_short) + ": " + df.format(altitude) + " " +
-                getString(R.string.unit_meter));
+    private String formatMeters(double value, int caption) {
+        String appendix;
+        if (value != Double.NaN) {
+            DecimalFormat df = new DecimalFormat("0.0");
+            appendix = df.format(value) + " " + getString(R.string.unit_meter);
+        } else
+            appendix = getString(R.string.n_a);
 
-        float accuracy = location.getAccuracy();
-        mAccView.setText(
-                getString(R.string.accuracy_caption_short) + ": " + df.format(accuracy) + " " +
-                getString(R.string.unit_meter));
+        return getString(caption) + ": " + appendix;
     }
 
 
