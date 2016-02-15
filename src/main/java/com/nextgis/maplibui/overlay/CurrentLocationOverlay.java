@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -51,7 +51,6 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.api.OverlayItem;
 import com.nextgis.maplibui.mapui.MapViewOverlays;
-import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 
@@ -69,7 +68,6 @@ public class CurrentLocationOverlay
     private boolean        mIsInBounds, mIsInScreenBounds;
     private boolean mIsAutopanningEnabled = false;
     private boolean mIsAccuracyEnabled = true;
-    private boolean mIsAccuracyMarkerBiggest;
     private boolean mIsStandingMarkerCustom, mIsMovingMarkerCustom;
     private int mStandingMarkerRes = R.drawable.abc_btn_switch_to_on_mtrl_00001, mMovingMarkerRes =
             R.drawable.abc_ic_ab_back_mtrl_am_alpha;
@@ -111,7 +109,7 @@ public class CurrentLocationOverlay
         }
 
         if (mIsInBounds && isMarkerEnabled() && mCurrentLocation != null) {
-            if (mIsAccuracyEnabled && mIsAccuracyMarkerBiggest) {
+            if (mIsAccuracyEnabled) {
                 drawOnPanning(canvas, currentMouseOffset, mAccuracy);
             }
 
@@ -132,7 +130,7 @@ public class CurrentLocationOverlay
         }
 
         if (mIsInBounds && isMarkerEnabled() && mCurrentLocation != null) {
-            if (mIsAccuracyEnabled && mIsAccuracyMarkerBiggest) {
+            if (mIsAccuracyEnabled) {
                 drawOnZooming(canvas, currentFocusLocation, scale, mAccuracy, true);
             }
 
@@ -156,45 +154,35 @@ public class CurrentLocationOverlay
                 // set accuracy marker with proper meter radius
                 double accuracy = mCurrentLocation.getAccuracy();
                 accuracy = getAccuracyRadius(lat, accuracy);
+
+                GeoPoint centerPoint = new GeoPoint(lon, lat);
+                centerPoint.setCRS(GeoConstants.CRS_WGS84);
+                centerPoint.project(GeoConstants.CRS_WEB_MERCATOR);
+                centerPoint = mapDrawable.mapToScreen(centerPoint);
                 GeoPoint newPoint = new GeoPoint(lon, accuracy);
                 newPoint.setCRS(GeoConstants.CRS_WGS84);
                 newPoint.project(GeoConstants.CRS_WEB_MERCATOR);
                 newPoint = mapDrawable.mapToScreen(newPoint);
-                int radius = (int) (mMarker.getScreenY() - newPoint.getY());
+
+                int radius = (int) (centerPoint.getY() - newPoint.getY());
                 mAccuracy.setMarker(getAccuracyMarker(radius));
                 mAccuracy.setCoordinatesFromWGS(lon, lat);
-                mIsAccuracyMarkerBiggest = compareMarkers();
 
                 // set marker in current map and screen bounds flags
                 newPoint = mMarker.getCoordinates(GeoConstants.CRS_WEB_MERCATOR);
                 mIsInBounds = mapDrawable.getCurrentBounds().contains(newPoint);
                 GeoEnvelope screenBounds = mapDrawable.getFullScreenBounds();
                 mIsInScreenBounds = mapDrawable.screenToMap(screenBounds).contains(newPoint);
-            } else {
-                mIsAccuracyMarkerBiggest = false;
             }
 
             if (mIsInBounds) {
-                if (mIsAccuracyEnabled && mIsAccuracyMarkerBiggest) {
+                if (mIsAccuracyEnabled) {
                     drawOverlayItem(canvas, mAccuracy);
                 }
 
                 drawOverlayItem(canvas, mMarker);
             }
         }
-    }
-
-
-    private boolean compareMarkers()
-    {
-        if (mAccuracy.getMarker() == null) {
-            return false;
-        }
-
-        int accuracySize = mAccuracy.getMarker().getWidth();
-        int markerSize = Math.min(mMarker.getMarker().getWidth(), mMarker.getMarker().getHeight());
-
-        return accuracySize > markerSize;
     }
 
 
