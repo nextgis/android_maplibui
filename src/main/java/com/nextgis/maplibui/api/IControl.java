@@ -26,7 +26,10 @@ package com.nextgis.maplibui.api;
 import android.os.Bundle;
 import android.view.ViewGroup;
 
-
+/**
+ * Interface for control in edit form.
+ * @author Dmitry Baryshnikov <dmitry.baryshnikov@nextgis.com>
+ */
 public interface IControl
 {
     String getFieldName();

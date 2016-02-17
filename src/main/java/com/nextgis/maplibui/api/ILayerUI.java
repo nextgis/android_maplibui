@@ -26,11 +26,22 @@ package com.nextgis.maplibui.api;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
-
+/**
+ * Each layer that need to be present in UI must implements this interface.
+ */
 public interface ILayerUI
 {
+    /**
+     * The layer icon
+     * @param context context to search icon
+     * @return the layer icon
+     */
     Drawable getIcon(Context context);
 
+    /**
+     * This method executed to change layer properties. Usually the properties activity is shown,
+     * @param context there to show properties
+     */
     void changeProperties(Context context);
 
 }
