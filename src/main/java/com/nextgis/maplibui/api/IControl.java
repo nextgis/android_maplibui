@@ -32,11 +32,27 @@ import android.view.ViewGroup;
  */
 public interface IControl
 {
+    /**
+     * Return layer field name linked with control
+     * @return field name
+     */
     String getFieldName();
 
+    /**
+     * Executed to add control to the specified layout
+     * @param layout to add control
+     */
     void addToLayout(ViewGroup layout);
 
+    /**
+     * Return the value from feature or entered by user
+     * @return value from user input or feature
+     */
     Object getValue();
 
+    /**
+     * Save control state in onPause and etc.
+     * @param outState bundle to save state to
+     */
     void saveState(Bundle outState);
 }
