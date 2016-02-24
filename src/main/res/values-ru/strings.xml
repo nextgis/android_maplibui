@@ -113,6 +113,8 @@
     <string name="create_vector_layer">Создать векторный слой</string>
     <string name="new_layer">Новый слой</string>
     <string name="message_layer_created">Слой создан</string>
+    <string name="feature_n">Объект #%1$s</string>
+    <string name="new_feature">Новый объект</string>
     <string name="error_form_create">Не удалось создать форму</string>
     <string name="system_default">Системная настройка по умолчанию</string>
     <string name="five_minutes">5 минут</string>

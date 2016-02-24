@@ -2,11 +2,9 @@
 <!--
   ~ Project:  NextGIS Mobile
   ~ Purpose:  Mobile GIS for Android.
-  ~ Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
-  ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -26,13 +24,8 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_edit_move_point_to_center"
-        android:icon="@drawable/ic_action_move_point_to_center"
-        android:title="@string/move_point_to_center"
+        android:id="@+id/menu_edit_save"
+        android:icon="@drawable/ic_action_save"
+        android:title="@string/save"
         app:showAsAction="always"/>
-    <item
-        android:id="@+id/menu_edit_move_point_to_current_location"
-        android:icon="@drawable/ic_action_move_point_to_location"
-        android:title="@string/move_point_to_current_location"
-        app:showAsAction="ifRoom"/>
 </menu>

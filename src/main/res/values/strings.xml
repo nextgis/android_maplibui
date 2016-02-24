@@ -113,6 +113,8 @@
     <string name="create_vector_layer">Create vector layer</string>
     <string name="new_layer">New layer</string>
     <string name="message_layer_created">Layer created</string>
+    <string name="feature_n">Feature #%1$s</string>
+    <string name="new_feature">New feature</string>
     <string name="error_form_create">Form create failed</string>
     <string name="system_default">System default</string>
     <string name="five_minutes">5 minutes</string>

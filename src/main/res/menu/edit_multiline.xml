@@ -6,7 +6,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -23,44 +23,23 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
-    <item
-        android:id="@+id/menu_cancel"
-        android:title="@string/cancel"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_action_cancel_dark"
-        />
-    <item
-        android:id="@+id/menu_edit_add_new_multiline"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_action_add_multiline"
-        android:title="@string/add_multilinestring"
-        />
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
         android:id="@+id/menu_edit_add_new_line"
-        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_add_line"
         android:title="@string/add_line"
-        />
-    <item
-        android:id="@+id/menu_edit_delete_multiline"
-        app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_action_delete_multiline"
-        android:title="@string/delete_multilinestring"
-        />
+        app:showAsAction="always"/>
     <item
         android:id="@+id/menu_edit_delete_line"
-        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_delete_line"
         android:title="@string/delete_line"
-        />
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/menu_edit_delete_point"
-        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_delete_point"
         android:title="@string/delete_point"
-        />
+        app:showAsAction="ifRoom"/>
     <!-- TODO: item
         android:id="@+id/menu_edit_track"
         app:showAsAction="ifRoom"
@@ -69,20 +48,12 @@
         /-->
     <item
         android:id="@+id/menu_edit_move_point_to_center"
-        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_move_point_to_center"
         android:title="@string/move_point_to_center"
-        />
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/menu_edit_move_point_to_current_location"
-        app:showAsAction="ifRoom"
         android:icon="@drawable/ic_action_move_point_to_location"
         android:title="@string/move_point_to_current_location"
-        />
-    <item
-        android:id="@+id/menu_edit_attributes"
-        app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_action_attributes"
-        android:title="@string/edit_attributes"
-        />
+        app:showAsAction="ifRoom"/>
 </menu>
