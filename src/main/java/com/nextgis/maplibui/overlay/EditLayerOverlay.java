@@ -38,6 +38,7 @@ import android.graphics.RectF;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.internal.widget.ThemeUtils;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -72,6 +73,7 @@ import com.nextgis.maplibui.fragment.BottomToolbar;
 import com.nextgis.maplibui.mapui.MapViewOverlays;
 import com.nextgis.maplibui.service.WalkEditService;
 import com.nextgis.maplibui.util.ConstantsUI;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -139,6 +141,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
     protected boolean     mHasEdits;
     protected OverlayItem mOverlayPoint;
 
+    protected Toolbar mEditToolbar;
     protected BottomToolbar mCurrentToolbar;
 
     protected float mCanvasCenterX, mCanvasCenterY;
@@ -291,8 +294,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
 
     public void createPointFromOverlay() {
         if (mOverlayPoint != null && mOverlayPoint.isVisible() && mLayer != null) {
-            setHasEdits(true);
-
             GeoPoint point = mOverlayPoint.getCoordinates(GeoConstants.CRS_WEB_MERCATOR);
             if (mLayer.getGeometryType() == GeoConstants.GTMultiPoint) {
                 GeoMultiPoint mpt = new GeoMultiPoint();
@@ -309,8 +310,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
             geoPoints[0] = point;
             mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, mapToScreen(geoPoints));
             mDrawItems.add(mSelectedItem);
-            fillGeometry();
 
+            fillGeometry();
             updateMap();
         }
     }
@@ -337,6 +338,11 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
 
     public long getSelectedFeatureId() {
         return mFeature == null ? Constants.NOT_FOUND : mFeature.getId();
+    }
+
+
+    public Feature getSelectedFeature() {
+        return mFeature;
     }
 
 
@@ -573,13 +579,9 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
 
     protected void setWalkSaveState(boolean save) {
         Menu toolbarMenu = mCurrentToolbar.getMenu();
-        for (int i = 0; i < toolbarMenu.size(); i++) {
-            MenuItem item = toolbarMenu.getItem(i);
-            if (item.getItemId() == R.id.menu_edit_save) {
-                item.setEnabled(save);
-                break;
-            }
-        }
+        MenuItem item = toolbarMenu.findItem(R.id.menu_edit_save);
+        if (item != null)
+            ControlHelper.setEnabled(item, save);
     }
 
 
@@ -631,14 +633,57 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
 
     public void setHasEdits(boolean hasEdits){
         mHasEdits = hasEdits;
+
+        MenuItem item = mEditToolbar.getMenu().findItem(R.id.menu_edit_save);
+        if (item != null)
+            ControlHelper.setEnabled(item, hasEdits);
+
+        // polygon rings
+        boolean isOuterRingSelected = mSelectedItem.getSelectedRingId() == 0;
+        item = mCurrentToolbar.getMenu().findItem(R.id.menu_edit_add_new_inner_ring);
+        if (item != null)
+            ControlHelper.setEnabled(item, isOuterRingSelected);
+
+        item = mCurrentToolbar.getMenu().findItem(R.id.menu_edit_delete_inner_ring);
+        if (item != null)
+            ControlHelper.setEnabled(item, !isOuterRingSelected);
+
+        // delete buttons
+        boolean onlyOneItem = mDrawItems.size() > 1;
+        item = mCurrentToolbar.getMenu().findItem(R.id.menu_edit_delete_line);
+        if (item != null)
+            ControlHelper.setEnabled(item, onlyOneItem);
+
+        item = mCurrentToolbar.getMenu().findItem(R.id.menu_edit_delete_polygon);
+        if (item != null)
+            ControlHelper.setEnabled(item, onlyOneItem && isOuterRingSelected);
+
+        boolean minimumPoints = true;
+        int size = mSelectedItem.getSelectedRing().length;
+        switch (mLayer.getGeometryType()) {
+            case GeoConstants.GTMultiPoint:
+                minimumPoints = onlyOneItem;
+                break;
+            case GeoConstants.GTLineString:
+            case GeoConstants.GTMultiLineString:
+                minimumPoints = size / 2 > 2;
+                break;
+            case GeoConstants.GTPolygon:
+            case GeoConstants.GTMultiPolygon:
+                minimumPoints = size / 2 > 3;
+                break;
+        }
+
+        item = mCurrentToolbar.getMenu().findItem(R.id.menu_edit_delete_point);
+        if (item != null)
+            ControlHelper.setEnabled(item, minimumPoints);
     }
 
     protected void moveSelectedPoint(float x, float y) {
-        setHasEdits(true);
-
         mSelectedItem.setSelectedPointCoordinates(x, y);
-        fillGeometry();
 
+        setHasEdits(true);
+        fillGeometry();
         updateMap();
     }
 
@@ -805,6 +850,10 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
         }
     }
 
+    public void setEditbar(final Toolbar toolbar) {
+        mEditToolbar = toolbar;
+    }
+
     public void setToolbar(final BottomToolbar toolbar) {
         mCurrentToolbar = toolbar;
     }
@@ -884,7 +933,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
             mFeature.setGeometry(null);
 
         setHasEdits(true);
-        updateMap(); // TODO update icons
+        updateMap();
+
         return true;
     }
 
@@ -894,17 +944,24 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
             return false;
 
         mSelectedItem.deleteSelectedPoint(mLayer);
-        if (mSelectedItem.getRingCount() == 0)
+        if (mSelectedItem.getRingCount() == 0) {
             mDrawItems.remove(mSelectedItem);
+
+            if (mDrawItems.size() > 0)
+                mSelectedItem = mDrawItems.get(mDrawItems.size() - 1);
+            else
+                mSelectedItem = null;
+        }
 
         boolean hasEdits = mFeature.getId() != Constants.NOT_FOUND;
         GeoGeometry geom = fillGeometry();
         hasEdits = hasEdits || geom != null;
-        setHasEdits(hasEdits);
 
         if (null == geom)
             mFeature.setGeometry(null);
 
+        setHasEdits(hasEdits);
+//        fillGeometry();
         updateMap();
         return true;
     }
@@ -913,9 +970,11 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
     protected boolean deleteInnerRing() {
         if (mSelectedItem != null && mSelectedItem.getSelectedRingId() != 0) {
             mSelectedItem.deleteSelectedRing(mLayer);
+
             setHasEdits(true);
             fillGeometry();
             updateMap();
+
             return true;
         }
 
@@ -933,9 +992,11 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
         mSelectedItem.addVertices(getNewGeometry(GeoConstants.GTLinearRing, center));
         mSelectedItem.setSelectedRing(mSelectedItem.getRingCount() - 1);
         mSelectedItem.setSelectedPoint(0);
+
         setHasEdits(true);
         fillGeometry();
         updateMap();
+
         return true;
     }
 
@@ -948,14 +1009,13 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
         if (null == mapDrawable)
             return false;
 
-        setHasEdits(true);
-
         GeoPoint center = mapDrawable.getFullScreenBounds().getCenter();
         addGeometryToExistent(geometryType, center);
 
-        //set new coordinates to GeoPoint from screen coordinates
+        setHasEdits(true);
         fillGeometry();
         updateMap();
+
         return true;
     }
 
@@ -1005,7 +1065,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
                 break;
         }
 
-        setHasEdits(true);
         mFeature = new Feature();
         mFeature.setGeometry(geometry);
 
@@ -1122,8 +1181,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
      */
     @Override
     public void onSingleTapUp(MotionEvent event) {
-
-//        selectGeometryInScreenCoordinates(event.getX(), event.getY());
     }
 
 
@@ -1137,12 +1194,13 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
         double dMaxY = y + mTolerancePX;
         GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
 
+        //1. search current geometry point
         if (null != mFeature && null != mFeature.getGeometry()) {
-            //1. search current geometry point
             if (intersects(screenEnv)) {
                 if (mMode == MODE_HIGHLIGHT) { // highlight same geometry
                     mSelectedItem = null;
                 } else {
+                    setHasEdits(true);
                     fillGeometry();
                     mMapViewOverlays.invalidate();
                 }
@@ -1153,7 +1211,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
                 return;
         }
 
-        //2 select another geometry
+        //2. select another geometry
         GeoEnvelope mapEnv = mMapViewOverlays.screenToMap(screenEnv);
         if (null == mapEnv)
             return;
@@ -1236,9 +1294,9 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener
     {
         if (mMode == MODE_CHANGE) {
             mMapViewOverlays.setLockMap(false);
+            mMode = MODE_EDIT;
 
             setHasEdits(true);
-            mMode = MODE_EDIT;
             fillGeometry();
             updateMap(); // redraw the map
         }

@@ -31,14 +31,14 @@
         android:title="@string/add_polygon"
         app:showAsAction="always"/>
     <item
-        android:id="@+id/menu_edit_add_new_inner_ring"
-        android:icon="@drawable/ic_action_add_hole"
-        android:title="@string/add_hole"
-        app:showAsAction="ifRoom"/>
-    <item
         android:id="@+id/menu_edit_delete_polygon"
         android:icon="@drawable/ic_action_delete_polygon"
         android:title="@string/delete_polygon"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/menu_edit_add_new_inner_ring"
+        android:icon="@drawable/ic_action_add_hole"
+        android:title="@string/add_hole"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/menu_edit_delete_inner_ring"
