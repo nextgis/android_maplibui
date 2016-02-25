@@ -94,7 +94,7 @@
             android:layout_below="@+id/title"
             >
 
-            <!--http://stackoverflow.com/a/15961335/4727406-->
+            <!--http://stackoverflow.com/a/15961335-->
 
             <ScrollView
                 android:id="@+id/dialog_body_scroll"
