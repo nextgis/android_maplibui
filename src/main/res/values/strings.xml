@@ -5,7 +5,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -91,7 +91,9 @@
     <string name="longitude_caption">Longitude</string>
     <string name="altitude_caption">Altitude</string>
     <string name="unit_meter">m</string>
+    <string name="unit_square_meter">m²</string>
     <string name="unit_kilometer">km</string>
+    <string name="unit_square_kilometer">km²</string>
     <string name="unit_second">s</string>
     <string name="unit_hour">h</string>
     <string name="accuracy_caption">Accuracy</string>
@@ -204,10 +206,17 @@
     <string name="not_implemented">Not implemented yet</string>
     <string name="layer_lookuptable">Lookup table</string>
     <string name="zoom_levels_to_show">Zoom levels to show layer</string>
+    <string name="min" translatable="false">min: %1$d</string>
+    <string name="max" translatable="false">max: %1$d</string>
     <string name="alpha">Opacity</string>
     <string name="layerInfo">Layer info</string>
     <string name="geom_type">Geometry type</string>
-    <string name="feature_count">Feature count</string>
+    <string name="layer_geom_type">%1$s layer</string>
+    <string name="feature_count">%1$s features</string>
+    <string name="layer_local_path">Local path: %1$s</string>
+    <string name="layer_remote_path">Remote: %1$s</string>
+    <string name="layer_has_form">Layer has custom form</string>
+    <string name="layer_has_no_form">Layer does not have custom form</string>
     <string name="point">Point</string>
     <string name="multi_point">Multipoint</string>
     <string name="linestring">Linestring</string>
@@ -223,4 +232,5 @@
     <string name="share_gpx_separate">Separate files</string>
     <string name="share_gpx_together">All in one</string>
     <string name="action_edit">Edit</string>
+    <string name="track_list">List</string>
 </resources>

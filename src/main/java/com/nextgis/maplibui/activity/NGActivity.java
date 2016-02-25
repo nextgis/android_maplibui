@@ -3,8 +3,9 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
+ * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -39,11 +40,9 @@ import com.nextgis.maplibui.util.SettingsConstantsUI;
 public class NGActivity
         extends AppCompatActivity
 {
-    protected final static String KEY_CURRENT_THEME = "current_theme";
-
     protected SharedPreferences mPreferences;
     protected boolean           mIsDarkTheme;
-
+    protected String            mCurrentTheme;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -68,7 +67,7 @@ public class NGActivity
     // for overriding in a subclass
     protected void setCurrentThemePref()
     {
-        mPreferences.edit().putString(KEY_CURRENT_THEME, mIsDarkTheme ? "dark" : "light").commit();
+        mCurrentTheme = mIsDarkTheme ? "dark" : "light";
     }
 
 
@@ -76,9 +75,8 @@ public class NGActivity
     protected void refreshCurrentTheme()
     {
         String newTheme = mPreferences.getString(SettingsConstantsUI.KEY_PREF_THEME, "light");
-        String currentTheme = mPreferences.getString(KEY_CURRENT_THEME, "light");
 
-        if (!newTheme.equals(currentTheme)) {
+        if (!newTheme.equals(mCurrentTheme)) {
             refreshActivityView();
         }
     }

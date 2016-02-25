@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -30,8 +30,11 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.util.Pair;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -42,18 +45,22 @@ import android.widget.TextView;
 import com.edmodo.rangebar.RangeBar;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
+import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.display.SimpleFeatureRenderer;
 import com.nextgis.maplib.display.Style;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplib.util.LayerUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IChooseColorResult;
 import com.nextgis.maplibui.dialog.ChooseColorDialog;
 import com.nextgis.maplibui.service.RebuildCacheService;
 import com.nextgis.maplibui.util.ConstantsUI;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,12 +70,12 @@ import java.util.List;
  */
 public class VectorLayerSettingsActivity
         extends NGActivity
-        implements IChooseColorResult
-{
+        implements IChooseColorResult, View.OnClickListener {
     protected VectorLayer                 mVectorLayer;
     protected List<Pair<Integer, String>> mColors;
     protected int                         mCurrentColor;
     protected BroadcastReceiver           mRebuildCacheReceiver;
+    protected CharSequence[]              mFields;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,26 +111,34 @@ public class VectorLayerSettingsActivity
         }
 
         if (null != mVectorLayer) {
+            TextView form = (TextView) findViewById(R.id.layer_custom_form);
+            File formPath = new File(mVectorLayer.getPath(), ConstantsUI.FILE_FORM);
+            form.setText(formPath.exists() ? R.string.layer_has_form : R.string.layer_has_no_form);
+
+            TextView path = (TextView) findViewById(R.id.layer_local_lath);
+            path.setText(String.format(getString(R.string.layer_local_path), mVectorLayer.getPath()));
+
+            Button fields = (Button) findViewById(R.id.layer_fields);
+            fields.setOnClickListener(this);
+            int fieldsCount = mVectorLayer.getFields().size();
+            mFields = new CharSequence[fieldsCount];
+            for (int i = 0; i < fieldsCount; i++) {
+                Field field = mVectorLayer.getFields().get(i);
+                String fieldInfo = field.getName() + " - " + LayerUtil.typeToString(this, field.getType());
+                mFields[i] = fieldInfo;
+            }
+
+            if (mVectorLayer instanceof NGWVectorLayer) {
+                TextView remote = (TextView) findViewById(R.id.layer_remote_path);
+                remote.setText(String.format(getString(R.string.layer_remote_path), ((NGWVectorLayer) mVectorLayer).getRemoteUrl()));
+                remote.setVisibility(View.VISIBLE);
+            }
+
             EditText editText = (EditText) findViewById(R.id.layer_name);
             editText.setText(mVectorLayer.getName());
 
             LinearLayout color_row = (LinearLayout) findViewById(R.id.color_row);
-            color_row.setOnClickListener(
-                    new View.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(View v)
-                        {
-                            //show colors list
-                            ChooseColorDialog newChooseColorDialog = new ChooseColorDialog();
-                            newChooseColorDialog.setColors(mColors)
-                                    .setTitle(getString(R.string.select_color))
-                                    .setTheme(getThemeId())
-                                    .show(
-                                            VectorLayerSettingsActivity.this.getSupportFragmentManager(),
-                                            "choose_color");
-                        }
-                    });
+            color_row.setOnClickListener(this);
 
             // set color
             SimpleFeatureRenderer sfr = (SimpleFeatureRenderer) mVectorLayer.getRenderer();
@@ -143,46 +158,28 @@ public class VectorLayerSettingsActivity
             rangebar.setThumbIndices(nMinZoom, nMaxZoom);
             // Gets the index value TextViews
             final TextView leftIndexValue = (TextView) findViewById(R.id.leftIndexValue);
-            leftIndexValue.setText("min: " + nMinZoom);
+            leftIndexValue.setText(String.format(getString(R.string.min), nMinZoom));
             final TextView rightIndexValue = (TextView) findViewById(R.id.rightIndexValue);
-            rightIndexValue.setText("max: " + nMaxZoom);
+            rightIndexValue.setText(String.format(getString(R.string.max), nMaxZoom));
 
             // Sets the display values of the indices
             rangebar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
                 @Override
                 public void onIndexChangeListener(RangeBar rangeBar, int leftThumbIndex, int rightThumbIndex) {
-
-                    leftIndexValue.setText("min: " + leftThumbIndex);
-                    rightIndexValue.setText("max: " + rightThumbIndex);
+                    leftIndexValue.setText(String.format(getString(R.string.min), leftThumbIndex));
+                    rightIndexValue.setText(String.format(getString(R.string.max), rightThumbIndex));
                 }
             });
 
-            TextView featureCount = (TextView) findViewById(R.id.layer_feature_count);
-            featureCount.setText(featureCount.getText() + ": " + mVectorLayer.getCount());
+            Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+            setTitle(String.format(getString(R.string.layer_geom_type), getGeometryName(mVectorLayer.getGeometryType())));
+            toolbar.setSubtitle(String.format(getString(R.string.feature_count), mVectorLayer.getCount()));
 
-            TextView geomType = (TextView) findViewById(R.id.layer_geom_type);
-            geomType.setText(geomType.getText() + ": " + getGeometryName(mVectorLayer.getGeometryType()));
-
-            // rebuild cache
-            final Intent intent = new Intent(this, RebuildCacheService.class);
-            intent.putExtra(ConstantsUI.KEY_LAYER_ID, mVectorLayer.getId());
             final ProgressBar rebuildCacheProgress = (ProgressBar) findViewById(R.id.rebuildCacheProgressBar);
             final ImageButton buildCacheButton = (ImageButton) findViewById(R.id.buildCacheButton);
-            buildCacheButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    intent.setAction(RebuildCacheService.ACTION_ADD_TASK);
-                    startService(intent);
-                }
-            });
+            buildCacheButton.setOnClickListener(this);
             final ImageButton cancelBuildCacheButton = (ImageButton) findViewById(R.id.cancelBuildCahceButton);
-            cancelBuildCacheButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    intent.setAction(RebuildCacheService.ACTION_STOP);
-                    startService(intent);
-                }
-            });
+            cancelBuildCacheButton.setOnClickListener(this);
 
             mRebuildCacheReceiver = new BroadcastReceiver() {
                 public void onReceive(Context context, Intent intent) {
@@ -190,6 +187,34 @@ public class VectorLayerSettingsActivity
                     rebuildCacheProgress.setProgress(intent.getIntExtra(RebuildCacheService.KEY_PROGRESS, 0));
                 }
             };
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        // rebuild cache
+        final Intent intent = new Intent(this, RebuildCacheService.class);
+        intent.putExtra(ConstantsUI.KEY_LAYER_ID, mVectorLayer.getId());
+
+        int i = v.getId();
+        if (i == R.id.color_row) {//show colors list
+            ChooseColorDialog newChooseColorDialog = new ChooseColorDialog();
+            newChooseColorDialog.setColors(mColors)
+                    .setTitle(getString(R.string.select_color))
+                    .setTheme(getThemeId())
+                    .show(VectorLayerSettingsActivity.this.getSupportFragmentManager(), "choose_color");
+        } else if (i == R.id.layer_fields) {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+            dialog.setTitle(R.string.fields)
+                    .setItems(mFields, null)
+                    .setPositiveButton(android.R.string.ok, null);
+            dialog.show().setCanceledOnTouchOutside(false);
+        } else if (i == R.id.buildCacheButton) {
+            intent.setAction(RebuildCacheService.ACTION_ADD_TASK);
+            startService(intent);
+        } else if (i == R.id.cancelBuildCahceButton) {
+            intent.setAction(RebuildCacheService.ACTION_STOP);
+            startService(intent);
         }
     }
 

@@ -26,14 +26,33 @@ package com.nextgis.maplibui.api;
 import android.os.Bundle;
 import android.view.ViewGroup;
 
-
+/**
+ * Interface for control in edit form.
+ * @author Dmitry Baryshnikov <dmitry.baryshnikov@nextgis.com>
+ */
 public interface IControl
 {
+    /**
+     * Return layer field name linked with control
+     * @return field name
+     */
     String getFieldName();
 
+    /**
+     * Executed to add control to the specified layout
+     * @param layout to add control
+     */
     void addToLayout(ViewGroup layout);
 
+    /**
+     * Return the value from feature or entered by user
+     * @return value from user input or feature
+     */
     Object getValue();
 
+    /**
+     * Save control state in onPause and etc.
+     * @param outState bundle to save state to
+     */
     void saveState(Bundle outState);
 }

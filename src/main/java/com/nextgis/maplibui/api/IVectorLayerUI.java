@@ -32,6 +32,12 @@ import com.nextgis.maplib.datasource.GeoGeometry;
  */
 public interface IVectorLayerUI extends ILayerUI
 {
+    /**
+     * This method executed, when the form need to be shown
+     * @param context activity context
+     * @param featureId a feature identificator to fill form controls
+     * @param geometry a new geometry for feature
+     */
     void showEditForm(
             Context context,
             long featureId,

@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,9 +25,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.api.IFormControl;
@@ -41,10 +41,9 @@ import java.util.List;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_CHECKBOX_INIT_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
-import static com.nextgis.maplibui.util.ConstantsUI.JSON_SHOW_LAST_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_KEY;
 
-public class Checkbox extends CheckBox implements IFormControl {
+public class Checkbox extends AppCompatCheckBox implements IFormControl {
     protected String mFieldName;
     protected boolean mIsShowLast;
 

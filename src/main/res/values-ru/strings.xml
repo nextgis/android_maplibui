@@ -5,7 +5,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -91,7 +91,9 @@
     <string name="longitude_caption">Долгота</string>
     <string name="altitude_caption">Высота</string>
     <string name="unit_meter">м</string>
+    <string name="unit_square_meter">м²</string>
     <string name="unit_kilometer">км</string>
+    <string name="unit_square_kilometer">км²</string>
     <string name="unit_second">с</string>
     <string name="unit_hour">ч</string>
     <string name="accuracy_caption">Точность</string>
@@ -207,7 +209,12 @@
     <string name="alpha">Непрозрачность</string>
     <string name="layerInfo">Информация о слое</string>
     <string name="geom_type">Тип геометрии</string>
-    <string name="feature_count">Количество записей</string>
+    <string name="layer_geom_type">%1$s</string>
+    <string name="feature_count">Записей: %1$s</string>
+    <string name="layer_local_path">Локальный путь: %1$s</string>
+    <string name="layer_remote_path">Удаленный: %1$s</string>
+    <string name="layer_has_form">У слоя есть пользовательская форма</string>
+    <string name="layer_has_no_form">У слоя нет пользовательской формы</string>
     <string name="point">Точка</string>
     <string name="multi_point">Мультиточка</string>
     <string name="linestring">Линия</string>
@@ -223,4 +230,5 @@
     <string name="share_gpx_separate">По отдельности</string>
     <string name="share_gpx_together">В один файл</string>
     <string name="action_edit">Редактировать</string>
+    <string name="track_list">Список</string>
 </resources>

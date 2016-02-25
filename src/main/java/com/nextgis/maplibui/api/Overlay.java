@@ -71,6 +71,9 @@ public abstract class Overlay
             Canvas canvas,
             OverlayItem overlayItem)
     {
+        if(null == canvas || null == overlayItem || null == overlayItem.getMarker())
+            return;
+
         overlayItem.updateScreenCoordinates();
 
         if (!isVisible())
@@ -86,6 +89,9 @@ public abstract class Overlay
             PointF currentMouseOffset,
             OverlayItem overlayItem)
     {
+        if(null == canvas || null == overlayItem || null == overlayItem.getMarker())
+            return;
+
         if (!isVisible())
             return;
 
@@ -102,6 +108,9 @@ public abstract class Overlay
             OverlayItem overlayItem,
             boolean scaleMarker)
     {
+        if(null == canvas || null == overlayItem || null == overlayItem.getMarker())
+            return;
+
         if (!isVisible())
             return;
 
@@ -126,6 +135,9 @@ public abstract class Overlay
             float scale,
             boolean scaleMarker)
     {
+        if(null == overlayItem || null == overlayItem.getMarker())
+            return new GeoPoint();
+
         double x = overlayItem.getScreenCoordinates().x;
         double y = overlayItem.getScreenCoordinates().y;
         int markerWidth = overlayItem.getMarker().getWidth();

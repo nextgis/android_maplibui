@@ -6,7 +6,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -43,6 +43,7 @@
     <attr name="ic_apply" format="reference"/>
     <attr name="ic_cancel" format="reference"/>
     <attr name="layer_list_background" format="reference"/>
+    <attr name="control_disabled" format="reference"/>
 
     <attr name="sdf_background" format="reference"/>
     <attr name="sdf_titleBackground" format="reference"/>
@@ -73,6 +74,7 @@
         <item name="actionModeBackground">@drawable/action_mode</item>
         <item name="actionMenuTextColor">@color/textColorPrimary.Dark</item>
         <item name="android:editTextStyle">@style/EditTextStyle.Light</item>
+        <item name="control_disabled">@color/control_disabled_light</item>
 
         <item name="ic_action_visibility_on_inverse">@drawable/ic_action_visibility_on_dark</item>
         <item name="ic_action_visibility_on">@drawable/ic_action_visibility_on_light</item>
@@ -116,6 +118,7 @@
         <item name="actionModeBackground">@drawable/action_mode</item>
         <item name="actionMenuTextColor">@color/textColorPrimary.Dark</item>
         <item name="android:editTextStyle">@style/EditTextStyle.Dark</item>
+        <item name="control_disabled">@color/control_disabled_dark</item>
 
         <item name="ic_action_visibility_on_inverse">@drawable/ic_action_visibility_on_light</item>
         <item name="ic_action_visibility_on">@drawable/ic_action_visibility_on_dark</item>
@@ -192,7 +195,7 @@
         <item name="actionModeCopyDrawable">@drawable/ic_action_content_copy</item>
         <item name="actionModePasteDrawable">@drawable/ic_action_content_paste</item>
         <item name="actionModeSelectAllDrawable">@drawable/ic_action_content_select_all</item>
-        <item name="actionModeShareDrawable">@drawable/ic_action_social_share</item>
+        <item name="actionModeShareDrawable">@drawable/ic_action_social_share_light</item>
 
         <item name="listChoiceBackgroundIndicator">@drawable/abc_list_selector_holo_light</item>
     </style>
@@ -208,7 +211,7 @@
         <item name="actionModeCopyDrawable">@drawable/ic_action_content_copy</item>
         <item name="actionModePasteDrawable">@drawable/ic_action_content_paste</item>
         <item name="actionModeSelectAllDrawable">@drawable/ic_action_content_select_all</item>
-        <item name="actionModeShareDrawable">@drawable/ic_action_social_share</item>
+        <item name="actionModeShareDrawable">@drawable/ic_action_social_share_light</item>
 
         <item name="listChoiceBackgroundIndicator">@drawable/abc_list_selector_holo_light</item>
     </style>

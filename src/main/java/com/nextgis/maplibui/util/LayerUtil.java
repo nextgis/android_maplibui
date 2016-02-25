@@ -322,6 +322,9 @@ public class LayerUtil {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
+            if (mUris.size() == 0)
+                return;
+
             Intent shareIntent = new Intent();
             shareIntent.setType("application/gpx+xml");
 

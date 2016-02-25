@@ -27,6 +27,7 @@ public interface SettingsConstantsUI
 {
     String KEY_PREF_KEEPSCREENON         = "keep_screen_on";
     String KEY_PREF_COORD_FORMAT         = "coordinates_format";
+    String KEY_PREF_COORD_FRACTION       = "coordinates_fraction_digits";
     String KEY_PREF_SYNC_PERIODICALLY    = "sync_periodically";
     String KEY_PREF_SYNC_PERIOD          = "sync_period";
     String KEY_PREF_SYNC_PERIOD_SEC_LONG = "sync_period_sec_long";

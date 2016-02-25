@@ -1,3 +1,23 @@
+/*
+ * Project:  NextGIS Mobile
+ * Purpose:  Mobile GIS for Android.
+ * Author:   Stanislav Petriakov, becomeglory@gmail.com
+ * *****************************************************************************
+ * Copyright (c) 2015-2016 NextGIS, info@nextgis.com
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.nextgis.maplibui.dialog;
 
 import android.app.Activity;
@@ -8,7 +28,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.nextgis.maplibui.R;
@@ -67,11 +89,15 @@ public class LayerFillProgressDialog extends AsyncTask<Object, Intent, Boolean> 
                 mProgressDialog.show();
                 break;
             case LayerFillService.STATUS_UPDATE:
+                final String message = intent.getStringExtra(LayerFillService.KEY_MESSAGE);
+                if (TextUtils.isEmpty(message))
+                    return;
+
                 mProgressDialog.setIndeterminate(false);
                 mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mProgressDialog.setMessage(intent.getStringExtra(LayerFillService.KEY_MESSAGE));
+                        mProgressDialog.setMessage(message);
                     }
                 });
                 mProgressDialog.setMax(intent.getIntExtra(LayerFillService.KEY_TOTAL, 0));
@@ -104,19 +130,26 @@ public class LayerFillProgressDialog extends AsyncTask<Object, Intent, Boolean> 
     }
 
     private void createProgressDialog() {
-        mProgressDialog = new ProgressDialog(mActivity);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            mProgressDialog = new ProgressDialog(mActivity, android.R.style.Theme_Material_Light_Dialog_Alert);
+        else
+            mProgressDialog = new ProgressDialog(mActivity);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+            mProgressDialog.setProgressNumberFormat(null);
+
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         mProgressDialog.setCanceledOnTouchOutside(false);
         mProgressDialog.setButton(DialogInterface.BUTTON_POSITIVE,
                 mActivity.getString(R.string.menu_visibility_off), (DialogInterface.OnClickListener) null);
         mProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE,
                 mActivity.getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Intent intentStop = new Intent(mActivity, LayerFillService.class);
-                intentStop.setAction(LayerFillService.ACTION_STOP);
-                mActivity.startService(intentStop);
-            }
-        });
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intentStop = new Intent(mActivity, LayerFillService.class);
+                        intentStop.setAction(LayerFillService.ACTION_STOP);
+                        mActivity.startService(intentStop);
+                    }
+                });
     }
 }

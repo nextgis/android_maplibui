@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -34,8 +34,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IFormControl;
-import com.nextgis.maplibui.control.GreyLine;
 import com.nextgis.maplibui.util.ControlHelper;
 
 import org.json.JSONArray;
@@ -49,7 +49,6 @@ import java.util.Map;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DEFAULT_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
-import static com.nextgis.maplibui.util.ConstantsUI.JSON_SHOW_LAST_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_ALIAS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_NAME_KEY;
@@ -100,8 +99,7 @@ public class Combobox extends AppCompatSpinner implements IFormControl
         int lastValuePosition = -1;
         mAliasValueMap = new HashMap<>();
 
-        ArrayAdapter<String> spinnerArrayAdapter =
-                new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getContext(), R.layout.formtemplate_spinner);
         setAdapter(spinnerArrayAdapter);
 
         for (int j = 0; j < values.length(); j++) {
@@ -152,7 +150,6 @@ public class Combobox extends AppCompatSpinner implements IFormControl
     public void addToLayout(ViewGroup layout)
     {
         layout.addView(this);
-        GreyLine.addToLayout(layout);
     }
 
 
