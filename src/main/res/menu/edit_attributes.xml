@@ -6,7 +6,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -23,31 +23,18 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
+      xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/menu_apply"
-        android:title="@string/apply"
-        android:orderInCategory="100"
-        app:showAsAction="always"
         android:icon="@drawable/ic_action_apply_dark"
-        />
-
-    <item
-        android:id="@+id/menu_cancel"
-        android:title="@string/cancel"
         android:orderInCategory="100"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_action_cancel_dark"
-        />
-
+        android:title="@string/apply"
+        app:showAsAction="always"/>
     <item
         android:id="@+id/menu_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="100"
-        app:showAsAction="never"
         android:icon="@drawable/ic_action_settings"
-        />
-
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="never"/>
 </menu>
