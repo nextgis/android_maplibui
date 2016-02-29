@@ -1,3 +1,24 @@
+/*
+ * Project:  NextGIS Mobile
+ * Purpose:  Mobile GIS for Android.
+ * Author:   Stanislav Petriakov, becomeglory@gmail.com
+ * *****************************************************************************
+ * Copyright (c) 2015-2016 NextGIS, info@nextgis.com
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.nextgis.maplibui.api;
 
 import android.graphics.PointF;
@@ -131,7 +152,7 @@ public class DrawItem {
     }
 
     public void setSelectedPointCoordinates(float x, float y) {
-        float[] points = getSelectedRing();
+        float[] points = mDrawItemsVertex.get(mSelectedRing);
         if (null != points && mSelectedPoint >= 0 && mSelectedPoint < points.length - 1) {
             points[mSelectedPoint] = x;
             points[mSelectedPoint + 1] = y;
@@ -201,21 +222,15 @@ public class DrawItem {
 
     public float[] getRing(int ring) {
         return ring < 0 || ring >= mDrawItemsVertex.size() ? null :
-                mDrawItemsVertex.get(ring);
+                mDrawItemsVertex.get(ring).clone();
     }
 
     public int getRingCount() {
         return mDrawItemsVertex.size();
     }
 
-    public void deleteSelectedRing(VectorLayer layer) {
+    public void deleteSelectedRing() {
         mDrawItemsVertex.remove(mSelectedRing);
-
-        if (layer.getGeometryType() == GeoConstants.GTPolygon ||
-                layer.getGeometryType() == GeoConstants.GTMultiPolygon)
-            if (mSelectedRing == 0)
-                mDrawItemsVertex.clear();
-
         mSelectedRing = mSelectedPoint = mDrawItemsVertex.size() > 0 ? 0 : Constants.NOT_FOUND;
     }
 
@@ -230,7 +245,7 @@ public class DrawItem {
         return false;
     }
 
-    public boolean intersects(GeoEnvelope screenEnv, boolean editMode) {
+    public boolean intersectsVertices(GeoEnvelope screenEnv) {
         int point;
         for (int ring = 0; ring < mDrawItemsVertex.size(); ring++) {
             point = 0;
@@ -245,26 +260,27 @@ public class DrawItem {
             }
         }
 
-        if (editMode) {
-            for (int ring = 0; ring < mDrawItemsEdge.size(); ring++) {
-                point = 0;
-                float[] items = mDrawItemsEdge.get(ring);
-                for (int i = 0; i < items.length - 1; i += 2) {
-                    if (screenEnv.contains(new GeoPoint(items[i], items[i + 1]))) {
-                        mSelectedPoint = i + 2;
-                        mSelectedRing = ring;
-                        insertNewPoint(mSelectedPoint, items[i], items[i + 1]);
-
-                        return true;
-                    }
-                    point++;
-                }
-            }
-        }
         return false;
     }
 
-    protected int getMinPointCount(int type)
+    public boolean intersectsEdges(GeoEnvelope screenEnv) {
+        for (int ring = 0; ring < mDrawItemsEdge.size(); ring++) {
+            float[] items = mDrawItemsEdge.get(ring);
+            for (int i = 0; i < items.length - 1; i += 2) {
+                if (screenEnv.contains(new GeoPoint(items[i], items[i + 1]))) {
+                    mSelectedPoint = i + 2;
+                    mSelectedRing = ring;
+                    insertNewPoint(mSelectedPoint, items[i], items[i + 1]);
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static int getMinPointCount(int type)
     {
         switch (type) {
             case GeoConstants.GTPoint:
