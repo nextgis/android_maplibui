@@ -42,6 +42,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cocosw.undobar.UndoBarController;
+import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
@@ -73,7 +74,11 @@ public class LayersListAdapter
     protected final Context mContext;
     protected final Activity mActivity;
     protected DrawerLayout mDrawer;
+    protected onEdit mEditListener;
 
+    public interface onEdit {
+        void onLayerEdit(ILayer layer);
+    }
 
     public LayersListAdapter(
             Activity activity,
@@ -85,6 +90,11 @@ public class LayersListAdapter
         if (null != mMap) {
             mMap.addListener(this);
         }
+    }
+
+
+    public void setOnLayerEditListener(onEdit listener) {
+        mEditListener = listener;
     }
 
 
@@ -220,15 +230,13 @@ public class LayersListAdapter
                         if (layerui instanceof TrackLayer) {
                             popup.getMenu().findItem(R.id.menu_delete).setVisible(false);
                             popup.getMenu().findItem(R.id.menu_settings).setTitle(R.string.track_list);
-                        }
-                        else if (layerui instanceof VectorLayer) {
+                        } else if (layerui instanceof VectorLayer) {
+                            popup.getMenu().findItem(R.id.menu_edit).setVisible(true);
                             popup.getMenu().findItem(R.id.menu_share).setVisible(true);
                             popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(true);
-                        }
-                        else if (layerui instanceof LocalTMSLayer) {
+                        } else if (layerui instanceof LocalTMSLayer) {
                             popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(true);
-                        }
-                        else if (layerui instanceof RemoteTMSLayer) {
+                        } else if (layerui instanceof RemoteTMSLayer) {
                             popup.getMenu().findItem(R.id.menu_download_tiles).setVisible(true);
                         }
 
@@ -242,17 +250,17 @@ public class LayersListAdapter
                                             //Layer layer = mMap.getLayerById(id);
                                             assert layerui != null;
                                             layerui.changeProperties(mContext);
-                                        }
-                                        else if (i == R.id.menu_share) {
+                                        } else if (i == R.id.menu_share) {
                                             assert (layerui) != null;
 
                                             if (layerui instanceof VectorLayer) {
                                                 VectorLayer vectorLayer = (VectorLayer) layerui;
                                                 LayerUtil.shareLayerAsGeoJSON(vectorLayer);
                                             }
-
-                                        }
-                                        else if (i == R.id.menu_delete) {
+                                        } else if (i == R.id.menu_edit) {
+                                            if (mEditListener != null)
+                                                mEditListener.onLayerEdit(layer);
+                                        } else if (i == R.id.menu_delete) {
                                             final int position = mMap.removeLayer(layer);
 
                                             new UndoBarController.UndoBar((android.app.Activity) mContext).message(
@@ -274,20 +282,18 @@ public class LayersListAdapter
                                                             mMap.insertLayer(position, layer);
                                                         }
                                                     }).show();
-                                        }
-                                        else if (i == R.id.menu_zoom_extent) {
+                                        } else if (i == R.id.menu_zoom_extent) {
                                             mMap.zoomToExtent(layer.getExtents());
 
                                             if (mDrawer != null)
                                                 mDrawer.closeDrawers();
-                                        }
-                                        else if(i == R.id.menu_download_tiles){
+                                        } else if(i == R.id.menu_download_tiles){
                                             GeoEnvelope env = mMap.getCurrentBounds();
-                                            if(layer instanceof RemoteTMSLayerUI) {
+
+                                            if (layer instanceof RemoteTMSLayerUI) {
                                                 RemoteTMSLayerUI remoteTMSLayer = (RemoteTMSLayerUI) layer;
                                                 remoteTMSLayer.downloadTiles(mContext, env);
-                                            }
-                                            else if(layer instanceof NGWRasterLayerUI) {
+                                            } else if(layer instanceof NGWRasterLayerUI) {
                                                 NGWRasterLayerUI remoteTMSLayer = (NGWRasterLayerUI) layer;
                                                 remoteTMSLayer.downloadTiles(mContext, env);
                                             }
