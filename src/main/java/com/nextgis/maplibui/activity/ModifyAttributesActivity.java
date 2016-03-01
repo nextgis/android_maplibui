@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -259,7 +259,6 @@ public class ModifyAttributesActivity
     protected void fillControls(LinearLayout layout, Bundle savedState)
     {
         Cursor featureCursor = null;
-
         if (mFeatureId != NOT_FOUND) {
             featureCursor = mLayer.query(null, FIELD_ID + " = " + mFeatureId, null, null, null);
             if (!featureCursor.moveToFirst()) {
@@ -268,11 +267,9 @@ public class ModifyAttributesActivity
         }
 
         List<Field> fields = mLayer.getFields();
-
-
         for (Field field : fields) {
             //create static text with alias
-            TextLabel textLabel = (TextLabel)getLayoutInflater().inflate(R.layout.template_textlabel, null);
+            TextLabel textLabel = (TextLabel)getLayoutInflater().inflate(R.layout.template_textlabel, layout, false);
             textLabel.setText(field.getAlias());
             textLabel.addToLayout(layout);
 
@@ -284,8 +281,7 @@ public class ModifyAttributesActivity
                 case GeoConstants.FTString:
                 case GeoConstants.FTInteger:
                 case GeoConstants.FTReal:
-                    TextEdit textEdit = (TextEdit) getLayoutInflater().inflate(
-                            R.layout.template_textedit, null);
+                    TextEdit textEdit = (TextEdit) getLayoutInflater().inflate(R.layout.template_textedit, layout, false);
                     if (mIsViewOnly) {
                         textEdit.setEnabled(false);
                     }
@@ -294,8 +290,7 @@ public class ModifyAttributesActivity
                 case GeoConstants.FTDate:
                 case GeoConstants.FTTime:
                 case GeoConstants.FTDateTime:
-                    DateTime dateTime = (DateTime) getLayoutInflater().inflate(
-                            R.layout.template_datetime, null);
+                    DateTime dateTime = (DateTime) getLayoutInflater().inflate(R.layout.template_datetime, layout, false);
                     if (mIsViewOnly) {
                         dateTime.setEnabled(false);
                     }
@@ -397,15 +392,13 @@ public class ModifyAttributesActivity
     {
         int id = item.getItemId();
 
-        if (id == R.id.menu_cancel || id == android.R.id.home) {
-            finish();
+        if (id == android.R.id.home) {
+            finish(); // TODO prompt dialog on unsaved data
             return true;
-
         } else if (id == R.id.menu_settings) {
             final IGISApplication app = (IGISApplication) getApplication();
             app.showSettings(SettingsConstantsUI.ACTION_PREFS_GENERAL);
             return true;
-
         } else if (id == R.id.menu_apply) {
             saveFeature();
             finish();

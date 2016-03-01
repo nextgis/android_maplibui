@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -47,6 +47,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.map.TrackLayer;
@@ -319,6 +320,8 @@ public class TrackerService
 
         mNotificationManager.notify(TRACK_NOTIFICATION_ID, builder.build());
         startForeground(TRACK_NOTIFICATION_ID, builder.build());
+
+        Toast.makeText(this, title, Toast.LENGTH_SHORT).show();
     }
 
 

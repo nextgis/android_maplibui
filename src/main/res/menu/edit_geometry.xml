@@ -2,11 +2,9 @@
 <!--
   ~ Project:  NextGIS Mobile
   ~ Purpose:  Mobile GIS for Android.
-  ~ Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
-  ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -26,15 +24,18 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_apply"
-        android:icon="@drawable/ic_action_apply_dark"
-        android:orderInCategory="100"
-        android:title="@string/apply"
+        android:id="@+id/menu_edit_undo"
+        android:icon="@drawable/ic_action_undo_dark"
+        android:title="@string/undo"
         app:showAsAction="always"/>
     <item
-        android:id="@+id/menu_settings"
-        android:icon="@drawable/ic_action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never"/>
+        android:id="@+id/menu_edit_redo"
+        android:icon="@drawable/ic_action_redo_dark"
+        android:title="@string/redo"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/menu_edit_save"
+        android:icon="@drawable/ic_action_save"
+        android:title="@string/save"
+        app:showAsAction="always"/>
 </menu>

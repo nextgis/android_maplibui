@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -34,6 +34,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.view.MenuItem;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.R;
@@ -60,6 +61,11 @@ public final class ControlHelper {
 
     public static String getPercentValue(Context context, int stringLabel, float value) {
         return context.getString(stringLabel) + ": " + ((int) value * 100 / 255) + "%";
+    }
+
+    public static void setEnabled(MenuItem item, boolean state) {
+        item.setEnabled(state);
+        item.getIcon().setAlpha(state ? 255 : 160);
     }
 
     public static boolean isEnabled(List<Field> fields, String fieldName) {
