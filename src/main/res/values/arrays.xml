@@ -6,7 +6,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -94,6 +94,17 @@
         <item>1200</item>
         <item>1800</item>
         <item>2700</item>
+    </string-array>
+    <string-array name="status_panel_mode">
+        <item>Do not show info panel</item>
+        <item>Show out edit mode</item>
+        <item>Always show</item>
+    </string-array>
+    <string-array name="status_panel_mode_val"
+                  translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>3</item>
     </string-array>
     <string-array name="current_location_mode">
         <item>Do not show current location</item>
