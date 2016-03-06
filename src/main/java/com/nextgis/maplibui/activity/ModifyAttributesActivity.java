@@ -48,14 +48,13 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometry;
-import com.nextgis.maplib.datasource.GeoLinearRing;
 import com.nextgis.maplib.datasource.GeoMultiPoint;
 import com.nextgis.maplib.datasource.GeoPoint;
-import com.nextgis.maplib.datasource.GeoPolygon;
 import com.nextgis.maplib.location.AccurateLocationTaker;
 import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapBase;
@@ -73,6 +72,7 @@ import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.control.TextEdit;
 import com.nextgis.maplibui.control.TextLabel;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
+
 import org.json.JSONException;
 
 import java.io.FileInputStream;
@@ -84,8 +84,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.nextgis.maplib.util.Constants.*;
-import static com.nextgis.maplibui.util.ConstantsUI.*;
+import static com.nextgis.maplib.util.Constants.FIELD_GEOM;
+import static com.nextgis.maplib.util.Constants.FIELD_ID;
+import static com.nextgis.maplib.util.Constants.NOT_FOUND;
+import static com.nextgis.maplib.util.Constants.TAG;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY_CHANGED;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_LAYER_ID;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_VIEW_ONLY;
 
 
 /**
@@ -226,7 +233,6 @@ public class ModifyAttributesActivity
                 mIsViewOnly = extras.getBoolean(KEY_VIEW_ONLY, false);
                 mIsGeometryChanged = extras.getBoolean(KEY_GEOMETRY_CHANGED, true);
                 mGeometry = (GeoGeometry) extras.getSerializable(KEY_GEOMETRY);
-                checkPolygon();
                 LinearLayout layout = (LinearLayout) findViewById(R.id.controls_list);
                 fillControls(layout, savedState);
             } else {
@@ -234,25 +240,6 @@ public class ModifyAttributesActivity
                 finish();
             }
         }
-    }
-
-
-    protected void checkPolygon() {
-        if (mGeometry instanceof GeoPolygon) {
-            GeoPolygon polygon = (GeoPolygon) mGeometry;
-            GeoLinearRing ring = polygon.getOuterRing();
-
-            if (!ring.isClosed())
-                ring.add((GeoPoint) ring.getPoint(0).copy());
-
-            for (int i = 0; i < polygon.getInnerRingCount(); i++) {
-                ring = polygon.getInnerRing(i);
-
-                if (!ring.isClosed())
-                    ring.add((GeoPoint) ring.getPoint(0).copy());
-            }
-        }
-        // TODO GeoMultiPolygon
     }
 
 
