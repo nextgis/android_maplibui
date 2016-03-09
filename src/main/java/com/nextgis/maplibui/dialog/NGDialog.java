@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -34,6 +34,7 @@ import com.nextgis.maplibui.R;
 
 public class NGDialog extends DialogFragment {
     protected final static String KEY_TITLE = "title";
+    protected final static String KEY_THEME = "theme";
 
     protected Context mContext;
     protected Activity mActivity;
@@ -61,16 +62,19 @@ public class NGDialog extends DialogFragment {
         mDialogTheme = ta.getResourceId(0, R.style.Theme_NextGIS_AppCompat_Light_Dialog);
         ta.recycle();
 
-        if (null != savedInstanceState)
+        if (savedInstanceState != null) {
             mTitle = savedInstanceState.getString(KEY_TITLE);
+            setTheme(savedInstanceState.getInt(KEY_THEME));
+        }
 
         return super.onCreateDialog(savedInstanceState);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putString(KEY_TITLE, mTitle);
         super.onSaveInstanceState(outState);
+        outState.putString(KEY_TITLE, mTitle);
+        outState.putInt(KEY_THEME, mTheme);
     }
 
     @Override

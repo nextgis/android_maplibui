@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -132,7 +132,8 @@ public class SelectNGWResourceDialog
         LinearLayout pathView = (LinearLayout) view.findViewById(R.id.path);
         mListAdapter.setPathLayout(pathView);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, mDialogTheme);
+//        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, mDialogTheme);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle(mTitle)
                 .setIcon(R.drawable.ic_ngw)
                 .setView(view)
@@ -165,6 +166,8 @@ public class SelectNGWResourceDialog
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
+        super.onSaveInstanceState(outState);
+
         if(null != mGroupLayer && null != mListAdapter) {
             outState.putInt(KEY_MASK, mTypeMask);
             outState.putInt(KEY_ID, mGroupLayer.getId());
@@ -174,7 +177,6 @@ public class SelectNGWResourceDialog
                     KEY_STATES,
                     (ArrayList<? extends android.os.Parcelable>) mListAdapter.getCheckState());
         }
-        super.onSaveInstanceState(outState);
     }
 
 
