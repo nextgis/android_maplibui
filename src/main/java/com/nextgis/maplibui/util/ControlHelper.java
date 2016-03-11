@@ -64,6 +64,8 @@ public final class ControlHelper {
     }
 
     public static void setEnabled(MenuItem item, boolean state) {
+        if(null == item)
+            return;
         item.setEnabled(state);
         item.getIcon().setAlpha(state ? 255 : 160);
     }
