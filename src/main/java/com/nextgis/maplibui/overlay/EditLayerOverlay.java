@@ -740,7 +740,10 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         mContext.stopService(trackerService);
 
         // unregister events
-        mContext.unregisterReceiver(mReceiver);
+        if(null != mReceiver) {
+            mContext.unregisterReceiver(mReceiver);
+            mReceiver = null;
+        }
     }
 
 
