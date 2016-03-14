@@ -63,7 +63,7 @@ public class DateTime
     protected String           mFieldName;
     protected SimpleDateFormat mDateFormat;
 
-    protected Long mValue = null;
+    protected Long mValue = Calendar.getInstance().getTimeInMillis();
 
 
     public DateTime(Context context)
@@ -315,7 +315,6 @@ public class DateTime
         }
 
         String text = "";
-        mValue = null;
 
         if (ControlHelper.hasKey(savedState, text)) {
             mValue = savedState.getLong(ControlHelper.getSavedStateKey(mFieldName));
@@ -375,7 +374,7 @@ public class DateTime
                 mValue = date.getTime();
             } catch (ParseException e) {
                 Log.d(TAG, "Date parse error, " + e.getLocalizedMessage());
-                mValue = null;
+                mValue = 0L;
             }
         } else {
             return;
