@@ -226,7 +226,7 @@ public class ModifyAttributesActivity
             mLayer = (VectorLayer) map.getLayerById(layerId);
 
             if (null != mLayer) {
-                mSharedPreferences = getSharedPreferences(mLayer.getPath().getName(), MODE_PRIVATE);
+                mSharedPreferences = mLayer.getPreferences();
 
                 mFields = new HashMap<>();
                 mFeatureId = extras.getLong(KEY_FEATURE_ID);

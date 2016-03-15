@@ -25,6 +25,7 @@ package com.nextgis.maplibui.activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
@@ -41,6 +42,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.edmodo.rangebar.RangeBar;
 import com.nextgis.maplib.api.IGISApplication;
@@ -59,6 +61,7 @@ import com.nextgis.maplibui.api.IChooseColorResult;
 import com.nextgis.maplibui.dialog.ChooseColorDialog;
 import com.nextgis.maplibui.service.RebuildCacheService;
 import com.nextgis.maplibui.util.ConstantsUI;
+import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -120,13 +123,7 @@ public class VectorLayerSettingsActivity
 
             Button fields = (Button) findViewById(R.id.layer_fields);
             fields.setOnClickListener(this);
-            int fieldsCount = mVectorLayer.getFields().size();
-            mFields = new CharSequence[fieldsCount];
-            for (int i = 0; i < fieldsCount; i++) {
-                Field field = mVectorLayer.getFields().get(i);
-                String fieldInfo = field.getName() + " - " + LayerUtil.typeToString(this, field.getType());
-                mFields[i] = fieldInfo;
-            }
+            fillFields();
 
             if (mVectorLayer instanceof NGWVectorLayer) {
                 TextView remote = (TextView) findViewById(R.id.layer_remote_path);
@@ -190,6 +187,21 @@ public class VectorLayerSettingsActivity
         }
     }
 
+    private void fillFields() {
+        int fieldsCount = mVectorLayer.getFields().size();
+        mFields = new CharSequence[fieldsCount];
+        String labelField = mVectorLayer.getPreferences().getString(SettingsConstantsUI.KEY_PREF_LAYER_LABEL, Constants.FIELD_ID);
+
+        for (int i = 0; i < fieldsCount; i++) {
+            Field field = mVectorLayer.getFields().get(i);
+            String fieldInfo = field.getName() + " - " + LayerUtil.typeToString(this, field.getType());
+            if (field.getName().equals(labelField))
+                fieldInfo += getString(R.string.label_field);
+
+            mFields[i] = fieldInfo;
+        }
+    }
+
     @Override
     public void onClick(View v) {
         // rebuild cache
@@ -206,9 +218,17 @@ public class VectorLayerSettingsActivity
         } else if (i == R.id.layer_fields) {
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
             dialog.setTitle(R.string.fields)
-                    .setItems(mFields, null)
-                    .setPositiveButton(android.R.string.ok, null);
+                    .setPositiveButton(android.R.string.ok, null)
+                    .setItems(mFields, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String fieldName = mFields[which].toString().split(" - ")[0];
+                            mVectorLayer.getPreferences().edit().putString(SettingsConstantsUI.KEY_PREF_LAYER_LABEL, fieldName).commit();
+                            fillFields();
+                        }
+                    });
             dialog.show().setCanceledOnTouchOutside(false);
+            Toast.makeText(this, R.string.label_field_toast, Toast.LENGTH_SHORT).show();
         } else if (i == R.id.buildCacheButton) {
             intent.setAction(RebuildCacheService.ACTION_ADD_TASK);
             startService(intent);

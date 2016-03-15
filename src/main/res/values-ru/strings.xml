@@ -235,4 +235,6 @@
     <string name="share_gpx_together">В один файл</string>
     <string name="action_edit">Редактировать</string>
     <string name="track_list">Список</string>
+    <string name="label_field">" (метка)"</string>
+    <string name="label_field_toast">Нажмите на поле для выбора в качестве метки</string>
 </resources>
