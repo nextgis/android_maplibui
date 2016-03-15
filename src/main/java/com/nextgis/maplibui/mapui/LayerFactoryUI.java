@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -34,6 +34,7 @@ import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.NGWLookupTable;
 import com.nextgis.maplib.util.FileUtil;
+import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.dialog.CreateLocalLayerDialog;
@@ -47,6 +48,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.nextgis.maplib.util.Constants.CONFIG;
 import static com.nextgis.maplib.util.Constants.JSON_TYPE_KEY;
@@ -111,6 +113,12 @@ public class LayerFactoryUI
 
                 LayerFillProgressDialog progressDialog = new LayerFillProgressDialog(fragmentActivity);
                 progressDialog.execute(intent);
+                return;
+            }
+
+            AtomicReference<Uri> temp = new AtomicReference<>(uri);
+            if (MapUtil.isZippedGeoJSON(context, temp)) {
+                createNewVectorLayer(context, groupLayer, temp.get());
                 return;
             }
 

@@ -1,6 +1,27 @@
+/*
+ * Project:  NextGIS Mobile
+ * Purpose:  Mobile GIS for Android.
+ * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
+ * Author:   Stanislav Petriakov, becomeglory@gmail.com
+ * *****************************************************************************
+ * Copyright (c) 2015-2016 NextGIS, info@nextgis.com
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.nextgis.maplibui.util;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -15,6 +36,7 @@ import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.FileUtil;
+import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGActivity;
 
@@ -53,28 +75,6 @@ import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FeatureCollectio
  * Raster and vector layer utilities
  */
 public class LayerUtil {
-    private static final long MAX_INTERNAL_CACHE_SIZE = 1048576; // 1MB
-    private static final long MAX_EXTERNAL_CACHE_SIZE = 5242880; // 5MB
-
-    public static File prepareTempDir(Context context) {
-        boolean clearCached;
-        File temp = context.getExternalCacheDir();
-
-        if (temp == null) {
-            temp = context.getCacheDir();
-            clearCached = FileUtil.getDirectorySize(temp) > MAX_INTERNAL_CACHE_SIZE;
-        } else {
-            clearCached = FileUtil.getDirectorySize(temp) > MAX_EXTERNAL_CACHE_SIZE;
-        }
-
-        temp = new File(temp, "shared_layers");
-        if (clearCached)
-            FileUtil.deleteRecursive(temp);
-
-        FileUtil.createDir(temp);
-        return temp;
-    }
-
     public static void shareTrackAsGPX(NGActivity activity, String creator, String[] tracksId) {
         ExportGPXTask exportTask = new ExportGPXTask(activity, creator, tracksId);
         exportTask.execute();
@@ -82,7 +82,7 @@ public class LayerUtil {
 
     public static void shareLayerAsGeoJSON(VectorLayer layer) {
         try {
-            File temp = prepareTempDir(layer.getContext());
+            File temp = MapUtil.prepareTempDir(layer.getContext(), "shared_layers");
             temp = new File(temp, layer.getName() + ".zip");
             FileOutputStream fos = new FileOutputStream(temp);
             ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(fos));
@@ -219,7 +219,7 @@ public class LayerUtil {
             if (mIsCanceled)
                 return null;
 
-            File temp = null, parent = prepareTempDir(mActivity);
+            File temp = null, parent = MapUtil.prepareTempDir(mActivity, "exported_tracks");
             try {
                 IGISApplication application = (IGISApplication) mActivity.getApplication();
                 Uri mContentUriTracks = Uri.parse("content://" + application.getAuthority() + "/" + TrackLayer.TABLE_TRACKS);
