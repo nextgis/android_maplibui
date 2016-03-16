@@ -24,8 +24,6 @@
 package com.nextgis.maplibui.fragment;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -48,13 +46,13 @@ import com.nextgis.maplibui.service.HTTPLoader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
-
 
 public class NGWLoginFragment
         extends Fragment
         implements LoaderManager.LoaderCallbacks<String>, View.OnClickListener
 {
+    protected static int LOGIN_LOADER = 1;
+
     protected EditText mURL;
     protected EditText mLogin;
     protected EditText mPassword;
@@ -163,7 +161,13 @@ public class NGWLoginFragment
     public void onClick(View v)
     {
         if (v == mSignInButton) {
-            getLoaderManager().restartLoader(R.id.auth_token_loader, null, this);
+            Loader loader = getActivity().getSupportLoaderManager().getLoader(LOGIN_LOADER);
+
+            if (null != loader && loader.isStarted()) {
+                getLoaderManager().restartLoader(LOGIN_LOADER, null, this);
+            } else {
+                getLoaderManager().initLoader(LOGIN_LOADER, null, this);
+            }
         }
     }
 
@@ -187,7 +191,7 @@ public class NGWLoginFragment
             int id,
             Bundle args)
     {
-        if (id == R.id.auth_token_loader) {
+        if (id == LOGIN_LOADER) {
             return new HTTPLoader(
                     getActivity().getApplicationContext(), mURL.getText().toString().trim(),
                     mLogin.getText().toString(), mPassword.getText().toString());
@@ -201,7 +205,7 @@ public class NGWLoginFragment
             Loader<String> loader,
             String token)
     {
-        if (loader.getId() == R.id.auth_token_loader) {
+        if (loader.getId() == LOGIN_LOADER) {
             if (token != null && token.length() > 0) {
                 String accountName = "";
                 try {
@@ -238,13 +242,15 @@ public class NGWLoginFragment
         IGISApplication app = (IGISApplication) getActivity().getApplication();
 
         if (mForNewAccount) {
-            boolean accountAdded = app.addAccount(accountName, mURL.getText().toString(), mLogin.getText().toString(), mPassword.getText().toString(), token);
-            if(accountAdded) {
+            boolean accountAdded = app.addAccount(
+                    accountName, mURL.getText().toString(), mLogin.getText().toString(),
+                    mPassword.getText().toString(), token);
+            if (accountAdded) {
                 if (null != mOnAddAccountListener) {
-                    mOnAddAccountListener.onAddAccount(app.getAccount(accountName), token, accountAdded);
+                    mOnAddAccountListener.onAddAccount(
+                            app.getAccount(accountName), token, accountAdded);
                 }
-            }
-            else {
+            } else {
                 if (null != mOnAddAccountListener) {
                     mOnAddAccountListener.onAddAccount(null, token, accountAdded);
                 }
