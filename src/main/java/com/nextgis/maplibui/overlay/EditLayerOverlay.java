@@ -725,7 +725,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         // start service
         Intent trackerService = new Intent(mContext, WalkEditService.class);
         trackerService.setAction(WalkEditService.ACTION_START);
-        trackerService.putExtra(ConstantsUI.KEY_GEOMETRY_TYPE, mLayer.getGeometryType());
         trackerService.putExtra(ConstantsUI.KEY_LAYER_ID, mLayer.getId());
         trackerService.putExtra(ConstantsUI.KEY_GEOMETRY, mFeature.getGeometry());
         trackerService.putExtra(ConstantsUI.TARGET_CLASS, mContext.getClass().getName());
@@ -970,11 +969,11 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                 lineString.getPoints().toArray(new GeoPoint[lineString.getPointCount()]);
         float[] points = mapToScreen(geoPoints);
 
-        if (points.length < 2)
-            return;
-
         mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, points);
         mDrawItems.add(mSelectedItem);
+
+        if (points.length < 2)
+            return;
 
         float[] edgePoints = new float[points.length - 2];
         for (int i = 0; i < points.length - 2; i++)
