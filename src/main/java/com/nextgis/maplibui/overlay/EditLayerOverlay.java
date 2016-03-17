@@ -379,7 +379,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                 ControlHelper.setEnabled(item, onlyOneItem && isOuterRingSelected);
 
             boolean moreThanMin = true;
-            int size = mSelectedItem.getSelectedRing().length;
+            int size = mSelectedItem.getSelectedRing() == null ? 0 : mSelectedItem.getSelectedRing().length;
             int minPoints = DrawItem.getMinPointCount(mLayer.getGeometryType()) * 2;
 
             switch (mLayer.getGeometryType()) {

@@ -208,7 +208,7 @@ public class DrawItem {
     }
 
     public void setSelectedRing(int selectedRing) {
-        if (mSelectedRing >= 0 && mSelectedRing < mDrawItemsVertex.size())
+        if (selectedRing >= 0 && selectedRing < mDrawItemsVertex.size())
             mSelectedRing = selectedRing;
     }
 
