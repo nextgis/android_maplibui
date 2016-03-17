@@ -2,8 +2,9 @@
  *  Project:  NextGIS Mobile
  *  Purpose:  Mobile GIS for Android.
  *  Author:   Dmitry Baryshnikov, dmitry.baryshnikov@nextgis.com
+ *  Author:   Stanislav Petriakov, becomeglory@gmail.com
  * ****************************************************************************
- *  Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ *  Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser Public License as published by
@@ -22,15 +23,14 @@
 package com.nextgis.maplibui.service;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
@@ -42,11 +42,11 @@ import android.text.TextUtils;
 
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoGeometry;
+import com.nextgis.maplib.datasource.GeoGeometryFactory;
 import com.nextgis.maplib.datasource.GeoLineString;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.datasource.GeoPolygon;
 import com.nextgis.maplib.map.MapBase;
-import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
@@ -64,61 +64,34 @@ public class WalkEditService
         implements LocationListener, GpsStatus.Listener{
 
     private static final int    WALK_NOTIFICATION_ID = 7;
+    public static final String TEMP_PREFERENCES      = "walkedit_temp";
     public static final String ACTION_STOP           = "com.nextgis.maplibui.WALKEDIT_STOP";
     public static final String ACTION_START          = "com.nextgis.maplibui.WALKEDIT_START";
     public static final String WALKEDIT_CHANGE       = "com.nextgis.maplibui.WALKEDIT_CHANGE";
 
+    private SharedPreferences mSharedPreferencesTemp;
     private LocationManager mLocationManager;
     private NotificationManager mNotificationManager;
     private String mTicker;
     private int    mSmallIcon;
     private PendingIntent mOpenActivity;
 
+    protected String mTargetActivity;
     protected GeoGeometry mGeometry;
     protected int mLayerId;
-    protected int mGeometryType;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        mLayerId = Constants.NOT_FOUND;
-        mGeometryType = GeoConstants.GTNone;
-
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(getPackageName() + "_preferences", Constants.MODE_MULTI_PROCESS);
-
-        String minTimeStr =
-                sharedPreferences.getString(SettingsConstants.KEY_PREF_LOCATION_MIN_TIME, "2");
-        String minDistanceStr =
-                sharedPreferences.getString(SettingsConstants.KEY_PREF_LOCATION_MIN_DISTANCE, "10");
-        long minTime = Long.parseLong(minTimeStr) * 1000;
-        float minDistance = Float.parseFloat(minDistanceStr);
+        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        mSharedPreferencesTemp = getSharedPreferences(TEMP_PREFERENCES, Constants.MODE_MULTI_PROCESS);
 
         mTicker = getString(R.string.tracks_running);
         mSmallIcon = R.drawable.ic_action_maps_directions_walk;
 
-        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        if(!PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                || !PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION))
-            return;
-
-        mLocationManager.addGpsStatusListener(this);
-
-        String provider = LocationManager.GPS_PROVIDER;
-        if (LocationUtil.isProviderEnabled(this, provider, false) &&
-                mLocationManager.getAllProviders().contains(provider)) {
-            mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
-        }
-
-        provider = LocationManager.NETWORK_PROVIDER;
-        if (LocationUtil.isProviderEnabled(this, provider, false) &&
-                mLocationManager.getAllProviders().contains(provider)) {
-            mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
-        }
+        mLayerId = Constants.NOT_FOUND;
     }
 
     @Override
@@ -137,36 +110,63 @@ public class WalkEditService
                         int layerId = intent.getIntExtra(ConstantsUI.KEY_LAYER_ID, Constants.NOT_FOUND);
                         if(mLayerId == layerId) { // we are already running track record
                             sendGeometryBroadcast();
-                        }
-                        else {
+                        } else {
                             mLayerId = layerId;
-                            mGeometryType = intent.getIntExtra(ConstantsUI.KEY_GEOMETRY_TYPE, Constants.NOT_FOUND);
                             mGeometry = (GeoGeometry) intent.getSerializableExtra(ConstantsUI.KEY_GEOMETRY);
-                            if(null == mGeometry) {
-                                switch (mGeometryType) {
-                                    case GeoConstants.GTLineString:
-                                        mGeometry = new GeoLineString();
-                                        break;
-                                    case GeoConstants.GTPolygon:
-                                        mGeometry = new GeoPolygon();
-                                        break;
-                                    default:
-                                        throw new UnsupportedOperationException("Unsupported geometry type");
-                                }
-                            }
-                            else {
-                                mGeometryType = mGeometry.getType();
-                            }
-                            String targetActivity = intent.getStringExtra(ConstantsUI.TARGET_CLASS);
-                            initTargetIntent(targetActivity);
-                            addNotification();
+                            mTargetActivity = intent.getStringExtra(ConstantsUI.TARGET_CLASS);
+                            startWalkEdit();
+
+                            SharedPreferences.Editor edit = mSharedPreferencesTemp.edit();
+                            edit.putInt(ConstantsUI.KEY_LAYER_ID, mLayerId);
+                            edit.putString(ConstantsUI.KEY_GEOMETRY, mGeometry.toWKT(true));
+                            edit.putString(ConstantsUI.TARGET_CLASS, mTargetActivity);
+                            edit.commit();
                         }
                         break;
                 }
             }
+        } else {
+            mLayerId = mSharedPreferencesTemp.getInt(ConstantsUI.KEY_LAYER_ID, Constants.NOT_FOUND);
+            mGeometry = GeoGeometryFactory.fromWKT(mSharedPreferencesTemp.getString(ConstantsUI.KEY_GEOMETRY, ""));
+            mTargetActivity = mSharedPreferencesTemp.getString(ConstantsUI.TARGET_CLASS, "");
+            startWalkEdit();
         }
+
         return START_STICKY;
 
+    }
+
+    private void startWalkEdit() {
+        SharedPreferences sharedPreferences =
+                getSharedPreferences(getPackageName() + "_preferences", Constants.MODE_MULTI_PROCESS);
+
+        String minTimeStr =
+                sharedPreferences.getString(SettingsConstants.KEY_PREF_LOCATION_MIN_TIME, "2");
+        String minDistanceStr =
+                sharedPreferences.getString(SettingsConstants.KEY_PREF_LOCATION_MIN_DISTANCE, "10");
+        long minTime = Long.parseLong(minTimeStr) * 1000;
+        float minDistance = Float.parseFloat(minDistanceStr);
+
+        if(!PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                || !PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION))
+            return;
+
+        mLocationManager.addGpsStatusListener(this);
+
+        String provider = LocationManager.GPS_PROVIDER;
+        if (LocationUtil.isProviderEnabled(this, provider, false) &&
+                mLocationManager.getAllProviders().contains(provider)) {
+            mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
+        }
+
+        provider = LocationManager.NETWORK_PROVIDER;
+        if (LocationUtil.isProviderEnabled(this, provider, false) &&
+                mLocationManager.getAllProviders().contains(provider)) {
+            mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
+        }
+
+        initTargetIntent(mTargetActivity);
+        addNotification();
     }
 
     private void sendGeometryBroadcast() {
@@ -182,8 +182,8 @@ public class WalkEditService
     }
 
     @Override
-    public void onDestroy()
-    {
+    public void onDestroy() {
+        mSharedPreferencesTemp.edit().clear().commit();
         removeNotification();
         stopSelf();
 
@@ -204,7 +204,7 @@ public class WalkEditService
         point.setCRS(GeoConstants.CRS_WGS84);
         point.project(GeoConstants.CRS_WEB_MERCATOR);
 
-        switch (mGeometryType) {
+        switch (mGeometry.getType()) {
             case GeoConstants.GTLineString:
                 GeoLineString line = (GeoLineString) mGeometry;
                 line.add(point);
@@ -311,5 +311,15 @@ public class WalkEditService
         intentActivity.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         mOpenActivity = PendingIntent.getActivity(
                 this, 0, intentActivity, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    public static boolean isServiceRunning(Context context) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE))
+            if (WalkEditService.class.getName().equals(service.service.getClassName()))
+                return true;
+
+        return false;
     }
 }

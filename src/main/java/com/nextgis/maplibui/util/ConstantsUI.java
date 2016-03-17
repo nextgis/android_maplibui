@@ -39,7 +39,6 @@ public interface ConstantsUI
     String KEY_LAYER_ID         = "layer_id";
     String KEY_FEATURE_ID       = "feature_id";
     String KEY_GEOMETRY         = "geometry";
-    String KEY_GEOMETRY_TYPE    = "geometry_type";
     String KEY_GEOMETRY_CHANGED = "geometry_changed";
     String KEY_FORM_PATH        = "form_path";
     String KEY_VIEW_ONLY        = "view_only";
