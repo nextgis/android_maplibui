@@ -161,8 +161,13 @@ public class NGWLoginFragment
     public void onClick(View v)
     {
         if (v == mSignInButton) {
-            mSignInButton.setEnabled(false);
-            getLoaderManager().restartLoader(R.id.auth_token_loader, null, this);
+            Loader loader = getActivity().getSupportLoaderManager().getLoader(R.id.auth_token_loader);
+
+            if (null != loader && loader.isStarted()) {
+                getLoaderManager().restartLoader(R.id.auth_token_loader, null, this);
+            } else {
+                getLoaderManager().initLoader(R.id.auth_token_loader, null, this);
+            }
         }
     }
 
