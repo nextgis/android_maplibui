@@ -217,6 +217,9 @@ public class WalkEditService
                 throw new UnsupportedOperationException("Unsupported geometry type");
         }
 
+        SharedPreferences.Editor edit = mSharedPreferencesTemp.edit();
+        edit.putString(ConstantsUI.KEY_GEOMETRY, mGeometry.toWKT(true)).commit();
+
         sendGeometryBroadcast();
     }
 
