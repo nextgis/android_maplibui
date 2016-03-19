@@ -44,20 +44,6 @@
         <item>200 m</item>
         <item>300 m</item>
     </string-array>
-    <string-array name="tracker_min_dist_update_val"
-                  translatable="false">
-        <item>0</item>
-        <item>1</item>
-        <item>5</item>
-        <item>10</item>
-        <item>25</item>
-        <item>50</item>
-        <item>75</item>
-        <item>100</item>
-        <item>150</item>
-        <item>200</item>
-        <item>300</item>
-    </string-array>
     <string-array name="tracker_min_time_between_updates">
         <item>Most frequently</item>
         <item>1 sec</item>
@@ -75,45 +61,15 @@
         <item>30 min</item>
         <item>45 min</item>
     </string-array>
-    <string-array name="tracker_min_time_between_updates_val"
-                  translatable="false">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>5</item>
-        <item>10</item>
-        <item>20</item>
-        <item>30</item>
-        <item>45</item>
-        <item>60</item>
-        <item>120</item>
-        <item>300</item>
-        <item>600</item>
-        <item>1200</item>
-        <item>1800</item>
-        <item>2700</item>
-    </string-array>
     <string-array name="status_panel_mode">
         <item>Do not show info panel</item>
         <item>Show out edit mode</item>
         <item>Always show</item>
     </string-array>
-    <string-array name="status_panel_mode_val"
-                  translatable="false">
-        <item>0</item>
-        <item>1</item>
-        <item>3</item>
-    </string-array>
     <string-array name="current_location_mode">
         <item>Do not show current location</item>
         <item>Show marker only</item>
         <item>Show marker and accuracy radius</item>
-    </string-array>
-    <string-array name="current_location_mode_val"
-                  translatable="false">
-        <item>0</item>
-        <item>1</item>
-        <item>3</item>
     </string-array>
     <string-array name="tms_tile_cache_size">
         <item>No cache</item>
@@ -121,57 +77,8 @@
         <item>2 screens (recommended)</item>
         <item>3 screens</item>
     </string-array>
-    <string-array name="tms_tile_cache_size_val"
-                  translatable="false">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
     <string-array name="theme">
         <item>Light</item>
         <item>Dark</item>
     </string-array>
-    <string-array name="theme_val" translatable="false">
-        <item>light</item>
-        <item>dark</item>
-    </string-array>
-    <string-array name="accurate_ce" translatable="false">
-        <item>CE50</item>
-        <item>CE90</item>
-        <item>CE95</item>
-        <item>CE98</item>
-    </string-array>
-    <string-array name="geom_names" translatable="false">
-        <item>@string/point</item>
-        <item>@string/linestring</item>
-        <item>@string/polygon</item>
-        <item>@string/multi_point</item>
-        <item>@string/multi_linestring</item>
-        <item>@string/multi_polygon</item>
-    </string-array>
-    <integer-array name="geom_types" translatable="false">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-        <item>6</item>
-    </integer-array>
-    <string-array name="field_names" translatable="false">
-        <item>@string/field_type_string</item>
-        <item>@string/field_type_int</item>
-        <item>@string/field_type_real</item>
-        <item>@string/field_type_datetime</item>
-        <item>@string/field_type_date</item>
-        <item>@string/field_type_time</item>
-    </string-array>
-    <integer-array name="field_types" translatable="false">
-        <item>4</item>
-        <item>0</item>
-        <item>2</item>
-        <item>10</item>
-        <item>11</item>
-        <item>12</item>
-    </integer-array>
 </resources>
