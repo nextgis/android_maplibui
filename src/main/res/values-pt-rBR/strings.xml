@@ -1,0 +1,242 @@
+<!--
+  ~ Project:  NextGIS Mobile
+  ~ Purpose:  Mobile GIS for Android.
+  ~ Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
+  ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
+  ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
+  ~ ******************************************************************************
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU Lesser Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string name="layers_drawer_open">Open layers list</string>
+    <string name="layers_drawer_close">Close layers list</string>
+    <string name="ok">OK</string>
+    <string name="create">Create</string>
+    <string name="cancel">Cancel</string>
+    <string name="osm">OpenStreetMap</string>
+    <string name="layer_name">Layer name</string>
+    <string name="layer_url">Layer URL</string>
+    <string name="layer_url_hint">For example: http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png</string>
+    <string name="layer_type">TMS type</string>
+    <string name="create_layer">Create layer</string>
+    <string name="create_tms_layer">Create TMS layer</string>
+    <string name="tmstype_osm">XYZ (OSM)</string>
+    <string name="tmstype_normal">TMS (OSGeo spec.)</string>
+    <string name="error_invalid_url">The URL is invalid</string>
+    <string name="nextgis_web">NextGIS Web</string>
+    <string name="ngw_login_title">NextGIS Web account</string>
+    <string name="ngw_login_description">Input NextGIS Web server URL, your login and password</string>
+    <string name="ngw_edit_login_description">Input your login and password for the NextGIS Web server</string>
+    <string name="ngw_url">NextGIS Web URL</string>
+    <string name="password">Password to connect server</string>
+    <string name="login">Login</string>
+    <string name="user_name">Login</string>
+    <string name="canceled">Canceled</string>
+    <string name="account_already_exists">Account already exist</string>
+    <string name="error_login">Login failed</string>
+    <string name="account_setup">Account setup</string>
+    <string name="ngw_settings">NextGIS Web settings</string>
+    <string name="add_account">Add account</string>
+    <string name="add_account_summary">Add NextGIS Web account</string>
+    <string name="delete_account">Delete account</string>
+    <string name="delete_account_ask">Delete account?</string>
+    <string name="delete_account_summary">Delete account. All layers connected with this account will be deleted too. Active synchronization will be stopped.</string>
+    <string name="delete_account_warn_msg">Account will be deleted!\nAll account layers will be deleted!\nCurrent sync will be stopped!</string>
+    <string name="waiting">Waiting</string>
+    <string name="wait_sync_stopping">Waiting of synchronization stopping</string>
+    <string name="add">Add</string>
+    <string name="select">Select</string>
+    <string name="select_ngw_layer">Select NextGIS Web Layer</string>
+    <string name="ngw_account">NextGIS Web account</string>
+    <string name="loading_summary">Wait a little. The data is loading</string>
+    <string name="up_dots">..</string>
+    <string name="up">Up</string>
+    <string name="error_connect_failed">Connect failed</string>
+    <string name="resource_group">Resource group</string>
+    <string name="accounts">Accounts</string>
+    <string name="raster">Raster</string>
+    <string name="vector">Vector</string>
+    <string name="raster_layer">Raster layer</string>
+    <string name="vector_layer">Vector layer</string>
+    <string name="pg_layer">PostGIS layer</string>
+    <string name="credentials_opt">Credentials (optional)</string>
+    <string name="layer_type_optional">Tile layer type (optional)</string>
+    <string name="sync">Synchronization</string>
+    <string name="auto_sync">Automatic synchronization</string>
+    <string name="auto_sync_summary">Synchronization at regular intervals</string>
+    <string name="sync_interval">Synchronization interval</string>
+    <string name="actions">Actions</string>
+    <string name="sync_layers">Layers</string>
+    <string name="sync_layers_summary">Check layers to synchronize with server</string>
+    <string name="layer_group">Group</string>
+    <string name="layer_ngw_raster">NGW Raster</string>
+    <string name="layer_ngw_vector">NGW Layer</string>
+    <string name="layer_tms">Tile Raster</string>
+    <string name="layer_na">Not available</string>
+    <string name="latitude_caption">Latitude</string>
+    <string name="longitude_caption">Longitude</string>
+    <string name="altitude_caption">Altitude</string>
+    <string name="unit_meter">m</string>
+    <string name="unit_square_meter">m²</string>
+    <string name="unit_kilometer">km</string>
+    <string name="unit_square_kilometer">km²</string>
+    <string name="unit_second">s</string>
+    <string name="unit_hour">h</string>
+    <string name="accuracy_caption">Accuracy</string>
+    <string name="set_attributes">Set attributes</string>
+    <string name="latitude_caption_short">Lat</string>
+    <string name="longitude_caption_short">Long</string>
+    <string name="altitude_caption_short">Alt</string>
+    <string name="accuracy_caption_short">Acc</string>
+    <string name="accurate_location">Accurate location</string>
+    <string name="accurate_taking">Accumulating and averaging location…</string>
+    <string name="action_settings">Settings</string>
+    <string name="apply">Apply</string>
+    <string name="error_db_insert">Insert feature failed</string>
+    <string name="error_db_update">Update feature failed</string>
+    <string name="error_db_query">Query feature failed</string>
+    <string name="error_db_delete">Delete feature failed</string>
+    <string name="create_vector_layer">Create vector layer</string>
+    <string name="new_layer">New layer</string>
+    <string name="message_layer_created">Layer created</string>
+    <string name="feature_n">Feature #%1$s</string>
+    <string name="new_feature">New feature</string>
+    <string name="error_form_create">Form create failed</string>
+    <string name="system_default">System default</string>
+    <string name="five_minutes">5 minutes</string>
+    <string name="ten_minutes">10 minutes</string>
+    <string name="fifteen_minutes">15 minutes</string>
+    <string name="thirty_minutes">30 minutes</string>
+    <string name="one_hour">1 hour</string>
+    <string name="two_hours">2 hours</string>
+    <string name="sync_set_interval">Set synchronization interval</string>
+    <string name="last_sync_time">Synced %1$s at %2$s</string>
+    <string name="warning_different_credentials">Existing account differs the one from form. The existing account will be used</string>
+    <string name="error_no_location">No location</string>
+    <string name="error_layer_not_inited">Layer is not initialized. Abort</string>
+    <string name="n_a">n/a</string>
+    <string name="layer_vector">Vector layer</string>
+    <string name="layer_permanent">It\'s permanent layer</string>
+    <string name="empty_tracks">There are no recorded tracks yet.</string>
+    <string name="menu_delete">Delete</string>
+    <string name="menu_select_all">Select all</string>
+    <string name="menu_share">Share</string>
+    <string name="menu_visibility_on">Show</string>
+    <string name="menu_visibility_off">Hide</string>
+    <string name="nothing_selected">Nothing is selected</string>
+    <string name="unclosed_track_deleted">Current track is deleted too</string>
+    <string name="folder">Folder</string>
+    <string name="zip">ZIP file</string>
+    <string name="formbuilder">FormBuilder file</string>
+    <string name="geojson">GeoJSON file</string>
+    <string name="add_point">Add point</string>
+    <string name="edit_attributes">Edit attributes</string>
+    <string name="move_point_to_current_location">Point to current location</string>
+    <string name="delete_point">Delete point</string>
+    <string name="add_multipoint">Add multipoint</string>
+    <string name="delete_multipoint">Delete multipoint</string>
+    <string name="delete_item_done">Item deleted</string>
+    <string name="delete_layer_done">Layer deleted</string>
+    <string name="add_line">Add line</string>
+    <string name="delete_line">Delete line</string>
+    <string name="write_track">Write track</string>
+    <string name="add_multilinestring">Add multilinestring</string>
+    <string name="delete_multilinestring">Delete multilinestring</string>
+    <string name="add_polygon">Add polygon</string>
+    <string name="add_hole">Add hole</string>
+    <string name="delete_polygon">Delete polygon</string>
+    <string name="delete_hole">Delete hole</string>
+    <string name="add_multipolygon">Add multipolygon</string>
+    <string name="delete_multipolygon">Delete multipolygon</string>
+    <string name="save">Save</string>
+    <string name="undo">Undo</string>
+    <string name="redo">Redo</string>
+    <string name="error_create_feature">Create feature failed</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="has_edits">There are unsaved edits. Do you want to save them?</string>
+    <string name="attributes_next">Next</string>
+    <string name="attributes_prev">Previous</string>
+    <string name="geometry_by_walk_no_points">No enough points to create geometry</string>
+    <string name="error_change_feature">Change feature failed</string>
+    <string name="move_point_to_center">Point to display center</string>
+    <string name="mainSettings">Main settings</string>
+    <string name="displaySettings">Display settings</string>
+    <string name="fill_color">Fill color</string>
+    <string name="layerSettings">Layer settings</string>
+    <string name="red">red</string>
+    <string name="green">green</string>
+    <string name="blue">blue</string>
+    <string name="magenta">magenta</string>
+    <string name="yellow">yellow</string>
+    <string name="cyan">cyan</string>
+    <string name="select_color">Select color</string>
+    <string name="edit_account">Edit account</string>
+    <string name="edit_account_summary">Editing a user name and password</string>
+    <string name="tms_layer_cache_size">TMS in-memory cache size</string>
+    <string name="make_grayscale">Make grayscale</string>
+    <string name="contrast">Contrast</string>
+    <string name="brightness">Brightness</string>
+    <string name="menu_zoom_extent">Zoom to extent</string>
+    <string name="menu_download_tiles">Download tiles</string>
+    <string name="select_zoom_levels_to_download">Select min and max zoom levels to download tiles of current extent</string>
+    <string name="start">Start</string>
+    <string name="select_zoom_levels_to_download_title">Select zoom levels to download</string>
+    <string name="download_complete">Download complete</string>
+    <string name="download_in_progress">Download in progress</string>
+    <string name="cancel_download">Download canceled</string>
+    <string name="download_tiles">Download tiles</string>
+    <string name="form_tiles_list">Form tiles list</string>
+    <string name="tracks_running">Track is recording now</string>
+    <string name="tracks_title">Track %s</string>
+    <string name="walkedit_title">Walk edit %s</string>
+    <string name="tracks_stop">Stop</string>
+    <string name="tracks_open">Open</string>
+    <string name="download_tiles_finished">Tiles download finished</string>
+    <string name="not_implemented">Not implemented yet</string>
+    <string name="layer_lookuptable">Lookup table</string>
+    <string name="zoom_levels_to_show">Zoom levels to show layer</string>
+    <string name="min" translatable="false">min: %1$d</string>
+    <string name="max" translatable="false">max: %1$d</string>
+    <string name="alpha">Opacity</string>
+    <string name="layerInfo">Layer info</string>
+    <string name="geom_type">Geometry type</string>
+    <string name="layer_geom_type">%1$s layer</string>
+    <string name="feature_count">%1$s features</string>
+    <string name="layer_local_path">Local path: %1$s</string>
+    <string name="layer_remote_path">Remote: %1$s</string>
+    <string name="layer_has_form">Layer has custom form</string>
+    <string name="layer_has_no_form">Layer does not have custom form</string>
+    <string name="point">Point</string>
+    <string name="multi_point">Multipoint</string>
+    <string name="linestring">Linestring</string>
+    <string name="multi_linestring">Multilinestring</string>
+    <string name="polygon">Polygon</string>
+    <string name="multi_polygon">Multipolygon</string>
+    <string name="update_coordinates">Update coordinates</string>
+    <string name="background_task_started">The layer initialisation task started</string>
+    <string name="process_layer">Process layer</string>
+    <string name="error_unsupported_layer_type">Current layer type is unsupported </string>
+    <string name="value_not_from_list">Value is not from list</string>
+    <string name="share_gpx_multiple">How do you want to save selected tracks?</string>
+    <string name="share_gpx_separate">Separate files</string>
+    <string name="share_gpx_together">All in one</string>
+    <string name="action_edit">Edit</string>
+    <string name="track_list">List</string>
+    <string name="label_field">" (label)"</string>
+    <string name="label_field_toast">Tap on field to select as label</string>
+</resources>
