@@ -208,8 +208,6 @@
     <string name="not_implemented">Not implemented yet</string>
     <string name="layer_lookuptable">Lookup table</string>
     <string name="zoom_levels_to_show">Zoom levels to show layer</string>
-    <string name="min" translatable="false">min: %1$d</string>
-    <string name="max" translatable="false">max: %1$d</string>
     <string name="alpha">Opacity</string>
     <string name="layerInfo">Layer info</string>
     <string name="geom_type">Geometry type</string>
