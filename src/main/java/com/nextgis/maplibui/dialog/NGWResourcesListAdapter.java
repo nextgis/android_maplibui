@@ -610,7 +610,7 @@ public class NGWResourcesListAdapter
                     image.setImageDrawable(
                             mSelectNGWResourceDialog.getActivity()
                                     .getResources()
-                                    .getDrawable(R.drawable.ic_next));
+                                    .getDrawable(R.drawable.ic_next_light));
                     mLinearLayout.addView(image, 0);
                 }
             }

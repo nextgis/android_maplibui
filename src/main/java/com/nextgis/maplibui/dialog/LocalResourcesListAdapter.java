@@ -516,7 +516,7 @@ public class LocalResourcesListAdapter
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(30, 30);
                     image.setLayoutParams(params);
                     image.setImageDrawable(
-                            mDialog.getContext().getResources().getDrawable(R.drawable.ic_next));
+                            mDialog.getContext().getResources().getDrawable(R.drawable.ic_next_light));
                     mLinearLayout.addView(image, 0);
                 }
             }
