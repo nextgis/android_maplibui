@@ -1228,6 +1228,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
             for (DrawItem drawItem : mDrawItems) {
                 if (drawItem.intersectsVertices(screenEnv)) {
                     mSelectedItem = drawItem;
+                    setHasEdits(mHasEdits);
                     updateMap();
                     return;
                 }
