@@ -136,8 +136,7 @@ public class TrackerService
         mLocationManager.addGpsStatusListener(this);
 
         String provider = LocationManager.GPS_PROVIDER;
-        if (LocationUtil.isProviderEnabled(this, provider, true) &&
-            mLocationManager.getAllProviders().contains(provider)) {
+        if (mLocationManager.getAllProviders().contains(provider)) {
             mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
 
             if(Constants.DEBUG_MODE)
@@ -145,13 +144,14 @@ public class TrackerService
         }
 
         provider = LocationManager.NETWORK_PROVIDER;
-        if (LocationUtil.isProviderEnabled(this, provider, true) &&
-            mLocationManager.getAllProviders().contains(provider)) {
+        if (mLocationManager.getAllProviders().contains(provider)) {
             mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
 
             if(Constants.DEBUG_MODE)
                 Log.d(Constants.TAG, "Tracker service request location updates for " + provider);
         }
+
+        NotificationHelper.showLocationInfo(this);
     }
 
 

@@ -71,6 +71,7 @@ import com.nextgis.maplibui.control.DateTime;
 import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.control.TextEdit;
 import com.nextgis.maplibui.control.TextLabel;
+import com.nextgis.maplibui.util.NotificationHelper;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import org.json.JSONException;
@@ -356,6 +357,7 @@ public class ModifyAttributesActivity
             if (null != app) {
                 GpsEventSource gpsEventSource = app.getGpsEventSource();
                 gpsEventSource.addListener(this);
+                NotificationHelper.showLocationInfo(this);
                 setLocationText(gpsEventSource.getLastKnownLocation());
             }
 

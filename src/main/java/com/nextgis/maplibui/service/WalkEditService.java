@@ -154,17 +154,16 @@ public class WalkEditService
         mLocationManager.addGpsStatusListener(this);
 
         String provider = LocationManager.GPS_PROVIDER;
-        if (LocationUtil.isProviderEnabled(this, provider, false) &&
-                mLocationManager.getAllProviders().contains(provider)) {
+        if (mLocationManager.getAllProviders().contains(provider)) {
             mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
         }
 
         provider = LocationManager.NETWORK_PROVIDER;
-        if (LocationUtil.isProviderEnabled(this, provider, false) &&
-                mLocationManager.getAllProviders().contains(provider)) {
+        if (mLocationManager.getAllProviders().contains(provider)) {
             mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
         }
 
+        NotificationHelper.showLocationInfo(this);
         initTargetIntent(mTargetActivity);
         addNotification();
     }
