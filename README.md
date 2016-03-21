@@ -6,4 +6,4 @@ The user interface controls library for Android geo applications
 
 License information:
 -------------
-GPL v3 or any later version
+This library is licensed under GNU LGPL v3 or any later version
