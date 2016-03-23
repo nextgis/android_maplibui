@@ -217,7 +217,7 @@ public class VectorLayerSettingsActivity
                     .show(VectorLayerSettingsActivity.this.getSupportFragmentManager(), "choose_color");
         } else if (i == R.id.layer_fields) {
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-            dialog.setTitle(R.string.fields)
+            dialog.setTitle(getString(R.string.fields) + getString(R.string.label_field_title))
                     .setPositiveButton(android.R.string.ok, null)
                     .setItems(mFields, new DialogInterface.OnClickListener() {
                         @Override

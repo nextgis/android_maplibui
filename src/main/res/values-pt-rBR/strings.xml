@@ -230,6 +230,7 @@
     <string name="track_list">List</string>
     <string name="label_field">" (label)"</string>
     <string name="label_field_toast">Tap on field to select as label</string>
+    <string name="label_field_title">" (tap to select as default)"</string>
     <string name="location_disabled">Location services disabled</string>
     <string name="location_disabled_msg">Application needs access to your location. Please turn on location access.</string>
     <string name="location_accuracy">Location accuracy</string>
