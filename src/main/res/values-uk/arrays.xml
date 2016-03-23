@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Project:  NextGIS Mobile
+  ~ Purpose:  Mobile GIS for Android.
+  ~ Author:   Maxim Dubinin, maxim.dubinin@nextgis.com
+  ~ ******************************************************************************
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU Lesser Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string-array name="coordinates_format">
+        <item>DD.DDDD</item>
+        <item>DD-MM.MM</item>
+        <item>DD-MM-SS.SS</item>
+    </string-array>
+    <string-array name="coordinates_format_val">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="tracker_min_dist_update">
+        <item>Якнайчастіше</item>
+        <item>1 м</item>
+        <item>5 м</item>
+        <item>10 м</item>
+        <item>25 м</item>
+        <item>50 м</item>
+        <item>75 м</item>
+        <item>100 м</item>
+        <item>150 м</item>
+        <item>200 м</item>
+        <item>300 м</item>
+    </string-array>
+    <string-array name="tracker_min_time_between_updates">
+        <item>Якнайчастіше</item>
+        <item>1 сек</item>
+        <item>2 сек</item>
+        <item>5 сек</item>
+        <item>10 сек</item>
+        <item>20 сек</item>
+        <item>30 сек</item>
+        <item>45 сек</item>
+        <item>1 хв</item>
+        <item>2 хв</item>
+        <item>5 хв</item>
+        <item>10 хв</item>
+        <item>20 хв</item>
+        <item>30 хв</item>
+        <item>45 хв</item>
+    </string-array>
+    <string-array name="status_panel_mode">
+        <item>Не показувати панель</item>
+        <item>Показувати поза редагуванням</item>
+        <item>Показувати завжди</item>
+    </string-array>
+    <string-array name="current_location_mode">
+        <item>Не показувати положення</item>
+        <item>Показувати лише маркер</item>
+        <item>Показувати маркер та коло точності</item>
+    </string-array>
+    <string-array name="tms_tile_cache_size">
+        <item>Не кешувати</item>
+        <item>1 екран</item>
+        <item>2 екрана (рекомендовано)</item>
+        <item>3 екрана</item>
+    </string-array>
+    <string-array name="theme">
+        <item>Світла</item>
+        <item>Темна</item>
+    </string-array>
+</resources>

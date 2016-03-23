@@ -90,12 +90,6 @@
     <string name="latitude_caption">Широта</string>
     <string name="longitude_caption">Долгота</string>
     <string name="altitude_caption">Высота</string>
-    <string name="unit_meter">м</string>
-    <string name="unit_square_meter">м²</string>
-    <string name="unit_kilometer">км</string>
-    <string name="unit_square_kilometer">км²</string>
-    <string name="unit_second">с</string>
-    <string name="unit_hour">ч</string>
     <string name="accuracy_caption">Точность</string>
     <string name="set_attributes">Установить атрибуты</string>
     <string name="latitude_caption_short">Ш.</string>
@@ -237,4 +231,10 @@
     <string name="track_list">Список</string>
     <string name="label_field">" (метка)"</string>
     <string name="label_field_toast">Нажмите на поле для выбора в качестве метки</string>
+    <string name="location_disabled">Определение местоположения отключено</string>
+    <string name="location_disabled_msg">Приложение не может определить, где вы находитесь. Включите функцию \"Мое местоположение\".</string>
+    <string name="location_accuracy">Точность местоположения</string>
+    <string name="location_inaccuracy">Вы можете повысить точность местоположения, включив следующие функции:</string>
+    <string name="location_gps">GPS</string>
+    <string name="location_network">По Wi-Fi и координатам сети</string>
 </resources>

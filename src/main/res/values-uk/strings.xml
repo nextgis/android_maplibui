@@ -1,11 +1,10 @@
 <!--
   ~ Project:  NextGIS Mobile
   ~ Purpose:  Mobile GIS for Android.
-  ~ Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
-  ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
+  ~ Author:   Maxim Dubinin, maxim.dubinin@nextgis.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -204,8 +203,6 @@
     <string name="not_implemented">Not implemented yet</string>
     <string name="layer_lookuptable">Lookup table</string>
     <string name="zoom_levels_to_show">Zoom levels to show layer</string>
-    <string name="min" translatable="false">min: %1$d</string>
-    <string name="max" translatable="false">max: %1$d</string>
     <string name="alpha">Opacity</string>
     <string name="layerInfo">Layer info</string>
     <string name="geom_type">Geometry type</string>
@@ -233,10 +230,10 @@
     <string name="track_list">List</string>
     <string name="label_field">" (label)"</string>
     <string name="label_field_toast">Tap on field to select as label</string>
-    <string name="location_disabled">Location services disabled</string>
-    <string name="location_disabled_msg">Application needs access to your location. Please turn on location access.</string>
-    <string name="location_accuracy">Location accuracy</string>
-    <string name="location_inaccuracy">You can improve the accuracy of your location by turning on:</string>
+    <string name="location_disabled">Визначення місця розташування вимкнено</string>
+    <string name="location_disabled_msg">Програма не може визначити, де ви знаходитесь. Увімкніть опцію \"Моє місце розташування\".</string>
+    <string name="location_accuracy">Точність розташування</string>
+    <string name="location_inaccuracy">Ви можете підвищити точність позиціонування, увімкнувши такі функції:</string>
     <string name="location_gps">GPS</string>
-    <string name="location_network">Wi-Fi and mobile network coordinates</string>
+    <string name="location_network">По Wi-Fi та координатам мережі</string>
 </resources>

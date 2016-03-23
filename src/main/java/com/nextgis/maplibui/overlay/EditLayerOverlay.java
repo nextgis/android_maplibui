@@ -29,7 +29,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -37,7 +36,6 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v7.internal.widget.ThemeUtils;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -97,8 +95,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     /**
      * edit feature style
      */
-    protected final static int VERTEX_RADIUS = 20;
-    protected final static int EDGE_RADIUS = 12;
     protected final static int LINE_WIDTH = 4;
     protected final static int MAX_UNDO = 10;
 
@@ -115,15 +111,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     protected static final String BUNDLE_KEY_HISTORY_STATE = "history_state";
 
     protected Paint mPaint;
-    protected int mFillColor;
-    protected int mOutlineColor;
-    protected int mSelectColor;
 
-    protected final float mAnchorRectOffsetX, mAnchorRectOffsetY;
-    protected final float mAnchorCenterX, mAnchorCenterY;
-    protected final float mAnchorTolerancePX;
     protected final float mTolerancePX;
-    protected final Bitmap mAnchor;
     protected float mCanvasCenterX, mCanvasCenterY;
 
     protected MapDrawable mMap;
@@ -160,20 +149,10 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                 context.getResources().getDisplayMetrics().density * ConstantsUI.TOLERANCE_DP;
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaint.setColor(Color.RED);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
-
-        mFillColor = ThemeUtils.getThemeAttrColor(mContext, R.attr.colorAccent);
-        mOutlineColor = Color.BLACK;
-        mSelectColor = Color.RED;
-
-        mAnchor =
-                BitmapFactory.decodeResource(mContext.getResources(), R.drawable.ic_action_anchor);
-        mAnchorRectOffsetX = -mAnchor.getWidth() * 0.05f;
-        mAnchorRectOffsetY = -mAnchor.getHeight() * 0.05f;
-        mAnchorCenterX = mAnchor.getWidth() * 0.75f;
-        mAnchorCenterY = mAnchor.getHeight() * 0.75f;
-        mAnchorTolerancePX = mAnchor.getScaledWidth(context.getResources().getDisplayMetrics());
+        mPaint.setStrokeWidth(LINE_WIDTH / 2);
 
         mHistory = new LinkedList<>();
         mDrawItems = new ArrayList<>();
@@ -182,6 +161,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         mMap = mMapViewOverlays.getMap();
         mMapViewOverlays.addListener(this);
         mOverlayPoint = new OverlayItem(mMap, 0, 0, getMarker());
+        DrawItem.init(context);
     }
 
 
@@ -379,7 +359,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                 ControlHelper.setEnabled(item, onlyOneItem && isOuterRingSelected);
 
             boolean moreThanMin = true;
-            int size = mSelectedItem.getSelectedRing().length;
+            int size = mSelectedItem.getSelectedRing() == null ? 0 : mSelectedItem.getSelectedRing().length;
             int minPoints = DrawItem.getMinPointCount(mLayer.getGeometryType()) * 2;
 
             switch (mLayer.getGeometryType()) {
@@ -725,7 +705,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         // start service
         Intent trackerService = new Intent(mContext, WalkEditService.class);
         trackerService.setAction(WalkEditService.ACTION_START);
-        trackerService.putExtra(ConstantsUI.KEY_GEOMETRY_TYPE, mLayer.getGeometryType());
         trackerService.putExtra(ConstantsUI.KEY_LAYER_ID, mLayer.getId());
         trackerService.putExtra(ConstantsUI.KEY_GEOMETRY, mFeature.getGeometry());
         trackerService.putExtra(ConstantsUI.TARGET_CLASS, mContext.getClass().getName());
@@ -970,11 +949,11 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                 lineString.getPoints().toArray(new GeoPoint[lineString.getPointCount()]);
         float[] points = mapToScreen(geoPoints);
 
-        if (points.length < 2)
-            return;
-
         mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, points);
         mDrawItems.add(mSelectedItem);
+
+        if (points.length < 2)
+            return;
 
         float[] edgePoints = new float[points.length - 2];
         for (int i = 0; i < points.length - 2; i++)
@@ -1011,8 +990,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         mCanvasCenterX = canvas.getWidth() / 2;
         mCanvasCenterY = canvas.getHeight() / 2;
 
-        mPaint.setColor(mSelectColor);
-        mPaint.setStrokeWidth(LINE_WIDTH / 2);
         canvas.drawLine(
                 mCanvasCenterX - mTolerancePX, mCanvasCenterY, mCanvasCenterX + mTolerancePX,
                 mCanvasCenterY, mPaint);
@@ -1027,121 +1004,17 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         switch (mFeature.getGeometry().getType()) {
             case GeoConstants.GTPoint:
             case GeoConstants.GTMultiPoint:
-                drawPoints(drawItem, canvas, isSelected);
+                drawItem.drawPoints(canvas, isSelected);
                 break;
             case GeoConstants.GTLineString:
             case GeoConstants.GTMultiLineString:
             case GeoConstants.GTPolygon:
             case GeoConstants.GTMultiPolygon:
-                drawLines(drawItem, canvas, isSelected);
+                boolean closed = mFeature.getGeometry().getType() == GeoConstants.GTPolygon || mFeature.getGeometry().getType() == GeoConstants.GTMultiPolygon;
+                drawItem.drawLines(canvas, isSelected, mMode == MODE_EDIT || mMode == MODE_CHANGE, mMode == MODE_EDIT, closed);
                 break;
             default:
                 break;
-        }
-    }
-
-
-    public void drawPoints(DrawItem drawItem, Canvas canvas, boolean isSelected) {
-        for (int i = 0; i < drawItem.getRingCount(); i++) {
-            float[] items = drawItem.getRing(i);
-
-            if (items == null)
-                continue;
-
-            mPaint.setColor(mOutlineColor);
-            mPaint.setStrokeWidth(VERTEX_RADIUS + 2);
-            canvas.drawPoints(items, mPaint);
-
-            mPaint.setColor(mFillColor);
-            mPaint.setStrokeWidth(VERTEX_RADIUS);
-            canvas.drawPoints(items, mPaint);
-        }
-
-        //draw selected point
-        if (isSelected && drawItem.getSelectedRingId() != Constants.NOT_FOUND
-                && drawItem.getSelectedPointId() != Constants.NOT_FOUND) {
-            float[] items = drawItem.getSelectedRing();
-            if (null != items) {
-                mPaint.setColor(mSelectColor);
-                mPaint.setStrokeWidth(VERTEX_RADIUS);
-
-                canvas.drawPoint(
-                        items[drawItem.getSelectedPointId()], items[drawItem.getSelectedPointId() + 1], mPaint);
-
-                float anchorX = items[drawItem.getSelectedPointId()] + mAnchorRectOffsetX;
-                float anchorY = items[drawItem.getSelectedPointId() + 1] + mAnchorRectOffsetY;
-                canvas.drawBitmap(mAnchor, anchorX, anchorY, null);
-            }
-        }
-    }
-
-
-    public void drawLines(DrawItem drawItem, Canvas canvas, boolean isSelected) {
-        for (int j = 0; j < drawItem.getRingCount(); j++) {
-            float[] itemsVertex = drawItem.getRing(j);
-
-            if (itemsVertex == null)
-                continue;
-
-            if (isSelected && drawItem.getSelectedRingId() == j)
-                mPaint.setColor(mSelectColor);
-            else
-                mPaint.setColor(mFillColor);
-
-            mPaint.setStrokeWidth(LINE_WIDTH);
-
-            for (int i = 0; i < itemsVertex.length - 3; i += 2) {
-                canvas.drawLine(itemsVertex[i], itemsVertex[i + 1],
-                        itemsVertex[i + 2], itemsVertex[i + 3], mPaint);
-            }
-
-            if (mFeature.getGeometry().getType() == GeoConstants.GTPolygon ||
-                    mFeature.getGeometry().getType() == GeoConstants.GTMultiPolygon) {
-                if (itemsVertex.length >= 2) {
-                    canvas.drawLine(
-                            itemsVertex[0], itemsVertex[1], itemsVertex[itemsVertex.length - 2],
-                            itemsVertex[itemsVertex.length - 1], mPaint);
-                }
-            }
-
-            if (mMode == MODE_EDIT || mMode == MODE_CHANGE) {
-                mPaint.setColor(mOutlineColor);
-                mPaint.setStrokeWidth(VERTEX_RADIUS + 2);
-                canvas.drawPoints(itemsVertex, mPaint);
-
-                mPaint.setColor(mFillColor);
-                mPaint.setStrokeWidth(VERTEX_RADIUS);
-                canvas.drawPoints(itemsVertex, mPaint);
-            }
-        }
-
-        if (mMode == MODE_EDIT) {
-            for (float[] items : drawItem.getEdges()) {
-
-                mPaint.setColor(mOutlineColor);
-                mPaint.setStrokeWidth(EDGE_RADIUS + 2);
-                canvas.drawPoints(items, mPaint);
-
-                mPaint.setColor(mFillColor);
-                mPaint.setStrokeWidth(EDGE_RADIUS);
-                canvas.drawPoints(items, mPaint);
-            }
-        }
-
-        //draw selected point
-        if (isSelected && drawItem.getSelectedPointId() != Constants.NOT_FOUND) {
-            float[] items = drawItem.getSelectedRing();
-            if (null != items && drawItem.getSelectedPointId() + 1 < items.length) {
-                mPaint.setColor(mSelectColor);
-                mPaint.setStrokeWidth(VERTEX_RADIUS);
-
-                canvas.drawPoint(
-                        items[drawItem.getSelectedPointId()], items[drawItem.getSelectedPointId() + 1], mPaint);
-
-                float anchorX = items[drawItem.getSelectedPointId()] + mAnchorRectOffsetX;
-                float anchorY = items[drawItem.getSelectedPointId() + 1] + mAnchorRectOffsetY;
-                canvas.drawBitmap(mAnchor, anchorX, anchorY, null);
-            }
         }
     }
 
@@ -1229,6 +1102,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
             for (DrawItem drawItem : mDrawItems) {
                 if (drawItem.intersectsVertices(screenEnv)) {
                     mSelectedItem = drawItem;
+                    setHasEdits(mHasEdits);
                     updateMap();
                     return;
                 }
@@ -1278,9 +1152,9 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         if (mMode == MODE_EDIT) {
             if (null != mFeature && null != mFeature.getGeometry()) {
                 //check if we are near selected point
-                double dMinX = event.getX() - mTolerancePX * 2 - mAnchorTolerancePX;
+                double dMinX = event.getX() - mTolerancePX * 2 - DrawItem.mAnchorTolerancePX;
                 double dMaxX = event.getX() + mTolerancePX;
-                double dMinY = event.getY() - mTolerancePX * 2 - mAnchorTolerancePX;
+                double dMinY = event.getY() - mTolerancePX * 2 - DrawItem.mAnchorTolerancePX;
                 double dMaxY = event.getY() + mTolerancePX;
                 GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
 

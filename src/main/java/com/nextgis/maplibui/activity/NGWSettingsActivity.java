@@ -591,7 +591,7 @@ public class NGWSettingsActivity
         };
 
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(NGWSettingsActivity.this);
-        dialogBuilder.setIcon(R.drawable.ic_action_warning)
+        dialogBuilder.setIcon(R.drawable.ic_action_warning_light)
                 .setTitle(R.string.delete_account_ask)
                 .setMessage(mDeleteAccountWarnMsg)
                 .setNegativeButton(R.string.cancel, null)
