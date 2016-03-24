@@ -23,13 +23,19 @@ package com.nextgis.maplibui.overlay;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PointF;
+import android.support.v7.internal.widget.ThemeUtils;
 import android.view.MotionEvent;
 
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoLineString;
 import com.nextgis.maplib.datasource.GeoPoint;
+import com.nextgis.maplib.datasource.GeoPolygon;
 import com.nextgis.maplib.map.MapDrawable;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.DrawItem;
 import com.nextgis.maplibui.api.MapViewEventListener;
 import com.nextgis.maplibui.api.Overlay;
@@ -41,16 +47,26 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
     protected PointF mTempPointOffset;
 
     protected boolean mMeasuring, mIsMoving;
+    protected Paint mPaint;
     protected DrawItem mRulerItem;
     protected GeoLineString mRulerString;
+    protected GeoPolygon mRulerPolygon;
     protected OnRulerChanged mListener;
 
     public interface OnRulerChanged {
         void onLengthChanged(double length);
+        void onAreaChanged(double area);
     }
 
     public RulerOverlay(Context context, MapViewOverlays mapViewOverlays) {
         super(context, mapViewOverlays);
+
+        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeWidth(4);
+        mPaint.setPathEffect(new DashPathEffect(new float[]{5, 2, 2}, 0));
+        mPaint.setColor(ThemeUtils.getThemeAttrColor(context, R.attr.colorAccent));
+        mPaint.setAlpha(64);
 
         mTolerancePX = context.getResources().getDisplayMetrics().density * ConstantsUI.TOLERANCE_DP;
     }
@@ -59,6 +75,7 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
         mMeasuring = true;
         mRulerItem = new DrawItem();
         mRulerString = new GeoLineString();
+        mRulerPolygon = new GeoPolygon();
         mListener = listener;
         mMapViewOverlays.addListener(this);
     }
@@ -67,6 +84,7 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
         mMeasuring = false;
         mRulerItem = null;
         mRulerString = null;
+        mRulerPolygon = null;
         mListener = null;
         mMapViewOverlays.removeListener(this);
     }
@@ -78,6 +96,13 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
     public double getLength() {
         if (mMeasuring)
             return mRulerString.getLength();
+
+        return 0;
+    }
+
+    public double getArea() {
+        if (mMeasuring)
+            return mRulerPolygon.getArea();
 
         return 0;
     }
@@ -98,15 +123,23 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
 
     protected void fillGeometry() {
         mRulerString.clear();
+        mRulerPolygon.clear();
         float[] points = mRulerItem.getRing(0);
 
         if (points != null) {
             GeoPoint[] geoPoints = mMapViewOverlays.getMap().screenToMap(points);
-            for (GeoPoint geoPoint : geoPoints)
+            for (GeoPoint geoPoint : geoPoints) {
                 mRulerString.add(geoPoint);
+
+                if (geoPoints.length > 2)
+                    mRulerPolygon.add(geoPoint);
+            }
 
             if (mListener != null)
                 mListener.onLengthChanged(getLength());
+
+            if (mListener != null && geoPoints.length > 2)
+                mListener.onAreaChanged(getArea());
         }
     }
 
@@ -115,6 +148,7 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
         if (isMeasuring()) {
             fillDrawItem();
             mRulerItem.drawLines(canvas, true, true, false, false);
+            drawClosingLine(canvas, mRulerItem);
         }
     }
 
@@ -127,13 +161,27 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
                 draw = mRulerItem.pan(currentMouseOffset);
 
             draw.drawLines(canvas, true, true, false, false);
+            drawClosingLine(canvas, draw);
         }
     }
 
     @Override
     public void drawOnZooming(Canvas canvas, PointF currentFocusLocation, float scale) {
-        if (isMeasuring())
-            mRulerItem.zoom(currentFocusLocation, scale).drawLines(canvas, true, true, false, false);
+        if (isMeasuring()) {
+            DrawItem drawItem = mRulerItem.zoom(currentFocusLocation, scale);
+            drawItem.drawLines(canvas, true, true, false, false);
+            drawClosingLine(canvas, drawItem);
+        }
+    }
+
+    protected void drawClosingLine(Canvas canvas, DrawItem drawItem) {
+        float[] points = drawItem.getSelectedRing();
+        if (points.length >= 6) {
+            Path path = new Path();
+            path.moveTo(points[0], points[1]);
+            path.lineTo(points[points.length - 2], points[points.length - 1]);
+            canvas.drawPath(path, mPaint);
+        }
     }
 
     @Override
