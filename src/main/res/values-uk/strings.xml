@@ -27,7 +27,7 @@
     <string name="create">Створити</string>
     <string name="cancel">Скасувати</string>
     <string name="osm">OpenStreetMap</string>
-    <string name="layer_name">Ім'я шару</string>
+    <string name="layer_name">Ім\'я шару</string>
     <string name="layer_url">Посилання на шар</string>
     <string name="layer_url_hint">Наприклад: http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png</string>
     <string name="layer_type">Тип TMS</string>
@@ -41,7 +41,7 @@
     <string name="ngw_login_description">Введіть посилання на сервер NextGIS Web, ваш логін і пароль</string>
     <string name="ngw_edit_login_description">Введіть ваш логін і пароль для серверу NextGIS Web</string>
     <string name="ngw_url">Посилання на NextGIS Web</string>
-    <string name="password">Пароль для з'єднання з сервером</string>
+    <string name="password">Пароль для з\'єднання з сервером</string>
     <string name="login">Логін</string>
     <string name="user_name">Логін</string>
     <string name="canceled">Скасовано</string>
@@ -53,7 +53,7 @@
     <string name="add_account_summary">Додати акаунт NextGIS Web</string>
     <string name="delete_account">Видалити акаунт</string>
     <string name="delete_account_ask">Видалити акаунт?</string>
-    <string name="delete_account_summary">Видалити аккаунт. Всі шари, пов'язані з цим акаунтом, будуть також видалені. Активна синхронізація буде зупинена.</string>
+    <string name="delete_account_summary">Видалити аккаунт. Всі шари, пов\'язані з цим акаунтом, будуть також видалені. Активна синхронізація буде зупинена.</string>
     <string name="delete_account_warn_msg">Account will be deleted!\nAll account layers will be deleted!\nCurrent sync will be stopped!</string>
     <string name="waiting">Waiting</string>
     <string name="wait_sync_stopping">Waiting of synchronization stopping</string>
