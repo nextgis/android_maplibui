@@ -27,10 +27,12 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.os.Bundle;
 import android.support.v7.internal.widget.ThemeUtils;
 import android.view.MotionEvent;
 
 import com.nextgis.maplib.datasource.GeoEnvelope;
+import com.nextgis.maplib.datasource.GeoGeometryFactory;
 import com.nextgis.maplib.datasource.GeoLineString;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.datasource.GeoPolygon;
@@ -42,7 +44,10 @@ import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.mapui.MapViewOverlays;
 import com.nextgis.maplibui.util.ConstantsUI;
 
+import java.io.IOException;
+
 public class RulerOverlay extends Overlay implements MapViewEventListener {
+    protected static final String BUNDLE_GEOMETRY = "ruler_string";
     protected final float mTolerancePX;
     protected PointF mTempPointOffset;
 
@@ -74,10 +79,15 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
     public void startMeasuring(OnRulerChanged listener) {
         mMeasuring = true;
         mRulerItem = new DrawItem();
-        mRulerString = new GeoLineString();
         mRulerPolygon = new GeoPolygon();
         mListener = listener;
         mMapViewOverlays.addListener(this);
+
+        if (mRulerString != null) {
+            fillDrawItem();
+            fillGeometry();
+        } else
+            mRulerString = new GeoLineString();
     }
 
     public void stopMeasuring() {
@@ -87,6 +97,7 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
         mRulerPolygon = null;
         mListener = null;
         mMapViewOverlays.removeListener(this);
+        mMapViewOverlays.postInvalidate();
     }
 
     public boolean isMeasuring() {
@@ -182,6 +193,31 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
             path.lineTo(points[points.length - 2], points[points.length - 1]);
             canvas.drawPath(path, mPaint);
         }
+    }
+
+    @Override
+    public Bundle onSaveState() {
+        Bundle bundle = super.onSaveState();
+        try {
+            if (isMeasuring() && mRulerPolygon != null)
+                bundle.putByteArray(BUNDLE_GEOMETRY, mRulerString.toBlob());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return bundle;
+    }
+
+    @Override
+    public void onRestoreState(Bundle bundle) {
+        if (bundle.containsKey(BUNDLE_GEOMETRY))
+            try {
+                mRulerString = (GeoLineString) GeoGeometryFactory.fromBlob(bundle.getByteArray(BUNDLE_GEOMETRY));
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+        super.onRestoreState(bundle);
     }
 
     @Override
