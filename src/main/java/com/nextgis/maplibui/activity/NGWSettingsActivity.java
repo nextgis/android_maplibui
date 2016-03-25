@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -66,6 +66,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
+import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
 
@@ -89,11 +90,7 @@ public class NGWSettingsActivity
         super.onCreate(savedInstanceState);
 
         setStrings();
-
-        if (null == mAccountManager) {
-            mAccountManager = AccountManager.get(this.getApplicationContext());
-        }
-
+        checkAccountManager();
         createView();
     }
 
@@ -108,14 +105,17 @@ public class NGWSettingsActivity
         }
     }
 
+    protected void checkAccountManager() {
+        if (null == mAccountManager) {
+            mAccountManager = AccountManager.get(getApplicationContext());
+            Log.d(TAG, "NGWSettingsActivity: AccountManager.get(" + getApplicationContext() + ")");
+        }
+    }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onBuildHeaders(List<Header> target) {
-        if (null == mAccountManager) {
-            mAccountManager = AccountManager.get(this.getApplicationContext());
-        }
-
+        checkAccountManager();
         Header header;
 
         if (null != mAccountManager) {

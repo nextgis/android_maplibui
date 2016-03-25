@@ -2,8 +2,9 @@
  * Project:  NextGIS Mobile
  * Purpose:  Mobile GIS for Android.
  * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
+ * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -35,6 +36,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.ngw.SyncAdapter;
@@ -53,6 +55,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import static com.nextgis.maplib.util.Constants.MAP_EXT;
+import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_MAP;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIODICALLY;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
@@ -71,6 +74,7 @@ public abstract class GISApplication extends Application
     protected MapDrawable mMap;
     protected GpsEventSource mGpsEventSource;
     protected SharedPreferences mSharedPreferences;
+    protected AccountManager mAccountManager;
 
     @Override
     public void onCreate()
@@ -79,6 +83,8 @@ public abstract class GISApplication extends Application
 
         mGpsEventSource = new GpsEventSource(this);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mAccountManager = AccountManager.get(getApplicationContext());
+        Log.d(TAG, "GISApplication: AccountManager.get(" + getApplicationContext() + ")");
 
         getMap();
 
@@ -167,11 +173,10 @@ public abstract class GISApplication extends Application
             return null;
         }
 
-        AccountManager accountManager = AccountManager.get(this);
-        if(accountManager == null)
+        if (mAccountManager == null)
             return null;
         try {
-            for (Account account : accountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
+            for (Account account : mAccountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
                 if (account == null)
                     continue;
                 if (account.name.equals(accountName)) {
@@ -218,14 +223,12 @@ public abstract class GISApplication extends Application
             return bool;
         }
 
-        AccountManager accountManager = AccountManager.get(this);
-        if(accountManager == null)
+        if (mAccountManager == null)
             return bool;
 
         try {
-            return accountManager.removeAccount(account, null, new Handler());
-        }
-        catch (SecurityException e){
+            return mAccountManager.removeAccount(account, null, new Handler());
+        } catch (SecurityException e) {
             e.printStackTrace();
         }
         return bool;
@@ -250,10 +253,8 @@ public abstract class GISApplication extends Application
         }
 
         try {
-            AccountManager accountManager = AccountManager.get(this);
-            return accountManager.getPassword(account);
-        }
-        catch (SecurityException e){
+            return mAccountManager.getPassword(account);
+        } catch (SecurityException e) {
             e.printStackTrace();
             return "";
         }
@@ -287,15 +288,9 @@ public abstract class GISApplication extends Application
         userData.putString("login", login);
 
         try {
-
-            AccountManager accountManager = AccountManager.get(this);
-
-            boolean accountAdded =
-                    accountManager.addAccountExplicitly(account, password, userData);
-
-            if (accountAdded) {
-                accountManager.setAuthToken(account, account.type, token);
-            }
+            boolean accountAdded = mAccountManager.addAccountExplicitly(account, password, userData);
+            if (accountAdded)
+                mAccountManager.setAuthToken(account, account.type, token);
 
             return accountAdded;
         }
@@ -310,11 +305,10 @@ public abstract class GISApplication extends Application
         if(!PermissionUtil.hasPermission(this, ConstantsUI.PERMISSION_AUTHENTICATE_ACCOUNTS)){
             return;
         }
-        Account account = getAccount(name);
 
+        Account account = getAccount(name);
         if (null != account) {
-            AccountManager accountManager = AccountManager.get(this);
-            accountManager.setPassword(account, value);
+            mAccountManager.setPassword(account, value);
         }
     }
 
@@ -323,11 +317,10 @@ public abstract class GISApplication extends Application
         if(!PermissionUtil.hasPermission(this, ConstantsUI.PERMISSION_AUTHENTICATE_ACCOUNTS)){
             return;
         }
-        Account account = getAccount(name);
 
+        Account account = getAccount(name);
         if (null != account) {
-            AccountManager accountManager = AccountManager.get(this);
-            accountManager.setUserData(account, key, value);
+            mAccountManager.setUserData(account, key, value);
         }
     }
 
@@ -337,7 +330,6 @@ public abstract class GISApplication extends Application
             return "";
         }
 
-        AccountManager accountManager = AccountManager.get(this);
-        return accountManager.getUserData(account, key);
+        return mAccountManager.getUserData(account, key);
     }
 }

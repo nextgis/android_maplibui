@@ -33,6 +33,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -56,6 +57,7 @@ import com.nextgis.maplibui.util.CheckState;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
 
 
@@ -67,6 +69,7 @@ public class SelectNGWResourceDialog
 
     protected NGWResourcesListAdapter mListAdapter;
     protected AlertDialog             mDialog;
+    protected AccountManager          mAccountManager;
 
     protected final static String KEY_MASK        = "mask";
     protected final static String KEY_ID          = "id";
@@ -96,11 +99,13 @@ public class SelectNGWResourceDialog
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
         super.onCreateDialog(savedInstanceState);
+        mAccountManager = AccountManager.get(getActivity().getApplicationContext());
+        Log.d(TAG, "SelectNGWDialog: AccountManager.get(" + getActivity().getApplicationContext() + ")");
         mListAdapter = new NGWResourcesListAdapter(this);
 
         if (null == savedInstanceState) {
             //first launch, lets fill connections array
-            Connections connections = fillConnections(mContext);
+            Connections connections = fillConnections(getActivity());
             mListAdapter.setConnections(connections);
             mListAdapter.setCurrentResourceId(connections.getId());
             mListAdapter.setCheckState(new ArrayList<CheckState>());
@@ -183,12 +188,11 @@ public class SelectNGWResourceDialog
     protected Connections fillConnections(Context context)
     {
         Connections connections = new Connections(getString(R.string.accounts));
-        final AccountManager accountManager =
-                AccountManager.get(context.getApplicationContext());
-        for (Account account : accountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
-            String url = accountManager.getUserData(account, "url");
-            String password = accountManager.getPassword(account);
-            String login = accountManager.getUserData(account, "login");
+
+        for (Account account : mAccountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
+            String url = mAccountManager.getUserData(account, "url");
+            String password = mAccountManager.getPassword(account);
+            String login = mAccountManager.getUserData(account, "login");
             connections.add(new Connection(account.name, login, password, url));
         }
         return connections;
@@ -211,10 +215,9 @@ public class SelectNGWResourceDialog
         if (requestCode == ADD_ACCOUNT_CODE) {
             if (resultCode != Activity.RESULT_CANCELED) {
                 //search new account and add it
-                final AccountManager accountManager =
-                        AccountManager.get(mActivity.getApplicationContext());
                 Connections connections = mListAdapter.getConnections();
-                for (Account account : accountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
+
+                for (Account account : mAccountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
                     boolean find = false;
                     for (int i = 0; i < connections.getChildrenCount(); i++) {
                         Connection connection = (Connection) connections.getChild(i);
@@ -225,9 +228,9 @@ public class SelectNGWResourceDialog
                     }
 
                     if (!find) {
-                        String url = accountManager.getUserData(account, "url");
-                        String password = accountManager.getPassword(account);
-                        String login = accountManager.getUserData(account, "login");
+                        String url = mAccountManager.getUserData(account, "url");
+                        String password = mAccountManager.getPassword(account);
+                        String login = mAccountManager.getUserData(account, "login");
                         connections.add(new Connection(account.name, login, password, url));
                         mListAdapter.notifyDataSetChanged();
                         break;
