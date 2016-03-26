@@ -4,7 +4,7 @@
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * Based on https://github.com/nextgis/nextgismobile/blob/master/src/com/nextgis/mobile/forms/BubbleSurfaceView.java
  * *****************************************************************************
- * Copyright (c) 2015 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -82,7 +82,7 @@ public class BubbleSurfaceView extends View {
         mY = -mPitch * mScalePitch + mHalfHeight - mHalfBubbleH;
 
         // clearing canvas
-        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.MULTIPLY);
+        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.SRC_ATOP);
 
         // distance between center of the circle and center of the mBubble
         float dist = (float) Math.sqrt(Math.pow(mX + mHalfBubbleW - mHalfWidth, 2)
