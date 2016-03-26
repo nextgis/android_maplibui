@@ -88,10 +88,10 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 22 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="easypicker-0.2" level="project" />
     <orderEntry type="library" exported="" name="undobar-1.8.1" level="project" />
-    <orderEntry type="library" exported="" name="rangebar-1.0.0" level="project" />
+    <orderEntry type="library" exported="" name="easypicker-0.2" level="project" />
     <orderEntry type="library" exported="" name="support-v4-22.2.1" level="project" />
+    <orderEntry type="library" exported="" name="rangebar-1.0.0" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-22.2.1" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-22.2.1" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-22.2.1" level="project" />
