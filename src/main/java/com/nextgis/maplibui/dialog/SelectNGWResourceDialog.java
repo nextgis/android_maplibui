@@ -50,6 +50,7 @@ import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGWLoginActivity;
+import com.nextgis.maplibui.fragment.LayerFillProgressDialogFragment;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.service.LayerFillService;
 import com.nextgis.maplibui.util.CheckState;
@@ -319,8 +320,7 @@ public class SelectNGWResourceDialog
                     intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, mGroupLayer.getId());
                     intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.NGW_LAYER);
 
-                    LayerFillProgressDialog progressDialog = new LayerFillProgressDialog(mActivity);
-                    progressDialog.execute(intent);
+                    LayerFillProgressDialogFragment.startFill(intent);
                 }
             }
         }

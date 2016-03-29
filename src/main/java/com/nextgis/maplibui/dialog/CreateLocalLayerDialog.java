@@ -39,6 +39,7 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.fragment.LayerFillProgressDialogFragment;
 import com.nextgis.maplibui.service.LayerFillService;
 
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_NORMAL;
@@ -154,8 +155,7 @@ public class CreateLocalLayerDialog
                                 if (mSpinner != null)
                                     intent.putExtra(LayerFillService.KEY_TMS_TYPE, getTmsType());
 
-                                LayerFillProgressDialog progressDialog = new LayerFillProgressDialog(mActivity);
-                                progressDialog.execute(intent);
+                                LayerFillProgressDialogFragment.startFill(intent);
                             }
 
                             private int getTmsType() {

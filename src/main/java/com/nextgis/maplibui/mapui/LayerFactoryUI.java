@@ -39,8 +39,8 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.dialog.CreateLocalLayerDialog;
 import com.nextgis.maplibui.dialog.CreateRemoteTMSLayerDialog;
-import com.nextgis.maplibui.dialog.LayerFillProgressDialog;
 import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
+import com.nextgis.maplibui.fragment.LayerFillProgressDialogFragment;
 import com.nextgis.maplibui.service.LayerFillService;
 
 import org.json.JSONException;
@@ -111,8 +111,7 @@ public class LayerFactoryUI
                 intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.TMS_LAYER);
                 intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, groupLayer.getId());
 
-                LayerFillProgressDialog progressDialog = new LayerFillProgressDialog(fragmentActivity);
-                progressDialog.execute(intent);
+                LayerFillProgressDialogFragment.startFill(intent);
                 return;
             }
 
