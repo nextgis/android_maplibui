@@ -33,6 +33,7 @@ import android.support.v7.app.AlertDialog;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.FileUtil;
@@ -60,6 +61,8 @@ import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.nextgis.maplib.util.GeoConstants.CRS_WEB_MERCATOR;
+import static com.nextgis.maplib.util.GeoConstants.CRS_WGS84;
 import static com.nextgis.maplib.util.GeoConstants.GEOJSON_ATTACHES;
 import static com.nextgis.maplib.util.GeoConstants.GEOJSON_CRS;
 import static com.nextgis.maplib.util.GeoConstants.GEOJSON_CRS_EPSG_3857;
@@ -273,6 +276,7 @@ public class LayerUtil {
         }
 
         protected void appendTrack(StringBuilder sb, Formatter f, Cursor trackpoints) {
+            GeoPoint point = new GeoPoint();
             int latId = trackpoints.getColumnIndex(TrackLayer.FIELD_LAT);
             int lonId = trackpoints.getColumnIndex(TrackLayer.FIELD_LON);
             int timeId = trackpoints.getColumnIndex(TrackLayer.FIELD_TIMESTAMP);
@@ -286,8 +290,11 @@ public class LayerUtil {
             sb.append(GPX_TAG_TRACK);
             sb.append(GPX_TAG_TRACK_SEGMENT);
             do {
-                String sLat = df.format(trackpoints.getDouble(latId));
-                String sLon = df.format(trackpoints.getDouble(lonId));
+                point.setCoordinates(trackpoints.getDouble(lonId), trackpoints.getDouble(latId));
+                point.setCRS(CRS_WEB_MERCATOR);
+                point.project(CRS_WGS84);
+                String sLon = df.format(point.getX());
+                String sLat = df.format(point.getY());
                 f.format(GPX_TAG_TRACK_SEGMENT_POINT, sLat, sLon);
                 f.format(GPX_TAG_TRACK_SEGMENT_POINT_TIME, getTimeStampAsString(trackpoints.getLong(timeId)));
                 f.format(GPX_TAG_TRACK_SEGMENT_POINT_ELE, df.format(trackpoints.getDouble(eleId)));

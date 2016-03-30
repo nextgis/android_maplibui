@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -176,8 +176,7 @@ public class CurrentTrackOverlay
                     y0 = track.getFloat(track.getColumnIndex(TrackLayer.FIELD_LAT)), x1, y1;
             GeoPoint point;
             point = new GeoPoint(x0, y0);
-            point.setCRS(GeoConstants.CRS_WGS84);
-            point.project(GeoConstants.CRS_WEB_MERCATOR);
+            point.setCRS(GeoConstants.CRS_WEB_MERCATOR);
 
             GeoPoint mts = mapDrawable.mapToScreen(point);
             x0 = (float) (mts.getX());
@@ -188,8 +187,7 @@ public class CurrentTrackOverlay
                 y1 = track.getFloat(track.getColumnIndex(TrackLayer.FIELD_LAT));
 
                 point = new GeoPoint(x1, y1);
-                point.setCRS(GeoConstants.CRS_WGS84);
-                point.project(GeoConstants.CRS_WEB_MERCATOR);
+                point.setCRS(GeoConstants.CRS_WEB_MERCATOR);
 
                 mts = mapDrawable.mapToScreen(point);
 

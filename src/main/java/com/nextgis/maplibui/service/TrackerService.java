@@ -50,9 +50,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
+import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.util.Constants;
-import com.nextgis.maplib.util.LocationUtil;
+import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
@@ -82,6 +83,7 @@ public class TrackerService
     private String            mTrackId;
     private Uri mContentUriTracks, mContentUriTrackPoints;
     private ContentValues mValues;
+    private GeoPoint mPoint;
 
     private NotificationManager mNotificationManager;
     private AlarmManager        mAlarmManager;
@@ -106,6 +108,7 @@ public class TrackerService
         mContentUriTrackPoints =
                 Uri.parse("content://" + authority + "/" + TrackLayer.TABLE_TRACKPOINTS);
 
+        mPoint = new GeoPoint();
         mValues = new ContentValues();
 
         SharedPreferences sharedPreferences =
@@ -392,8 +395,12 @@ public class TrackerService
 
         mValues.clear();
         mValues.put(TrackLayer.FIELD_SESSION, mTrackId);
-        mValues.put(TrackLayer.FIELD_LON, location.getLongitude());
-        mValues.put(TrackLayer.FIELD_LAT, location.getLatitude());
+
+        mPoint.setCoordinates(location.getLongitude(), location.getLatitude());
+        mPoint.setCRS(GeoConstants.CRS_WGS84);
+        mPoint.project(GeoConstants.CRS_WEB_MERCATOR);
+        mValues.put(TrackLayer.FIELD_LON, mPoint.getX());
+        mValues.put(TrackLayer.FIELD_LAT, mPoint.getY());
         mValues.put(TrackLayer.FIELD_ELE, location.getAltitude());
         mValues.put(TrackLayer.FIELD_FIX, fixType);
         mValues.put(TrackLayer.FIELD_SAT, mSatellitesCount);
