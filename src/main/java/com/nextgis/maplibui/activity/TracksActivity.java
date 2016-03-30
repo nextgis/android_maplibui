@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -24,6 +24,7 @@
 package com.nextgis.maplibui.activity;
 
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -41,6 +42,8 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.TrackerService;
 import com.nextgis.maplibui.util.LayerUtil;
 import com.nextgis.maplibui.util.TrackView;
+
+import yuku.ambilwarna.AmbilWarnaDialog;
 
 import static com.nextgis.maplibui.service.TrackerService.isTrackerServiceRunning;
 
@@ -164,22 +167,53 @@ public class TracksActivity
         } else if (id == R.id.menu_share) {
             String[] args = mTracks.getSelectedItemsIds();
             LayerUtil.shareTrackAsGPX(this, "NextGIS Mobile", args);
+        } else if (id == R.id.menu_color) {
+            AmbilWarnaDialog dialog = new AmbilWarnaDialog(this, 0, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+                @Override
+                public void onOk(AmbilWarnaDialog dialog, int color) {
+                    changeColor(color);
+                }
+
+                @Override
+                public void onCancel(AmbilWarnaDialog dialog) {
+
+                }
+            });
+
+            dialog.getDialog().setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    closeActionMode();
+                }
+            });
+
+            dialog.show();
         }
 
-        if (id != R.id.menu_select_all) {
-            mTracks.unselectAll();
-            actionMode.finish();
-        }
+        if (id != R.id.menu_select_all && id != R.id.menu_color)
+            closeActionMode();
 
         return true;
     }
 
 
     protected void changeVisibility(boolean visible) {
-        String selection = getSelection();
-        String[] args = mTracks.getSelectedItemsIds();
         ContentValues cv = new ContentValues();
         cv.put(TrackLayer.FIELD_VISIBLE, visible);
+        update(cv);
+    }
+
+
+    protected void changeColor(int color) {
+        ContentValues cv = new ContentValues();
+        cv.put(TrackLayer.FIELD_COLOR, color);
+        update(cv);
+    }
+
+
+    protected void update(ContentValues cv) {
+        String selection = getSelection();
+        String[] args = mTracks.getSelectedItemsIds();
         getContentResolver().update(mContentUriTracks, cv, selection, args);
     }
 
@@ -188,6 +222,11 @@ public class TracksActivity
         return TrackLayer.FIELD_ID + " IN (" + makePlaceholders() + ")";
     }
 
+
+    protected void closeActionMode() {
+        mTracks.unselectAll();
+        mActionMode.finish();
+    }
 
     @Override
     public void onDestroyActionMode(ActionMode actionMode) {

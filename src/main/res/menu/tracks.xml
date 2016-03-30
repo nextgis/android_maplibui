@@ -6,7 +6,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -26,6 +26,18 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_color"
+        android:icon="@drawable/ic_color_lens_dark"
+        android:title="@string/select_color"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/menu_share"
+        android:icon="@drawable/ic_action_social_share_dark"
+        android:title="@string/menu_share"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/menu_visibility_on"
         android:icon="@drawable/ic_action_visibility_on_dark"
         android:title="@string/menu_visibility_on"
@@ -35,12 +47,6 @@
         android:id="@+id/menu_visibility_off"
         android:icon="@drawable/ic_action_visibility_off_dark"
         android:title="@string/menu_visibility_off"
-        app:showAsAction="ifRoom"/>
-
-    <item
-        android:id="@+id/menu_share"
-        android:icon="@drawable/ic_action_social_share_dark"
-        android:title="@string/menu_share"
         app:showAsAction="ifRoom"/>
 
     <item
