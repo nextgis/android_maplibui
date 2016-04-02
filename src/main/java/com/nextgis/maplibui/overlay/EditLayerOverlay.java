@@ -875,8 +875,14 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         for (DrawItem drawItem : drawItems) {
             boolean isSelected = mSelectedItem == drawItem;
 
-            if (mMode != MODE_CHANGE)
+            if (mMode != MODE_CHANGE) {
                 drawItem = drawItem.pan(currentMouseOffset);
+
+                if (isSelected) {
+                    drawItem.setSelectedRing(mSelectedItem.getSelectedRingId());
+                    drawItem.setSelectedPoint(mSelectedItem.getSelectedPointId());
+                }
+            }
 
             drawItem(drawItem, canvas, isSelected);
         }
@@ -897,6 +903,12 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         for (DrawItem drawItem : drawItems) {
             boolean isSelected = mSelectedItem == drawItem;
             drawItem = drawItem.zoom(currentFocusLocation, scale);
+
+            if (isSelected) {
+                drawItem.setSelectedRing(mSelectedItem.getSelectedRingId());
+                drawItem.setSelectedPoint(mSelectedItem.getSelectedPointId());
+            }
+
             drawItem(drawItem, canvas, isSelected);
         }
 

@@ -196,7 +196,8 @@ public class NGActivity
                     ActivityCompat.requestPermissions(activity, permissions, requestCode);
                 }
             });
-        }
+        } else
+            ActivityCompat.requestPermissions(this, permissions, requestCode);
     }
 
 }
