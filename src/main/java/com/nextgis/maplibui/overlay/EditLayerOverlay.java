@@ -38,7 +38,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.widget.Toast;
@@ -72,6 +71,7 @@ import com.nextgis.maplibui.mapui.MapViewOverlays;
 import com.nextgis.maplibui.service.WalkEditService;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
+import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -242,14 +242,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     }
 
 
-    protected void setWalkSaveState(boolean save) {
-        Menu toolbarMenu = mBottomToolbar.getMenu();
-        MenuItem item = toolbarMenu.findItem(R.id.menu_edit_save);
-        if (item != null)
-            ControlHelper.setEnabled(item, save);
-    }
-
-
     public void saveToHistory() {
         for (int i = mHistory.size() - 1; i > mHistoryState; i--)
             mHistory.remove(i);
@@ -358,27 +350,32 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
             if (item != null)
                 ControlHelper.setEnabled(item, onlyOneItem && isOuterRingSelected);
 
-            boolean moreThanMin = true;
-            int size = mSelectedItem.getSelectedRing() == null ? 0 : mSelectedItem.getSelectedRing().length;
-            int minPoints = DrawItem.getMinPointCount(mLayer.getGeometryType()) * 2;
+            item = mBottomToolbar.getMenu().findItem(R.id.menu_edit_delete_point);
+            if (item != null) {
+                boolean moreThanMin = true;
+                int size = mSelectedItem.getSelectedRing() == null ? 0 : mSelectedItem.getSelectedRing().length;
+                int minPoints = DrawItem.getMinPointCount(mLayer.getGeometryType()) * 2;
 
-            switch (mLayer.getGeometryType()) {
-                case GeoConstants.GTMultiPoint:
-                    moreThanMin = onlyOneItem;
-                    break;
-                case GeoConstants.GTLineString:
-                case GeoConstants.GTMultiLineString:
-                    moreThanMin = size > minPoints;
-                    break;
-                case GeoConstants.GTPolygon:
-                case GeoConstants.GTMultiPolygon:
-                    moreThanMin = size > minPoints;
-                    break;
+                switch (mLayer.getGeometryType()) {
+                    case GeoConstants.GTMultiPoint:
+                        moreThanMin = onlyOneItem;
+                        break;
+                    case GeoConstants.GTLineString:
+                    case GeoConstants.GTMultiLineString:
+                        moreThanMin = size > minPoints;
+                        break;
+                    case GeoConstants.GTPolygon:
+                    case GeoConstants.GTMultiPolygon:
+                        moreThanMin = size > minPoints;
+                        break;
+                }
+
+                ControlHelper.setEnabled(item, moreThanMin);
             }
 
-            item = mBottomToolbar.getMenu().findItem(R.id.menu_edit_delete_point);
+            item = mBottomToolbar.getMenu().findItem(R.id.menu_edit_by_walk);
             if (item != null)
-                ControlHelper.setEnabled(item, moreThanMin);
+                ControlHelper.setEnabled(item, !hasEdits);
         }
     }
 
@@ -402,6 +399,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                 if (mFeature == null)
                     break;
 
+                mBottomToolbar.setTitle(null);
                 mBottomToolbar.getMenu().clear();
                 switch (mLayer.getGeometryType()) {
                     case GeoConstants.GTPoint:
@@ -428,13 +426,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                 }
 
                 hideNavigationButton();
-                mBottomToolbar.setOnMenuItemClickListener(
-                        new BottomToolbar.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(MenuItem menuItem) {
-                                return onOptionsItemSelected(menuItem.getItemId());
-                            }
-                        });
 
                 for (EditEventListener listener : mListeners)
                     listener.onStartEditSession();
@@ -443,11 +434,28 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                 break;
             case MODE_EDIT_BY_WALK:
                 clearHistory();
+                hideNavigationButton();
 
                 for (EditEventListener listener : mListeners)
                     listener.onStartEditSession();
 
-                setWalkSaveState(false);
+                mBottomToolbar.setTitle(R.string.title_edit_by_walk);
+                mBottomToolbar.getMenu().clear();
+                mBottomToolbar.inflateMenu(R.menu.edit_by_walk);
+                mBottomToolbar.setOnMenuItemClickListener(
+                        new BottomToolbar.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem menuItem) {
+                                if (menuItem.getItemId() == R.id.menu_settings) {
+                                    IGISApplication app = (IGISApplication) ((Activity) mContext).getApplication();
+                                    app.showSettings(SettingsConstantsUI.ACTION_PREFS_LOCATION);
+                                }
+
+                                return true;
+                            }
+                        }
+                );
+
                 startGeometryByWalk();
                 break;
         }
@@ -505,19 +513,13 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
             result = deleteGeometry();
         } else if (id == R.id.menu_edit_delete_point) {
             result = deletePoint();
+        } else if (id == R.id.menu_edit_by_walk) {
+            result = true;
         } else if (id == R.id.menu_edit_undo) {
             return restoreFromHistory(--mHistoryState);
         } else if (id == R.id.menu_edit_redo) {
             return restoreFromHistory(++mHistoryState);
         }
-//        else if(id == R.id.menu_edit_track){
-//            if(mLayer.getGeometryType() == GeoConstants.GTPoint ||
-//                    mLayer.getGeometryType() == GeoConstants.GTMultiPoint)
-//                return false;
-//            //only support for lines and polygons
-//
-//            //TODO: release this
-//        }
 
         if (result)
             update();
@@ -534,6 +536,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         mDrawItems.add(mSelectedItem);
 
         update();
+        clearHistory();
     }
 
 
@@ -668,10 +671,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     }
 
 
-    protected void startGeometryByWalk() {
-        if (null == mLayer)
-            return;
-
+    public void newGeometryByWalk() {
         GeoGeometry geometry;
         switch (mLayer.getGeometryType()) {
             case GeoConstants.GTLineString:
@@ -681,10 +681,14 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                 geometry = new GeoPolygon();
                 break;
             case GeoConstants.GTMultiLineString:
-                geometry = new GeoMultiLineString();
+                GeoMultiLineString multiLine = new GeoMultiLineString();
+                multiLine.add(new GeoLineString());
+                geometry = multiLine;
                 break;
             case GeoConstants.GTMultiPolygon:
-                geometry = new GeoMultiPolygon();
+                GeoMultiPolygon multiPolygon = new GeoMultiPolygon();
+                multiPolygon.add(new GeoPolygon());
+                geometry = multiPolygon;
                 break;
             default:
                 return;
@@ -693,20 +697,49 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         mFeature = new Feature();
         mFeature.setGeometry(geometry);
 
+        mDrawItems.clear();
         mSelectedItem = new DrawItem();
         mDrawItems.add(mSelectedItem);
+    }
 
+
+    protected void startGeometryByWalk() {
         // register broadcast events
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(WalkEditService.WALKEDIT_CHANGE);
         mReceiver = new WalkEditReceiver();
         mContext.registerReceiver(mReceiver, intentFilter);
 
-        // start service
+        if (WalkEditService.isServiceRunning(mContext))
+            return;
+
+        // start service if not started yet
+        GeoGeometry geometry = mFeature.getGeometry();
+        int selectedRing = mSelectedItem.getSelectedRingId();
+        int selectedGeometry = mDrawItems.indexOf(mSelectedItem);
+
+        switch (mLayer.getGeometryType()) {
+            case GeoConstants.GTLineString:
+                break;
+            case GeoConstants.GTPolygon:
+                GeoPolygon polygon = ((GeoPolygon) geometry);
+                geometry = selectedRing == 0 ? polygon.getOuterRing() : polygon.getInnerRing(selectedRing - 1);
+                break;
+            case GeoConstants.GTMultiLineString:
+                geometry = ((GeoMultiLineString) geometry).get(selectedGeometry);
+                break;
+            case GeoConstants.GTMultiPolygon:
+                GeoPolygon selectedPolygon = ((GeoMultiPolygon) geometry).get(selectedGeometry);
+                geometry = selectedRing == 0 ? selectedPolygon.getOuterRing() : selectedPolygon.getInnerRing(selectedRing - 1);
+                break;
+            default:
+                return;
+        }
+
         Intent trackerService = new Intent(mContext, WalkEditService.class);
         trackerService.setAction(WalkEditService.ACTION_START);
         trackerService.putExtra(ConstantsUI.KEY_LAYER_ID, mLayer.getId());
-        trackerService.putExtra(ConstantsUI.KEY_GEOMETRY, mFeature.getGeometry());
+        trackerService.putExtra(ConstantsUI.KEY_GEOMETRY, geometry);
         trackerService.putExtra(ConstantsUI.TARGET_CLASS, mContext.getClass().getName());
         mContext.startService(trackerService);
     }
@@ -762,7 +795,9 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         }
 
         mFeature.setGeometry(geometry);
-        saveToHistory();
+
+        if (mMode != MODE_EDIT_BY_WALK)
+            saveToHistory();
     }
 
 
@@ -1240,51 +1275,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     }
 
 
-    public boolean isCurrentGeometryValid() {
-        return null != mFeature && isGeometryValid(mFeature.getGeometry()) &&
-                mLayer.getGeometryType() == mFeature.getGeometry().getType();
-    }
-
-
-    public boolean isGeometryValid(GeoGeometry geometry) {
-        if (null == geometry)
-            return false;
-
-        switch (geometry.getType()) {
-            case GeoConstants.GTPoint:
-            case GeoConstants.GTMultiPoint:
-                return true;
-            case GeoConstants.GTLineString:
-                GeoLineString line = (GeoLineString) geometry;
-                return line.getPointCount() > 1;
-            case GeoConstants.GTMultiLineString:
-                GeoMultiLineString multiLine = (GeoMultiLineString) geometry;
-                for (int i = 0; i < multiLine.size(); i++) {
-                    GeoLineString subLine = multiLine.get(i);
-                    if (subLine.getPointCount() > 1) {
-                        return true;
-                    }
-                }
-                return false;
-            case GeoConstants.GTPolygon:
-                GeoPolygon polygon = (GeoPolygon) geometry;
-                GeoLinearRing ring = polygon.getOuterRing();
-                return ring.getPointCount() > 2;
-            case GeoConstants.GTMultiPolygon:
-                GeoMultiPolygon multiPolygon = (GeoMultiPolygon) geometry;
-                for (int i = 0; i < multiPolygon.size(); i++) {
-                    GeoPolygon subPolygon = multiPolygon.get(i);
-                    if (subPolygon.getOuterRing().getPointCount() > 2) {
-                        return true;
-                    }
-                }
-                return false;
-            default:
-                return false;
-        }
-    }
-
-
     protected Bitmap getMarker() {
         float scaledDensity = mContext.getResources().getDisplayMetrics().scaledDensity;
         int size = (int) (12 * scaledDensity);
@@ -1303,24 +1293,47 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         @Override
         public void onReceive(Context context, Intent intent) {
             GeoGeometry geometry = (GeoGeometry) intent.getSerializableExtra(ConstantsUI.KEY_GEOMETRY);
-            switch (mLayer.getGeometryType()) {
-                case GeoConstants.GTLineString:
-                case GeoConstants.GTPolygon:
-                    mFeature.setGeometry(geometry);
-                    break;
-                case GeoConstants.GTMultiLineString:
-                case GeoConstants.GTMultiPolygon:
-                    GeoGeometryCollection collection = (GeoGeometryCollection) mFeature.getGeometry();
-                    // TODO: 13.12.15 Select gometry index to update via walk
-                    collection.set(0, geometry);
-                    mFeature.setGeometry(collection);
-                    break;
-                default:
-                    return;
-            }
-
-            setWalkSaveState(isCurrentGeometryValid());
+            setGeometryFromWalkEdit(geometry);
             mMapViewOverlays.postInvalidate();
+        }
+    }
+
+    public void setGeometryFromWalkEdit(GeoGeometry geometry) {
+        int selectedGeometry = mDrawItems.indexOf(mSelectedItem);
+        int selectedRing = mSelectedItem.getSelectedRingId();
+
+        switch (mLayer.getGeometryType()) {
+            case GeoConstants.GTLineString:
+                mFeature.setGeometry(geometry);
+                break;
+            case GeoConstants.GTMultiLineString:
+                GeoMultiLineString multiLine = (GeoMultiLineString) mFeature.getGeometry();
+                multiLine.set(selectedGeometry, geometry);
+                mFeature.setGeometry(multiLine);
+                break;
+            case GeoConstants.GTPolygon:
+                GeoPolygon polygon = (GeoPolygon) mFeature.getGeometry();
+
+                if (selectedRing == 0)
+                    polygon.setOuterRing((GeoLinearRing) geometry);
+                else
+                    polygon.setInnerRing(selectedRing - 1, (GeoLinearRing) geometry);
+
+                mFeature.setGeometry(polygon);
+                break;
+            case GeoConstants.GTMultiPolygon:
+                GeoMultiPolygon multiPolygon = (GeoMultiPolygon) mFeature.getGeometry();
+                GeoPolygon selectedPolygon = multiPolygon.get(selectedGeometry);
+                selectedPolygon.setOuterRing((GeoLinearRing) geometry);
+
+                if (selectedRing == 0)
+                    selectedPolygon.setOuterRing((GeoLinearRing) geometry);
+                else
+                    selectedPolygon.setInnerRing(selectedRing - 1, (GeoLinearRing) geometry);
+
+                multiPolygon.set(selectedGeometry, selectedPolygon);
+                mFeature.setGeometry(multiPolygon);
+                break;
         }
     }
 }

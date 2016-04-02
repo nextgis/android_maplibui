@@ -147,7 +147,7 @@
     <string name="delete_layer_done">Слой удален</string>
     <string name="add_line">Добавить линию</string>
     <string name="delete_line">Удалить линию</string>
-    <string name="write_track">Записать трек</string>
+    <string name="edit_by_walk">Дополнить геометрию обходом</string>
     <string name="add_multilinestring">Добавить мультилинию</string>
     <string name="delete_multilinestring">Удалить мультилинию</string>
     <string name="add_polygon">Добавить полигон</string>
@@ -165,7 +165,7 @@
     <string name="has_edits">Есть несохраненные изменения. Хотите сохранить их?</string>
     <string name="attributes_next">Следующий</string>
     <string name="attributes_prev">Предыдущий</string>
-    <string name="geometry_by_walk_no_points">Недостаточно точек для создания геометрии</string>
+    <string name="geometry_no_points">Недостаточно точек для создания геометрии</string>
     <string name="error_change_feature">Ошибка изменения записи</string>
     <string name="move_point_to_center">Точка в центр экрана</string>
     <string name="mainSettings">Основные настройки</string>
@@ -238,4 +238,5 @@
     <string name="location_inaccuracy">Вы можете повысить точность местоположения, включив следующие функции:</string>
     <string name="location_gps">GPS</string>
     <string name="location_network">По Wi-Fi и координатам сети</string>
+    <string name="title_edit_by_walk">Запись обходом</string>
 </resources>

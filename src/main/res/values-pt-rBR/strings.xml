@@ -146,7 +146,7 @@
     <string name="delete_layer_done">Layer deleted</string>
     <string name="add_line">Add line</string>
     <string name="delete_line">Delete line</string>
-    <string name="write_track">Write track</string>
+    <string name="edit_by_walk">Append geometry by walk</string>
     <string name="add_multilinestring">Add multilinestring</string>
     <string name="delete_multilinestring">Delete multilinestring</string>
     <string name="add_polygon">Add polygon</string>
@@ -164,7 +164,7 @@
     <string name="has_edits">There are unsaved edits. Do you want to save them?</string>
     <string name="attributes_next">Next</string>
     <string name="attributes_prev">Previous</string>
-    <string name="geometry_by_walk_no_points">No enough points to create geometry</string>
+    <string name="geometry_no_points">No enough points to create geometry</string>
     <string name="error_change_feature">Change feature failed</string>
     <string name="move_point_to_center">Point to display center</string>
     <string name="mainSettings">Main settings</string>
@@ -237,4 +237,5 @@
     <string name="location_inaccuracy">You can improve the accuracy of your location by turning on:</string>
     <string name="location_gps">GPS</string>
     <string name="location_network">Wi-Fi and mobile network coordinates</string>
+    <string name="title_edit_by_walk">Edit by walk</string>
 </resources>

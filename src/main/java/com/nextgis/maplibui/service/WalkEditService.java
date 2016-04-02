@@ -44,12 +44,11 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoGeometryFactory;
 import com.nextgis.maplib.datasource.GeoLineString;
+import com.nextgis.maplib.datasource.GeoLinearRing;
 import com.nextgis.maplib.datasource.GeoPoint;
-import com.nextgis.maplib.datasource.GeoPolygon;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
-import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
@@ -113,6 +112,12 @@ public class WalkEditService
                         } else {
                             mLayerId = layerId;
                             mGeometry = (GeoGeometry) intent.getSerializableExtra(ConstantsUI.KEY_GEOMETRY);
+                            if (mGeometry instanceof GeoLinearRing) {
+                                GeoLinearRing ring = (GeoLinearRing) mGeometry;
+                                if (ring.isClosed())
+                                    ring.remove(ring.getPointCount() - 1);
+                            }
+
                             mTargetActivity = intent.getStringExtra(ConstantsUI.TARGET_CLASS);
                             startWalkEdit();
 
@@ -208,9 +213,9 @@ public class WalkEditService
                 GeoLineString line = (GeoLineString) mGeometry;
                 line.add(point);
                 break;
-            case GeoConstants.GTPolygon:
-                GeoPolygon polygon = (GeoPolygon) mGeometry;
-                polygon.add(point);
+            case GeoConstants.GTLinearRing:
+                GeoLinearRing ring = (GeoLinearRing) mGeometry;
+                ring.add(point);
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported geometry type");
