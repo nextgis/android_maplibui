@@ -71,6 +71,7 @@ import com.nextgis.maplibui.control.DateTime;
 import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.control.TextEdit;
 import com.nextgis.maplibui.control.TextLabel;
+import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.NotificationHelper;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
@@ -444,6 +445,10 @@ public class ModifyAttributesActivity
                 Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT).show();
             }
         }
+
+        Intent data = new Intent();
+        data.putExtra(ConstantsUI.KEY_FEATURE_ID, mFeatureId);
+        setResult(RESULT_OK, data);
     }
 
 

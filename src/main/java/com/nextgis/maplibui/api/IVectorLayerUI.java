@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -32,6 +32,7 @@ import com.nextgis.maplib.datasource.GeoGeometry;
  */
 public interface IVectorLayerUI extends ILayerUI
 {
+    int MODIFY_REQUEST = 1;
     /**
      * This method executed, when the form need to be shown
      * @param context activity context

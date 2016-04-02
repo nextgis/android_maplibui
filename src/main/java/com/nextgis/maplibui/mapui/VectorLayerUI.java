@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -23,6 +23,7 @@
 
 package com.nextgis.maplibui.mapui;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
@@ -121,7 +122,7 @@ public class VectorLayerUI
         if (null != geometry)
             intent.putExtra(KEY_GEOMETRY, geometry);
 
-        context.startActivity(intent);
+        ((Activity) context).startActivityForResult(intent, MODIFY_REQUEST);
     }
 
     @Override
