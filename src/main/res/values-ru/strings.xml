@@ -99,6 +99,7 @@
     <string name="accurate_location">Уточнить местоположение</string>
     <string name="accurate_taking">Сбор и усреднение координат…</string>
     <string name="action_settings">Настройки</string>
+    <string name="do_not_ask_again">Больше не спрашивать</string>
     <string name="apply">Применить</string>
     <string name="error_db_insert">Ошибка добавления объекта</string>
     <string name="error_db_update">Ошибка обновления объекта</string>

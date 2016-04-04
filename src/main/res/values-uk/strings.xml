@@ -97,6 +97,7 @@
     <string name="accurate_location">Accurate location</string>
     <string name="accurate_taking">Accumulating and averaging location…</string>
     <string name="action_settings">Settings</string>
+    <string name="do_not_ask_again">Больше не спрашивать</string>
     <string name="apply">Apply</string>
     <string name="error_db_insert">Insert feature failed</string>
     <string name="error_db_update">Update feature failed</string>

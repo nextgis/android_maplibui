@@ -43,6 +43,7 @@ public interface SettingsConstantsUI
     String KEY_PREF_RESET_SETTINGS       = "reset_settings";
     String KEY_PREF_MAP_BG               = "map_bg";
     String KEY_PREF_LAYER_LABEL          = "layer_label";
+    String KEY_PREF_SHOW_GEO_DIALOG      = "show_geo_dialog";
 
     String OSM_URL = "http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
