@@ -35,6 +35,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -70,6 +71,7 @@ public class SelectNGWResourceDialog
 
     protected NGWResourcesListAdapter mListAdapter;
     protected AlertDialog             mDialog;
+    protected int                     mEnabledColor, mDisabledColor;
     protected AccountManager          mAccountManager;
 
     protected final static String KEY_MASK        = "mask";
@@ -162,9 +164,19 @@ public class SelectNGWResourceDialog
                                 // User cancelled the dialog
                             }
                         });
+
         // Create the AlertDialog object and return it
         mDialog = builder.create();
         mDialog.setCanceledOnTouchOutside(false);
+        mDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                mDisabledColor = getResources().getColor(R.color.color_grey_400);
+                mEnabledColor = mDialog.getButton(DialogInterface.BUTTON_POSITIVE).getTextColors().getDefaultColor();
+                updateSelectButton();
+            }
+        });
+
         return mDialog;
     }
 
@@ -244,25 +256,19 @@ public class SelectNGWResourceDialog
     }
 
 
-    @Override
-    public void onStart()
-    {
-        super.onStart();
-        updateSelectButton();
+    public void updateSelectButton() {
+        boolean active = mListAdapter.getCheckState().size() > 0;
+        setEnabled(mDialog.getButton(AlertDialog.BUTTON_POSITIVE), active);
     }
 
-
-    public void updateSelectButton()
-    {
-        mDialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                .setEnabled(mListAdapter.getCheckState().size() > 0);
+    protected void setEnabled(Button button, boolean state) {
+        button.setEnabled(state);
+        button.setTextColor(state ? mEnabledColor : mDisabledColor);
     }
 
-
-    public void createLayers(Context context)
-    {
-        mDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-        mDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(false);
+    public void createLayers(Context context) {
+        setEnabled(mDialog.getButton(AlertDialog.BUTTON_POSITIVE), false);
+        setEnabled(mDialog.getButton(AlertDialog.BUTTON_NEGATIVE), false);
 
         List<CheckState> checkStates = mListAdapter.getCheckState();
         Connections connections = mListAdapter.getConnections();
