@@ -71,7 +71,6 @@ public class SelectNGWResourceDialog
 
     protected NGWResourcesListAdapter mListAdapter;
     protected AlertDialog             mDialog;
-    protected int                     mEnabledColor, mDisabledColor;
     protected AccountManager          mAccountManager;
 
     protected final static String KEY_MASK        = "mask";
@@ -171,7 +170,6 @@ public class SelectNGWResourceDialog
         mDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialog) {
-                mDisabledColor = getResources().getColor(R.color.color_grey_400);
                 mEnabledColor = mDialog.getButton(DialogInterface.BUTTON_POSITIVE).getTextColors().getDefaultColor();
                 updateSelectButton();
             }
@@ -261,10 +259,6 @@ public class SelectNGWResourceDialog
         setEnabled(mDialog.getButton(AlertDialog.BUTTON_POSITIVE), active);
     }
 
-    protected void setEnabled(Button button, boolean state) {
-        button.setEnabled(state);
-        button.setTextColor(state ? mEnabledColor : mDisabledColor);
-    }
 
     public void createLayers(Context context) {
         setEnabled(mDialog.getButton(AlertDialog.BUTTON_POSITIVE), false);

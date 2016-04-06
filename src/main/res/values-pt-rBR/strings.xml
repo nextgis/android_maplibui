@@ -239,4 +239,5 @@
     <string name="location_gps">GPS</string>
     <string name="location_network">Wi-Fi and mobile network coordinates</string>
     <string name="title_edit_by_walk">Edit by walk</string>
+    <string name="advanced">Advanced</string>
 </resources>

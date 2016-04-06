@@ -24,11 +24,13 @@ package com.nextgis.maplibui.dialog;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.ContextThemeWrapper;
+import android.widget.Button;
 
 import com.nextgis.maplibui.R;
 
@@ -39,6 +41,7 @@ public class NGDialog extends DialogFragment {
     protected Context mContext;
     protected Activity mActivity;
     protected String mTitle;
+    protected int mEnabledColor, mDisabledColor;
     protected int mTheme, mDialogTheme;
 
     public NGDialog setTitle(String title) {
@@ -49,6 +52,11 @@ public class NGDialog extends DialogFragment {
     public NGDialog setTheme(int themeId) {
         mTheme = themeId;
         return this;
+    }
+
+    protected void setEnabled(Button button, boolean state) {
+        button.setEnabled(state);
+        button.setTextColor(state ? mEnabledColor : mDisabledColor);
     }
 
     @NonNull
@@ -68,6 +76,12 @@ public class NGDialog extends DialogFragment {
         }
 
         return super.onCreateDialog(savedInstanceState);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mDisabledColor = getResources().getColor(R.color.color_grey_400);
     }
 
     @Override

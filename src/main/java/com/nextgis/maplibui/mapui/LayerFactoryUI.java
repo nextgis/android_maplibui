@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
@@ -35,10 +36,11 @@ import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.NGWLookupTable;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.MapUtil;
+import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGActivity;
+import com.nextgis.maplibui.dialog.CreateFromQMSLayerDialog;
 import com.nextgis.maplibui.dialog.CreateLocalLayerDialog;
-import com.nextgis.maplibui.dialog.CreateRemoteTMSLayerDialog;
 import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
 import com.nextgis.maplibui.fragment.LayerFillProgressDialogFragment;
 import com.nextgis.maplibui.service.LayerFillService;
@@ -191,11 +193,16 @@ public class LayerFactoryUI
     {
         if (context instanceof NGActivity) {
             NGActivity fragmentActivity = (NGActivity) context;
-            CreateRemoteTMSLayerDialog newFragment = new CreateRemoteTMSLayerDialog();
-            newFragment.setLayerGroup(groupLayer)
-                    .setTitle(context.getString(R.string.create_tms_layer))
-                    .setTheme(fragmentActivity.getThemeId())
-                    .show(fragmentActivity.getSupportFragmentManager(), "create_tms_layer");
+            NetworkUtil mNet = new NetworkUtil(context);
+
+            if (mNet.isNetworkAvailable()) {
+                CreateFromQMSLayerDialog newFragment = new CreateFromQMSLayerDialog();
+                newFragment.setLayerGroup(groupLayer)
+                        .setTitle(context.getString(R.string.create_tms_layer))
+                        .setTheme(fragmentActivity.getThemeId())
+                        .show(fragmentActivity.getSupportFragmentManager(), "create_qms_layer");
+            } else
+                Toast.makeText(context, R.string.error_network_unavailable, Toast.LENGTH_SHORT).show();
         }
     }
 

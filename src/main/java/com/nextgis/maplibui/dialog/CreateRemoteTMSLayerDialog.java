@@ -40,6 +40,7 @@ import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
 
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_NORMAL;
@@ -172,16 +173,18 @@ public class CreateRemoteTMSLayerDialog
                         mGroupLayer.addLayer(layer);
                         mGroupLayer.save();
                     }
-                }).setNegativeButton(
-                R.string.cancel, new DialogInterface.OnClickListener()
-                {
-                    public void onClick(
-                            DialogInterface dialog,
-                            int whichButton)
-                    {
-                        // Do nothing.
+                })
+                .setNeutralButton(R.string.track_list, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        CreateFromQMSLayerDialog newFragment = new CreateFromQMSLayerDialog();
+                        newFragment.setLayerGroup(mGroupLayer)
+                                .setTitle(mContext.getString(R.string.create_tms_layer))
+                                .setTheme(((NGActivity) getActivity()).getThemeId())
+                                .show(getActivity().getSupportFragmentManager(), "create_qms_layer");
                     }
-                });
+                })
+                .setNegativeButton(R.string.cancel, null);
         // Create the AlertDialog object and return it
         AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);

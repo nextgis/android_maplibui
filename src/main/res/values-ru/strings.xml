@@ -240,4 +240,5 @@
     <string name="location_gps">GPS</string>
     <string name="location_network">По Wi-Fi и координатам сети</string>
     <string name="title_edit_by_walk">Запись обходом</string>
+    <string name="advanced">Расширенный</string>
 </resources>
