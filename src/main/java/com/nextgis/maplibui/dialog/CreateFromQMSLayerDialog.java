@@ -25,6 +25,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
@@ -73,11 +74,17 @@ public class CreateFromQMSLayerDialog extends NGDialog {
     protected ListView mLayers;
     protected LinearLayout mProgress;
     protected List<HashMap<String, Object>> mData;
-    protected List<Integer> mChecked;
+    protected volatile List<Integer> mChecked;
 
     public CreateFromQMSLayerDialog setLayerGroup(LayerGroup groupLayer) {
         mGroupLayer = groupLayer;
         return this;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt(KEY_ID, mGroupLayer.getId());
+        super.onSaveInstanceState(outState);
     }
 
     @NonNull
@@ -100,11 +107,13 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         builder.setTitle(mTitle).setIcon(R.drawable.ic_remote_tms).setView(R.layout.list_content)
                 .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        for (int i = 0; i < mChecked.size(); i++)
-                            addLayer(mChecked.get(i));
+                        if (mChecked.size() > 0) {
+                            mLayers.setVisibility(View.GONE);
+                            mProgress.setVisibility(View.VISIBLE);
 
-                        if (mChecked.size() > 0)
-                            mGroupLayer.save();
+                            for (int i = 0; i < mChecked.size(); i++)
+                                new LoadLayer().execute(mChecked.get(i));
+                        }
                     }
                 })
                 .setNeutralButton(R.string.advanced, new DialogInterface.OnClickListener() {
@@ -129,21 +138,26 @@ public class CreateFromQMSLayerDialog extends NGDialog {
 
                 mLayers = (ListView) dialog.findViewById(android.R.id.list);
                 mProgress = (LinearLayout) dialog.findViewById(R.id.progressContainer);
-                new LoadLayers().execute();
+                new LoadLayersList().execute();
 
                 mLayers.setItemsCanFocus(false);
                 mLayers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        boolean checked = ((CheckedTextView) view).isChecked();
+                    public void onItemClick(AdapterView<?> parent, final View view, final int position, long id) {
+                        new Handler().post(new Runnable() {
+                            @Override
+                            public void run() {
+                                boolean checked = ((CheckedTextView) view).isChecked();
 
-                        if (checked) {
-                            if (!mChecked.contains(position))
-                                mChecked.add(position);
-                        } else
-                            mChecked.remove(Integer.valueOf(position));
+                                if (checked) {
+                                    if (!mChecked.contains(position))
+                                        mChecked.add(position);
+                                } else
+                                    mChecked.remove(Integer.valueOf(position));
 
-                        setEnabled(dialog.getButton(DialogInterface.BUTTON_POSITIVE), mChecked.size() > 0);
+                                setEnabled(dialog.getButton(DialogInterface.BUTTON_POSITIVE), mChecked.size() > 0);
+                            }
+                        });
                     }
                 });
             }
@@ -155,50 +169,73 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         return dialog;
     }
 
-    private void addLayer(int position) {
-        int tmsType = TMSTYPE_OSM; // TODO ??
-        String layerName = (String) mData.get(position).get(KEY_NAME);
-        String layerURL = (String) mData.get(position).get(KEY_URL);
-        float minZoom = ((Double) mData.get(position).get(KEY_Z_MIN)).floatValue();
-        float maxZoom = ((Double) mData.get(position).get(KEY_Z_MAX)).floatValue();
+    private class LoadLayer extends AsyncTask<Integer, Void, String> {
+        Integer mLayerPosition;
+        @Override
+        protected String doInBackground(Integer... params) {
+            try {
+                mLayerPosition = params[0];
+                int layerId = (Integer) mData.get(mLayerPosition).get(KEY_ID);
+                return NetworkUtil.get(QMS_URL + layerId + QMS_DETAIL_APPENDIX, null, null);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-        // do we need this checks? QMS should provide correct data
-        //check if {x}, {y} or {z} present
-        if (!layerURL.contains("{x}") || !layerURL.contains("{y}") || !layerURL.contains("{z}")) {
-            Toast.makeText(mContext, R.string.error_layer_create, Toast.LENGTH_SHORT).show();
-            return;
+            return null;
         }
 
-        if (!layerURL.startsWith("http")) {
-            layerURL = "http://" + layerURL;
+        @Override
+        protected void onPostExecute(String response) {
+            super.onPostExecute(response);
+            try {
+                JSONObject remoteLayer = new JSONObject(response);
+
+                int tmsType = TMSTYPE_OSM; // TODO ??
+                String layerName = (String) mData.get(mLayerPosition).get(KEY_NAME);
+                String layerURL = remoteLayer.getString(KEY_URL);
+                float minZoom = remoteLayer.isNull(KEY_Z_MIN) ? GeoConstants.DEFAULT_MIN_ZOOM: (float) remoteLayer.getDouble(KEY_Z_MIN);
+                float maxZoom = remoteLayer.isNull(KEY_Z_MAX) ? GeoConstants.DEFAULT_MAX_ZOOM: (float) remoteLayer.getDouble(KEY_Z_MAX);
+
+                // do we need this checks? QMS should provide correct data
+                //check if {x}, {y} or {z} present
+                if (!layerURL.contains("{x}") || !layerURL.contains("{y}") || !layerURL.contains("{z}")) {
+                    Toast.makeText(mContext, R.string.error_layer_create, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (!layerURL.startsWith("http")) {
+                    layerURL = "http://" + layerURL;
+                }
+
+                boolean isURL = URLUtil.isValidUrl(layerURL);
+
+                if (!isURL) {
+                    Toast.makeText(mContext, R.string.error_layer_create, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                //create new layer and store it and add it to the map
+                RemoteTMSLayerUI layer = new RemoteTMSLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
+                layer.setName(layerName);
+                layer.setURL(layerURL);
+                layer.setTMSType(tmsType);
+                layer.setVisible(true);
+                layer.setMinZoom(minZoom);
+                layer.setMaxZoom(maxZoom);
+
+                mGroupLayer.addLayer(layer);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            mChecked.remove(mLayerPosition);
+
+            if (mChecked.size() == 0)
+                mGroupLayer.save();
         }
-
-        boolean isURL = URLUtil.isValidUrl(layerURL);
-
-        if (!isURL) {
-            Toast.makeText(mContext, R.string.error_layer_create, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        //create new layer and store it and add it to the map
-        RemoteTMSLayerUI layer = new RemoteTMSLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
-        layer.setName(layerName);
-        layer.setURL(layerURL);
-        layer.setTMSType(tmsType);
-        layer.setVisible(true);
-        layer.setMinZoom(minZoom);
-        layer.setMaxZoom(maxZoom);
-
-        mGroupLayer.addLayer(layer);
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putInt(KEY_ID, mGroupLayer.getId());
-        super.onSaveInstanceState(outState);
-    }
-
-    class LoadLayers extends AsyncTask<Void, Void, Void> {
+    private class LoadLayersList extends AsyncTask<Void, Void, Void> {
         private SimpleAdapter mAdapter;
 
         @Override
@@ -208,26 +245,15 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 JSONArray layers = new JSONArray(response);
 
                 for (int i = 0; i < layers.length(); i++) {
-                    try {
-                        JSONObject layer = layers.getJSONObject(i);
-                        response = NetworkUtil.get(QMS_URL + layer.getInt(KEY_ID) + QMS_DETAIL_APPENDIX, null, null);
-                        layer = new JSONObject(response);
-
-                        HashMap<String, Object> data = new HashMap<>();
-                        data.put(KEY_ID, layer.getInt(KEY_ID));
-                        data.put(KEY_NAME, layer.getString(KEY_NAME));
-                        data.put(KEY_URL, layer.getString(KEY_URL));
-                        data.put(KEY_Z_MIN, layer.isNull(KEY_Z_MIN) ? GeoConstants.DEFAULT_MIN_ZOOM * 1f : layer.getDouble(KEY_Z_MIN));
-                        data.put(KEY_Z_MAX, layer.isNull(KEY_Z_MAX) ? GeoConstants.DEFAULT_MAX_ZOOM * 1f : layer.getDouble(KEY_Z_MAX));
-                        mData.add(data);
-                    } catch (IOException | JSONException e) {
-                        e.printStackTrace();
-                    }
+                    JSONObject layer = layers.getJSONObject(i);
+                    HashMap<String, Object> data = new HashMap<>();
+                    data.put(KEY_ID, layer.getInt(KEY_ID));
+                    data.put(KEY_NAME, layer.getString(KEY_NAME));
+                    mData.add(data);
                 }
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
             }
-
             return null;
         }
 
