@@ -2,8 +2,9 @@
  * Project:  NextGIS Mobile
  * Purpose:  Mobile GIS for Android.
  * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
+ * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,7 +27,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
@@ -41,7 +42,6 @@ import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.NotificationHelper;
 
 import java.util.ArrayList;
@@ -209,9 +209,14 @@ public class TileDownloadService extends Service{
             }
 
             int threadCount = DRAWING_SEPARATE_THREADS;
+            int coreCount = Runtime.getRuntime().availableProcessors();
+
+            // FIXME more than 1 pool size causing strange behaviour on 6.0
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                coreCount = 1;
 
             mThreadPool = new ThreadPoolExecutor(
-                    threadCount, threadCount, KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT,
+                    coreCount, threadCount, KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT,
                     new LinkedBlockingQueue<Runnable>(), new RejectedExecutionHandler() {
                 @Override
                 public void rejectedExecution(
