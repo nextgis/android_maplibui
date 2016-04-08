@@ -105,7 +105,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle(mTitle).setIcon(R.drawable.ic_remote_tms).setView(R.layout.list_content)
-                .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         if (mChecked.size() > 0) {
                             mLayers.setVisibility(View.GONE);
@@ -116,7 +116,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                         }
                     }
                 })
-                .setNeutralButton(R.string.advanced, new DialogInterface.OnClickListener() {
+                .setNeutralButton(R.string.new_tms, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         CreateRemoteTMSLayerDialog newFragment = new CreateRemoteTMSLayerDialog();
