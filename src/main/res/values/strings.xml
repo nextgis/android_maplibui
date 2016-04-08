@@ -34,6 +34,7 @@
     <string name="layer_type">TMS type</string>
     <string name="create_layer">Create layer</string>
     <string name="create_tms_layer">Create TMS layer</string>
+    <string name="create_qms_layer">Add geoservice</string>
     <string name="tmstype_osm">XYZ (OSM)</string>
     <string name="tmstype_normal">TMS (OSGeo spec.)</string>
     <string name="error_invalid_url">The URL is invalid</string>
@@ -242,5 +243,5 @@
     <string name="location_gps">GPS</string>
     <string name="location_network">Wi-Fi and mobile network coordinates</string>
     <string name="title_edit_by_walk">Edit by walk</string>
-    <string name="advanced">Advanced</string>
+    <string name="new_tms">New</string>
 </resources>

@@ -38,6 +38,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGWSettingsActivity;
@@ -161,7 +162,7 @@ public class NGWLoginFragment
     public void onClick(View v)
     {
         if (v == mSignInButton) {
-            Loader loader = getActivity().getSupportLoaderManager().getLoader(R.id.auth_token_loader);
+            Loader<String> loader = getActivity().getSupportLoaderManager().getLoader(R.id.auth_token_loader);
 
             if (null != loader && loader.isStarted()) {
                 getLoaderManager().restartLoader(R.id.auth_token_loader, null, this);

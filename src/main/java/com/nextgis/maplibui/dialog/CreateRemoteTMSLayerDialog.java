@@ -179,7 +179,7 @@ public class CreateRemoteTMSLayerDialog
                     public void onClick(DialogInterface dialog, int which) {
                         CreateFromQMSLayerDialog newFragment = new CreateFromQMSLayerDialog();
                         newFragment.setLayerGroup(mGroupLayer)
-                                .setTitle(mContext.getString(R.string.create_tms_layer))
+                                .setTitle(mContext.getString(R.string.create_qms_layer))
                                 .setTheme(((NGActivity) getActivity()).getThemeId())
                                 .show(getActivity().getSupportFragmentManager(), "create_qms_layer");
                     }

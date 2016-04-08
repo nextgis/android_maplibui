@@ -198,7 +198,7 @@ public class LayerFactoryUI
             if (mNet.isNetworkAvailable()) {
                 CreateFromQMSLayerDialog newFragment = new CreateFromQMSLayerDialog();
                 newFragment.setLayerGroup(groupLayer)
-                        .setTitle(context.getString(R.string.create_tms_layer))
+                        .setTitle(context.getString(R.string.create_qms_layer))
                         .setTheme(fragmentActivity.getThemeId())
                         .show(fragmentActivity.getSupportFragmentManager(), "create_qms_layer");
             } else

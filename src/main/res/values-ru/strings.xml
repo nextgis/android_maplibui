@@ -34,6 +34,7 @@
     <string name="layer_type">Тип TMS</string>
     <string name="create_layer">Создать слой</string>
     <string name="create_tms_layer">Добавить слой TMS</string>
+    <string name="create_qms_layer">Добавить геосервис</string>
     <string name="tmstype_osm">XYZ (OSM)</string>
     <string name="tmstype_normal">TMS (OSGeo)</string>
     <string name="error_invalid_url">Неправильный URL</string>
@@ -240,5 +241,5 @@
     <string name="location_gps">GPS</string>
     <string name="location_network">По Wi-Fi и координатам сети</string>
     <string name="title_edit_by_walk">Запись обходом</string>
-    <string name="advanced">Расширенный</string>
+    <string name="new_tms">Новый</string>
 </resources>
