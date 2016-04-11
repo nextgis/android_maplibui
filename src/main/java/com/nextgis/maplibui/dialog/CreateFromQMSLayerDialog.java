@@ -22,18 +22,27 @@
 package com.nextgis.maplibui.dialog;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.URLUtil;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.Checkable;
 import android.widget.CheckedTextView;
+import android.widget.Filter;
+import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -59,9 +68,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
-
 
 public class CreateFromQMSLayerDialog extends NGDialog {
     protected final static String QMS_URL = "https://qms.nextgis.com/api/v1/geoservices/";
@@ -76,9 +85,10 @@ public class CreateFromQMSLayerDialog extends NGDialog {
 
     protected LayerGroup mGroupLayer;
     protected ListView mLayers;
-    protected LinearLayout mProgress;
+    protected LinearLayout mProgress, mQMSLayers;
     protected ProgressBar mProgressBar;
     protected TextView mProgressInfo;
+    protected SearchView mSearch;
     protected Button mPositive;
     protected boolean mRetry;
     protected List<HashMap<String, Object>> mData;
@@ -115,11 +125,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle(mTitle).setIcon(R.drawable.ic_remote_tms).setView(R.layout.list_content)
-                .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-
-                    }
-                })
+                .setPositiveButton(R.string.add, null)
                 .setNeutralButton(R.string.new_tms, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -153,8 +159,27 @@ public class CreateFromQMSLayerDialog extends NGDialog {
 
             mLayers = (ListView) dialog.findViewById(android.R.id.list);
             mProgress = (LinearLayout) dialog.findViewById(R.id.progressContainer);
+            mQMSLayers = (LinearLayout) dialog.findViewById(R.id.qms_layers);
             mProgressBar = (ProgressBar) dialog.findViewById(R.id.progressBar);
             mProgressInfo = (TextView) dialog.findViewById(R.id.progressInfo);
+            mSearch = (SearchView) dialog.findViewById(R.id.search);
+            mSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    LayersAdapter adapter = (LayersAdapter) mLayers.getAdapter();
+                    if (adapter != null) {
+                        adapter.getFilter().filter(newText);
+                        return true;
+                    }
+
+                    return false;
+                }
+            });
             new LoadLayersList().execute();
 
             mLayers.setItemsCanFocus(false);
@@ -165,12 +190,14 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                         @Override
                         public void run() {
                             boolean checked = ((CheckedTextView) view).isChecked();
+                            //noinspection unchecked
+                            int id = (int) ((Map<String, Object>) mLayers.getAdapter().getItem(position)).get(KEY_ID);
 
                             if (checked) {
-                                if (!mChecked.contains(position))
-                                    mChecked.add(position);
+                                if (!mChecked.contains(id))
+                                    mChecked.add(id);
                             } else
-                                mChecked.remove(Integer.valueOf(position));
+                                mChecked.remove(Integer.valueOf(id));
 
                             setEnabled(mPositive, mChecked.size() > 0);
                         }
@@ -190,7 +217,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                         new LoadLayersList().execute();
                     } else {
                         if (mChecked.size() > 0) {
-                            mLayers.setVisibility(View.GONE);
+                            mQMSLayers.setVisibility(View.GONE);
                             mProgress.setVisibility(View.VISIBLE);
 
                             for (int i = 0; i < mChecked.size(); i++)
@@ -215,16 +242,16 @@ public class CreateFromQMSLayerDialog extends NGDialog {
     }
 
     private class LoadLayer extends AsyncTask<Integer, Void, String> {
-        Integer mLayerPosition;
+        private Integer mLayerId;
+
         @Override
         protected String doInBackground(Integer... params) {
             if (!mNet.isNetworkAvailable())
                 return "";
 
             try {
-                mLayerPosition = params[0];
-                int layerId = (Integer) mData.get(mLayerPosition).get(KEY_ID);
-                return NetworkUtil.get(QMS_URL + layerId + QMS_DETAIL_APPENDIX, null, null);
+                mLayerId = params[0];
+                return NetworkUtil.get(QMS_URL + mLayerId + QMS_DETAIL_APPENDIX, null, null);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (NGException e) {
@@ -252,7 +279,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                     break;
             }
 
-            mChecked.remove(mLayerPosition);
+            mChecked.remove(mLayerId);
 
             if (mChecked.size() == 0)
                 mGroupLayer.save();
@@ -263,15 +290,15 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 JSONObject remoteLayer = new JSONObject(response);
 
                 int tmsType = TMSTYPE_OSM;
-                String layerName = (String) mData.get(mLayerPosition).get(KEY_NAME);
+                String layerName = remoteLayer.getString(KEY_NAME);
                 String layerURL = remoteLayer.getString(KEY_URL);
-                float minZoom = remoteLayer.isNull(KEY_Z_MIN) ? GeoConstants.DEFAULT_MIN_ZOOM: (float) remoteLayer.getDouble(KEY_Z_MIN);
-                float maxZoom = remoteLayer.isNull(KEY_Z_MAX) ? GeoConstants.DEFAULT_MAX_ZOOM: (float) remoteLayer.getDouble(KEY_Z_MAX);
+                float minZoom = remoteLayer.isNull(KEY_Z_MIN) ? GeoConstants.DEFAULT_MIN_ZOOM : (float) remoteLayer.getDouble(KEY_Z_MIN);
+                float maxZoom = remoteLayer.isNull(KEY_Z_MAX) ? GeoConstants.DEFAULT_MAX_ZOOM : (float) remoteLayer.getDouble(KEY_Z_MAX);
 
                 // do we need this checks? QMS should provide correct data
                 //check if {x}, {y} or {z} present
                 if (!layerURL.contains("{x}") || !layerURL.contains("{y}") || !layerURL.contains("{z}")) {
-                    String error = layerName + ": " + getString(R.string.error_invalid_url);
+                    String error = layerName + ": " + mContext.getString(R.string.error_invalid_url);
                     Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -283,7 +310,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 boolean isURL = URLUtil.isValidUrl(layerURL);
 
                 if (!isURL) {
-                    String error = layerName + ": " + getString(R.string.error_invalid_url);
+                    String error = layerName + ": " + mContext.getString(R.string.error_invalid_url);
                     Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -367,12 +394,149 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 e.printStackTrace();
             }
 
-            mAdapter = new SimpleAdapter(mContext, mData, R.layout.select_dialog_multichoice_material, new String[]{KEY_NAME}, new int[]{android.R.id.text1});
+            mAdapter = new LayersAdapter(mContext, mData, R.layout.select_dialog_multichoice_material, new String[]{KEY_NAME}, new int[]{android.R.id.text1});
             mLayers.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
             mLayers.setAdapter(mAdapter);
 
             mProgress.setVisibility(View.GONE);
-            mLayers.setVisibility(View.VISIBLE);
+            mQMSLayers.setVisibility(View.VISIBLE);
+        }
+    }
+
+    protected class LayersAdapter extends SimpleAdapter implements Filterable {
+        private final LayoutInflater mInflater;
+        private List<? extends Map<String, ?>> mOriginal, mFiltered;
+        private Filter mFilter;
+        private int[] mTo;
+        private String[] mFrom;
+        private int mResource;
+
+        public LayersAdapter(Context context, List<? extends Map<String, ?>> data, int resource, String[] from, int[] to) {
+            super(context, data, resource, from, to);
+            mFiltered = mOriginal = data;
+            mFrom = from;
+            mTo = to;
+            mResource = resource;
+            mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        @Override
+        public int getCount() {
+            return mFiltered.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return mFiltered.get(position);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            return createViewFromResource(mInflater, position, convertView, parent, mResource);
+        }
+
+        private void bindView(int position, View view) {
+            final Map dataSet = mFiltered.get(position);
+            if (dataSet == null) {
+                return;
+            }
+
+            final String[] from = mFrom;
+            final int[] to = mTo;
+            final int count = to.length;
+
+            for (int i = 0; i < count; i++) {
+                final View v = view.findViewById(to[i]);
+                if (v != null) {
+                    final Object data = dataSet.get(from[i]);
+                    String text = data == null ? "" : data.toString();
+                    if (text == null) {
+                        text = "";
+                    }
+
+                    if (v instanceof Checkable) {
+                        if (data instanceof Boolean) {
+                            ((Checkable) v).setChecked((Boolean) data);
+                        } else if (v instanceof TextView) {
+                            // Note: keep the instanceof TextView check at the bottom of these
+                            // ifs since a lot of views are TextViews (e.g. CheckBoxes).
+                            setViewText((TextView) v, text);
+                        } else {
+                            throw new IllegalStateException(v.getClass().getName() +
+                                    " should be bound to a Boolean, not a " +
+                                    (data == null ? "<unknown type>" : data.getClass()));
+                        }
+                    } else if (v instanceof TextView) {
+                        // Note: keep the instanceof TextView check at the bottom of these
+                        // ifs since a lot of views are TextViews (e.g. CheckBoxes).
+                        setViewText((TextView) v, text);
+                    } else if (v instanceof ImageView) {
+                        if (data instanceof Integer) {
+                            setViewImage((ImageView) v, (Integer) data);
+                        } else {
+                            setViewImage((ImageView) v, text);
+                        }
+                    } else {
+                        throw new IllegalStateException(v.getClass().getName() + " is not a " +
+                                " view that can be bounds by this SimpleAdapter");
+                    }
+                }
+            }
+        }
+
+        private View createViewFromResource(LayoutInflater inflater, int position, View convertView,
+                                            ViewGroup parent, int resource) {
+            View v;
+            if (convertView == null) {
+                v = inflater.inflate(resource, parent, false);
+            } else {
+                v = convertView;
+            }
+
+            bindView(position, v);
+
+            return v;
+        }
+
+        @Override
+        public Filter getFilter() {
+            if (mFilter == null)
+                mFilter = new Filter() {
+                    @Override
+                    protected FilterResults performFiltering(CharSequence constraint) {
+                        FilterResults result = new FilterResults();
+
+                        if (!TextUtils.isEmpty(constraint) && constraint.length() > 1) {
+                            constraint = constraint.toString().toLowerCase();
+                            List<Map<String, ?>> founded = new ArrayList<>();
+
+                            for (Map<String, ?> item : mOriginal)
+                                if (item.get(KEY_NAME).toString().toLowerCase().contains(constraint))
+                                    founded.add(item);
+
+                            result.values = founded;
+                            result.count = founded.size();
+                        } else {
+                            result.values = mOriginal;
+                            result.count = mOriginal.size();
+                        }
+
+                        return result;
+                    }
+
+                    @Override
+                    protected void publishResults(CharSequence constraint, Filter.FilterResults results) {
+                        //noinspection unchecked
+                        mFiltered = (List<Map<String, ?>>) results.values;
+                        if (results.count > 0) {
+                            notifyDataSetChanged();
+                        } else {
+                            notifyDataSetInvalidated();
+                        }
+                    }
+                };
+
+            return mFilter;
         }
     }
 }
