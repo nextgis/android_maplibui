@@ -37,7 +37,8 @@
     <string name="create_qms_layer">Add geoservice</string>
     <string name="tmstype_osm">XYZ (OSM)</string>
     <string name="tmstype_normal">TMS (OSGeo spec.)</string>
-    <string name="error_invalid_url">The URL is invalid</string>
+    <string name="error_invalid_url">URL is invalid</string>
+    <string name="qms_unavailable">Geoservice server is unavailable</string>
     <string name="nextgis_web">NextGIS Web</string>
     <string name="ngw_login_title">NextGIS Web account</string>
     <string name="ngw_login_description">Input NextGIS Web server URL, your login and password</string>

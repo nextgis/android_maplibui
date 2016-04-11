@@ -193,16 +193,11 @@ public class LayerFactoryUI
     {
         if (context instanceof NGActivity) {
             NGActivity fragmentActivity = (NGActivity) context;
-            NetworkUtil mNet = new NetworkUtil(context);
-
-            if (mNet.isNetworkAvailable()) {
-                CreateFromQMSLayerDialog newFragment = new CreateFromQMSLayerDialog();
-                newFragment.setLayerGroup(groupLayer)
-                        .setTitle(context.getString(R.string.create_qms_layer))
-                        .setTheme(fragmentActivity.getThemeId())
-                        .show(fragmentActivity.getSupportFragmentManager(), "create_qms_layer");
-            } else
-                Toast.makeText(context, R.string.error_network_unavailable, Toast.LENGTH_SHORT).show();
+            CreateFromQMSLayerDialog newFragment = new CreateFromQMSLayerDialog();
+            newFragment.setLayerGroup(groupLayer)
+                    .setTitle(context.getString(R.string.create_qms_layer))
+                    .setTheme(fragmentActivity.getThemeId())
+                    .show(fragmentActivity.getSupportFragmentManager(), "create_qms_layer");
         }
     }
 
