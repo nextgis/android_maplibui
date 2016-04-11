@@ -7,7 +7,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -72,6 +72,18 @@
         android:background="@null"
         android:padding="5dp"
         android:src="?attr/ic_menu_moreoverflow"
+        tools:ignore="ContentDescription"/>
+
+    <ImageView
+        android:id="@+id/ivEdited"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:adjustViewBounds="true"
+        android:background="@null"
+        android:padding="5dp"
+        android:src="?attr/ic_action_edit_inverse"
+        android:visibility="gone"
         tools:ignore="ContentDescription"/>
 
 </LinearLayout>

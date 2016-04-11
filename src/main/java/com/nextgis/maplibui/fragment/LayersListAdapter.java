@@ -192,7 +192,23 @@ public class LayersListAdapter
 
         //final int id = layer.getId();
 
+        final ImageButton btMore = (ImageButton) v.findViewById(R.id.btMore);
         ImageButton btShow = (ImageButton) v.findViewById(R.id.btShow);
+        ImageView ivEdited = (ImageView) v.findViewById(R.id.ivEdited);
+
+        if (layerui instanceof VectorLayer) {
+            if (((VectorLayer) layerui).isLocked()) {
+                ivEdited.setVisibility(View.VISIBLE);
+                btShow.setVisibility(View.GONE);
+                btMore.setVisibility(View.GONE);
+                return v;
+            }
+        }
+
+        ivEdited.setVisibility(View.GONE);
+        btShow.setVisibility(View.VISIBLE);
+        btMore.setVisibility(View.VISIBLE);
+
         int[] attrs = new int[] { R.attr.ic_action_visibility_on, R.attr.ic_action_visibility_off};
         TypedArray ta = mContext.obtainStyledAttributes(attrs);
         Drawable visibilityOn = ta.getDrawable(0);
@@ -213,7 +229,6 @@ public class LayersListAdapter
                 });
         ta.recycle();
 
-        final ImageButton btMore = (ImageButton) v.findViewById(R.id.btMore);
         btMore.setOnClickListener(
                 new View.OnClickListener()
                 {
