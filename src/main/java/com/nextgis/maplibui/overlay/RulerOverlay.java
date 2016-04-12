@@ -187,7 +187,7 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
 
     protected void drawClosingLine(Canvas canvas, DrawItem drawItem) {
         float[] points = drawItem.getSelectedRing();
-        if (points.length >= 6) {
+        if (points != null && points.length >= 6) {
             Path path = new Path();
             path.moveTo(points[0], points[1]);
             path.lineTo(points[points.length - 2], points[points.length - 1]);
