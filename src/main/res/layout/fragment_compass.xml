@@ -5,7 +5,7 @@
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ Based on https://github.com/nextgis/nextgismobile/blob/master/res/layout/compassfragment.xml
   ~ ******************************************************************************
-  ~ Copyright (c) 2015 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2015-2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser General Public License as published by
@@ -37,49 +37,51 @@
     <FrameLayout
         android:id="@+id/compass_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center">
 
         <com.nextgis.maplibui.util.CompassImage
             android:id="@+id/compass"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:adjustViewBounds="true"
-            android:src="@drawable/compass_bezel"
             android:visibility="gone"/>
 
         <ImageView
             android:id="@+id/base_plate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:adjustViewBounds="true"
             android:contentDescription="@string/app_name"
-            android:src="@drawable/compass_baseplate"
             android:visibility="gone"/>
 
         <com.nextgis.maplibui.util.CompassImage
             android:id="@+id/needle_magnetic"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:adjustViewBounds="true"
-            android:src="@drawable/compass_needle"
             android:visibility="invisible"/>
 
         <com.nextgis.maplibui.util.CompassImage
             android:id="@+id/needle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:src="@drawable/compass_needle"/>
+            android:layout_gravity="center"
+            android:adjustViewBounds="true"/>
     </FrameLayout>
 
     <TextView
         android:id="@+id/azimuth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|bottom"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
         android:textSize="30sp"
         android:visibility="gone">
     </TextView>
-
 </FrameLayout>

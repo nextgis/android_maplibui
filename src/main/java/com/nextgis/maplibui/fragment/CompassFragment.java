@@ -23,11 +23,10 @@
 package com.nextgis.maplibui.fragment;
 
 import android.Manifest;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
@@ -46,12 +45,14 @@ import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.BubbleSurfaceView;
 import com.nextgis.maplibui.util.CompassImage;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import java.text.NumberFormat;
 
@@ -65,7 +66,7 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
     protected float mDownX, mDownY;
 
     protected FrameLayout mParent;
-    protected View mBasePlate;
+    protected ImageView mBasePlate;
     protected BubbleSurfaceView mBubbleView;
     protected CompassImage mCompass, mCompassNeedle, mCompassNeedleMagnetic;
     protected TextView mTvAzimuth;
@@ -111,14 +112,50 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_compass, container, false);
         mParent = (FrameLayout) view.findViewById(R.id.compass_fragment);
-        mBasePlate = view.findViewById(R.id.base_plate);
+        mBasePlate = (ImageView) view.findViewById(R.id.base_plate);
         mBubbleView = (BubbleSurfaceView) view.findViewById(R.id.bubble_view);
         mCompass = (CompassImage) view.findViewById(R.id.compass);
         mTvAzimuth = (TextView) view.findViewById(R.id.azimuth);
         mCompassNeedle = (CompassImage) view.findViewById(R.id.needle);
         mCompassNeedleMagnetic = (CompassImage) view.findViewById(R.id.needle_magnetic);
 
+        mBasePlate.post(new Runnable() {
+            @Override
+            public void run() {
+                loadImage(mBasePlate, "compass_baseplate.png");
+            }
+        });
+        mCompass.post(new Runnable() {
+            @Override
+            public void run() {
+                loadImage(mCompass, "compass_bezel.png");
+            }
+        });
+        mCompassNeedle.post(new Runnable() {
+            @Override
+            public void run() {
+                loadImage(mCompassNeedle, "compass_needle.png");
+            }
+        });
+        mCompassNeedleMagnetic.post(new Runnable() {
+            @Override
+            public void run() {
+                loadImage(mCompassNeedleMagnetic, "compass_needle.png");
+            }
+        });
+
         return view;
+    }
+
+    private void loadImage(ImageView view, String image) {
+        int width = 0, height = 0;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+            width = view.getRootView().getMeasuredWidth();
+        else
+            height = view.getRootView().getMeasuredHeight();
+
+        Bitmap bitmap = ControlHelper.getBitmap(getContext(), image, width, height);
+        view.setImageBitmap(bitmap);
     }
 
     @Override
