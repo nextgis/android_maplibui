@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Project:  NextGIS Mobile
+  ~ Purpose:  Mobile GIS for Android.
+  ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
+  ~ Based on R.layout.select_dialog_multichoice_material.xml from AppCompat-v7
+  ~ ******************************************************************************
+  ~ Copyright (c) 2016 NextGIS, info@nextgis.com
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU Lesser Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<CheckedTextView android:id="@android:id/text1"
+                 xmlns:android="http://schemas.android.com/apk/res/android"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:drawableEnd="?android:attr/listChoiceIndicatorMultiple"
+                 android:drawablePadding="8dp"
+                 android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
+                 android:ellipsize="marquee"
+                 android:gravity="center_vertical"
+                 android:minHeight="?attr/listPreferredItemHeightSmall"
+                 android:paddingEnd="?attr/dialogPreferredPadding"
+                 android:paddingLeft="?attr/dialogPreferredPadding"
+                 android:paddingRight="?attr/dialogPreferredPadding"
+                 android:paddingStart="?attr/dialogPreferredPadding"
+                 android:textAppearance="?android:attr/textAppearanceMedium"
+                 android:textColor="?attr/textColorAlertDialogListItem"/>

@@ -24,6 +24,9 @@ package com.nextgis.maplibui.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,7 +45,6 @@ import android.widget.Checkable;
 import android.widget.CheckedTextView;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -54,6 +56,7 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplib.util.NGException;
 import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
@@ -64,21 +67,32 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
 
 public class CreateFromQMSLayerDialog extends NGDialog {
-    protected final static String QMS_URL = "https://qms.nextgis.com/api/v1/geoservices/";
-    protected final static String QMS_LIST_URL = QMS_URL + "?epsg=3857&format=json&type=tms";
+    protected final static String QMS_URL = "https://qms.nextgis.com/api/v1";
+    protected final static String QMS_GEOSERVICE_URL = QMS_URL + "/geoservices/";
+    protected final static String QMS_GEOSERVICE_LIST_URL = QMS_GEOSERVICE_URL + "?epsg=3857&format=json&type=tms";
     protected final static String QMS_DETAIL_APPENDIX = "/?format=json";
+    protected final static String QMS_ICON_URL = QMS_URL + "/icons/";
+    protected final static String QMS_ICON_APPENDIX = "?width={w}&height={h}";
+    protected final static String QMS_ICON_CONTENT = "/content" + QMS_ICON_APPENDIX;
 
     protected final static String KEY_ID = "id";
     protected final static String KEY_NAME = "name";
+    protected final static String KEY_ICON = "icon";
     protected final static String KEY_URL = "url";
     protected final static String KEY_Z_MIN = "z_min";
     protected final static String KEY_Z_MAX = "z_max";
@@ -94,6 +108,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
     protected List<HashMap<String, Object>> mData;
     protected volatile List<Integer> mChecked;
     protected NetworkUtil mNet;
+    protected File mQMSIconsDir;
 
     public CreateFromQMSLayerDialog setLayerGroup(LayerGroup groupLayer) {
         mGroupLayer = groupLayer;
@@ -111,6 +126,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreateDialog(savedInstanceState);
         mNet = new NetworkUtil(mContext);
+        mQMSIconsDir = MapUtil.prepareTempDir(mContext, "qms_icons");
 
         if (null != savedInstanceState) {
             int id = savedInstanceState.getInt(KEY_ID);
@@ -234,6 +250,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
 
     protected boolean isParsable(String string) {
         try {
+            //noinspection ResultOfMethodCallIgnored
             Integer.parseInt(string);
             return true;
         } catch (NumberFormatException e) {
@@ -251,7 +268,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
 
             try {
                 mLayerId = params[0];
-                return NetworkUtil.get(QMS_URL + mLayerId + QMS_DETAIL_APPENDIX, null, null);
+                return NetworkUtil.get(QMS_GEOSERVICE_URL + mLayerId + QMS_DETAIL_APPENDIX, null, null);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (NGException e) {
@@ -340,7 +357,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 return "";
 
             try {
-                return NetworkUtil.get(QMS_LIST_URL, null, null);
+                return NetworkUtil.get(QMS_GEOSERVICE_LIST_URL, null, null);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (NGException e) {
@@ -387,6 +404,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                     HashMap<String, Object> data = new HashMap<>();
                     data.put(KEY_ID, layer.getInt(KEY_ID));
                     data.put(KEY_NAME, layer.getString(KEY_NAME));
+                    data.put(KEY_ICON, layer.getString(KEY_ICON));
                     mData.add(data);
                 }
 
@@ -394,7 +412,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 e.printStackTrace();
             }
 
-            mAdapter = new LayersAdapter(mContext, mData, R.layout.select_dialog_multichoice_material, new String[]{KEY_NAME}, new int[]{android.R.id.text1});
+            mAdapter = new LayersAdapter(mContext, mData, R.layout.item_qms_layer, new String[]{KEY_NAME}, new int[]{android.R.id.text1});
             mLayers.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
             mLayers.setAdapter(mAdapter);
 
@@ -410,6 +428,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         private int[] mTo;
         private String[] mFrom;
         private int mResource;
+        private Map<String, LoadIcon> mIconsQueue;
 
         public LayersAdapter(Context context, List<? extends Map<String, ?>> data, int resource, String[] from, int[] to) {
             super(context, data, resource, from, to);
@@ -418,6 +437,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
             mTo = to;
             mResource = resource;
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            mIconsQueue = new HashMap<>();
         }
 
         @Override
@@ -432,14 +452,13 @@ public class CreateFromQMSLayerDialog extends NGDialog {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            return createViewFromResource(mInflater, position, convertView, parent, mResource);
+            return createViewFromResource(mInflater, position, parent, mResource);
         }
 
         private void bindView(int position, View view) {
             final Map dataSet = mFiltered.get(position);
-            if (dataSet == null) {
+            if (dataSet == null)
                 return;
-            }
 
             final String[] from = mFrom;
             final int[] to = mTo;
@@ -450,51 +469,40 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 if (v != null) {
                     final Object data = dataSet.get(from[i]);
                     String text = data == null ? "" : data.toString();
-                    if (text == null) {
+                    if (text == null)
                         text = "";
-                    }
 
                     if (v instanceof Checkable) {
-                        if (data instanceof Boolean) {
-                            ((Checkable) v).setChecked((Boolean) data);
-                        } else if (v instanceof TextView) {
+                        if (v instanceof TextView) {
+                            TextView textView = (TextView) v;
                             // Note: keep the instanceof TextView check at the bottom of these
                             // ifs since a lot of views are TextViews (e.g. CheckBoxes).
-                            setViewText((TextView) v, text);
-                        } else {
-                            throw new IllegalStateException(v.getClass().getName() +
-                                    " should be bound to a Boolean, not a " +
-                                    (data == null ? "<unknown type>" : data.getClass()));
+                            setViewText(textView, text);
+                            setIcon(textView, null);
+
+                            String id = (String) dataSet.get(KEY_ICON);
+                            if (id == null || !isParsable(id))
+                                id = "default";
+
+                            File icon = new File(mQMSIconsDir, id);
+                            if (icon.exists())
+                                setIcon(textView, icon.getPath());
+                            else if (mIconsQueue.keySet().contains(id))
+                                mIconsQueue.get(id).addViewWithIcon(textView);
+                            else {
+                                LoadIcon task = new LoadIcon(icon.getPath(), textView);
+                                mIconsQueue.put(id, task);
+                                task.execute();
+                            }
                         }
-                    } else if (v instanceof TextView) {
-                        // Note: keep the instanceof TextView check at the bottom of these
-                        // ifs since a lot of views are TextViews (e.g. CheckBoxes).
-                        setViewText((TextView) v, text);
-                    } else if (v instanceof ImageView) {
-                        if (data instanceof Integer) {
-                            setViewImage((ImageView) v, (Integer) data);
-                        } else {
-                            setViewImage((ImageView) v, text);
-                        }
-                    } else {
-                        throw new IllegalStateException(v.getClass().getName() + " is not a " +
-                                " view that can be bounds by this SimpleAdapter");
                     }
                 }
             }
         }
 
-        private View createViewFromResource(LayoutInflater inflater, int position, View convertView,
-                                            ViewGroup parent, int resource) {
-            View v;
-            if (convertView == null) {
-                v = inflater.inflate(resource, parent, false);
-            } else {
-                v = convertView;
-            }
-
+        private View createViewFromResource(LayoutInflater inflater, int position, ViewGroup parent, int resource) {
+            View v = inflater.inflate(resource, parent, false);
             bindView(position, v);
-
             return v;
         }
 
@@ -537,6 +545,78 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 };
 
             return mFilter;
+        }
+
+        protected class LoadIcon extends AsyncTask<Void, Void, Void> {
+            private File mFile;
+            private String mPath;
+            private Queue<TextView> mAssignedViews;
+
+            public LoadIcon(String path, TextView view) {
+                mAssignedViews = new LinkedList<>();
+                mAssignedViews.add(view);
+                mPath = path;
+                mFile = new File(mPath);
+            }
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                if (!mFile.exists()) {
+                    try {
+                        int size = (int) (16 * (getResources().getDisplayMetrics().density / 160));
+                        if (size > 64)
+                            size = 64;
+
+                        String iconUrl;
+                        if (mFile.getName().equals("default"))
+                            iconUrl = QMS_ICON_URL + mFile.getName() + QMS_ICON_APPENDIX;
+                        else
+                            iconUrl = QMS_ICON_URL + mFile.getName() + QMS_ICON_CONTENT;;
+
+                        iconUrl = iconUrl.replace("{w}", size + "").replace("{h}", size + "");
+                        HttpURLConnection connection = NetworkUtil.getHttpConnection("GET", iconUrl, null, null);
+
+                        if (connection != null) {
+                            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                                InputStream input = connection.getInputStream();
+                                Bitmap icon = BitmapFactory.decodeStream(input);
+                                FileOutputStream fos = new FileOutputStream(mFile);
+                                icon.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                                fos.close();
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+
+                if (mFile.exists())
+                    while (mAssignedViews.size() > 0)
+                        setIcon(mAssignedViews.poll(), mPath);
+
+                mIconsQueue.remove(mFile.getName());
+            }
+
+            public void addViewWithIcon(TextView textView) {
+                mAssignedViews.add(textView);
+            }
+        }
+
+        private void setIcon(TextView view, String path) {
+            Drawable icon = Drawable.createFromPath(path);
+            Drawable checkbox = view.getCompoundDrawables()[2];
+
+            if (icon != null)
+                icon.setBounds(0, 0, icon.getIntrinsicWidth() * 2, icon.getIntrinsicHeight() * 2);
+
+            view.setCompoundDrawables(icon, null, checkbox, null);
         }
     }
 }
