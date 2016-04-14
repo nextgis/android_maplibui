@@ -232,9 +232,6 @@
     <string name="share_gpx_together">В один файл</string>
     <string name="action_edit">Редактировать</string>
     <string name="track_list">Список</string>
-    <string name="label_field">" (метка)"</string>
-    <string name="label_field_toast">Нажмите на поле для выбора в качестве метки</string>
-    <string name="label_field_title">" (нажмите для выбора по умолчанию)"</string>
     <string name="location_disabled">Определение местоположения отключено</string>
     <string name="location_disabled_msg">Приложение не может определить, где вы находитесь. Включите функцию \"Мое местоположение\".</string>
     <string name="location_accuracy">Точность местоположения</string>

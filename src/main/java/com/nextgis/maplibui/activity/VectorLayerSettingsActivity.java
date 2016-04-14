@@ -25,32 +25,33 @@ package com.nextgis.maplibui.activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.edmodo.rangebar.RangeBar;
-import com.nextgis.maplib.api.IGISApplication;
-import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.display.SimpleFeatureRenderer;
 import com.nextgis.maplib.display.Style;
-import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
@@ -72,134 +73,45 @@ import java.util.List;
  * Vector layer settings activity. Include common settings (layer name) and renderer settings.
  */
 public class VectorLayerSettingsActivity
-        extends NGActivity
+        extends LayerSettingsActivity
         implements IChooseColorResult, View.OnClickListener {
-    protected VectorLayer                 mVectorLayer;
-    protected List<Pair<Integer, String>> mColors;
-    protected int                         mCurrentColor;
-    protected BroadcastReceiver           mRebuildCacheReceiver;
-    protected CharSequence[]              mFields;
+    protected static VectorLayer mVectorLayer;
+    protected static int mCurrentColor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mColors = new ArrayList<>();
-        mColors.add(new Pair<>(Color.RED, getString(R.string.red)));
-        mColors.add(new Pair<>(Color.GREEN, getString(R.string.green)));
-        mColors.add(new Pair<>(Color.BLUE, getString(R.string.blue)));
-        mColors.add(new Pair<>(Color.MAGENTA, getString(R.string.magenta)));
-        mColors.add(new Pair<>(Color.YELLOW, getString(R.string.yellow)));
-        mColors.add(new Pair<>(Color.CYAN, getString(R.string.cyan)));
+        if (mLayer == null)
+            return;
 
-        setContentView(R.layout.activity_vectorlayer_settings);
-        setToolbar(R.id.main_toolbar);
-
-        int layerId = Constants.NOT_FOUND;
-        if (savedInstanceState != null) {
-            layerId = savedInstanceState.getInt(ConstantsUI.KEY_LAYER_ID);
-        } else {
-            layerId = getIntent().getIntExtra(ConstantsUI.KEY_LAYER_ID, layerId);
-        }
-
-        IGISApplication application = (IGISApplication) getApplication();
-
-        MapBase map = application.getMap();
-        if (null != map) {
-            ILayer layer = map.getLayerById(layerId);
-            if (null != layer && (layer.getType() == Constants.LAYERTYPE_LOCAL_VECTOR ||
-            layer.getType() == Constants.LAYERTYPE_NGW_VECTOR)) {
-                mVectorLayer = (VectorLayer) layer;
-            }
-        }
-
-        if (null != mVectorLayer) {
-            TextView form = (TextView) findViewById(R.id.layer_custom_form);
-            File formPath = new File(mVectorLayer.getPath(), ConstantsUI.FILE_FORM);
-            form.setText(formPath.exists() ? R.string.layer_has_form : R.string.layer_has_no_form);
-
-            TextView path = (TextView) findViewById(R.id.layer_local_lath);
-            path.setText(String.format(getString(R.string.layer_local_path), mVectorLayer.getPath()));
-
-            Button fields = (Button) findViewById(R.id.layer_fields);
-            fields.setOnClickListener(this);
-            fillFields();
-
-            if (mVectorLayer instanceof NGWVectorLayer) {
-                TextView remote = (TextView) findViewById(R.id.layer_remote_path);
-                remote.setText(String.format(getString(R.string.layer_remote_path), ((NGWVectorLayer) mVectorLayer).getRemoteUrl()));
-                remote.setVisibility(View.VISIBLE);
-            }
-
-            EditText editText = (EditText) findViewById(R.id.layer_name);
-            editText.setText(mVectorLayer.getName());
-
-            LinearLayout color_row = (LinearLayout) findViewById(R.id.color_row);
-            color_row.setOnClickListener(this);
-
-            // set color
-            SimpleFeatureRenderer sfr = (SimpleFeatureRenderer) mVectorLayer.getRenderer();
-            if (null != sfr) {
-                Style style = sfr.getStyle();
-                if (null != style) {
-                    int color = style.getColor();
-                    setColor(color);
-                }
-            }
-
-            //set range
-            // Gets the RangeBar
-            final RangeBar rangebar = (RangeBar) findViewById(R.id.rangebar);
-            int nMinZoom = mVectorLayer.getMinZoom() < rangebar.getRightIndex() ? (int) mVectorLayer.getMinZoom() : rangebar.getRightIndex();
-            int nMaxZoom = mVectorLayer.getMaxZoom() < rangebar.getRightIndex() ? (int) mVectorLayer.getMaxZoom() : rangebar.getRightIndex();
-            rangebar.setThumbIndices(nMinZoom, nMaxZoom);
-            // Gets the index value TextViews
-            final TextView leftIndexValue = (TextView) findViewById(R.id.leftIndexValue);
-            leftIndexValue.setText(String.format(getString(R.string.min), nMinZoom));
-            final TextView rightIndexValue = (TextView) findViewById(R.id.rightIndexValue);
-            rightIndexValue.setText(String.format(getString(R.string.max), nMaxZoom));
-
-            // Sets the display values of the indices
-            rangebar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
-                @Override
-                public void onIndexChangeListener(RangeBar rangeBar, int leftThumbIndex, int rightThumbIndex) {
-                    leftIndexValue.setText(String.format(getString(R.string.min), leftThumbIndex));
-                    rightIndexValue.setText(String.format(getString(R.string.max), rightThumbIndex));
-                }
-            });
+        if (mLayer.getType() == Constants.LAYERTYPE_LOCAL_VECTOR || mLayer.getType() == Constants.LAYERTYPE_NGW_VECTOR) {
+            mVectorLayer = (VectorLayer) mLayer;
 
             Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
             setTitle(String.format(getString(R.string.layer_geom_type), getGeometryName(mVectorLayer.getGeometryType())));
             toolbar.setSubtitle(String.format(getString(R.string.feature_count), mVectorLayer.getCount()));
 
-            final ProgressBar rebuildCacheProgress = (ProgressBar) findViewById(R.id.rebuildCacheProgressBar);
-            final ImageButton buildCacheButton = (ImageButton) findViewById(R.id.buildCacheButton);
-            buildCacheButton.setOnClickListener(this);
-            final ImageButton cancelBuildCacheButton = (ImageButton) findViewById(R.id.cancelBuildCahceButton);
-            cancelBuildCacheButton.setOnClickListener(this);
+            // set color
+            SimpleFeatureRenderer sfr = (SimpleFeatureRenderer) mVectorLayer.getRenderer();
+            if (null != sfr) {
+                Style style = sfr.getStyle();
+                if (null != style)
+                    mCurrentColor = style.getColor();
+            }
 
-            mRebuildCacheReceiver = new BroadcastReceiver() {
-                public void onReceive(Context context, Intent intent) {
-                    rebuildCacheProgress.setMax(intent.getIntExtra(RebuildCacheService.KEY_MAX, 0));
-                    rebuildCacheProgress.setProgress(intent.getIntExtra(RebuildCacheService.KEY_PROGRESS, 0));
-                }
-            };
+            mLayerName = mLayer.getName();
+            mLayerMinZoom = mVectorLayer.getMinZoom();
+            mLayerMaxZoom = mVectorLayer.getMaxZoom();
         }
     }
 
-    private void fillFields() {
-        int fieldsCount = mVectorLayer.getFields().size();
-        mFields = new CharSequence[fieldsCount];
-        String labelField = mVectorLayer.getPreferences().getString(SettingsConstantsUI.KEY_PREF_LAYER_LABEL, Constants.FIELD_ID);
-
-        for (int i = 0; i < fieldsCount; i++) {
-            Field field = mVectorLayer.getFields().get(i);
-            String fieldInfo = field.getName() + " - " + LayerUtil.typeToString(this, field.getType());
-            if (field.getName().equals(labelField))
-                fieldInfo += getString(R.string.label_field);
-
-            mFields[i] = fieldInfo;
-        }
+    @Override
+    protected void addFragments() {
+        mAdapter.addFragment(new StyleFragment(), R.string.style);
+        mAdapter.addFragment(new FieldsFragment(), R.string.fields);
+        mAdapter.addFragment(new VectorGeneralFragment(), R.string.general);
+        mAdapter.addFragment(new CacheFragment(), R.string.cache);
     }
 
     @Override
@@ -211,28 +123,14 @@ public class VectorLayerSettingsActivity
         int i = v.getId();
         if (i == R.id.color_row) {//show colors list
             ChooseColorDialog newChooseColorDialog = new ChooseColorDialog();
-            newChooseColorDialog.setColors(mColors)
+            newChooseColorDialog.setColors(StyleFragment.getColors())
                     .setTitle(getString(R.string.select_color))
                     .setTheme(getThemeId())
                     .show(VectorLayerSettingsActivity.this.getSupportFragmentManager(), "choose_color");
-        } else if (i == R.id.layer_fields) {
-            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-            dialog.setTitle(getString(R.string.fields) + getString(R.string.label_field_title))
-                    .setPositiveButton(android.R.string.ok, null)
-                    .setItems(mFields, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            String fieldName = mFields[which].toString().split(" - ")[0];
-                            mVectorLayer.getPreferences().edit().putString(SettingsConstantsUI.KEY_PREF_LAYER_LABEL, fieldName).commit();
-                            fillFields();
-                        }
-                    });
-            dialog.show().setCanceledOnTouchOutside(false);
-            Toast.makeText(this, R.string.label_field_toast, Toast.LENGTH_SHORT).show();
         } else if (i == R.id.buildCacheButton) {
             intent.setAction(RebuildCacheService.ACTION_ADD_TASK);
             startService(intent);
-        } else if (i == R.id.cancelBuildCahceButton) {
+        } else if (i == R.id.cancelBuildCacheButton) {
             intent.setAction(RebuildCacheService.ACTION_STOP);
             startService(intent);
         }
@@ -257,74 +155,271 @@ public class VectorLayerSettingsActivity
         }
     }
 
-    protected void setColor(int color) {
-        // set color
-        ImageView iv = (ImageView) findViewById(R.id.color_image);
-        GradientDrawable sd = (GradientDrawable) iv.getDrawable();
-        sd.setColor(color);
-        iv.invalidate();
-
-        // set color name
-        TextView tv = (TextView) findViewById(R.id.color_name);
-        tv.setText(getColorName(color));
-
-        mCurrentColor = color;
-    }
-
-    protected String getColorName(int color) {
-        for (Pair<Integer, String> colorEntry : mColors) {
-            if (colorEntry.first == color) {
-                return colorEntry.second;
-            }
-        }
-        return "#" + Integer.toHexString(color & 0x00FFFFFF);
+    @Override
+    public void onFinishChooseColorDialog(int color) {
+        StyleFragment.setColor(color);
     }
 
     @Override
-    public void onFinishChooseColorDialog(int color) {
-        setColor(color);
-    }
-
     protected void saveSettings() {
-        if (null == mVectorLayer) {
+        if (null == mVectorLayer)
             return;
-        }
-        EditText editText = (EditText) findViewById(R.id.layer_name);
-        mVectorLayer.setName(editText.getEditableText().toString());
+
+        mVectorLayer.setName(mLayerName);
+
         // set color
         SimpleFeatureRenderer sfr = (SimpleFeatureRenderer) mVectorLayer.getRenderer();
         if (null != sfr) {
             Style style = sfr.getStyle();
-            if (null != style) {
+            if (null != style)
                 style.setColor(mCurrentColor);
-            }
         }
 
-        final RangeBar rangebar = (RangeBar) findViewById(R.id.rangebar);
-        mVectorLayer.setMinZoom(rangebar.getLeftIndex());
-        mVectorLayer.setMaxZoom(rangebar.getRightIndex());
+        mVectorLayer.setMinZoom(mLayerMinZoom);
+        mVectorLayer.setMaxZoom(mLayerMaxZoom);
 
         mVectorLayer.save();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        IntentFilter intentFilter = new IntentFilter(RebuildCacheService.ACTION_UPDATE);
-        registerReceiver(mRebuildCacheReceiver, intentFilter);
+    public static class StyleFragment extends Fragment {
+        protected static List<Pair<Integer, String>> mColors;
+        protected static ImageView mColorImage;
+        protected static TextView mColorName;
+
+        public StyleFragment() {
+
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View v = inflater.inflate(R.layout.fragment_vector_layer_style, container, false);
+
+            mColors = new ArrayList<>();
+            mColors.add(new Pair<>(Color.RED, getString(R.string.red)));
+            mColors.add(new Pair<>(Color.GREEN, getString(R.string.green)));
+            mColors.add(new Pair<>(Color.BLUE, getString(R.string.blue)));
+            mColors.add(new Pair<>(Color.MAGENTA, getString(R.string.magenta)));
+            mColors.add(new Pair<>(Color.YELLOW, getString(R.string.yellow)));
+            mColors.add(new Pair<>(Color.CYAN, getString(R.string.cyan)));
+
+            mColorName = (TextView) v.findViewById(R.id.color_name);
+            mColorImage = (ImageView) v.findViewById(R.id.color_image);
+
+            LinearLayout color_row = (LinearLayout) v.findViewById(R.id.color_row);
+            color_row.setOnClickListener((View.OnClickListener) getActivity());
+            setColor(mCurrentColor);
+
+            return v;
+        }
+
+        public static List<Pair<Integer,String>> getColors() {
+            return mColors;
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+        }
+
+        protected static void setColor(int color) {
+            // set color
+            GradientDrawable sd = (GradientDrawable) mColorImage.getDrawable();
+            sd.setColor(color);
+            mColorImage.invalidate();
+
+            // set color name
+            mColorName.setText(getColorName(color));
+
+            mCurrentColor = color;
+        }
+
+        protected static String getColorName(int color) {
+            for (Pair<Integer, String> colorEntry : mColors) {
+                if (colorEntry.first == color) {
+                    return colorEntry.second;
+                }
+            }
+            return "#" + Integer.toHexString(color & 0x00FFFFFF);
+        }
+
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(mRebuildCacheReceiver);
-        saveSettings();
+    public static class FieldsFragment extends Fragment {
+        protected List<String> mFields;
+        protected int mDefault = -1;
+
+        public FieldsFragment() {
+
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View v = inflater.inflate(R.layout.fragment_vector_layer_fields, container, false);
+            ListView fields = (ListView) v.findViewById(R.id.listView);
+            fillFields();
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice, mFields);
+            fields.setAdapter(adapter);
+            if (mDefault >= 0)
+                fields.setItemChecked(mDefault, true);
+
+            fields.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    String fieldName = mFields.get(position).split(" - ")[0];
+                    mVectorLayer.getPreferences().edit().putString(SettingsConstantsUI.KEY_PREF_LAYER_LABEL, fieldName).commit();
+                }
+            });
+            return v;
+        }
+
+        private void fillFields() {
+            mFields = new ArrayList<>();
+            int fieldsCount = mVectorLayer.getFields().size();
+            String labelField = mVectorLayer.getPreferences().getString(SettingsConstantsUI.KEY_PREF_LAYER_LABEL, Constants.FIELD_ID);
+
+            for (int i = 0; i < fieldsCount; i++) {
+                Field field = mVectorLayer.getFields().get(i);
+                String fieldInfo = field.getName() + " - " + LayerUtil.typeToString(getContext(), field.getType());
+                if (field.getName().equals(labelField))
+                    mDefault = i;
+
+                mFields.add(fieldInfo);
+            }
+        }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt(ConstantsUI.KEY_LAYER_ID, mVectorLayer.getId());
+    public static class VectorGeneralFragment extends Fragment {
+        protected static EditText mEditText;
+        protected static RangeBar mRangeBar;
+
+        public VectorGeneralFragment() {
+
+        }
+
+        @Override
+        public void onDestroyView() {
+            super.onDestroyView();
+            mLayerName = mEditText.getEditableText().toString();
+            mLayerMinZoom = mRangeBar.getLeftIndex();
+            mLayerMaxZoom = mRangeBar.getRightIndex();
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View v = inflater.inflate(R.layout.fragment_layer_general, container, false);
+            TextView form = (TextView) v.findViewById(R.id.layer_custom_form);
+            File formPath = new File(mVectorLayer.getPath(), ConstantsUI.FILE_FORM);
+            form.setText(formPath.exists() ? R.string.layer_has_form : R.string.layer_has_no_form);
+
+            TextView path = (TextView) v.findViewById(R.id.layer_local_lath);
+            path.setText(String.format(getString(R.string.layer_local_path), mVectorLayer.getPath()));
+
+            if (mVectorLayer instanceof NGWVectorLayer) {
+                TextView remote = (TextView) v.findViewById(R.id.layer_remote_path);
+                remote.setText(String.format(getString(R.string.layer_remote_path), ((NGWVectorLayer) mVectorLayer).getRemoteUrl()));
+                remote.setVisibility(View.VISIBLE);
+            }
+
+            mEditText = (EditText) v.findViewById(R.id.layer_name);
+            mEditText.setText(mVectorLayer.getName());
+            mEditText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    mLayerName = s.toString();
+                }
+            });
+
+            //set range
+            // Gets the RangeBar
+            mRangeBar = (RangeBar) v.findViewById(R.id.rangebar);
+            int nMinZoom = mLayerMinZoom < mRangeBar.getRightIndex() ? (int) mLayerMinZoom : mRangeBar.getRightIndex();
+            int nMaxZoom = mLayerMaxZoom < mRangeBar.getRightIndex() ? (int) mLayerMaxZoom : mRangeBar.getRightIndex();
+            mRangeBar.setThumbIndices(nMinZoom, nMaxZoom);
+            // Gets the index value TextViews
+            final TextView leftIndexValue = (TextView) v.findViewById(R.id.leftIndexValue);
+            leftIndexValue.setText(String.format(getString(R.string.min), nMinZoom));
+            final TextView rightIndexValue = (TextView) v.findViewById(R.id.rightIndexValue);
+            rightIndexValue.setText(String.format(getString(R.string.max), nMaxZoom));
+
+            // Sets the display values of the indices
+            mRangeBar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
+                @Override
+                public void onIndexChangeListener(RangeBar rangeBar, int leftThumbIndex, int rightThumbIndex) {
+                    mLayerMinZoom = leftThumbIndex;
+                    mLayerMaxZoom = rightThumbIndex;
+                    leftIndexValue.setText(String.format(getString(R.string.min), leftThumbIndex));
+                    rightIndexValue.setText(String.format(getString(R.string.max), rightThumbIndex));
+                }
+            });
+
+            return v;
+        }
     }
 
+    public static class CacheFragment extends Fragment {
+        protected BroadcastReceiver mRebuildCacheReceiver;
+
+        public CacheFragment() {
+
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View v = inflater.inflate(R.layout.fragment_vector_layer_cache, container, false);
+
+            final ProgressBar rebuildCacheProgress = (ProgressBar) v.findViewById(R.id.rebuildCacheProgressBar);
+            final ImageButton buildCacheButton = (ImageButton) v.findViewById(R.id.buildCacheButton);
+            buildCacheButton.setOnClickListener((View.OnClickListener) getActivity());
+            final ImageButton cancelBuildCacheButton = (ImageButton) v.findViewById(R.id.cancelBuildCacheButton);
+            cancelBuildCacheButton.setOnClickListener((View.OnClickListener) getActivity());
+
+            mRebuildCacheReceiver = new BroadcastReceiver() {
+                public void onReceive(Context context, Intent intent) {
+                    rebuildCacheProgress.setMax(intent.getIntExtra(RebuildCacheService.KEY_MAX, 0));
+                    rebuildCacheProgress.setProgress(intent.getIntExtra(RebuildCacheService.KEY_PROGRESS, 0));
+                }
+            };
+
+            return v;
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            IntentFilter intentFilter = new IntentFilter(RebuildCacheService.ACTION_UPDATE);
+            getActivity().registerReceiver(mRebuildCacheReceiver, intentFilter);
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            getActivity().unregisterReceiver(mRebuildCacheReceiver);
+        }
+
+    }
 }
