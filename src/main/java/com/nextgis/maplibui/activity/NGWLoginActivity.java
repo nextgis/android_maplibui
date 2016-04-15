@@ -144,15 +144,17 @@ public class NGWLoginActivity
             String token,
             boolean accountAdded)
     {
-        mResultBundle = new Bundle();
+        if (null != account) {
+            mResultBundle = new Bundle();
 
-        if (accountAdded) {
-            mResultBundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
-            mResultBundle.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
-            mResultBundle.putString(AccountManager.KEY_AUTHTOKEN, token);
-        } else {
-            mResultBundle.putString(
-                    AccountManager.KEY_ERROR_MESSAGE, getString(R.string.account_already_exists));
+            if (accountAdded) {
+                mResultBundle.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);
+                mResultBundle.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);
+                mResultBundle.putString(AccountManager.KEY_AUTHTOKEN, token);
+            } else {
+                mResultBundle.putString(
+                        AccountManager.KEY_ERROR_MESSAGE, getString(R.string.account_already_exists));
+            }
         }
 
         setResult(RESULT_OK);
