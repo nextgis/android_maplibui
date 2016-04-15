@@ -31,7 +31,7 @@ import android.support.v4.app.FragmentActivity;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.map.NGWRasterLayer;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.activity.NGWRasterLayerSettingsActivity;
+import com.nextgis.maplibui.activity.TMSLayerSettingsActivity;
 import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.dialog.SelectZoomLevelsDialog;
 import com.nextgis.maplibui.util.ConstantsUI;
@@ -61,7 +61,7 @@ public class NGWRasterLayerUI
     @Override
     public void changeProperties(Context context)
     {
-        Intent settings = new Intent(context, NGWRasterLayerSettingsActivity.class);
+        Intent settings = new Intent(context, TMSLayerSettingsActivity.class);
         settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         settings.putExtra(ConstantsUI.KEY_LAYER_ID, getId());
         context.startActivity(settings);

@@ -62,17 +62,7 @@
             />
 
         <activity
-            android:name=".activity.RemoteTMSLayerSettingsActivity"
-            android:label="@string/layerSettings"
-            />
-
-        <activity
-            android:name=".activity.LocalTMSLayerSettingsActivity"
-            android:label="@string/layerSettings"
-            />
-
-        <activity
-            android:name=".activity.NGWRasterLayerSettingsActivity"
+            android:name=".activity.TMSLayerSettingsActivity"
             android:label="@string/layerSettings"
             />
 

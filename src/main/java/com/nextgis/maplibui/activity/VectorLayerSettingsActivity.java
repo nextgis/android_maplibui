@@ -32,15 +32,12 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -48,11 +45,9 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.edmodo.rangebar.RangeBar;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.display.SimpleFeatureRenderer;
 import com.nextgis.maplib.display.Style;
-import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
@@ -60,11 +55,11 @@ import com.nextgis.maplib.util.LayerUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IChooseColorResult;
 import com.nextgis.maplibui.dialog.ChooseColorDialog;
+import com.nextgis.maplibui.fragment.LayerGeneralSettingsFragment;
 import com.nextgis.maplibui.service.RebuildCacheService;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,6 +82,8 @@ public class VectorLayerSettingsActivity
 
         if (mLayer.getType() == Constants.LAYERTYPE_LOCAL_VECTOR || mLayer.getType() == Constants.LAYERTYPE_NGW_VECTOR) {
             mVectorLayer = (VectorLayer) mLayer;
+            mLayerMinZoom = mVectorLayer.getMinZoom();
+            mLayerMaxZoom = mVectorLayer.getMaxZoom();
 
             Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
             setTitle(String.format(getString(R.string.layer_geom_type), getGeometryName(mVectorLayer.getGeometryType())));
@@ -99,10 +96,6 @@ public class VectorLayerSettingsActivity
                 if (null != style)
                     mCurrentColor = style.getColor();
             }
-
-            mLayerName = mLayer.getName();
-            mLayerMinZoom = mVectorLayer.getMinZoom();
-            mLayerMaxZoom = mVectorLayer.getMaxZoom();
         }
     }
 
@@ -110,7 +103,7 @@ public class VectorLayerSettingsActivity
     protected void addFragments() {
         mAdapter.addFragment(new StyleFragment(), R.string.style);
         mAdapter.addFragment(new FieldsFragment(), R.string.fields);
-        mAdapter.addFragment(new VectorGeneralFragment(), R.string.general);
+        mAdapter.addFragment(new LayerGeneralSettingsFragment(), R.string.general);
         mAdapter.addFragment(new CacheFragment(), R.string.cache);
     }
 
@@ -290,89 +283,6 @@ public class VectorLayerSettingsActivity
 
                 mFields.add(fieldInfo);
             }
-        }
-    }
-
-    public static class VectorGeneralFragment extends Fragment {
-        protected static EditText mEditText;
-        protected static RangeBar mRangeBar;
-
-        public VectorGeneralFragment() {
-
-        }
-
-        @Override
-        public void onDestroyView() {
-            super.onDestroyView();
-            mLayerName = mEditText.getEditableText().toString();
-            mLayerMinZoom = mRangeBar.getLeftIndex();
-            mLayerMaxZoom = mRangeBar.getRightIndex();
-        }
-
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View v = inflater.inflate(R.layout.fragment_layer_general, container, false);
-            TextView form = (TextView) v.findViewById(R.id.layer_custom_form);
-            File formPath = new File(mVectorLayer.getPath(), ConstantsUI.FILE_FORM);
-            form.setText(formPath.exists() ? R.string.layer_has_form : R.string.layer_has_no_form);
-
-            TextView path = (TextView) v.findViewById(R.id.layer_local_lath);
-            path.setText(String.format(getString(R.string.layer_local_path), mVectorLayer.getPath()));
-
-            if (mVectorLayer instanceof NGWVectorLayer) {
-                TextView remote = (TextView) v.findViewById(R.id.layer_remote_path);
-                remote.setText(String.format(getString(R.string.layer_remote_path), ((NGWVectorLayer) mVectorLayer).getRemoteUrl()));
-                remote.setVisibility(View.VISIBLE);
-            }
-
-            mEditText = (EditText) v.findViewById(R.id.layer_name);
-            mEditText.setText(mVectorLayer.getName());
-            mEditText.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                    mLayerName = s.toString();
-                }
-            });
-
-            //set range
-            // Gets the RangeBar
-            mRangeBar = (RangeBar) v.findViewById(R.id.rangebar);
-            int nMinZoom = mLayerMinZoom < mRangeBar.getRightIndex() ? (int) mLayerMinZoom : mRangeBar.getRightIndex();
-            int nMaxZoom = mLayerMaxZoom < mRangeBar.getRightIndex() ? (int) mLayerMaxZoom : mRangeBar.getRightIndex();
-            mRangeBar.setThumbIndices(nMinZoom, nMaxZoom);
-            // Gets the index value TextViews
-            final TextView leftIndexValue = (TextView) v.findViewById(R.id.leftIndexValue);
-            leftIndexValue.setText(String.format(getString(R.string.min), nMinZoom));
-            final TextView rightIndexValue = (TextView) v.findViewById(R.id.rightIndexValue);
-            rightIndexValue.setText(String.format(getString(R.string.max), nMaxZoom));
-
-            // Sets the display values of the indices
-            mRangeBar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
-                @Override
-                public void onIndexChangeListener(RangeBar rangeBar, int leftThumbIndex, int rightThumbIndex) {
-                    mLayerMinZoom = leftThumbIndex;
-                    mLayerMaxZoom = rightThumbIndex;
-                    leftIndexValue.setText(String.format(getString(R.string.min), leftThumbIndex));
-                    rightIndexValue.setText(String.format(getString(R.string.max), rightThumbIndex));
-                }
-            });
-
-            return v;
         }
     }
 

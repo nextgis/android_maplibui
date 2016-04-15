@@ -185,7 +185,7 @@
     <string name="edit_account_summary">Editing a user name and password</string>
     <string name="tms_layer_cache_size">TMS in-memory cache size</string>
     <string name="make_grayscale">Make grayscale</string>
-    <string name="contrast">Contrast</string>
+    <string name="contrast">Contrast: %1$.1f</string>
     <string name="brightness">Brightness</string>
     <string name="menu_zoom_extent">Zoom to extent</string>
     <string name="menu_download_tiles">Download tiles</string>
@@ -214,7 +214,6 @@
     <string name="layer_local_path">Local path: %1$s</string>
     <string name="layer_remote_path">Remote: %1$s</string>
     <string name="layer_has_form">Layer has custom form</string>
-    <string name="layer_has_no_form">Layer does not have custom form</string>
     <string name="point">Point</string>
     <string name="multi_point">Multipoint</string>
     <string name="linestring">Linestring</string>

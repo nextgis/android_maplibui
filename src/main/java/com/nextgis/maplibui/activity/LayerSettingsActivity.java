@@ -33,6 +33,7 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.fragment.LayerGeneralSettingsFragment;
 import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.util.ArrayList;
@@ -44,8 +45,9 @@ public abstract class LayerSettingsActivity extends NGActivity {
     protected ViewPager mViewPager;
     protected LayerTabsAdapter mAdapter;
 
-    protected static String mLayerName;
-    protected static float mLayerMinZoom, mLayerMaxZoom;
+    public String mLayerName;
+    public float mLayerMinZoom;
+    public float mLayerMaxZoom;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,8 +75,10 @@ public abstract class LayerSettingsActivity extends NGActivity {
 
         if (null != map) {
             ILayer layer = map.getLayerById(layerId);
-            if (null != layer)
+            if (null != layer) {
                 mLayer = layer;
+                mLayerName = mLayer.getName();
+            }
         }
     }
 
@@ -105,6 +109,9 @@ public abstract class LayerSettingsActivity extends NGActivity {
 
         @Override
         public Fragment getItem(int position) {
+            if (mFragmentList.get(position) instanceof LayerGeneralSettingsFragment)
+                return ((LayerGeneralSettingsFragment) mFragmentList.get(position)).setRoot(mLayer, LayerSettingsActivity.this);
+
             return mFragmentList.get(position);
         }
 
