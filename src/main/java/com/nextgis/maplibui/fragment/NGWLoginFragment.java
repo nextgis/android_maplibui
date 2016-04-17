@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -64,7 +64,7 @@ public class NGWLoginFragment
     protected boolean mChangeAccountLogin = mForNewAccount;
 
     protected OnAddAccountListener mOnAddAccountListener;
-
+    protected Loader<String> mLoader;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -162,12 +162,10 @@ public class NGWLoginFragment
     public void onClick(View v)
     {
         if (v == mSignInButton) {
-            Loader<String> loader = getActivity().getSupportLoaderManager().getLoader(R.id.auth_token_loader);
-
-            if (null != loader && loader.isStarted()) {
-                getLoaderManager().restartLoader(R.id.auth_token_loader, null, this);
+            if (null != mLoader && mLoader.isStarted()) {
+                mLoader = getLoaderManager().restartLoader(R.id.auth_token_loader, null, this);
             } else {
-                getLoaderManager().initLoader(R.id.auth_token_loader, null, this);
+                mLoader = getLoaderManager().initLoader(R.id.auth_token_loader, null, this);
             }
         }
     }
