@@ -38,13 +38,14 @@
             android:background="?attr/colorPrimary"
             android:minHeight="?attr/actionBarSize"
             app:elevation="2dp"
-            app:layout_scrollFlags="scroll|enterAlways"
+            app:layout_scrollFlags="enterAlways"
             app:popupTheme="?ThemeOverlay.NextGIS.ToolbarPopup"/>
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
             app:tabGravity="fill"
             app:tabMode="fixed"/>
     </android.support.design.widget.AppBarLayout>
