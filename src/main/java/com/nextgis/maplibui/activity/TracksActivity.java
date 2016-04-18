@@ -168,7 +168,11 @@ public class TracksActivity
             String[] args = mTracks.getSelectedItemsIds();
             LayerUtil.shareTrackAsGPX(this, "NextGIS Mobile", args);
         } else if (id == R.id.menu_color) {
-            AmbilWarnaDialog dialog = new AmbilWarnaDialog(this, 0, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+            int initColor = 0;
+            if (mTracks.getSelectedItemsCount() == 1)
+                initColor = TrackLayer.getColor(this, mContentUriTracks, Long.parseLong(mTracks.getSelectedItemsIds()[0]));
+
+            AmbilWarnaDialog dialog = new AmbilWarnaDialog(this, initColor, new AmbilWarnaDialog.OnAmbilWarnaListener() {
                 @Override
                 public void onOk(AmbilWarnaDialog dialog, int color) {
                     changeColor(color);
@@ -186,7 +190,6 @@ public class TracksActivity
                     closeActionMode();
                 }
             });
-
             dialog.show();
         }
 
