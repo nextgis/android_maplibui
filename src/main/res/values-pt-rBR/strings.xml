@@ -173,6 +173,7 @@
     <string name="mainSettings">Main settings</string>
     <string name="displaySettings">Display settings</string>
     <string name="fill_color">Fill color</string>
+    <string name="stroke_color">Stroke color</string>
     <string name="layerSettings">Layer settings</string>
     <string name="red">red</string>
     <string name="green">green</string>

@@ -27,12 +27,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,14 +45,15 @@ import android.widget.TextView;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.display.SimpleFeatureRenderer;
+import com.nextgis.maplib.display.SimpleLineStyle;
+import com.nextgis.maplib.display.SimpleMarkerStyle;
+import com.nextgis.maplib.display.SimplePolygonStyle;
 import com.nextgis.maplib.display.Style;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LayerUtil;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.api.IChooseColorResult;
-import com.nextgis.maplibui.dialog.ChooseColorDialog;
 import com.nextgis.maplibui.fragment.LayerGeneralSettingsFragment;
 import com.nextgis.maplibui.service.RebuildCacheService;
 import com.nextgis.maplibui.util.ConstantsUI;
@@ -63,15 +62,19 @@ import com.nextgis.maplibui.util.SettingsConstantsUI;
 import java.util.ArrayList;
 import java.util.List;
 
+import yuku.ambilwarna.AmbilWarnaDialog;
+
 
 /**
  * Vector layer settings activity. Include common settings (layer name) and renderer settings.
  */
 public class VectorLayerSettingsActivity
         extends LayerSettingsActivity
-        implements IChooseColorResult, View.OnClickListener {
+        implements View.OnClickListener {
     protected static VectorLayer mVectorLayer;
-    protected static int mCurrentColor;
+    protected static int mFillColor, mStrokeColor;
+    protected static float mSize, mWidth;
+    protected static Style mStyle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,11 +94,8 @@ public class VectorLayerSettingsActivity
 
             // set color
             SimpleFeatureRenderer sfr = (SimpleFeatureRenderer) mVectorLayer.getRenderer();
-            if (null != sfr) {
-                Style style = sfr.getStyle();
-                if (null != style)
-                    mCurrentColor = style.getColor();
-            }
+            if (null != sfr)
+                mStyle = sfr.getStyle();
         }
     }
 
@@ -114,12 +114,42 @@ public class VectorLayerSettingsActivity
         intent.putExtra(ConstantsUI.KEY_LAYER_ID, mVectorLayer.getId());
 
         int i = v.getId();
-        if (i == R.id.color_row) {//show colors list
-            ChooseColorDialog newChooseColorDialog = new ChooseColorDialog();
-            newChooseColorDialog.setColors(StyleFragment.getColors())
-                    .setTitle(getString(R.string.select_color))
-                    .setTheme(getThemeId())
-                    .show(VectorLayerSettingsActivity.this.getSupportFragmentManager(), "choose_color");
+        if (i == R.id.color_fill) {//show colors dialog
+            AmbilWarnaDialog dialog = new AmbilWarnaDialog(this, mFillColor, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+                @Override
+                public void onOk(AmbilWarnaDialog dialog, int color) {
+                    mFillColor = color;
+                    StyleFragment.setFillColor(color);
+                    mStyle.setColor(color);
+                }
+
+                @Override
+                public void onCancel(AmbilWarnaDialog dialog) {
+
+                }
+            });
+
+            dialog.show();
+        } else if (i == R.id.color_stroke) {//show colors dialog
+            AmbilWarnaDialog dialog = new AmbilWarnaDialog(this, mStrokeColor, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+                @Override
+                public void onOk(AmbilWarnaDialog dialog, int color) {
+                    mStrokeColor = color;
+                    StyleFragment.setStrokeColor(color);
+
+                    if (mStyle instanceof SimpleMarkerStyle)
+                        ((SimpleMarkerStyle) mStyle).setOutlineColor(color);
+                    else if (mStyle instanceof SimpleLineStyle)
+                        ((SimpleLineStyle) mStyle).setOutColor(color);
+                }
+
+                @Override
+                public void onCancel(AmbilWarnaDialog dialog) {
+
+                }
+            });
+
+            dialog.show();
         } else if (i == R.id.buildCacheButton) {
             intent.setAction(RebuildCacheService.ACTION_ADD_TASK);
             startService(intent);
@@ -148,10 +178,6 @@ public class VectorLayerSettingsActivity
         }
     }
 
-    @Override
-    public void onFinishChooseColorDialog(int color) {
-        StyleFragment.setColor(color);
-    }
 
     @Override
     protected void saveSettings() {
@@ -160,14 +186,6 @@ public class VectorLayerSettingsActivity
 
         mVectorLayer.setName(mLayerName);
 
-        // set color
-        SimpleFeatureRenderer sfr = (SimpleFeatureRenderer) mVectorLayer.getRenderer();
-        if (null != sfr) {
-            Style style = sfr.getStyle();
-            if (null != style)
-                style.setColor(mCurrentColor);
-        }
-
         mVectorLayer.setMinZoom(mLayerMinZoom);
         mVectorLayer.setMaxZoom(mLayerMaxZoom);
 
@@ -175,9 +193,8 @@ public class VectorLayerSettingsActivity
     }
 
     public static class StyleFragment extends Fragment {
-        protected static List<Pair<Integer, String>> mColors;
-        protected static ImageView mColorImage;
-        protected static TextView mColorName;
+        protected static ImageView mColorFillImage, mColorStrokeImage;
+        protected static TextView mColorFillName, mColorStrokeName;
 
         public StyleFragment() {
 
@@ -187,26 +204,60 @@ public class VectorLayerSettingsActivity
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.fragment_vector_layer_style, container, false);
 
-            mColors = new ArrayList<>();
-            mColors.add(new Pair<>(Color.RED, getString(R.string.red)));
-            mColors.add(new Pair<>(Color.GREEN, getString(R.string.green)));
-            mColors.add(new Pair<>(Color.BLUE, getString(R.string.blue)));
-            mColors.add(new Pair<>(Color.MAGENTA, getString(R.string.magenta)));
-            mColors.add(new Pair<>(Color.YELLOW, getString(R.string.yellow)));
-            mColors.add(new Pair<>(Color.CYAN, getString(R.string.cyan)));
-
-            mColorName = (TextView) v.findViewById(R.id.color_name);
-            mColorImage = (ImageView) v.findViewById(R.id.color_image);
-
-            LinearLayout color_row = (LinearLayout) v.findViewById(R.id.color_row);
-            color_row.setOnClickListener((View.OnClickListener) getActivity());
-            setColor(mCurrentColor);
+            mFillColor = mStyle.getColor();
+            if (mStyle instanceof SimpleMarkerStyle) {
+                v = inflater.inflate(R.layout.style_marker, container, false);
+                inflateMarker(v);
+            } else if (mStyle instanceof SimpleLineStyle) {
+                v = inflater.inflate(R.layout.style_line, container, false);
+                inflateLine(v);
+            } else if (mStyle instanceof SimplePolygonStyle) {
+                v = inflater.inflate(R.layout.style_polygon, container, false);
+                inflatePolygon(v);
+            }
 
             return v;
         }
 
-        public static List<Pair<Integer,String>> getColors() {
-            return mColors;
+        private void inflateMarker(View v) {
+            mStrokeColor = ((SimpleMarkerStyle) mStyle).getOutlineColor();
+
+            mColorFillName = (TextView) v.findViewById(R.id.color_fill_name);
+            mColorFillImage = (ImageView) v.findViewById(R.id.color_fill_ring);
+            mColorStrokeName = (TextView) v.findViewById(R.id.color_stroke_name);
+            mColorStrokeImage = (ImageView) v.findViewById(R.id.color_stroke_ring);
+
+            LinearLayout color_fill = (LinearLayout) v.findViewById(R.id.color_fill);
+            LinearLayout color_stroke = (LinearLayout) v.findViewById(R.id.color_stroke);
+            color_fill.setOnClickListener((View.OnClickListener) getActivity());
+            color_stroke.setOnClickListener((View.OnClickListener) getActivity());
+            setFillColor(mFillColor);
+            setStrokeColor(mStrokeColor);
+        }
+
+        private void inflateLine(View v) {
+            mStrokeColor = ((SimpleLineStyle) mStyle).getOutColor();
+
+            mColorFillName = (TextView) v.findViewById(R.id.color_fill_name);
+            mColorFillImage = (ImageView) v.findViewById(R.id.color_fill_ring);
+            mColorStrokeName = (TextView) v.findViewById(R.id.color_stroke_name);
+            mColorStrokeImage = (ImageView) v.findViewById(R.id.color_stroke_ring);
+
+            LinearLayout color_fill = (LinearLayout) v.findViewById(R.id.color_fill);
+            LinearLayout color_stroke = (LinearLayout) v.findViewById(R.id.color_stroke);
+            color_fill.setOnClickListener((View.OnClickListener) getActivity());
+            color_stroke.setOnClickListener((View.OnClickListener) getActivity());
+            setFillColor(mFillColor);
+            setStrokeColor(mStrokeColor);
+        }
+
+        private void inflatePolygon(View v) {
+            mColorFillName = (TextView) v.findViewById(R.id.color_fill_name);
+            mColorFillImage = (ImageView) v.findViewById(R.id.color_fill_ring);
+
+            LinearLayout color_fill = (LinearLayout) v.findViewById(R.id.color_fill);
+            color_fill.setOnClickListener((View.OnClickListener) getActivity());
+            setFillColor(mFillColor);
         }
 
         @Override
@@ -214,27 +265,27 @@ public class VectorLayerSettingsActivity
             super.onCreate(savedInstanceState);
         }
 
-        protected static void setColor(int color) {
+        protected static void setFillColor(int color) {
+            setColor(mColorFillImage, mColorFillName, color);
+        }
+
+        protected static void setStrokeColor(int color) {
+            setColor(mColorStrokeImage, mColorStrokeName, color);
+        }
+
+        private static void setColor(ImageView image, TextView text, int color) {
             // set color
-            GradientDrawable sd = (GradientDrawable) mColorImage.getDrawable();
+            GradientDrawable sd = (GradientDrawable) image.getDrawable();
             sd.setColor(color);
-            mColorImage.invalidate();
+            image.invalidate();
 
             // set color name
-            mColorName.setText(getColorName(color));
-
-            mCurrentColor = color;
+            text.setText(getColorName(color));
         }
 
         protected static String getColorName(int color) {
-            for (Pair<Integer, String> colorEntry : mColors) {
-                if (colorEntry.first == color) {
-                    return colorEntry.second;
-                }
-            }
-            return "#" + Integer.toHexString(color & 0x00FFFFFF);
+            return String.format("#%06X", (0xFFFFFF & color));
         }
-
     }
 
     public static class FieldsFragment extends Fragment {
