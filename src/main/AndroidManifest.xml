@@ -64,6 +64,7 @@
         <activity
             android:name=".activity.TMSLayerSettingsActivity"
             android:label="@string/layerSettings"
+            android:windowSoftInputMode="stateHidden"
             />
 
         <service

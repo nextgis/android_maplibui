@@ -21,6 +21,7 @@
 
 package com.nextgis.maplibui.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -28,6 +29,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -49,6 +51,14 @@ public class LayerGeneralSettingsFragment extends Fragment {
 
     public LayerGeneralSettingsFragment() {
 
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (getView() != null)
+            imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
     }
 
     public Fragment setRoot(ILayer layer, LayerSettingsActivity activity) {

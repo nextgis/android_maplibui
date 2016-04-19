@@ -31,16 +31,24 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.nextgis.maplib.datasource.Field;
@@ -61,6 +69,7 @@ import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
@@ -73,7 +82,6 @@ public class VectorLayerSettingsActivity
         implements View.OnClickListener {
     protected static VectorLayer mVectorLayer;
     protected static int mFillColor, mStrokeColor;
-    protected static float mSize, mWidth;
     protected static Style mStyle;
 
     @Override
@@ -201,18 +209,26 @@ public class VectorLayerSettingsActivity
         }
 
         @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+            final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (getView() != null)
+                imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+        }
+
+        @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View v = inflater.inflate(R.layout.fragment_vector_layer_style, container, false);
+            ScrollView v = (ScrollView) inflater.inflate(R.layout.fragment_vector_layer_style, container, false);
 
             mFillColor = mStyle.getColor();
             if (mStyle instanceof SimpleMarkerStyle) {
-                v = inflater.inflate(R.layout.style_marker, container, false);
+                v.addView(inflater.inflate(R.layout.style_marker, container, false));
                 inflateMarker(v);
             } else if (mStyle instanceof SimpleLineStyle) {
-                v = inflater.inflate(R.layout.style_line, container, false);
+                v.addView(inflater.inflate(R.layout.style_line, container, false));
                 inflateLine(v);
             } else if (mStyle instanceof SimplePolygonStyle) {
-                v = inflater.inflate(R.layout.style_polygon, container, false);
+                v.addView(inflater.inflate(R.layout.style_polygon, container, false));
                 inflatePolygon(v);
             }
 
@@ -220,8 +236,43 @@ public class VectorLayerSettingsActivity
         }
 
         private void inflateMarker(View v) {
-            mStrokeColor = ((SimpleMarkerStyle) mStyle).getOutlineColor();
+            Spinner type = (Spinner) v.findViewById(R.id.type);
+            type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    ((SimpleMarkerStyle) mStyle).setType(position + 1);
+                }
 
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+            type.setSelection(((SimpleMarkerStyle) mStyle).getType() - 1);
+
+            float size = ((SimpleMarkerStyle) mStyle).getSize();
+            EditText sizeText = (EditText) v.findViewById(R.id.size);
+            sizeText.setText(String.format(Locale.getDefault(), "%.0f", size));
+            sizeText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    try {
+                        ((SimpleMarkerStyle) mStyle).setSize(Float.parseFloat(s.toString()));
+                    } catch (Exception ignored) { }
+                }
+            });
+
+            mStrokeColor = ((SimpleMarkerStyle) mStyle).getOutlineColor();
             mColorFillName = (TextView) v.findViewById(R.id.color_fill_name);
             mColorFillImage = (ImageView) v.findViewById(R.id.color_fill_ring);
             mColorStrokeName = (TextView) v.findViewById(R.id.color_stroke_name);
@@ -233,6 +284,28 @@ public class VectorLayerSettingsActivity
             color_stroke.setOnClickListener((View.OnClickListener) getActivity());
             setFillColor(mFillColor);
             setStrokeColor(mStrokeColor);
+
+            float width = ((SimpleMarkerStyle) mStyle).getWidth();
+            EditText widthText = (EditText) v.findViewById(R.id.width);
+            widthText.setText(String.format(Locale.getDefault(), "%.0f", width));
+            widthText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    try {
+                        ((SimpleMarkerStyle) mStyle).setWidth(Float.parseFloat(s.toString()));
+                    } catch (Exception ignored) { }
+                }
+            });
         }
 
         private void inflateLine(View v) {
@@ -249,11 +322,80 @@ public class VectorLayerSettingsActivity
             color_stroke.setOnClickListener((View.OnClickListener) getActivity());
             setFillColor(mFillColor);
             setStrokeColor(mStrokeColor);
+
+            float width = ((SimpleLineStyle) mStyle).getWidth();
+            EditText widthText = (EditText) v.findViewById(R.id.width);
+            widthText.setText(String.format(Locale.getDefault(), "%.0f", width));
+            widthText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    try {
+                        ((SimpleLineStyle) mStyle).setWidth(Float.parseFloat(s.toString()));
+                    } catch (Exception ignored) { }
+                }
+            });
+
+            Spinner type = (Spinner) v.findViewById(R.id.type);
+            type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    ((SimpleLineStyle) mStyle).setType(position + 1);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+            type.setSelection(((SimpleLineStyle) mStyle).getType() - 1);
         }
 
         private void inflatePolygon(View v) {
+            float width = ((SimplePolygonStyle) mStyle).getWidth();
+            boolean fill = ((SimplePolygonStyle) mStyle).isFill();
+
             mColorFillName = (TextView) v.findViewById(R.id.color_fill_name);
             mColorFillImage = (ImageView) v.findViewById(R.id.color_fill_ring);
+
+            CheckBox fillCheck = (CheckBox) v.findViewById(R.id.fill);
+            fillCheck.setChecked(fill);
+            fillCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    ((SimplePolygonStyle) mStyle).setFill(isChecked);
+                }
+            });
+
+            EditText widthText = (EditText) v.findViewById(R.id.width);
+            widthText.setText(String.format(Locale.getDefault(), "%.0f", width));
+            widthText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    try {
+                        ((SimplePolygonStyle) mStyle).setWidth(Float.parseFloat(s.toString()));
+                    } catch (Exception ignored) { }
+                }
+            });
 
             LinearLayout color_fill = (LinearLayout) v.findViewById(R.id.color_fill);
             color_fill.setOnClickListener((View.OnClickListener) getActivity());

@@ -176,4 +176,19 @@
         <item>11</item>
         <item>12</item>
     </integer-array>
+    <string-array name="line_type" translatable="false">
+        <item>@string/type_solid</item>
+        <item>@string/type_dash</item>
+        <item>@string/type_edge</item>
+    </string-array>
+    <string-array name="marker_type" translatable="false">
+        <item>@string/type_point</item>
+        <item>@string/type_circle</item>
+        <item>@string/type_diamond</item>
+        <item>@string/type_cross</item>
+        <item>@string/type_triangle</item>
+        <item>@string/type_box</item>
+        <item>@string/type_edit_circle</item>
+        <item>@string/type_crossed_box</item>
+    </string-array>
 </resources>
