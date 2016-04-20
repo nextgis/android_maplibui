@@ -189,6 +189,7 @@
     <string name="type_edit_circle">Круг 2</string>
     <string name="type_crossed_box">Крест в квадрате</string>
     <string name="layerSettings">Layer settings</string>
+    <string name="label_field_toast">Поле %1$s выбрано как метка</string>
     <string name="red">red</string>
     <string name="green">green</string>
     <string name="blue">blue</string>

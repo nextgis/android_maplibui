@@ -50,6 +50,7 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.display.SimpleFeatureRenderer;
@@ -111,7 +112,9 @@ public class VectorLayerSettingsActivity
     protected void addFragments() {
         mAdapter.addFragment(new StyleFragment(), R.string.style);
         mAdapter.addFragment(new FieldsFragment(), R.string.fields);
-        mAdapter.addFragment(new LayerGeneralSettingsFragment(), R.string.general);
+        LayerGeneralSettingsFragment generalSettingsFragment = new LayerGeneralSettingsFragment();
+        generalSettingsFragment.setRoot(mLayer, this);
+        mAdapter.addFragment(generalSettingsFragment, R.string.general);
         mAdapter.addFragment(new CacheFragment(), R.string.cache);
     }
 
@@ -458,6 +461,7 @@ public class VectorLayerSettingsActivity
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     String fieldName = mFields.get(position).split(" - ")[0];
                     mVectorLayer.getPreferences().edit().putString(SettingsConstantsUI.KEY_PREF_LAYER_LABEL, fieldName).commit();
+                    Toast.makeText(getContext(), String.format(getString(R.string.label_field_toast), fieldName), Toast.LENGTH_SHORT).show();
                 }
             });
             return v;

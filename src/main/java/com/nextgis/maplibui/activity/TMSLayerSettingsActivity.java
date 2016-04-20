@@ -36,7 +36,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.nextgis.maplib.display.TMSRenderer;
-import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplib.map.TMSLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
@@ -105,7 +104,9 @@ public class TMSLayerSettingsActivity
     @Override
     void addFragments() {
         mAdapter.addFragment(new StyleFragment(), R.string.style);
-        mAdapter.addFragment(new LayerGeneralSettingsFragment(), R.string.general);
+        LayerGeneralSettingsFragment generalSettingsFragment = new LayerGeneralSettingsFragment();
+        generalSettingsFragment.setRoot(mLayer, this);
+        mAdapter.addFragment(generalSettingsFragment, R.string.general);
         mAdapter.addFragment(new CacheFragment(), R.string.cache);
     }
 

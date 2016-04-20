@@ -47,7 +47,7 @@ public class LayerGeneralSettingsFragment extends Fragment {
     protected static EditText mEditText;
     protected static RangeBar mRangeBar;
     protected static ILayer mLayer;
-    protected LayerSettingsActivity mActivity;
+    protected static LayerSettingsActivity mActivity;
 
     public LayerGeneralSettingsFragment() {
 

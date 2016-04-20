@@ -33,7 +33,6 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.fragment.LayerGeneralSettingsFragment;
 import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.util.ArrayList;
@@ -55,14 +54,6 @@ public abstract class LayerSettingsActivity extends NGActivity {
         setContentView(R.layout.activity_layer_settings);
         setToolbar(R.id.main_toolbar);
 
-        mViewPager = (ViewPager) findViewById(R.id.viewPager);
-        mAdapter = new LayerTabsAdapter(getSupportFragmentManager());
-        addFragments();
-        mViewPager.setAdapter(mAdapter);
-
-        mTabLayout = (TabLayout) findViewById(R.id.tabs);
-        mTabLayout.setupWithViewPager(mViewPager);
-
         int layerId = Constants.NOT_FOUND;
         if (savedInstanceState != null) {
             layerId = savedInstanceState.getInt(ConstantsUI.KEY_LAYER_ID);
@@ -80,6 +71,14 @@ public abstract class LayerSettingsActivity extends NGActivity {
                 mLayerName = mLayer.getName();
             }
         }
+
+        mViewPager = (ViewPager) findViewById(R.id.viewPager);
+        mAdapter = new LayerTabsAdapter(getSupportFragmentManager());
+        addFragments();
+        mViewPager.setAdapter(mAdapter);
+
+        mTabLayout = (TabLayout) findViewById(R.id.tabs);
+        mTabLayout.setupWithViewPager(mViewPager);
     }
 
     @Override
@@ -109,9 +108,6 @@ public abstract class LayerSettingsActivity extends NGActivity {
 
         @Override
         public Fragment getItem(int position) {
-            if (mFragmentList.get(position) instanceof LayerGeneralSettingsFragment)
-                return ((LayerGeneralSettingsFragment) mFragmentList.get(position)).setRoot(mLayer, LayerSettingsActivity.this);
-
             return mFragmentList.get(position);
         }
 

@@ -190,6 +190,7 @@
     <string name="type_edit_circle">Edit circle</string>
     <string name="type_crossed_box">Crossed box</string>
     <string name="layerSettings">Layer settings</string>
+    <string name="label_field_toast">Field %1$s selected as label</string>
     <string name="red">red</string>
     <string name="green">green</string>
     <string name="blue">blue</string>
