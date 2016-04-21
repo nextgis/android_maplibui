@@ -615,7 +615,7 @@ public class ModifyAttributesActivity
         String appendix;
         if (value != Double.NaN) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            int nFormat = prefs.getInt(SettingsConstantsUI.KEY_PREF_COORD_FORMAT + "_int", Location.FORMAT_SECONDS);
+            int nFormat = Integer.parseInt(prefs.getString(SettingsConstantsUI.KEY_PREF_COORD_FORMAT, Location.FORMAT_DEGREES + ""));
             int nFraction = prefs.getInt(SettingsConstantsUI.KEY_PREF_COORD_FRACTION, 6);
             appendix = LocationUtil.formatLatitude(value, nFormat, nFraction, getResources());
         } else
