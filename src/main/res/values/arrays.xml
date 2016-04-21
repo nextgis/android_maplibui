@@ -23,18 +23,18 @@
   -->
 
 <resources>
-    <string-array name="coordinates_format">
+    <string-array name="coordinates_format" translatable="false">
         <item>DD.DDDD</item>
         <item>DD-MM.MM</item>
         <item>DD-MM-SS.SS</item>
     </string-array>
-    <string-array name="coordinates_format_val">
+    <string-array name="coordinates_format_val" translatable="false">
         <item>0</item>
         <item>1</item>
         <item>2</item>
     </string-array>
     <string-array name="tracker_min_dist_update">
-        <item>Most frequently</item>
+        <item>@string/most_frequently</item>
         <item>1 m</item>
         <item>5 m</item>
         <item>10 m</item>
@@ -61,7 +61,7 @@
         <item>300</item>
     </string-array>
     <string-array name="tracker_min_time_between_updates">
-        <item>Most frequently</item>
+        <item>@string/most_frequently</item>
         <item>1 sec</item>
         <item>2 sec</item>
         <item>5 sec</item>
@@ -95,10 +95,10 @@
         <item>1800</item>
         <item>2700</item>
     </string-array>
-    <string-array name="status_panel_mode">
-        <item>Do not show info panel</item>
-        <item>Show out edit mode</item>
-        <item>Always show</item>
+    <string-array name="status_panel_mode" translatable="false">
+        <item>@string/panel_hide</item>
+        <item>@string/panel_show</item>
+        <item>@string/panel_always</item>
     </string-array>
     <string-array name="status_panel_mode_val"
                   translatable="false">
@@ -106,10 +106,10 @@
         <item>1</item>
         <item>3</item>
     </string-array>
-    <string-array name="current_location_mode">
-        <item>Do not show current location</item>
-        <item>Show marker only</item>
-        <item>Show marker and accuracy radius</item>
+    <string-array name="current_location_mode" translatable="false">
+        <item>@string/location_hide</item>
+        <item>@string/location_marker</item>
+        <item>@string/location_both</item>
     </string-array>
     <string-array name="current_location_mode_val"
                   translatable="false">
@@ -117,11 +117,11 @@
         <item>1</item>
         <item>3</item>
     </string-array>
-    <string-array name="tms_tile_cache_size">
-        <item>No cache</item>
-        <item>1 screen</item>
-        <item>2 screens (recommended)</item>
-        <item>3 screens</item>
+    <string-array name="tms_tile_cache_size" translatable="false">
+        <item>@string/tms_no_cache</item>
+        <item>@string/tms_1_screen</item>
+        <item>@string/tms_2_screens</item>
+        <item>@string/tms_3_screens</item>
     </string-array>
     <string-array name="tms_tile_cache_size_val"
                   translatable="false">
@@ -130,9 +130,9 @@
         <item>2</item>
         <item>3</item>
     </string-array>
-    <string-array name="theme">
-        <item>Light</item>
-        <item>Dark</item>
+    <string-array name="theme" translatable="false">
+        <item>@string/light</item>
+        <item>@string/dark</item>
     </string-array>
     <string-array name="theme_val" translatable="false">
         <item>light</item>

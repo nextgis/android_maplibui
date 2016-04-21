@@ -254,4 +254,17 @@
     <string name="location_network">По Wi-Fi та координатам мережі</string>
     <string name="title_edit_by_walk">Запись обходом</string>
     <string name="new_tms">Новый</string>
+    <string name="most_frequently">Якнайчастіше</string>
+    <string name="panel_hide">Не показувати панель</string>
+    <string name="panel_show">Показувати поза редагуванням</string>
+    <string name="panel_always">Показувати завжди</string>
+    <string name="location_hide">Не показувати положення</string>
+    <string name="location_marker">Показувати лише маркер</string>
+    <string name="location_both">Показувати маркер та коло точності</string>
+    <string name="tms_no_cache">Не кешувати</string>
+    <string name="tms_1_screen">1 екран</string>
+    <string name="tms_2_screens">2 екрана (рекомендовано)</string>
+    <string name="tms_3_screens">3 екрана</string>
+    <string name="light">Світла</string>
+    <string name="dark">Темна</string>
 </resources>

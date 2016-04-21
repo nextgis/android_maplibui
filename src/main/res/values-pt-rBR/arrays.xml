@@ -21,18 +21,8 @@
   -->
 
 <resources>
-    <string-array name="coordinates_format">
-        <item>DD.DDDD</item>
-        <item>DD-MM.MM</item>
-        <item>DD-MM-SS.SS</item>
-    </string-array>
-    <string-array name="coordinates_format_val">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-    </string-array>
     <string-array name="tracker_min_dist_update">
-        <item>Most frequently</item>
+        <item>@string/most_frequently</item>
         <item>1 m</item>
         <item>5 m</item>
         <item>10 m</item>
@@ -45,7 +35,7 @@
         <item>300 m</item>
     </string-array>
     <string-array name="tracker_min_time_between_updates">
-        <item>Most frequently</item>
+        <item>@string/most_frequently</item>
         <item>1 sec</item>
         <item>2 sec</item>
         <item>5 sec</item>
@@ -60,25 +50,5 @@
         <item>20 min</item>
         <item>30 min</item>
         <item>45 min</item>
-    </string-array>
-    <string-array name="status_panel_mode">
-        <item>Do not show info panel</item>
-        <item>Show out edit mode</item>
-        <item>Always show</item>
-    </string-array>
-    <string-array name="current_location_mode">
-        <item>Do not show current location</item>
-        <item>Show marker only</item>
-        <item>Show marker and accuracy radius</item>
-    </string-array>
-    <string-array name="tms_tile_cache_size">
-        <item>No cache</item>
-        <item>1 screen</item>
-        <item>2 screens (recommended)</item>
-        <item>3 screens</item>
-    </string-array>
-    <string-array name="theme">
-        <item>Light</item>
-        <item>Dark</item>
     </string-array>
 </resources>

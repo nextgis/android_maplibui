@@ -255,4 +255,17 @@
     <string name="location_network">Wi-Fi and mobile network coordinates</string>
     <string name="title_edit_by_walk">Edit by walk</string>
     <string name="new_tms">New</string>
+    <string name="most_frequently">Most frequently</string>
+    <string name="panel_hide">Do not show info panel</string>
+    <string name="panel_show">Show out edit mode</string>
+    <string name="panel_always">Always show</string>
+    <string name="location_hide">Do not show current location</string>
+    <string name="location_marker">Show marker only</string>
+    <string name="location_both">Show marker and accuracy radius</string>
+    <string name="tms_no_cache">No cache</string>
+    <string name="tms_1_screen">1 screen</string>
+    <string name="tms_2_screens">2 screens (recommended)</string>
+    <string name="tms_3_screens">3 screens</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
 </resources>

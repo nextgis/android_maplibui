@@ -21,18 +21,8 @@
   -->
 
 <resources>
-    <string-array name="coordinates_format">
-        <item>DD.DDDD</item>
-        <item>DD-MM.MM</item>
-        <item>DD-MM-SS.SS</item>
-    </string-array>
-    <string-array name="coordinates_format_val">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-    </string-array>
     <string-array name="tracker_min_dist_update">
-        <item>Якнайчастіше</item>
+        <item>@string/most_frequently</item>
         <item>1 м</item>
         <item>5 м</item>
         <item>10 м</item>
@@ -45,7 +35,7 @@
         <item>300 м</item>
     </string-array>
     <string-array name="tracker_min_time_between_updates">
-        <item>Якнайчастіше</item>
+        <item>@string/most_frequently</item>
         <item>1 сек</item>
         <item>2 сек</item>
         <item>5 сек</item>
@@ -60,25 +50,5 @@
         <item>20 хв</item>
         <item>30 хв</item>
         <item>45 хв</item>
-    </string-array>
-    <string-array name="status_panel_mode">
-        <item>Не показувати панель</item>
-        <item>Показувати поза редагуванням</item>
-        <item>Показувати завжди</item>
-    </string-array>
-    <string-array name="current_location_mode">
-        <item>Не показувати положення</item>
-        <item>Показувати лише маркер</item>
-        <item>Показувати маркер та коло точності</item>
-    </string-array>
-    <string-array name="tms_tile_cache_size">
-        <item>Не кешувати</item>
-        <item>1 екран</item>
-        <item>2 екрана (рекомендовано)</item>
-        <item>3 екрана</item>
-    </string-array>
-    <string-array name="theme">
-        <item>Світла</item>
-        <item>Темна</item>
     </string-array>
 </resources>

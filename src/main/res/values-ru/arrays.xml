@@ -24,7 +24,7 @@
 
 <resources>
     <string-array name="tracker_min_dist_update">
-        <item>Наиболее часто</item>
+        <item>@string/most_frequently</item>
         <item>1 м</item>
         <item>5 м</item>
         <item>10 м</item>
@@ -37,7 +37,7 @@
         <item>300 м</item>
     </string-array>
     <string-array name="tracker_min_time_between_updates">
-        <item>Наиболее часто</item>
+        <item>@string/most_frequently</item>
         <item>1 сек</item>
         <item>2 сек</item>
         <item>5 сек</item>
@@ -52,25 +52,5 @@
         <item>20 мин</item>
         <item>30 мин</item>
         <item>45 мин</item>
-    </string-array>
-    <string-array name="status_panel_mode">
-        <item>Не показывать панель</item>
-        <item>Показывать только вне редактирования</item>
-        <item>Показывать всегда</item>
-    </string-array>
-    <string-array name="current_location_mode">
-        <item>Не показывать текущее местоположение</item>
-        <item>Показывать только маркер</item>
-        <item>Показывать маркер и радиус точности</item>
-    </string-array>
-    <string-array name="tms_tile_cache_size">
-        <item>Без кэша</item>
-        <item>1 экран</item>
-        <item>2 экрана (рекомендуется)</item>
-        <item>3 экрана</item>
-    </string-array>
-    <string-array name="theme">
-        <item>Светлая</item>
-        <item>Темная</item>
     </string-array>
 </resources>
