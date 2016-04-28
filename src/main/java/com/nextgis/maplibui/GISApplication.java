@@ -55,7 +55,6 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import static com.nextgis.maplib.util.Constants.MAP_EXT;
-import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_MAP;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIODICALLY;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
@@ -172,12 +171,18 @@ public abstract class GISApplication extends Application
             return null;
         }
 
-        if (mAccountManager == null)
+        if (mAccountManager == null) {
+            if(Constants.DEBUG_MODE)
+                Log.d(Constants.TAG, "mAccountManager is NULL");
             return null;
+        }
         try {
             for (Account account : mAccountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
-                if (account == null)
+                if (account == null) {
+                    if(Constants.DEBUG_MODE)
+                        Log.d(Constants.TAG, "account for type " + Constants.NGW_ACCOUNT_TYPE + " is NULL");
                     continue;
+                }
                 if(Constants.DEBUG_MODE)
                     Log.d(Constants.TAG, "getAccount check account: " + account.toString());
                 if (account.name.equals(accountName)) {
