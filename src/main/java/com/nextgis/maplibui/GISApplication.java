@@ -82,7 +82,6 @@ public abstract class GISApplication extends Application
 
         mGpsEventSource = new GpsEventSource(this);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mAccountManager = AccountManager.get(getApplicationContext());
 
         getMap();
 
@@ -171,7 +170,7 @@ public abstract class GISApplication extends Application
             return null;
         }
 
-        if (mAccountManager == null) {
+        if (!isAccountManagerValid()) {
             if(Constants.DEBUG_MODE)
                 Log.d(Constants.TAG, "mAccountManager is NULL");
             return null;
@@ -229,7 +228,7 @@ public abstract class GISApplication extends Application
             return bool;
         }
 
-        if (mAccountManager == null)
+        if (!isAccountManagerValid())
             return bool;
 
         try {
@@ -258,7 +257,7 @@ public abstract class GISApplication extends Application
             return "";
         }
 
-        if (mAccountManager == null)
+        if (!isAccountManagerValid())
             return "";
 
         try {
@@ -291,7 +290,7 @@ public abstract class GISApplication extends Application
             return false;
         }
 
-        if (mAccountManager == null)
+        if (!isAccountManagerValid())
             return false;
 
         final Account account = new Account(name, Constants.NGW_ACCOUNT_TYPE);
@@ -343,9 +342,16 @@ public abstract class GISApplication extends Application
             return "";
         }
 
-        if (mAccountManager == null)
+        if (!isAccountManagerValid())
             return "";
 
         return mAccountManager.getUserData(account, key);
+    }
+
+    private boolean isAccountManagerValid(){
+        if(null == mAccountManager){
+            mAccountManager = AccountManager.get(getApplicationContext());
+        }
+        return null != mAccountManager;
     }
 }
