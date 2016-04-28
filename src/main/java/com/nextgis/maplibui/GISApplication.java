@@ -171,15 +171,11 @@ public abstract class GISApplication extends Application
         }
 
         if (!isAccountManagerValid()) {
-            if(Constants.DEBUG_MODE)
-                Log.d(Constants.TAG, "mAccountManager is NULL");
             return null;
         }
         try {
             for (Account account : mAccountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
                 if (account == null) {
-                    if(Constants.DEBUG_MODE)
-                        Log.d(Constants.TAG, "account for type " + Constants.NGW_ACCOUNT_TYPE + " is NULL");
                     continue;
                 }
                 if(Constants.DEBUG_MODE)
