@@ -84,7 +84,6 @@ public abstract class GISApplication extends Application
         mGpsEventSource = new GpsEventSource(this);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mAccountManager = AccountManager.get(getApplicationContext());
-        Log.d(TAG, "GISApplication: AccountManager.get(" + getApplicationContext() + ")");
 
         getMap();
 
@@ -179,6 +178,8 @@ public abstract class GISApplication extends Application
             for (Account account : mAccountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
                 if (account == null)
                     continue;
+                if(Constants.DEBUG_MODE)
+                    Log.d(Constants.TAG, "getAccount check account: " + account.toString());
                 if (account.name.equals(accountName)) {
                     return account;
                 }
@@ -252,6 +253,9 @@ public abstract class GISApplication extends Application
             return "";
         }
 
+        if (mAccountManager == null)
+            return "";
+
         try {
             return mAccountManager.getPassword(account);
         } catch (SecurityException e) {
@@ -281,6 +285,10 @@ public abstract class GISApplication extends Application
         if(!PermissionUtil.hasPermission(this, ConstantsUI.PERMISSION_AUTHENTICATE_ACCOUNTS)){
             return false;
         }
+
+        if (mAccountManager == null)
+            return false;
+
         final Account account = new Account(name, Constants.NGW_ACCOUNT_TYPE);
 
         Bundle userData = new Bundle();
@@ -329,6 +337,9 @@ public abstract class GISApplication extends Application
         if(!PermissionUtil.hasPermission(this, ConstantsUI.PERMISSION_AUTHENTICATE_ACCOUNTS)){
             return "";
         }
+
+        if (mAccountManager == null)
+            return "";
 
         return mAccountManager.getUserData(account, key);
     }
