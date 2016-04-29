@@ -191,4 +191,8 @@
         <item>@string/type_edit_circle</item>
         <item>@string/type_crossed_box</item>
     </string-array>
+    <string-array name="renderers" translatable="false">
+        <item>@string/simple_renderer</item>
+        <item>@string/rule_renderer</item>
+    </string-array>
 </resources>

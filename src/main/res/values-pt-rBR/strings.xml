@@ -268,4 +268,11 @@
     <string name="tms_3_screens">3 screens</string>
     <string name="light">Light</string>
     <string name="dark">Dark</string>
+    <string name="renderer">Render</string>
+    <string name="simple_renderer">Simple</string>
+    <string name="rule_renderer">Rule</string>
+    <string name="rules">Rules</string>
+    <string name="default_style">Default style</string>
+    <string name="value">Value</string>
+    <string name="id">ID</string>
 </resources>

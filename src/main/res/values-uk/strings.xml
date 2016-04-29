@@ -267,4 +267,11 @@
     <string name="tms_3_screens">3 екрана</string>
     <string name="light">Світла</string>
     <string name="dark">Темна</string>
+    <string name="renderer">Рендер</string>
+    <string name="simple_renderer">Обычный</string>
+    <string name="rule_renderer">По правилу</string>
+    <string name="rules">Правила</string>
+    <string name="default_style">Стиль по-умолчанию</string>
+    <string name="value">Значение</string>
+    <string name="id">ИД</string>
 </resources>
