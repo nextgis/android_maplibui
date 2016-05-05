@@ -178,7 +178,7 @@ public class VectorLayerSettingsActivity
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     mVectorLayer.setRenderer(mRenderers.get(position).getRenderer());
-                    FragmentManager fm = getFragmentManager();
+                    FragmentManager fm = getActivity().getSupportFragmentManager();
                     FragmentTransaction ft = fm.beginTransaction();
                     Fragment settings = mRenderers.get(position).getSettingsScreen();
                     ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -192,8 +192,6 @@ public class VectorLayerSettingsActivity
                 }
             });
 
-            IRenderer renderer = mVectorLayer.getRenderer();
-            Fragment settings = null;
             Style style = null;
             try {
                 style = mVectorLayer.getDefaultStyle();
@@ -201,31 +199,25 @@ public class VectorLayerSettingsActivity
                 e.printStackTrace();
             }
 
-            if (renderer instanceof RuleFeatureRenderer) {
-                RuleFeatureRendererUI rfr = new RuleFeatureRendererUI((RuleFeatureRenderer) renderer, mVectorLayer);
-                settings = rfr.getSettingsScreen();
-
+            if (mRenderer instanceof RuleFeatureRenderer) {
+                RuleFeatureRendererUI rfr = new RuleFeatureRendererUI((RuleFeatureRenderer) mRenderer, mVectorLayer);
                 mRenderers.add(new SimpleFeatureRendererUI(new SimpleFeatureRenderer(mVectorLayer, style)));
                 mRenderers.add(rfr);
                 spinner.setSelection(1);
-            } else if (renderer instanceof SimpleFeatureRenderer) {
-                SimpleFeatureRendererUI sfr = new SimpleFeatureRendererUI((SimpleFeatureRenderer) renderer);
-                settings = sfr.getSettingsScreen();
-
+            } else if (mRenderer instanceof SimpleFeatureRenderer) {
+                SimpleFeatureRendererUI sfr = new SimpleFeatureRendererUI((SimpleFeatureRenderer) mRenderer);
                 mRenderers.add(sfr);
-                mRenderers.add(new RuleFeatureRendererUI(new RuleFeatureRenderer(mVectorLayer, new FieldStyleRule(mVectorLayer, null), style), mVectorLayer));
+                mRenderers.add(new RuleFeatureRendererUI(new RuleFeatureRenderer(mVectorLayer, new FieldStyleRule(mVectorLayer), style), mVectorLayer));
                 spinner.setSelection(0);
             }
 
-            if (settings != null) {
-                FragmentManager fm = getFragmentManager();
-                FragmentTransaction ft = fm.beginTransaction();
-                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                ft.add(R.id.settings, settings);
-                ft.commit();
-            }
-
             return v;
+        }
+
+        @Override
+        public void onDestroyView() {
+            super.onDestroyView();
+            mRenderers.clear();
         }
 
         @Override

@@ -26,7 +26,7 @@ import android.support.v4.app.Fragment;
 import com.nextgis.maplib.api.IRenderer;
 
 public abstract class RendererUI {
-    protected static IRenderer mRenderer;
+    protected IRenderer mRenderer;
     protected Fragment mSettings;
 
     public IRenderer getRenderer() {
