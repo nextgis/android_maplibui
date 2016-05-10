@@ -563,7 +563,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
             protected Void doInBackground(Void... params) {
                 if (!mFile.exists()) {
                     try {
-                        int size = (int) (16 * (getResources().getDisplayMetrics().density / 160));
+                        int size = (int) (16 * (getContext().getResources().getDisplayMetrics().density / 160));
                         if (size > 64)
                             size = 64;
 
@@ -571,7 +571,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                         if (mFile.getName().equals("default"))
                             iconUrl = QMS_ICON_URL + mFile.getName() + QMS_ICON_APPENDIX;
                         else
-                            iconUrl = QMS_ICON_URL + mFile.getName() + QMS_ICON_CONTENT;;
+                            iconUrl = QMS_ICON_URL + mFile.getName() + QMS_ICON_CONTENT;
 
                         iconUrl = iconUrl.replace("{w}", size + "").replace("{h}", size + "");
                         HttpURLConnection connection = NetworkUtil.getHttpConnection("GET", iconUrl, null, null);
