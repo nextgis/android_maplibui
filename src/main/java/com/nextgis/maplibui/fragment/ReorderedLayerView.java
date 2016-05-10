@@ -346,6 +346,7 @@ public class ReorderedLayerView
             case MotionEvent.ACTION_UP:
                 touchEventsEnded();
                 setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                ((LayersListAdapter) getAdapter()).notifyDataChanged();
                 break;
             case MotionEvent.ACTION_CANCEL:
                 touchEventsCancelled();
