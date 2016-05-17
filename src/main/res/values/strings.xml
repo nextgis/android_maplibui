@@ -279,4 +279,5 @@
     <string name="value">Value</string>
     <string name="id">ID</string>
     <string name="replace_field_rule">All rules will be deleted due to changing rule field. Are you sure?</string>
+    <string name="new_gis">Create GIS</string>
 </resources>

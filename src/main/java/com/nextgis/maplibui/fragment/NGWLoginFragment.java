@@ -24,14 +24,19 @@
 package com.nextgis.maplibui.fragment;
 
 import android.accounts.Account;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -74,8 +79,16 @@ public class NGWLoginFragment
         if (null == getParentFragment()) {
             setRetainInstance(true);
         }
+
+        setHasOptionsMenu(true);
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        Intent newGIS = new Intent(Intent.ACTION_VIEW, Uri.parse("http://my.nextgis.com"));
+        MenuItemCompat.setShowAsAction(menu.add(R.string.new_gis).setIntent(newGIS), MenuItemCompat.SHOW_AS_ACTION_ALWAYS);
+    }
 
     public void setForNewAccount(boolean forNewAccount)
     {
