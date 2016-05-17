@@ -43,13 +43,13 @@
     <string name="ngw_login_description">Введіть посилання на сервер NextGIS Web, ваш логін і пароль</string>
     <string name="ngw_edit_login_description">Введіть ваш логін і пароль для серверу NextGIS Web</string>
     <string name="ngw_url">Посилання на NextGIS Web</string>
-    <string name="password">Пароль для з\'єднання з сервером</string>
+    <string name="password">Пароль</string>
     <string name="login">Логін</string>
     <string name="user_name">Логін</string>
     <string name="canceled">Скасовано</string>
     <string name="account_already_exists">Акаунт вже існує</string>
     <string name="error_login">Помилка входу</string>
-    <string name="account_setup">Налаштування акаунту</string>
+    <string name="add_nextgis">Додати NextGIS</string>
     <string name="ngw_settings">Налаштування NextGIS Web</string>
     <string name="add_account">Додати акаунт</string>
     <string name="add_account_summary">Додати акаунт NextGIS Web</string>
@@ -60,7 +60,7 @@
     <string name="wait_sync_stopping">Очікування зупинки синхронізації</string>
     <string name="add">Додати</string>
     <string name="select">Вибрати</string>
-    <string name="select_ngw_layer">Вибрати шар NextGIS Web</string>
+    <string name="choose_layers">Вибрати шар</string>
     <string name="ngw_account">Акаунт NextGIS Web</string>
     <string name="loading_summary">Зачекайте трохи. Дані завантажуються</string>
     <string name="up_dots">..</string>
@@ -277,4 +277,7 @@
     <string name="delete_account_warn_msg">Учетная запись будет удалена!\nВсе слои будут удалены!\nСинхронизация будет остановлена!</string>
     <string name="replace_field_rule">Все текущие правила будут удалены из-за смены поля для правила. Вы уверены?</string>
     <string name="new_gis">Создать ГИС</string>
+    <string name="manual_ngw">Собственные настройки</string>
+    <string name="instance_name">Имя ГИС</string>
+    <string name="ngw_from_my_nextgis">ГИС из my.nextgis.com</string>
 </resources>

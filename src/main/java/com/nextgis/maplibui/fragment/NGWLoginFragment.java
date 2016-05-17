@@ -25,6 +25,7 @@ package com.nextgis.maplibui.fragment;
 
 import android.accounts.Account;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -32,6 +33,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -40,6 +42,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,6 +63,9 @@ public class NGWLoginFragment
     protected EditText mLogin;
     protected EditText mPassword;
     protected Button   mSignInButton;
+    protected TextView mLoginDescription;
+    protected TextView mLoginTitle;
+    protected SwitchCompat mManual;
 
     protected String mUrlText   = "";
     protected String mLoginText = "";
@@ -139,12 +145,33 @@ public class NGWLoginFragment
         mLogin.addTextChangedListener(watcher);
         mPassword.addTextChangedListener(watcher);
 
-        TextView loginDescription = (TextView) view.findViewById(R.id.login_description);
+        mManual = (SwitchCompat) view.findViewById(R.id.manual);
+        mManual.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    mURL.setCompoundDrawables(null, null, null, null);
+                    mURL.setHint(R.string.ngw_url);
+                    mLoginTitle.setText(R.string.ngw_login_title);
+                    mLoginDescription.setVisibility(View.VISIBLE);
+                } else {
+                    @SuppressWarnings("deprecation")
+                    Drawable addition = getResources().getDrawable(R.drawable.nextgis_addition);
+                    mURL.setCompoundDrawablesWithIntrinsicBounds(null, null, addition, null);
+                    mURL.setHint(R.string.instance_name);
+                    mLoginTitle.setText(R.string.ngw_from_my_nextgis);
+                    mLoginDescription.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        mLoginTitle = (TextView) view.findViewById(R.id.login_title);
+        mLoginDescription = (TextView) view.findViewById(R.id.login_description);
 
         if (mForNewAccount) {
-            loginDescription.setText(R.string.ngw_login_description);
+            mLoginDescription.setText(R.string.ngw_login_description);
         } else {
-            loginDescription.setText(R.string.ngw_edit_login_description);
+            mLoginDescription.setText(R.string.ngw_edit_login_description);
             mURL.setText(mUrlText);
             mLogin.setText(mLoginText);
             mURL.setEnabled(mChangeAccountUrl);
@@ -205,7 +232,7 @@ public class NGWLoginFragment
     {
         if (id == R.id.auth_token_loader) {
             return new HTTPLoader(
-                    getActivity().getApplicationContext(), mURL.getText().toString(),
+                    getActivity().getApplicationContext(), mUrlText,
                     mLogin.getText().toString(), mPassword.getText().toString());
         }
         return null;
@@ -222,7 +249,7 @@ public class NGWLoginFragment
             if (token != null && token.length() > 0) {
                 String accountName = "";
                 try {
-                    String url = mURL.getText().toString().trim();
+                    String url = mUrlText;
                     if (!url.startsWith("http")) {
                         url = "http://" + url;
                     }
@@ -237,7 +264,7 @@ public class NGWLoginFragment
                         accountName += uri.getPath();
                     }
                 } catch (URISyntaxException e) {
-                    accountName = mURL.getText().toString();
+                    accountName = mUrlText;
                 }
 
                 onTokenReceived(accountName, token);
@@ -256,7 +283,7 @@ public class NGWLoginFragment
 
         if (mForNewAccount) {
             boolean accountAdded = app.addAccount(
-                    accountName, mURL.getText().toString(), mLogin.getText().toString(),
+                    accountName, mUrlText, mLogin.getText().toString(),
                     mPassword.getText().toString(), token);
 
             if (null != mOnAddAccountListener) {
@@ -269,7 +296,7 @@ public class NGWLoginFragment
 
         } else {
             if (mChangeAccountUrl) {
-                app.setUserData(accountName, "url", mURL.getText().toString().trim());
+                app.setUserData(accountName, "url", mUrlText);
             }
 
             if (mChangeAccountLogin) {
@@ -297,6 +324,10 @@ public class NGWLoginFragment
         public void afterTextChanged(Editable s)
         {
             updateButtonState();
+            mUrlText = mURL.getText().toString().trim();
+
+            if (!mManual.isChecked())
+                mUrlText += ".nextgis.com";
         }
 
 

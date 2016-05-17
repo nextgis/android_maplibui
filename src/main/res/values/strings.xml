@@ -44,13 +44,13 @@
     <string name="ngw_login_description">Input NextGIS Web server URL, your login and password</string>
     <string name="ngw_edit_login_description">Input your login and password for the NextGIS Web server</string>
     <string name="ngw_url">NextGIS Web URL</string>
-    <string name="password">Password to connect server</string>
+    <string name="password">Password</string>
     <string name="login">Login</string>
     <string name="user_name">Login</string>
     <string name="canceled">Canceled</string>
     <string name="account_already_exists">Account already exist</string>
     <string name="error_login">Login failed</string>
-    <string name="account_setup">Account setup</string>
+    <string name="add_nextgis">Add NextGIS</string>
     <string name="ngw_settings">NextGIS Web settings</string>
     <string name="add_account">Add account</string>
     <string name="add_account_summary">Add NextGIS Web account</string>
@@ -62,7 +62,7 @@
     <string name="wait_sync_stopping">Waiting of synchronization stopping</string>
     <string name="add">Add</string>
     <string name="select">Select</string>
-    <string name="select_ngw_layer">Select NextGIS Web Layer</string>
+    <string name="choose_layers">Select layer</string>
     <string name="ngw_account">NextGIS Web account</string>
     <string name="loading_summary">Wait a little. The data is loading</string>
     <string name="up_dots">..</string>
@@ -280,4 +280,7 @@
     <string name="id">ID</string>
     <string name="replace_field_rule">All rules will be deleted due to changing rule field. Are you sure?</string>
     <string name="new_gis">Create GIS</string>
+    <string name="manual_ngw">Manual settings</string>
+    <string name="instance_name">Instance name</string>
+    <string name="ngw_from_my_nextgis">Account from my.nextgis.com</string>
 </resources>

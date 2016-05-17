@@ -27,7 +27,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
@@ -36,7 +35,6 @@ import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.NGWLookupTable;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.MapUtil;
-import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.dialog.CreateFromQMSLayerDialog;
@@ -82,7 +80,7 @@ public class LayerFactoryUI
                                     Connection.NGWResourceTypeVectorLayer |
                                     Connection.NGWResourceTypeRasterLayer |
                                     Connection.NGWResourceTypeWMSClient)
-                    .setTitle(context.getString(R.string.select_ngw_layer))
+                    .setTitle(context.getString(R.string.choose_layers))
                     .setTheme(fragmentActivity.getThemeId())
                     .show(fragmentActivity.getSupportFragmentManager(), "create_ngw_layer");
         }
