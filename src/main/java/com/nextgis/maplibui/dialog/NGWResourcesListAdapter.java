@@ -235,7 +235,7 @@ public class NGWResourcesListAdapter
             tvText.setText(context.getString(R.string.add_account));
 
             TextView tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-            tvDesc.setText(context.getString(R.string.add_account_summary));
+            tvDesc.setVisibility(View.GONE);
         } else {
             if (null == v || v.getId() != R.id.resourcegroup_row) {
                 LayoutInflater inflater = LayoutInflater.from(context);
@@ -249,7 +249,7 @@ public class NGWResourcesListAdapter
             tvText.setText(connection.getName());
 
             TextView tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-            tvDesc.setText(context.getString(R.string.ngw_account));
+            tvDesc.setVisibility(View.GONE);
         }
 
         return v;

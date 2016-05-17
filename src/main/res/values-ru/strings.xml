@@ -40,9 +40,7 @@
     <string name="error_invalid_url">Неправильный URL</string>
     <string name="qms_unavailable">Сервер геосервисов недоступен</string>
     <string name="nextgis_web">NextGIS Web</string>
-    <string name="ngw_login_title">Учетная запись в NextGIS Web</string>
-    <string name="ngw_login_description">Введите URL сервера NextGIS Web, имя пользователя и пароль</string>
-    <string name="ngw_edit_login_description">Введите имя пользователя и пароль для сервера NextGIS Web</string>
+    <string name="ngw_login_title">Аккаунт NextGIS Web</string>
     <string name="ngw_url">NextGIS Web URL</string>
     <string name="password">Пароль</string>
     <string name="login">Подключить</string>
@@ -50,10 +48,10 @@
     <string name="canceled">Отменено</string>
     <string name="account_already_exists">Учетная запись уже существует</string>
     <string name="error_login">Ошибка входа</string>
-    <string name="add_nextgis">Добавить NextGIS</string>
-    <string name="ngw_settings">Настройки NextGIS Web</string>
-    <string name="add_account">Добавить учетную запись</string>
-    <string name="add_account_summary">Добавить учетную запись NextGIS Web</string>
+    <string name="add_nextgis">Добавить из NextGIS</string>
+    <string name="ngw_settings">Настройки NextGIS</string>
+    <string name="new_account">Новый аккаунт</string>
+    <string name="add_account">Добавить аккаунт</string>
     <string name="delete_account">Удалить учетную запись</string>
     <string name="delete_account_ask">Удалить учетную запись?</string>
     <string name="delete_account_summary">Удаление учетной записи. Все слои связанные с этой учетной записью тоже будут удалены. Синхронизация будет остановлена.</string>
@@ -63,7 +61,6 @@
     <string name="add">Добавить</string>
     <string name="select">Выбор</string>
     <string name="choose_layers">Выбрать слой</string>
-    <string name="ngw_account">Учетная запись NextGIS Web</string>
     <string name="loading_summary">Подождите, идет загрузка данных</string>
     <string name="up_dots">..</string>
     <string name="up">Вверх</string>
@@ -278,7 +275,7 @@
     <string name="id">ИД</string>
     <string name="replace_field_rule">Все текущие правила будут удалены из-за смены поля для правила. Вы уверены?</string>
     <string name="new_gis">Создать ГИС</string>
-    <string name="manual_ngw">Собственные настройки</string>
+    <string name="manual_ngw">Расширенные настройки</string>
     <string name="instance_name">Имя ГИС</string>
-    <string name="ngw_from_my_nextgis">ГИС из my.nextgis.com</string>
+    <string name="ngw_from_my_nextgis">Создайте свою собственную ГИС на my.nextgis.com</string>
 </resources>

@@ -63,21 +63,13 @@
         android:text="@string/ngw_from_my_nextgis"
         android:textAppearance="?android:attr/textAppearanceLarge"/>
 
-    <TextView
-        android:id="@+id/login_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:text="@string/ngw_login_description"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:visibility="gone"/>
-
     <EditText
         android:id="@+id/url"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:autoLink="web"
+        android:drawableEnd="@drawable/nextgis_addition"
         android:drawableRight="@drawable/nextgis_addition"
         android:hint="@string/instance_name"
         android:inputType="textUri"/>

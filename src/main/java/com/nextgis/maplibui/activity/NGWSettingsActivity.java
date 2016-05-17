@@ -38,6 +38,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.PeriodicSync;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -134,8 +135,13 @@ public class NGWSettingsActivity
             //add "Add account" header
             header = new Header();
             header.title = getString(R.string.add_account);
-            header.summary = getString(R.string.add_account_summary);
             header.intent = new Intent(this, NGWLoginActivity.class);
+            target.add(header);
+
+            //add "New account" header
+            header = new Header();
+            header.title = getString(R.string.new_account);
+            header.intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://my.nextgis.com"));
             target.add(header);
         }
     }
@@ -235,14 +241,20 @@ public class NGWSettingsActivity
                 }
             }
             //add "Add account" preference
-            Preference preference = new Preference(this);
-            preference.setTitle(R.string.add_account);
-            preference.setSummary(R.string.add_account_summary);
+            Preference addAccount = new Preference(this);
+            addAccount.setTitle(R.string.add_account);
             Intent intent = new Intent(this, NGWLoginActivity.class);
-            preference.setIntent(intent);
+            addAccount.setIntent(intent);
+
+            //add "New account" preference
+            Preference newAccount = new Preference(this);
+            newAccount.setTitle(R.string.new_account);
+            Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse("http://my.nextgis.com"));
+            newAccount.setIntent(browser);
 
             if (null != screen) {
-                screen.addPreference(preference);
+                screen.addPreference(addAccount);
+                screen.addPreference(newAccount);
             }
         }
     }

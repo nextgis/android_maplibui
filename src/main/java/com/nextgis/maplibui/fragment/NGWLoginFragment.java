@@ -24,21 +24,16 @@
 package com.nextgis.maplibui.fragment;
 
 import android.accounts.Account;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -63,7 +58,6 @@ public class NGWLoginFragment
     protected EditText mLogin;
     protected EditText mPassword;
     protected Button   mSignInButton;
-    protected TextView mLoginDescription;
     protected TextView mLoginTitle;
     protected SwitchCompat mManual;
 
@@ -85,16 +79,8 @@ public class NGWLoginFragment
         if (null == getParentFragment()) {
             setRetainInstance(true);
         }
-
-        setHasOptionsMenu(true);
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        Intent newGIS = new Intent(Intent.ACTION_VIEW, Uri.parse("http://my.nextgis.com"));
-        MenuItemCompat.setShowAsAction(menu.add(R.string.new_gis).setIntent(newGIS), MenuItemCompat.SHOW_AS_ACTION_ALWAYS);
-    }
 
     public void setForNewAccount(boolean forNewAccount)
     {
@@ -144,6 +130,7 @@ public class NGWLoginFragment
         mURL.addTextChangedListener(watcher);
         mLogin.addTextChangedListener(watcher);
         mPassword.addTextChangedListener(watcher);
+        mLoginTitle = (TextView) view.findViewById(R.id.login_title);
 
         mManual = (SwitchCompat) view.findViewById(R.id.manual);
         mManual.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -152,26 +139,22 @@ public class NGWLoginFragment
                 if (isChecked) {
                     mURL.setCompoundDrawables(null, null, null, null);
                     mURL.setHint(R.string.ngw_url);
+                    mLogin.setText(null);
+                    mLogin.setEnabled(true);
                     mLoginTitle.setText(R.string.ngw_login_title);
-                    mLoginDescription.setVisibility(View.VISIBLE);
                 } else {
                     @SuppressWarnings("deprecation")
                     Drawable addition = getResources().getDrawable(R.drawable.nextgis_addition);
                     mURL.setCompoundDrawablesWithIntrinsicBounds(null, null, addition, null);
                     mURL.setHint(R.string.instance_name);
+                    mLogin.setText("administrator");
+                    mLogin.setEnabled(false);
                     mLoginTitle.setText(R.string.ngw_from_my_nextgis);
-                    mLoginDescription.setVisibility(View.GONE);
                 }
             }
         });
 
-        mLoginTitle = (TextView) view.findViewById(R.id.login_title);
-        mLoginDescription = (TextView) view.findViewById(R.id.login_description);
-
-        if (mForNewAccount) {
-            mLoginDescription.setText(R.string.ngw_login_description);
-        } else {
-            mLoginDescription.setText(R.string.ngw_edit_login_description);
+        if (!mForNewAccount) {
             mURL.setText(mUrlText);
             mLogin.setText(mLoginText);
             mURL.setEnabled(mChangeAccountUrl);
