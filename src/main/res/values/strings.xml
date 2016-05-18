@@ -280,4 +280,6 @@
     <string name="instance_name">Instance name</string>
     <string name="ngw_from_my_nextgis">Create your own GIS at my.nextgis.com</string>
     <string name="new_account">New account</string>
+    <string name="guest">Guest</string>
+    <string name="field_not_filled">Some fields are empty</string>
 </resources>

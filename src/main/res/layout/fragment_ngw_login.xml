@@ -30,6 +30,7 @@
               tools:context="com.nextgis.maplibui.fragment.NGWLoginFragment">
 
     <LinearLayout
+        android:id="@+id/ll_manual"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:layout_marginBottom="5dp"
@@ -80,6 +81,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:ems="10"
+        android:enabled="false"
         android:hint="@string/user_name"
         android:inputType="textPersonName"/>
 
@@ -92,8 +94,26 @@
         android:hint="@string/password"
         android:inputType="textPassword"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+
+        <CheckBox
+            android:id="@+id/guest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="@string/guest"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+    </LinearLayout>
+
     <TextView
-        android:id="@+id/textView3"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_horizontal"
@@ -106,6 +126,5 @@
         android:layout_gravity="center_horizontal"
         android:layout_margin="10dp"
         android:layout_weight="0"
-        android:enabled="false"
         android:text="@string/login"/>
 </LinearLayout>

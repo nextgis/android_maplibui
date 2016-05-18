@@ -37,12 +37,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGWSettingsActivity;
 import com.nextgis.maplibui.service.HTTPLoader;
@@ -54,12 +56,16 @@ public class NGWLoginFragment
         extends Fragment
         implements LoaderManager.LoaderCallbacks<String>, View.OnClickListener
 {
+    protected static final String ENDING = ".nextgis.com";
+    protected static final String DEFAULT_ACCOUNT = "administrator";
+
     protected EditText mURL;
     protected EditText mLogin;
     protected EditText mPassword;
     protected Button   mSignInButton;
     protected TextView mLoginTitle;
     protected SwitchCompat mManual;
+    protected CheckBox mGuest;
 
     protected String mUrlText   = "";
     protected String mLoginText = "";
@@ -128,9 +134,16 @@ public class NGWLoginFragment
 
         TextWatcher watcher = new LocalTextWatcher();
         mURL.addTextChangedListener(watcher);
-        mLogin.addTextChangedListener(watcher);
-        mPassword.addTextChangedListener(watcher);
         mLoginTitle = (TextView) view.findViewById(R.id.login_title);
+
+        mGuest = (CheckBox) view.findViewById(R.id.guest);
+        mGuest.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mLogin.setEnabled(!isChecked && mManual.isChecked());
+                mPassword.setEnabled(!isChecked);
+            }
+        });
 
         mManual = (SwitchCompat) view.findViewById(R.id.manual);
         mManual.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -140,25 +153,42 @@ public class NGWLoginFragment
                     mURL.setCompoundDrawables(null, null, null, null);
                     mURL.setHint(R.string.ngw_url);
                     mLogin.setText(null);
-                    mLogin.setEnabled(true);
+                    mLogin.setEnabled(!mGuest.isChecked());
                     mLoginTitle.setText(R.string.ngw_login_title);
                 } else {
                     @SuppressWarnings("deprecation")
                     Drawable addition = getResources().getDrawable(R.drawable.nextgis_addition);
                     mURL.setCompoundDrawablesWithIntrinsicBounds(null, null, addition, null);
                     mURL.setHint(R.string.instance_name);
-                    mLogin.setText("administrator");
+                    mLogin.setText(DEFAULT_ACCOUNT);
                     mLogin.setEnabled(false);
                     mLoginTitle.setText(R.string.ngw_from_my_nextgis);
                 }
             }
         });
 
+        mLogin.setText(DEFAULT_ACCOUNT);
         if (!mForNewAccount) {
-            mURL.setText(mUrlText);
-            mLogin.setText(mLoginText);
+            mManual.setEnabled(false);
             mURL.setEnabled(mChangeAccountUrl);
-            mLogin.setEnabled(mChangeAccountLogin);
+            view.findViewById(R.id.ll_manual).setVisibility(View.GONE);
+
+            if (mUrlText.endsWith(ENDING)) {
+                mURL.setText(mUrlText.replace(ENDING, ""));
+                mLogin.setEnabled(false);
+            } else {
+                mManual.performClick();
+                mURL.setText(mUrlText);
+                mLogin.setText(mLoginText);
+                mLogin.setEnabled(mChangeAccountLogin);
+            }
+
+            boolean guest = Constants.NGW_ACCOUNT_GUEST.equals(mLoginText);
+            if (guest) {
+                mGuest.setChecked(true);
+                mLogin.setEnabled(false);
+                mPassword.setEnabled(false);
+            }
         }
 
         return view;
@@ -182,22 +212,28 @@ public class NGWLoginFragment
 
 
     @Override
-    public void onClick(View v)
-    {
+    public void onClick(View v) {
         if (v == mSignInButton) {
-            if (null != mLoader && mLoader.isStarted()) {
-                mLoader = getLoaderManager().restartLoader(R.id.auth_token_loader, null, this);
-            } else {
-                mLoader = getLoaderManager().initLoader(R.id.auth_token_loader, null, this);
+            boolean urlFilled = checkEditText(mURL);
+            boolean loginPasswordFilled = checkEditText(mLogin) && checkEditText(mPassword);
+            if (!urlFilled || (!mGuest.isChecked() && !loginPasswordFilled)) {
+                Toast.makeText(getActivity(), R.string.field_not_filled, Toast.LENGTH_SHORT).show();
+                return;
             }
-        }
-    }
 
+            if (!android.util.Patterns.WEB_URL.matcher(mUrlText).matches()) {
+                Toast.makeText(getActivity(), R.string.error_invalid_url, Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-    protected void updateButtonState()
-    {
-        if (checkEditText(mURL) && checkEditText(mLogin) && checkEditText(mPassword)) {
-            mSignInButton.setEnabled(true);
+            int id = mGuest.isChecked() ? R.id.non_auth_token_loader : R.id.auth_token_loader;
+            if (null != mLoader && mLoader.isStarted()) {
+                mLoader = getLoaderManager().restartLoader(id, null, this);
+            } else {
+                mLoader = getLoaderManager().initLoader(id, null, this);
+            }
+
+            mSignInButton.setEnabled(false);
         }
     }
 
@@ -213,12 +249,15 @@ public class NGWLoginFragment
             int id,
             Bundle args)
     {
+        String login = null;
+        String password = null;
+
         if (id == R.id.auth_token_loader) {
-            return new HTTPLoader(
-                    getActivity().getApplicationContext(), mUrlText,
-                    mLogin.getText().toString(), mPassword.getText().toString());
+            login = mLogin.getText().toString();
+            password = mPassword.getText().toString();
         }
-        return null;
+
+        return new HTTPLoader(getActivity().getApplicationContext(), mUrlText, login, password);
     }
 
 
@@ -228,33 +267,34 @@ public class NGWLoginFragment
             String token)
     {
         mSignInButton.setEnabled(true);
-        if (loader.getId() == R.id.auth_token_loader) {
-            if (token != null && token.length() > 0) {
-                String accountName = "";
-                try {
-                    String url = mUrlText;
-                    if (!url.startsWith("http")) {
-                        url = "http://" + url;
-                    }
-                    URI uri = new URI(url);
-                    if (uri.getHost() != null && uri.getHost().length() > 0) {
-                        accountName += uri.getHost();
-                    }
-                    if (uri.getPort() != 80 && uri.getPort() > 0) {
-                        accountName += ":" + uri.getPort();
-                    }
-                    if (uri.getPath() != null && uri.getPath().length() > 0) {
-                        accountName += uri.getPath();
-                    }
-                } catch (URISyntaxException e) {
-                    accountName = mUrlText;
-                }
 
-                onTokenReceived(accountName, token);
-            } else {
-                Toast.makeText(getActivity(), R.string.error_login, Toast.LENGTH_SHORT).show();
+        String accountName = "";
+        try {
+            String url = mUrlText;
+            if (!url.startsWith("http")) {
+                url = "http://" + url;
             }
+            URI uri = new URI(url);
+            if (uri.getHost() != null && uri.getHost().length() > 0) {
+                accountName += uri.getHost();
+            }
+            if (uri.getPort() != 80 && uri.getPort() > 0) {
+                accountName += ":" + uri.getPort();
+            }
+            if (uri.getPath() != null && uri.getPath().length() > 0) {
+                accountName += uri.getPath();
+            }
+        } catch (URISyntaxException e) {
+            accountName = mUrlText;
         }
+
+        if (loader.getId() == R.id.auth_token_loader) {
+            if (token != null && token.length() > 0)
+                onTokenReceived(accountName, token);
+            else
+                Toast.makeText(getActivity(), R.string.error_login, Toast.LENGTH_SHORT).show();
+        } else if (loader.getId() == R.id.non_auth_token_loader)
+            onTokenReceived(accountName, Constants.NGW_ACCOUNT_GUEST);
     }
 
 
@@ -263,33 +303,39 @@ public class NGWLoginFragment
             String token)
     {
         IGISApplication app = (IGISApplication) getActivity().getApplication();
+        boolean accountAdded = false;
 
         if (mForNewAccount) {
-            boolean accountAdded = app.addAccount(
-                    accountName, mUrlText, mLogin.getText().toString(),
-                    mPassword.getText().toString(), token);
+            String login = mLogin.getText().toString();
+            String password = mPassword.getText().toString();
 
-            if (null != mOnAddAccountListener) {
-                Account account = null;
-                if (accountAdded) {
-                    account = app.getAccount(accountName);
-                }
-                mOnAddAccountListener.onAddAccount(account, token, accountAdded);
+            if (token.equals(Constants.NGW_ACCOUNT_GUEST)) {
+                login = Constants.NGW_ACCOUNT_GUEST;
+                password = Constants.NGW_ACCOUNT_GUEST;
             }
 
+            accountAdded = app.addAccount(accountName, mUrlText, login, password, token);
         } else {
-            if (mChangeAccountUrl) {
+            if (mChangeAccountUrl)    // do we need this?
                 app.setUserData(accountName, "url", mUrlText);
-            }
 
-            if (mChangeAccountLogin) {
-                app.setUserData(accountName, "login", mLogin.getText().toString());
-            }
+            if (!token.equals(Constants.NGW_ACCOUNT_GUEST)) {
+                if (mChangeAccountLogin)
+                    app.setUserData(accountName, "login", mLogin.getText().toString());
 
-            app.setPassword(accountName, mPassword.getText().toString());
-            NGWSettingsActivity.updateAccountLayersCacheData(app, app.getAccount(accountName));
+                app.setPassword(accountName, mPassword.getText().toString());
+                NGWSettingsActivity.updateAccountLayersCacheData(app, app.getAccount(accountName));
+            }
 
             getActivity().finish();
+        }
+
+        if (null != mOnAddAccountListener) {
+            Account account = null;
+            if (accountAdded)
+                account = app.getAccount(accountName);
+
+            mOnAddAccountListener.onAddAccount(account, token, accountAdded);
         }
     }
 
@@ -301,34 +347,20 @@ public class NGWLoginFragment
     }
 
 
-    public class LocalTextWatcher
-            implements TextWatcher
-    {
-        public void afterTextChanged(Editable s)
-        {
-            updateButtonState();
+    public class LocalTextWatcher implements TextWatcher {
+        public void afterTextChanged(Editable s) {
             mUrlText = mURL.getText().toString().trim();
 
             if (!mManual.isChecked())
-                mUrlText += ".nextgis.com";
+                mUrlText += ENDING;
         }
 
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-        public void beforeTextChanged(
-                CharSequence s,
-                int start,
-                int count,
-                int after)
-        {
         }
 
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-        public void onTextChanged(
-                CharSequence s,
-                int start,
-                int before,
-                int count)
-        {
         }
     }
 

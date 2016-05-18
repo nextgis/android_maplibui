@@ -277,4 +277,6 @@
     <string name="instance_name">Имя ГИС</string>
     <string name="ngw_from_my_nextgis">Создайте свою собственную ГИС на my.nextgis.com</string>
     <string name="new_account">Новый аккаунт</string>
+    <string name="guest">Гость</string>
+    <string name="field_not_filled">Некоторые поля пустые</string>
 </resources>
