@@ -279,4 +279,5 @@
     <string name="new_account">New account</string>
     <string name="guest">Guest</string>
     <string name="field_not_filled">Some fields are empty</string>
+    <string name="web_map">Web map</string>
 </resources>

@@ -79,7 +79,8 @@ public class LayerFactoryUI
                             Connection.NGWResourceTypePostgisLayer |
                                     Connection.NGWResourceTypeVectorLayer |
                                     Connection.NGWResourceTypeRasterLayer |
-                                    Connection.NGWResourceTypeWMSClient)
+                                    Connection.NGWResourceTypeWMSClient |
+                                    Connection.NGWResourceTypeWebMap)
                     .setTitle(context.getString(R.string.choose_layers))
                     .setTheme(fragmentActivity.getThemeId())
                     .show(fragmentActivity.getSupportFragmentManager(), "create_ngw_layer");
