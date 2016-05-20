@@ -173,7 +173,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
             mEnabledColor = mPositive.getTextColors().getDefaultColor();
             setEnabled(mPositive, false);
 
-            mLayers = (ListView) dialog.findViewById(android.R.id.list);
+            mLayers = (ListView) dialog.findViewById(R.id.list);
             mProgress = (LinearLayout) dialog.findViewById(R.id.progressContainer);
             mQMSLayers = (LinearLayout) dialog.findViewById(R.id.qms_layers);
             mProgressBar = (ProgressBar) dialog.findViewById(R.id.progressBar);
@@ -407,12 +407,11 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                     data.put(KEY_ICON, layer.getString(KEY_ICON));
                     mData.add(data);
                 }
-
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
-            mAdapter = new LayersAdapter(mContext, mData, R.layout.item_qms_layer, new String[]{KEY_NAME}, new int[]{android.R.id.text1});
+            mAdapter = new LayersAdapter(mContext, mData, R.layout.item_qms_layer, new String[]{KEY_NAME}, new int[]{R.id.text1});
             mLayers.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
             mLayers.setAdapter(mAdapter);
 
@@ -452,7 +451,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            return createViewFromResource(mInflater, position, parent, mResource);
+            return createViewFromResource(mInflater, position, convertView, parent, mResource);
         }
 
         private void bindView(int position, View view) {
@@ -500,10 +499,15 @@ public class CreateFromQMSLayerDialog extends NGDialog {
             }
         }
 
-        private View createViewFromResource(LayoutInflater inflater, int position, ViewGroup parent, int resource) {
-            View v = inflater.inflate(resource, parent, false);
-            bindView(position, v);
-            return v;
+        private View createViewFromResource(LayoutInflater inflater, int position, View convertView, ViewGroup parent, int resource) {
+            View view;
+            if (convertView == null)
+                view = inflater.inflate(resource, parent, false);
+            else
+                view = convertView;
+
+            bindView(position, view);
+            return view;
         }
 
         @Override

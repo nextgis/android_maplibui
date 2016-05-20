@@ -21,7 +21,7 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<CheckedTextView android:id="@android:id/text1"
+<CheckedTextView android:id="@+id/text1"
                  xmlns:android="http://schemas.android.com/apk/res/android"
                  android:layout_width="match_parent"
                  android:layout_height="wrap_content"
