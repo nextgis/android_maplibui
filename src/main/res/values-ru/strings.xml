@@ -197,7 +197,7 @@
     <string name="cyan">голубой</string>
     <string name="select_color">Выбрать цвет</string>
     <string name="edit_account">Редактировать учетную запись</string>
-    <string name="edit_account_summary">Редатирование имени и пароля пользователя</string>
+    <string name="edit_account_summary">Изменение имени и пароля пользователя</string>
     <string name="tms_layer_cache_size">Размер кэша тайлов TMS</string>
     <string name="make_grayscale">Градации серого</string>
     <string name="contrast">Контраст: %1$.1f</string>
