@@ -140,7 +140,10 @@ public class NGWLoginFragment
         mGuest.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                int visibility = !isChecked ? View.VISIBLE : View.GONE;
                 mLogin.setEnabled(!isChecked && mManual.isChecked());
+                mLogin.setVisibility(visibility);
+                mPassword.setVisibility(visibility);
                 mPassword.setEnabled(!isChecked);
             }
         });

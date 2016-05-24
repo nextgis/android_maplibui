@@ -38,7 +38,7 @@
     <string name="tmstype_normal">TMS (OSGeo spec.)</string>
     <string name="error_invalid_url">Посилання недійсне</string>
     <string name="qms_unavailable">Сервер геосервисов недоступен</string>
-    <string name="nextgis_web">NextGIS Web</string>
+    <string name="nextgis_web">NextGIS</string>
     <string name="ngw_login_title">Акаунт NextGIS Web</string>
     <string name="ngw_url">Посилання на NextGIS Web</string>
     <string name="password">Пароль</string>
@@ -48,7 +48,7 @@
     <string name="account_already_exists">Акаунт вже існує</string>
     <string name="error_login">Помилка входу</string>
     <string name="add_nextgis">Додати из NextGIS</string>
-    <string name="ngw_settings">Налаштування NextGIS Web</string>
+    <string name="ngw_settings">Налаштування NextGIS </string>
     <string name="add_account">Добавить аккаунт</string>
     <string name="delete_account">Видалити акаунт</string>
     <string name="delete_account_ask">Видалити акаунт?</string>
@@ -263,7 +263,7 @@
     <string name="tms_3_screens">3 екрана</string>
     <string name="light">Світла</string>
     <string name="dark">Темна</string>
-    <string name="renderer">Рендер</string>
+    <string name="renderer">Отрисовка</string>
     <string name="simple_renderer">Обычный</string>
     <string name="rule_renderer">По правилу</string>
     <string name="rules">Правила</string>

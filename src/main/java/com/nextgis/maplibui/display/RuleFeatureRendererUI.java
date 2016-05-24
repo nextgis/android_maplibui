@@ -24,6 +24,7 @@ package com.nextgis.maplibui.display;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -44,6 +45,8 @@ import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.display.FieldStyleRule;
 import com.nextgis.maplib.display.RuleFeatureRenderer;
 import com.nextgis.maplib.display.Style;
+import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.MapContentProviderHelper;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
@@ -157,6 +160,12 @@ public class RuleFeatureRendererUI extends RendererUI {
                     if (newField.equals(mSelectedField))
                         return;
 
+                    if (mStyleRule.size() == 0) {
+                        mSelectedField = newField;
+                        fillFieldValues();
+                        return;
+                    }
+
                     AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
                     alert.setTitle(android.R.string.dialog_alert_title).setMessage(R.string.replace_field_rule)
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
@@ -230,7 +239,10 @@ public class RuleFeatureRendererUI extends RendererUI {
             String[] column = new String[]{Constants.FIELD_ID, mSelectedField};
             String[] from = new String[]{mSelectedField};
             int[] to = new int[]{android.R.id.text1};
-            mData = mLayer.query(column, null, null, null, null);
+
+            MapContentProviderHelper map = (MapContentProviderHelper) MapBase.getInstance();
+            SQLiteDatabase db = map.getDatabase(true);
+            mData = db.query(true, mLayer.getPath().getName(), column, null, null, column[1], null, null, null);
             mValueAdapter = new SimpleCursorAdapter(getContext(), android.R.layout.simple_spinner_item, mData, from, to, 0);
             mValueAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mStyleRule.setKey(mSelectedField);

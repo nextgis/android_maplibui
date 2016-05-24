@@ -39,7 +39,7 @@
     <string name="tmstype_normal">TMS (OSGeo)</string>
     <string name="error_invalid_url">Неправильный URL</string>
     <string name="qms_unavailable">Сервер геосервисов недоступен</string>
-    <string name="nextgis_web">NextGIS Web</string>
+    <string name="nextgis_web">NextGIS</string>
     <string name="ngw_login_title">Аккаунт NextGIS Web</string>
     <string name="ngw_url">NextGIS Web URL</string>
     <string name="password">Пароль</string>
@@ -266,7 +266,6 @@
     <string name="tms_3_screens">3 экрана</string>
     <string name="light">Светлая</string>
     <string name="dark">Тёмная</string>
-    <string name="renderer">Рендер</string>
     <string name="simple_renderer">Обычный</string>
     <string name="rule_renderer">По правилу</string>
     <string name="rules">Правила</string>
@@ -281,4 +280,5 @@
     <string name="guest">Гость</string>
     <string name="field_not_filled">Некоторые поля пустые</string>
     <string name="web_map">Веб карта</string>
+    <string name="renderer">Отрисовка</string>
 </resources>
