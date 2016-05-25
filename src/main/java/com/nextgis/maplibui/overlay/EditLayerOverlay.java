@@ -249,6 +249,9 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         if (mHistory.size() >= MAX_UNDO + 1)
             mHistory.removeFirst();
 
+        if(null == mFeature || null == mFeature.getGeometry())
+            return;
+
         mHistoryState++;
         mHistory.add(mFeature.getGeometry().copy());
         defineUndoRedo();
