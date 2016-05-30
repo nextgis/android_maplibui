@@ -42,7 +42,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
@@ -354,7 +353,7 @@ public class NGWLoginFragment
         public void afterTextChanged(Editable s) {
             mUrlText = mURL.getText().toString().trim();
 
-            if (!mManual.isChecked())
+            if (null != mManual && !mManual.isChecked())
                 mUrlText += ENDING;
         }
 
