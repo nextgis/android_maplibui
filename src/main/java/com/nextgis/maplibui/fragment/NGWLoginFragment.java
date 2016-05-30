@@ -305,7 +305,6 @@ public class NGWLoginFragment
             String token)
     {
         IGISApplication app = (IGISApplication) getActivity().getApplication();
-        boolean accountAdded = false;
 
         if (mForNewAccount) {
             String login = mLogin.getText().toString();
@@ -316,9 +315,18 @@ public class NGWLoginFragment
                 password = Constants.NGW_ACCOUNT_GUEST;
             }
 
-            accountAdded = app.addAccount(accountName, mUrlText, login, password, token);
+            boolean accountAdded = app.addAccount(accountName, mUrlText, login, password, token);
+
+            if (null != mOnAddAccountListener) {
+                Account account = null;
+                if (accountAdded)
+                    account = app.getAccount(accountName);
+
+                mOnAddAccountListener.onAddAccount(account, token, accountAdded);
+            }
+
         } else {
-            if (mChangeAccountUrl)    // do we need this?
+            if (mChangeAccountUrl)
                 app.setUserData(accountName, "url", mUrlText);
 
             if (!token.equals(Constants.NGW_ACCOUNT_GUEST)) {
@@ -330,14 +338,6 @@ public class NGWLoginFragment
             }
 
             getActivity().finish();
-        }
-
-        if (null != mOnAddAccountListener) {
-            Account account = null;
-            if (accountAdded)
-                account = app.getAccount(accountName);
-
-            mOnAddAccountListener.onAddAccount(account, token, accountAdded);
         }
     }
 
