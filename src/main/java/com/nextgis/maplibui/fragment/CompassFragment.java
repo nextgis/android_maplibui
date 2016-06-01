@@ -54,6 +54,8 @@ import com.nextgis.maplibui.util.BubbleSurfaceView;
 import com.nextgis.maplibui.util.CompassImage;
 import com.nextgis.maplibui.util.ControlHelper;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.NumberFormat;
 
 public class CompassFragment extends Fragment implements View.OnTouchListener {
@@ -154,7 +156,14 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
         else
             height = view.getRootView().getMeasuredHeight();
 
-        Bitmap bitmap = ControlHelper.getBitmap(getContext(), image, width, height);
+        InputStream is = null;
+        try {
+            is = getContext().getAssets().open(image);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Bitmap bitmap = ControlHelper.getBitmap(is, width, height);
         view.setImageBitmap(bitmap);
     }
 
