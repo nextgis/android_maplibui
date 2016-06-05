@@ -204,9 +204,9 @@
     <string name="brightness">Яркость</string>
     <string name="menu_zoom_extent">Увеличить до охвата</string>
     <string name="menu_download_tiles">Загрузить тайлы</string>
-    <string name="select_zoom_levels_to_download">Выберите уровни зума, чтобы загрузить тайлы в текущем охвате</string>
+    <string name="select_zoom_levels_to_download">Выберите масштабные уровни для загрузки тайлы в текущем охвате</string>
     <string name="start">Начать</string>
-    <string name="select_zoom_levels_to_download_title">Выберите уровни зума для загрузки</string>
+    <string name="select_zoom_levels_to_download_title">Выберите масштабные уровни для загрузки</string>
     <string name="download_complete">Загрузка завершена</string>
     <string name="download_in_progress">Загрузка…</string>
     <string name="cancel_download">Загрузка отменена</string>
@@ -220,7 +220,7 @@
     <string name="download_tiles_finished">Завершена загрузка тайлов</string>
     <string name="not_implemented">Пока не сделано</string>
     <string name="layer_lookuptable">Справочник</string>
-    <string name="zoom_levels_to_show">Уровни зума, на которых виден слой</string>
+    <string name="zoom_levels_to_show">Масштабные уровни, на которых виден слой</string>
     <string name="alpha">Непрозрачность</string>
     <string name="layerInfo">Информация о слое</string>
     <string name="geom_type">Тип геометрии</string>
