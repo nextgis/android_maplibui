@@ -30,6 +30,7 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.Application;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -75,10 +76,18 @@ public abstract class GISApplication extends Application
     protected SharedPreferences mSharedPreferences;
     protected AccountManager mAccountManager;
 
+    private static Application appHolder;
+    public IGISApplication getApp() {
+        return (IGISApplication) appHolder;
+    }
+
+
     @Override
     public void onCreate()
     {
         super.onCreate();
+
+        appHolder = this;
 
         mGpsEventSource = new GpsEventSource(this);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
