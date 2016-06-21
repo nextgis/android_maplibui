@@ -87,6 +87,7 @@ public class TMSLayerSettingsActivity
         if (null == mRasterLayer)
             return;
 
+        mRasterLayer.setName(mLayerName);
         mRasterLayer.setCacheSizeMultiply(mCacheSizeMulti);
 
         TMSRenderer tmsRenderer = (TMSRenderer) mRasterLayer.getRenderer();
