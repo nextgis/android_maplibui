@@ -98,6 +98,14 @@ public class LayerUtil {
             if (null == featuresCursor) // TODO toast no data ?
                 return;
 
+            JSONObject crs = new JSONObject();
+            crs.put(GEOJSON_TYPE, GEOJSON_NAME);
+            JSONObject crsName = new JSONObject();
+            crsName.put(GEOJSON_NAME, GEOJSON_CRS_EPSG_3857);
+            crs.put(GEOJSON_PROPERTIES, crsName);
+            obj.put(GEOJSON_CRS, crs);
+            obj.put(GEOJSON_TYPE, GEOJSON_TYPE_FeatureCollection);
+
             Feature feature;
             byte[] buffer = new byte[1024];
             int length;
@@ -139,14 +147,6 @@ public class LayerUtil {
             featuresCursor.close();
 
             obj.put(GEOJSON_TYPE_FEATURES, geoJSONFeatures);
-
-            JSONObject crs = new JSONObject();
-            crs.put(GEOJSON_TYPE, GEOJSON_NAME);
-            JSONObject crsName = new JSONObject();
-            crsName.put(GEOJSON_NAME, GEOJSON_CRS_EPSG_3857);
-            crs.put(GEOJSON_PROPERTIES, crsName);
-            obj.put(GEOJSON_CRS, crs);
-            obj.put(GEOJSON_TYPE, GEOJSON_TYPE_FeatureCollection);
 
             buffer = obj.toString().getBytes();
             zos.putNextEntry(new ZipEntry(layer.getName() + ".geojson"));
