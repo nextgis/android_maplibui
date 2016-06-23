@@ -112,6 +112,7 @@ public class LayerFillService extends Service implements IProgressor {
     public static final String KEY_DELETE_SRC_FILE = "delete_source_file";
     public static final String KEY_LAYER_GROUP_ID = "layer_group_id";
     public static final String KEY_TMS_TYPE   = "tms_type";
+    public static final String KEY_TMS_CACHE   = "tms_cache";
     public static final String NGFP_META = "ngfp_meta.json";
     protected final static String NGFP_FILE_META = "meta.json";
     protected final static String NGFP_FILE_DATA = "data.geojson";
@@ -581,6 +582,7 @@ public class LayerFillService extends Service implements IProgressor {
             super(bundle);
             mLayer = new LocalTMSLayerUI(mLayerGroup.getContext(), mLayerPath);
             mIsNgrc = !bundle.containsKey(KEY_TMS_TYPE);
+            ((LocalTMSLayerUI) mLayer).setCacheSizeMultiply(bundle.getInt(KEY_TMS_CACHE));
 
             if (!mIsNgrc) { // it's zip
                 ((LocalTMSLayerUI) mLayer).setTMSType(bundle.getInt(KEY_TMS_TYPE));

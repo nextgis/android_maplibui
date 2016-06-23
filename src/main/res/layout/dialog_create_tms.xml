@@ -1,12 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Project:  NextGIS Mobile
   ~ Purpose:  Mobile GIS for Android.
   ~ Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -23,91 +22,99 @@
   -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-    >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_margin="5dp"
-        >
+        android:orientation="vertical">
 
         <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:id="@+id/layer_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:hint="@string/layer_name"
-            android:singleLine="true"
             android:inputType="text"
-            />
+            android:singleLine="true" />
 
         <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:id="@+id/layer_url"
-            android:hint="@string/layer_url"
-            android:singleLine="false"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:elegantTextHeight="false"
+            android:hint="@string/layer_url"
             android:inputType="textUri"
-            />
+            android:singleLine="false" />
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/layer_url_hint"
             android:id="@+id/layer_url_hint"
-            />
-
-        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/layer_type_optional"
+            android:text="@string/layer_url_hint"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
             android:id="@+id/layer_type_summary"
-            android:background="?attr/colorPrimary"
-            android:textColor="?android:attr/textColorPrimary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_margin="5dp"
+            android:background="?attr/colorPrimary"
             android:padding="2dp"
-            />
+            android:text="@string/layer_type_optional"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="?android:attr/textColorPrimary" />
 
         <Spinner
+            android:id="@+id/layer_type"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/layer_type"
-            android:prompt="@string/layer_type"
-            />
+            android:prompt="@string/layer_type" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/credentials_opt"
-            android:id="@+id/auth_summary"
-            android:background="?attr/colorPrimary"
-            android:textColor="?android:attr/textColorPrimary"
             android:layout_margin="5dp"
+            android:background="?attr/colorPrimary"
             android:padding="2dp"
-            />
+            android:text="@string/tms_layer_cache_size"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="?android:attr/textColorPrimary" />
 
-        <EditText
+        <Spinner
+            android:id="@+id/layer_cache"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:entries="@array/tms_tile_cache_size"
+            android:entryValues="@array/tms_tile_cache_size_val"
+            android:prompt="@string/layer_type" />
+
+        <TextView
+            android:id="@+id/auth_summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="?attr/colorPrimary"
+            android:padding="2dp"
+            android:text="@string/credentials_opt"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="?android:attr/textColorPrimary" />
+
+        <EditText
             android:id="@+id/login"
-            android:hint="@string/user_name"
-            android:inputType="textPersonName"
-            />
-
-        <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:ems="10"
+            android:hint="@string/user_name"
+            android:inputType="textPersonName" />
+
+        <EditText
             android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
             android:hint="@string/password"
-            />
+            android:inputType="textPassword" />
     </LinearLayout>
 
 </ScrollView>

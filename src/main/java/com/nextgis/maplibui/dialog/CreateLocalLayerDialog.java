@@ -55,12 +55,14 @@ public class CreateLocalLayerDialog
     protected final static String KEY_ID         = "id";
     protected final static String KEY_URI        = "uri";
     protected final static String KEY_LAYER_TYPE = "layer_type";
+    protected final static String KEY_TMS_TYPE   = "tms";
+    protected final static String KEY_CACHE      = "cache";
 
     protected Uri        mUri;
     protected LayerGroup mGroupLayer;
     protected int        mLayerType;
     protected String     mLayerName;
-    protected Spinner    mSpinner;
+    protected Spinner    mSpinner, mCache;
 
 
     public CreateLocalLayerDialog setLayerName(String layerName)
@@ -116,6 +118,7 @@ public class CreateLocalLayerDialog
             view = View.inflate(mContext, R.layout.dialog_create_vector_layer, null);
         } else {
             view = View.inflate(mContext, R.layout.dialog_create_local_tms, null);
+            mCache = (Spinner) view.findViewById(R.id.layer_cache);
 
             final ArrayAdapter<CharSequence> adapter =
                     new ArrayAdapter<>(mContext, android.R.layout.simple_spinner_item);
@@ -125,6 +128,11 @@ public class CreateLocalLayerDialog
 
             adapter.add(mContext.getString(R.string.tmstype_osm));
             adapter.add(mContext.getString(R.string.tmstype_normal));
+
+            if (null != savedInstanceState) {
+                mSpinner.setSelection(savedInstanceState.getInt(KEY_TMS_TYPE, 0));
+                mCache.setSelection(savedInstanceState.getInt(KEY_CACHE, 0));
+            }
         }
 
         final EditText layerName = (EditText) view.findViewById(R.id.layer_name);
@@ -155,6 +163,9 @@ public class CreateLocalLayerDialog
                                 if (mSpinner != null)
                                     intent.putExtra(LayerFillService.KEY_TMS_TYPE, getTmsType());
 
+                                if (mCache != null)
+                                    intent.putExtra(LayerFillService.KEY_TMS_CACHE, mCache.getSelectedItemPosition());
+
                                 LayerFillProgressDialogFragment.startFill(intent);
                             }
 
@@ -178,6 +189,10 @@ public class CreateLocalLayerDialog
         outState.putString(LayerFillService.KEY_NAME, mLayerName);
         outState.putParcelable(KEY_URI, mUri);
         outState.putInt(KEY_LAYER_TYPE, mLayerType);
+        if (mSpinner != null)
+            outState.putInt(KEY_TMS_TYPE, mSpinner.getSelectedItemPosition());
+        if (mCache != null)
+            outState.putInt(KEY_CACHE, mCache.getSelectedItemPosition());
 
         super.onSaveInstanceState(outState);
     }

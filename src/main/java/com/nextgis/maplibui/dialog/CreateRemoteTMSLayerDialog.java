@@ -51,7 +51,7 @@ public class CreateRemoteTMSLayerDialog
         extends NGDialog
 {
     protected LayerGroup mGroupLayer;
-    protected Spinner    mSpinner;
+    protected Spinner    mSpinner, mCache;
     protected EditText   mInput;
     protected EditText   mUrl;
     protected EditText   mLogin;
@@ -61,6 +61,7 @@ public class CreateRemoteTMSLayerDialog
     protected final static String KEY_NAME     = "name";
     protected final static String KEY_URL      = "url";
     protected final static String KEY_POSITION = "pos";
+    protected final static String KEY_CACHE    = "cache";
     protected final static String KEY_LOGIN    = "login";
     protected final static String KEY_PASSWORD = "password";
 
@@ -83,6 +84,7 @@ public class CreateRemoteTMSLayerDialog
         //LayoutInflater inflater = getActivity().getLayoutInflater();
         super.onCreateDialog(savedInstanceState);
         View view = View.inflate(mContext, R.layout.dialog_create_tms, null);
+        mCache = (Spinner) view.findViewById(R.id.layer_cache);
 
         final ArrayAdapter<CharSequence> adapter =
                 new ArrayAdapter<>(mContext, android.R.layout.simple_spinner_item);
@@ -105,6 +107,7 @@ public class CreateRemoteTMSLayerDialog
             mLogin.setText(savedInstanceState.getString(KEY_LOGIN));
             mPassword.setText(savedInstanceState.getString(KEY_PASSWORD));
             mSpinner.setSelection(savedInstanceState.getInt(KEY_POSITION));
+            mCache.setSelection(savedInstanceState.getInt(KEY_CACHE));
             int id = savedInstanceState.getInt(KEY_ID);
             MapBase map = MapBase.getInstance();
             if (null != map) {
@@ -166,6 +169,7 @@ public class CreateRemoteTMSLayerDialog
                         layer.setLogin(layerLogin);
                         layer.setPassword(layerPassword);
                         layer.setTMSType(tmsType);
+                        layer.setCacheSizeMultiply(mCache.getSelectedItemPosition());
                         layer.setVisible(true);
                         layer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
                         layer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
@@ -199,6 +203,7 @@ public class CreateRemoteTMSLayerDialog
         outState.putString(KEY_NAME, mInput.getText().toString());
         outState.putString(KEY_URL, mUrl.getText().toString());
         outState.putInt(KEY_POSITION, mSpinner.getSelectedItemPosition());
+        outState.putInt(KEY_CACHE, mCache.getSelectedItemPosition());
         outState.putString(KEY_LOGIN, mLogin.getText().toString());
         outState.putString(KEY_PASSWORD, mPassword.getText().toString());
 
