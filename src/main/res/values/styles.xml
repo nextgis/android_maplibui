@@ -56,7 +56,7 @@
     <attr name="sdf_buttonTextColor" format="reference"/>
     <attr name="sdf_messageTextColor" format="reference"/>
 
-    <style name="Theme.NextGIS.AppCompat.Light"
+    <style name="Theme.NextGIS.AppCompat.Light.Base"
            parent="Theme.AppCompat.Light.NoActionBar">
         <item name="isLightTheme">true</item>
         <item name="colorPrimary">@color/primary</item>
@@ -97,12 +97,15 @@
         <item name="ic_apply">@drawable/ic_action_apply_light</item>
         <item name="ic_cancel">@drawable/ic_action_cancel_light</item>
         <item name="layer_list_background">@color/textColor.Dark</item>
-        <item name="android:alertDialogStyle">@style/Theme.NextGIS.AppCompat.Light.Dialog</item>
 
         <item name="DatePickSpinnerBackground">@drawable/ic_spinner_calendar_light</item>
     </style>
 
-    <style name="Theme.NextGIS.AppCompat.Dark"
+    <style name="Theme.NextGIS.AppCompat.Light" parent="Theme.NextGIS.AppCompat.Light.Base">
+        <item name="android:alertDialogStyle">@style/Theme.NextGIS.AppCompat.Light.Dialog</item>
+    </style>
+
+    <style name="Theme.NextGIS.AppCompat.Dark.Base"
            parent="Theme.AppCompat.NoActionBar">
         <item name="isLightTheme">false</item>
         <item name="colorPrimary">@color/primary</item>
@@ -143,9 +146,12 @@
         <item name="ic_apply">@drawable/ic_action_apply_dark</item>
         <item name="ic_cancel">@drawable/ic_action_cancel_dark</item>
         <item name="layer_list_background">@color/textColor.Light</item>
-        <item name="android:alertDialogStyle">@style/Theme.NextGIS.AppCompat.Dialog</item>
 
         <item name="DatePickSpinnerBackground">@drawable/ic_spinner_calendar_dark</item>
+    </style>
+
+    <style name="Theme.NextGIS.AppCompat.Dark" parent="Theme.NextGIS.AppCompat.Dark.Base">
+        <item name="android:alertDialogStyle">@style/Theme.NextGIS.AppCompat.Dialog</item>
     </style>
 
     <style name="EditTextStyle.Light" parent="Widget.AppCompat.EditText">
