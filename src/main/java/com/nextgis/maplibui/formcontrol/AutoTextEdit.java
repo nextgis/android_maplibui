@@ -26,6 +26,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.provider.SyncStateContract;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
@@ -33,8 +34,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.MapContentProviderHelper;
+import com.nextgis.maplib.map.NGWLookupTable;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IFormControl;
+import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
 
 import org.json.JSONArray;
@@ -43,10 +48,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ALLOW_NEW_VALUES;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_NGW_ID_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_NAME_KEY;
 
@@ -99,12 +106,33 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
 
         setText(lastValue);
 
-        JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
         mValues = new ArrayList<>();
-        for (int j = 0; j < values.length(); j++) {
-            JSONObject keyValue = values.getJSONObject(j);
-            String value = keyValue.getString(JSON_VALUE_NAME_KEY);
-            mValues.add(value);
+        if (attributes.has(ConstantsUI.JSON_NGW_ID_KEY) && attributes.getLong(ConstantsUI.JSON_NGW_ID_KEY) != -1) {
+            MapContentProviderHelper map = (MapContentProviderHelper) MapBase.getInstance();
+            if (null == map)
+                throw new IllegalArgumentException("The map should extends MapContentProviderHelper or inherited");
+
+            String account = element.optString(SyncStateContract.Columns.ACCOUNT_NAME);
+            long id = attributes.getLong(JSON_NGW_ID_KEY);
+            for (int i = 0; i < map.getLayerCount(); i++) {
+                if (map.getLayer(i) instanceof NGWLookupTable) {
+                    NGWLookupTable table = (NGWLookupTable) map.getLayer(i);
+                    if (table.getRemoteId() != id || !table.getAccountName().equals(account))
+                        continue;
+
+                    for (Map.Entry<String, String> entry : table.getData().entrySet())
+                        mValues.add(entry.getKey());
+
+                    break;
+                }
+            }
+        } else {
+            JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
+            for (int j = 0; j < values.length(); j++) {
+                JSONObject keyValue = values.getJSONObject(j);
+                String value = keyValue.getString(JSON_VALUE_NAME_KEY);
+                mValues.add(value);
+            }
         }
 
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, mValues);

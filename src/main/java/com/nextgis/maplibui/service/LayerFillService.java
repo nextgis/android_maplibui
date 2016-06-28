@@ -50,6 +50,7 @@ import com.nextgis.maplib.datasource.GeoGeometryFactory;
 import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.NGWLookupTable;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.TMSLayer;
 import com.nextgis.maplib.map.VectorLayer;
@@ -64,8 +65,10 @@ import com.nextgis.maplibui.mapui.LocalTMSLayerUI;
 import com.nextgis.maplibui.mapui.NGWVectorLayerUI;
 import com.nextgis.maplibui.mapui.VectorLayerUI;
 import com.nextgis.maplibui.util.ConstantsUI;
+import com.nextgis.maplibui.util.LayerUtil;
 import com.nextgis.maplibui.util.NotificationHelper;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -74,6 +77,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -106,6 +110,7 @@ public class LayerFillService extends Service implements IProgressor {
     public static final String KEY_PATH = "path";
     public static final String KEY_LAYER_PATH = "layer_path";
     public static final String KEY_REMOTE_ID = "remote_id";
+    public static final String KEY_LOOKUP_ID = "lookup_id";
     public static final String KEY_ACCOUNT = "account";
     public static final String KEY_NAME = "name";
     public static final String KEY_INPUT_TYPE = "input_type";
@@ -437,10 +442,11 @@ public class LayerFillService extends Service implements IProgressor {
                     extra.putString(KEY_NAME, mLayerName);
 
                     //read if this local o remote source
-                    boolean isNgwConnection = metaJson.has("ngw_connection") && !metaJson.isNull("ngw_connection");
+                    boolean isNgwConnection = metaJson.has(ConstantsUI.JSON_NGW_CONNECTION_KEY)
+                            && !metaJson.isNull(ConstantsUI.JSON_NGW_CONNECTION_KEY);
                     if (isNgwConnection) {
                         FileUtil.deleteRecursive(dataFile);
-                        JSONObject connection = metaJson.getJSONObject("ngw_connection");
+                        JSONObject connection = metaJson.getJSONObject(ConstantsUI.JSON_NGW_CONNECTION_KEY);
 
                         //read url
                         String url = connection.getString("url");
@@ -489,6 +495,10 @@ public class LayerFillService extends Service implements IProgressor {
                             }
                         }
 
+                        File form = new File(mLayerPath, ConstantsUI.FILE_FORM);
+                        ArrayList<String> lookupTableIds = LayerUtil.fillLookupTableIds(form);
+
+                        extra.putStringArrayList(KEY_LOOKUP_ID, lookupTableIds);
                         extra.putLong(KEY_REMOTE_ID, resourceId);
                         extra.putString(KEY_ACCOUNT, accountName);
 
@@ -621,12 +631,26 @@ public class LayerFillService extends Service implements IProgressor {
     }
 
     private class NGWVectorLayerFillTask extends LayerFillTask{
+        private ArrayList<String> mLookupIds;
+
         public NGWVectorLayerFillTask(Bundle bundle) {
             super(bundle);
             mLayer = new NGWVectorLayerUI(mLayerGroup.getContext(), mLayerPath);
             ((NGWVectorLayerUI) mLayer).setRemoteId(bundle.getLong(KEY_REMOTE_ID));
             ((NGWVectorLayerUI) mLayer).setAccountName(bundle.getString(KEY_ACCOUNT));
             initLayer();
+
+            if (bundle.containsKey(KEY_LOOKUP_ID))
+                mLookupIds = bundle.getStringArrayList(KEY_LOOKUP_ID);
+
+            for (int i = 0; i < mLayerGroup.getLayerCount(); i++) {
+                if (mLayerGroup.getLayer(i) instanceof NGWLookupTable) {
+                    NGWLookupTable table = (NGWLookupTable) mLayerGroup.getLayer(i);
+                    String id = table.getRemoteId() + "";
+                    if (table.getAccountName().equals(bundle.getString(KEY_ACCOUNT)) && mLookupIds.contains(id))
+                        mLookupIds.remove(id);
+                }
+            }
         }
 
         @Override
@@ -635,6 +659,17 @@ public class LayerFillService extends Service implements IProgressor {
                 NGWVectorLayer ngwVectorLayer = (NGWVectorLayer) mLayer;
                 if(null == ngwVectorLayer)
                     return false;
+
+                for (String id : mLookupIds) {
+                    NGWLookupTable table = new NGWLookupTable(mLayer.getContext(), mLayerGroup.createLayerStorage());
+                    table.setAccountName(((NGWVectorLayer) mLayer).getAccountName());
+                    table.setRemoteId(Long.parseLong(id));
+                    table.setSyncType(Constants.SYNC_ALL);
+                    table.setName(getText(R.string.layer_lookuptable) + " #" + id);
+                    table.fillFromNGW(null);
+                    mLayerGroup.addLayer(table);
+                }
+
                 ngwVectorLayer.createFromNGW(progressor);
             } catch (JSONException | IOException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();

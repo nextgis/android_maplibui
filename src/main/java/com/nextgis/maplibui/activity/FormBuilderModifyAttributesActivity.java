@@ -27,11 +27,13 @@ import android.content.ContentValues;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.SyncStateContract;
 import android.text.TextUtils;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IFormControl;
@@ -218,6 +220,9 @@ public class FormBuilderModifyAttributesActivity
             }
 
             if (null != control) {
+                if (mLayer instanceof NGWVectorLayer)
+                    element.put(SyncStateContract.Columns.ACCOUNT_NAME, ((NGWVectorLayer) mLayer).getAccountName());
+
                 control.init(element, fields, savedState, featureCursor, mSharedPreferences);
                 control.addToLayout(layout);
                 String fieldName = control.getFieldName();

@@ -32,6 +32,9 @@ import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.display.SimpleFeatureRenderer;
+import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.MapContentProviderHelper;
+import com.nextgis.maplib.map.NGWLookupTable;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
@@ -41,8 +44,13 @@ import com.nextgis.maplibui.activity.VectorLayerSettingsActivity;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
+import com.nextgis.maplibui.util.LayerUtil;
+
+import org.json.JSONException;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
@@ -130,5 +138,42 @@ public class NGWVectorLayerUI
         msg.putExtra(ConstantsUI.KEY_MESSAGE, error);
         getContext().sendBroadcast(msg);
         super.reportError(error);
+    }
+
+    @Override
+    public boolean delete() {
+        File form = new File(mPath, ConstantsUI.FILE_FORM);
+        if (form.exists()) {
+            try {
+                ArrayList<String> lookupTableIds = LayerUtil.fillLookupTableIds(form);
+                MapContentProviderHelper map = (MapContentProviderHelper) MapBase.getInstance();
+                if (null == map)
+                    throw new IllegalArgumentException("The map should extends MapContentProviderHelper or inherited");
+
+                for (int i = 0; i < map.getLayerCount(); i++) {
+                    if (map.getLayer(i) instanceof NGWVectorLayer) {
+                        form = new File(map.getLayer(i).getPath(), ConstantsUI.FILE_FORM);
+                        if (form.exists()) {
+                            ArrayList<String> otherIds = LayerUtil.fillLookupTableIds(form);
+                            lookupTableIds.removeAll(otherIds);
+                        }
+                    }
+                }
+
+                if (lookupTableIds.size() > 0)
+                    for (int i = 0; i < map.getLayerCount(); i++) {
+                        if (map.getLayer(i) instanceof NGWLookupTable) {
+                            NGWLookupTable table = (NGWLookupTable) map.getLayer(i);
+                            String id = table.getRemoteId() + "";
+                            if (table.getAccountName().equals(mAccountName) && lookupTableIds.contains(id))
+                                table.delete();
+                        }
+                    }
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return super.delete();
     }
 }

@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.SyncStateContract;
 import android.support.v7.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -34,8 +35,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.MapContentProviderHelper;
+import com.nextgis.maplib.map.NGWLookupTable;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IFormControl;
+import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
 
 import org.json.JSONArray;
@@ -49,6 +54,7 @@ import java.util.Map;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DEFAULT_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_NGW_ID_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_ALIAS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_NAME_KEY;
@@ -94,7 +100,6 @@ public class Combobox extends AppCompatSpinner implements IFormControl
         } else if (mIsShowLast)
             lastValue = preferences.getString(mFieldName, null);
 
-        JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
         int defaultPosition = 0;
         int lastValuePosition = -1;
         mAliasValueMap = new HashMap<>();
@@ -102,19 +107,49 @@ public class Combobox extends AppCompatSpinner implements IFormControl
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getContext(), R.layout.formtemplate_spinner);
         setAdapter(spinnerArrayAdapter);
 
-        for (int j = 0; j < values.length(); j++) {
-            JSONObject keyValue = values.getJSONObject(j);
-            String value = keyValue.getString(JSON_VALUE_NAME_KEY);
-            String value_alias = keyValue.getString(JSON_VALUE_ALIAS_KEY);
+        if (attributes.has(ConstantsUI.JSON_NGW_ID_KEY) && attributes.getLong(ConstantsUI.JSON_NGW_ID_KEY) != -1) {
+            MapContentProviderHelper map = (MapContentProviderHelper) MapBase.getInstance();
+            if (null == map)
+                throw new IllegalArgumentException("The map should extends MapContentProviderHelper or inherited");
 
-            if (keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(JSON_DEFAULT_KEY))
-                defaultPosition = j;
+            String account = element.optString(SyncStateContract.Columns.ACCOUNT_NAME);
+            long id = attributes.getLong(JSON_NGW_ID_KEY);
+            for (int i = 0; i < map.getLayerCount(); i++) {
+                if (map.getLayer(i) instanceof NGWLookupTable) {
+                    NGWLookupTable table = (NGWLookupTable) map.getLayer(i);
+                    if (table.getRemoteId() != id || !table.getAccountName().equals(account))
+                        continue;
 
-            if (null != lastValue && lastValue.equals(value))
-                lastValuePosition = j;
+                    int j = 0;
+                    for (Map.Entry<String, String> entry : table.getData().entrySet()) {
+                        mAliasValueMap.put(entry.getValue(), entry.getKey());
 
-            mAliasValueMap.put(value_alias, value);
-            spinnerArrayAdapter.add(value_alias);
+                        if (null != lastValue && lastValue.equals(entry.getKey()))
+                            lastValuePosition = j;
+
+                        spinnerArrayAdapter.add(entry.getValue());
+                        j++;
+                    }
+
+                    break;
+                }
+            }
+        } else {
+            JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
+            for (int j = 0; j < values.length(); j++) {
+                JSONObject keyValue = values.getJSONObject(j);
+                String value = keyValue.getString(JSON_VALUE_NAME_KEY);
+                String value_alias = keyValue.getString(JSON_VALUE_ALIAS_KEY);
+
+                if (keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(JSON_DEFAULT_KEY))
+                    defaultPosition = j;
+
+                if (null != lastValue && lastValue.equals(value))
+                    lastValuePosition = j;
+
+                mAliasValueMap.put(value_alias, value);
+                spinnerArrayAdapter.add(value_alias);
+            }
         }
 
         setSelection(lastValuePosition >= 0 ? lastValuePosition : defaultPosition);

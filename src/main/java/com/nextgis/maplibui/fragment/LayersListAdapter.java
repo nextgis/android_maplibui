@@ -49,7 +49,9 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplib.map.MapDrawable;
+import com.nextgis.maplib.map.NGWLookupTable;
 import com.nextgis.maplib.map.RemoteTMSLayer;
+import com.nextgis.maplib.map.Table;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplibui.R;
@@ -58,6 +60,7 @@ import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
 import com.nextgis.maplibui.util.LayerUtil;
 
+import static com.nextgis.maplib.util.Constants.LAYERTYPE_LOOKUPTABLE;
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_REMOTE_TMS;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 
@@ -141,7 +144,7 @@ public class LayersListAdapter
         if (i < 0 || i >= mMap.getLayerCount()) {
             return NOT_FOUND;
         }
-        Layer layer = (Layer) getItem(i);
+        Table layer = (Table) getItem(i);
         if (null != layer) {
             return layer.getId();
         }
@@ -155,17 +158,13 @@ public class LayersListAdapter
             View view,
             ViewGroup viewGroup)
     {
-        final Layer layer = (Layer) getItem(i);
-        switch (layer.getType()) {
-            case LAYERTYPE_REMOTE_TMS:
-            default:
-                return getStandardLayerView(layer, view);
-        }
+        final Table layer = (Table) getItem(i);
+        return getStandardLayerView(layer, view);
     }
 
 
     protected View getStandardLayerView(
-            final Layer layer,
+            final ILayer layer,
             View view)
     {
         View v = view;
@@ -175,21 +174,19 @@ public class LayersListAdapter
         }
 
         final ILayerUI layerui;
-        if (layer instanceof ILayerUI) {
+        if (layer == null) {
+            return v;
+        } else if (layer instanceof ILayerUI) {
             layerui = (ILayerUI) layer;
         } else {
             layerui = null;
         }
 
-
-        if (layerui != null) {
-            ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-            ivIcon.setImageDrawable(layerui.getIcon(mContext));
-        }
+        ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+        ivIcon.setImageDrawable(layerui != null ? layerui.getIcon(mContext) : null);
 
         TextView tvPaneName = (TextView) v.findViewById(R.id.tvLayerName);
         tvPaneName.setText(layer.getName());
-
         //final int id = layer.getId();
 
         final ImageButton btMore = (ImageButton) v.findViewById(R.id.btMore);
@@ -206,27 +203,29 @@ public class LayersListAdapter
         }
 
         ivEdited.setVisibility(View.GONE);
-        btShow.setVisibility(View.VISIBLE);
-        btMore.setVisibility(View.VISIBLE);
+        btShow.setVisibility(layer instanceof NGWLookupTable ? View.GONE : View.VISIBLE);
+        btMore.setVisibility(layer instanceof NGWLookupTable ? View.GONE : View.VISIBLE);
 
         int[] attrs = new int[] { R.attr.ic_action_visibility_on, R.attr.ic_action_visibility_off};
         TypedArray ta = mContext.obtainStyledAttributes(attrs);
         Drawable visibilityOn = ta.getDrawable(0);
         Drawable visibilityOff = ta.getDrawable(1);
 
-        btShow.setImageDrawable(//setImageResource(
-                layer.isVisible()
-                        ? visibilityOn
-                        : visibilityOff);
-        //btShow.refreshDrawableState();
-        btShow.setOnClickListener(
-                new View.OnClickListener() {
-                    public void onClick(View arg0) {
-                        //Layer layer = mMap.getLayerById(id);
-                        layer.setVisible(!layer.isVisible());
-                        layer.save();
-                    }
-                });
+        if (layer instanceof Layer) {
+            btShow.setImageDrawable(//setImageResource(
+                    ((Layer) layer).isVisible()
+                            ? visibilityOn
+                            : visibilityOff);
+            //btShow.refreshDrawableState();
+            btShow.setOnClickListener(
+                    new View.OnClickListener() {
+                        public void onClick(View arg0) {
+                            //Layer layer = mMap.getLayerById(id);
+                            ((Layer) layer).setVisible(!((Layer) layer).isVisible());
+                            layer.save();
+                        }
+                    });
+        }
         ta.recycle();
 
         btMore.setOnClickListener(

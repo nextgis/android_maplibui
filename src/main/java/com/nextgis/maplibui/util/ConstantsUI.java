@@ -52,6 +52,9 @@ public interface ConstantsUI
     int MIN_ZOOM_LEVEL     = 18;
     int NOTIFICATION_DELAY = 1500;
 
+    String JSON_NGW_CONNECTION_KEY    = "ngw_connection";
+    String JSON_NGW_ID_KEY            = "ngw_id";
+
     String JSON_ATTRIBUTES_KEY        = "attributes";
     String JSON_TABS_KEY              = "tabs";
     String JSON_ALBUM_ELEMENTS_KEY    = "album_elements";

@@ -36,6 +36,7 @@ import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.map.VectorLayer;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
@@ -77,7 +78,24 @@ import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FeatureCollectio
 /**
  * Raster and vector layer utilities
  */
-public class LayerUtil {
+public final class LayerUtil {
+    public static ArrayList<String> fillLookupTableIds(File path) throws IOException, JSONException {
+        String formText = FileUtil.readFromFile(path);
+        JSONArray formJson = new JSONArray(formText);
+        ArrayList<String> lookupTableIds = new ArrayList<>();
+
+        for (int i = 0; i < formJson.length(); i++) {
+            JSONObject element = formJson.getJSONObject(i);
+            if (ConstantsUI.JSON_COMBOBOX_VALUE.equals(element.optString(Constants.JSON_TYPE_KEY))) {
+                element = element.getJSONObject(ConstantsUI.JSON_ATTRIBUTES_KEY);
+                if (element.has(ConstantsUI.JSON_NGW_ID_KEY))
+                    lookupTableIds.add(element.getLong(ConstantsUI.JSON_NGW_ID_KEY) + "");
+            }
+        }
+
+        return lookupTableIds;
+    }
+
     public static void shareTrackAsGPX(NGActivity activity, String creator, String[] tracksId) {
         ExportGPXTask exportTask = new ExportGPXTask(activity, creator, tracksId);
         exportTask.execute();
