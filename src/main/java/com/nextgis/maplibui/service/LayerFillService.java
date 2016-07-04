@@ -631,7 +631,7 @@ public class LayerFillService extends Service implements IProgressor {
     }
 
     private class NGWVectorLayerFillTask extends LayerFillTask{
-        private ArrayList<String> mLookupIds;
+        private ArrayList<String> mLookupIds = new ArrayList<>();
 
         public NGWVectorLayerFillTask(Bundle bundle) {
             super(bundle);
