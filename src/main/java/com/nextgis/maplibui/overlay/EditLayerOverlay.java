@@ -1181,8 +1181,17 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         if (null != mFeature)
             previousFeatureId = mFeature.getId();
 
-        mFeature = new Feature(items.get(0), mLayer.getFields());
-        mFeature.setGeometry(mLayer.getGeometryForId(items.get(0)));
+        for (int i = 0; i < items.size(); i++) {    // FIXME hack for bad RTree cache
+            long featureId = items.get(i);
+            GeoGeometry geometry = mLayer.getGeometryForId(featureId);
+            if (geometry != null && previousFeatureId != featureId) {
+                mFeature = new Feature(featureId, mLayer.getFields());
+                mFeature.setGeometry(mLayer.getGeometryForId(featureId));
+            }
+        }
+
+        if (previousFeatureId == mFeature.getId())
+            return;
 
         if (mMode == MODE_HIGHLIGHT) {
             mMapViewOverlays.invalidate();
