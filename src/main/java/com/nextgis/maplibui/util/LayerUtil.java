@@ -89,7 +89,8 @@ public final class LayerUtil {
             if (ConstantsUI.JSON_COMBOBOX_VALUE.equals(element.optString(Constants.JSON_TYPE_KEY))) {
                 element = element.getJSONObject(ConstantsUI.JSON_ATTRIBUTES_KEY);
                 if (element.has(ConstantsUI.JSON_NGW_ID_KEY))
-                    lookupTableIds.add(element.getLong(ConstantsUI.JSON_NGW_ID_KEY) + "");
+                    if (element.getLong(ConstantsUI.JSON_NGW_ID_KEY) != -1)
+                        lookupTableIds.add(element.getLong(ConstantsUI.JSON_NGW_ID_KEY) + "");
             }
         }
 

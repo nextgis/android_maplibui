@@ -47,6 +47,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,6 +56,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_NGW_ID_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUES_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_ALIAS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_NAME_KEY;
 
 public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IFormControl
@@ -62,7 +64,7 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
     protected String            mFieldName;
     protected boolean           mIsShowLast;
     protected boolean           mAllowSaveNewValue;
-    protected List<String>      mValues;
+    protected Map<String, String> mAliasValueMap;
 
     public AutoTextEdit(Context context) {
         super(context);
@@ -98,15 +100,13 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
         if (ControlHelper.hasKey(savedState, mFieldName))
             lastValue = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
         else if (null != featureCursor) {
-                int column = featureCursor.getColumnIndex(mFieldName);
-                if (column >= 0)
-                    lastValue = featureCursor.getString(column);
+            int column = featureCursor.getColumnIndex(mFieldName);
+            if (column >= 0)
+                lastValue = featureCursor.getString(column);
         } else if (mIsShowLast)
             lastValue = preferences.getString(mFieldName, null);
 
-        setText(lastValue);
-
-        mValues = new ArrayList<>();
+        mAliasValueMap = new HashMap<>();
         if (attributes.has(ConstantsUI.JSON_NGW_ID_KEY) && attributes.getLong(ConstantsUI.JSON_NGW_ID_KEY) != -1) {
             MapContentProviderHelper map = (MapContentProviderHelper) MapBase.getInstance();
             if (null == map)
@@ -120,8 +120,11 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
                     if (table.getRemoteId() != id || !table.getAccountName().equals(account))
                         continue;
 
-                    for (Map.Entry<String, String> entry : table.getData().entrySet())
-                        mValues.add(entry.getKey());
+                    for (Map.Entry<String, String> entry : table.getData().entrySet()) {
+                        mAliasValueMap.put(entry.getValue(), entry.getKey());
+                        if (entry.getKey().equals(lastValue))
+                            lastValue = entry.getValue();
+                    }
 
                     break;
                 }
@@ -131,11 +134,16 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
             for (int j = 0; j < values.length(); j++) {
                 JSONObject keyValue = values.getJSONObject(j);
                 String value = keyValue.getString(JSON_VALUE_NAME_KEY);
-                mValues.add(value);
+                String alias = keyValue.getString(JSON_VALUE_ALIAS_KEY);
+                mAliasValueMap.put(alias, value);
+                if (value.equals(lastValue))
+                    lastValue = alias;
             }
         }
 
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, mValues);
+        setText(lastValue);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(
+                getContext(), android.R.layout.simple_spinner_dropdown_item, new ArrayList<>(mAliasValueMap.keySet()));
         setAdapter(spinnerArrayAdapter);
     }
 
@@ -168,12 +176,12 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
     @Override
     public Object getValue()
     {
-        if (!mAllowSaveNewValue && !mValues.contains(getText().toString())) {
+        if (!mAllowSaveNewValue && !mAliasValueMap.containsKey(getText().toString())) {
             Toast.makeText(getContext(), R.string.value_not_from_list, Toast.LENGTH_SHORT).show();
             return null;
         }
 
-        return getText().toString();
+        return mAliasValueMap.get(getText().toString());
     }
 
 
