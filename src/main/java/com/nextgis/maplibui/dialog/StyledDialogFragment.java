@@ -297,8 +297,11 @@ public class StyledDialogFragment
             getDialog().setOnDismissListener(null);
         }
 
-        mDialogBodyLayout.removeAllViews();
-        mDialogBodyLayoutScrolled.removeAllViews();
+        if (mDialogBodyLayout != null)
+            mDialogBodyLayout.removeAllViews();
+
+        if (mDialogBodyLayoutScrolled != null)
+            mDialogBodyLayoutScrolled.removeAllViews();
 
         super.onDestroyView();
     }
