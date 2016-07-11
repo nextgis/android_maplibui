@@ -165,8 +165,11 @@ public class NGWVectorLayerUI
                         if (map.getLayer(i) instanceof NGWLookupTable) {
                             NGWLookupTable table = (NGWLookupTable) map.getLayer(i);
                             String id = table.getRemoteId() + "";
-                            if (table.getAccountName().equals(mAccountName) && lookupTableIds.contains(id))
+                            if (table.getAccountName().equals(mAccountName) && lookupTableIds.contains(id)) {
+                                map.removeLayer(table);
                                 table.delete();
+                                i--;
+                            }
                         }
                     }
             } catch (IOException | JSONException e) {
