@@ -50,7 +50,7 @@
     <string name="error_login">Ошибка входа</string>
     <string name="add_nextgis">Добавить из NextGIS</string>
     <string name="ngw_settings">Настройки NextGIS</string>
-    <string name="new_account">Новый аккаунт</string>
+    <string name="new_account">Завести учетную запись в nextgis.com</string>
     <string name="add_account">Добавить аккаунт</string>
     <string name="delete_account">Удалить учетную запись</string>
     <string name="delete_account_ask">Удалить учетную запись?</string>
