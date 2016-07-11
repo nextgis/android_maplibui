@@ -37,4 +37,9 @@ public interface EditEventListener
      * event on finished edit session
      */
     void onFinishEditSession();
+
+    /**
+     * event on finished edit by walk session
+     */
+    void onFinishEditByWalkSession();
 }
