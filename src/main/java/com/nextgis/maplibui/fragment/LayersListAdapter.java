@@ -60,8 +60,6 @@ import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
 import com.nextgis.maplibui.util.LayerUtil;
 
-import static com.nextgis.maplib.util.Constants.LAYERTYPE_LOOKUPTABLE;
-import static com.nextgis.maplib.util.Constants.LAYERTYPE_REMOTE_TMS;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 
 
@@ -167,11 +165,10 @@ public class LayersListAdapter
             final ILayer layer,
             View view)
     {
+        LayoutInflater inflater = LayoutInflater.from(mContext);
         View v = view;
-        if (v == null) {
-            LayoutInflater inflater = LayoutInflater.from(mContext);
+        if (v == null || v.getId() == R.id.empty_row)
             v = inflater.inflate(R.layout.row_layer, null);
-        }
 
         final ILayerUI layerui;
         if (layer == null) {
@@ -203,8 +200,9 @@ public class LayersListAdapter
         }
 
         ivEdited.setVisibility(View.GONE);
-        btShow.setVisibility(layer instanceof NGWLookupTable ? View.GONE : View.VISIBLE);
-        btMore.setVisibility(layer instanceof NGWLookupTable ? View.GONE : View.VISIBLE);
+        if (layer instanceof NGWLookupTable) {
+            return inflater.inflate(R.layout.row_empty, null);
+        }
 
         int[] attrs = new int[] { R.attr.ic_action_visibility_on, R.attr.ic_action_visibility_off};
         TypedArray ta = mContext.obtainStyledAttributes(attrs);
