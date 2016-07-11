@@ -68,7 +68,6 @@ import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.LayerUtil;
 import com.nextgis.maplibui.util.NotificationHelper;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -506,6 +505,7 @@ public class LayerFillService extends Service implements IProgressor {
                             mQueue.add(new NGWVectorLayerFillTask(extra));
                     } else {
                         // prevent overwrite meta.json by layer save routine
+                        //noinspection ResultOfMethodCallIgnored
                         meta.renameTo(new File(meta.getParentFile(), LayerFillService.NGFP_META));
 
                         extra.putSerializable(LayerFillService.KEY_PATH, dataFile);
