@@ -76,6 +76,7 @@ public class NGWLoginActivity
                 if (extras.containsKey(CHANGE_ACCOUNT_LOGIN)) {
                     mChangeAccountLogin = extras.getBoolean(CHANGE_ACCOUNT_LOGIN);
                 }
+                setTitle(R.string.action_edit);
             }
         }
 
