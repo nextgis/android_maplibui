@@ -170,6 +170,9 @@ public class LayersListAdapter
         if (v == null || v.getId() == R.id.empty_row)
             v = inflater.inflate(R.layout.row_layer, null);
 
+        if (layer instanceof NGWLookupTable)
+            return inflater.inflate(R.layout.row_empty, null);
+
         final ILayerUI layerui;
         if (layer == null) {
             return v;
@@ -190,19 +193,10 @@ public class LayersListAdapter
         ImageButton btShow = (ImageButton) v.findViewById(R.id.btShow);
         ImageView ivEdited = (ImageView) v.findViewById(R.id.ivEdited);
 
-        if (layerui instanceof VectorLayer) {
-            if (((VectorLayer) layerui).isLocked()) {
-                ivEdited.setVisibility(View.VISIBLE);
-                btShow.setVisibility(View.GONE);
-                btMore.setVisibility(View.GONE);
-                return v;
-            }
-        }
-
-        ivEdited.setVisibility(View.GONE);
-        if (layer instanceof NGWLookupTable) {
-            return inflater.inflate(R.layout.row_empty, null);
-        }
+        boolean hide = layerui instanceof VectorLayer && ((VectorLayer) layerui).isLocked();
+        btMore.setVisibility(hide ? View.GONE : View.VISIBLE);
+        btShow.setVisibility(hide ? View.GONE : View.VISIBLE);
+        ivEdited.setVisibility(hide ? View.VISIBLE : View.GONE);
 
         int[] attrs = new int[] { R.attr.ic_action_visibility_on, R.attr.ic_action_visibility_off};
         TypedArray ta = mContext.obtainStyledAttributes(attrs);
