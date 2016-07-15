@@ -75,4 +75,6 @@
         android:gravity="center_vertical"
         android:text="@string/fill"
         android:textAppearance='?android:attr/textAppearanceMedium'/>
+
+    <include layout="@layout/style_text" />
 </LinearLayout>

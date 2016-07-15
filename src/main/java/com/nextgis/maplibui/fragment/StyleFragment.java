@@ -23,12 +23,14 @@ package com.nextgis.maplibui.fragment;
 
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -37,13 +39,20 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.nextgis.maplib.api.ITextStyle;
+import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.display.SimpleLineStyle;
 import com.nextgis.maplib.display.SimpleMarkerStyle;
 import com.nextgis.maplib.display.SimplePolygonStyle;
 import com.nextgis.maplib.display.Style;
+import com.nextgis.maplib.map.VectorLayer;
+import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.dialog.StyledDialogFragment;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
@@ -51,8 +60,13 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 public class StyleFragment extends StyledDialogFragment implements View.OnClickListener {
     protected ImageView mColorFillImage, mColorStrokeImage;
     protected TextView mColorFillName, mColorStrokeName;
+    protected EditText mEditText;
+    protected Spinner mField;
+    protected CheckBox mTextEnabled;
+    protected SwitchCompat mNotHardcoded;
     protected int mFillColor, mStrokeColor;
     protected Style mStyle;
+    protected VectorLayer mLayer;
 
     public StyleFragment() {
 
@@ -80,8 +94,9 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
             inflatePolygon(body);
         }
 
-        setView(body, true);
+        inflateText(body);
 
+        setView(body, true);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
@@ -252,6 +267,103 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         setFillColor(mFillColor);
     }
 
+    private void inflateText(View body) {
+        if (!(mStyle instanceof ITextStyle))
+            return;
+
+        final ITextStyle style = (ITextStyle) mStyle;
+        mTextEnabled = (CheckBox) body.findViewById(R.id.text_enabled);
+        mNotHardcoded = (SwitchCompat) body.findViewById(R.id.not_hardcoded);
+        mEditText = (EditText) body.findViewById(R.id.text);
+        mEditText.setText(style.getText());
+        mField = (Spinner) body.findViewById(R.id.field);
+
+        String field = style.getField();
+        boolean hasText = style.getText() != null;
+        boolean hasField = field != null;
+
+        mTextEnabled.setChecked(hasField || hasText);
+        mNotHardcoded.setEnabled(mTextEnabled.isChecked());
+        mEditText.setEnabled(mTextEnabled.isChecked());
+        mField.setEnabled(mTextEnabled.isChecked());
+
+        mEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                style.setText(s.toString());
+            }
+        });
+
+        final List<Field> mFields = mLayer.getFields();
+        mFields.add(0, new Field(GeoConstants.FTInteger, Constants.FIELD_ID, getString(R.string.id)));
+        final List<String> fieldNames = new ArrayList<>();
+        int id = -1;
+        for (int i = 0; i < mFields.size(); i++) {
+            fieldNames.add(mFields.get(i).getAlias());
+            if (mFields.get(i).getName().equals(field))
+                id = i;
+        }
+
+        ArrayAdapter fieldAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, fieldNames);
+        mField.setAdapter(fieldAdapter);
+        if (hasField && id > -1)
+            mField.setSelection(id);
+
+        mField.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                style.setField(mFields.get(position).getName());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        mTextEnabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mNotHardcoded.setEnabled(isChecked);
+                mEditText.setEnabled(isChecked);
+                mField.setEnabled(isChecked);
+
+                if (!isChecked) {
+                    style.setField(null);
+                    style.setText(null);
+                } else {
+                    if (mNotHardcoded.isChecked()) {
+                        style.setField(mFields.get(mField.getSelectedItemPosition()).getName());
+                        style.setText(null);
+                    } else {
+                        style.setField(null);
+                        style.setText(mEditText.getText().toString());
+                    }
+                }
+            }
+        });
+
+        mNotHardcoded.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mEditText.setVisibility(isChecked ? View.GONE : View.VISIBLE);
+                mField.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                style.setField(isChecked ? mFields.get(mField.getSelectedItemPosition()).getName(): null);
+            }
+        });
+        mNotHardcoded.setChecked(hasField);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -319,5 +431,9 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
 
             dialog.show();
         }
+    }
+
+    public void setLayer(VectorLayer layer) {
+        mLayer = layer;
     }
 }

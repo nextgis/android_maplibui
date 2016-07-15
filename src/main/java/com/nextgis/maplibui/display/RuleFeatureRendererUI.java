@@ -69,8 +69,8 @@ public class RuleFeatureRendererUI extends RendererUI {
     }
 
     @Override
-    public Fragment getSettingsScreen() {
-        mSettings = super.getSettingsScreen();
+    public Fragment getSettingsScreen(VectorLayer vectorLayer) {
+        mSettings = super.getSettingsScreen(vectorLayer);
 
         if (mSettings == null) {
             RuleStyleFragment fragment = new RuleStyleFragment();
@@ -224,6 +224,7 @@ public class RuleFeatureRendererUI extends RendererUI {
                 }
             });
 
+            setListViewHeightBasedOnChildren();
             return v;
         }
 
@@ -254,6 +255,7 @@ public class RuleFeatureRendererUI extends RendererUI {
 
                 FragmentManager fm = getActivity().getSupportFragmentManager();
                 final StyleFragment styleFragment = new StyleFragment();
+                styleFragment.setLayer(mLayer);
                 styleFragment.setStyle(style);
                 styleFragment.setTitle(R.string.style);
                 styleFragment.setPositiveText(android.R.string.ok);

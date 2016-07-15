@@ -180,7 +180,7 @@ public class VectorLayerSettingsActivity
                     mVectorLayer.setRenderer(mRenderers.get(position).getRenderer());
                     FragmentManager fm = getActivity().getSupportFragmentManager();
                     FragmentTransaction ft = fm.beginTransaction();
-                    Fragment settings = mRenderers.get(position).getSettingsScreen();
+                    Fragment settings = mRenderers.get(position).getSettingsScreen(mVectorLayer);
                     ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                     ft.replace(R.id.settings, settings);
                     ft.commit();

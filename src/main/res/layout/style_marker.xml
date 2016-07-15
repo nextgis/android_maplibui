@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Project:  NextGIS Mobile
   ~ Purpose:  Mobile GIS for Android.
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
@@ -20,8 +19,7 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -31,13 +29,13 @@
         android:layout_height='wrap_content'
         android:gravity="center_vertical"
         android:text="@string/size"
-        android:textAppearance='?android:attr/textAppearanceMedium'/>
+        android:textAppearance='?android:attr/textAppearanceMedium' />
 
     <EditText
         android:id="@+id/size"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="number"/>
+        android:inputType="number" />
 
     <TextView
         android:layout_width='match_parent'
@@ -45,21 +43,21 @@
         android:layout_marginTop="8dp"
         android:gravity="center_vertical"
         android:text="@string/type"
-        android:textAppearance='?android:attr/textAppearanceMedium'/>
+        android:textAppearance='?android:attr/textAppearanceMedium' />
 
     <Spinner
         android:id="@+id/type"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:entries="@array/marker_type"
-        android:padding="5dp"/>
+        android:padding="5dp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/fill_color"
-        android:textAppearance="?android:attr/textAppearanceMedium"/>
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <LinearLayout
         android:id="@+id/color_fill"
@@ -72,14 +70,14 @@
             android:id="@+id/color_fill_ring"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/color_ring"/>
+            android:src="@drawable/color_ring" />
 
         <TextView
             android:id="@+id/color_fill_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
 
     <TextView
@@ -87,7 +85,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/stroke_color"
-        android:textAppearance="?android:attr/textAppearanceMedium"/>
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <LinearLayout
         android:id="@+id/color_stroke"
@@ -100,14 +98,14 @@
             android:id="@+id/color_stroke_ring"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/color_ring"/>
+            android:src="@drawable/color_ring" />
 
         <TextView
             android:id="@+id/color_stroke_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
+            android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
 
     <TextView
@@ -115,11 +113,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/width"
-        android:textAppearance="?android:attr/textAppearanceMedium"/>
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <EditText
         android:id="@+id/width"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="number"/>
+        android:inputType="number" />
+
+    <include layout="@layout/style_text" />
 </LinearLayout>

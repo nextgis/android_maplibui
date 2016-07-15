@@ -24,6 +24,7 @@ package com.nextgis.maplibui.display;
 import android.support.v4.app.Fragment;
 
 import com.nextgis.maplib.api.IRenderer;
+import com.nextgis.maplib.map.VectorLayer;
 
 public abstract class RendererUI {
     protected IRenderer mRenderer;
@@ -33,7 +34,7 @@ public abstract class RendererUI {
         return mRenderer;
     }
 
-    public Fragment getSettingsScreen() {
+    public Fragment getSettingsScreen(VectorLayer vectorLayer) {
         if (mSettings != null)
             return mSettings;
         else

@@ -109,4 +109,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:entries="@array/line_type"/>
+
+    <include layout="@layout/style_text" />
 </LinearLayout>

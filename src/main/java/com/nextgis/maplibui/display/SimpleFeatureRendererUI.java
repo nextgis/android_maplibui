@@ -25,6 +25,7 @@ import android.support.v4.app.Fragment;
 
 import com.nextgis.maplib.display.SimpleFeatureRenderer;
 import com.nextgis.maplib.display.Style;
+import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplibui.fragment.StyleFragment;
 
 public class SimpleFeatureRendererUI extends RendererUI {
@@ -36,11 +37,12 @@ public class SimpleFeatureRendererUI extends RendererUI {
     }
 
     @Override
-    public Fragment getSettingsScreen() {
-        mSettings = super.getSettingsScreen();
+    public Fragment getSettingsScreen(VectorLayer vectorLayer) {
+        mSettings = super.getSettingsScreen(vectorLayer);
         if (mSettings == null) {
             mSettings = new StyleFragment();
             ((StyleFragment) mSettings).setStyle(mStyle);
+            ((StyleFragment) mSettings).setLayer(vectorLayer);
         }
 
         return mSettings;
