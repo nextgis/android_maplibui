@@ -72,7 +72,7 @@ public class TrackerService
     public static final  String TEMP_PREFERENCES      = "tracks_temp";
     private static final String TRACK_URI             = "track_uri";
     private static final String TRACK_DAILY_ID        = "track_daily_id";
-    private static final String ACTION_STOP           = "com.nextgis.maplibui.TRACK_STOP";
+    public static final String ACTION_STOP            = "com.nextgis.maplibui.TRACK_STOP";
     private static final String ACTION_SPLIT          = "com.nextgis.maplibui.TRACK_SPLIT";
     private static final int    TRACK_NOTIFICATION_ID = 1;
 
