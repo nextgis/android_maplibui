@@ -228,7 +228,9 @@ public class TracksActivity
 
     protected void closeActionMode() {
         mTracks.unselectAll();
-        mActionMode.finish();
+
+        if (mActionMode != null)
+            mActionMode.finish();
     }
 
     @Override

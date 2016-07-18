@@ -22,6 +22,7 @@
 
 package com.nextgis.maplibui.util;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -29,6 +30,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
+import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Feature;
@@ -195,6 +197,8 @@ public final class LayerUtil {
                 + GPX_VERSION
                 + "\" creator=\"%s\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.topografix.com/GPX/1/1\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">";
         private static final String GPX_TAG_CLOSE = "</gpx>";
+        private static final String GPX_TAG_NAME = "<name>";
+        private static final String GPX_TAG_NAME_CLOSE = "</name>";
         private static final String GPX_TAG_TRACK = "<trk>";
         private static final String GPX_TAG_TRACK_CLOSE = "</trk>";
         private static final String GPX_TAG_TRACK_SEGMENT = "<trkseg>";
@@ -208,8 +212,10 @@ public final class LayerUtil {
 
         protected NGActivity mActivity;
         protected AlertDialog.Builder mDialog;
+        protected ProgressDialog mProgress;
         protected String[] mTracksId;
         protected boolean mIsCanceled, mIsChosen = true, mSeparateFiles = true;
+        protected int mNoPoints = 0;
         protected String mHeader;
         protected ArrayList<Uri> mUris;
 
@@ -241,6 +247,7 @@ public final class LayerUtil {
             if (mIsCanceled)
                 return null;
 
+            publishProgress();
             File temp = null, parent = MapUtil.prepareTempDir(mActivity, "exported_tracks");
             try {
                 IGISApplication application = (IGISApplication) mActivity.getApplication();
@@ -254,6 +261,9 @@ public final class LayerUtil {
                 }
 
                 for (String trackId : mTracksId) {
+                    if (mIsCanceled)
+                        return null;
+
                     track = mActivity.getContentResolver().query(mContentUriTracks,
                             new String[]{TrackLayer.FIELD_NAME}, TrackLayer.FIELD_ID + " = ?", new String[]{trackId}, null);
                     trackpoints = mActivity.getContentResolver().query(Uri.withAppendedPath(mContentUriTracks,
@@ -268,15 +278,16 @@ public final class LayerUtil {
                         if (trackpoints != null && trackpoints.moveToFirst()) {
                             if (mSeparateFiles) {
                                 sb.append(mHeader);
-                                appendTrack(sb, f, trackpoints);
+                                appendTrack(track.getString(0), sb, f, trackpoints);
                                 sb.append(GPX_TAG_CLOSE);
                                 FileUtil.writeToFile(temp, sb.toString());
                                 mUris.add(Uri.fromFile(temp));
                             } else
-                                appendTrack(sb, f, trackpoints);
+                                appendTrack(track.getString(0), sb, f, trackpoints);
 
                             trackpoints.close();
-                        }
+                        } else
+                            mNoPoints++;
 
                         track.close();
                     }
@@ -294,7 +305,7 @@ public final class LayerUtil {
             return null;
         }
 
-        protected void appendTrack(StringBuilder sb, Formatter f, Cursor trackpoints) {
+        protected void appendTrack(String name, StringBuilder sb, Formatter f, Cursor trackpoints) {
             GeoPoint point = new GeoPoint();
             int latId = trackpoints.getColumnIndex(TrackLayer.FIELD_LAT);
             int lonId = trackpoints.getColumnIndex(TrackLayer.FIELD_LON);
@@ -307,6 +318,13 @@ public final class LayerUtil {
             df.setMaximumFractionDigits(340); //340 = DecimalFormat.DOUBLE_FRACTION_DIGITS
 
             sb.append(GPX_TAG_TRACK);
+
+            if (name != null) {
+                sb.append(GPX_TAG_NAME);
+                sb.append(name);
+                sb.append(GPX_TAG_NAME_CLOSE);
+            }
+
             sb.append(GPX_TAG_TRACK_SEGMENT);
             do {
                 point.setCoordinates(trackpoints.getDouble(lonId), trackpoints.getDouble(latId));
@@ -345,8 +363,38 @@ public final class LayerUtil {
         }
 
         @Override
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+
+            mProgress = new ProgressDialog(mActivity);
+            mProgress.setTitle(R.string.export);
+            mProgress.setMessage(mActivity.getString(R.string.preparing));
+            mProgress.setCanceledOnTouchOutside(false);
+            mProgress.setButton(DialogInterface.BUTTON_NEGATIVE, mActivity.getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    mIsCanceled = true;
+                }
+            });
+            mProgress.show();
+        }
+
+        @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+
+            if (mProgress != null)
+                mProgress.dismiss();
+
+            if (mIsCanceled)
+                return;
+
+            String text = mActivity.getString(R.string.not_enough_points);
+            if (mNoPoints > 0)
+                if (mUris.size() > 0)
+                    Toast.makeText(mActivity, text + " (" + mNoPoints + ")", Toast.LENGTH_LONG).show();
+                else
+                    Toast.makeText(mActivity, text, Toast.LENGTH_LONG).show();
 
             if (mUris.size() == 0)
                 return;

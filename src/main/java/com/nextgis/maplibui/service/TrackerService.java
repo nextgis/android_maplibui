@@ -71,7 +71,6 @@ public class TrackerService
 {
     public static final  String TEMP_PREFERENCES      = "tracks_temp";
     private static final String TRACK_URI             = "track_uri";
-    private static final String TRACK_DAILY_ID        = "track_daily_id";
     public static final String ACTION_STOP            = "com.nextgis.maplibui.TRACK_STOP";
     private static final String ACTION_SPLIT          = "com.nextgis.maplibui.TRACK_SPLIT";
     private static final int    TRACK_NOTIFICATION_ID = 1;
@@ -209,25 +208,19 @@ public class TrackerService
         Uri mNewTrack = Uri.parse(mSharedPreferencesTemp.getString(TRACK_URI, ""));
         mTrackId = mNewTrack.getLastPathSegment();
         mIsRunning = true;
+        addSplitter();
     }
 
 
     private void startTrack()
     {
-        Calendar today = Calendar.getInstance();
-        today.set(Calendar.HOUR, 0);
-        today.set(Calendar.MINUTE, 0);
-        today.set(Calendar.SECOND, 0);
-        today.set(Calendar.MILLISECOND, 0);
-
         // get track name date unique appendix
         final SimpleDateFormat simpleDateFormat =
-                new SimpleDateFormat("yyyy-MM-dd-", Locale.getDefault());
-        int append = getAppendix(today.getTimeInMillis());
+                new SimpleDateFormat("yyyy-MM-dd--HH-mm-ss", Locale.getDefault());
 
         // insert DB row
         final long started = System.currentTimeMillis();
-        String mTrackName = simpleDateFormat.format(started) + append;
+        String mTrackName = simpleDateFormat.format(started);
         mValues.clear();
         mValues.put(TrackLayer.FIELD_NAME, mTrackName);
         mValues.put(TrackLayer.FIELD_START, started);
@@ -238,12 +231,9 @@ public class TrackerService
             mTrackId = newTrack.getLastPathSegment();
             mSharedPreferencesTemp.edit().putString(TRACK_URI, newTrack.toString()).commit();
         }
-        mSharedPreferencesTemp.edit().putString(TRACK_DAILY_ID, today.getTimeInMillis() + "-" + append).commit();
-        mIsRunning = true;
 
-        // set midnight track splitter
-        today.add(Calendar.DATE, 1);
-        mAlarmManager.set(AlarmManager.RTC, today.getTimeInMillis(), mSplitService);
+        mIsRunning = true;
+        addSplitter();
     }
 
 
@@ -262,22 +252,24 @@ public class TrackerService
     }
 
 
-    private int getAppendix(long today) {
-        int result = 0;
-        String previousAppendix = mSharedPreferencesTemp.getString(TRACK_DAILY_ID, "0-1");
-        if (Long.parseLong(previousAppendix.split("-")[0]) >= today)
-            result = Integer.parseInt(previousAppendix.split("-")[1]);
-
-        return ++result;
-    }
-
-
     public static void closeTracks(Context context, IGISApplication app) {
         ContentValues cv = new ContentValues();
         cv.put(TrackLayer.FIELD_END, System.currentTimeMillis());
         String selection = TrackLayer.FIELD_END + " IS NULL OR " + TrackLayer.FIELD_END + " = ''";
         Uri tracksUri = Uri.parse("content://" + app.getAuthority() + "/" + TrackLayer.TABLE_TRACKS);
         context.getContentResolver().update(tracksUri, cv, selection, null);
+    }
+
+
+    private void addSplitter() {
+        // set midnight track splitter
+        Calendar today = Calendar.getInstance();
+        today.set(Calendar.HOUR, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+        today.add(Calendar.DATE, 1);
+        mAlarmManager.set(AlarmManager.RTC, today.getTimeInMillis(), mSplitService);
     }
 
 

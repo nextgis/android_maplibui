@@ -132,6 +132,8 @@
     <string name="menu_visibility_off">Hide</string>
     <string name="nothing_selected">Nothing is selected</string>
     <string name="unclosed_track_deleted">Current track is deleted too</string>
+    <string name="preparing">Preparing…</string>
+    <string name="export">Export</string>
     <string name="folder">Folder</string>
     <string name="zip">ZIP file</string>
     <string name="formbuilder">FormBuilder file</string>
@@ -164,7 +166,7 @@
     <string name="has_edits">There are unsaved edits. Do you want to save them?</string>
     <string name="attributes_next">Next</string>
     <string name="attributes_prev">Previous</string>
-    <string name="geometry_no_points">No enough points to create geometry</string>
+    <string name="not_enough_points">Not enough points</string>
     <string name="error_change_feature">Change feature failed</string>
     <string name="move_point_to_center">Point to display center</string>
     <string name="mainSettings">Main settings</string>
