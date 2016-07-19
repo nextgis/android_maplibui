@@ -82,6 +82,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -256,6 +259,13 @@ public class ModifyAttributesActivity
         }
 
         List<Field> fields = mLayer.getFields();
+        Collections.sort(fields, new Comparator<Field>() {
+            @Override
+            public int compare(Field lhs, Field rhs) {
+                return lhs.getAlias().compareToIgnoreCase(rhs.getAlias());
+            }
+        });
+
         for (Field field : fields) {
             //create static text with alias
             TextLabel textLabel = (TextLabel)getLayoutInflater().inflate(R.layout.template_textlabel, layout, false);
