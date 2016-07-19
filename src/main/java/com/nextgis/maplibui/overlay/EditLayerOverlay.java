@@ -332,7 +332,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                 ControlHelper.setEnabled(item, hasEdits);
         }
 
-        if (mBottomToolbar != null) {
+        if (mBottomToolbar != null && mSelectedItem != null) {
             // polygon rings
             boolean isOuterRingSelected = mSelectedItem.getSelectedRingId() == 0;
             item = mBottomToolbar.getMenu().findItem(R.id.menu_edit_add_new_inner_ring);
