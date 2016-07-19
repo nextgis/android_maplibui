@@ -23,29 +23,41 @@
 
 package com.nextgis.maplibui.activity;
 
-import android.app.ProgressDialog;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.location.Location;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -82,7 +94,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -128,6 +139,8 @@ public class ModifyAttributesActivity
     protected int mMaxTakeCount;
     protected boolean mIsGeometryChanged;
     protected boolean mIsViewOnly;
+    protected SoundPool mSoundPool;
+    private int mBeepId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -140,6 +153,7 @@ public class ModifyAttributesActivity
         final IGISApplication app = (IGISApplication) getApplication();
         createView(app, savedInstanceState);
         createLocationPanelView(app);
+        createSoundPool();
     }
 
     protected void createLocationPanelView(final IGISApplication app)
@@ -149,10 +163,19 @@ public class ModifyAttributesActivity
             mLongView = (TextView) findViewById(R.id.longitude_view);
             mAltView = (TextView) findViewById(R.id.altitude_view);
             mAccView = (TextView) findViewById(R.id.accuracy_view);
+            final ImageButton refreshLocation = (ImageButton) findViewById(R.id.refresh);
             mAccurateLocation = (SwitchCompat) findViewById(R.id.accurate_location);
+            mAccurateLocation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (mAccurateLocation.getTag() == null) {
+                        refreshLocation.performClick();
+                        mAccurateLocation.setTag(new Object());
+                    }
+                }
+            });
             mAccuracyCE = (AppCompatSpinner) findViewById(R.id.accurate_ce);
 
-            final ImageButton refreshLocation = (ImageButton) findViewById(R.id.refresh);
             refreshLocation.setOnClickListener(
                     new View.OnClickListener()
                     {
@@ -162,48 +185,79 @@ public class ModifyAttributesActivity
                             RotateAnimation rotateAnimation = new RotateAnimation(
                                     0, 360, Animation.RELATIVE_TO_SELF, 0.5f,
                                     Animation.RELATIVE_TO_SELF, 0.5f);
-                            rotateAnimation.setDuration(700);
-                            rotateAnimation.setRepeatCount(0);
+                            rotateAnimation.setDuration(500);
+                            rotateAnimation.setRepeatCount(1);
                             refreshLocation.startAnimation(rotateAnimation);
 
                             if (mAccurateLocation.isChecked()) {
-                                final ProgressDialog progress;
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                                    progress = new ProgressDialog(view.getContext(), android.R.style.Theme_Material_Light_Dialog_Alert);
-                                else
-                                    progress = new ProgressDialog(view.getContext());
+                                AlertDialog.Builder builder = new AlertDialog.Builder(ModifyAttributesActivity.this);
+                                View layout = View.inflate(ModifyAttributesActivity.this, R.layout.dialog_progress_accurate_location, null);
+                                TextView message = (TextView) layout.findViewById(R.id.message);
+                                final ProgressBar progress = (ProgressBar) layout.findViewById(R.id.progress);
+                                final TextView progressPercent = (TextView) layout.findViewById(R.id.progress_percent);
+                                final TextView progressNumber = (TextView) layout.findViewById(R.id.progress_number);
+                                final CheckBox finishBeep = (CheckBox) layout.findViewById(R.id.finish_beep);
+                                builder.setView(layout);
+                                builder.setTitle(R.string.accurate_location);
 
                                 final AccurateLocationTaker accurateLocation =
                                         new AccurateLocationTaker(view.getContext(), 100f,
                                                 mMaxTakeCount, MAX_TAKE_TIME, PROGRESS_DELAY, (String) mAccuracyCE.getSelectedItem());
 
-                                progress.setMax(mMaxTakeCount);
-                                progress.setCanceledOnTouchOutside(false);
-                                progress.setMessage(getString(R.string.accurate_taking));
-                                progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                                progress.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                progress.setIndeterminate(true);
+                                message.setText(R.string.accurate_taking);
+                                builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        accurateLocation.cancelTaking();
+                                    }
+                                });
+                                builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
                                     @Override
                                     public void onCancel(DialogInterface dialog) {
                                         accurateLocation.cancelTaking();
                                     }
                                 });
+                                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                    @Override
+                                    public void onDismiss(DialogInterface dialog) {
+                                        unlockScreenOrientation();
+                                    }
+                                });
 
+                                final AlertDialog dialog = builder.create();
                                 accurateLocation.setOnProgressUpdateListener(new AccurateLocationTaker.OnProgressUpdateListener() {
+                                    @SuppressLint("SetTextI18n")
                                     @Override
                                     public void onProgressUpdate(Long... values) {
-                                        progress.setProgress(values[0].intValue());
+                                        int value = values[0].intValue();
+                                        if (value == 1) {
+                                            progress.setIndeterminate(false);
+                                            progress.setMax(mMaxTakeCount);
+                                        }
+
+                                        if (value > 0)
+                                            progress.setProgress(value);
+
+                                        progressPercent.setText(value * 100 / mMaxTakeCount + " %");
+                                        progressNumber.setText(value + " / " + mMaxTakeCount);
                                     }
                                 });
 
                                 accurateLocation.setOnGetAccurateLocationListener(new AccurateLocationTaker.OnGetAccurateLocationListener() {
                                     @Override
                                     public void onGetAccurateLocation(Location accurateLocation, Long... values) {
-                                        progress.dismiss();
+                                        dialog.dismiss();
+                                        if (finishBeep.isChecked())
+                                            playBeep();
+
                                         setLocationText(accurateLocation);
                                     }
                                 });
 
-                                progress.show();
+                                lockScreenOrientation();
+                                dialog.setCanceledOnTouchOutside(false);
+                                dialog.show();
                                 accurateLocation.startTaking();
                             } else if (null != app) {
                                 GpsEventSource gpsEventSource = app.getGpsEventSource();
@@ -219,6 +273,67 @@ public class ModifyAttributesActivity
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    public void lockScreenOrientation() {
+        WindowManager windowManager =  (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        Configuration configuration = getResources().getConfiguration();
+        int rotation = windowManager.getDefaultDisplay().getRotation();
+
+        // Search for the natural position of the device
+        if(configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
+                (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) ||
+                configuration.orientation == Configuration.ORIENTATION_PORTRAIT &&
+                        (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270))
+        {
+            // Natural position is Landscape
+            switch (rotation)
+            {
+                case Surface.ROTATION_0:
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    break;
+                case Surface.ROTATION_90:
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+                    break;
+                case Surface.ROTATION_180:
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+                    break;
+                case Surface.ROTATION_270:
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                    break;
+            }
+        } else {
+            // Natural position is Portrait
+            switch (rotation)
+            {
+                case Surface.ROTATION_0:
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                    break;
+                case Surface.ROTATION_90:
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    break;
+                case Surface.ROTATION_180:
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+                    break;
+                case Surface.ROTATION_270:
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+                    break;
+            }
+        }
+    }
+
+    public void unlockScreenOrientation() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+    }
+
+    @SuppressWarnings("deprecation")
+    protected void createSoundPool() {
+        mSoundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 100);
+        mBeepId = mSoundPool.load(this, R.raw.beep, 1);
+    }
+
+    protected void playBeep() {
+        mSoundPool.play(mBeepId, 1, 1, 10, 0, 1);
+    }
 
     protected void createView(final IGISApplication app, Bundle savedState)
     {

@@ -282,4 +282,5 @@
     <string name="web_map">Web map</string>
     <string name="preparing">Preparing…</string>
     <string name="export">Export</string>
+    <string name="accurate_finish_sound">Beep at finish</string>
 </resources>

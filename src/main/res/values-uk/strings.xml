@@ -282,4 +282,5 @@
     <string name="web_map">Веб карта</string>
     <string name="preparing">Подготовка…</string>
     <string name="export">Экспорт</string>
+    <string name="accurate_finish_sound">Уведомить о завершении</string>
 </resources>
