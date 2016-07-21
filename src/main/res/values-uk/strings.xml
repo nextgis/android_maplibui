@@ -156,6 +156,7 @@
     <string name="save">Save</string>
     <string name="undo">Undo</string>
     <string name="redo">Redo</string>
+    <string name="retry">Retry</string>
     <string name="error_create_feature">Create feature failed</string>
     <string name="no">No</string>
     <string name="yes">Yes</string>

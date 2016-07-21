@@ -27,9 +27,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.os.Parcelable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
@@ -41,7 +40,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.cocosw.undobar.UndoBarController;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
@@ -269,25 +267,39 @@ public class LayersListAdapter
                                         } else if (i == R.id.menu_delete) {
                                             final int position = mMap.removeLayer(layer);
 
-                                            new UndoBarController.UndoBar((android.app.Activity) mContext).message(
-                                                    mContext.getString(R.string.delete_layer_done)).listener(
-                                                    new UndoBarController.AdvancedUndoListener() {
-                                                        @Override
-                                                        public void onHide(@Nullable Parcelable parcelable) {
-                                                            layer.delete();
-                                                            mMap.save();
-                                                        }
+                                            View focus = mActivity.getCurrentFocus();
+                                            if (focus == null)
+                                                return true;
 
+                                            Snackbar snackbar = Snackbar.make(focus, mActivity.getString(R.string.delete_layer_done), Snackbar.LENGTH_LONG)
+                                                    .setAction(R.string.undo, new View.OnClickListener() {
                                                         @Override
-                                                        public void onClear(@NonNull Parcelable[] parcelables) {
-
-                                                        }
-
-                                                        @Override
-                                                        public void onUndo(@Nullable Parcelable parcelable) {
+                                                        public void onClick(View v) {
                                                             mMap.insertLayer(position, layer);
                                                         }
-                                                    }).show();
+                                                    })
+                                                    .setCallback(new Snackbar.Callback() {
+                                                        @Override
+                                                        public void onDismissed(Snackbar snackbar, int event) {
+                                                            super.onDismissed(snackbar, event);
+                                                            if (event == DISMISS_EVENT_MANUAL)
+                                                                return;
+                                                            if (event != DISMISS_EVENT_ACTION) {
+                                                                layer.delete();
+                                                                mMap.save();
+                                                            }
+                                                        }
+
+                                                        @Override
+                                                        public void onShown(Snackbar snackbar) {
+                                                            super.onShown(snackbar);
+                                                        }
+                                                    });
+
+                                            View view = snackbar.getView();
+                                            TextView textView = (TextView) view.findViewById(R.id.snackbar_text);
+                                            textView.setTextColor(ContextCompat.getColor(mActivity, R.color.color_white));
+                                            snackbar.show();
                                         } else if (i == R.id.menu_zoom_extent) {
                                             mMap.zoomToExtent(layer.getExtents());
 

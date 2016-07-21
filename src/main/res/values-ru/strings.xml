@@ -159,6 +159,7 @@
     <string name="save">Сохранить</string>
     <string name="undo">Отмена</string>
     <string name="redo">Повтор</string>
+    <string name="retry">@string/redo</string>
     <string name="error_create_feature">Ошибка создания записи</string>
     <string name="no">Нет</string>
     <string name="yes">Да</string>
