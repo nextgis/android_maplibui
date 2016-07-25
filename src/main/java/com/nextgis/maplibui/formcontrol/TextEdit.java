@@ -23,18 +23,24 @@
 
 package com.nextgis.maplibui.formcontrol;
 
+import android.accounts.Account;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.SyncStateContract;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplibui.GISApplication;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.util.ControlHelper;
 
@@ -51,6 +57,8 @@ import static com.nextgis.maplibui.util.ConstantsUI.*;
 public class TextEdit extends AppCompatEditText
         implements IFormControl
 {
+    private static final String USE_LOGIN = "ngw_login";
+
     protected boolean mIsShowLast;
     protected String mFieldName;
 
@@ -76,15 +84,7 @@ public class TextEdit extends AppCompatEditText
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);
         mIsShowLast = ControlHelper.isSaveLastValue(attributes);
-        setEnabled(ControlHelper.isEnabled(fields, mFieldName));
-
-        int fieldType = NOT_FOUND;
-        for (Field field : fields) {
-            if (field.getName().equals(mFieldName)) {
-                fieldType = field.getType();
-                break;
-            }
-        }
+        boolean enabled = ControlHelper.isEnabled(fields, mFieldName);
 
         String value = null;
         if (ControlHelper.hasKey(savedState, mFieldName))
@@ -101,6 +101,19 @@ public class TextEdit extends AppCompatEditText
                 value = preferences.getString(mFieldName, value);
         }
 
+        boolean useLogin = element.optBoolean(USE_LOGIN);
+        String accountName = element.optString(SyncStateContract.Columns.ACCOUNT_NAME);
+        if (useLogin && !TextUtils.isEmpty(accountName)) {
+            enabled = false;
+            Activity activity = getActivity();
+            if (activity != null) {
+                GISApplication app = (GISApplication) activity.getApplication();
+                Account account = app.getAccount(accountName);
+                value = app.getAccountLogin(account);
+            }
+        }
+
+        setEnabled(enabled);
         setText(value);
 
         //let's create control
@@ -111,6 +124,13 @@ public class TextEdit extends AppCompatEditText
             setMaxLines(maxLines);
         }
 
+        int fieldType = NOT_FOUND;
+        for (Field field : fields) {
+            if (field.getName().equals(mFieldName)) {
+                fieldType = field.getType();
+                break;
+            }
+        }
 
         boolean onlyFigures = attributes.getBoolean(JSON_ONLY_FIGURES_KEY);
         if (onlyFigures) {
@@ -156,5 +176,18 @@ public class TextEdit extends AppCompatEditText
     @Override
     public void saveState(Bundle outState) {
         outState.putString(ControlHelper.getSavedStateKey(mFieldName), getText().toString());
+    }
+
+    // http://stackoverflow.com/a/32973351/2088273
+    private Activity getActivity() {
+        Context context = getContext();
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity)
+                return (Activity) context;
+
+            context = ((ContextWrapper)context).getBaseContext();
+        }
+
+        return null;
     }
 }
