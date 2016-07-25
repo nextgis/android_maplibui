@@ -284,4 +284,5 @@
     <string name="preparing">Preparing…</string>
     <string name="export">Export</string>
     <string name="accurate_finish_sound">Beep at finish</string>
+    <string name="no_features">Layer has no features</string>
 </resources>

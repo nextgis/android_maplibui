@@ -116,9 +116,6 @@ public final class LayerUtil {
             JSONArray geoJSONFeatures = new JSONArray();
             Cursor featuresCursor = layer.query(null, null, null, null, null);
 
-            if (null == featuresCursor) // TODO toast no data ?
-                return;
-
             JSONObject crs = new JSONObject();
             crs.put(GEOJSON_TYPE, GEOJSON_NAME);
             JSONObject crsName = new JSONObject();
@@ -131,7 +128,7 @@ public final class LayerUtil {
             byte[] buffer = new byte[1024];
             int length;
 
-            if (featuresCursor.moveToFirst()) {
+            if (featuresCursor != null && featuresCursor.moveToFirst()) {
                 do {
                     JSONObject featureJSON = new JSONObject();
                     featureJSON.put(GEOJSON_TYPE, GEOJSON_TYPE_Feature);
@@ -163,9 +160,12 @@ public final class LayerUtil {
                     featureJSON.put(GEOJSON_GEOMETRY, feature.getGeometry().toJSON());
                     geoJSONFeatures.put(featureJSON);
                 } while (featuresCursor.moveToNext());
-            }
 
-            featuresCursor.close();
+                featuresCursor.close();
+            } else {
+                Toast.makeText(layer.getContext(), R.string.no_features, Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             obj.put(GEOJSON_TYPE_FEATURES, geoJSONFeatures);
 
