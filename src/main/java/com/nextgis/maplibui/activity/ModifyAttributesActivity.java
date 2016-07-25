@@ -508,7 +508,27 @@ public class ModifyAttributesActivity
         int id = item.getItemId();
 
         if (id == android.R.id.home) {
-            finish(); // TODO prompt dialog on unsaved data
+            if (hasEdits()) {
+                AlertDialog builder = new AlertDialog.Builder(this)
+                        .setTitle(R.string.save)
+                        .setMessage(R.string.has_edits)
+                        .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                saveFeature();
+                                finish();
+                            }
+                        })
+                        .setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        }).create();
+                builder.show();
+            } else
+                finish();
+
             return true;
         } else if (id == R.id.menu_settings) {
             final IGISApplication app = (IGISApplication) getApplication();
@@ -521,6 +541,29 @@ public class ModifyAttributesActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean hasEdits() {
+        boolean result = mFeatureId == NOT_FOUND;
+
+        if (!result) {
+            Cursor featureCursor = mLayer.query(null, FIELD_ID + " = " + mFeatureId, null, null, null);
+            if (featureCursor == null || !featureCursor.moveToFirst())
+                return false;
+
+            for (Map.Entry<String, IControl> field : mFields.entrySet()) {
+                int column = featureCursor.getColumnIndex(field.getKey());
+                if (column >= 0)
+                    result = !featureCursor.getString(column).equals(field.getValue().getValue().toString());
+
+                if (result)
+                    break;
+            }
+
+            featureCursor.close();
+        }
+
+        return result;
     }
 
 

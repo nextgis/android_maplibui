@@ -27,6 +27,7 @@
     <string name="ok">OK</string>
     <string name="create">Create</string>
     <string name="cancel">Cancel</string>
+    <string name="discard">Discard</string>
     <string name="osm">OpenStreetMap</string>
     <string name="layer_name">Layer name</string>
     <string name="layer_url">Layer URL</string>
