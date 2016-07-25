@@ -232,7 +232,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
 
 
     public void showAllFeatures() {
-        mLayer.showAllFeatures();
+        if (mLayer != null)
+            mLayer.showAllFeatures();
     }
 
 
@@ -319,6 +320,11 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     protected void updateMap() {
         mMapViewOverlays.buffer();
         mMapViewOverlays.postInvalidate();
+    }
+
+
+    public boolean hasEdits() {
+        return mHasEdits;
     }
 
 

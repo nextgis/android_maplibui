@@ -74,6 +74,7 @@ public class LayersListAdapter
     protected final Activity mActivity;
     protected DrawerLayout mDrawer;
     protected onEdit mEditListener;
+    protected View.OnClickListener mOnPencilClickListener;
 
     public interface onEdit {
         void onLayerEdit(ILayer layer);
@@ -94,6 +95,11 @@ public class LayersListAdapter
 
     public void setOnLayerEditListener(onEdit listener) {
         mEditListener = listener;
+    }
+
+
+    public void setOnPencilClickListener(View.OnClickListener listener) {
+        mOnPencilClickListener = listener;
     }
 
 
@@ -195,6 +201,8 @@ public class LayersListAdapter
         btMore.setVisibility(hide ? View.GONE : View.VISIBLE);
         btShow.setVisibility(hide ? View.GONE : View.VISIBLE);
         ivEdited.setVisibility(hide ? View.VISIBLE : View.GONE);
+        if (mOnPencilClickListener != null)
+            ivEdited.setOnClickListener(mOnPencilClickListener);
 
         int[] attrs = new int[] { R.attr.ic_action_visibility_on, R.attr.ic_action_visibility_off};
         TypedArray ta = mContext.obtainStyledAttributes(attrs);
