@@ -21,7 +21,9 @@
 
 package com.nextgis.maplibui.util;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -35,6 +37,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.MenuItem;
@@ -252,4 +255,15 @@ public final class ControlHelper {
         return Math.round(dp* (dm.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 
+    // http://stackoverflow.com/a/32973351/2088273
+    public static AppCompatActivity getActivity(Context context) {
+        while (context instanceof ContextWrapper) {
+            if (context instanceof AppCompatActivity)
+                return (AppCompatActivity) context;
+
+            context = ((ContextWrapper)context).getBaseContext();
+        }
+
+        return null;
+    }
 }

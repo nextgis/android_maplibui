@@ -453,12 +453,12 @@ public class ModifyAttributesActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
         LinearLayout controlLayout = (LinearLayout) findViewById(R.id.controls_list);
         for (int i = 0; i < controlLayout.getChildCount(); i++)
             if (controlLayout.getChildAt(i) instanceof IControl)
                 ((IControl) controlLayout.getChildAt(i)).saveState(outState);
+
+        super.onSaveInstanceState(outState);
     }
 
 

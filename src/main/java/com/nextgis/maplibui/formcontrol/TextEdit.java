@@ -105,7 +105,7 @@ public class TextEdit extends AppCompatEditText
         String accountName = element.optString(SyncStateContract.Columns.ACCOUNT_NAME);
         if (useLogin && !TextUtils.isEmpty(accountName)) {
             enabled = false;
-            Activity activity = getActivity();
+            Activity activity = ControlHelper.getActivity(getContext());
             if (activity != null) {
                 GISApplication app = (GISApplication) activity.getApplication();
                 Account account = app.getAccount(accountName);
@@ -178,16 +178,4 @@ public class TextEdit extends AppCompatEditText
         outState.putString(ControlHelper.getSavedStateKey(mFieldName), getText().toString());
     }
 
-    // http://stackoverflow.com/a/32973351/2088273
-    private Activity getActivity() {
-        Context context = getContext();
-        while (context instanceof ContextWrapper) {
-            if (context instanceof Activity)
-                return (Activity) context;
-
-            context = ((ContextWrapper)context).getBaseContext();
-        }
-
-        return null;
-    }
 }
