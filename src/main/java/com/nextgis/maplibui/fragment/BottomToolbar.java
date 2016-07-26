@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -24,14 +24,14 @@
 package com.nextgis.maplibui.fragment;
 
 import android.content.Context;
-import android.support.v7.internal.view.menu.MenuBuilder;
-import android.support.v7.widget.ActionMenuPresenter;
-import android.support.v7.widget.ActionMenuView;
+import android.support.annotation.MenuRes;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
-import android.view.ContextThemeWrapper;
 import android.view.Menu;
-import android.view.View;
+import android.view.MenuItem;
+
+import com.nextgis.maplibui.util.ControlHelper;
 
 
 /**
@@ -69,40 +69,20 @@ public class BottomToolbar
         mIsMenuInitialized = false;
     }
 
-
     @Override
-    public Menu getMenu()
-    {
-        MenuBuilder menuBuilder = (MenuBuilder) super.getMenu();
-        if (!mIsMenuInitialized) {
-            ActionMenuPresenter presenter = new ActionMenuPresenter(getContext());
-            presenter.setWidthLimit(
-                    getContext().getResources().getDisplayMetrics().widthPixels, true);
-            presenter.setReserveOverflow(true); //always show overflow menu
-            presenter.setItemLimit(Integer.MAX_VALUE);
-            menuBuilder.addMenuPresenter(
-                    presenter, new ContextThemeWrapper(getContext(), getPopupTheme()));
+    public void inflateMenu(@MenuRes int resId) {
+        super.inflateMenu(resId);
+        Menu menu = getMenu();
+        MenuItem item = menu.getItem(0);
+        int size = item.getIcon().getIntrinsicWidth() + ControlHelper.dpToPx(30, getResources());
+        int width = getWidth();
 
-            ActionMenuView menuView = null;
-            for (int i = 0; i < getChildCount(); i++) {
-                View view = getChildAt(i);
-                if (view instanceof ActionMenuView) {
-                    menuView = (ActionMenuView) view;
-                    break;
-                }
-            }
-
-            if (null != menuView) {
-                presenter.setMenuView(menuView);
-            }
-
-            /* center menu buttons in toolbar
-            ViewGroup.LayoutParams params = menuView.getLayoutParams();
-            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-            menuView.setLayoutParams(params);
-            */
-            mIsMenuInitialized = true;
+        for (int i = 0; i < menu.size(); i++) {
+            item = menu.getItem(i);
+            if (size * (i + 2) < width)
+                MenuItemCompat.setShowAsAction(item, MenuItemCompat.SHOW_AS_ACTION_ALWAYS);
+            else
+                break;
         }
-        return menuBuilder;
     }
 }

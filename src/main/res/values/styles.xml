@@ -204,7 +204,7 @@
         <item name="actionModeCutDrawable">@drawable/ic_action_content_cut</item>
         <item name="actionModeCopyDrawable">@drawable/ic_action_content_copy</item>
         <item name="actionModePasteDrawable">@drawable/ic_action_content_paste</item>
-        <item name="actionModeSelectAllDrawable">@drawable/ic_action_content_select_all</item>
+        <item name="actionModeSelectAllDrawable">@drawable/ic_action_content_select_all_light</item>
         <item name="actionModeShareDrawable">@drawable/ic_action_social_share_light</item>
 
         <item name="listChoiceBackgroundIndicator">@drawable/abc_list_selector_holo_light</item>
@@ -220,7 +220,7 @@
         <item name="actionModeCutDrawable">@drawable/ic_action_content_cut</item>
         <item name="actionModeCopyDrawable">@drawable/ic_action_content_copy</item>
         <item name="actionModePasteDrawable">@drawable/ic_action_content_paste</item>
-        <item name="actionModeSelectAllDrawable">@drawable/ic_action_content_select_all</item>
+        <item name="actionModeSelectAllDrawable">@drawable/ic_action_content_select_all_light</item>
         <item name="actionModeShareDrawable">@drawable/ic_action_social_share_light</item>
 
         <item name="listChoiceBackgroundIndicator">@drawable/abc_list_selector_holo_light</item>

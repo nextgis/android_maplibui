@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -34,6 +34,7 @@ import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.TracksActivity;
 import com.nextgis.maplibui.api.ILayerUI;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import java.io.File;
 
@@ -47,11 +48,7 @@ public class TrackLayerUI
             File path)
     {
         super(context, path);
-
-        int[] attrs = new int[] { R.attr.colorAccent };
-        TypedArray ta = mContext.obtainStyledAttributes(R.style.AppTheme, attrs);
-        mColor = ta.getColor(0, mContext.getResources().getColor(R.color.accent));
-        ta.recycle();
+        mColor = ControlHelper.getColor(mContext, R.attr.accentColor);
         ((TrackRenderer) mRenderer).setEndingMarker(R.drawable.ic_track_flag);
     }
 

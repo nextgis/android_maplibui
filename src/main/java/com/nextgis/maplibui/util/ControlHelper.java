@@ -22,6 +22,7 @@
 package com.nextgis.maplibui.util;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -34,6 +35,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.MenuItem;
 
 import com.nextgis.maplib.datasource.Field;
@@ -235,6 +238,18 @@ public final class ControlHelper {
         }
 
         return inSampleSize;
+    }
+
+    public static int getColor(Context context, int attr) {
+        TypedValue typedValue = new TypedValue();
+        Resources.Theme theme = context.getTheme();
+        theme.resolveAttribute(attr, typedValue, true);
+        return typedValue.data;
+    }
+
+    public static int dpToPx(int dp, Resources resources) {
+        DisplayMetrics dm = resources.getDisplayMetrics();
+        return Math.round(dp* (dm.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 
 }

@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -33,7 +33,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.internal.widget.ThemeUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -43,6 +42,7 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 
@@ -215,7 +215,7 @@ public class ReorderedLayerView
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(LINE_THICKNESS);
 
-        int accentColor = ThemeUtils.getThemeAttrColor(getContext(), R.attr.colorAccent);
+        int accentColor = ControlHelper.getColor(getContext(), R.attr.colorAccent);
 
         paint.setColor(accentColor);
         canvas.drawRect(rect, paint);

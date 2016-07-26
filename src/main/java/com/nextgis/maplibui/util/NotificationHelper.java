@@ -47,19 +47,14 @@ import com.nextgis.maplibui.R;
 public final class NotificationHelper {
     private static final int NOTIFICATION_GPS_ID = 695;
 
-    public static int dpToPx(int dp, Resources resources) {
-        DisplayMetrics dm = resources.getDisplayMetrics();
-        return Math.round(dp* (dm.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-    }
-
     public static Bitmap getLargeIcon(int iconResourceId, Resources resources) {
         Bitmap icon = BitmapFactory.decodeResource(resources, iconResourceId);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
             return icon;
 
-        int iconSize = dpToPx(40, resources);
-        int innerIconSize = dpToPx(24, resources);
+        int iconSize = ControlHelper.dpToPx(40, resources);
+        int innerIconSize = ControlHelper.dpToPx(24, resources);
         icon = Bitmap.createScaledBitmap(icon, iconSize, iconSize, false);
         Bitmap largeIcon = icon.copy(Bitmap.Config.ARGB_8888, true);
         icon = Bitmap.createScaledBitmap(icon, innerIconSize, innerIconSize, false);

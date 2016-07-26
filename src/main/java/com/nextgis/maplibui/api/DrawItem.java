@@ -28,7 +28,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
-import android.support.v7.internal.widget.ThemeUtils;
 
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
@@ -36,6 +35,7 @@ import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +81,7 @@ public class DrawItem {
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
 
-        mFillColor = ThemeUtils.getThemeAttrColor(context, R.attr.colorAccent);
+        mFillColor = ControlHelper.getColor(context, R.attr.colorAccent);
         mOutlineColor = Color.BLACK;
         mSelectColor = Color.RED;
 

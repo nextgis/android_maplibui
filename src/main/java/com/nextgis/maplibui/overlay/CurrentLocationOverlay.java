@@ -37,7 +37,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.location.Location;
 import android.preference.PreferenceManager;
-import android.support.v7.internal.widget.ThemeUtils;
 
 import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
@@ -51,6 +50,7 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.api.OverlayItem;
 import com.nextgis.maplibui.mapui.MapViewOverlays;
+import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 
@@ -69,8 +69,8 @@ public class CurrentLocationOverlay
     private boolean mIsAutopanningEnabled = false;
     private boolean mIsAccuracyEnabled = true;
     private boolean mIsStandingMarkerCustom, mIsMovingMarkerCustom;
-    private int mStandingMarkerRes = R.drawable.abc_btn_switch_to_on_mtrl_00001, mMovingMarkerRes =
-            R.drawable.abc_ic_ab_back_mtrl_am_alpha;
+    private int mStandingMarkerRes = R.drawable.ic_action_maps_directions_walk;
+    private int mMovingMarkerRes = android.R.drawable.arrow_up_float;
     private int         mMarkerColor;
     private OverlayItem mMarker, mAccuracy;
     private int mShowMode;
@@ -82,7 +82,7 @@ public class CurrentLocationOverlay
         super(context, mapViewOverlays);
         Activity parent = (Activity) context;
         mGpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
-        mMarkerColor = ThemeUtils.getThemeAttrColor(mContext, R.attr.colorAccent);
+        mMarkerColor = ControlHelper.getColor(mContext, R.attr.colorAccent);
 
         mTolerancePX = context.getResources().getDisplayMetrics().density * AUTOPAN_THRESHOLD;
 

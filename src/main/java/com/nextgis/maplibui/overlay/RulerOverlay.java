@@ -28,7 +28,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.os.Bundle;
-import android.support.v7.internal.widget.ThemeUtils;
 import android.view.MotionEvent;
 
 import com.nextgis.maplib.datasource.GeoEnvelope;
@@ -43,6 +42,7 @@ import com.nextgis.maplibui.api.MapViewEventListener;
 import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.mapui.MapViewOverlays;
 import com.nextgis.maplibui.util.ConstantsUI;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import java.io.IOException;
 
@@ -70,7 +70,7 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(4);
         mPaint.setPathEffect(new DashPathEffect(new float[]{5, 2, 2}, 0));
-        mPaint.setColor(ThemeUtils.getThemeAttrColor(context, R.attr.colorAccent));
+        mPaint.setColor(ControlHelper.getColor(context, R.attr.colorAccent));
         mPaint.setAlpha(64);
 
         mTolerancePX = context.getResources().getDisplayMetrics().density * ConstantsUI.TOLERANCE_DP;
