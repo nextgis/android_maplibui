@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -20,8 +20,8 @@
  * You should have received a copy of the GNU Lesser Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.nextgis.maplibui.util;
 
+package com.nextgis.maplibui.util;
 
 public interface ConstantsUI
 {
@@ -85,10 +85,6 @@ public interface ConstantsUI
     String JSON_SPACE_VALUE           = "space";
     String JSON_CHECKBOX_VALUE        = "checkbox";
     String JSON_PHOTO_VALUE           = "photo";
-
-    int DATE     = 0;
-    int TIME     = 1;
-    int DATETIME = 2;
 
     String PERMISSION_AUTHENTICATE_ACCOUNTS = "android.permission.AUTHENTICATE_ACCOUNTS";
     String PERMISSION_MANAGE_ACCOUNTS       = "android.permission.MANAGE_ACCOUNTS";

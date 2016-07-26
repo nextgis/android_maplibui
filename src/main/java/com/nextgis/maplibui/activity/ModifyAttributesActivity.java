@@ -405,6 +405,7 @@ public class ModifyAttributesActivity
                 case GeoConstants.FTTime:
                 case GeoConstants.FTDateTime:
                     DateTime dateTime = (DateTime) getLayoutInflater().inflate(R.layout.template_datetime, layout, false);
+                    dateTime.setPickerType(mLayer.getFieldByName(field.getName()).getType());
                     if (mIsViewOnly) {
                         dateTime.setEnabled(false);
                     }

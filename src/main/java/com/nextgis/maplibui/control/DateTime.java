@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -40,6 +40,7 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ISimpleControl;
 import com.nextgis.maplibui.util.ControlHelper;
@@ -51,14 +52,13 @@ import java.util.Calendar;
 import java.util.Date;
 
 import static com.nextgis.maplib.util.Constants.TAG;
-import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
 public class DateTime
         extends AppCompatTextView
         implements ISimpleControl
 {
-    protected int mPickerType = DATETIME;
+    protected int mPickerType = GeoConstants.FTDateTime;
 
     protected String           mFieldName;
     protected SimpleDateFormat mDateFormat;
@@ -129,7 +129,7 @@ public class DateTime
 
                 switch (pickerType) {
 
-                    case DATE:
+                    case GeoConstants.FTDate:
                         DatePickerDialog.OnDateSetListener onDateSetListener =
                                 new DatePickerDialog.OnDateSetListener()
                                 {
@@ -156,7 +156,7 @@ public class DateTime
                         datePickerDialog.show();
                         break;
 
-                    case TIME:
+                    case GeoConstants.FTTime:
                         TimePickerDialog.OnTimeSetListener onTimeSetListener =
                                 new TimePickerDialog.OnTimeSetListener()
                                 {
@@ -180,7 +180,7 @@ public class DateTime
                         timePickerDialog.show();
                         break;
 
-                    case DATETIME:
+                    case GeoConstants.FTDateTime:
                         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
                         builder.setTitle(mDateFormat.format(mCalendar.getTime()));
@@ -299,24 +299,24 @@ public class DateTime
 
         switch (mPickerType) {
 
-            case DATE:
+            case GeoConstants.FTDate:
                 mDateFormat = (SimpleDateFormat) DateFormat.getDateInstance();
                 break;
 
-            case TIME:
+            case GeoConstants.FTTime:
                 mDateFormat = (SimpleDateFormat) DateFormat.getTimeInstance();
                 break;
 
             default:
-                mPickerType = DATETIME;
-            case DATETIME:
+                mPickerType = GeoConstants.FTDateTime;
+            case GeoConstants.FTDateTime:
                 mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
                 break;
         }
 
         String text = "";
 
-        if (ControlHelper.hasKey(savedState, text)) {
+        if (ControlHelper.hasKey(savedState, mFieldName)) {
             mValue = savedState.getLong(ControlHelper.getSavedStateKey(mFieldName));
         } else if (null != featureCursor) {
             int column = featureCursor.getColumnIndex(mFieldName);
@@ -353,9 +353,7 @@ public class DateTime
             return "";
         }
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(mValue);
-        return mDateFormat.format(calendar.getTime());
+        return mDateFormat.format(new Date(mValue));
     }
 
 

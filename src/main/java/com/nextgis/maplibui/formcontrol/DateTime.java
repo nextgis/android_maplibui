@@ -64,7 +64,7 @@ public class DateTime
         extends AppCompatTextView
         implements IFormControl
 {
-    protected int mPickerType = DATETIME;
+    protected int mPickerType = FTDateTime;
 
     protected boolean          mIsShowLast;
     protected String           mFieldName;
@@ -120,29 +120,27 @@ public class DateTime
             getBackground().setColorFilter(Color.GRAY, PorterDuff.Mode.SRC_ATOP);
         }
 
-        int dataType;
-
         if (attributes.has(JSON_DATE_TYPE_KEY)) {
             mPickerType = attributes.getInt(JSON_DATE_TYPE_KEY);
         }
 
         switch (mPickerType) {
 
-            case DATE:
+            case 0:
                 mDateFormat = (SimpleDateFormat) DateFormat.getDateInstance();
-                dataType = GeoConstants.FTDate;
+                mPickerType = GeoConstants.FTDate;
                 break;
 
-            case TIME:
+            case 1:
                 mDateFormat = (SimpleDateFormat) DateFormat.getTimeInstance();
-                dataType = GeoConstants.FTTime;
+                mPickerType = GeoConstants.FTTime;
                 break;
 
             default:
-                mPickerType = DATETIME;
-            case DATETIME:
+                mPickerType = FTDateTime;
+            case 2:
                 mDateFormat = (SimpleDateFormat) DateFormat.getDateTimeInstance();
-                dataType = GeoConstants.FTDateTime;
+                mPickerType = GeoConstants.FTDateTime;
                 break;
         }
 
@@ -158,7 +156,7 @@ public class DateTime
             if (attributes.has(JSON_TEXT_KEY) && !TextUtils.isEmpty(
                     attributes.getString(JSON_TEXT_KEY).trim())) {
                 String defaultValue = attributes.getString(JSON_TEXT_KEY);
-                timestamp = parseDateTime(defaultValue, dataType);
+                timestamp = parseDateTime(defaultValue, mPickerType);
             }
 
             if (mIsShowLast) { timestamp = preferences.getLong(mFieldName, timestamp); }
@@ -243,7 +241,7 @@ public class DateTime
 
                 switch (pickerType) {
 
-                    case DATE:
+                    case FTDate:
                         DatePickerDialog.OnDateSetListener onDateSetListener =
                                 new DatePickerDialog.OnDateSetListener()
                                 {
@@ -270,7 +268,7 @@ public class DateTime
                         datePickerDialog.show();
                         break;
 
-                    case TIME:
+                    case FTTime:
                         TimePickerDialog.OnTimeSetListener onTimeSetListener =
                                 new TimePickerDialog.OnTimeSetListener()
                                 {
@@ -294,7 +292,7 @@ public class DateTime
                         timePickerDialog.show();
                         break;
 
-                    case DATETIME:
+                    case FTDateTime:
                         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
                         builder.setTitle(mDateFormat.format(mCalendar.getTime()));
