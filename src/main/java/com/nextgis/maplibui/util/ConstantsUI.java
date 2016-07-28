@@ -85,6 +85,7 @@ public interface ConstantsUI
     String JSON_SPACE_VALUE           = "space";
     String JSON_CHECKBOX_VALUE        = "checkbox";
     String JSON_PHOTO_VALUE           = "photo";
+    String JSON_SIGN_VALUE            = "signature";
 
     String PERMISSION_AUTHENTICATE_ACCOUNTS = "android.permission.AUTHENTICATE_ACCOUNTS";
     String PERMISSION_MANAGE_ACCOUNTS       = "android.permission.MANAGE_ACCOUNTS";

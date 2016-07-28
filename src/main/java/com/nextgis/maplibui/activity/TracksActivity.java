@@ -107,19 +107,6 @@ public class TracksActivity
     }
 
 
-    private String makePlaceholders() {
-        int size = mTracks.getSelectedItemsCount();
-        StringBuilder sb = new StringBuilder(size * 2 - 1);
-        sb.append("?");
-
-        for (int i = 1; i < size; i++) {
-            sb.append(",?");
-        }
-
-        return sb.toString();
-    }
-
-
     @Override
     public boolean onCreateActionMode(
             ActionMode actionMode,
@@ -222,7 +209,7 @@ public class TracksActivity
 
 
     protected String getSelection() {
-        return TrackLayer.FIELD_ID + " IN (" + makePlaceholders() + ")";
+        return TrackLayer.FIELD_ID + " IN (" + LayerUtil.makePlaceholders(mTracks.getSelectedItemsCount()) + ")";
     }
 
 

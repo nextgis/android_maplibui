@@ -23,8 +23,11 @@ package com.nextgis.maplibui.formcontrol;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -32,24 +35,36 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 
+import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.api.IFormControl;
+import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A special control for create sign picture.
  */
-public class Sign extends View {
+public class Sign extends View implements IFormControl {
+    public static final String SIGN_FILE = Integer.MAX_VALUE + "";
 
     protected Drawable mCleanImage;
     protected int mClearBuff;
@@ -58,6 +73,10 @@ public class Sign extends View {
     protected final LinkedList<Path> mPaths = new LinkedList<>();
     protected Paint mPaint;
     protected float mX, mY;
+    protected String mPreviousSignPath;
+    protected File mPreviousSign;
+    protected boolean mNotInitialized;
+    protected Bitmap mPreviousSignBitmap;
 
     protected final int CLEAR_BUFF_DP = 15;
     protected final int CLEAR_IMAGE_SIZE_DP = 32;
@@ -113,24 +132,40 @@ public class Sign extends View {
     }
 
     @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+
+        mPreviousSign = new File(mPreviousSignPath, SIGN_FILE);
+        if (mNotInitialized = mPreviousSign.exists()) {
+            try {
+                BitmapFactory.Options options = ControlHelper.getOptions(new FileInputStream(mPreviousSign), w, h);
+                mPreviousSignBitmap = ControlHelper.getBitmap(new FileInputStream(mPreviousSign), options);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
     protected void onDraw(Canvas canvas)
     {
-        int posX = canvas.getWidth() - mClearImageSize - mClearBuff;
+        if (mNotInitialized && mPreviousSignBitmap != null)
+            canvas.drawBitmap(mPreviousSignBitmap, 0, 0, null);
 
+        int posX = canvas.getWidth() - mClearImageSize - mClearBuff;
         mCleanImage.setBounds(posX, mClearBuff, posX + mClearImageSize, mClearImageSize + mClearBuff);
         mCleanImage.draw(canvas);
 
-        for (Path path : mPaths){
-            canvas.drawPath(path, mPaint);
-        }
+        if (!mNotInitialized)
+            for (Path path : mPaths)
+                canvas.drawPath(path, mPaint);
     }
 
     protected void drawSign(Canvas canvas, int bkColor, Paint paint){
         canvas.drawColor(bkColor);
 
-        for (Path path : mPaths){
+        for (Path path : mPaths)
             canvas.drawPath(path, paint);
-        }
     }
 
     protected void touchStart(float x, float y) {
@@ -168,12 +203,15 @@ public class Sign extends View {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                touchStart(x, y);
+                if (!mNotInitialized)
+                    touchStart(x, y);
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                touchMove(x, y);
-                postInvalidate();
+                if (!mNotInitialized) {
+                    touchMove(x, y);
+                    postInvalidate();
+                }
                 break;
 
             case MotionEvent.ACTION_UP:
@@ -181,8 +219,7 @@ public class Sign extends View {
                 //Log.d(Constants.TAG, "x: " + event.getX() + " y: " + event.getY() + " posX: " + posX + " posY: " + mClearBuff);
                 if(event.getX() > posX && event.getY() < mClearImageSize + mClearBuff){
                     onClearSign();
-                }
-                else{
+                } else if (!mNotInitialized) {
                     touchUp();
                     invalidate();
                 }
@@ -196,6 +233,9 @@ public class Sign extends View {
     }
 
     private void onClearSign() {
+        if (mNotInitialized)
+            mNotInitialized = false;
+
         mPaths.clear();
         mPath = new Path();
         mPaths.add(mPath);
@@ -204,6 +244,9 @@ public class Sign extends View {
     }
 
     public void save(int width, int height, boolean transparentBackground, File sigFile) throws IOException {
+        if (mNotInitialized)
+            return;
+
         float scale = Math.min((float) width / getWidth(), (float) height / getHeight());
         Matrix matrix = new Matrix();
         matrix.setScale(scale, scale);
@@ -212,18 +255,50 @@ public class Sign extends View {
         Canvas canvas = new Canvas(bmp);
         canvas.setMatrix(matrix);
 
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(3);
-        paint.setDither(true);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setColor(Color.BLACK);
-
-        drawSign(canvas, Color.argb(transparentBackground ? 0 : 255, 255, 255, 255), paint);
+        int color = transparentBackground ? Color.TRANSPARENT : 0xFFFFFF - mPaint.getColor();
+        drawSign(canvas, color, mPaint);
         if(sigFile.exists() || sigFile.createNewFile()) {
             FileOutputStream out = new FileOutputStream(sigFile);
             bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
         }
+    }
+
+    public void setPath(String path) {
+        mPreviousSignPath = path;
+    }
+
+    @Override
+    public void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences lastValue) throws JSONException {
+        init();
+    }
+
+    @Override
+    public void saveLastValue(SharedPreferences preferences) {
+
+    }
+
+    @Override
+    public boolean isShowLast() {
+        return false;
+    }
+
+    @Override
+    public String getFieldName() {
+        return null;
+    }
+
+    @Override
+    public void addToLayout(ViewGroup layout) {
+        layout.addView(this);
+    }
+
+    @Override
+    public Object getValue() {
+        return null;
+    }
+
+    @Override
+    public void saveState(Bundle outState) {
+
     }
 }

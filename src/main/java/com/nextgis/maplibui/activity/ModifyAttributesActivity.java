@@ -72,6 +72,7 @@ import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplib.util.SettingsConstants;
@@ -83,12 +84,15 @@ import com.nextgis.maplibui.control.DateTime;
 import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.control.TextEdit;
 import com.nextgis.maplibui.control.TextLabel;
+import com.nextgis.maplibui.formcontrol.Sign;
 import com.nextgis.maplibui.util.ConstantsUI;
+import com.nextgis.maplibui.util.LayerUtil;
 import com.nextgis.maplibui.util.NotificationHelper;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import org.json.JSONException;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -599,25 +603,72 @@ public class ModifyAttributesActivity
                 "content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
 
         if (mFeatureId == NOT_FOUND) {
+            // we need to get proper mFeatureId for new features first
             Uri result = getContentResolver().insert(uri, values);
             if (result == null)
                 Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT).show();
             else
                 mFeatureId = Long.parseLong(result.getLastPathSegment());
-
-            putAttaches();  // we need to get proper mFeatureId for new features first
         } else {
             Uri updateUri = ContentUris.withAppendedId(uri, mFeatureId);
-            int attaches = putAttaches();
-
-            if (getContentResolver().update(updateUri, values, null, null) == 0 && attaches == 0) {
+            boolean valuesUpdated = getContentResolver().update(updateUri, values, null, null) == values.size();
+            if (!valuesUpdated)
                 Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT).show();
-            }
         }
 
+        putAttaches();
+        putSign();
         Intent data = new Intent();
         data.putExtra(ConstantsUI.KEY_FEATURE_ID, mFeatureId);
         setResult(RESULT_OK, data);
+    }
+
+
+    protected void putSign() {
+        LinearLayout layout = (LinearLayout) findViewById(R.id.controls_list);
+        for (int i = 0; i < layout.getChildCount(); i++) {
+            View child = layout.getChildAt(i);
+            if (child instanceof Sign) {
+                IGISApplication application = (IGISApplication) getApplication();
+                Uri uri = Uri.parse("content://" + application.getAuthority() + "/" +
+                        mLayer.getPath().getName() + "/" + mFeatureId + "/" + Constants.URI_ATTACH);
+
+                ContentValues values = new ContentValues();
+                values.put(VectorLayer.ATTACH_DISPLAY_NAME, "_signature");
+                values.put(VectorLayer.ATTACH_DESCRIPTION, "_signature");
+                values.put(VectorLayer.ATTACH_MIME_TYPE, "image/jpeg");
+
+                Cursor saved = getContentResolver().query(uri, null, VectorLayer.ATTACH_ID + " =  ?", new String[]{Sign.SIGN_FILE}, null);
+                boolean hasSign = false;
+                if (saved != null) {
+                    hasSign = saved.moveToFirst();
+                    saved.close();
+                }
+
+                if (!hasSign) {
+                    Uri result = getContentResolver().insert(uri, values);
+                    if (result != null) {
+                        long id = Long.parseLong(result.getLastPathSegment());
+                        values.clear();
+                        values.put(VectorLayer.ATTACH_ID, Integer.MAX_VALUE);
+                        uri = Uri.withAppendedPath(uri, id + "");
+                        getContentResolver().update(uri, values, null, null);
+                    }
+                }
+
+                File png = new File(mLayer.getPath(), mFeatureId + "");
+                Sign sign = (Sign) child;
+                try {
+                    if (!png.isDirectory())
+                        FileUtil.createDir(png);
+
+                    png = new File(png, Sign.SIGN_FILE);
+                    sign.save(sign.getWidth(), sign.getHeight(), true, png);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
 
@@ -705,19 +756,20 @@ public class ModifyAttributesActivity
             Uri uri = Uri.parse("content://" + application.getAuthority() + "/" +
                     mLayer.getPath().getName() + "/" + mFeatureId + "/" + Constants.URI_ATTACH);
 
-            for (Integer attach : deletedAttaches) {
-                int result = getContentResolver().delete(Uri.withAppendedPath(uri, attach + ""), null, null);
-                total += result;
+            int size = deletedAttaches.size();
+            String[] args = new String[]{};
+            for (int i = 0; i < size; i++)
+                args[i] = deletedAttaches.get(i).toString();
 
-                if (result == 0) {
-                    Log.d(TAG, "attach delete failed");
-                } else {
-                    Log.d(TAG, "attach delete success: " + result);
-                }
+            total += getContentResolver().delete(uri, LayerUtil.makePlaceholders(size), args);
+            if (total == 0 && size > 0) {
+                Toast.makeText(this, getText(R.string.photo_fail_attach), Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "attach delete failed");
+            } else {
+                Log.d(TAG, "attach delete success: " + total);
             }
 
             List<String> imagesPath =  gallery.getNewAttaches();
-
             for (String path : imagesPath) {
                 String[] segments = path.split("/");
                 String name = segments.length > 0 ? segments[segments.length - 1] : "image.jpg";
@@ -727,28 +779,11 @@ public class ModifyAttributesActivity
 
                 Uri result = getContentResolver().insert(uri, values);
                 if (result == null) {
+                    Toast.makeText(this, getText(R.string.photo_fail_attach), Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "attach insert failed");
                 } else {
-                    try {
-                        OutputStream outStream = getContentResolver().openOutputStream(result);
-
-                        if (outStream != null) {
-                            InputStream inStream = new FileInputStream(path);
-                            byte[] buffer = new byte[8192];
-                            int counter;
-
-                            while ((counter = inStream.read(buffer, 0, buffer.length)) > 0) {
-                                outStream.write(buffer, 0, counter);
-                                outStream.flush();
-                            }
-
-                            outStream.close();
-                            inStream.close();
-                            total++;
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    if (copyToStream(result, path))
+                        total++;
 
                     Log.d(TAG, "attach insert success: " + result.toString());
                 }
@@ -756,6 +791,32 @@ public class ModifyAttributesActivity
         }
 
         return total;
+    }
+
+    protected boolean copyToStream(Uri uri, String path) {
+        try {
+            OutputStream outStream = getContentResolver().openOutputStream(uri);
+
+            if (outStream != null) {
+                InputStream inStream = new FileInputStream(path);
+                byte[] buffer = new byte[8192];
+                int counter;
+
+                while ((counter = inStream.read(buffer, 0, buffer.length)) > 0) {
+                    outStream.write(buffer, 0, counter);
+                    outStream.flush();
+                }
+
+                outStream.close();
+                inStream.close();
+
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
 

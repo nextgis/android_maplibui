@@ -45,6 +45,7 @@ import com.nextgis.maplibui.formcontrol.DateTime;
 import com.nextgis.maplibui.formcontrol.DoubleCombobox;
 import com.nextgis.maplibui.formcontrol.DoubleComboboxValue;
 import com.nextgis.maplibui.formcontrol.RadioGroup;
+import com.nextgis.maplibui.formcontrol.Sign;
 import com.nextgis.maplibui.formcontrol.Space;
 import com.nextgis.maplibui.formcontrol.TextEdit;
 import com.nextgis.maplibui.formcontrol.TextLabel;
@@ -70,6 +71,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_DOUBLE_COMBOBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_PHOTO_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_PORTRAIT_ELEMENTS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_RADIO_GROUP_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_SIGN_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_SPACE_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TABS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_EDIT_VALUE;
@@ -206,6 +208,11 @@ public class FormBuilderModifyAttributesActivity
                 case JSON_PHOTO_VALUE:
                     control = (PhotoGallery) getLayoutInflater().inflate(R.layout.formtemplate_photo, layout, false);
                     ((PhotoGallery) control).init(mLayer, mFeatureId);
+                    break;
+
+                case JSON_SIGN_VALUE:
+                    control = (Sign) getLayoutInflater().inflate(R.layout.formtemplate_sign, layout, false);
+                    ((Sign) control).setPath(mLayer.getPath().getPath() + File.separator + mFeatureId);
                     break;
 
                 //TODO: add controls

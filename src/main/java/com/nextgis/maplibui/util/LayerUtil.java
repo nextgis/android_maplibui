@@ -415,4 +415,19 @@ public final class LayerUtil {
             mActivity.startActivity(shareIntent);
         }
     }
+
+    public static String makePlaceholders(int size) {
+        if (size <= 0)
+            return "";
+
+        StringBuilder sb = new StringBuilder(size * 2 - 1);
+        sb.append("?");
+
+        for (int i = 1; i < size; i++) {
+            sb.append(",?");
+        }
+
+        return sb.toString();
+    }
+
 }

@@ -181,27 +181,10 @@ public final class ControlHelper {
     }
 
 
-    @SuppressWarnings("deprecation")
-    public static Bitmap getBitmap(InputStream is, int width, int height) {
+    public static Bitmap getBitmap(InputStream is, BitmapFactory.Options options) {
         Bitmap result = null;
         if (is == null)
             return null;
-
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeStream(is, null, options);
-
-        if (height == 0)
-            height = (int) ((1f * width * options.outHeight / options.outWidth));
-        else if (width == 0)
-            width = (int) ((1f * height * options.outWidth / options.outHeight));
-
-        options.inSampleSize = calculateInSampleSize(options, width, height);
-        options.inJustDecodeBounds = false;
-        options.inDither = false;
-        options.inPurgeable = true;
-        options.inInputShareable = true;
-        options.inTempStorage = new byte[32 * 1024];
 
         try {
             result = BitmapFactory.decodeStream(is, null, options);
@@ -223,6 +206,29 @@ public final class ControlHelper {
         }
 
         return result;
+    }
+
+    @SuppressWarnings("deprecation")
+    public static BitmapFactory.Options getOptions(InputStream is, int width, int height) {
+        if (is == null)
+            return null;
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(is, null, options);
+
+        if (height == 0)
+            height = (int) ((1f * width * options.outHeight / options.outWidth));
+        else if (width == 0)
+            width = (int) ((1f * height * options.outWidth / options.outHeight));
+
+        options.inSampleSize = calculateInSampleSize(options, width, height);
+        options.inJustDecodeBounds = false;
+        options.inDither = false;
+        options.inPurgeable = true;
+        options.inInputShareable = true;
+        options.inTempStorage = new byte[32 * 1024];
+        return options;
     }
 
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {

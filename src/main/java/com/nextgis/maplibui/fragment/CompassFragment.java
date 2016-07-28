@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
@@ -159,12 +160,13 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
         InputStream is = null;
         try {
             is = getContext().getAssets().open(image);
+            BitmapFactory.Options options = ControlHelper.getOptions(is, width, height);
+            is = getContext().getAssets().open(image);
+            Bitmap bitmap = ControlHelper.getBitmap(is, options);
+            view.setImageBitmap(bitmap);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        Bitmap bitmap = ControlHelper.getBitmap(is, width, height);
-        view.setImageBitmap(bitmap);
     }
 
     @Override

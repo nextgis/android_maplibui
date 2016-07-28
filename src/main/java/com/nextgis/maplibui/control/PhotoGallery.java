@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -91,11 +91,11 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
 
         if (mLayer != null && mFeatureId != NOT_FOUND && mAdapter.getItemCount() < 2) { // feature exists
             IGISApplication app = (IGISApplication) ((Activity) getContext()).getApplication();
-            getAttaches(app, mLayer, mFeatureId, mAttaches);
+            getAttaches(app, mLayer, mFeatureId, mAttaches, true);
         }
     }
 
-    public static void getAttaches(IGISApplication app, VectorLayer layer, long featureId, Map<String, Integer> map) {
+    public static void getAttaches(IGISApplication app, VectorLayer layer, long featureId, Map<String, Integer> map, boolean excludeSign) {
         Uri uri = Uri.parse("content://" + app.getAuthority() + "/" +
                 layer.getPath().getName() + "/" + featureId + "/" + Constants.URI_ATTACH);
         MatrixCursor attachCursor = (MatrixCursor) layer.query(uri,
@@ -104,6 +104,9 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
 
         if (attachCursor.moveToFirst()) {
             do {
+                if (excludeSign && attachCursor.getInt(1) == Integer.MAX_VALUE)
+                    continue;
+
                 map.put(attachCursor.getString(0), attachCursor.getInt(1));
             } while (attachCursor.moveToNext());
         }
