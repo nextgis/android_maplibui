@@ -79,6 +79,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_NORMAL;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
 
 public class CreateFromQMSLayerDialog extends NGDialog {
@@ -96,6 +97,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
     protected final static String KEY_URL = "url";
     protected final static String KEY_Z_MIN = "z_min";
     protected final static String KEY_Z_MAX = "z_max";
+    protected final static String Y_TOP = "y_origin_top";
 
     protected LayerGroup mGroupLayer;
     protected ListView mLayers;
@@ -306,11 +308,12 @@ public class CreateFromQMSLayerDialog extends NGDialog {
             try {
                 JSONObject remoteLayer = new JSONObject(response);
 
-                int tmsType = TMSTYPE_OSM;
                 String layerName = remoteLayer.getString(KEY_NAME);
                 String layerURL = remoteLayer.getString(KEY_URL);
                 float minZoom = remoteLayer.isNull(KEY_Z_MIN) ? GeoConstants.DEFAULT_MIN_ZOOM : (float) remoteLayer.getDouble(KEY_Z_MIN);
                 float maxZoom = remoteLayer.isNull(KEY_Z_MAX) ? GeoConstants.DEFAULT_MAX_ZOOM : (float) remoteLayer.getDouble(KEY_Z_MAX);
+                boolean yOrder = remoteLayer.optBoolean(Y_TOP, true);
+                int tmsType = yOrder ? TMSTYPE_OSM : TMSTYPE_NORMAL;
 
                 // do we need this checks? QMS should provide correct data
                 //check if {x}, {y} or {z} present
