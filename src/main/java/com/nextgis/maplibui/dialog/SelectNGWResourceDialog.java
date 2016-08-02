@@ -45,14 +45,18 @@ import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.datasource.ngw.Connections;
 import com.nextgis.maplib.datasource.ngw.INGWResource;
 import com.nextgis.maplib.datasource.ngw.LayerWithStyles;
+import com.nextgis.maplib.datasource.ngw.WebMap;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.NGWRasterLayer;
+import com.nextgis.maplib.map.NGWWebMapLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGWLoginActivity;
 import com.nextgis.maplibui.fragment.LayerFillProgressDialogFragment;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
+import com.nextgis.maplibui.mapui.NGWWebMapLayerUI;
 import com.nextgis.maplibui.service.LayerFillService;
 import com.nextgis.maplibui.util.CheckState;
 
@@ -290,8 +294,14 @@ public class SelectNGWResourceDialog
                     //3. create layer
                     String layerName = layer.getName();
 
-                    NGWRasterLayerUI newLayer = new NGWRasterLayerUI(
-                            mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
+                    NGWRasterLayer newLayer;
+                    if (resource instanceof WebMap) {
+                        NGWWebMapLayerUI webmap = new NGWWebMapLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
+                        webmap.setChildren(((WebMap) resource).getChildren());
+                        newLayer = webmap;
+                    } else
+                        newLayer = new NGWRasterLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
+
                     newLayer.setName(layerName);
                     newLayer.setURL(layerURL);
                     newLayer.setTMSType(TMSTYPE_OSM);

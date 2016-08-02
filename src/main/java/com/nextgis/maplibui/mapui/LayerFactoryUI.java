@@ -58,6 +58,7 @@ import static com.nextgis.maplib.util.Constants.LAYERTYPE_LOCAL_VECTOR;
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_LOOKUPTABLE;
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_NGW_RASTER;
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_NGW_VECTOR;
+import static com.nextgis.maplib.util.Constants.LAYERTYPE_NGW_WEBMAP;
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_REMOTE_TMS;
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_TRACKS;
 import static com.nextgis.maplib.util.Constants.TAG;
@@ -223,6 +224,9 @@ public class LayerFactoryUI
                 case LAYERTYPE_NGW_VECTOR:
                     layer = new NGWVectorLayerUI(context, path);
                     break;
+                case LAYERTYPE_NGW_WEBMAP:
+                    layer = new NGWWebMapLayerUI(context, path);
+                    break;
                 case LAYERTYPE_LOCAL_VECTOR:
                     layer = new VectorLayerUI(context, path);
                     break;
@@ -266,6 +270,8 @@ public class LayerFactoryUI
                 return context.getString(R.string.layer_tms);
             case LAYERTYPE_LOOKUPTABLE:
                 return context.getString(R.string.layer_lookuptable);
+            case LAYERTYPE_NGW_WEBMAP:
+                return context.getString(R.string.web_map);
             default:
                 return context.getString(R.string.layer_na);
         }

@@ -26,6 +26,7 @@ package com.nextgis.maplibui.dialog;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
+import android.support.v4.content.ContextCompat;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -230,7 +231,7 @@ public class NGWResourcesListAdapter
                 v.setId(R.id.resourcegroup_row);
             }
             ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-            ivIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_add_account));
+            ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_add_account));
 
             TextView tvText = (TextView) v.findViewById(R.id.tvName);
             tvText.setText(context.getString(R.string.add_account));
@@ -244,7 +245,7 @@ public class NGWResourcesListAdapter
                 v.setId(R.id.resourcegroup_row);
             }
             ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-            ivIcon.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_ngw));
+            ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_ngw));
 
             TextView tvText = (TextView) v.findViewById(R.id.tvName);
             tvText.setText(connection.getName());
@@ -270,8 +271,7 @@ public class NGWResourcesListAdapter
                 v.setId(R.id.resourcegroup_row);
 
                 ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                ivIcon.setImageDrawable(
-                        context.getResources().getDrawable(R.drawable.ic_ngw_folder));
+                ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_ngw_folder));
             }
 
             TextView tvText = (TextView) v.findViewById(R.id.tvName);
@@ -305,8 +305,7 @@ public class NGWResourcesListAdapter
                         v.setId(R.id.resourcegroup_row);
 
                         ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                        ivIcon.setImageDrawable(
-                                context.getResources().getDrawable(R.drawable.ic_ngw_folder));
+                        ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_ngw_folder));
                     }
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
@@ -319,8 +318,7 @@ public class NGWResourcesListAdapter
                         v.setId(R.id.ngw_layer_check_row);
                     }
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(
-                            context.getResources().getDrawable(R.drawable.ic_ngw_raster));
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_ngw_raster));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
                     tvDesc.setText(context.getString(R.string.raster_layer));
@@ -336,8 +334,7 @@ public class NGWResourcesListAdapter
                         v.setId(R.id.ngw_layer_check_row);
                     }
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(
-                            context.getResources().getDrawable(R.drawable.ic_ngw_raster));
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_ngw_raster));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
                     tvDesc.setText(context.getString(R.string.raster_layer));
@@ -377,8 +374,7 @@ public class NGWResourcesListAdapter
                     }
 
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(
-                            context.getResources().getDrawable(R.drawable.ic_ngw_vector));
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_ngw_vector));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
                     tvDesc.setText(context.getString(R.string.vector_layer));
@@ -415,8 +411,7 @@ public class NGWResourcesListAdapter
                     }
 
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(
-                            context.getResources().getDrawable(R.drawable.ic_pg_vector));
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_pg_vector));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
                     tvDesc.setText(context.getString(R.string.pg_layer));
@@ -428,8 +423,7 @@ public class NGWResourcesListAdapter
                         v.setId(R.id.ngw_layer_check_row);
                     }
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(
-                            context.getResources().getDrawable(R.drawable.ic_ngw_raster));
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_ngw_webmap));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
                     tvDesc.setText(context.getString(R.string.web_map));
@@ -625,10 +619,7 @@ public class NGWResourcesListAdapter
                     ImageView image = new ImageView(mSelectNGWResourceDialog.getActivity());
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(30, 30);
                     image.setLayoutParams(params);
-                    image.setImageDrawable(
-                            mSelectNGWResourceDialog.getActivity()
-                                    .getResources()
-                                    .getDrawable(R.drawable.ic_next_light));
+                    image.setImageDrawable(ContextCompat.getDrawable(mSelectNGWResourceDialog.getActivity(), R.drawable.ic_next_light));
                     mLinearLayout.addView(image, 0);
                 }
             }

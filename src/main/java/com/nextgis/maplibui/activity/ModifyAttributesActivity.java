@@ -611,7 +611,7 @@ public class ModifyAttributesActivity
                 mFeatureId = Long.parseLong(result.getLastPathSegment());
         } else {
             Uri updateUri = ContentUris.withAppendedId(uri, mFeatureId);
-            boolean valuesUpdated = getContentResolver().update(updateUri, values, null, null) == values.size();
+            boolean valuesUpdated = getContentResolver().update(updateUri, values, null, null) == 1;
             if (!valuesUpdated)
                 Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT).show();
         }

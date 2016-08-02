@@ -84,7 +84,9 @@ public class VectorLayerSettingsActivity
         if (mLayer == null)
             return;
 
-        if (mLayer.getType() == Constants.LAYERTYPE_LOCAL_VECTOR || mLayer.getType() == Constants.LAYERTYPE_NGW_VECTOR) {
+        if (mLayer.getType() == Constants.LAYERTYPE_LOCAL_VECTOR
+                || mLayer.getType() == Constants.LAYERTYPE_NGW_VECTOR
+                || mLayer.getType() == Constants.LAYERTYPE_NGW_WEBMAP) {
             mVectorLayer = (VectorLayer) mLayer;
             mLayerMinZoom = mVectorLayer.getMinZoom();
             mLayerMaxZoom = mVectorLayer.getMaxZoom();

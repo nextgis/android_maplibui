@@ -55,6 +55,7 @@ import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
+import com.nextgis.maplibui.mapui.NGWWebMapLayerUI;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
 import com.nextgis.maplibui.util.LayerUtil;
 
@@ -252,6 +253,11 @@ public class LayersListAdapter
                             popup.getMenu().findItem(R.id.menu_download_tiles).setVisible(true);
                         }
 
+                        if (layerui instanceof NGWWebMapLayerUI) {
+                            popup.getMenu().findItem(R.id.menu_edit).setVisible(true);
+                            popup.getMenu().findItem(R.id.menu_edit).setTitle(R.string.track_list);
+                        }
+
                         popup.setOnMenuItemClickListener(
                                 new PopupMenu.OnMenuItemClickListener()
                                 {
@@ -270,7 +276,9 @@ public class LayersListAdapter
                                                 LayerUtil.shareLayerAsGeoJSON(vectorLayer);
                                             }
                                         } else if (i == R.id.menu_edit) {
-                                            if (mEditListener != null)
+                                            if (layerui instanceof NGWWebMapLayerUI)
+                                                ((NGWWebMapLayerUI) layerui).showLayersDialog(mActivity);
+                                            else if (mEditListener != null)
                                                 mEditListener.onLayerEdit(layer);
                                         } else if (i == R.id.menu_delete) {
                                             final int position = mMap.removeLayer(layer);
@@ -321,6 +329,9 @@ public class LayersListAdapter
                                                 remoteTMSLayer.downloadTiles(mContext, env);
                                             } else if(layer instanceof NGWRasterLayerUI) {
                                                 NGWRasterLayerUI remoteTMSLayer = (NGWRasterLayerUI) layer;
+                                                remoteTMSLayer.downloadTiles(mContext, env);
+                                            } else if(layer instanceof NGWWebMapLayerUI) {
+                                                NGWWebMapLayerUI remoteTMSLayer = (NGWWebMapLayerUI) layer;
                                                 remoteTMSLayer.downloadTiles(mContext, env);
                                             }
                                         }
