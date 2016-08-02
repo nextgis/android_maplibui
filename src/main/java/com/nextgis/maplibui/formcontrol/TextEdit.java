@@ -101,7 +101,7 @@ public class TextEdit extends AppCompatEditText
                 value = preferences.getString(mFieldName, value);
         }
 
-        boolean useLogin = element.optBoolean(USE_LOGIN);
+        boolean useLogin = attributes.optBoolean(USE_LOGIN);
         String accountName = element.optString(SyncStateContract.Columns.ACCOUNT_NAME);
         if (useLogin && !TextUtils.isEmpty(accountName)) {
             enabled = false;
