@@ -327,7 +327,7 @@ public class NGWLoginFragment
 
         } else {
             if (mChangeAccountUrl)
-                app.setUserData(accountName, "url", mUrlText);
+                app.setUserData(accountName, "url", mUrlText.toLowerCase());
 
             if (!token.equals(Constants.NGW_ACCOUNT_GUEST)) {
                 if (mChangeAccountLogin)

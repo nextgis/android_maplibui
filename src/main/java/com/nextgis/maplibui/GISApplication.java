@@ -237,7 +237,7 @@ public abstract class GISApplication extends Application
 
     @Override
     public String getAccountUrl(Account account) {
-        return getAccountUserData(account, "url");
+        return getAccountUserData(account, "url").toLowerCase();
     }
 
 
