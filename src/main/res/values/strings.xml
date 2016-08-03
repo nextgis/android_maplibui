@@ -289,4 +289,5 @@
     <string name="field_not_filled">Some fields are empty</string>
     <string name="web_map">Web map</string>
     <string name="no_features">Layer has no features</string>
+    <string name="error_export_geojson">Can not create geojson output</string>
 </resources>

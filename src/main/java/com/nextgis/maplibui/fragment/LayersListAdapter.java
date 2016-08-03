@@ -273,7 +273,7 @@ public class LayersListAdapter
 
                                             if (layerui instanceof VectorLayer) {
                                                 VectorLayer vectorLayer = (VectorLayer) layerui;
-                                                LayerUtil.shareLayerAsGeoJSON(vectorLayer);
+                                                LayerUtil.shareLayerAsGeoJSON(mActivity, vectorLayer);
                                             }
                                         } else if (i == R.id.menu_edit) {
                                             if (layerui instanceof NGWWebMapLayerUI)

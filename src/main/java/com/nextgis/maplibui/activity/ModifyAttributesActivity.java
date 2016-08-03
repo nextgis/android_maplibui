@@ -24,21 +24,16 @@
 package com.nextgis.maplibui.activity;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.location.Location;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
@@ -47,10 +42,8 @@ import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.CheckBox;
@@ -86,6 +79,7 @@ import com.nextgis.maplibui.control.TextEdit;
 import com.nextgis.maplibui.control.TextLabel;
 import com.nextgis.maplibui.formcontrol.Sign;
 import com.nextgis.maplibui.util.ConstantsUI;
+import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.LayerUtil;
 import com.nextgis.maplibui.util.NotificationHelper;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
@@ -225,7 +219,7 @@ public class ModifyAttributesActivity
                                 builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
                                     @Override
                                     public void onDismiss(DialogInterface dialog) {
-                                        unlockScreenOrientation();
+                                        ControlHelper.unlockScreenOrientation(ModifyAttributesActivity.this);
                                     }
                                 });
 
@@ -259,7 +253,7 @@ public class ModifyAttributesActivity
                                     }
                                 });
 
-                                lockScreenOrientation();
+                                ControlHelper.lockScreenOrientation(ModifyAttributesActivity.this);
                                 dialog.setCanceledOnTouchOutside(false);
                                 dialog.show();
                                 accurateLocation.startTaking();
@@ -275,58 +269,6 @@ public class ModifyAttributesActivity
             ViewGroup rootView = (ViewGroup) findViewById(R.id.root_view);
             rootView.removeView(findViewById(R.id.location_panel));
         }
-    }
-
-    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
-    public void lockScreenOrientation() {
-        WindowManager windowManager =  (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-        Configuration configuration = getResources().getConfiguration();
-        int rotation = windowManager.getDefaultDisplay().getRotation();
-
-        // Search for the natural position of the device
-        if(configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
-                (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) ||
-                configuration.orientation == Configuration.ORIENTATION_PORTRAIT &&
-                        (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270))
-        {
-            // Natural position is Landscape
-            switch (rotation)
-            {
-                case Surface.ROTATION_0:
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                    break;
-                case Surface.ROTATION_90:
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
-                    break;
-                case Surface.ROTATION_180:
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
-                    break;
-                case Surface.ROTATION_270:
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                    break;
-            }
-        } else {
-            // Natural position is Portrait
-            switch (rotation)
-            {
-                case Surface.ROTATION_0:
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                    break;
-                case Surface.ROTATION_90:
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-                    break;
-                case Surface.ROTATION_180:
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
-                    break;
-                case Surface.ROTATION_270:
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
-                    break;
-            }
-        }
-    }
-
-    public void unlockScreenOrientation() {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
     @SuppressWarnings("deprecation")

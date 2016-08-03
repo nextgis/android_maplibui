@@ -286,4 +286,5 @@
     <string name="accurate_finish_sound">Beep at finish</string>
     <string name="no_features">Layer has no features</string>
     <string name="discard">Discard</string>
+    <string name="error_export_geojson">Can not create geojson output</string>
 </resources>

@@ -22,6 +22,7 @@
 
 package com.nextgis.maplibui.util;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -104,89 +105,154 @@ public final class LayerUtil {
         exportTask.execute();
     }
 
-    public static void shareLayerAsGeoJSON(VectorLayer layer) {
-        try {
-            File temp = MapUtil.prepareTempDir(layer.getContext(), "shared_layers");
-            temp = new File(temp, layer.getName() + ".zip");
-            FileOutputStream fos = new FileOutputStream(temp);
-            ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(fos));
+    public static void shareLayerAsGeoJSON(Activity activity, VectorLayer layer) {
+        ExportGeoJSONTask exportTask = new ExportGeoJSONTask(activity, layer);
+        exportTask.execute();
+    }
 
-            JSONObject obj = new JSONObject();
+    public static class ExportGeoJSONTask extends AsyncTask<Void, Void, File> {
+        private Activity mActivity;
+        private VectorLayer mLayer;
+        private ProgressDialog mProgress;
+        private boolean mIsCanceled;
 
-            JSONArray geoJSONFeatures = new JSONArray();
-            Cursor featuresCursor = layer.query(null, null, null, null, null);
+        public ExportGeoJSONTask(Activity activity, VectorLayer layer) {
+            mActivity = activity;
+            mLayer = layer;
+        }
 
-            JSONObject crs = new JSONObject();
-            crs.put(GEOJSON_TYPE, GEOJSON_NAME);
-            JSONObject crsName = new JSONObject();
-            crsName.put(GEOJSON_NAME, GEOJSON_CRS_EPSG_3857);
-            crs.put(GEOJSON_PROPERTIES, crsName);
-            obj.put(GEOJSON_CRS, crs);
-            obj.put(GEOJSON_TYPE, GEOJSON_TYPE_FeatureCollection);
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
 
-            Feature feature;
-            byte[] buffer = new byte[1024];
-            int length;
+            mProgress = new ProgressDialog(mActivity);
+            mProgress.setTitle(R.string.export);
+            mProgress.setMessage(mActivity.getString(R.string.preparing));
+            mProgress.setCanceledOnTouchOutside(false);
+            mProgress.setButton(DialogInterface.BUTTON_NEGATIVE, mActivity.getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    mIsCanceled = true;
+                }
+            });
+            mProgress.show();
+            ControlHelper.lockScreenOrientation(mActivity);
+        }
 
-            if (featuresCursor != null && featuresCursor.moveToFirst()) {
-                do {
-                    JSONObject featureJSON = new JSONObject();
-                    featureJSON.put(GEOJSON_TYPE, GEOJSON_TYPE_Feature);
+        @Override
+        protected File doInBackground(Void... voids) {
+            try {
+                File temp = MapUtil.prepareTempDir(mLayer.getContext(), "shared_layers");
+                temp = new File(temp, mLayer.getName() + ".zip");
+                FileOutputStream fos = new FileOutputStream(temp);
+                ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(fos));
 
-                    feature = layer.cursorToFeature(featuresCursor);
-                    JSONObject properties = new JSONObject();
-                    for (Field field : feature.getFields()) {
-                        properties.put(field.getName(), feature.getFieldValue(field.getName()));
-                    }
+                JSONObject obj = new JSONObject();
 
-                    File attachFile, featureDir = new File(layer.getPath(), feature.getId() + "");
-                    JSONArray attaches = new JSONArray();
-                    for (String attachId : feature.getAttachments().keySet()) {
-                        attachFile = new File(featureDir, attachId);
-                        attaches.put(attachId + ".jpg");
+                JSONArray geoJSONFeatures = new JSONArray();
+                Cursor featuresCursor = mLayer.query(null, null, null, null, null);
 
-                        FileInputStream fis = new FileInputStream(attachFile);
-                        zos.putNextEntry(new ZipEntry(feature.getId() + "/" + attachId + ".jpg"));
+                if (mIsCanceled)
+                    return null;
 
-                        while ((length = fis.read(buffer)) > 0)
-                            zos.write(buffer, 0, length);
+                JSONObject crs = new JSONObject();
+                crs.put(GEOJSON_TYPE, GEOJSON_NAME);
+                JSONObject crsName = new JSONObject();
+                crsName.put(GEOJSON_NAME, GEOJSON_CRS_EPSG_3857);
+                crs.put(GEOJSON_PROPERTIES, crsName);
+                obj.put(GEOJSON_CRS, crs);
+                obj.put(GEOJSON_TYPE, GEOJSON_TYPE_FeatureCollection);
 
-                        zos.closeEntry();
-                        fis.close();
-                    }
+                Feature feature;
+                byte[] buffer = new byte[1024];
+                int length;
 
-                    properties.put(GEOJSON_ATTACHES, attaches);
-                    featureJSON.put(GEOJSON_PROPERTIES, properties);
-                    featureJSON.put(GEOJSON_GEOMETRY, feature.getGeometry().toJSON());
-                    geoJSONFeatures.put(featureJSON);
-                } while (featuresCursor.moveToNext());
+                if (featuresCursor != null && featuresCursor.moveToFirst()) {
+                    do {
+                        if (mIsCanceled)
+                            return null;
 
-                featuresCursor.close();
-            } else {
-                Toast.makeText(layer.getContext(), R.string.no_features, Toast.LENGTH_SHORT).show();
+                        JSONObject featureJSON = new JSONObject();
+                        featureJSON.put(GEOJSON_TYPE, GEOJSON_TYPE_Feature);
+
+                        feature = mLayer.cursorToFeature(featuresCursor);
+                        JSONObject properties = new JSONObject();
+                        for (Field field : feature.getFields()) {
+                            properties.put(field.getName(), feature.getFieldValue(field.getName()));
+                        }
+
+                        File attachFile, featureDir = new File(mLayer.getPath(), feature.getId() + "");
+                        JSONArray attaches = new JSONArray();
+                        for (String attachId : feature.getAttachments().keySet()) {
+                            attachFile = new File(featureDir, attachId);
+                            attaches.put(attachId + ".jpg");
+
+                            FileInputStream fis = new FileInputStream(attachFile);
+                            zos.putNextEntry(new ZipEntry(feature.getId() + "/" + attachId + ".jpg"));
+
+                            while ((length = fis.read(buffer)) > 0)
+                                zos.write(buffer, 0, length);
+
+                            zos.closeEntry();
+                            fis.close();
+                        }
+
+                        properties.put(GEOJSON_ATTACHES, attaches);
+                        featureJSON.put(GEOJSON_PROPERTIES, properties);
+                        featureJSON.put(GEOJSON_GEOMETRY, feature.getGeometry().toJSON());
+                        geoJSONFeatures.put(featureJSON);
+                    } while (featuresCursor.moveToNext());
+
+                    featuresCursor.close();
+                } else {
+                    Toast.makeText(mLayer.getContext(), R.string.no_features, Toast.LENGTH_SHORT).show();
+                    return null;
+                }
+
+                obj.put(GEOJSON_TYPE_FEATURES, geoJSONFeatures);
+
+                buffer = obj.toString().getBytes();
+                zos.putNextEntry(new ZipEntry(mLayer.getName() + ".geojson"));
+                zos.write(buffer);
+                zos.closeEntry();
+                zos.close();
+
+                return temp;
+            } catch (JSONException | IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(File s) {
+            super.onPostExecute(s);
+
+            ControlHelper.unlockScreenOrientation(mActivity);
+            if (mProgress != null)
+                mProgress.dismiss();
+
+            if (mIsCanceled && s == null) {
+                Toast.makeText(mActivity, R.string.canceled, Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            obj.put(GEOJSON_TYPE_FEATURES, geoJSONFeatures);
-
-            buffer = obj.toString().getBytes();
-            zos.putNextEntry(new ZipEntry(layer.getName() + ".geojson"));
-            zos.write(buffer);
-            zos.closeEntry();
-            zos.close();
+            if (s == null || !s.exists()) {
+                Toast.makeText(mActivity, R.string.error_create_feature, Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.setType("application/json,application/vnd.geo+json");
-            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(temp));
+            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(s));
 //            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, urisArray); // multiple data
 
             shareIntent = Intent.createChooser(
-                    shareIntent, layer.getContext().getString(R.string.abc_shareactionprovider_share_with));
+                    shareIntent, mLayer.getContext().getString(R.string.menu_share));
             shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            layer.getContext().startActivity(shareIntent);
-        } catch (JSONException | IOException e) {
-            e.printStackTrace();
+            mLayer.getContext().startActivity(shareIntent);
         }
     }
 
@@ -236,6 +302,7 @@ public final class LayerUtil {
                         .setPositiveButton(R.string.share_gpx_together, this)
                         .setNeutralButton(android.R.string.cancel, this)
                         .setNegativeButton(R.string.share_gpx_separate, this).show();
+                ControlHelper.lockScreenOrientation(mActivity);
             }
         }
 
@@ -383,6 +450,7 @@ public final class LayerUtil {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
+            ControlHelper.unlockScreenOrientation(mActivity);
             if (mProgress != null)
                 mProgress.dismiss();
 
@@ -410,7 +478,7 @@ public final class LayerUtil {
                 shareIntent.putExtra(Intent.EXTRA_STREAM, mUris.get(0));
             }
 
-            shareIntent = Intent.createChooser(shareIntent, mActivity.getString(R.string.abc_shareactionprovider_share_with));
+            shareIntent = Intent.createChooser(shareIntent, mActivity.getString(R.string.menu_share));
             shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mActivity.startActivity(shareIntent);
         }

@@ -21,9 +21,12 @@
 
 package com.nextgis.maplibui.util;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -35,12 +38,16 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.MenuItem;
+import android.view.Surface;
+import android.view.WindowManager;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.R;
@@ -126,10 +133,10 @@ public final class ControlHelper {
                 drawableId = R.drawable.ic_type_multipolygon;
                 break;
             default:
-                return context.getResources().getDrawable(defaultIcon);
+                return ContextCompat.getDrawable(context, defaultIcon);
         }
 
-        BitmapDrawable icon = (BitmapDrawable) context.getResources().getDrawable(drawableId);
+        BitmapDrawable icon = (BitmapDrawable) ContextCompat.getDrawable(context, drawableId);
         if (icon != null) {
             Bitmap src = icon.getBitmap();
             Bitmap bitmap = Bitmap.createBitmap(src.getWidth(), src.getHeight(), src.getConfig());
@@ -271,5 +278,57 @@ public final class ControlHelper {
         }
 
         return null;
+    }
+
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    public static void lockScreenOrientation(Activity activity) {
+        WindowManager windowManager =  (WindowManager) activity.getSystemService(Context.WINDOW_SERVICE);
+        Configuration configuration = activity.getResources().getConfiguration();
+        int rotation = windowManager.getDefaultDisplay().getRotation();
+
+        // Search for the natural position of the device
+        if(configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
+                (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) ||
+                configuration.orientation == Configuration.ORIENTATION_PORTRAIT &&
+                        (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270))
+        {
+            // Natural position is Landscape
+            switch (rotation)
+            {
+                case Surface.ROTATION_0:
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    break;
+                case Surface.ROTATION_90:
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+                    break;
+                case Surface.ROTATION_180:
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+                    break;
+                case Surface.ROTATION_270:
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                    break;
+            }
+        } else {
+            // Natural position is Portrait
+            switch (rotation)
+            {
+                case Surface.ROTATION_0:
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                    break;
+                case Surface.ROTATION_90:
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                    break;
+                case Surface.ROTATION_180:
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+                    break;
+                case Surface.ROTATION_270:
+                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+                    break;
+            }
+        }
+    }
+
+    public static void unlockScreenOrientation(Activity activity) {
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 }
