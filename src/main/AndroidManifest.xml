@@ -51,6 +51,10 @@
             android:label="@string/tracks" />
 
         <activity
+            android:name=".activity.AttributesActivity"
+            android:label="@string/attributes" />
+
+        <activity
             android:name=".activity.VectorLayerSettingsActivity"
             android:label="@string/layerSettings"
             android:windowSoftInputMode="stateHidden" />

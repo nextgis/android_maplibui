@@ -57,6 +57,7 @@ import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.NGWWebMapLayerUI;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
+import com.nextgis.maplibui.mapui.VectorLayerUI;
 import com.nextgis.maplibui.util.LayerUtil;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
@@ -247,6 +248,8 @@ public class LayersListAdapter
                             popup.getMenu().findItem(R.id.menu_edit).setVisible(true);
                             popup.getMenu().findItem(R.id.menu_share).setVisible(true);
                             popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(true);
+                            popup.getMenu().findItem(R.id.menu_download_tiles).setVisible(true);
+                            popup.getMenu().findItem(R.id.menu_download_tiles).setTitle(R.string.attributes);
                         } else if (layerui instanceof LocalTMSLayer) {
                             popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(true);
                         } else if (layerui instanceof RemoteTMSLayer) {
@@ -327,12 +330,15 @@ public class LayersListAdapter
                                             if (layer instanceof RemoteTMSLayerUI) {
                                                 RemoteTMSLayerUI remoteTMSLayer = (RemoteTMSLayerUI) layer;
                                                 remoteTMSLayer.downloadTiles(mContext, env);
-                                            } else if(layer instanceof NGWRasterLayerUI) {
+                                            } else if (layer instanceof NGWRasterLayerUI) {
                                                 NGWRasterLayerUI remoteTMSLayer = (NGWRasterLayerUI) layer;
                                                 remoteTMSLayer.downloadTiles(mContext, env);
-                                            } else if(layer instanceof NGWWebMapLayerUI) {
+                                            } else if (layer instanceof NGWWebMapLayerUI) {
                                                 NGWWebMapLayerUI remoteTMSLayer = (NGWWebMapLayerUI) layer;
                                                 remoteTMSLayer.downloadTiles(mContext, env);
+                                            } else if (layer instanceof VectorLayerUI) {
+                                                VectorLayerUI vectorLayerUI = (VectorLayerUI) layer;
+                                                vectorLayerUI.showAttributes();
                                             }
                                         }
 

@@ -35,6 +35,7 @@ import com.nextgis.maplib.display.SimpleFeatureRenderer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.AttributesActivity;
 import com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.activity.VectorLayerSettingsActivity;
@@ -137,4 +138,10 @@ public class VectorLayerUI
         return super.delete();
     }
 
+    public void showAttributes() {
+        Intent settings = new Intent(mContext, AttributesActivity.class);
+        settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        settings.putExtra(ConstantsUI.KEY_LAYER_ID, getId());
+        mContext.startActivity(settings);
+    }
 }

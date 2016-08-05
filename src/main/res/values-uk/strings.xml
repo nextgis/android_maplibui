@@ -287,4 +287,5 @@
     <string name="no_features">В слое нет объектов </string>
     <string name="discard">Discard</string>
     <string name="error_export_geojson">Невозможно создать конечный geojson</string>
+    <string name="attributes">Атрибуты</string>
 </resources>

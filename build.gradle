@@ -55,4 +55,5 @@ dependencies {
     compile 'com.4ert:easypicker:0.2.7'
     compile 'com.github.yukuku:ambilwarna:2.0.1'
     compile 'com.jzxiang.pickerview:TimePickerDialog:1.0.1'
+    compile "com.github.miguelbcr:TableFixHeaders-Wrapper:0.2.0"
 }
