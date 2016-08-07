@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Project:  NextGIS Mobile
   ~ Purpose:  Mobile GIS for Android.
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
@@ -19,18 +20,27 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <include layout="@layout/actionbar"/>
+    <item
+        android:id="@+id/menu_zoom"
+        android:icon="@drawable/ic_action_search"
+        android:orderInCategory="10"
+        android:title="@string/menu_zoom_extent"
+        app:showAsAction="always"/>
 
-    <com.inqbarna.tablefixheaders.TableFixHeaders
-        android:id="@+id/attributes"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
+    <item
+        android:id="@+id/menu_delete"
+        android:icon="@drawable/ic_action_delete_dark"
+        android:orderInCategory="15"
+        android:title="@string/menu_delete"
+        app:showAsAction="always"/>
 
-    <include layout="@layout/bottombar"/>
-</LinearLayout>
+    <item
+        android:id="@+id/menu_edit"
+        android:icon="@drawable/ic_action_edit_light"
+        android:orderInCategory="20"
+        android:title="@string/edit_attributes"
+        app:showAsAction="always"/>
+</menu>

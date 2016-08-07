@@ -54,10 +54,10 @@ import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerUI;
+import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.NGWWebMapLayerUI;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
-import com.nextgis.maplibui.mapui.VectorLayerUI;
 import com.nextgis.maplibui.util.LayerUtil;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
@@ -336,8 +336,8 @@ public class LayersListAdapter
                                             } else if (layer instanceof NGWWebMapLayerUI) {
                                                 NGWWebMapLayerUI remoteTMSLayer = (NGWWebMapLayerUI) layer;
                                                 remoteTMSLayer.downloadTiles(mContext, env);
-                                            } else if (layer instanceof VectorLayerUI) {
-                                                VectorLayerUI vectorLayerUI = (VectorLayerUI) layer;
+                                            } else if (layer instanceof IVectorLayerUI) {
+                                                IVectorLayerUI vectorLayerUI = (IVectorLayerUI) layer;
                                                 vectorLayerUI.showAttributes();
                                             }
                                         }

@@ -138,6 +138,7 @@ public class VectorLayerUI
         return super.delete();
     }
 
+    @Override
     public void showAttributes() {
         Intent settings = new Intent(mContext, AttributesActivity.class);
         settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

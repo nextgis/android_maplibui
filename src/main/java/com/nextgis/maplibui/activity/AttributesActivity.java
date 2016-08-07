@@ -23,6 +23,9 @@ package com.nextgis.maplibui.activity;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.inqbarna.tablefixheaders.TableFixHeaders;
 import com.inqbarna.tablefixheaders.adapters.BaseTableAdapter;
@@ -34,21 +37,53 @@ import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.api.IVectorLayerUI;
+import com.nextgis.maplibui.fragment.BottomToolbar;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.MatrixTableAdapter;
+import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.util.List;
 
+import static com.nextgis.maplib.util.Constants.FIELD_ID;
 
 public class AttributesActivity extends NGActivity {
-    private TableFixHeaders mTable;
-    private VectorLayer mLayer;
+    protected TableFixHeaders mTable;
+    protected VectorLayer mLayer;
+    protected BottomToolbar mToolbar;
+    protected Long mId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attributes);
         setToolbar(R.id.main_toolbar);
+
+        mToolbar = (BottomToolbar) findViewById(R.id.bottom_toolbar);
+        mToolbar.inflateMenu(R.menu.attributes_table);
+        mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int i = item.getItemId();
+                if (i == R.id.menu_zoom) {
+                    return true;
+                } else if (i == R.id.menu_delete) {
+                    return true;
+                } else if (i == R.id.menu_edit) {
+                    return true;
+                }
+
+                return false;
+            }
+        });
+        mToolbar.setNavigationIcon(R.drawable.ic_action_cancel_dark);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mToolbar.setVisibility(View.GONE);
+            }
+        });
+        mToolbar.setVisibility(View.GONE);
 
         mTable = (TableFixHeaders) findViewById(R.id.attributes);
 
@@ -67,6 +102,8 @@ public class AttributesActivity extends NGActivity {
             if (null != layer && layer instanceof VectorLayer) {
                 mLayer = (VectorLayer) layer;
                 mTable.setAdapter(getAdapter());
+                Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+                toolbar.setSubtitle(mLayer.getName());
             }
         }
     }
@@ -97,7 +134,39 @@ public class AttributesActivity extends NGActivity {
                 data[i + 1][j + 1] = feature.getFieldValueAsString(fields.get(j).getName());
         }
 
+        adapter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (view != null && view instanceof TextView) {
+                    Long id = parseLong((String) view.getTag(R.id.text1));
+                    if (id != null) {
+                        mId = id;
+                        String featureName = String.format(getString(R.string.feature_n), id);
+                        mToolbar.setTitle(featureName);
+                        String labelField = mLayer.getPreferences().getString(SettingsConstantsUI.KEY_PREF_LAYER_LABEL, FIELD_ID);
+                        if (!labelField.equals(FIELD_ID)) {
+                            Feature feature = mLayer.getFeature(id);
+                            if (feature != null) {
+                                mToolbar.setSubtitle(featureName);
+                                featureName = feature.getFieldValueAsString(labelField);
+                                mToolbar.setTitle(featureName);
+                            }
+                        }
+
+                        mToolbar.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+        });
         adapter.setInformation(data);
         return adapter;
+    }
+
+    private Long parseLong(String string) {
+        try {
+            return Long.parseLong(string);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

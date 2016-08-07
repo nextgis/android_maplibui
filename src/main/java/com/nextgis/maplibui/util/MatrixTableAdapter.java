@@ -22,9 +22,11 @@
 package com.nextgis.maplibui.util;
 
 import com.inqbarna.tablefixheaders.adapters.BaseTableAdapter;
+import com.nextgis.maplibui.R;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.annotation.NonNull;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -32,6 +34,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 public class MatrixTableAdapter<T> extends BaseTableAdapter {
+	private View.OnClickListener mListener;
 
 	private final static int WIDTH_DIP = 110;
 	private final static int HEIGHT_DIP = 32;
@@ -57,6 +60,10 @@ public class MatrixTableAdapter<T> extends BaseTableAdapter {
 		setInformation(table);
 	}
 
+	public void setOnClickListener(@NonNull View.OnClickListener listener) {
+		mListener = listener;
+	}
+
 	public void setInformation(T[][] table) {
 		this.table = table;
 	}
@@ -75,8 +82,13 @@ public class MatrixTableAdapter<T> extends BaseTableAdapter {
 	public View getView(int row, int column, View convertView, ViewGroup parent) {
 		if (convertView == null) {
 			convertView = new TextView(context);
+			int padding = ControlHelper.dpToPx(2, context.getResources());
+			convertView.setPadding(padding, padding, padding, padding);
 			((TextView) convertView).setGravity(Gravity.CENTER_VERTICAL);
 		}
+
+		convertView.setOnClickListener(mListener);
+		convertView.setTag(R.id.text1, table[row + 1][0]);
 		((TextView) convertView).setText(table[row + 1][column + 1].toString());
 		return convertView;
 	}

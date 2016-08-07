@@ -43,4 +43,6 @@ public interface IVectorLayerUI extends ILayerUI
             Context context,
             long featureId,
             GeoGeometry geometry);
+
+    void showAttributes();
 }
