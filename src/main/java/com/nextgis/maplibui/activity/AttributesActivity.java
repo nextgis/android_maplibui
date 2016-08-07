@@ -21,11 +21,20 @@
 
 package com.nextgis.maplibui.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.inqbarna.tablefixheaders.TableFixHeaders;
 import com.inqbarna.tablefixheaders.adapters.BaseTableAdapter;
@@ -33,7 +42,9 @@ import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
@@ -52,12 +63,16 @@ public class AttributesActivity extends NGActivity {
     protected VectorLayer mLayer;
     protected BottomToolbar mToolbar;
     protected Long mId;
+    protected int mLayerId;
+    protected BroadcastReceiver mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attributes);
         setToolbar(R.id.main_toolbar);
+
+        mTable = (TableFixHeaders) findViewById(R.id.attributes);
 
         mToolbar = (BottomToolbar) findViewById(R.id.bottom_toolbar);
         mToolbar.inflateMenu(R.menu.attributes_table);
@@ -66,10 +81,54 @@ public class AttributesActivity extends NGActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 int i = item.getItemId();
                 if (i == R.id.menu_zoom) {
+                    IGISApplication application = (IGISApplication) getApplication();
+                    MapDrawable map = (MapDrawable) application.getMap();
+                    if (null != map) {
+                        map.zoomToExtent(mLayer.getFeature(mId).getGeometry().getEnvelope());
+                        SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences(AttributesActivity.this).edit();
+                        edit.putFloat(SettingsConstantsUI.KEY_PREF_ZOOM_LEVEL, map.getZoomLevel());
+                        GeoPoint point = map.getMapCenter();
+                        edit.putLong(SettingsConstantsUI.KEY_PREF_SCROLL_X, Double.doubleToRawLongBits(point.getX()));
+                        edit.putLong(SettingsConstantsUI.KEY_PREF_SCROLL_Y, Double.doubleToRawLongBits(point.getY()));
+                        edit.commit();
+                    }
+
+                    finish();
                     return true;
                 } else if (i == R.id.menu_delete) {
+                    Snackbar snackbar = Snackbar.make(findViewById(R.id.container), getString(R.string.delete_item_done), Snackbar.LENGTH_LONG)
+                            .setAction(R.string.undo, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+
+                                }
+                            })
+                            .setCallback(new Snackbar.Callback() {
+                                @Override
+                                public void onDismissed(Snackbar snackbar, int event) {
+                                    super.onDismissed(snackbar, event);
+                                    if (event == DISMISS_EVENT_MANUAL)
+                                        return;
+                                    if (event != DISMISS_EVENT_ACTION) {
+                                        mLayer.deleteAddChanges(mId);
+                                    }
+                                }
+
+                                @Override
+                                public void onShown(Snackbar snackbar) {
+                                    super.onShown(snackbar);
+                                }
+                            });
+
+                    View view = snackbar.getView();
+                    TextView textView = (TextView) view.findViewById(R.id.snackbar_text);
+                    textView.setTextColor(ContextCompat.getColor(view.getContext(), com.nextgis.maplibui.R.color.color_white));
+                    snackbar.show();
+                    mToolbar.setVisibility(View.GONE);
+
                     return true;
                 } else if (i == R.id.menu_edit) {
+                    ((IVectorLayerUI) mLayer).showEditForm(AttributesActivity.this, mId, null);
                     return true;
                 }
 
@@ -85,26 +144,47 @@ public class AttributesActivity extends NGActivity {
         });
         mToolbar.setVisibility(View.GONE);
 
-        mTable = (TableFixHeaders) findViewById(R.id.attributes);
+        mLayerId = Constants.NOT_FOUND;
+        if (savedInstanceState != null)
+            mLayerId = savedInstanceState.getInt(ConstantsUI.KEY_LAYER_ID);
+        else
+            mLayerId = getIntent().getIntExtra(ConstantsUI.KEY_LAYER_ID, mLayerId);
 
-        int layerId = Constants.NOT_FOUND;
-        if (savedInstanceState != null) {
-            layerId = savedInstanceState.getInt(ConstantsUI.KEY_LAYER_ID);
-        } else {
-            layerId = getIntent().getIntExtra(ConstantsUI.KEY_LAYER_ID, layerId);
-        }
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                mTable.setAdapter(getAdapter());
+            }
+        };
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(mReceiver);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Constants.NOTIFY_DELETE);
+        intentFilter.addAction(Constants.NOTIFY_DELETE_ALL);
+        registerReceiver(mReceiver, intentFilter);
 
         IGISApplication application = (IGISApplication) getApplication();
         MapBase map = application.getMap();
 
         if (null != map) {
-            ILayer layer = map.getLayerById(layerId);
+            ILayer layer = map.getLayerById(mLayerId);
             if (null != layer && layer instanceof VectorLayer) {
                 mLayer = (VectorLayer) layer;
                 mTable.setAdapter(getAdapter());
                 Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
                 toolbar.setSubtitle(mLayer.getName());
-            }
+            } else
+                Toast.makeText(this, R.string.error_layer_not_inited, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -122,17 +202,28 @@ public class AttributesActivity extends NGActivity {
 
         List<Long> ids = mLayer.query(null);
         List<Field> fields = mLayer.getFields();
-        String[][] data = new String[ids.size() + 1][fields.size() + 1];
+        int rows = ids.size() + 1;
+        for (int i = 0; i < ids.size(); i++) {
+            Feature feature = mLayer.getFeature(ids.get(i));
+            if (feature == null) {
+                rows = 1;
+                Toast.makeText(this, R.string.error_cache, Toast.LENGTH_LONG).show();
+                break;
+            }
+        }
+
+        String[][] data = new String[rows][fields.size() + 1];
         data[0][0] = getString(R.string.id);
         for (int i = 0; i < fields.size(); i++)
             data[0][i + 1] = fields.get(i).getAlias();
 
-        for (int i = 0; i < ids.size(); i++) {
-            Feature feature = mLayer.getFeature(ids.get(i));
-            data[i + 1][0] = feature.getId() + "";
-            for (int j = 0; j < fields.size(); j++)
-                data[i + 1][j + 1] = feature.getFieldValueAsString(fields.get(j).getName());
-        }
+        if (rows > 1)
+            for (int i = 0; i < ids.size(); i++) {
+                Feature feature = mLayer.getFeature(ids.get(i));
+                data[i + 1][0] = feature.getId() + "";
+                for (int j = 0; j < fields.size(); j++)
+                    data[i + 1][j + 1] = feature.getFieldValueAsString(fields.get(j).getName());
+            }
 
         adapter.setOnClickListener(new View.OnClickListener() {
             @Override

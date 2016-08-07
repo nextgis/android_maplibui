@@ -321,9 +321,6 @@ public class LayersListAdapter
                                             snackbar.show();
                                         } else if (i == R.id.menu_zoom_extent) {
                                             mMap.zoomToExtent(layer.getExtents());
-
-                                            if (mDrawer != null)
-                                                mDrawer.closeDrawers();
                                         } else if(i == R.id.menu_download_tiles){
                                             GeoEnvelope env = mMap.getCurrentBounds();
 
@@ -341,6 +338,9 @@ public class LayersListAdapter
                                                 vectorLayerUI.showAttributes();
                                             }
                                         }
+
+                                        if (mDrawer != null)
+                                            mDrawer.closeDrawers();
 
                                         return true;
                                     }

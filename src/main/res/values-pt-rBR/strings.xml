@@ -288,4 +288,5 @@
     <string name="discard">Discard</string>
     <string name="error_export_geojson">Can not create geojson output</string>
     <string name="attributes">Attributes</string>
+    <string name="error_cache">Bad cache, try rebuild it in layer settings</string>
 </resources>
