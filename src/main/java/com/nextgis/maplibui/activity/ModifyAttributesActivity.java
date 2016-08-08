@@ -501,7 +501,7 @@ public class ModifyAttributesActivity
             for (Map.Entry<String, IControl> field : mFields.entrySet()) {
                 int column = featureCursor.getColumnIndex(field.getKey());
                 if (column >= 0)
-                    result = !featureCursor.getString(column).equals(field.getValue().getValue().toString());
+                    result = !field.getValue().getValue().toString().equals(featureCursor.getString(column));
 
                 if (result)
                     break;
