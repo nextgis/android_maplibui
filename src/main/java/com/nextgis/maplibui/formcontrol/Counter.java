@@ -3,10 +3,10 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
+ * it under the terms of the GNU Lesser Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -15,17 +15,18 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
+ * You should have received a copy of the GNU Lesser Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.nextgis.maplibui.formcontrol;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v7.widget.AppCompatCheckBox;
+import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
@@ -39,20 +40,30 @@ import org.json.JSONObject;
 import java.util.List;
 
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
-import static com.nextgis.maplibui.util.ConstantsUI.JSON_INIT_VALUE_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
-import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_INIT_VALUE_KEY;
 
-public class Checkbox extends AppCompatCheckBox implements IFormControl {
-    protected String mFieldName;
-    protected boolean mIsShowLast;
 
-    public Checkbox(Context context) {
+@SuppressLint("ViewConstructor")
+public class Counter extends TextEdit
+        implements IFormControl
+{
+    private static final String INCREMENT = "increment";
+    private static final String PREFIX = "prefix";
+    private static final String SUFFIX = "suffix";
+
+    protected long mIncremented = -1;
+
+    public Counter(Context context) {
         super(context);
     }
 
-    public Checkbox(Context context, AttributeSet attrs) {
+    public Counter(Context context, AttributeSet attrs) {
         super(context, attrs);
+    }
+
+    public Counter(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
     }
 
     @Override
@@ -60,62 +71,40 @@ public class Checkbox extends AppCompatCheckBox implements IFormControl {
                      List<Field> fields,
                      Bundle savedState,
                      Cursor featureCursor,
-                     SharedPreferences preferences) throws JSONException {
+                     SharedPreferences preferences) throws JSONException{
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);
-        mIsShowLast = ControlHelper.isSaveLastValue(attributes);
+        mIsShowLast = true;
 
-        Boolean value = null;
+        String value = null;
         if (ControlHelper.hasKey(savedState, mFieldName))
-            value = savedState.getBoolean(ControlHelper.getSavedStateKey(mFieldName));
-        else if (null != featureCursor) {
+            value = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
+        else if (null != featureCursor) { // feature exists
             int column = featureCursor.getColumnIndex(mFieldName);
-
             if (column >= 0)
-                value = featureCursor.getInt(column) != 0;
-        } else {
-            value = attributes.getBoolean(JSON_INIT_VALUE_KEY);
+                value = featureCursor.getString(column);
+        } else {    // new feature
+            String last = preferences.getString(mFieldName, null);
+            if (last == null)
+                last = attributes.getInt(JSON_INIT_VALUE_KEY) - 1 + "";
 
-            if (mIsShowLast)
-                value = preferences.getBoolean(mFieldName, value);
+            String prefix = attributes.optString(PREFIX);
+            String suffix = attributes.optString(SUFFIX);
+            int inc = attributes.getInt(INCREMENT);
+            mIncremented = Long.valueOf(last) + inc;
+            value = prefix + mIncremented + suffix;
         }
 
-        if (value == null)
-            value = false;
-
-        setChecked(value);
-        setText(attributes.getString(JSON_TEXT_KEY));
-        setEnabled(ControlHelper.isEnabled(fields, mFieldName));
-    }
-
-    public String getFieldName() {
-        return mFieldName;
-    }
-
-    @Override
-    public void addToLayout(ViewGroup layout) {
-        layout.addView(this);
-    }
-
-    @Override
-    public Object getValue() {
-        return isChecked() ? 1 : 0;
-    }
-
-    @Override
-    public void saveState(Bundle outState) {
-        outState.putBoolean(ControlHelper.getSavedStateKey(mFieldName), isChecked());
+        setEnabled(false);
+        setText(value);
+        setSingleLine(true);
     }
 
     @Override
     public void saveLastValue(SharedPreferences preferences) {
-        preferences.edit().putBoolean(mFieldName, isChecked()).commit();
-    }
-
-    @Override
-    public boolean isShowLast() {
-        return mIsShowLast;
+        if (mIncremented != -1)
+            preferences.edit().putString(mFieldName, Long.toString(mIncremented)).commit();
     }
 
 }

@@ -71,7 +71,7 @@ public interface ConstantsUI
     String JSON_DATE_TYPE_KEY         = "date_type";
     String JSON_FIELD_LEVEL1_KEY      = "field_level1";
     String JSON_FIELD_LEVEL2_KEY      = "field_level2";
-    String JSON_CHECKBOX_INIT_KEY     = "init_value";
+    String JSON_INIT_VALUE_KEY        = "init_value";
     String JSON_MAX_PHOTO_KEY         = "gallery_size";
     String JSON_INPUT_SEARCH          = "input_search";
     String JSON_ALLOW_NEW_VALUES      = "allow_adding_values";
@@ -86,6 +86,7 @@ public interface ConstantsUI
     String JSON_CHECKBOX_VALUE        = "checkbox";
     String JSON_PHOTO_VALUE           = "photo";
     String JSON_SIGN_VALUE            = "signature";
+    String JSON_COUNTER_VALUE         = "counter";
 
     String PERMISSION_AUTHENTICATE_ACCOUNTS = "android.permission.AUTHENTICATE_ACCOUNTS";
     String PERMISSION_MANAGE_ACCOUNTS       = "android.permission.MANAGE_ACCOUNTS";
