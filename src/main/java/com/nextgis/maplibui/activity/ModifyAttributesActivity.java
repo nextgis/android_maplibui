@@ -500,8 +500,14 @@ public class ModifyAttributesActivity
 
             for (Map.Entry<String, IControl> field : mFields.entrySet()) {
                 int column = featureCursor.getColumnIndex(field.getKey());
-                if (column >= 0)
-                    result = !field.getValue().getValue().toString().equals(featureCursor.getString(column));
+                if (column >= 0) {
+                    IControl control = field.getValue();
+                    String saved = featureCursor.getString(column);
+                    Object modified = control.getValue();
+                    if (modified != null)
+                        result = !modified.equals(saved);
+                    else result = saved != null;
+                }
 
                 if (result)
                     break;
