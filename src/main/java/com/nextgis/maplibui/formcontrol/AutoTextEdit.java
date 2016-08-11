@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.provider.SyncStateContract;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.util.AttributeSet;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -145,6 +146,14 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(
                 getContext(), android.R.layout.simple_spinner_dropdown_item, new ArrayList<>(mAliasValueMap.keySet()));
         setAdapter(spinnerArrayAdapter);
+
+        setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                if (hasFocus && getText().length() == 0)
+                    showDropDown();
+            }
+        });
     }
 
 
