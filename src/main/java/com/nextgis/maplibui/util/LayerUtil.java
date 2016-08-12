@@ -205,7 +205,7 @@ public final class LayerUtil {
 
                     featuresCursor.close();
                 } else {
-                    Toast.makeText(mLayer.getContext(), R.string.no_features, Toast.LENGTH_SHORT).show();
+                    publishProgress();
                     return null;
                 }
 
@@ -223,6 +223,12 @@ public final class LayerUtil {
             }
 
             return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+            Toast.makeText(mLayer.getContext(), R.string.no_features, Toast.LENGTH_SHORT).show();
         }
 
         @Override
