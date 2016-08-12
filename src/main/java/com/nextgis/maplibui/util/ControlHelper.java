@@ -46,8 +46,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.Surface;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.EditText;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.R;
@@ -330,5 +333,26 @@ public final class ControlHelper {
 
     public static void unlockScreenOrientation(Activity activity) {
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+    }
+
+    public static void setClearAction(final EditText target) {
+        target.setOnTouchListener(new View.OnTouchListener() {
+            final int RIGHT = 2;
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    int leftEdgeOfRightDrawable = view.getRight() - target.getCompoundDrawables()[RIGHT].getBounds().width();
+                    // when EditBox has padding, adjust leftEdge like
+                    // leftEdgeOfRightDrawable -= getResources().getDimension(R.dimen.edittext_padding_left_right);
+                    if (event.getRawX() >= leftEdgeOfRightDrawable) {
+                        // clicked on clear icon
+                        target.setText("");
+                        target.clearFocus();
+                        return false;
+                    }
+                }
+                return false;
+            }
+        });
     }
 }

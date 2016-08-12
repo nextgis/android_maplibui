@@ -28,6 +28,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.SyncStateContract;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,7 +67,8 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
     protected String            mFieldName;
     protected boolean           mIsShowLast;
     protected boolean           mAllowSaveNewValue;
-    protected Map<String, String> mAliasValueMap;
+    protected Map<String, String>   mAliasValueMap;
+    protected ArrayAdapter<String>  mAdapter;
 
     public AutoTextEdit(Context context) {
         super(context);
@@ -86,6 +89,7 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
                      Bundle savedState,
                      Cursor featureCursor,
                      SharedPreferences preferences) throws JSONException{
+        ControlHelper.setClearAction(this);
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);
@@ -143,15 +147,38 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
         }
 
         setText(lastValue);
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(
-                getContext(), android.R.layout.simple_spinner_dropdown_item, new ArrayList<>(mAliasValueMap.keySet()));
-        setAdapter(spinnerArrayAdapter);
+        mAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, new ArrayList<>(mAliasValueMap.keySet()));
+        setAdapter(mAdapter);
 
         setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean hasFocus) {
-                if (hasFocus && getText().length() == 0)
-                    showDropDown();
+                if (hasFocus && getText().length() == 0) {
+                    postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            showDropDown();
+                        }
+                    }, 100);
+                }
+            }
+        });
+
+        addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (charSequence.length() < 1)
+                    getOnFocusChangeListener().onFocusChange(AutoTextEdit.this, true);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
             }
         });
     }

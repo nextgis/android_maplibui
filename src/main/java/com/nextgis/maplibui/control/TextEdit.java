@@ -59,6 +59,8 @@ public class TextEdit
     public void init(Field field,
                      Bundle savedState,
                      Cursor featureCursor){
+        ControlHelper.setClearAction(this);
+
         mFieldName = field.getName();
         String text = "";
 

@@ -80,6 +80,7 @@ public class TextEdit extends AppCompatEditText
                      Bundle savedState,
                      Cursor featureCursor,
                      SharedPreferences preferences) throws JSONException{
+        ControlHelper.setClearAction(this);
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);
