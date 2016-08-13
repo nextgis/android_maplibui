@@ -140,7 +140,7 @@ public class NGWLoginFragment
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 int visibility = !isChecked ? View.VISIBLE : View.GONE;
-                mLogin.setEnabled(!isChecked && mManual.isChecked());
+                mLogin.setEnabled(!isChecked);
                 mLogin.setVisibility(visibility);
                 mPassword.setVisibility(visibility);
                 mPassword.setEnabled(!isChecked);
@@ -155,7 +155,6 @@ public class NGWLoginFragment
                     mURL.setCompoundDrawables(null, null, null, null);
                     mURL.setHint(R.string.ngw_url);
                     mLogin.setText(null);
-                    mLogin.setEnabled(!mGuest.isChecked());
                     mLoginTitle.setText(R.string.ngw_login_title);
                 } else {
                     @SuppressWarnings("deprecation")
@@ -163,9 +162,10 @@ public class NGWLoginFragment
                     mURL.setCompoundDrawablesWithIntrinsicBounds(null, null, addition, null);
                     mURL.setHint(R.string.instance_name);
                     mLogin.setText(DEFAULT_ACCOUNT);
-                    mLogin.setEnabled(false);
                     mLoginTitle.setText(R.string.ngw_from_my_nextgis);
                 }
+
+                mLogin.setEnabled(!mGuest.isChecked());
             }
         });
 
@@ -177,7 +177,6 @@ public class NGWLoginFragment
 
             if (mUrlText.endsWith(ENDING)) {
                 mURL.setText(mUrlText.replace(ENDING, ""));
-                mLogin.setEnabled(false);
             } else {
                 mManual.performClick();
                 mURL.setText(mUrlText);

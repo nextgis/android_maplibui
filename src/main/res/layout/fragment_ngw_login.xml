@@ -47,7 +47,8 @@
             android:ellipsize="end"
             android:singleLine="true"
             android:text="@string/manual_ngw"
-            android:textAppearance="?android:attr/textAppearanceLarge"/>
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/color_white"/>
 
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/manual"
@@ -81,7 +82,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:ems="10"
-        android:enabled="false"
         android:hint="@string/user_name"
         android:inputType="textPersonName"/>
 
