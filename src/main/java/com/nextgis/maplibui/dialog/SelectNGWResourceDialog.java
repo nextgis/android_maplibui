@@ -35,11 +35,11 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.datasource.ngw.Connections;
@@ -49,7 +49,6 @@ import com.nextgis.maplib.datasource.ngw.WebMap;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.NGWRasterLayer;
-import com.nextgis.maplib.map.NGWWebMapLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
@@ -203,11 +202,12 @@ public class SelectNGWResourceDialog
     protected Connections fillConnections(Context context)
     {
         Connections connections = new Connections(getString(R.string.accounts));
+        IGISApplication app = (IGISApplication) mContext.getApplicationContext();
 
         for (Account account : mAccountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
-            String url = mAccountManager.getUserData(account, "url");
-            String password = mAccountManager.getPassword(account);
-            String login = mAccountManager.getUserData(account, "login");
+            String url = app.getAccountUrl(account);
+            String password = app.getAccountPassword(account);
+            String login = app.getAccountLogin(account);
             connections.add(new Connection(account.name, login, password, url.toLowerCase()));
         }
         return connections;
@@ -231,6 +231,7 @@ public class SelectNGWResourceDialog
             if (resultCode != Activity.RESULT_CANCELED) {
                 //search new account and add it
                 Connections connections = mListAdapter.getConnections();
+                IGISApplication app = (IGISApplication) mContext.getApplicationContext();
 
                 for (Account account : mAccountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
                     boolean find = false;
@@ -243,9 +244,9 @@ public class SelectNGWResourceDialog
                     }
 
                     if (!find) {
-                        String url = mAccountManager.getUserData(account, "url");
-                        String password = mAccountManager.getPassword(account);
-                        String login = mAccountManager.getUserData(account, "login");
+                        String url = app.getAccountUrl(account);
+                        String password = app.getAccountPassword(account);
+                        String login = app.getAccountLogin(account);
                         connections.add(new Connection(account.name, login, password, url.toLowerCase()));
                         mListAdapter.notifyDataSetChanged();
                         break;
