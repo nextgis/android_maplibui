@@ -55,6 +55,7 @@ import com.nextgis.maplib.datasource.ngw.SyncAdapter;
 import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.MapContentProviderHelper;
 import com.nextgis.maplib.map.NGWVectorLayer;
+import com.nextgis.maplib.map.Table;
 import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.SettingsConstants;
@@ -676,7 +677,7 @@ public class NGWSettingsActivity
         List<INGWLayer> layers = getLayersForAccount(application, account);
 
         for (INGWLayer layer : layers) {
-            ((Layer) layer).delete();
+            ((Table) layer).delete();
         }
 
         application.getMap().save();
