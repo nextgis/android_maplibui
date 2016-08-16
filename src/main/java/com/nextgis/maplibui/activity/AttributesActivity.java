@@ -191,7 +191,7 @@ public class AttributesActivity extends NGActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putLong(ConstantsUI.KEY_LAYER_ID, mLayer.getId());
+        outState.putInt(ConstantsUI.KEY_LAYER_ID, mLayer.getId());
     }
 
     public BaseTableAdapter getAdapter() {
