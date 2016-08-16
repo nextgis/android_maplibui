@@ -485,8 +485,18 @@ public class LayerFillService extends Service implements IProgressor {
                             }
                         } else {
                             //compare login/password and report differences
-                            boolean same = app.getAccountPassword(account).equals(password) &&
-                                    app.getAccountLogin(account).equals(login);
+                            String savedPassword = app.getAccountPassword(account);
+                            String savedLogin = app.getAccountLogin(account);
+                            boolean same = false;
+                            if (savedPassword != null && savedLogin != null)
+                                same = savedPassword.equals(password) && savedLogin.equals(login);
+                            else {
+                                if (savedLogin == null)
+                                    same = login == null;
+                                if (savedPassword == null)
+                                    same = password == null;
+                            }
+
                             if (!same) {
                                 Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT);
                                 msg.putExtra(ConstantsUI.KEY_MESSAGE, getString(R.string.warning_different_credentials));
