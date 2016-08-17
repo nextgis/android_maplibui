@@ -33,6 +33,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
@@ -41,6 +42,7 @@ import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.formcontrol.AutoTextEdit;
 import com.nextgis.maplibui.formcontrol.Checkbox;
 import com.nextgis.maplibui.formcontrol.Combobox;
+import com.nextgis.maplibui.formcontrol.Coordinates;
 import com.nextgis.maplibui.formcontrol.Counter;
 import com.nextgis.maplibui.formcontrol.DateTime;
 import com.nextgis.maplibui.formcontrol.DoubleCombobox;
@@ -67,6 +69,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_ALBUM_ELEMENTS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_CHECKBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_COMBOBOX_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_COORDINATES_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_COUNTER_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DATE_TIME_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DOUBLE_COMBOBOX_VALUE;
@@ -219,6 +222,12 @@ public class FormBuilderModifyAttributesActivity
 
                 case JSON_COUNTER_VALUE:
                     control = (Counter) getLayoutInflater().inflate(R.layout.formtemplate_counter, layout, false);
+                    break;
+
+                case JSON_COORDINATES_VALUE:
+                    control = (Coordinates) getLayoutInflater().inflate(R.layout.formtemplate_coordinates, layout, false);
+                    if (mGeometry != null && mGeometry instanceof GeoPoint)
+                        ((Coordinates) control).setCoordinates((GeoPoint) mGeometry);
                     break;
 
                 //TODO: add controls

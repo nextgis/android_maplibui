@@ -75,6 +75,7 @@ public interface ConstantsUI
     String JSON_MAX_PHOTO_KEY         = "gallery_size";
     String JSON_INPUT_SEARCH          = "input_search";
     String JSON_ALLOW_NEW_VALUES      = "allow_adding_values";
+    String JSON_HIDDEN_KEY            = "hidden";
 
     String JSON_TEXT_LABEL_VALUE      = "text_label";
     String JSON_TEXT_EDIT_VALUE       = "text_edit";
@@ -87,6 +88,7 @@ public interface ConstantsUI
     String JSON_PHOTO_VALUE           = "photo";
     String JSON_SIGN_VALUE            = "signature";
     String JSON_COUNTER_VALUE         = "counter";
+    String JSON_COORDINATES_VALUE     = "coordinates";
 
     String PERMISSION_AUTHENTICATE_ACCOUNTS = "android.permission.AUTHENTICATE_ACCOUNTS";
     String PERMISSION_MANAGE_ACCOUNTS       = "android.permission.MANAGE_ACCOUNTS";
