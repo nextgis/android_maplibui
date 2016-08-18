@@ -30,8 +30,6 @@ import android.util.AttributeSet;
 import android.view.ViewGroup;
 
 import com.nextgis.maplib.datasource.Field;
-import com.nextgis.maplib.datasource.GeoPoint;
-import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.util.ControlHelper;
 
@@ -53,7 +51,7 @@ public class Coordinates extends TextEdit
         implements IFormControl
 {
     protected boolean mHidden;
-    protected GeoPoint mCoordinates;
+    protected double mValue;
 
     public Coordinates(Context context) {
         super(context);
@@ -83,7 +81,7 @@ public class Coordinates extends TextEdit
             value = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
         else {
             DecimalFormat format = new DecimalFormat("#.######", new DecimalFormatSymbols(Locale.US));
-            value = String.format(Locale.getDefault(), "%s, %s", format.format(mCoordinates.getY()), format.format(mCoordinates.getX()));
+            value = format.format(mValue);
         }
 
         setText(value);
@@ -121,8 +119,7 @@ public class Coordinates extends TextEdit
         outState.putString(ControlHelper.getSavedStateKey(mFieldName), getText().toString());
     }
 
-    public void setCoordinates(GeoPoint coordinates) {
-        mCoordinates = coordinates;
-        mCoordinates.project(GeoConstants.CRS_WGS84);
+    public void setValue(double value) {
+        mValue = value;
     }
 }

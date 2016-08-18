@@ -36,6 +36,7 @@ import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.FileUtil;
+import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.control.PhotoGallery;
@@ -73,6 +74,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_COORDINATES_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_COUNTER_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DATE_TIME_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DOUBLE_COMBOBOX_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_PHOTO_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_PORTRAIT_ELEMENTS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_RADIO_GROUP_VALUE;
@@ -225,9 +227,22 @@ public class FormBuilderModifyAttributesActivity
                     break;
 
                 case JSON_COORDINATES_VALUE:
-                    control = (Coordinates) getLayoutInflater().inflate(R.layout.formtemplate_coordinates, layout, false);
-                    if (mGeometry != null && mGeometry instanceof GeoPoint)
-                        ((Coordinates) control).setCoordinates((GeoPoint) mGeometry);
+                    if (mGeometry != null && mGeometry instanceof GeoPoint) {
+                        GeoPoint point = ((GeoPoint) mGeometry);
+                        point.project(GeoConstants.CRS_WGS84);
+
+                        JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+                        String field = attributes.optString(JSON_FIELD_NAME_KEY + "_lat");
+                        attributes.put(JSON_FIELD_NAME_KEY, field);
+                        control = (Coordinates) getLayoutInflater().inflate(R.layout.formtemplate_coordinates, layout, false);
+                        ((Coordinates) control).setValue(point.getY());
+                        addToLayout(control, element, fields, savedState, featureCursor, layout);
+
+                        field = attributes.optString(JSON_FIELD_NAME_KEY + "_long");
+                        attributes.put(JSON_FIELD_NAME_KEY, field);
+                        control = (Coordinates) getLayoutInflater().inflate(R.layout.formtemplate_coordinates, layout, false);
+                        ((Coordinates) control).setValue(point.getX());
+                    }
                     break;
 
                 //TODO: add controls
@@ -241,18 +256,7 @@ public class FormBuilderModifyAttributesActivity
                     break;
             }
 
-            if (null != control) {
-                if (mLayer instanceof NGWVectorLayer)
-                    element.put(SyncStateContract.Columns.ACCOUNT_NAME, ((NGWVectorLayer) mLayer).getAccountName());
-
-                control.init(element, fields, savedState, featureCursor, mSharedPreferences);
-                control.addToLayout(layout);
-                String fieldName = control.getFieldName();
-
-                if (null != fieldName) {
-                    mFields.put(fieldName, control);
-                }
-            }
+            addToLayout(control, element, fields, savedState, featureCursor, layout);
         }
 
         if (null != featureCursor) {
@@ -260,6 +264,21 @@ public class FormBuilderModifyAttributesActivity
         }
 
         layout.requestLayout();
+    }
+
+    protected void addToLayout(IFormControl control, JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, LinearLayout layout) throws JSONException {
+        if (null != control) {
+            if (mLayer instanceof NGWVectorLayer)
+                element.put(SyncStateContract.Columns.ACCOUNT_NAME, ((NGWVectorLayer) mLayer).getAccountName());
+
+            control.init(element, fields, savedState, featureCursor, mSharedPreferences);
+            control.addToLayout(layout);
+            String fieldName = control.getFieldName();
+
+            if (null != fieldName) {
+                mFields.put(fieldName, control);
+            }
+        }
     }
 
 
