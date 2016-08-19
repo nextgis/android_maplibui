@@ -86,6 +86,7 @@ public class Coordinates extends TextEdit
 
         setText(value);
         setSingleLine(true);
+        setEnabled(false);
     }
 
     @Override
