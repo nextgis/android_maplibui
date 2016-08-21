@@ -228,7 +228,7 @@ public class FormBuilderModifyAttributesActivity
 
                 case JSON_COORDINATES_VALUE:
                     if (mGeometry != null && mGeometry instanceof GeoPoint) {
-                        GeoPoint point = ((GeoPoint) mGeometry);
+                        GeoPoint point = (GeoPoint) mGeometry.copy();
                         point.setCRS(GeoConstants.CRS_WEB_MERCATOR);
                         point.project(GeoConstants.CRS_WGS84);
 
