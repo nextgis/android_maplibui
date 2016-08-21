@@ -34,6 +34,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SyncResult;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.location.GpsSatellite;
@@ -42,6 +43,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -50,7 +52,11 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
+import com.nextgis.maplib.api.ILayer;
+import com.nextgis.maplib.api.INGWLayer;
 import com.nextgis.maplib.datasource.GeoPoint;
+import com.nextgis.maplib.map.LayerGroup;
+import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
@@ -60,9 +66,16 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.NotificationHelper;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
+
+import static com.nextgis.maplib.util.Constants.FIELD_GEOM;
+import static com.nextgis.maplib.util.Constants.LAYERTYPE_NGW_TRACKS;
+import static com.nextgis.maplib.util.Constants.ONE_MINUTE;
 
 
 public class TrackerService
@@ -90,6 +103,7 @@ public class TrackerService
     private String mTicker;
     private int    mSmallIcon, mSatellitesCount;
     private boolean             mHasGPSFix;
+    private long                mLastSync = 0;
 
     @Override
     public void onCreate()
@@ -241,6 +255,7 @@ public class TrackerService
     {
         // update unclosed tracks in DB
         closeTracks(this, (IGISApplication) getApplication());
+        sync((IGISApplication) getApplication());
 
         mIsRunning = false;
 
@@ -398,8 +413,40 @@ public class TrackerService
         mValues.put(TrackLayer.FIELD_SAT, mSatellitesCount);
         mValues.put(TrackLayer.FIELD_TIMESTAMP, location.getTime());
         getContentResolver().insert(mContentUriTrackPoints, mValues);
+
+        List<ILayer> tracks = getTrackLayers();
+        if (tracks.size() > 0) {
+            IGISApplication app = (IGISApplication) getApplication();
+            Uri uri = Uri.parse("content://" + app.getAuthority() + "/" + tracks.get(0).getPath().getName());
+            mValues.remove(TrackLayer.FIELD_LAT);
+            mValues.remove(TrackLayer.FIELD_LON);
+            try {
+                mValues.put(FIELD_GEOM, mPoint.toBlob());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            getContentResolver().insert(uri, mValues);
+            sync(app);
+        }
     }
 
+    private List<ILayer> getTrackLayers() {
+        MapBase map = MapBase.getInstance();
+        List<ILayer> tracks = new ArrayList<>();
+        LayerGroup.getLayersByType(map, LAYERTYPE_NGW_TRACKS, tracks);
+        return tracks;
+    }
+
+    private void sync(IGISApplication app) {
+        if (System.currentTimeMillis() - mLastSync > ONE_MINUTE) {
+            List<ILayer> tracks = getTrackLayers();
+            if (tracks.size() > 0) {
+                new TrackSync(app.getAuthority(), (INGWLayer) tracks.get(0)).execute();
+                mLastSync = System.currentTimeMillis();
+            }
+        }
+    }
 
     @Override
     public void onStatusChanged(
@@ -476,6 +523,24 @@ public class TrackerService
         }
 
         return false;
+    }
+
+    class TrackSync extends AsyncTask<Void, Void, Void> {
+        protected INGWLayer mLayer;
+        protected String mAuthority;
+
+        public TrackSync(String authority, INGWLayer layer) {
+            mAuthority = authority;
+            mLayer = layer;
+        }
+
+        protected Void doInBackground(Void... params) {
+            try {
+                mLayer.sync(mAuthority, new SyncResult());
+            } catch (Exception ignored) { }
+
+            return null;
+        }
     }
 
 }

@@ -75,6 +75,7 @@ public class SelectNGWResourceDialog
     protected NGWResourcesListAdapter mListAdapter;
     protected AlertDialog             mDialog;
     protected AccountManager          mAccountManager;
+    protected NGWResourcesListAdapter.OnConnectionSelectedListener mConnectionListener;
 
     protected final static String KEY_MASK        = "mask";
     protected final static String KEY_ID          = "id";
@@ -178,6 +179,8 @@ public class SelectNGWResourceDialog
             }
         });
 
+        mListAdapter.setConnectionListener(mConnectionListener);
+
         return mDialog;
     }
 
@@ -196,6 +199,12 @@ public class SelectNGWResourceDialog
                     KEY_STATES,
                     (ArrayList<? extends android.os.Parcelable>) mListAdapter.getCheckState());
         }
+    }
+
+
+    public NGDialog setConnectionListener(NGWResourcesListAdapter.OnConnectionSelectedListener connectionListener) {
+        mConnectionListener = connectionListener;
+        return this;
     }
 
 

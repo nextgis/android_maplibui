@@ -290,4 +290,5 @@
     <string name="error_export_geojson">Невозможно создать конечный geojson</string>
     <string name="attributes">Атрибуты</string>
     <string name="error_cache">Неверный кэш, перестройте в настройках слоя</string>
+    <string name="sync_disable">Отключить синхронизацию</string>
 </resources>

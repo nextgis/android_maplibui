@@ -33,6 +33,7 @@ import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.NGWLookupTable;
+import com.nextgis.maplib.map.NGWTrackLayer;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
@@ -57,6 +58,7 @@ import static com.nextgis.maplib.util.Constants.LAYERTYPE_LOCAL_TMS;
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_LOCAL_VECTOR;
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_LOOKUPTABLE;
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_NGW_RASTER;
+import static com.nextgis.maplib.util.Constants.LAYERTYPE_NGW_TRACKS;
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_NGW_VECTOR;
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_NGW_WEBMAP;
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_REMOTE_TMS;
@@ -226,6 +228,9 @@ public class LayerFactoryUI
                     break;
                 case LAYERTYPE_NGW_WEBMAP:
                     layer = new NGWWebMapLayerUI(context, path);
+                    break;
+                case LAYERTYPE_NGW_TRACKS:
+                    layer = new NGWTrackLayer(context, path);
                     break;
                 case LAYERTYPE_LOCAL_VECTOR:
                     layer = new VectorLayerUI(context, path);

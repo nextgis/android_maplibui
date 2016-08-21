@@ -66,7 +66,11 @@ public class NGWResourcesListAdapter
     protected PathView                mPathView;
     protected int                     mTypeMask;
     protected List<CheckState>        mCheckState;
+    protected OnConnectionSelectedListener mConnectionListener;
 
+    public interface OnConnectionSelectedListener {
+        void onConnectionSelected(Connection connection);
+    }
 
     public NGWResourcesListAdapter(SelectNGWResourceDialog dialog)
     {
@@ -74,6 +78,9 @@ public class NGWResourcesListAdapter
         mLoading = false;
     }
 
+    public void setConnectionListener(OnConnectionSelectedListener connectionListener) {
+        mConnectionListener = connectionListener;
+    }
 
     public void setTypeMask(int typeMask)
     {
@@ -518,7 +525,11 @@ public class NGWResourcesListAdapter
             } else {
                 Connection connection = (Connection) mCurrentResource.getChild(i);
                 mCurrentResource = connection;
-                if (connection.isConnected()) {
+
+                if (mConnectionListener != null) {
+                    mConnectionListener.onConnectionSelected(connection);
+                    mSelectNGWResourceDialog.dismiss();
+                } else if (connection.isConnected()) {
                     notifyDataSetChanged();
                 } else {
                     NGWResourceAsyncTask task = new NGWResourceAsyncTask(

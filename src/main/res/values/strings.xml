@@ -75,6 +75,7 @@
     <string name="credentials_opt">Credentials (optional)</string>
     <string name="layer_type_optional">Tile layer type (optional)</string>
     <string name="sync">Synchronization</string>
+    <string name="sync_disable">Disable sync</string>
     <string name="auto_sync">Automatic synchronization</string>
     <string name="auto_sync_summary">Synchronization at regular intervals</string>
     <string name="sync_interval">Synchronization interval</string>

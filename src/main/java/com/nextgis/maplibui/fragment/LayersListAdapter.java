@@ -23,7 +23,6 @@
 
 package com.nextgis.maplibui.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -44,22 +43,34 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
+import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.Layer;
+import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.NGWLookupTable;
+import com.nextgis.maplib.map.NGWTrackLayer;
 import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplib.map.Table;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.api.IVectorLayerUI;
+import com.nextgis.maplibui.dialog.NGWResourcesListAdapter;
+import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.NGWWebMapLayerUI;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
+import com.nextgis.maplibui.mapui.TrackLayerUI;
 import com.nextgis.maplibui.util.LayerUtil;
+import com.nextgis.maplibui.util.NGWTrackLayerCreateTask;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.nextgis.maplib.util.Constants.LAYERTYPE_NGW_TRACKS;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 
 
@@ -73,17 +84,18 @@ public class LayersListAdapter
 
     protected final MapDrawable mMap;
     protected final Context mContext;
-    protected final Activity mActivity;
+    protected final NGActivity mActivity;
     protected DrawerLayout mDrawer;
     protected onEdit mEditListener;
     protected View.OnClickListener mOnPencilClickListener;
+    protected boolean mTracksSyncEnabled;
 
     public interface onEdit {
         void onLayerEdit(ILayer layer);
     }
 
     public LayersListAdapter(
-            Activity activity,
+            NGActivity activity,
             MapDrawable map)
     {
         mMap = map;
@@ -176,7 +188,7 @@ public class LayersListAdapter
         if (v == null || v.getId() == R.id.empty_row)
             v = inflater.inflate(R.layout.row_layer, null);
 
-        if (layer instanceof NGWLookupTable)
+        if (layer instanceof NGWLookupTable || layer instanceof NGWTrackLayer)
             return inflater.inflate(R.layout.row_empty, null);
 
         final ILayerUI layerui;
@@ -244,6 +256,13 @@ public class LayersListAdapter
                         if (layerui instanceof TrackLayer) {
                             popup.getMenu().findItem(R.id.menu_delete).setVisible(false);
                             popup.getMenu().findItem(R.id.menu_settings).setTitle(R.string.track_list);
+
+                            List<ILayer> tracks = new ArrayList<>();
+                            LayerGroup.getLayersByType(mMap, LAYERTYPE_NGW_TRACKS, tracks);
+                            popup.getMenu().findItem(R.id.menu_share).setVisible(true);
+                            mTracksSyncEnabled = tracks.size() > 0;
+                            int title = mTracksSyncEnabled ? R.string.sync_disable : R.string.sync;
+                            popup.getMenu().findItem(R.id.menu_share).setTitle(title);
                         } else if (layerui instanceof VectorLayer) {
                             popup.getMenu().findItem(R.id.menu_edit).setVisible(true);
                             popup.getMenu().findItem(R.id.menu_share).setVisible(true);
@@ -274,7 +293,27 @@ public class LayersListAdapter
                                         } else if (i == R.id.menu_share) {
                                             assert (layerui) != null;
 
-                                            if (layerui instanceof VectorLayer) {
+                                            if (layerui instanceof TrackLayerUI) {
+                                                if (mTracksSyncEnabled) {
+                                                    List<ILayer> tracks = new ArrayList<>();
+                                                    LayerGroup.getLayersByType(mMap, LAYERTYPE_NGW_TRACKS, tracks);
+                                                    if (tracks.size() > 0) {
+                                                        tracks.get(0).delete();
+                                                        mMap.save();
+                                                    }
+                                                } else {
+                                                    SelectNGWResourceDialog selectAccountDialog = new SelectNGWResourceDialog();
+                                                    selectAccountDialog.setConnectionListener(new NGWResourcesListAdapter.OnConnectionSelectedListener() {
+                                                        @Override
+                                                        public void onConnectionSelected(final Connection connection) {
+                                                            new NGWTrackLayerCreateTask(mActivity.getApplicationContext(), connection).execute();
+                                                        }
+                                                    })
+                                                            .setTitle(mContext.getString(R.string.accounts))
+                                                            .setTheme(mActivity.getThemeId())
+                                                            .show(mActivity.getSupportFragmentManager(), "choose_ngw_account");
+                                                }
+                                            } else if (layerui instanceof VectorLayer) {
                                                 VectorLayer vectorLayer = (VectorLayer) layerui;
                                                 LayerUtil.shareLayerAsGeoJSON(mActivity, vectorLayer);
                                             }
