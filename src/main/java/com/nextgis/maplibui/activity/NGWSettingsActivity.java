@@ -333,20 +333,15 @@ public class NGWSettingsActivity
 
 
     // for overriding in a subclass
-    protected boolean isAccountSyncEnabled(
+    public static boolean isAccountSyncEnabled(
             Account account,
-            String authority)
-    {
-        if (null == account) {
-            return false;
-        }
-
-        return ContentResolver.getSyncAutomatically(account, authority);
+            String authority) {
+        return null != account && ContentResolver.getSyncAutomatically(account, authority);
     }
 
 
     // for overriding in a subclass
-    protected void setAccountSyncEnabled(
+    public static void setAccountSyncEnabled(
             Account account,
             String authority,
             boolean isEnabled)
@@ -378,14 +373,8 @@ public class NGWSettingsActivity
             }
         }
 
-        final CharSequence[] keys = {
-                getString(R.string.five_minutes),
-                getString(R.string.ten_minutes),
-                getString(R.string.fifteen_minutes),
-                getString(R.string.thirty_minutes),
-                getString(R.string.one_hour),
-                getString(R.string.two_hours)};
-        final CharSequence[] values = {"300", "600", "900", "1800", "3600", "7200"};
+        final CharSequence[] keys = getPeriodTitles(this);
+        final CharSequence[] values = getPeriodValues();
 
         final ListPreference timeInterval = new ListPreference(this);
         timeInterval.setKey(KEY_PREF_SYNC_PERIOD);
@@ -741,5 +730,19 @@ public class NGWSettingsActivity
 
     public interface OnDeleteAccountListener {
         void onDeleteAccount(Account account);
+    }
+
+    public static CharSequence[] getPeriodTitles(Context context) {
+        return new CharSequence[]{
+                context.getString(R.string.five_minutes),
+                context.getString(R.string.ten_minutes),
+                context.getString(R.string.fifteen_minutes),
+                context.getString(R.string.thirty_minutes),
+                context.getString(R.string.one_hour),
+                context.getString(R.string.two_hours)};
+    }
+
+    public static CharSequence[] getPeriodValues() {
+        return new CharSequence[]{"300", "600", "900", "1800", "3600", "7200"};
     }
 }

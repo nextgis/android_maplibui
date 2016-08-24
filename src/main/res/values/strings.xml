@@ -66,6 +66,7 @@
     <string name="up">Up</string>
     <string name="error_connect_failed">Connect failed</string>
     <string name="resource_group">Resource group</string>
+    <string name="account">Account - %1$s</string>
     <string name="accounts">Accounts</string>
     <string name="raster">Raster</string>
     <string name="vector">Vector</string>
@@ -75,6 +76,7 @@
     <string name="credentials_opt">Credentials (optional)</string>
     <string name="layer_type_optional">Tile layer type (optional)</string>
     <string name="sync">Synchronization</string>
+    <string name="sync_enable">Enable sync</string>
     <string name="sync_disable">Disable sync</string>
     <string name="auto_sync">Automatic synchronization</string>
     <string name="auto_sync_summary">Synchronization at regular intervals</string>

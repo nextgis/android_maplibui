@@ -291,4 +291,6 @@
     <string name="attributes">Атрибуты</string>
     <string name="error_cache">Неверный кэш, перестройте в настройках слоя</string>
     <string name="sync_disable">Отключить синхронизацию</string>
+    <string name="sync_enable">Включить синхронизацию</string>
+    <string name="account">Аккаунт - %1$s</string>
 </resources>

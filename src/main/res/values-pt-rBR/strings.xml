@@ -290,4 +290,6 @@
     <string name="attributes">Attributes</string>
     <string name="error_cache">Bad cache, try rebuild it in layer settings</string>
     <string name="sync_disable">Disable sync</string>
+    <string name="sync_enable">Enable sync</string>
+    <string name="account">Account - %1$s</string>
 </resources>

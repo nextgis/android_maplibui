@@ -23,11 +23,15 @@
 
 package com.nextgis.maplibui.activity;
 
+import android.accounts.Account;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.PeriodicSync;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -38,19 +42,25 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.IRenderer;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.display.FieldStyleRule;
 import com.nextgis.maplib.display.RuleFeatureRenderer;
 import com.nextgis.maplib.display.SimpleFeatureRenderer;
 import com.nextgis.maplib.display.Style;
+import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
@@ -66,6 +76,9 @@ import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.nextgis.maplib.util.Constants.NOT_FOUND;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
 
 
 /**
@@ -102,6 +115,8 @@ public class VectorLayerSettingsActivity
     protected void addFragments() {
         mAdapter.addFragment(new StyleFragment(), R.string.style);
         mAdapter.addFragment(new FieldsFragment(), R.string.fields);
+        if (mLayer instanceof NGWVectorLayer)
+            mAdapter.addFragment(new SyncFragment(), R.string.sync);
         LayerGeneralSettingsFragment generalSettingsFragment = new LayerGeneralSettingsFragment();
         generalSettingsFragment.setRoot(mLayer, this);
         mAdapter.addFragment(generalSettingsFragment, R.string.general);
@@ -323,5 +338,94 @@ public class VectorLayerSettingsActivity
             getActivity().unregisterReceiver(mRebuildCacheReceiver);
         }
 
+    }
+
+    public static class SyncFragment extends Fragment {
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            View v = inflater.inflate(R.layout.fragment_ngw_vector_layer_sync, container, false);
+            final IGISApplication app = (IGISApplication) getActivity().getApplication();
+            final Account account = app.getAccount(((NGWVectorLayer) mVectorLayer).getAccountName());
+            final NGWVectorLayer ngwLayer = ((NGWVectorLayer) mVectorLayer);
+
+            TextView accountName = (TextView) v.findViewById(R.id.account_name);
+            accountName.setText(String.format(getString(R.string.account), account.name));
+            CheckBox enabled = (CheckBox) v.findViewById(R.id.sync_enabled);
+            enabled.setChecked(0 == (ngwLayer.getSyncType() & Constants.SYNC_NONE));
+            enabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                    if (checked)
+                        ngwLayer.setSyncType(Constants.SYNC_ALL);
+                    else
+                        ngwLayer.setSyncType(Constants.SYNC_NONE);
+
+                    ngwLayer.save();
+                }
+            });
+
+            final Spinner period = (Spinner) v.findViewById(R.id.sync_interval);
+            CheckBox auto = (CheckBox) v.findViewById(R.id.sync_auto);
+            boolean isAccountSyncEnabled = NGWSettingsActivity.isAccountSyncEnabled(account, app.getAuthority());
+            auto.setChecked(isAccountSyncEnabled);
+            auto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                    NGWSettingsActivity.setAccountSyncEnabled(account, app.getAuthority(), checked);
+                    period.setEnabled(checked);
+                }
+            });
+
+            period.setEnabled(auto.isChecked());
+            String prefValue = "" + Constants.DEFAULT_SYNC_PERIOD;
+            List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, app.getAuthority());
+            if (null != syncs && !syncs.isEmpty()) {
+                for (PeriodicSync sync : syncs) {
+                    Bundle bundle = sync.extras;
+                    long savedPeriod = bundle.getLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, Constants.NOT_FOUND);
+                    if (savedPeriod > 0){
+                        prefValue = "" + savedPeriod;
+                        break;
+                    }
+                }
+            }
+
+            final CharSequence[] keys = NGWSettingsActivity.getPeriodTitles(getActivity());
+            final CharSequence[] values = NGWSettingsActivity.getPeriodValues();
+
+            SpinnerAdapter adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, keys);
+            period.setAdapter(adapter);
+            period.setSelection(4);
+
+            for (int i = 0; i < values.length; i++) {
+                if (values[i].equals(prefValue)) {
+                    period.setSelection(i);
+                    break;
+                }
+            }
+
+            period.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    long interval = Long.parseLong((String) values[i]);
+                    Bundle bundle = new Bundle();
+                    bundle.putLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, interval);
+
+                    if (interval == NOT_FOUND) {
+                        ContentResolver.removePeriodicSync(account, app.getAuthority(), bundle);
+                    } else {
+                        ContentResolver.addPeriodicSync(account, app.getAuthority(), bundle, interval);
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            });
+
+            return v;
+        }
     }
 }
