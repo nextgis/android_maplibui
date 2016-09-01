@@ -292,4 +292,5 @@
     <string name="sync_disable">Отключить синхронизацию</string>
     <string name="sync_enable">Включить синхронизацию</string>
     <string name="account">Акаунт - %1$s</string>
+    <string name="menu_send_to_ngw">Отправить в NextGIS</string>
 </resources>

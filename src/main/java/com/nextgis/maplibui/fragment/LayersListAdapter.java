@@ -64,6 +64,7 @@ import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.NGWWebMapLayerUI;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
 import com.nextgis.maplibui.mapui.TrackLayerUI;
+import com.nextgis.maplibui.mapui.VectorLayerUI;
 import com.nextgis.maplibui.util.LayerUtil;
 import com.nextgis.maplibui.util.NGWTrackLayerCreateTask;
 
@@ -253,6 +254,9 @@ public class LayersListAdapter
                             popup.getMenu().findItem(R.id.menu_share).setEnabled(false);
                         }
 
+                        if (layer instanceof VectorLayerUI)
+                            popup.getMenu().findItem(R.id.menu_send_to_ngw).setVisible(true);
+
                         if (layerui instanceof TrackLayer) {
                             popup.getMenu().findItem(R.id.menu_delete).setVisible(false);
                             popup.getMenu().findItem(R.id.menu_settings).setTitle(R.string.track_list);
@@ -360,7 +364,7 @@ public class LayersListAdapter
                                             snackbar.show();
                                         } else if (i == R.id.menu_zoom_extent) {
                                             mMap.zoomToExtent(layer.getExtents());
-                                        } else if(i == R.id.menu_download_tiles){
+                                        } else if (i == R.id.menu_download_tiles) {
                                             GeoEnvelope env = mMap.getCurrentBounds();
 
                                             if (layer instanceof RemoteTMSLayerUI) {
@@ -376,6 +380,9 @@ public class LayersListAdapter
                                                 IVectorLayerUI vectorLayerUI = (IVectorLayerUI) layer;
                                                 vectorLayerUI.showAttributes();
                                             }
+                                        } else if (i == R.id.menu_send_to_ngw) {
+                                            if (layer instanceof VectorLayerUI)
+                                                ((VectorLayerUI) layer).sendToNGW(mActivity);
                                         }
 
                                         if (mDrawer != null)

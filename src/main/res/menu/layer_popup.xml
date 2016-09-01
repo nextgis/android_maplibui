@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Project:  NextGIS Mobile
   ~ Purpose:  Mobile GIS for Android.
   ~ Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
@@ -22,45 +21,45 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    >
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_zoom_extent"
-        android:title="@string/menu_zoom_extent"
         android:orderInCategory="1"
-        android:visible="false"
-        />
+        android:title="@string/menu_zoom_extent"
+        android:visible="false"/>
 
     <item
         android:id="@+id/menu_download_tiles"
+        android:orderInCategory="10"
         android:title="@string/menu_download_tiles"
-        android:orderInCategory="2"
-        android:visible="false"
-        />
+        android:visible="false"/>
 
     <item
         android:id="@+id/menu_share"
+        android:orderInCategory="15"
         android:title="@string/menu_share"
-        android:orderInCategory="3"
-        android:visible="false"
-        />
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/menu_send_to_ngw"
+        android:orderInCategory="20"
+        android:title="@string/menu_send_to_ngw"
+        android:visible="false"/>
 
     <item
         android:id="@+id/menu_edit"
+        android:orderInCategory="30"
         android:title="@string/action_edit"
-        android:orderInCategory="4"
-        android:visible="false"
-        />
+        android:visible="false"/>
 
     <item
         android:id="@+id/menu_delete"
-        android:title="@string/menu_delete"
-        android:orderInCategory="5"
-        />
+        android:orderInCategory="40"
+        android:title="@string/menu_delete"/>
+
     <item
         android:id="@+id/menu_settings"
-        android:title="@string/action_settings"
-        android:orderInCategory="6"
-        />
+        android:orderInCategory="50"
+        android:title="@string/action_settings"/>
 
 </menu>

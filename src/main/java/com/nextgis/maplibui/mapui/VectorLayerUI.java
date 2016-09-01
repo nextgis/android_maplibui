@@ -31,6 +31,7 @@ import android.graphics.drawable.Drawable;
 import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.GeoGeometry;
+import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.display.SimpleFeatureRenderer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
@@ -38,10 +39,14 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.AttributesActivity;
 import com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
+import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.activity.VectorLayerSettingsActivity;
 import com.nextgis.maplibui.api.IVectorLayerUI;
+import com.nextgis.maplibui.dialog.NGWResourcesListAdapter;
+import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
+import com.nextgis.maplibui.util.NGWCreateNewLayerTask;
 
 import java.io.File;
 
@@ -145,4 +150,18 @@ public class VectorLayerUI
         settings.putExtra(ConstantsUI.KEY_LAYER_ID, getId());
         mContext.startActivity(settings);
     }
+
+    public void sendToNGW(NGActivity activity) {
+        SelectNGWResourceDialog selectAccountDialog = new SelectNGWResourceDialog();
+        selectAccountDialog.setConnectionListener(new NGWResourcesListAdapter.OnConnectionSelectedListener() {
+            @Override
+            public void onConnectionSelected(final Connection connection) {
+                new NGWCreateNewLayerTask(connection, VectorLayerUI.this).execute();
+            }
+        })
+                .setTitle(mContext.getString(R.string.accounts))
+                .setTheme(activity.getThemeId())
+                .show(activity.getSupportFragmentManager(), "send_layer_to_ngw");
+    }
+
 }
