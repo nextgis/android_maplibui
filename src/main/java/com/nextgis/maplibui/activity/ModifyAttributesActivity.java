@@ -530,7 +530,7 @@ public class ModifyAttributesActivity
     }
 
 
-    protected void saveFeature()
+    protected boolean saveFeature()
     {
         //create new row or modify existing
         List<Field> fields = mLayer.getFields();
@@ -550,17 +550,18 @@ public class ModifyAttributesActivity
         Uri uri = Uri.parse(
                 "content://" + app.getAuthority() + "/" + mLayer.getPath().getName());
 
+        boolean error;
         if (mFeatureId == NOT_FOUND) {
             // we need to get proper mFeatureId for new features first
             Uri result = getContentResolver().insert(uri, values);
-            if (result == null)
+            if (error = result == null)
                 Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT).show();
             else
                 mFeatureId = Long.parseLong(result.getLastPathSegment());
         } else {
             Uri updateUri = ContentUris.withAppendedId(uri, mFeatureId);
             boolean valuesUpdated = getContentResolver().update(updateUri, values, null, null) == 1;
-            if (!valuesUpdated)
+            if (error = !valuesUpdated)
                 Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT).show();
         }
 
@@ -569,6 +570,7 @@ public class ModifyAttributesActivity
         Intent data = new Intent();
         data.putExtra(ConstantsUI.KEY_FEATURE_ID, mFeatureId);
         setResult(RESULT_OK, data);
+        return !error;
     }
 
 

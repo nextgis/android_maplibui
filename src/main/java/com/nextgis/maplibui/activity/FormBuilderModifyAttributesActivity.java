@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -282,6 +282,15 @@ public class FormBuilderModifyAttributesActivity
         }
     }
 
+    @Override
+    protected boolean saveFeature() {
+        boolean success = super.saveFeature();
+        if (success)
+            for (Field field : mLayer.getFields())
+                saveLastValue(field);
+
+        return success;
+    }
 
     protected Object putFieldValue(
             ContentValues values,
@@ -295,9 +304,6 @@ public class FormBuilderModifyAttributesActivity
         }
 
         if (null != value) {
-            if (control.isShowLast())
-                control.saveLastValue(mSharedPreferences);
-
             if (value instanceof DoubleComboboxValue) {
                 DoubleComboboxValue dcValue = (DoubleComboboxValue) value;
                 values.put(dcValue.mFieldName, dcValue.mValue);
@@ -306,5 +312,11 @@ public class FormBuilderModifyAttributesActivity
         }
 
         return value;
+    }
+
+    protected void saveLastValue(Field field) {
+        IFormControl control = (IFormControl) mFields.get(field.getName());
+        if (null != control && control.isShowLast())
+            control.saveLastValue(mSharedPreferences);
     }
 }
