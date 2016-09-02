@@ -173,6 +173,8 @@ public class NGWLoginFragment
         if (!mForNewAccount) {
             mManual.setEnabled(false);
             mURL.setEnabled(mChangeAccountUrl);
+            mLogin.setText(mLoginText);
+            mLogin.setEnabled(mChangeAccountLogin);
             view.findViewById(R.id.ll_manual).setVisibility(View.GONE);
 
             if (mUrlText.endsWith(ENDING)) {
@@ -180,8 +182,6 @@ public class NGWLoginFragment
             } else {
                 mManual.performClick();
                 mURL.setText(mUrlText);
-                mLogin.setText(mLoginText);
-                mLogin.setEnabled(mChangeAccountLogin);
             }
 
             boolean guest = Constants.NGW_ACCOUNT_GUEST.equals(mLoginText);
