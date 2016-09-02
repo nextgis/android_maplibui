@@ -38,6 +38,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.api.MapEventListener;
@@ -304,6 +305,7 @@ public class LayersListAdapter
                                                     if (tracks.size() > 0) {
                                                         tracks.get(0).delete();
                                                         mMap.save();
+                                                        Toast.makeText(mContext, R.string.sync_disabled, Toast.LENGTH_SHORT).show();
                                                     }
                                                 } else {
                                                     SelectNGWResourceDialog selectAccountDialog = new SelectNGWResourceDialog();

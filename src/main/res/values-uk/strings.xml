@@ -293,4 +293,7 @@
     <string name="sync_enable">Включить синхронизацию</string>
     <string name="account">Акаунт - %1$s</string>
     <string name="menu_send_to_ngw">Отправить в NextGIS</string>
+    <string name="sync_disabled">Синхронизация отключена</string>
+    <string name="sync_enable_error">Ошибка при включении синхронизации</string>
+    <string name="sync_enabled">Синхронизация включена</string>
 </resources>

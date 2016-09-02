@@ -23,6 +23,7 @@ package com.nextgis.maplibui.util;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.datasource.ngw.Resource;
@@ -39,7 +40,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class NGWTrackLayerCreateTask extends AsyncTask<Void, Void, Void> {
+public class NGWTrackLayerCreateTask extends AsyncTask<Void, Void, Boolean> {
     private Connection mConnection;
     private Context mContext;
 
@@ -49,7 +50,7 @@ public class NGWTrackLayerCreateTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Void... voids) {
+    protected Boolean doInBackground(Void... voids) {
         Map<String, Resource> keys = new HashMap<>();
         keys.put(mConnection.getLogin(), null);
         if (mConnection.connect(Constants.NGW_ACCOUNT_GUEST.equals(mConnection.getLogin()))) {
@@ -66,12 +67,19 @@ public class NGWTrackLayerCreateTask extends AsyncTask<Void, Void, Void> {
                     layer.createFromNGW(null);
                     map.addLayer(layer);
                     map.save();
+                    return true;
                 } catch (NGException | IOException | JSONException e) {
                     e.printStackTrace();
                 }
             }
         }
 
-        return null;
+        return false;
+    }
+
+    @Override
+    protected void onPostExecute(Boolean result) {
+        super.onPostExecute(result);
+        Toast.makeText(mContext, result ? R.string.sync_enabled : R.string.sync_enable_error, Toast.LENGTH_SHORT).show();
     }
 }

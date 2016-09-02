@@ -77,7 +77,10 @@
     <string name="layer_type_optional">Tile layer type (optional)</string>
     <string name="sync">Synchronization</string>
     <string name="sync_enable">Enable sync</string>
+    <string name="sync_enabled">Sync enabled</string>
+    <string name="sync_enable_error">Error enabling sync</string>
     <string name="sync_disable">Disable sync</string>
+    <string name="sync_disabled">Sync disabled</string>
     <string name="auto_sync">Automatic synchronization</string>
     <string name="auto_sync_summary">Synchronization at regular intervals</string>
     <string name="sync_interval">Synchronization interval</string>
