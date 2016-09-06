@@ -493,6 +493,11 @@ public class ModifyAttributesActivity
     private boolean hasEdits() {
         boolean result = mFeatureId == NOT_FOUND;
 
+        if (mLayer == null) {
+            Toast.makeText(this, R.string.error_layer_not_inited, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
         if (!result) {
             Cursor featureCursor = mLayer.query(null, FIELD_ID + " = " + mFeatureId, null, null, null);
             if (featureCursor == null || !featureCursor.moveToFirst())
@@ -532,6 +537,11 @@ public class ModifyAttributesActivity
 
     protected boolean saveFeature()
     {
+        if (mLayer == null) {
+            Toast.makeText(this, R.string.error_layer_not_inited, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
         //create new row or modify existing
         List<Field> fields = mLayer.getFields();
         ContentValues values = new ContentValues();
