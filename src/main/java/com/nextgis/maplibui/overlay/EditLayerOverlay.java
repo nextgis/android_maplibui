@@ -1196,7 +1196,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
             }
         }
 
-        if (previousFeatureId == mFeature.getId())
+        if (mFeature == null || previousFeatureId == mFeature.getId())
             return;
 
         if (mMode == MODE_HIGHLIGHT) {
