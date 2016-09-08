@@ -26,6 +26,7 @@ package com.nextgis.maplibui.activity;
 import android.content.ContentValues;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.location.Location;
 import android.os.Bundle;
 import android.provider.SyncStateContract;
 import android.text.TextUtils;
@@ -38,6 +39,7 @@ import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.api.IControl;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.formcontrol.AutoTextEdit;
@@ -62,6 +64,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.JSON_TYPE_KEY;
@@ -227,23 +230,33 @@ public class FormBuilderModifyAttributesActivity
                     break;
 
                 case JSON_COORDINATES_VALUE:
+                    Double x, y;
+                    x = y = null;
                     if (mGeometry != null && mGeometry instanceof GeoPoint) {
                         GeoPoint point = (GeoPoint) mGeometry.copy();
                         point.setCRS(GeoConstants.CRS_WEB_MERCATOR);
                         point.project(GeoConstants.CRS_WGS84);
-
-                        JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
-                        String field = attributes.optString(JSON_FIELD_NAME_KEY + "_lat");
-                        attributes.put(JSON_FIELD_NAME_KEY, field);
-                        control = (Coordinates) getLayoutInflater().inflate(R.layout.formtemplate_coordinates, layout, false);
-                        ((Coordinates) control).setValue(point.getY());
-                        addToLayout(control, element, fields, savedState, featureCursor, layout);
-
-                        field = attributes.optString(JSON_FIELD_NAME_KEY + "_long");
-                        attributes.put(JSON_FIELD_NAME_KEY, field);
-                        control = (Coordinates) getLayoutInflater().inflate(R.layout.formtemplate_coordinates, layout, false);
-                        ((Coordinates) control).setValue(point.getX());
+                        y = point.getY();
+                        x = point.getX();
                     }
+
+                    JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+                    String field = attributes.optString(JSON_FIELD_NAME_KEY + "_lat");
+                    attributes.put(JSON_FIELD_NAME_KEY, field);
+                    control = (Coordinates) getLayoutInflater().inflate(R.layout.formtemplate_coordinates, layout, false);
+                    if (control != null) {
+                        ((Coordinates) control).setIsLat();
+                        if (y != null)
+                            ((Coordinates) control).setValue(y);
+                    }
+
+                    addToLayout(control, element, fields, savedState, featureCursor, layout);
+
+                    field = attributes.optString(JSON_FIELD_NAME_KEY + "_long");
+                    attributes.put(JSON_FIELD_NAME_KEY, field);
+                    control = (Coordinates) getLayoutInflater().inflate(R.layout.formtemplate_coordinates, layout, false);
+                    if (control != null && x != null)
+                        ((Coordinates) control).setValue(x);
                     break;
 
                 //TODO: add controls
@@ -265,6 +278,18 @@ public class FormBuilderModifyAttributesActivity
         }
 
         layout.requestLayout();
+    }
+
+    @Override
+    protected void setLocationText(Location location){
+        super.setLocationText(location);
+        for (Map.Entry<String, IControl> control : mFields.entrySet()) {
+            IControl current = control.getValue();
+            if (current instanceof Coordinates) {
+                ((Coordinates) current).setValue(((Coordinates) current).isLat() ? location.getLatitude() : location.getLongitude());
+                ((Coordinates) current).setText(((Coordinates) current).getFormattedValue());
+            }
+        }
     }
 
     protected void addToLayout(IFormControl control, JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, LinearLayout layout) throws JSONException {

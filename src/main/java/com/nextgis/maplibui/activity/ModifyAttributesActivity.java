@@ -672,25 +672,17 @@ public class ModifyAttributesActivity
                 return false;
             }
 
-            //create point geometry
-            GeoPoint pt;
+            GeoPoint pt = new GeoPoint(mLocation.getLongitude(), mLocation.getLatitude());
+            pt.setCRS(GeoConstants.CRS_WGS84);
+            pt.project(GeoConstants.CRS_WEB_MERCATOR);
 
             switch (mLayer.getGeometryType()) {
                 case GeoConstants.GTPoint:
-                    pt = new GeoPoint(mLocation.getLongitude(), mLocation.getLatitude());
-                    pt.setCRS(GeoConstants.CRS_WGS84);
-                    pt.project(GeoConstants.CRS_WEB_MERCATOR);
-
                     geometry = pt;
                     break;
                 case GeoConstants.GTMultiPoint:
-                    pt = new GeoPoint(mLocation.getLongitude(), mLocation.getLatitude());
-                    pt.setCRS(GeoConstants.CRS_WGS84);
-                    pt.project(GeoConstants.CRS_WEB_MERCATOR);
-
-                    GeoMultiPoint mpt = new GeoMultiPoint();
-                    mpt.add(pt);
-                    geometry = mpt;
+                    geometry = new GeoMultiPoint();
+                    ((GeoMultiPoint) geometry).add(pt);
                     break;
             }
         }
@@ -782,7 +774,7 @@ public class ModifyAttributesActivity
 
     protected void setLocationText(Location location)
     {
-        if(null == mLatView || null == mLongView || null == mAccView || null == mAltView)
+        if (null == mLatView || null == mLongView || null == mAccView || null == mAltView)
             return;
 
         if (null == location) {

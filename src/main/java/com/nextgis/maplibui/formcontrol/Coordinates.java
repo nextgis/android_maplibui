@@ -52,6 +52,7 @@ public class Coordinates extends TextEdit
 {
     protected boolean mHidden;
     protected double mValue;
+    protected boolean mIsLat = false;
 
     public Coordinates(Context context) {
         super(context);
@@ -79,10 +80,8 @@ public class Coordinates extends TextEdit
         String value;
         if (ControlHelper.hasKey(savedState, mFieldName))
             value = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
-        else {
-            DecimalFormat format = new DecimalFormat("#.######", new DecimalFormatSymbols(Locale.US));
-            value = format.format(mValue);
-        }
+        else
+            value = getFormattedValue();
 
         setText(value);
         setSingleLine(true);
@@ -122,5 +121,18 @@ public class Coordinates extends TextEdit
 
     public void setValue(double value) {
         mValue = value;
+    }
+
+    public String getFormattedValue() {
+        DecimalFormat format = new DecimalFormat("#.######", new DecimalFormatSymbols(Locale.US));
+        return format.format(mValue);
+    }
+
+    public void setIsLat() {
+        mIsLat = true;
+    }
+
+    public boolean isLat() {
+        return mIsLat;
     }
 }
