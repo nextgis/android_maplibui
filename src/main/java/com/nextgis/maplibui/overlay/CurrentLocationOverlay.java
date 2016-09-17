@@ -398,17 +398,21 @@ public class CurrentLocationOverlay
             accuracy = 1;
         }
 
-        Bitmap result = Bitmap.createBitmap(accuracy * 2, accuracy * 2, Bitmap.Config.ARGB_4444);
-
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        Canvas canvas = new Canvas(result);
-        paint.setColor(mMarkerColor);
-        paint.setAlpha(64);
-        canvas.drawCircle(accuracy, accuracy, accuracy, paint);
-        paint.setAlpha(255);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(2);
-        canvas.drawCircle(accuracy, accuracy, accuracy - 2, paint);
+        Bitmap result = null;
+        try {
+            result = Bitmap.createBitmap(accuracy * 2, accuracy * 2, Bitmap.Config.ARGB_4444);
+            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            Canvas canvas = new Canvas(result);
+            paint.setColor(mMarkerColor);
+            paint.setAlpha(64);
+            canvas.drawCircle(accuracy, accuracy, accuracy, paint);
+            paint.setAlpha(255);
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(2);
+            canvas.drawCircle(accuracy, accuracy, accuracy - 2, paint);
+        } catch (OutOfMemoryError oom) {
+            oom.printStackTrace();
+        }
 
         return result;
     }
