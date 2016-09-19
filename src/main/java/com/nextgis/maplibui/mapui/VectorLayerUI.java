@@ -27,6 +27,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteException;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.widget.Toast;
 
@@ -76,7 +77,10 @@ public class VectorLayerUI
     @Override
     public Drawable getIcon(Context context)
     {
-        int color = ((SimpleFeatureRenderer) mRenderer).getStyle().getColor();
+        int color = Color.RED;
+        if (mRenderer != null && ((SimpleFeatureRenderer) mRenderer).getStyle() != null)
+            color = ((SimpleFeatureRenderer) mRenderer).getStyle().getColor();
+
         return ControlHelper.getIconByVectorType(mContext, mGeometryType, color, R.drawable.ic_local_vector, false);
     }
 
