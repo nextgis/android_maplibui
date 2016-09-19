@@ -60,6 +60,7 @@ import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
@@ -392,7 +393,8 @@ public class TrackerService
     @Override
     public void onLocationChanged(Location location)
     {
-        if (!mIsRunning)
+        boolean update = LocationUtil.isProviderEnabled(this, location.getProvider(), true);
+        if (!mIsRunning || !update)
             return;
 
         if(mHasGPSFix && !location.getProvider().equals(LocationManager.GPS_PROVIDER))
