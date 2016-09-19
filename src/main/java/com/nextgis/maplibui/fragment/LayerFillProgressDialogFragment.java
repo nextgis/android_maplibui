@@ -172,9 +172,11 @@ public class LayerFillProgressDialogFragment extends Fragment {
                         mIsFinished = true;
                     }
 
-                    int toast = intent.getBooleanExtra(LayerFillService.KEY_MESSAGE, false) ?
-                            com.nextgis.maplibui.R.string.message_layer_created : com.nextgis.maplibui.R.string.canceled;
-                    Toast.makeText(mActivity, mActivity.getString(toast), Toast.LENGTH_SHORT).show();
+                    if (intent.hasExtra(LayerFillService.KEY_MESSAGE)) {
+                        int toast = intent.getBooleanExtra(LayerFillService.KEY_MESSAGE, false) ?
+                                com.nextgis.maplibui.R.string.message_layer_created : com.nextgis.maplibui.R.string.canceled;
+                        Toast.makeText(mActivity, mActivity.getString(toast), Toast.LENGTH_SHORT).show();
+                    }
                     break;
                 case LayerFillService.STATUS_SHOW:
                     if (!mProgressDialog.isShowing()) {

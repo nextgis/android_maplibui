@@ -253,7 +253,12 @@ public class LayerFillService extends Service implements IProgressor {
                 boolean result = task.execute(progressor) && !mIsCanceled;
 
                 mProgressIntent.putExtra(KEY_STATUS, STATUS_STOP);
-                mProgressIntent.putExtra(KEY_MESSAGE, result);
+
+                if (!(task instanceof UnzipForm))
+                    mProgressIntent.putExtra(KEY_MESSAGE, result);
+                else
+                    mProgressIntent.removeExtra(KEY_MESSAGE);
+
                 mProgressIntent.putExtra(KEY_TOTAL, mQueue.size());
                 sendBroadcast(mProgressIntent);
 
@@ -390,9 +395,11 @@ public class LayerFillService extends Service implements IProgressor {
                 vectorLayer.createFromGeoJson(mUri, progressor);
             } catch (IOException | JSONException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();
-                if(null != progressor){
+
+                if (null != progressor)
                     progressor.setMessage(e.getLocalizedMessage());
-                }
+
+                setMessage(e.getLocalizedMessage());
                 notifyError(mProgressMessage);
                 return false;
             }
@@ -527,9 +534,11 @@ public class LayerFillService extends Service implements IProgressor {
                 }
             } catch (AccountsException | JSONException | IOException | URISyntaxException | SecurityException e) {
                 e.printStackTrace();
-                if(null != progressor){
+
+                if (null != progressor)
                     progressor.setMessage(e.getLocalizedMessage());
-                }
+
+                setMessage(e.getMessage());
                 notifyError(mProgressMessage);
                 return false;
             }
@@ -581,9 +590,11 @@ public class LayerFillService extends Service implements IProgressor {
                     vectorLayer.createFromGeoJson(mPath, progressor);
             } catch (IOException | JSONException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();
-                if (null != progressor) {
+
+                if (null != progressor)
                     progressor.setMessage(e.getLocalizedMessage());
-                }
+
+                setMessage(e.getLocalizedMessage());
                 notifyError(mProgressMessage);
                 return false;
             }
@@ -624,9 +635,11 @@ public class LayerFillService extends Service implements IProgressor {
                     tmsLayer.fillFromZip(mUri, progressor);
             } catch (IOException | NumberFormatException | SecurityException | NGException | ClassCastException e) {
                 e.printStackTrace();
-                if(null != progressor){
+
+                if (null != progressor)
                     progressor.setMessage(e.getLocalizedMessage());
-                }
+
+                setMessage(e.getLocalizedMessage());
                 notifyError(mProgressMessage);
                 return false;
             }
@@ -683,9 +696,11 @@ public class LayerFillService extends Service implements IProgressor {
                 ngwVectorLayer.createFromNGW(progressor);
             } catch (JSONException | IOException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();
-                if(null != progressor){
+
+                if (null != progressor)
                     progressor.setMessage(e.getLocalizedMessage());
-                }
+
+                setMessage(e.getLocalizedMessage());
                 notifyError(mProgressMessage);
                 return false;
             }

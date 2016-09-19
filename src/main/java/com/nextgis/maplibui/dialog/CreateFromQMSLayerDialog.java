@@ -57,7 +57,6 @@ import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.MapUtil;
-import com.nextgis.maplib.util.NGException;
 import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGActivity;
@@ -79,6 +78,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import static com.nextgis.maplib.util.Constants.JSON_MESSAGE_KEY;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_NORMAL;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
 
@@ -273,8 +273,6 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 return NetworkUtil.get(QMS_GEOSERVICE_URL + mLayerId + QMS_DETAIL_APPENDIX, null, null);
             } catch (IOException e) {
                 e.printStackTrace();
-            } catch (NGException e) {
-                return e.getMessage();
             }
 
             return null;
@@ -291,10 +289,17 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                     Toast.makeText(mContext, R.string.error_network_unavailable, Toast.LENGTH_SHORT).show();
                     break;
                 default:
-                    if (isParsable(response))
-                        Toast.makeText(mContext, R.string.qms_unavailable, Toast.LENGTH_SHORT).show();
-                    else
-                        createLayer(response);
+                    try {
+                        JSONObject geoJSONObject = new JSONObject(response);
+                        if (geoJSONObject.has(JSON_MESSAGE_KEY)) {
+                            Toast.makeText(mContext, R.string.qms_unavailable, Toast.LENGTH_SHORT).show();
+                            break;
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    createLayer(response);
                     break;
             }
 
@@ -363,8 +368,6 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 return NetworkUtil.get(QMS_GEOSERVICE_LIST_URL, null, null);
             } catch (IOException e) {
                 e.printStackTrace();
-            } catch (NGException e) {
-                return e.getMessage();
             }
 
             return null;
@@ -382,11 +385,18 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                     showRetry();
                     break;
                 default:
-                    if (isParsable(response)) {
-                        Toast.makeText(mContext, R.string.qms_unavailable, Toast.LENGTH_SHORT).show();
-                        showRetry();
-                    } else
-                        createList(response);
+                    try {
+                        JSONObject geoJSONObject = new JSONObject(response);
+                        if (geoJSONObject.has(JSON_MESSAGE_KEY)) {
+                            Toast.makeText(mContext, R.string.qms_unavailable, Toast.LENGTH_SHORT).show();
+                            showRetry();
+                            break;
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    createList(response);
                     break;
             }
         }
