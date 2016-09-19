@@ -312,7 +312,7 @@ public class LayersListAdapter
                                                     selectAccountDialog.setConnectionListener(new NGWResourcesListAdapter.OnConnectionSelectedListener() {
                                                         @Override
                                                         public void onConnectionSelected(final Connection connection) {
-                                                            new NGWTrackLayerCreateTask(mActivity.getApplicationContext(), connection).execute();
+                                                            new NGWTrackLayerCreateTask(mActivity, connection).execute();
                                                         }
                                                     })
                                                             .setTitle(mContext.getString(R.string.accounts))
