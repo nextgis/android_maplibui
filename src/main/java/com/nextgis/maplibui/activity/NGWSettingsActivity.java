@@ -427,7 +427,9 @@ public class NGWSettingsActivity
                 });
 
         syncCategory.addPreference(timeInterval);
-        timeInterval.setDependency(KEY_SYNC);
+        // TODO 3.0
+        // crash on Android 2.3.6
+//        timeInterval.setDependency(KEY_SYNC);
     }
 
 
