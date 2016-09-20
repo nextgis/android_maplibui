@@ -427,7 +427,7 @@ public class NGWSettingsActivity
                 });
 
         syncCategory.addPreference(timeInterval);
-        timeInterval.setDependency(KEY_SYNC);
+        // timeInterval.setDependency(KEY_SYNC);
     }
 
 
