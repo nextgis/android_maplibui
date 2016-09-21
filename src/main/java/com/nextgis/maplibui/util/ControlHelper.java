@@ -40,6 +40,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -151,9 +152,7 @@ public final class ControlHelper {
             canvas.drawBitmap(src, 0, 0, paint);
 
             if (syncable) {
-                // TODO
-                // context.getTheme() == Dark ? R.drawable.ic_action_refresh_dark : R.drawable.ic_action_refresh_light;
-                int syncIconId = R.drawable.ic_action_refresh_light;
+                int syncIconId = isDarkTheme(context) ? R.drawable.ic_action_refresh_dark : R.drawable.ic_action_refresh_light;;
                 src = BitmapFactory.decodeResource(context.getResources(), syncIconId);
                 src = Bitmap.createScaledBitmap(src, bitmap.getWidth() / 2, bitmap.getWidth() / 2, true);
                 canvas.drawBitmap(src, bitmap.getWidth() - bitmap.getWidth() / 2, bitmap.getWidth() - bitmap.getWidth() / 2, new Paint());
@@ -163,6 +162,10 @@ public final class ControlHelper {
         }
 
         return icon;
+    }
+
+    public static boolean isDarkTheme(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
     }
 
     public static Drawable tintDrawable(Drawable drawable, int color) {
