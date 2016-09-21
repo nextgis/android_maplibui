@@ -154,14 +154,15 @@ public class NGWLoginFragment
                 if (isChecked) {
                     mURL.setCompoundDrawables(null, null, null, null);
                     mURL.setHint(R.string.ngw_url);
-                    mLogin.setText(null);
+                    mUrlText = mUrlText.replace(ENDING, "");
                     mLoginTitle.setText(R.string.ngw_login_title);
                 } else {
                     @SuppressWarnings("deprecation")
                     Drawable addition = getResources().getDrawable(R.drawable.nextgis_addition);
                     mURL.setCompoundDrawablesWithIntrinsicBounds(null, null, addition, null);
                     mURL.setHint(R.string.instance_name);
-                    mLogin.setText(DEFAULT_ACCOUNT);
+                    if (!mUrlText.contains(ENDING))
+                        mUrlText += ENDING;
                     mLoginTitle.setText(R.string.ngw_from_my_nextgis);
                 }
 
