@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Project:  NextGIS Mobile
+  ~ Purpose:  Mobile GIS for Android.
+  ~ Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
+  ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
+  ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
+  ~ ******************************************************************************
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU Lesser Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string-array name="coordinates_format" translatable="false">
+        <item>DD.DDDD</item>
+        <item>DD-MM.MM</item>
+        <item>DD-MM-SS.SS</item>
+    </string-array>
+    <string-array name="coordinates_format_val" translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="tracker_min_dist_update">
+        <item>@string/most_frequently</item>
+        <item>1 m</item>
+        <item>5 m</item>
+        <item>10 m</item>
+        <item>25 m</item>
+        <item>50 m</item>
+        <item>75 m</item>
+        <item>100 m</item>
+        <item>150 m</item>
+        <item>200 m</item>
+        <item>300 m</item>
+    </string-array>
+    <string-array name="tracker_min_dist_update_val"
+                  translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>5</item>
+        <item>10</item>
+        <item>25</item>
+        <item>50</item>
+        <item>75</item>
+        <item>100</item>
+        <item>150</item>
+        <item>200</item>
+        <item>300</item>
+    </string-array>
+    <string-array name="tracker_min_time_between_updates">
+        <item>@string/most_frequently</item>
+        <item>1 s</item>
+        <item>2 s</item>
+        <item>5 s</item>
+        <item>10 s</item>
+        <item>20 s</item>
+        <item>30 s</item>
+        <item>45 s</item>
+        <item>1 min</item>
+        <item>2 min</item>
+        <item>5 min</item>
+        <item>10 min</item>
+        <item>20 min</item>
+        <item>30 min</item>
+        <item>45 min</item>
+    </string-array>
+    <string-array name="tracker_min_time_between_updates_val"
+                  translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>5</item>
+        <item>10</item>
+        <item>20</item>
+        <item>30</item>
+        <item>45</item>
+        <item>60</item>
+        <item>120</item>
+        <item>300</item>
+        <item>600</item>
+        <item>1200</item>
+        <item>1800</item>
+        <item>2700</item>
+    </string-array>
+    <string-array name="status_panel_mode" translatable="false">
+        <item>@string/panel_hide</item>
+        <item>@string/panel_show</item>
+        <item>@string/panel_always</item>
+    </string-array>
+    <string-array name="status_panel_mode_val"
+                  translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>3</item>
+    </string-array>
+    <string-array name="current_location_mode" translatable="false">
+        <item>@string/location_hide</item>
+        <item>@string/location_marker</item>
+        <item>@string/location_both</item>
+    </string-array>
+    <string-array name="current_location_mode_val"
+                  translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>3</item>
+    </string-array>
+    <string-array name="tms_tile_cache_size" translatable="false">
+        <item>@string/tms_no_cache</item>
+        <item>@string/tms_1_screen</item>
+        <item>@string/tms_2_screens</item>
+        <item>@string/tms_3_screens</item>
+    </string-array>
+    <string-array name="tms_tile_cache_size_val"
+                  translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+    <string-array name="theme" translatable="false">
+        <item>@string/light</item>
+        <item>@string/dark</item>
+    </string-array>
+    <string-array name="theme_val" translatable="false">
+        <item>light</item>
+        <item>dark</item>
+    </string-array>
+    <string-array name="accurate_ce" translatable="false">
+        <item>CE50</item>
+        <item>CE90</item>
+        <item>CE95</item>
+        <item>CE98</item>
+    </string-array>
+    <string-array name="geom_names" translatable="false">
+        <item>@string/point</item>
+        <item>@string/linestring</item>
+        <item>@string/polygon</item>
+        <item>@string/multi_point</item>
+        <item>@string/multi_linestring</item>
+        <item>@string/multi_polygon</item>
+    </string-array>
+    <integer-array name="geom_types" translatable="false">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </integer-array>
+    <string-array name="field_names" translatable="false">
+        <item>@string/field_type_string</item>
+        <item>@string/field_type_int</item>
+        <item>@string/field_type_real</item>
+        <item>@string/field_type_datetime</item>
+        <item>@string/field_type_date</item>
+        <item>@string/field_type_time</item>
+    </string-array>
+    <integer-array name="field_types" translatable="false">
+        <item>4</item>
+        <item>0</item>
+        <item>2</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+    </integer-array>
+    <string-array name="line_type" translatable="false">
+        <item>@string/type_solid</item>
+        <item>@string/type_dash</item>
+        <item>@string/type_edge</item>
+    </string-array>
+    <string-array name="marker_type" translatable="false">
+        <item>@string/type_point</item>
+        <item>@string/type_circle</item>
+        <item>@string/type_diamond</item>
+        <item>@string/type_cross</item>
+        <item>@string/type_triangle</item>
+        <item>@string/type_box</item>
+        <item>@string/type_edit_circle</item>
+        <item>@string/type_crossed_box</item>
+    </string-array>
+    <string-array name="renderers" translatable="false">
+        <item>@string/simple_renderer</item>
+        <item>@string/rule_renderer</item>
+    </string-array>
+</resources>
