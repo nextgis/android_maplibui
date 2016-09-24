@@ -276,8 +276,8 @@
     <string name="tms_1_screen">1 obrazovka</string>
     <string name="tms_2_screens">2 obrazovky (doporučené)</string>
     <string name="tms_3_screens">3 obrazovky</string>
-    <string name="light">Světlý</string>
-    <string name="dark">Tmavý</string>
+    <string name="light">Světlé</string>
+    <string name="dark">Tmavé</string>
     <string name="renderer">Render</string>
     <string name="simple_renderer">Jednoduchý</string>
     <string name="rule_renderer">Pravidla</string>
