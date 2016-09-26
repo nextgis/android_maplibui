@@ -581,6 +581,8 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 if (!mFile.exists()) {
                     try {
                         int size = (int) (16 * (getContext().getResources().getDisplayMetrics().density / 160));
+                        if (size < 16)
+                            size = 16;
                         if (size > 64)
                             size = 64;
 
@@ -631,7 +633,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
             Drawable checkbox = view.getCompoundDrawables()[2];
 
             if (icon != null)
-                icon.setBounds(0, 0, icon.getIntrinsicWidth() * 2, icon.getIntrinsicHeight() * 2);
+                icon.setBounds(0, 0, checkbox.getIntrinsicWidth(), checkbox.getIntrinsicHeight());
 
             view.setCompoundDrawables(icon, null, checkbox, null);
         }
