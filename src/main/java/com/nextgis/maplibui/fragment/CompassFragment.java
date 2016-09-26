@@ -206,7 +206,12 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
 
     @Override
     public void onPause() {
-        mSensorManager.unregisterListener(sensorListener);
+        try {
+            mSensorManager.unregisterListener(sensorListener);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         super.onPause();
     }
 
