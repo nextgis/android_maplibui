@@ -49,10 +49,10 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.util.Log;
 import android.view.MenuItem;
+
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.INGWLayer;
 import com.nextgis.maplib.datasource.ngw.SyncAdapter;
-import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.MapContentProviderHelper;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.Table;
@@ -69,7 +69,6 @@ import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplib.util.Constants.TAG;
-import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
 
 
@@ -376,8 +375,7 @@ public class NGWSettingsActivity
         final CharSequence[] keys = getPeriodTitles(this);
         final CharSequence[] values = getPeriodValues();
 
-        final ListPreference timeInterval = new ListPreference(this);
-        timeInterval.setKey(KEY_PREF_SYNC_PERIOD);
+        ListPreference timeInterval = new ListPreference(this);
         timeInterval.setTitle(R.string.sync_interval);
         timeInterval.setDialogTitle(R.string.sync_set_interval);
         timeInterval.setEntries(keys);
@@ -405,7 +403,7 @@ public class NGWSettingsActivity
 
                         for (int i = 0; i < values.length; i++) {
                             if (values[i].equals(newValue)) {
-                                timeInterval.setSummary(keys[i]);
+                                preference.setSummary(keys[i]);
                                 break;
                             }
                         }
