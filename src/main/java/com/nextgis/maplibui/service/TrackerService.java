@@ -49,6 +49,7 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
@@ -61,6 +62,7 @@ import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
+import com.nextgis.maplib.util.NGWUtil;
 import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
@@ -538,7 +540,8 @@ public class TrackerService
 
         protected Void doInBackground(Void... params) {
             try {
-                mLayer.sync(mAuthority, new SyncResult());
+                Pair<Integer, Integer> ver = NGWUtil.getNgwVersion(getApplicationContext(), mLayer.getAccountName());
+                mLayer.sync(mAuthority, ver, new SyncResult());
             } catch (Exception ignored) { }
 
             return null;
