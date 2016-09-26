@@ -6,7 +6,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -22,24 +22,19 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/root_view"
-              android:orientation="vertical"
+<LinearLayout android:id="@+id/root_view"
+              xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-    >
+              android:orientation="vertical">
 
     <include
         layout="@layout/actionbar"/>
 
-    <include
-        layout="@layout/fragment_location_panel"/>
-
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        >
+        android:layout_margin="5dp">
 
         <LinearLayout
             android:id="@+id/controls_list"
@@ -47,8 +42,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <include
+                layout="@layout/fragment_location_panel"/>
         </LinearLayout>
-
     </ScrollView>
-
 </LinearLayout>
