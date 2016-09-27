@@ -532,7 +532,7 @@ public class LayerFillService extends Service implements IProgressor {
                             mQueue.add(new VectorLayerFormFillTask(extra));
                     }
                 }
-            } catch (AccountsException | JSONException | IOException | URISyntaxException | SecurityException e) {
+            } catch (AccountsException | JSONException | IOException | URISyntaxException | RuntimeException e) {
                 e.printStackTrace();
 
                 if (null != progressor)
@@ -633,7 +633,7 @@ public class LayerFillService extends Service implements IProgressor {
                     tmsLayer.fillFromNgrc(mUri, progressor);
                 else
                     tmsLayer.fillFromZip(mUri, progressor);
-            } catch (IOException | NumberFormatException | SecurityException | NGException | ClassCastException e) {
+            } catch (IOException | NGException | RuntimeException e) {
                 e.printStackTrace();
 
                 if (null != progressor)

@@ -624,7 +624,7 @@ public class ModifyAttributesActivity
 
                     png = new File(png, Sign.SIGN_FILE);
                     sign.save(sign.getWidth(), sign.getHeight(), true, png);
-                } catch (IOException e) {
+                } catch (IOException | RuntimeException e) {
                     e.printStackTrace();
                 }
             }

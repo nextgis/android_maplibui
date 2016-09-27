@@ -25,7 +25,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.widget.Toast;
 
 import com.nextgis.maplib.api.IProgressor;
@@ -58,11 +57,7 @@ public class NGWTrackLayerCreateTask extends AsyncTask<Void, Void, Boolean> impl
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            mProgress = new ProgressDialog(mActivity, android.R.style.Theme_Material_Light_Dialog_Alert);
-        else
-            mProgress = new ProgressDialog(mActivity);
-
+        mProgress = new ProgressDialog(mActivity);
         mProgress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProgress.setCanceledOnTouchOutside(false);
         mProgress.setOnCancelListener(new DialogInterface.OnCancelListener() {

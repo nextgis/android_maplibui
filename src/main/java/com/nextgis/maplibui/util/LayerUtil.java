@@ -129,9 +129,9 @@ public final class LayerUtil {
             mProgress.setTitle(R.string.export);
             mProgress.setMessage(mActivity.getString(R.string.preparing));
             mProgress.setCanceledOnTouchOutside(false);
-            mProgress.setButton(DialogInterface.BUTTON_NEGATIVE, mActivity.getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+            mProgress.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
+                public void onDismiss(DialogInterface dialogInterface) {
                     mIsCanceled = true;
                 }
             });
@@ -443,9 +443,9 @@ public final class LayerUtil {
             mProgress.setTitle(R.string.export);
             mProgress.setMessage(mActivity.getString(R.string.preparing));
             mProgress.setCanceledOnTouchOutside(false);
-            mProgress.setButton(DialogInterface.BUTTON_NEGATIVE, mActivity.getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+            mProgress.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
-                public void onClick(DialogInterface dialog, int which) {
+                public void onDismiss(DialogInterface dialogInterface) {
                     mIsCanceled = true;
                 }
             });
