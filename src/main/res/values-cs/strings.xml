@@ -41,10 +41,9 @@
     <string name="error_invalid_url">URL je neplatná</string>
     <string name="qms_unavailable">Geoservis server je nedostupný</string>
     <string name="nextgis_web">NextGIS</string>
-    <string name="ngw_login_title">NextGIS Webový účet</string>
     <string name="ngw_url">NextGIS Web URL</string>
     <string name="password">Heslo</string>
-    <string name="login">Login</string>
+    <string name="login">Sign in</string>
     <string name="user_name">Login</string>
     <string name="canceled">Zrušeno</string>
     <string name="account_already_exists">Účet již existuje</string>
@@ -231,8 +230,6 @@
     <string name="not_implemented">Dosud neimplementováno</string>
     <string name="layer_lookuptable">Vyhledávací tabulka</string>
     <string name="zoom_levels_to_show">Úrovně přiblížení pro zobrazení vrstvy</string>
-    <string name="min" translatable="false">min: %1$d</string>
-    <string name="max" translatable="false">max: %1$d</string>
     <string name="alpha">Průhlednost</string>
     <string name="layerInfo">Informace o vrstvě</string>
     <string name="geom_type">Geometrie</string>
@@ -289,7 +286,7 @@
     <string name="new_gis">Nový GIS</string>
     <string name="manual_ngw">Přepnout na pokročilý</string>
     <string name="instance_name">Název instance</string>
-    <string name="ngw_from_my_nextgis">Vytvořit vlastní GIS na my.nextgis.com</string>
+    <string name="ngw_from_my_nextgis">Do you have GIS? Sign up at my.nextgis.com to get your own one!</string>
     <string name="new_account">Vytvořit účet na nextgis.com</string>
     <string name="guest">Návštěvník</string>
     <string name="field_not_filled">Některá pole jsou prázdná</string>
@@ -299,4 +296,7 @@
     <string name="attributes">Atributy</string>
     <string name="error_cache">Poškozená cache, pokuste se ji obnovit v nastavení vrstvy</string>
     <string name="menu_send_to_ngw">Poslat do NextGIS</string>
+    <string name="click_here">Click here!</string>
+    <string name="manual_tip">Have your own NGW server?</string>
+    <string name="nextgis_com">Back to nextgis.com login screen</string>
 </resources>

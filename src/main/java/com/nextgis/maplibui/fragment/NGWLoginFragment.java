@@ -30,15 +30,16 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v7.widget.SwitchCompat;
 import android.text.Editable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
+import android.text.style.URLSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,16 +59,13 @@ public class NGWLoginFragment
     protected static final String ENDING = ".nextgis.com";
     protected static final String DEFAULT_ACCOUNT = "administrator";
 
-    protected EditText mURL;
-    protected EditText mLogin;
-    protected EditText mPassword;
-    protected Button   mSignInButton;
-    protected TextView mLoginTitle;
-    protected SwitchCompat mManual;
-    protected CheckBox mGuest;
+    protected EditText mURL, mLogin, mPassword;
+    protected Button   mSignInButton, mGuestButton;
+    protected TextView mLoginTitle, mManual, mTip;
 
     protected String mUrlText   = "";
     protected String mLoginText = "";
+    protected boolean mNGW;
 
     protected boolean mForNewAccount      = true;
     protected boolean mChangeAccountUrl   = mForNewAccount;
@@ -134,62 +132,27 @@ public class NGWLoginFragment
         TextWatcher watcher = new LocalTextWatcher();
         mURL.addTextChangedListener(watcher);
         mLoginTitle = (TextView) view.findViewById(R.id.login_title);
+        mTip = (TextView) view.findViewById(R.id.tip);
 
-        mGuest = (CheckBox) view.findViewById(R.id.guest);
-        mGuest.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                int visibility = !isChecked ? View.VISIBLE : View.GONE;
-                mLogin.setEnabled(!isChecked);
-                mLogin.setVisibility(visibility);
-                mPassword.setVisibility(visibility);
-                mPassword.setEnabled(!isChecked);
-            }
-        });
+        mGuestButton = (Button) view.findViewById(R.id.guest);
+        mGuestButton.setOnClickListener(this);
 
-        mManual = (SwitchCompat) view.findViewById(R.id.manual);
-        mManual.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    mURL.setCompoundDrawables(null, null, null, null);
-                    mURL.setHint(R.string.ngw_url);
-                    mUrlText = mUrlText.replace(ENDING, "");
-                    mLoginTitle.setText(R.string.ngw_login_title);
-                } else {
-                    @SuppressWarnings("deprecation")
-                    Drawable addition = getResources().getDrawable(R.drawable.nextgis_addition);
-                    mURL.setCompoundDrawablesWithIntrinsicBounds(null, null, addition, null);
-                    mURL.setHint(R.string.instance_name);
-                    if (!mUrlText.contains(ENDING))
-                        mUrlText += ENDING;
-                    mLoginTitle.setText(R.string.ngw_from_my_nextgis);
-                }
-
-                mLogin.setEnabled(!mGuest.isChecked());
-            }
-        });
+        mManual = (TextView) view.findViewById(R.id.manual);
+        mManual.setOnClickListener(this);
+        highlightText();
 
         mLogin.setText(DEFAULT_ACCOUNT);
         if (!mForNewAccount) {
-            mManual.setEnabled(false);
+            view.findViewById(R.id.ll_manual).setVisibility(View.GONE);
             mURL.setEnabled(mChangeAccountUrl);
             mLogin.setText(mLoginText);
             mLogin.setEnabled(mChangeAccountLogin);
-            view.findViewById(R.id.ll_manual).setVisibility(View.GONE);
 
             if (mUrlText.endsWith(ENDING)) {
                 mURL.setText(mUrlText.replace(ENDING, ""));
             } else {
                 mManual.performClick();
                 mURL.setText(mUrlText);
-            }
-
-            boolean guest = Constants.NGW_ACCOUNT_GUEST.equals(mLoginText);
-            if (guest) {
-                mGuest.setChecked(true);
-                mLogin.setEnabled(false);
-                mPassword.setEnabled(false);
             }
         }
 
@@ -215,10 +178,11 @@ public class NGWLoginFragment
 
     @Override
     public void onClick(View v) {
-        if (v == mSignInButton) {
+        if (v.getId() == R.id.signin || v.getId() == R.id.guest) {
+            boolean guest = v.getId() == R.id.guest;
             boolean urlFilled = checkEditText(mURL);
             boolean loginPasswordFilled = checkEditText(mLogin) && checkEditText(mPassword);
-            if (!urlFilled || (!mGuest.isChecked() && !loginPasswordFilled)) {
+            if (!urlFilled || (!guest && !loginPasswordFilled)) {
                 Toast.makeText(getActivity(), R.string.field_not_filled, Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -228,7 +192,7 @@ public class NGWLoginFragment
                 return;
             }
 
-            int id = mGuest.isChecked() ? R.id.non_auth_token_loader : R.id.auth_token_loader;
+            int id = guest ? R.id.non_auth_token_loader : R.id.auth_token_loader;
             if (null != mLoader && mLoader.isStarted()) {
                 mLoader = getLoaderManager().restartLoader(id, null, this);
             } else {
@@ -236,7 +200,39 @@ public class NGWLoginFragment
             }
 
             mSignInButton.setEnabled(false);
+            mGuestButton.setEnabled(false);
+        } else if (v.getId() == R.id.manual) {
+            mNGW = !mNGW;
+
+            if (mNGW) {
+                mTip.setVisibility(View.GONE);
+                mManual.setText(R.string.nextgis_com);
+                mURL.setCompoundDrawables(null, null, null, null);
+                mURL.setHint(R.string.ngw_url);
+                mUrlText = mUrlText.replace(ENDING, "");
+                mLoginTitle.setVisibility(View.GONE);
+            } else {
+                mTip.setVisibility(View.VISIBLE);
+                mManual.setText(R.string.click_here);
+                mLoginTitle.setVisibility(View.VISIBLE);
+                @SuppressWarnings("deprecation")
+                Drawable addition = getResources().getDrawable(R.drawable.nextgis_addition);
+                mURL.setCompoundDrawablesWithIntrinsicBounds(null, null, addition, null);
+                mURL.setHint(R.string.instance_name);
+                if (!mUrlText.contains(ENDING))
+                    mUrlText += ENDING;
+            }
+
+            highlightText();
         }
+    }
+
+
+    private void highlightText() {
+        final CharSequence text = mManual.getText();
+        final SpannableString spannableString = new SpannableString(text);
+        spannableString.setSpan(new URLSpan(""), 0, spannableString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mManual.setText(spannableString, TextView.BufferType.SPANNABLE);
     }
 
 
@@ -269,6 +265,7 @@ public class NGWLoginFragment
             String token)
     {
         mSignInButton.setEnabled(true);
+        mGuestButton.setEnabled(true);
 
         String accountName = "";
         try {
@@ -353,7 +350,7 @@ public class NGWLoginFragment
         public void afterTextChanged(Editable s) {
             mUrlText = mURL.getText().toString().trim();
 
-            if (null != mManual && !mManual.isChecked())
+            if (!mNGW)
                 mUrlText += ENDING;
         }
 

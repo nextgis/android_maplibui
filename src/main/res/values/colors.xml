@@ -6,7 +6,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -48,6 +48,8 @@
     <color name="primary_dark">#01579b</color>
     <color name="accent">#03a9f4</color>
     <color name="tabsScrollColor">#4db6ac</color>
+    <color name="light_pressed">#D8E3E9</color>
+    <color name="dark_pressed">#036997</color>
     <!-- Light -->
     <color name="textColorPrimary.Light">#181818</color>
     <color name="textColor.Light">#242424</color>

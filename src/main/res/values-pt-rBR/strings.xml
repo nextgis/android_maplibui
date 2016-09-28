@@ -39,10 +39,9 @@
     <string name="error_invalid_url">URL is invalid</string>
     <string name="qms_unavailable">Geoservice server is unavailable</string>
     <string name="nextgis_web">NextGIS</string>
-    <string name="ngw_login_title">NextGIS Web account</string>
     <string name="ngw_url">NextGIS Web URL</string>
     <string name="password">Password</string>
-    <string name="login">Login</string>
+    <string name="login">Sign in</string>
     <string name="user_name">Login</string>
     <string name="canceled">Canceled</string>
     <string name="account_already_exists">Account already exist</string>
@@ -276,7 +275,7 @@
     <string name="new_gis">Create GIS</string>
     <string name="manual_ngw">Switch to advanced</string>
     <string name="instance_name">Instance name</string>
-    <string name="ngw_from_my_nextgis">Create your own GIS at my.nextgis.com</string>
+    <string name="ngw_from_my_nextgis">Do you have GIS? Sign up at my.nextgis.com to get your own one!</string>
     <string name="new_account">Sign up in nextgis.com</string>
     <string name="guest">Guest</string>
     <string name="field_not_filled">Some fields are empty</string>
@@ -296,4 +295,7 @@
     <string name="sync_disabled">Sync disabled</string>
     <string name="sync_enable_error">Error enabling sync</string>
     <string name="sync_enabled">Sync enabled</string>
+    <string name="click_here">Click here!</string>
+    <string name="manual_tip">Have your own NGW server?</string>
+    <string name="nextgis_com">Back to nextgis.com login screen</string>
 </resources>
