@@ -26,6 +26,7 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -106,6 +107,11 @@ public class RuleFeatureRendererUI extends RendererUI {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.style_rules, container, false);
+
+            if (mStyleRule == null) {
+                Toast.makeText(getContext(), R.string.error_layer_not_inited, Toast.LENGTH_SHORT).show();
+                return v;
+            }
 
             Button defaultStyle = (Button) v.findViewById(R.id.default_style);
             defaultStyle.setOnClickListener(new View.OnClickListener() {
@@ -319,12 +325,13 @@ public class RuleFeatureRendererUI extends RendererUI {
 
         private class RulesAdapter extends ArrayAdapter<String> {
 
-            public RulesAdapter(Context context) {
+            RulesAdapter(Context context) {
                 super(context, R.layout.rule_item, android.R.id.text1, mRulesList);
             }
 
+            @NonNull
             @Override
-            public View getView(final int position, View convertView, ViewGroup parent) {
+            public View getView(final int position, View convertView, @NonNull ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
                 final ImageButton remove = (ImageButton) view.findViewById(R.id.rule_remove);
                 remove.setOnClickListener(new View.OnClickListener() {
