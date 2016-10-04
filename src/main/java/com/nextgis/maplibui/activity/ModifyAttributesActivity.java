@@ -266,7 +266,7 @@ public class ModifyAttributesActivity
                     });
         } else {
             //hide location panel
-            ViewGroup rootView = (ViewGroup) findViewById(R.id.root_view);
+            ViewGroup rootView = (ViewGroup) findViewById(R.id.controls_list);
             rootView.removeView(findViewById(R.id.location_panel));
         }
     }
