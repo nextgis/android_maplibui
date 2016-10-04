@@ -36,6 +36,7 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
@@ -91,6 +92,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     public final static int MODE_EDIT = 2;
     public final static int MODE_CHANGE = 3;
     public final static int MODE_EDIT_BY_WALK = 4;
+    public final static int MODE_EDIT_BY_TOUCH = 5;
 
     /**
      * edit feature style
@@ -467,6 +469,15 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
 
                 startGeometryByWalk();
                 break;
+            case MODE_EDIT_BY_TOUCH:
+                hideNavigationButton();
+                mBottomToolbar.setTitle(R.string.title_edit_by_touch);
+                mBottomToolbar.getMenu().clear();
+                MenuItem apply = mBottomToolbar.getMenu().add(0, 0, 0, R.string.ok);
+                apply.setIcon(R.drawable.ic_action_apply_dark);
+                MenuItemCompat.setShowAsAction(apply, MenuItemCompat.SHOW_AS_ACTION_ALWAYS);
+                mMapViewOverlays.setLockMap(true);
+                break;
         }
 
         hideOverlayPoint();
@@ -528,6 +539,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
             return restoreFromHistory(--mHistoryState);
         } else if (id == R.id.menu_edit_redo) {
             return restoreFromHistory(++mHistoryState);
+        } else if (id == R.id.menu_edit_by_touch) {
+            result = true;
         }
 
         if (result)
@@ -884,7 +897,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         for (DrawItem drawItem : drawItems) {
             boolean isSelected = mSelectedItem == drawItem;
 
-            if (mMode != MODE_CHANGE) {
+            if (mMode != MODE_CHANGE && mMode != MODE_EDIT_BY_TOUCH) {
                 drawItem = drawItem.pan(currentMouseOffset);
 
                 if (isSelected) {
@@ -1241,6 +1254,10 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
             mSelectedItem.setSelectedPointCoordinates(
                     e.getX() + mTempPointOffset.x, e.getY() + mTempPointOffset.y);
         }
+
+        if (mMode == MODE_EDIT_BY_TOUCH) {
+            mSelectedItem.insertNewPoint(mSelectedItem.getSelectedPointId(), e.getX(), e.getY());
+        }
     }
 
 
@@ -1252,6 +1269,9 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
 
             update();
         }
+
+        if (mMode == MODE_EDIT_BY_TOUCH)
+            fillGeometry();
     }
 
 

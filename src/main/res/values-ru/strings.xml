@@ -106,7 +106,7 @@
     <string name="create_vector_layer">Создать векторный слой</string>
     <string name="new_layer">Новый слой</string>
     <string name="message_layer_created">Слой создан</string>
-    <string name="feature_n">Объект #%1$s</string>
+    <string name="feature_n">Объект #%1$d</string>
     <string name="new_feature">Новый объект</string>
     <string name="error_form_create">Не удалось создать форму</string>
     <string name="system_default">Системная настройка по умолчанию</string>
@@ -299,4 +299,6 @@
     <string name="click_here">Нажмите сюда!</string>
     <string name="manual_tip">Есть свой собственный NextGIS Web?</string>
     <string name="nextgis_com">Обратно к входу через nextgis.com</string>
+    <string name="edit_by_touch">Дополнить геометрию касанием</string>
+    <string name="title_edit_by_touch">Изменить касанием</string>
 </resources>

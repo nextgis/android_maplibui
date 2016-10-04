@@ -104,7 +104,7 @@
     <string name="create_vector_layer">Create vector layer</string>
     <string name="new_layer">New layer</string>
     <string name="message_layer_created">Layer created</string>
-    <string name="feature_n">Feature #%1$s</string>
+    <string name="feature_n">Feature #%1$d</string>
     <string name="new_feature">New feature</string>
     <string name="error_form_create">Form create failed</string>
     <string name="system_default">System default</string>
@@ -298,4 +298,6 @@
     <string name="click_here">Click here!</string>
     <string name="manual_tip">Have your own NGW server?</string>
     <string name="nextgis_com">Back to nextgis.com login screen</string>
+    <string name="edit_by_touch">Append geometry by touch</string>
+    <string name="title_edit_by_touch">Edit by touch</string>
 </resources>

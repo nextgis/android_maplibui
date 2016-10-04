@@ -113,7 +113,7 @@
     <string name="create_vector_layer">Create vector layer</string>
     <string name="new_layer">New layer</string>
     <string name="message_layer_created">Layer created</string>
-    <string name="feature_n">Feature #%1$s</string>
+    <string name="feature_n">Feature #%1$d</string>
     <string name="new_feature">New feature</string>
     <string name="error_form_create">Form create failed</string>
     <string name="system_default">System default</string>
@@ -156,6 +156,7 @@
     <string name="add_line">Add line</string>
     <string name="delete_line">Delete line</string>
     <string name="edit_by_walk">Append geometry by walk</string>
+    <string name="edit_by_touch">Append geometry by touch</string>
     <string name="add_multilinestring">Add multilinestring</string>
     <string name="delete_multilinestring">Delete multilinestring</string>
     <string name="add_polygon">Add polygon</string>
@@ -263,6 +264,7 @@
     <string name="location_gps">GPS</string>
     <string name="location_network">Wi-Fi and mobile network coordinates</string>
     <string name="title_edit_by_walk">Edit by walk</string>
+    <string name="title_edit_by_touch">Edit by touch</string>
     <string name="new_tms">New</string>
     <string name="most_frequently">Most frequently</string>
     <string name="panel_hide">Do not show info panel</string>

@@ -65,4 +65,9 @@
         android:icon="@drawable/ic_action_maps_directions_walk"
         android:title="@string/edit_by_walk"
         app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/menu_edit_by_touch"
+        android:icon="@drawable/ic_action_touch"
+        android:title="@string/edit_by_touch"
+        app:showAsAction="ifRoom"/>
 </menu>
