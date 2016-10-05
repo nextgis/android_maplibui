@@ -61,7 +61,6 @@
     <string name="loading_summary">Wait a little. The data is loading</string>
     <string name="up_dots">..</string>
     <string name="up">Up</string>
-    <string name="error_connect_failed">Connect failed</string>
     <string name="resource_group">Resource group</string>
     <string name="accounts">Accounts</string>
     <string name="raster">Raster</string>

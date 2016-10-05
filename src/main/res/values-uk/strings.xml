@@ -60,7 +60,6 @@
     <string name="loading_summary">Зачекайте трохи. Дані завантажуються</string>
     <string name="up_dots">..</string>
     <string name="up">Вгору</string>
-    <string name="error_connect_failed">Помилка підключення</string>
     <string name="resource_group">Групи ресурсів</string>
     <string name="accounts">Акаунти</string>
     <string name="raster">Растр</string>

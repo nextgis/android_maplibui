@@ -250,16 +250,6 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         }
     }
 
-    protected boolean isParsable(String string) {
-        try {
-            //noinspection ResultOfMethodCallIgnored
-            Integer.parseInt(string);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-
     private class LoadLayer extends AsyncTask<Integer, Void, String> {
         private Integer mLayerId;
 
@@ -270,7 +260,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
 
             try {
                 mLayerId = params[0];
-                return NetworkUtil.get(QMS_GEOSERVICE_URL + mLayerId + QMS_DETAIL_APPENDIX, null, null);
+                return NetworkUtil.get(mContext, QMS_GEOSERVICE_URL + mLayerId + QMS_DETAIL_APPENDIX, null, null);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -365,7 +355,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 return "";
 
             try {
-                return NetworkUtil.get(QMS_GEOSERVICE_LIST_URL, null, null);
+                return NetworkUtil.get(mContext, QMS_GEOSERVICE_LIST_URL, null, null);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -493,7 +483,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                             setIcon(textView, null);
 
                             String id = (String) dataSet.get(KEY_ICON);
-                            if (id == null || !isParsable(id))
+                            if (id == null || !MapUtil.isParsable(id))
                                 id = "default";
 
                             File icon = new File(mQMSIconsDir, id);
@@ -594,7 +584,6 @@ public class CreateFromQMSLayerDialog extends NGDialog {
 
                         iconUrl = iconUrl.replace("{w}", size + "").replace("{h}", size + "");
                         HttpURLConnection connection = NetworkUtil.getHttpConnection("GET", iconUrl, null, null);
-
                         if (connection != null) {
                             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                                 InputStream input = connection.getInputStream();

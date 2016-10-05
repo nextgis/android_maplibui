@@ -76,7 +76,7 @@ public class NGWTrackLayerCreateTask extends AsyncTask<Void, Void, Boolean> impl
         Map<String, Resource> keys = new HashMap<>();
         keys.put(mConnection.getLogin(), null);
         if (mConnection.connect(Constants.NGW_ACCOUNT_GUEST.equals(mConnection.getLogin()))) {
-            NGWUtil.getResourceByKey(mConnection, keys);
+            NGWUtil.getResourceByKey(mActivity, mConnection, keys);
 
             if (mIsCancelled)
                 return false;

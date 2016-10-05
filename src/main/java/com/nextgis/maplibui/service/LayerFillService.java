@@ -105,6 +105,8 @@ public class LayerFillService extends Service implements IProgressor {
     public static final String KEY_TOTAL = "count";
     public static final String KEY_TITLE = "title";
     public static final String KEY_MESSAGE = "message";
+    public static final String KEY_CANCELLED = "cancel";
+    public static final String KEY_RESULT = "result";
     public static final String KEY_URI = "uri";
     public static final String KEY_PATH = "path";
     public static final String KEY_LAYER_PATH = "layer_path";
@@ -250,15 +252,14 @@ public class LayerFillService extends Service implements IProgressor {
 
                 Process.setThreadPriority(Constants.DEFAULT_DOWNLOAD_THREAD_PRIORITY);
                 progressor.setValue(0);
-                boolean result = task.execute(progressor) && !mIsCanceled;
+                boolean result = task.execute(progressor);
 
-                mProgressIntent.putExtra(KEY_STATUS, STATUS_STOP);
-
-                if (!(task instanceof UnzipForm))
-                    mProgressIntent.putExtra(KEY_MESSAGE, result);
-                else
+                if (task instanceof UnzipForm)
                     mProgressIntent.removeExtra(KEY_MESSAGE);
 
+                mProgressIntent.putExtra(KEY_STATUS, STATUS_STOP);
+                mProgressIntent.putExtra(KEY_CANCELLED, mIsCanceled);
+                mProgressIntent.putExtra(KEY_RESULT, result);
                 mProgressIntent.putExtra(KEY_TOTAL, mQueue.size());
                 sendBroadcast(mProgressIntent);
 

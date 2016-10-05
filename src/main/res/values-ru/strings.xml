@@ -63,7 +63,6 @@
     <string name="loading_summary">Подождите, идет загрузка данных</string>
     <string name="up_dots">..</string>
     <string name="up">Вверх</string>
-    <string name="error_connect_failed">Ошибка, соединение не установлено</string>
     <string name="resource_group">Группа ресурсов</string>
     <string name="accounts">Учетные записи</string>
     <string name="raster">Растр</string>

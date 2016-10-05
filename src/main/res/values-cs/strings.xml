@@ -63,7 +63,6 @@
     <string name="loading_summary">Vyčkejte, data se načítají</string>
     <string name="up_dots">..</string>
     <string name="up">Up</string>
-    <string name="error_connect_failed">Spojení selhalo</string>
     <string name="resource_group">Skupina zdrojů</string>
     <string name="account">Účet - %1$s</string>
     <string name="accounts">Účty</string>

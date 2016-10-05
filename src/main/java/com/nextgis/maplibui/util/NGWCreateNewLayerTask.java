@@ -61,7 +61,7 @@ public class NGWCreateNewLayerTask extends AsyncTask<Void, Void, String> {
                 if (null == accountData || null == accountData.url)
                     return null;
 
-                mVer = NGWUtil.getNgwVersion(accountData.url, accountData.login, accountData.password);
+                mVer = NGWUtil.getNgwVersion(mContext, accountData.url, accountData.login, accountData.password);
             } catch (IllegalStateException e) {
                 return null;
             } catch (IOException | NGException | NumberFormatException ignored) { } catch (JSONException e) {
@@ -71,7 +71,7 @@ public class NGWCreateNewLayerTask extends AsyncTask<Void, Void, String> {
             return NGWUtil.createNewLayer(mConnection, mLayer);
         }
 
-        return null;
+        return mContext.getString(R.string.error_connect_failed);
     }
 
     @Override
@@ -82,15 +82,15 @@ public class NGWCreateNewLayerTask extends AsyncTask<Void, Void, String> {
         if (result != null) {
             try {
                 JSONObject obj = new JSONObject(result);
-                message = obj.optString(Constants.JSON_MESSAGE_KEY, message);
                 Long id = obj.getLong(Constants.JSON_ID_KEY);
                 mLayer.toNGW(id, mConnection.getName(), mVer);
                 message = mContext.getString(R.string.message_layer_created);
             } catch (JSONException e) {
+                message = result;
                 e.printStackTrace();
             }
         }
 
-        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
     }
 }

@@ -677,7 +677,7 @@ public class NGWResourcesListAdapter
                 }
             } else if (mINGWResource instanceof ResourceGroup) {
                 ResourceGroup resourceGroup = (ResourceGroup) mINGWResource;
-                resourceGroup.loadChildren();
+                resourceGroup.loadChildren(mContext);
             }
             return "";
         }
