@@ -95,46 +95,53 @@
             android:hint="@string/password"
             android:inputType="textPassword"/>
 
-        <Button
-            android:id="@+id/signin"
-            android:layout_width="wrap_content"
-            android:layout_height="42dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_margin="10dp"
-            android:background="@drawable/dark_button"
-            android:text="@string/login"
-            android:textColor="@color/color_white"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="8dp">
 
-        <Button
-            android:id="@+id/guest"
-            android:layout_width="wrap_content"
-            android:layout_height="42dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_margin="10dp"
-            android:background="@drawable/light_button"
-            android:text="@string/guest"
-            android:textColor="@color/primary_dark"/>
+            <Button
+                android:id="@+id/guest"
+                android:layout_width="0dp"
+                android:layout_height="42dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/light_button"
+                android:text="@string/guest"
+                android:textColor="@color/primary_dark"/>
+
+            <Button
+                android:id="@+id/signin"
+                android:layout_width="0dp"
+                android:layout_height="42dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/dark_button"
+                android:text="@string/login"
+                android:textColor="@color/color_white"/>
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/ll_manual"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:layout_marginRight="4dp"
                 android:text="@string/manual_tip"/>
 
             <TextView
                 android:id="@+id/manual"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="@string/click_here"/>
         </LinearLayout>
     </LinearLayout>

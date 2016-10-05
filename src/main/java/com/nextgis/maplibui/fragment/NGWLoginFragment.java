@@ -34,7 +34,6 @@ import android.text.Editable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextWatcher;
-import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,6 +42,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
@@ -56,6 +56,7 @@ public class NGWLoginFragment
         extends Fragment
         implements LoaderManager.LoaderCallbacks<String>, View.OnClickListener
 {
+    private static final String PASSWORD_HINT = "••••••••••";
     protected static final String ENDING = ".nextgis.com";
     protected static final String DEFAULT_ACCOUNT = "administrator";
 
@@ -147,6 +148,14 @@ public class NGWLoginFragment
             mURL.setEnabled(mChangeAccountUrl);
             mLogin.setText(mLoginText);
             mLogin.setEnabled(mChangeAccountLogin);
+            mLoginTitle.setVisibility(View.GONE);
+            mPassword.setHint(PASSWORD_HINT);
+            mPassword.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View view, boolean hasFocus) {
+                    mPassword.setHint(hasFocus ? null : PASSWORD_HINT);
+                }
+            });
 
             if (mUrlText.endsWith(ENDING)) {
                 mURL.setText(mUrlText.replace(ENDING, ""));
@@ -302,16 +311,14 @@ public class NGWLoginFragment
             String token)
     {
         IGISApplication app = (IGISApplication) getActivity().getApplication();
+        String login = mLogin.getText().toString();
+        String password = mPassword.getText().toString();
+        if (token.equals(Constants.NGW_ACCOUNT_GUEST)) {
+            login = Constants.NGW_ACCOUNT_GUEST;
+            password = Constants.NGW_ACCOUNT_GUEST;
+        }
 
         if (mForNewAccount) {
-            String login = mLogin.getText().toString();
-            String password = mPassword.getText().toString();
-
-            if (token.equals(Constants.NGW_ACCOUNT_GUEST)) {
-                login = Constants.NGW_ACCOUNT_GUEST;
-                password = Constants.NGW_ACCOUNT_GUEST;
-            }
-
             boolean accountAdded = app.addAccount(accountName, mUrlText, login, password, token);
 
             if (null != mOnAddAccountListener) {
@@ -321,18 +328,15 @@ public class NGWLoginFragment
 
                 mOnAddAccountListener.onAddAccount(account, token, accountAdded);
             }
-
         } else {
             if (mChangeAccountUrl)
                 app.setUserData(accountName, "url", mUrlText.toLowerCase());
 
-            if (!token.equals(Constants.NGW_ACCOUNT_GUEST)) {
-                if (mChangeAccountLogin)
-                    app.setUserData(accountName, "login", mLogin.getText().toString());
+            if (mChangeAccountLogin)
+                app.setUserData(accountName, "login", login);
 
-                app.setPassword(accountName, mPassword.getText().toString());
-                NGWSettingsActivity.updateAccountLayersCacheData(app, app.getAccount(accountName));
-            }
+            app.setPassword(accountName, password);
+            NGWSettingsActivity.updateAccountLayersCacheData(app, app.getAccount(accountName));
 
             getActivity().finish();
         }
