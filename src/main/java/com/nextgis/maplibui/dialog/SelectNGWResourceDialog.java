@@ -217,7 +217,7 @@ public class SelectNGWResourceDialog
             String url = app.getAccountUrl(account);
             String password = app.getAccountPassword(account);
             String login = app.getAccountLogin(account);
-            connections.add(new Connection(mContext, account.name, login, password, url.toLowerCase()));
+            connections.add(new Connection(account.name, login, password, url.toLowerCase()));
         }
         return connections;
     }
@@ -256,7 +256,7 @@ public class SelectNGWResourceDialog
                         String url = app.getAccountUrl(account);
                         String password = app.getAccountPassword(account);
                         String login = app.getAccountLogin(account);
-                        connections.add(new Connection(mContext, account.name, login, password, url.toLowerCase()));
+                        connections.add(new Connection(account.name, login, password, url.toLowerCase()));
                         mListAdapter.notifyDataSetChanged();
                         break;
                     }

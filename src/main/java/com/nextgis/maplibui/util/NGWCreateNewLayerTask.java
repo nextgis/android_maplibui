@@ -30,8 +30,9 @@ import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplib.util.Constants;
-import com.nextgis.maplib.util.NGException;
+import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplib.util.NGWUtil;
+import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
 
 import org.json.JSONException;
@@ -57,38 +58,46 @@ public class NGWCreateNewLayerTask extends AsyncTask<Void, Void, String> {
             mVer = null;
             try {
                 AccountUtil.AccountData accountData = AccountUtil.getAccountData(mContext, mConnection.getName());
+                if (null == accountData.url)
+                    return "404";
 
-                if (null == accountData || null == accountData.url)
-                    return null;
-
-                mVer = NGWUtil.getNgwVersion(mContext, accountData.url, accountData.login, accountData.password);
+                mVer = NGWUtil.getNgwVersion(accountData.url, accountData.login, accountData.password);
             } catch (IllegalStateException e) {
-                return null;
-            } catch (IOException | NGException | NumberFormatException ignored) { } catch (JSONException e) {
+                return "401";
+            } catch (JSONException | IOException | NumberFormatException e) {
                 e.printStackTrace();
             }
 
             return NGWUtil.createNewLayer(mConnection, mLayer);
         }
 
-        return mContext.getString(R.string.error_connect_failed);
+        return "0";
     }
 
     @Override
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
 
-        String message = mContext.getString(R.string.error_layer_create);
-        if (result != null) {
+        String message;
+        if (!MapUtil.isParsable(result)) {
             try {
                 JSONObject obj = new JSONObject(result);
                 Long id = obj.getLong(Constants.JSON_ID_KEY);
                 mLayer.toNGW(id, mConnection.getName(), mVer);
-                message = mContext.getString(R.string.message_layer_created);
+                result = "-999";
             } catch (JSONException e) {
-                message = result;
+                result = "500";
                 e.printStackTrace();
             }
+        }
+
+        switch (result) {
+            case "-999":
+                message = mContext.getString(R.string.message_layer_created);
+                break;
+            default:
+                message = NetworkUtil.getError(mContext, result);
+                break;
         }
 
         Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();

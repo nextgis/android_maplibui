@@ -256,40 +256,33 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         @Override
         protected String doInBackground(Integer... params) {
             if (!mNet.isNetworkAvailable())
-                return "";
+                return "-1";
 
             try {
                 mLayerId = params[0];
-                return NetworkUtil.get(mContext, QMS_GEOSERVICE_URL + mLayerId + QMS_DETAIL_APPENDIX, null, null);
+                return NetworkUtil.get(QMS_GEOSERVICE_URL + mLayerId + QMS_DETAIL_APPENDIX, null, null);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            return null;
+            return "1";
         }
 
         @Override
         protected void onPostExecute(String response) {
             super.onPostExecute(response);
-            if (response == null)
-                response = "";
-
             switch (response) {
-                case "":
+                case "-1":
                     Toast.makeText(mContext, R.string.error_network_unavailable, Toast.LENGTH_SHORT).show();
                     break;
                 default:
                     try {
-                        JSONObject geoJSONObject = new JSONObject(response);
-                        if (geoJSONObject.has(JSON_MESSAGE_KEY)) {
-                            Toast.makeText(mContext, R.string.qms_unavailable, Toast.LENGTH_SHORT).show();
-                            break;
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                        new JSONObject(response);
+                        createLayer(response);
+                        break;
+                    } catch (JSONException ignored) { }
 
-                    createLayer(response);
+                    Toast.makeText(mContext, R.string.qms_unavailable, Toast.LENGTH_SHORT).show();
                     break;
             }
 
@@ -302,7 +295,6 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         private void createLayer(String response) {
             try {
                 JSONObject remoteLayer = new JSONObject(response);
-
                 String layerName = remoteLayer.getString(KEY_NAME);
                 String layerURL = remoteLayer.getString(KEY_URL);
                 float minZoom = remoteLayer.isNull(KEY_Z_MIN) ? GeoConstants.DEFAULT_MIN_ZOOM : (float) remoteLayer.getDouble(KEY_Z_MIN);
@@ -352,41 +344,34 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         @Override
         protected String doInBackground(Void... params) {
             if (!mNet.isNetworkAvailable())
-                return "";
+                return "-1";
 
             try {
-                return NetworkUtil.get(mContext, QMS_GEOSERVICE_LIST_URL, null, null);
+                return NetworkUtil.get(QMS_GEOSERVICE_LIST_URL, null, null);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            return null;
+            return "1";
         }
 
         @Override
         protected void onPostExecute(String response) {
             super.onPostExecute(response);
-            if (response == null)
-                response = "";
-
             switch (response) {
-                case "":
+                case "-1":
                     Toast.makeText(mContext, R.string.error_network_unavailable, Toast.LENGTH_SHORT).show();
                     showRetry();
                     break;
                 default:
                     try {
-                        JSONObject geoJSONObject = new JSONObject(response);
-                        if (geoJSONObject.has(JSON_MESSAGE_KEY)) {
-                            Toast.makeText(mContext, R.string.qms_unavailable, Toast.LENGTH_SHORT).show();
-                            showRetry();
-                            break;
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                        new JSONArray(response);
+                        createList(response);
+                        break;
+                    } catch (JSONException ignored) { }
 
-                    createList(response);
+                    Toast.makeText(mContext, R.string.qms_unavailable, Toast.LENGTH_SHORT).show();
+                    showRetry();
                     break;
             }
         }
