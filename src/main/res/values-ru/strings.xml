@@ -224,7 +224,7 @@
     <string name="layerInfo">Информация о слое</string>
     <string name="geom_type">Тип геометрии</string>
     <string name="layer_geom_type">%1$s</string>
-    <string name="feature_count">Записей: %1$s</string>
+    <string name="feature_count">Записей: %1$d</string>
     <string name="layer_local_path">Локальный путь: %1$s</string>
     <string name="layer_remote_path">Удаленный: %1$s</string>
     <string name="layer_has_form">У слоя есть пользовательская форма</string>
@@ -300,4 +300,9 @@
     <string name="nextgis_com">Обратно к входу через nextgis.com</string>
     <string name="edit_by_touch">Дополнить геометрию касанием</string>
     <string name="title_edit_by_touch">Изменить касанием</string>
+    <string name="auto">Авто</string>
+    <string name="manual">Вручную</string>
+    <string name="skip">Пропустить</string>
+    <string name="sync_dialog_message">Какой вариант вы хотите использовать для слоя? Эту опцию можно поменять в настройках слоя или в аккаунтах NextGIS Web.</string>
+    <string name="sync_dialog_title">Синхронизировать с NextGIS Web?</string>
 </resources>

@@ -346,8 +346,8 @@ public class VectorLayerSettingsActivity
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.fragment_ngw_vector_layer_sync, container, false);
             final IGISApplication app = (IGISApplication) getActivity().getApplication();
-            final Account account = app.getAccount(((NGWVectorLayer) mVectorLayer).getAccountName());
             final NGWVectorLayer ngwLayer = ((NGWVectorLayer) mVectorLayer);
+            final Account account = app.getAccount(ngwLayer.getAccountName());
 
             TextView accountName = (TextView) v.findViewById(R.id.account_name);
             accountName.setText(String.format(getString(R.string.account), account.name));

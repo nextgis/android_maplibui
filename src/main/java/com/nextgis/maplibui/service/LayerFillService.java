@@ -107,6 +107,7 @@ public class LayerFillService extends Service implements IProgressor {
     public static final String KEY_MESSAGE = "message";
     public static final String KEY_CANCELLED = "cancel";
     public static final String KEY_RESULT = "result";
+    public static final String KEY_SYNC = "sync";
     public static final String KEY_URI = "uri";
     public static final String KEY_PATH = "path";
     public static final String KEY_LAYER_PATH = "layer_path";
@@ -261,19 +262,24 @@ public class LayerFillService extends Service implements IProgressor {
                 mProgressIntent.putExtra(KEY_CANCELLED, mIsCanceled);
                 mProgressIntent.putExtra(KEY_RESULT, result);
                 mProgressIntent.putExtra(KEY_TOTAL, mQueue.size());
-                sendBroadcast(mProgressIntent);
 
                 if (result) {
                     mLayerGroup.addLayer(task.getLayer());
                     mLayerGroup.save();
                 } else
                     task.cancel();
-                
+
+                if (task instanceof NGWVectorLayerFillTask && ((NGWVectorLayerFillTask) task).showSyncDialog()) {
+                    mProgressIntent.putExtra(KEY_SYNC, true);
+                    mProgressIntent.putExtra(KEY_ACCOUNT, ((NGWVectorLayerFillTask) task).getAccountName());
+                    mProgressIntent.putExtra(KEY_REMOTE_ID, (task.getLayer().getId()));
+                }
+
+                sendBroadcast(mProgressIntent);
                 mIsRunning = false;
                 startNextTask();
             }
         }).start();
-
     }
 
 
@@ -320,6 +326,7 @@ public class LayerFillService extends Service implements IProgressor {
             mNotifyManager.notify(FILL_NOTIFICATION_ID, mBuilder.build());
         }
 
+        mProgressIntent.getExtras().clear();
         mProgressIntent.putExtra(KEY_STATUS, STATUS_UPDATE).putExtra(KEY_TOTAL, mProgressMax)
                 .putExtra(KEY_PROGRESS, mProgressValue).putExtra(KEY_MESSAGE, mProgressMessage);
         sendBroadcast(mProgressIntent);
@@ -339,12 +346,12 @@ public class LayerFillService extends Service implements IProgressor {
      */
 
     private abstract class LayerFillTask{
-        protected String mLayerName;
-        protected File mLayerPath;
-        protected Uri mUri;
+        String mLayerName;
+        File mLayerPath;
+        Uri mUri;
         protected Layer mLayer;
 
-        public LayerFillTask(Bundle bundle) {
+        LayerFillTask(Bundle bundle) {
             mUri = bundle.getParcelable(KEY_URI);
             mLayerName = bundle.getString(KEY_NAME);
             mLayerPath = bundle.containsKey(KEY_LAYER_PATH) ?
@@ -352,7 +359,7 @@ public class LayerFillService extends Service implements IProgressor {
                     mLayerGroup.createLayerStorage();
         }
 
-        protected void initLayer() {
+        void initLayer() {
             mLayer.setName(mLayerName);
             mLayer.setVisible(true);
             mLayer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
@@ -380,7 +387,7 @@ public class LayerFillService extends Service implements IProgressor {
     }
 
     private class VectorLayerFillTask extends LayerFillTask{
-        public VectorLayerFillTask(Bundle bundle) {
+        VectorLayerFillTask(Bundle bundle) {
             super(bundle);
             mLayer = new VectorLayerUI(mLayerGroup.getContext(), mLayerPath);
             initLayer();
@@ -411,7 +418,7 @@ public class LayerFillService extends Service implements IProgressor {
 
     private class UnzipForm extends LayerFillTask {
 
-        public UnzipForm(Bundle bundle) {
+        UnzipForm(Bundle bundle) {
             super(bundle);
         }
 
@@ -518,6 +525,7 @@ public class LayerFillService extends Service implements IProgressor {
                         extra.putStringArrayList(KEY_LOOKUP_ID, lookupTableIds);
                         extra.putLong(KEY_REMOTE_ID, resourceId);
                         extra.putString(KEY_ACCOUNT, accountName);
+                        extra.putBoolean(KEY_SYNC, true);
 
                         if (!isCanceled())
                             mQueue.add(new NGWVectorLayerFillTask(extra));
@@ -549,10 +557,10 @@ public class LayerFillService extends Service implements IProgressor {
     }
 
     private class VectorLayerFormFillTask extends LayerFillTask {
-        protected File mPath;
-        protected boolean mDeletePath;
+        File mPath;
+        boolean mDeletePath;
 
-        public VectorLayerFormFillTask(Bundle bundle) {
+        VectorLayerFormFillTask(Bundle bundle) {
             super(bundle);
             mPath = (File) bundle.getSerializable(KEY_PATH);
             mDeletePath = bundle.getBoolean(KEY_DELETE_SRC_FILE, false);
@@ -608,9 +616,9 @@ public class LayerFillService extends Service implements IProgressor {
     }
 
     private class LocalTMSFillTask extends LayerFillTask{
-        protected boolean mIsNgrc;
+        boolean mIsNgrc;
 
-        public LocalTMSFillTask(Bundle bundle) {
+        LocalTMSFillTask(Bundle bundle) {
             super(bundle);
             mLayer = new LocalTMSLayerUI(mLayerGroup.getContext(), mLayerPath);
             mIsNgrc = !bundle.containsKey(KEY_TMS_TYPE);
@@ -656,8 +664,9 @@ public class LayerFillService extends Service implements IProgressor {
 
     private class NGWVectorLayerFillTask extends LayerFillTask{
         private ArrayList<String> mLookupIds = new ArrayList<>();
+        private boolean mShowSyncDialog;
 
-        public NGWVectorLayerFillTask(Bundle bundle) {
+        NGWVectorLayerFillTask(Bundle bundle) {
             super(bundle);
             mLayer = new NGWVectorLayerUI(mLayerGroup.getContext(), mLayerPath);
             ((NGWVectorLayerUI) mLayer).setRemoteId(bundle.getLong(KEY_REMOTE_ID));
@@ -666,6 +675,8 @@ public class LayerFillService extends Service implements IProgressor {
 
             if (bundle.containsKey(KEY_LOOKUP_ID))
                 mLookupIds = bundle.getStringArrayList(KEY_LOOKUP_ID);
+
+            mShowSyncDialog = bundle.getBoolean(KEY_SYNC, false);
 
             for (int i = 0; i < mLayerGroup.getLayerCount(); i++) {
                 if (mLayerGroup.getLayer(i) instanceof NGWLookupTable) {
@@ -707,6 +718,14 @@ public class LayerFillService extends Service implements IProgressor {
             }
 
             return true;
+        }
+
+        boolean showSyncDialog() {
+            return mShowSyncDialog;
+        }
+
+        String getAccountName() {
+            return ((NGWVectorLayerUI) mLayer).getAccountName();
         }
     }
 }

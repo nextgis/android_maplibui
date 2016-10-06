@@ -21,6 +21,7 @@
 
 package com.nextgis.maplibui.fragment;
 
+import android.accounts.Account;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -33,10 +34,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.nextgis.maplib.api.IGISApplication;
+import com.nextgis.maplib.map.NGWVectorLayer;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.NGWSettingsActivity;
 import com.nextgis.maplibui.service.LayerFillService;
 
 // http://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html
@@ -172,9 +178,10 @@ public class LayerFillProgressDialogFragment extends Fragment {
                         mIsFinished = true;
                     }
 
+                    boolean canceled = intent.getBooleanExtra(LayerFillService.KEY_CANCELLED, false);
                     String toast = mActivity.getString(com.nextgis.maplibui.R.string.message_layer_created);
                     if (!intent.getBooleanExtra(LayerFillService.KEY_RESULT, false)) {
-                        if (intent.getBooleanExtra(LayerFillService.KEY_CANCELLED, false))
+                        if (canceled)
                             toast = mActivity.getString(com.nextgis.maplibui.R.string.canceled);
                         else
                             toast = intent.getStringExtra(LayerFillService.KEY_MESSAGE);
@@ -182,6 +189,35 @@ public class LayerFillProgressDialogFragment extends Fragment {
 
                     if (intent.hasExtra(LayerFillService.KEY_MESSAGE))
                         Toast.makeText(mActivity, toast, Toast.LENGTH_LONG).show();
+
+                    if (!canceled && intent.getBooleanExtra(LayerFillService.KEY_SYNC, false)) {
+                        int id = intent.getIntExtra(LayerFillService.KEY_REMOTE_ID, -1);
+                        final IGISApplication app = (IGISApplication) mActivity.getApplication();
+                        final NGWVectorLayer ngwLayer = (NGWVectorLayer) app.getMap().getLayerById(id);
+                        final Account account = app.getAccount(ngwLayer.getAccountName());
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                        builder.setTitle(R.string.sync_dialog_title).setMessage(R.string.sync_dialog_message)
+                                .setPositiveButton(R.string.auto, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        NGWSettingsActivity.setAccountSyncEnabled(account, app.getAuthority(), true);
+                                        ngwLayer.setSyncType(Constants.SYNC_ALL);
+                                        ngwLayer.save();
+                                    }
+                                })
+                                .setNeutralButton(R.string.skip, null)
+                                .setNegativeButton(R.string.manual, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        ngwLayer.setSyncType(Constants.SYNC_ALL);
+                                        ngwLayer.save();
+                                    }
+                                });
+
+                        AlertDialog dialog = builder.show();
+                        dialog.setCanceledOnTouchOutside(false);
+                    }
                     break;
                 case LayerFillService.STATUS_SHOW:
                     if (!mProgressDialog.isShowing()) {

@@ -81,6 +81,11 @@
     <string name="sync_disabled">Sync disabled</string>
     <string name="auto_sync">Automatic synchronization</string>
     <string name="auto_sync_summary">Synchronization at regular intervals</string>
+    <string name="sync_dialog_title">Sync with NextGIS Web?</string>
+    <string name="sync_dialog_message">Which option do you want to use for this layer? You can change it later in layer settings or NextGIS accounts.</string>
+    <string name="auto">Auto</string>
+    <string name="manual">Manual</string>
+    <string name="skip">Skip</string>
     <string name="sync_interval">Synchronization interval</string>
     <string name="actions">Actions</string>
     <string name="sync_layers">Layers</string>
@@ -236,7 +241,7 @@
     <string name="layerInfo">Layer info</string>
     <string name="geom_type">Geometry type</string>
     <string name="layer_geom_type">%1$s layer</string>
-    <string name="feature_count">%1$s features</string>
+    <string name="feature_count">%1$d features</string>
     <string name="layer_local_path">Local path: %1$s</string>
     <string name="layer_remote_path">Remote: %1$s</string>
     <string name="layer_has_form">Layer has custom form</string>

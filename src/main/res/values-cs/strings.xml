@@ -233,7 +233,7 @@
     <string name="layerInfo">Informace o vrstvě</string>
     <string name="geom_type">Geometrie</string>
     <string name="layer_geom_type">%1$s vrstva</string>
-    <string name="feature_count">%1$s objekty</string>
+    <string name="feature_count">%1$d objekty</string>
     <string name="layer_local_path">Local cesta: %1$s</string>
     <string name="layer_remote_path">Vzdálená: %1$s</string>
     <string name="layer_has_form">Vrstva má vlastní formulář</string>
@@ -300,4 +300,9 @@
     <string name="nextgis_com">Back to nextgis.com login screen</string>
     <string name="edit_by_touch">Append geometry by touch</string>
     <string name="title_edit_by_touch">Edit by touch</string>
+    <string name="auto">Auto</string>
+    <string name="manual">Manual</string>
+    <string name="skip">Skip</string>
+    <string name="sync_dialog_message">Which option do you want to use for this layer? You can change it later in layer settings or NextGIS accounts.</string>
+    <string name="sync_dialog_title">Sync with NextGIS Web?</string>
 </resources>
