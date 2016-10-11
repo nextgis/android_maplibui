@@ -45,11 +45,13 @@ public class NGWCreateNewLayerTask extends AsyncTask<Void, Void, String> {
     private VectorLayer mLayer;
     private Context mContext;
     private Pair<Integer, Integer> mVer;
+    private long mParentId;
 
-    public NGWCreateNewLayerTask(Connection connection, VectorLayer layer) {
+    public NGWCreateNewLayerTask(Connection connection, VectorLayer layer, long id) {
         mConnection = connection;
         mLayer = layer;
         mContext = mLayer.getContext();
+        mParentId = id;
     }
 
     @Override
@@ -68,7 +70,7 @@ public class NGWCreateNewLayerTask extends AsyncTask<Void, Void, String> {
                 e.printStackTrace();
             }
 
-            return NGWUtil.createNewLayer(mConnection, mLayer);
+            return NGWUtil.createNewLayer(mConnection, mLayer, mParentId);
         }
 
         return "0";

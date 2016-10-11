@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.ngw.Connection;
+import com.nextgis.maplib.datasource.ngw.Connections;
 import com.nextgis.maplib.display.SimpleFeatureRenderer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
@@ -41,13 +42,13 @@ import com.nextgis.maplibui.activity.AttributesActivity;
 import com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.activity.NGActivity;
+import com.nextgis.maplibui.activity.SelectNGWResourceActivity;
 import com.nextgis.maplibui.activity.VectorLayerSettingsActivity;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.dialog.NGWResourcesListAdapter;
 import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
-import com.nextgis.maplibui.util.NGWCreateNewLayerTask;
 
 import java.io.File;
 
@@ -155,12 +156,25 @@ public class VectorLayerUI
         mContext.startActivity(settings);
     }
 
-    public void sendToNGW(NGActivity activity) {
-        SelectNGWResourceDialog selectAccountDialog = new SelectNGWResourceDialog();
-        selectAccountDialog.setConnectionListener(new NGWResourcesListAdapter.OnConnectionSelectedListener() {
+    public void sendToNGW(final NGActivity activity) {
+        final SelectNGWResourceDialog selectAccountDialog = new SelectNGWResourceDialog();
+        selectAccountDialog.setConnectionListener(new NGWResourcesListAdapter.OnConnectionListener() {
             @Override
             public void onConnectionSelected(final Connection connection) {
-                new NGWCreateNewLayerTask(connection, VectorLayerUI.this).execute();
+                Intent intent = new Intent(activity, SelectNGWResourceActivity.class);
+                Connections connections = new Connections(activity.getString(R.string.accounts));
+                connections.add(connection);
+                intent.putExtra(SelectNGWResourceActivity.KEY_TASK, SelectNGWResourceActivity.TYPE_SELECT);
+                intent.putExtra(SelectNGWResourceActivity.KEY_CONNECTIONS, connections);
+                intent.putExtra(SelectNGWResourceActivity.KEY_RESOURCE_ID, connections.getChild(0).getId());
+                intent.putExtra(SelectNGWResourceActivity.KEY_PUSH_ID, VectorLayerUI.this.getId());
+                activity.startActivity(intent);
+                selectAccountDialog.dismiss();
+            }
+
+            @Override
+            public void onAddConnection() {
+                selectAccountDialog.onAddAccount(mContext);
             }
         })
                 .setTitle(mContext.getString(R.string.accounts))

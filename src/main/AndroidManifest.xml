@@ -65,6 +65,11 @@
             android:label="@string/layerSettings"
             android:windowSoftInputMode="stateHidden" />
 
+        <activity
+            android:name=".activity.SelectNGWResourceActivity"
+            android:label="@string/accounts"
+            android:windowSoftInputMode="stateHidden" />
+
         <service
             android:name=".account.NGWAuthenticatorService"
             android:enabled="true"

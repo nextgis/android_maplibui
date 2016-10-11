@@ -75,7 +75,7 @@ public class SelectNGWResourceDialog
     protected NGWResourcesListAdapter mListAdapter;
     protected AlertDialog             mDialog;
     protected AccountManager          mAccountManager;
-    protected NGWResourcesListAdapter.OnConnectionSelectedListener mConnectionListener;
+    protected NGWResourcesListAdapter.OnConnectionListener mConnectionListener;
 
     protected final static String KEY_MASK        = "mask";
     protected final static String KEY_ID          = "id";
@@ -107,7 +107,7 @@ public class SelectNGWResourceDialog
         super.onCreateDialog(savedInstanceState);
         mAccountManager = AccountManager.get(getActivity().getApplicationContext());
         Log.d(TAG, "SelectNGWDialog: AccountManager.get(" + getActivity().getApplicationContext() + ")");
-        mListAdapter = new NGWResourcesListAdapter(this);
+        mListAdapter = new NGWResourcesListAdapter(getActivity());
 
         if (null == savedInstanceState) {
             //first launch, lets fill connections array
@@ -126,15 +126,14 @@ public class SelectNGWResourceDialog
                 }
             }
 
-            mListAdapter.setConnections(
-                    (Connections) savedInstanceState.getParcelable(KEY_CONNECTIONS));
+            mListAdapter.setConnections((Connections) savedInstanceState.getParcelable(KEY_CONNECTIONS));
             mListAdapter.setCurrentResourceId(savedInstanceState.getInt(KEY_RESOURCE_ID));
-            mListAdapter.setCheckState(
-                    savedInstanceState.<CheckState> getParcelableArrayList(
-                            KEY_STATES));
+            mListAdapter.setCheckState(savedInstanceState.<CheckState> getParcelableArrayList(KEY_STATES));
         }
 
         View view = View.inflate(mContext, R.layout.layout_resources, null);
+        view.findViewById(R.id.main_toolbar).setVisibility(View.GONE);
+        view.findViewById(R.id.button_panel).setVisibility(View.GONE);
         ListView dialogListView = (ListView) view.findViewById(R.id.listView);
         mListAdapter.setTypeMask(mTypeMask);
         dialogListView.setAdapter(mListAdapter);
@@ -159,14 +158,7 @@ public class SelectNGWResourceDialog
                                 createLayers(mContext);
                             }
                         })
-                .setNegativeButton(
-                        R.string.cancel, new DialogInterface.OnClickListener() {
-                            public void onClick(
-                                    DialogInterface dialog,
-                                    int id) {
-                                // User cancelled the dialog
-                            }
-                        });
+                .setNegativeButton(R.string.cancel, null);
 
         // Create the AlertDialog object and return it
         mDialog = builder.create();
@@ -190,9 +182,11 @@ public class SelectNGWResourceDialog
     {
         super.onSaveInstanceState(outState);
 
-        if(null != mGroupLayer && null != mListAdapter) {
-            outState.putInt(KEY_MASK, mTypeMask);
+        if (null != mGroupLayer)
             outState.putInt(KEY_ID, mGroupLayer.getId());
+
+        if (null != mListAdapter) {
+            outState.putInt(KEY_MASK, mTypeMask);
             outState.putInt(KEY_RESOURCE_ID, mListAdapter.getCurrentResourceId());
             outState.putParcelable(KEY_CONNECTIONS, mListAdapter.getConnections());
             outState.putParcelableArrayList(
@@ -202,7 +196,7 @@ public class SelectNGWResourceDialog
     }
 
 
-    public NGDialog setConnectionListener(NGWResourcesListAdapter.OnConnectionSelectedListener connectionListener) {
+    public NGDialog setConnectionListener(NGWResourcesListAdapter.OnConnectionListener connectionListener) {
         mConnectionListener = connectionListener;
         return this;
     }
@@ -275,6 +269,9 @@ public class SelectNGWResourceDialog
 
 
     public void createLayers(Context context) {
+        if (mGroupLayer == null)
+            return;
+
         setEnabled(mDialog.getButton(AlertDialog.BUTTON_POSITIVE), false);
         setEnabled(mDialog.getButton(AlertDialog.BUTTON_NEGATIVE), false);
 

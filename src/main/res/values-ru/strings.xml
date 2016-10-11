@@ -305,4 +305,5 @@
     <string name="skip">Пропустить</string>
     <string name="sync_dialog_message">Какой вариант вы хотите использовать для слоя? Эту опцию можно поменять в настройках слоя или в аккаунтах NextGIS Web.</string>
     <string name="sync_dialog_title">Синхронизировать с NextGIS Web?</string>
+    <string name="import_">Импорт</string>
 </resources>

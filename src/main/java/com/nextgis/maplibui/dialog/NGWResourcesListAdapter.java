@@ -61,24 +61,39 @@ public class NGWResourcesListAdapter
 {
     protected Connections             mConnections;
     protected INGWResource            mCurrentResource;
-    protected SelectNGWResourceDialog mSelectNGWResourceDialog;
+    protected Context                 mContext;
     protected boolean                 mLoading;
+    protected boolean                 mShowAccounts = true;
+    protected boolean                 mShowCheckboxes = true;
     protected PathView                mPathView;
     protected int                     mTypeMask;
     protected List<CheckState>        mCheckState;
-    protected OnConnectionSelectedListener mConnectionListener;
+    protected OnConnectionListener mConnectionListener;
 
-    public interface OnConnectionSelectedListener {
+    public interface OnConnectionListener {
         void onConnectionSelected(Connection connection);
+        void onAddConnection();
     }
 
-    public NGWResourcesListAdapter(SelectNGWResourceDialog dialog)
+    public NGWResourcesListAdapter(Context context)
     {
-        mSelectNGWResourceDialog = dialog;
+        mContext = context;
         mLoading = false;
     }
 
-    public void setConnectionListener(OnConnectionSelectedListener connectionListener) {
+    public void setShowAccounts(boolean show) {
+        mShowAccounts = show;
+    }
+
+    public void setShowCheckboxes(boolean show) {
+        mShowCheckboxes = show;
+    }
+
+    private boolean isAccountsDisabled() {
+        return !mShowAccounts && mCurrentResource instanceof Connection;
+    }
+
+    public void setConnectionListener(OnConnectionListener connectionListener) {
         mConnectionListener = connectionListener;
     }
 
@@ -87,18 +102,15 @@ public class NGWResourcesListAdapter
         mTypeMask = typeMask;
     }
 
-
     public void setConnections(Connections connections)
     {
         mConnections = connections;
     }
 
-
     public Connections getConnections()
     {
         return mConnections;
     }
-
 
     public int getCurrentResourceId()
     {
@@ -106,11 +118,28 @@ public class NGWResourcesListAdapter
     }
 
 
+    public INGWResource getCurrentResource()
+    {
+        return mCurrentResource;
+    }
+
+
     public void setCurrentResourceId(int id)
     {
         mCurrentResource = mConnections.getResourceById(id);
         if (null != mCurrentResource) {
-            notifyDataSetChanged();
+            if (mCurrentResource instanceof Connection) {
+                Connection connection = (Connection) mCurrentResource;
+                if (mConnectionListener != null) {
+                    mConnectionListener.onConnectionSelected(connection);
+                } else if (connection.isConnected()) {
+                    notifyDataSetChanged();
+                } else {
+                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(mContext, connection);
+                    task.execute();
+                }
+            }
+
             if (null != mPathView) {
                 mPathView.onUpdate(mCurrentResource);
             }
@@ -143,9 +172,19 @@ public class NGWResourcesListAdapter
         if (null == mCurrentResource) {
             return 0;
         }
+
+        // do not show up button if it is not needed
+        if (isAccountsDisabled()) {
+            if (mLoading)
+                return 1;
+
+            return mCurrentResource.getChildrenCount();
+        }
+
         if (mLoading) {
             return 2;
         }
+
         return mCurrentResource.getChildrenCount() + 1; //add up button or add connections button
     }
 
@@ -156,16 +195,18 @@ public class NGWResourcesListAdapter
         if (null == mCurrentResource || mLoading) {
             return null;
         }
+
         if (mCurrentResource.getType() == Connection.NGWResourceTypeConnections) {
             if (i > mCurrentResource.getChildrenCount()) {
                 return null;
             }
             return mCurrentResource.getChild(i);
         } else if (mCurrentResource.getType() == Connection.NGWResourceTypeConnection) {
-            if (i == 0) {
+            int offset = mShowAccounts ? 1 : 0;
+            if (i == 0 && mShowAccounts) {
                 return null;
             }
-            return mCurrentResource.getChild(i - 1);
+            return mCurrentResource.getChild(i - offset);
         } else if (mCurrentResource.getType() == Connection.NGWResourceTypeResourceGroup) {
             if (i == 0) {
                 return null;
@@ -193,9 +234,12 @@ public class NGWResourcesListAdapter
             View view,
             ViewGroup viewGroup)
     {
-        if (mLoading && i > 0) {
-            //show loading view
-            return getLoadingView(view);
+        //show loading view
+        if (mLoading) {
+            if (isAccountsDisabled())
+                return getLoadingView(view);
+            else if (i > 0)
+                return getLoadingView(view);
         }
 
         switch (mCurrentResource.getType()) {
@@ -216,8 +260,7 @@ public class NGWResourcesListAdapter
     {
         View v = view;
         if (null == v || v.getId() != R.id.loading_row) {
-            Context context = mSelectNGWResourceDialog.getActivity();
-            LayoutInflater inflater = LayoutInflater.from(context);
+            LayoutInflater inflater = LayoutInflater.from(mContext);
             v = inflater.inflate(R.layout.row_loading, null);
             v.setId(R.id.loading_row);
         }
@@ -230,29 +273,28 @@ public class NGWResourcesListAdapter
             View view)
     {
         View v = view;
-        Context context = mSelectNGWResourceDialog.getActivity();
         if (null == connection) { //create add account button
             if (null == v || v.getId() != R.id.resourcegroup_row) {
-                LayoutInflater inflater = LayoutInflater.from(context);
+                LayoutInflater inflater = LayoutInflater.from(mContext);
                 v = inflater.inflate(R.layout.row_resourcegroup, null);
                 v.setId(R.id.resourcegroup_row);
             }
             ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-            ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_add_account));
+            ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_add_account));
 
             TextView tvText = (TextView) v.findViewById(R.id.tvName);
-            tvText.setText(context.getString(R.string.add_account));
+            tvText.setText(mContext.getString(R.string.add_account));
 
             TextView tvDesc = (TextView) v.findViewById(R.id.tvDesc);
             tvDesc.setVisibility(View.GONE);
         } else {
             if (null == v || v.getId() != R.id.resourcegroup_row) {
-                LayoutInflater inflater = LayoutInflater.from(context);
+                LayoutInflater inflater = LayoutInflater.from(mContext);
                 v = inflater.inflate(R.layout.row_resourcegroup, null);
                 v.setId(R.id.resourcegroup_row);
             }
             ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-            ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_ngw));
+            ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_ngw));
 
             TextView tvText = (TextView) v.findViewById(R.id.tvName);
             tvText.setText(connection.getName());
@@ -270,91 +312,75 @@ public class NGWResourcesListAdapter
             View view)
     {
         View v = view;
-        Context context = mSelectNGWResourceDialog.getActivity();
         if (null == resource) { //create up button
             if (null == v || v.getId() != R.id.resourcegroup_row) {
-                LayoutInflater inflater = LayoutInflater.from(context);
+                LayoutInflater inflater = LayoutInflater.from(mContext);
                 v = inflater.inflate(R.layout.row_resourcegroup, null);
                 v.setId(R.id.resourcegroup_row);
 
                 ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_ngw_folder));
+                ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_ngw_folder));
             }
 
             TextView tvText = (TextView) v.findViewById(R.id.tvName);
-            tvText.setText(context.getString(R.string.up_dots));
+            tvText.setText(mContext.getString(R.string.up_dots));
 
             TextView tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-            tvDesc.setText(context.getString(R.string.up));
+            tvDesc.setText(mContext.getString(R.string.up));
         } else {
-            ImageView ivIcon;
             TextView tvDesc;
-
+            ImageView ivIcon;
+            CheckBox checkBox1 = null, checkBox2 = null;
+            final int id = resource.getId();
             int resourceType = resource.getType();
+
             if (0 == (mTypeMask & resourceType) &&
                 resourceType != Connection.NGWResourceTypeResourceGroup) {
                 if (null == v || v.getId() != R.id.empty_row) {
-                    LayoutInflater inflater = LayoutInflater.from(context);
+                    LayoutInflater inflater = LayoutInflater.from(mContext);
                     v = inflater.inflate(R.layout.row_empty, null);
                     v.setId(R.id.empty_row);
                 }
                 return v;
             }
 
-            final int id = resource.getId();
-            CheckBox checkBox1, checkBox2;
-
             switch (resourceType) {
                 case Connection.NGWResourceTypeResourceGroup:
                     if (null == v || v.getId() != R.id.resourcegroup_row) {
-                        LayoutInflater inflater = LayoutInflater.from(context);
+                        LayoutInflater inflater = LayoutInflater.from(mContext);
                         v = inflater.inflate(R.layout.row_resourcegroup, null);
                         v.setId(R.id.resourcegroup_row);
 
                         ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                        ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_ngw_folder));
+                        ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_ngw_folder));
                     }
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-                    tvDesc.setText(context.getString(R.string.resource_group));
+                    tvDesc.setText(mContext.getString(R.string.resource_group));
                     break;
                 case Connection.NGWResourceTypeRasterLayer:
-                    if (null == v || v.getId() != R.id.ngw_layer_check_row) {
-                        LayoutInflater inflater = LayoutInflater.from(context);
-                        v = inflater.inflate(R.layout.row_ngwlayer_check, null);
-                        v.setId(R.id.ngw_layer_check_row);
-                    }
-                    ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_ngw_raster));
-
-                    tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-                    tvDesc.setText(context.getString(R.string.raster_layer));
-
-                    //add check listener
-                    checkBox1 = (CheckBox) v.findViewById(R.id.checkBox1);
-                    setCheckBox(checkBox1, id, 1);
-                    break;
                 case Connection.NGWResourceTypeWMSClient:
                     if (null == v || v.getId() != R.id.ngw_layer_check_row) {
-                        LayoutInflater inflater = LayoutInflater.from(context);
+                        LayoutInflater inflater = LayoutInflater.from(mContext);
                         v = inflater.inflate(R.layout.row_ngwlayer_check, null);
                         v.setId(R.id.ngw_layer_check_row);
                     }
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_ngw_raster));
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_ngw_raster));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-                    tvDesc.setText(context.getString(R.string.raster_layer));
+                    tvDesc.setText(mContext.getString(R.string.raster_layer));
 
                     //add check listener
                     checkBox1 = (CheckBox) v.findViewById(R.id.checkBox1);
                     setCheckBox(checkBox1, id, 1);
                     break;
                 case Connection.NGWResourceTypeVectorLayer:
+                case Connection.NGWResourceTypePostgisLayer:
                     LayerWithStyles layer = (LayerWithStyles) resource;
                     if (layer.getStyleCount() > 0) {
                         if (null == v || v.getId() != R.id.ngw_layer_doublecheck_row) {
-                            LayoutInflater inflater = LayoutInflater.from(context);
+                            LayoutInflater inflater = LayoutInflater.from(mContext);
                             v = inflater.inflate(R.layout.row_ngwlayer_doublecheck, null);
                             v.setId(R.id.ngw_layer_doublecheck_row);
                         }
@@ -367,73 +393,38 @@ public class NGWResourcesListAdapter
                         setCheckBox(checkBox2, id, 2);
                     } else {
                         if (null == v || v.getId() != R.id.ngw_layer_check_row) {
-                            LayoutInflater inflater = LayoutInflater.from(context);
+                            LayoutInflater inflater = LayoutInflater.from(mContext);
                             v = inflater.inflate(R.layout.row_ngwlayer_check, null);
                             v.setId(R.id.ngw_layer_check_row);
                         }
 
                         TextView tvType = (TextView) v.findViewById(R.id.type1);
-                        tvType.setText(context.getString(R.string.vector));
+                        tvType.setText(mContext.getString(R.string.vector));
 
                         //add check listener
                         checkBox1 = (CheckBox) v.findViewById(R.id.checkBox1);
                         setCheckBox(checkBox1, id, 2);
                     }
 
+                    int icon = resourceType == Connection.NGWResourceTypeVectorLayer ? R.drawable.ic_ngw_vector : R.drawable.ic_pg_vector;
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_ngw_vector));
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, icon));
 
+                    int desc = resourceType == Connection.NGWResourceTypeVectorLayer ? R.string.vector_layer : R.string.pg_layer;
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-                    tvDesc.setText(context.getString(R.string.vector_layer));
-                    break;
-                case Connection.NGWResourceTypePostgisLayer:
-                    LayerWithStyles pglayer = (LayerWithStyles) resource;
-                    if (pglayer.getStyleCount() > 0) {
-                        if (null == v || v.getId() != R.id.ngw_layer_doublecheck_row) {
-                            LayoutInflater inflater = LayoutInflater.from(context);
-                            v = inflater.inflate(R.layout.row_ngwlayer_doublecheck, null);
-                            v.setId(R.id.ngw_layer_doublecheck_row);
-                        }
-
-
-                        //add check listener
-                        checkBox1 = (CheckBox) v.findViewById(R.id.checkBox1);
-                        setCheckBox(checkBox1, id, 1);
-
-                        checkBox2 = (CheckBox) v.findViewById(R.id.checkBox2);
-                        setCheckBox(checkBox2, id, 2);
-                    } else {
-                        if (null == v || v.getId() != R.id.ngw_layer_check_row) {
-                            LayoutInflater inflater = LayoutInflater.from(context);
-                            v = inflater.inflate(R.layout.row_ngwlayer_check, null);
-                            v.setId(R.id.ngw_layer_check_row);
-                        }
-
-                        TextView tvType = (TextView) v.findViewById(R.id.type1);
-                        tvType.setText(context.getString(R.string.vector));
-
-                        //add check listener
-                        checkBox1 = (CheckBox) v.findViewById(R.id.checkBox1);
-                        setCheckBox(checkBox1, id, 2);
-                    }
-
-                    ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_pg_vector));
-
-                    tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-                    tvDesc.setText(context.getString(R.string.pg_layer));
+                    tvDesc.setText(mContext.getString(desc));
                     break;
                 case Connection.NGWResourceTypeWebMap:
                     if (null == v || v.getId() != R.id.ngw_layer_check_row) {
-                        LayoutInflater inflater = LayoutInflater.from(context);
+                        LayoutInflater inflater = LayoutInflater.from(mContext);
                         v = inflater.inflate(R.layout.row_ngwlayer_check, null);
                         v.setId(R.id.ngw_layer_check_row);
                     }
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_ngw_webmap));
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_ngw_webmap));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-                    tvDesc.setText(context.getString(R.string.web_map));
+                    tvDesc.setText(mContext.getString(R.string.web_map));
 
                     //add check listener
                     checkBox1 = (CheckBox) v.findViewById(R.id.checkBox1);
@@ -441,6 +432,13 @@ public class NGWResourcesListAdapter
                     break;
                 default:
                     return null;
+            }
+
+            if (!mShowCheckboxes) {
+                if (checkBox1 != null)
+                    v.findViewById(R.id.check_raster).setVisibility(View.GONE);
+                if (checkBox2 != null)
+                    v.findViewById(R.id.check_vector).setVisibility(View.GONE);
             }
 
             TextView tvText = (TextView) v.findViewById(R.id.tvName);
@@ -502,8 +500,6 @@ public class NGWResourcesListAdapter
 
                         if (checkedState != null && !checkedState.isCheckState1() && !checkedState.isCheckState2())
                             mCheckState.remove(checkedState);
-
-                        mSelectNGWResourceDialog.updateSelectButton();
                     }
                 });
 
@@ -521,55 +517,67 @@ public class NGWResourcesListAdapter
         if (mCurrentResource.getType() == Connection.NGWResourceTypeConnections) {
             if (i >= mCurrentResource.getChildrenCount()) {
                 //start add account activity
-                mSelectNGWResourceDialog.onAddAccount(mSelectNGWResourceDialog.getActivity());
+                if (mConnectionListener != null)
+                    mConnectionListener.onAddConnection();
             } else {
                 Connection connection = (Connection) mCurrentResource.getChild(i);
                 mCurrentResource = connection;
 
                 if (mConnectionListener != null) {
                     mConnectionListener.onConnectionSelected(connection);
-                    mSelectNGWResourceDialog.dismiss();
                 } else if (connection.isConnected()) {
                     notifyDataSetChanged();
                 } else {
-                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(
-                            mSelectNGWResourceDialog.getActivity(), connection);
+                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(mContext, connection);
                     task.execute();
                 }
             }
-        } else if (mCurrentResource.getType() == Connection.NGWResourceTypeConnection ||
-                   mCurrentResource.getType() == Connection.NGWResourceTypeResourceGroup) {
-            if (i == 0) {
-                //go up
-                INGWResource resource = mCurrentResource.getParent();
-                if (resource instanceof Resource) {
-                    Resource resourceGroup = (Resource) resource;
-                    if (resourceGroup.getRemoteId() == 0) {
-                        resource = resource.getParent();
-                    }
-                }
-                mCurrentResource = resource;
-                notifyDataSetChanged();
-            } else {
-                if(mCurrentResource.getChildrenCount() > 0) {
-                    //go deep
-                    ResourceGroup resourceGroup = (ResourceGroup) mCurrentResource.getChild(i - 1);
-                    if (null != resourceGroup) {
-                        mCurrentResource = resourceGroup;
-                        if (resourceGroup.isChildrenLoaded()) {
-                            notifyDataSetChanged();
-                        } else {
-                            NGWResourceAsyncTask task = new NGWResourceAsyncTask(
-                                    mSelectNGWResourceDialog.getActivity(), resourceGroup);
-                            task.execute();
-                        }
-                    }
-                }
-            }
+        } else if (mCurrentResource.getType() == Connection.NGWResourceTypeConnection) {
+            if (mShowAccounts) {
+                if (i == 0)
+                    goUp();
+                else
+                    goDeep(i - 1);
+            } else
+                goDeep(i);
+        } else if (mCurrentResource.getType() == Connection.NGWResourceTypeResourceGroup) {
+            if (i == 0)
+                goUp();
+            else
+                goDeep(i - 1);
         }
         mPathView.onUpdate(mCurrentResource);
     }
 
+    private void goUp() {
+        INGWResource resource = mCurrentResource.getParent();
+        if (resource instanceof Resource) {
+            Resource resourceGroup = (Resource) resource;
+            if (resourceGroup.getRemoteId() == 0) {
+                resource = resource.getParent();
+            }
+        }
+
+        mCurrentResource = resource;
+        notifyDataSetChanged();
+    }
+
+    private void goDeep(int position) {
+        if (mCurrentResource.getChildrenCount() > 0) {
+            INGWResource resource = mCurrentResource.getChild(position);
+
+            if (resource instanceof ResourceGroup) {
+                ResourceGroup resourceGroup = (ResourceGroup) resource;
+                mCurrentResource = resourceGroup;
+                if (resourceGroup.isChildrenLoaded()) {
+                    notifyDataSetChanged();
+                } else {
+                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(mContext, resourceGroup);
+                    task.execute();
+                }
+            }
+        }
+    }
 
     /**
      * A path view class. the path is a resources names divide by arrows in head of dialog. If user
@@ -594,6 +602,9 @@ public class NGWResourcesListAdapter
             mLinearLayout.removeAllViewsInLayout();
             INGWResource parent = mCurrentResource;
             while (null != parent) {
+                if (!mShowAccounts && parent instanceof Connections)
+                    break;
+
                 //skip root resource
                 if (parent instanceof Resource) {
                     Resource resource = (Resource) parent;
@@ -604,8 +615,11 @@ public class NGWResourcesListAdapter
                 }
 
                 final int id = parent.getId();
-                TextView name = new TextView(mSelectNGWResourceDialog.getActivity());
+                TextView name = new TextView(mContext);
+
                 String sName = parent.getName();
+                if (parent instanceof Connection && !mShowAccounts)
+                    sName = "/ ";
                 name.setText(sName);
                 name.setTypeface(name.getTypeface(), Typeface.BOLD);
                 name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
@@ -627,10 +641,10 @@ public class NGWResourcesListAdapter
                 parent = parent.getParent();
 
                 if (null != parent) {
-                    ImageView image = new ImageView(mSelectNGWResourceDialog.getActivity());
+                    ImageView image = new ImageView(mContext);
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(30, 30);
                     image.setLayoutParams(params);
-                    image.setImageDrawable(ContextCompat.getDrawable(mSelectNGWResourceDialog.getActivity(), R.drawable.ic_next_light));
+                    image.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_next_light));
                     mLinearLayout.addView(image, 0);
                 }
             }

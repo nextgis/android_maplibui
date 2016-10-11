@@ -30,6 +30,7 @@ import android.util.Log;
 
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
+import com.nextgis.maplib.datasource.ngw.Connections;
 import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.NGWLookupTable;
@@ -38,8 +39,10 @@ import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGActivity;
+import com.nextgis.maplibui.activity.SelectNGWResourceActivity;
 import com.nextgis.maplibui.dialog.CreateFromQMSLayerDialog;
 import com.nextgis.maplibui.dialog.CreateLocalLayerDialog;
+import com.nextgis.maplibui.dialog.NGWResourcesListAdapter;
 import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
 import com.nextgis.maplibui.fragment.LayerFillProgressDialogFragment;
 import com.nextgis.maplibui.service.LayerFillService;
@@ -76,7 +79,7 @@ public class LayerFactoryUI
     {
         if (context instanceof NGActivity) {
             NGActivity fragmentActivity = (NGActivity) context;
-            SelectNGWResourceDialog newFragment = new SelectNGWResourceDialog();
+            final SelectNGWResourceDialog newFragment = new SelectNGWResourceDialog();
             newFragment.setLayerGroup(groupLayer)
                     .setTypeMask(
                             Connection.NGWResourceTypePostgisLayer |
@@ -84,6 +87,25 @@ public class LayerFactoryUI
                                     Connection.NGWResourceTypeRasterLayer |
                                     Connection.NGWResourceTypeWMSClient |
                                     Connection.NGWResourceTypeWebMap)
+                    .setConnectionListener(new NGWResourcesListAdapter.OnConnectionListener() {
+                        @Override
+                        public void onConnectionSelected(Connection connection) {
+                            Intent intent = new Intent(context, SelectNGWResourceActivity.class);
+                            Connections connections = new Connections(context.getString(R.string.accounts));
+                            connections.add(connection);
+                            intent.putExtra(SelectNGWResourceActivity.KEY_TASK, SelectNGWResourceActivity.TYPE_ADD);
+                            intent.putExtra(SelectNGWResourceActivity.KEY_CONNECTIONS, connections);
+                            intent.putExtra(SelectNGWResourceActivity.KEY_RESOURCE_ID, connections.getChild(0).getId());
+                            intent.putExtra(SelectNGWResourceActivity.KEY_GROUP_ID, groupLayer.getId());
+                            context.startActivity(intent);
+                            newFragment.dismiss();
+                        }
+
+                        @Override
+                        public void onAddConnection() {
+
+                        }
+                    })
                     .setTitle(context.getString(R.string.choose_layers))
                     .setTheme(fragmentActivity.getThemeId())
                     .show(fragmentActivity.getSupportFragmentManager(), "create_ngw_layer");

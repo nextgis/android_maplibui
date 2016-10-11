@@ -308,11 +308,17 @@ public class LayersListAdapter
                                                         Toast.makeText(mContext, R.string.sync_disabled, Toast.LENGTH_SHORT).show();
                                                     }
                                                 } else {
-                                                    SelectNGWResourceDialog selectAccountDialog = new SelectNGWResourceDialog();
-                                                    selectAccountDialog.setConnectionListener(new NGWResourcesListAdapter.OnConnectionSelectedListener() {
+                                                    final SelectNGWResourceDialog selectAccountDialog = new SelectNGWResourceDialog();
+                                                    selectAccountDialog.setConnectionListener(new NGWResourcesListAdapter.OnConnectionListener() {
                                                         @Override
                                                         public void onConnectionSelected(final Connection connection) {
                                                             new NGWTrackLayerCreateTask(mActivity, connection).execute();
+                                                            selectAccountDialog.dismiss();
+                                                        }
+
+                                                        @Override
+                                                        public void onAddConnection() {
+                                                            selectAccountDialog.onAddAccount(mContext);
                                                         }
                                                     })
                                                             .setTitle(mContext.getString(R.string.accounts))

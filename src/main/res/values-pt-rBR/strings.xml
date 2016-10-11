@@ -304,4 +304,5 @@
     <string name="skip">Skip</string>
     <string name="sync_dialog_message">Which option do you want to use for this layer? You can change it later in layer settings or NextGIS accounts.</string>
     <string name="sync_dialog_title">Sync with NextGIS Web?</string>
+    <string name="import_">Import</string>
 </resources>

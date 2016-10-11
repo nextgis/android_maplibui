@@ -144,6 +144,7 @@
     <string name="nothing_selected">Nothing is selected</string>
     <string name="unclosed_track_deleted">Current track is deleted too</string>
     <string name="preparing">Preparing…</string>
+    <string name="import_">Import</string>
     <string name="export">Export</string>
     <string name="folder">Folder</string>
     <string name="zip">ZIP file</string>
