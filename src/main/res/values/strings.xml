@@ -117,8 +117,11 @@
     <string name="create_vector_layer">Create vector layer</string>
     <string name="new_layer">New layer</string>
     <string name="message_layer_created">Layer created</string>
+    <string name="message_group_created">Group created</string>
     <string name="feature_n">Feature #%1$d</string>
     <string name="new_feature">New feature</string>
+    <string name="new_group">Create new group</string>
+    <string name="new_group_name">Group name:</string>
     <string name="error_form_create">Form create failed</string>
     <string name="system_default">System default</string>
     <string name="five_minutes">5 minutes</string>

@@ -40,18 +40,28 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class NGWCreateNewLayerTask extends AsyncTask<Void, Void, String> {
+public class NGWCreateNewResourceTask extends AsyncTask<Void, Void, String> {
     private Connection mConnection;
     private VectorLayer mLayer;
     private Context mContext;
     private Pair<Integer, Integer> mVer;
     private long mParentId;
+    private String mName;
 
-    public NGWCreateNewLayerTask(Connection connection, VectorLayer layer, long id) {
+    public NGWCreateNewResourceTask(Context context, Connection connection, long parentId) {
+        mContext = context;
+        mParentId = parentId;
         mConnection = connection;
+    }
+
+    public NGWCreateNewResourceTask setLayer(VectorLayer layer) {
         mLayer = layer;
-        mContext = mLayer.getContext();
-        mParentId = id;
+        return this;
+    }
+
+    public NGWCreateNewResourceTask setName(String name) {
+        mName = name;
+        return this;
     }
 
     @Override
@@ -70,7 +80,10 @@ public class NGWCreateNewLayerTask extends AsyncTask<Void, Void, String> {
                 e.printStackTrace();
             }
 
-            return NGWUtil.createNewLayer(mConnection, mLayer, mParentId);
+            if (mLayer != null)
+                return NGWUtil.createNewLayer(mConnection, mLayer, mParentId);
+            else
+                return NGWUtil.createNewGroup(mContext, mConnection, mParentId, mName);
         }
 
         return "0";
@@ -85,7 +98,8 @@ public class NGWCreateNewLayerTask extends AsyncTask<Void, Void, String> {
             try {
                 JSONObject obj = new JSONObject(result);
                 Long id = obj.getLong(Constants.JSON_ID_KEY);
-                mLayer.toNGW(id, mConnection.getName(), mVer);
+                if (mLayer != null)
+                    mLayer.toNGW(id, mConnection.getName(), mVer);
                 result = "-999";
             } catch (JSONException e) {
                 result = "500";
@@ -95,7 +109,7 @@ public class NGWCreateNewLayerTask extends AsyncTask<Void, Void, String> {
 
         switch (result) {
             case "-999":
-                message = mContext.getString(R.string.message_layer_created);
+                message = mContext.getString(mLayer == null ? R.string.message_group_created : R.string.message_layer_created);
                 break;
             default:
                 message = NetworkUtil.getError(mContext, result);

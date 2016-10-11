@@ -117,6 +117,15 @@ public class NGWResourcesListAdapter
         return mCurrentResource.getId();
     }
 
+    public void refresh() {
+        if (mCurrentResource instanceof Connection)
+            ((Connection) mCurrentResource).getRootResource().setLoadChildren(false);
+        else if (mCurrentResource instanceof ResourceGroup)
+            ((ResourceGroup) mCurrentResource).setLoadChildren(false);
+
+        NGWResourceAsyncTask task = new NGWResourceAsyncTask(mContext, mCurrentResource);
+        task.execute();
+    }
 
     public INGWResource getCurrentResource()
     {

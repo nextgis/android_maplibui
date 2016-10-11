@@ -22,12 +22,17 @@
 package com.nextgis.maplibui.activity;
 
 import android.accounts.AccountManager;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -45,6 +50,7 @@ import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.NGWRasterLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplib.util.NGWUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.dialog.NGWResourcesListAdapter;
 import com.nextgis.maplibui.fragment.LayerFillProgressDialogFragment;
@@ -52,7 +58,7 @@ import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.NGWWebMapLayerUI;
 import com.nextgis.maplibui.service.LayerFillService;
 import com.nextgis.maplibui.util.CheckState;
-import com.nextgis.maplibui.util.NGWCreateNewLayerTask;
+import com.nextgis.maplibui.util.NGWCreateNewResourceTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -149,10 +155,52 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
 
         mListAdapter.setShowCheckboxes(mTask == TYPE_ADD);
         mListAdapter.setTypeMask(mTypeMask);
-        String instance = mListAdapter.getConnections().getChild(0).getName();
+        String instance = getConnection().getName();
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(mTask == TYPE_ADD ? R.string.import_ : R.string.export);
             getSupportActionBar().setSubtitle(instance);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.ngw_resource, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int i = item.getItemId();
+        if (i == R.id.menu_new_group) {
+            final EditText view = (EditText) View.inflate(this, R.layout.dialog_edittext, null);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.new_group_name).setView(view)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.ok, null);
+
+            final AlertDialog dialog = builder.show();
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Editable text = view.getText();
+                    if (text.length() < 1) {
+                        Toast.makeText(v.getContext(), R.string.field_not_filled, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    long id = getRemoteResourceId();
+                    Connection connection = getConnection();
+                    if (connection != null && id != NOT_FOUND) {
+                        new NGWCreateNewResourceTask(SelectNGWResourceActivity.this, connection, id).setName(text.toString()).execute();
+                        mListAdapter.refresh();
+                    }
+
+                    dialog.dismiss();
+                }
+            });
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
     }
 
@@ -260,18 +308,30 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                         finish();
                     break;
                 case TYPE_SELECT:
-                    long id = NOT_FOUND;
-                    INGWResource resource = mListAdapter.getCurrentResource();
-                    if (resource instanceof ResourceGroup)
-                        id = ((ResourceGroup) resource).getRemoteId();
-
-                    Connection connection = (Connection) mListAdapter.getConnections().getChild(0);
-                    if (connection != null && mLayer != null) {
-                        new NGWCreateNewLayerTask(connection, mLayer, id).execute();
+                    long id = getRemoteResourceId();
+                    Connection connection = getConnection();
+                    if (connection != null && mLayer != null && id != NOT_FOUND) {
+                        new NGWCreateNewResourceTask(this, connection, id).setLayer(mLayer).execute();
                         finish();
                     }
                     break;
             }
         }
+    }
+
+    public Connection getConnection() {
+        return (Connection) mListAdapter.getConnections().getChild(0);
+    }
+
+    public long getRemoteResourceId() {
+        long id = NOT_FOUND;
+        INGWResource resource = mListAdapter.getCurrentResource();
+
+        if (resource instanceof ResourceGroup)
+            id = ((ResourceGroup) resource).getRemoteId();
+        else if (resource instanceof Connection)
+            id = ((Connection) resource).getRootResource().getRemoteId();
+
+        return id;
     }
 }
