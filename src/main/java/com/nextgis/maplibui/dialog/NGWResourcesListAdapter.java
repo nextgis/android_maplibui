@@ -48,6 +48,7 @@ import com.nextgis.maplib.datasource.ngw.Resource;
 import com.nextgis.maplib.datasource.ngw.ResourceGroup;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.CheckState;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import java.util.List;
 
@@ -651,7 +652,8 @@ public class NGWResourcesListAdapter
 
                 if (null != parent) {
                     ImageView image = new ImageView(mContext);
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(30, 30);
+                    int px = ControlHelper.dpToPx(16, mContext.getResources());
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(px, px);
                     image.setLayoutParams(params);
                     image.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_next_light));
                     mLinearLayout.addView(image, 0);
