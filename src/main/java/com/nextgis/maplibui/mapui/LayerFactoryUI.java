@@ -23,6 +23,7 @@
 
 package com.nextgis.maplibui.mapui;
 
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -75,41 +76,51 @@ public class LayerFactoryUI
 
     public void createNewNGWLayer(
             final Context context,
-            final LayerGroup groupLayer)
+            final LayerGroup layerGroup)
     {
         if (context instanceof NGActivity) {
-            NGActivity fragmentActivity = (NGActivity) context;
-            final SelectNGWResourceDialog newFragment = new SelectNGWResourceDialog();
-            newFragment.setLayerGroup(groupLayer)
-                    .setTypeMask(
-                            Connection.NGWResourceTypePostgisLayer |
-                                    Connection.NGWResourceTypeVectorLayer |
-                                    Connection.NGWResourceTypeRasterLayer |
-                                    Connection.NGWResourceTypeWMSClient |
-                                    Connection.NGWResourceTypeWebMap)
-                    .setConnectionListener(new NGWResourcesListAdapter.OnConnectionListener() {
-                        @Override
-                        public void onConnectionSelected(Connection connection) {
-                            Intent intent = new Intent(context, SelectNGWResourceActivity.class);
-                            Connections connections = new Connections(context.getString(R.string.accounts));
-                            connections.add(connection);
-                            intent.putExtra(SelectNGWResourceActivity.KEY_TASK, SelectNGWResourceActivity.TYPE_ADD);
-                            intent.putExtra(SelectNGWResourceActivity.KEY_CONNECTIONS, connections);
-                            intent.putExtra(SelectNGWResourceActivity.KEY_RESOURCE_ID, connections.getChild(0).getId());
-                            intent.putExtra(SelectNGWResourceActivity.KEY_GROUP_ID, groupLayer.getId());
-                            context.startActivity(intent);
-                            newFragment.dismiss();
-                        }
+            AccountManager accountManager = AccountManager.get(context);
+            Connections connections = SelectNGWResourceDialog.fillConnections(context, accountManager);
+            if (connections.getChildrenCount() == 1) {
+                startNGWResourceActivity(context, (Connection) connections.getChild(0), layerGroup);
+            } else {
+                NGActivity fragmentActivity = (NGActivity) context;
+                final SelectNGWResourceDialog newFragment = new SelectNGWResourceDialog();
+                newFragment.setLayerGroup(layerGroup)
+                        .setTypeMask(
+                                Connection.NGWResourceTypePostgisLayer |
+                                        Connection.NGWResourceTypeVectorLayer |
+                                        Connection.NGWResourceTypeRasterLayer |
+                                        Connection.NGWResourceTypeWMSClient |
+                                        Connection.NGWResourceTypeWebMap)
+                        .setConnectionListener(new NGWResourcesListAdapter.OnConnectionListener() {
+                            @Override
+                            public void onConnectionSelected(Connection connection) {
+                                startNGWResourceActivity(context, connection, layerGroup);
+                                newFragment.dismiss();
+                            }
 
-                        @Override
-                        public void onAddConnection() {
+                            @Override
+                            public void onAddConnection() {
 
-                        }
-                    })
-                    .setTitle(context.getString(R.string.choose_layers))
-                    .setTheme(fragmentActivity.getThemeId())
-                    .show(fragmentActivity.getSupportFragmentManager(), "create_ngw_layer");
+                            }
+                        })
+                        .setTitle(context.getString(R.string.choose_layers))
+                        .setTheme(fragmentActivity.getThemeId())
+                        .show(fragmentActivity.getSupportFragmentManager(), "create_ngw_layer");
+            }
         }
+    }
+
+    private void startNGWResourceActivity(Context context, Connection connection, LayerGroup layerGroup) {
+        Intent intent = new Intent(context, SelectNGWResourceActivity.class);
+        Connections connections = new Connections(context.getString(R.string.accounts));
+        connections.add(connection);
+        intent.putExtra(SelectNGWResourceActivity.KEY_TASK, SelectNGWResourceActivity.TYPE_ADD);
+        intent.putExtra(SelectNGWResourceActivity.KEY_CONNECTIONS, connections);
+        intent.putExtra(SelectNGWResourceActivity.KEY_RESOURCE_ID, connections.getChild(0).getId());
+        intent.putExtra(SelectNGWResourceActivity.KEY_GROUP_ID, layerGroup.getId());
+        context.startActivity(intent);
     }
 
 

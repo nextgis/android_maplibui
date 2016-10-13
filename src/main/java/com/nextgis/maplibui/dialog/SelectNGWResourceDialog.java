@@ -111,7 +111,7 @@ public class SelectNGWResourceDialog
 
         if (null == savedInstanceState) {
             //first launch, lets fill connections array
-            Connections connections = fillConnections(getActivity());
+            Connections connections = fillConnections(getActivity(), mAccountManager);
             mListAdapter.setConnections(connections);
             mListAdapter.setCurrentResourceId(connections.getId());
             mListAdapter.setCheckState(new ArrayList<CheckState>());
@@ -202,12 +202,12 @@ public class SelectNGWResourceDialog
     }
 
 
-    protected Connections fillConnections(Context context)
+    public static Connections fillConnections(Context context, AccountManager accountManager)
     {
-        Connections connections = new Connections(getString(R.string.accounts));
-        IGISApplication app = (IGISApplication) mContext.getApplicationContext();
+        Connections connections = new Connections(context.getString(R.string.accounts));
+        IGISApplication app = (IGISApplication) context.getApplicationContext();
 
-        for (Account account : mAccountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
+        for (Account account : accountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
             String url = app.getAccountUrl(account);
             String password = app.getAccountPassword(account);
             String login = app.getAccountLogin(account);
