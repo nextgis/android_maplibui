@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -32,7 +32,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.nextgis.maplib.api.ILayer;
-import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ILayerSelector;
 import com.nextgis.maplibui.api.ILayerUI;
@@ -97,9 +96,9 @@ public class ChooseLayerListAdapter
         TextView tvText = (TextView) v.findViewById(R.id.tvName);
         tvText.setText(layer.getName());
 
-        TextView tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-        LayerGroup group = (LayerGroup) layer.getParent();
-        tvDesc.setText(group.getLayerFactory().getLayerTypeString(mSelector.getContext(), layer.getType()));
+//        TextView tvDesc = (TextView) v.findViewById(R.id.tvDesc);
+//        LayerGroup group = (LayerGroup) layer.getParent();
+//        tvDesc.setText(group.getLayerFactory().getLayerTypeString(mSelector.getContext(), layer.getType()));
 
         return v;
     }
