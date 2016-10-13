@@ -78,7 +78,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
-import static com.nextgis.maplib.util.Constants.JSON_MESSAGE_KEY;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_NORMAL;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
 
@@ -417,7 +416,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         private int mResource;
         private Map<String, LoadIcon> mIconsQueue;
 
-        public LayersAdapter(Context context, List<? extends Map<String, ?>> data, int resource, String[] from, int[] to) {
+        LayersAdapter(Context context, List<? extends Map<String, ?>> data, int resource, String[] from, int[] to) {
             super(context, data, resource, from, to);
             mFiltered = mOriginal = data;
             mFrom = from;
@@ -539,12 +538,12 @@ public class CreateFromQMSLayerDialog extends NGDialog {
             return mFilter;
         }
 
-        protected class LoadIcon extends AsyncTask<Void, Void, Void> {
+        class LoadIcon extends AsyncTask<Void, Void, Void> {
             private File mFile;
             private String mPath;
             private Queue<TextView> mAssignedViews;
 
-            public LoadIcon(String path, TextView view) {
+            LoadIcon(String path, TextView view) {
                 mAssignedViews = new LinkedList<>();
                 mAssignedViews.add(view);
                 mPath = path;
@@ -555,7 +554,8 @@ public class CreateFromQMSLayerDialog extends NGDialog {
             protected Void doInBackground(Void... params) {
                 if (!mFile.exists()) {
                     try {
-                        int size = (int) (16 * (getContext().getResources().getDisplayMetrics().density / 160));
+                        float density = getContext().getResources().getDisplayMetrics().density;
+                        int size = (int) (16 * density);
                         if (size < 16)
                             size = 16;
                         if (size > 64)
@@ -597,7 +597,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 mIconsQueue.remove(mFile.getName());
             }
 
-            public void addViewWithIcon(TextView textView) {
+            void addViewWithIcon(TextView textView) {
                 mAssignedViews.add(textView);
             }
         }
