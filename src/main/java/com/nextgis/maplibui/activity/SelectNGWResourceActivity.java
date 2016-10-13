@@ -145,7 +145,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
         MapBase map = MapBase.getInstance();
         if (null != map) {
             ILayer layer = map.getLayerById(id);
-            if (layer instanceof LayerGroup && id != NOT_FOUND)
+            if (layer instanceof LayerGroup)
                 mGroupLayer = (LayerGroup) layer;
 
             layer = map.getLayerById(mPushId);
