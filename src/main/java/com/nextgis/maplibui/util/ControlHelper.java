@@ -271,7 +271,7 @@ public final class ControlHelper {
 
     public static int dpToPx(int dp, Resources resources) {
         DisplayMetrics dm = resources.getDisplayMetrics();
-        return Math.round(dp* (dm.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+        return Math.round(dp * (dm.xdpi / DisplayMetrics.DENSITY_DEFAULT));
     }
 
     // http://stackoverflow.com/a/32973351/2088273

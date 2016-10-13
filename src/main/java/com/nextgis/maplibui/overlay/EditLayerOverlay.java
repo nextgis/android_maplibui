@@ -48,7 +48,6 @@ import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoGeometryCollection;
-import com.nextgis.maplib.datasource.GeoGeometryFactory;
 import com.nextgis.maplib.datasource.GeoLineString;
 import com.nextgis.maplib.datasource.GeoLinearRing;
 import com.nextgis.maplib.datasource.GeoMultiLineString;
@@ -74,9 +73,7 @@ import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 
@@ -98,7 +95,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
      * edit feature style
      */
     protected final static int LINE_WIDTH = 4;
-    protected final static int MAX_UNDO = 10;
 
     protected static final int mType = 3;
 
@@ -108,9 +104,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     protected static final String BUNDLE_KEY_MODE = "mode";
     protected static final String BUNDLE_KEY_HAS_EDITS = "has_edits";
     protected static final String BUNDLE_KEY_OVERLAY_POINT = "overlay_point";
-    protected static final String BUNDLE_KEY_HISTORY = "history_";
-    protected static final String BUNDLE_KEY_HISTORY_SIZE = "history_size";
-    protected static final String BUNDLE_KEY_HISTORY_STATE = "history_state";
 
     protected Paint mPaint;
 
@@ -133,9 +126,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     protected PointF mTempPointOffset;
     protected OverlayItem mOverlayPoint;
 
-    protected int mHistoryState;
-    protected LinkedList<GeoGeometry> mHistory;
-
     protected List<EditEventListener> mListeners;
     protected WalkEditReceiver mReceiver;
 
@@ -156,7 +146,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(LINE_WIDTH / 2);
 
-        mHistory = new LinkedList<>();
         mDrawItems = new ArrayList<>();
         mListeners = new ArrayList<>();
 
@@ -245,48 +234,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     }
 
 
-    public void saveToHistory() {
-        for (int i = mHistory.size() - 1; i > mHistoryState; i--)
-            mHistory.remove(i);
-
-        if (mHistory.size() >= MAX_UNDO + 1)
-            mHistory.removeFirst();
-
-        if(null == mFeature || null == mFeature.getGeometry())
-            return;
-
-        mHistoryState++;
-        mHistory.add(mFeature.getGeometry().copy());
-        defineUndoRedo();
-    }
-
-
-    protected boolean restoreFromHistory(int id) {
-        mFeature.setGeometry(mHistory.get(id).copy());
-        fillDrawItems(mFeature.getGeometry());
-
-        GeoGeometry original = mLayer.getGeometryForId(mFeature.getId());
-        boolean hasEdits = original != null && mFeature.getGeometry().equals(original);
-
-        setHasEdits(!hasEdits);
-        defineUndoRedo();
-        updateMap();
-
-        return true;
-    }
-
-
-    public void defineUndoRedo() {
-        MenuItem item = mTopToolbar.getMenu().findItem(R.id.menu_edit_undo);
-        if (item != null)
-            ControlHelper.setEnabled(item, 0 < mHistoryState);
-
-        item = mTopToolbar.getMenu().findItem(R.id.menu_edit_redo);
-        if (item != null)
-            ControlHelper.setEnabled(item, mHistoryState + 1 < mHistory.size());
-    }
-
-
     protected void clearDrawItems() {
         mDrawItems.clear();
         mSelectedItem = null;
@@ -299,14 +246,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     }
 
 
-    public void clearHistory() {
-        mHistory.clear();
-        mHistoryState = -1;
-    }
-
-
     protected void clearAll() {
-        clearHistory();
         clearGeometry();
         clearDrawItems();
     }
@@ -390,6 +330,9 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         }
     }
 
+    public int getMode() {
+        return mMode;
+    }
 
     public void setMode(int mode) {
         if (mode != MODE_NONE && mLayer == null)
@@ -401,8 +344,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                 clearAll();
                 break;
             case MODE_HIGHLIGHT:
-                clearHistory();
-
                 if (mFeature != null)
                     mLayer.showFeature(mFeature.getId());
                 break;
@@ -444,7 +385,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                 mLayer.hideFeature(mFeature.getId());
                 break;
             case MODE_EDIT_BY_WALK:
-                clearHistory();
                 hideNavigationButton();
 
                 for (EditEventListener listener : mListeners)
@@ -535,10 +475,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
             result = deletePoint();
         } else if (id == R.id.menu_edit_by_walk) {
             result = true;
-        } else if (id == R.id.menu_edit_undo) {
-            return restoreFromHistory(--mHistoryState);
-        } else if (id == R.id.menu_edit_redo) {
-            return restoreFromHistory(++mHistoryState);
         } else if (id == R.id.menu_edit_by_touch) {
             result = true;
         }
@@ -558,7 +494,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         mDrawItems.add(mSelectedItem);
 
         update();
-        clearHistory();
     }
 
 
@@ -817,9 +752,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         }
 
         mFeature.setGeometry(geometry);
-
-        if (mMode != MODE_EDIT_BY_WALK)
-            saveToHistory();
     }
 
 
@@ -938,7 +870,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     }
 
 
-    protected void fillDrawItems(GeoGeometry geom) {
+    public void fillDrawItems(GeoGeometry geom) {
         int lastItemsCount = mDrawItems.size();
         int lastSelectedItemPosition = mDrawItems.indexOf(mSelectedItem);
         DrawItem lastSelectedItem = mSelectedItem;
@@ -1098,15 +1030,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         if (mOverlayPoint.isVisible())
             bundle.putSerializable(BUNDLE_KEY_OVERLAY_POINT, mOverlayPoint.getCoordinates(GeoConstants.CRS_WGS84));
 
-        bundle.putInt(BUNDLE_KEY_HISTORY_STATE, mHistoryState);
-        bundle.putInt(BUNDLE_KEY_HISTORY_SIZE, mHistory.size());
-        for (int i = 0; i < mHistory.size(); i++)
-            try {
-                bundle.putByteArray(BUNDLE_KEY_HISTORY + i, mHistory.get(i).toBlob());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
         return bundle;
     }
 
@@ -1126,14 +1049,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                     mOverlayPoint.setVisible(true);
                 }
             }
-
-            mHistoryState = bundle.getInt(BUNDLE_KEY_HISTORY_STATE, mHistoryState);
-            for (int i = 0; i < bundle.getInt(BUNDLE_KEY_HISTORY_SIZE, mHistory.size()); i++)
-                try {
-                    mHistory.add(GeoGeometryFactory.fromBlob(bundle.getByteArray(BUNDLE_KEY_HISTORY + i)));
-                } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
         }
 
         super.onRestoreState(bundle);
@@ -1156,9 +1071,9 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     }
 
 
-    public void selectGeometryInScreenCoordinates(float x, float y) {
+    public boolean selectGeometryInScreenCoordinates(float x, float y) {
         if (null == mLayer)
-            return;
+            return false;
 
         double dMinX = x - mTolerancePX;
         double dMaxX = x + mTolerancePX;
@@ -1173,28 +1088,28 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                     mSelectedItem = drawItem;
                     setHasEdits(mHasEdits);
                     updateMap();
-                    return;
+                    return false;
                 }
 
                 if (drawItem.intersectsEdges(screenEnv)) {
                     mSelectedItem = drawItem;
                     update();
-                    return;
+                    return true;
                 }
             }
 
             if (mHasEdits) // prevent select another geometry before saving current edited one. TODO toast?
-                return;
+                return false;
         }
 
         //2. select another geometry
         GeoEnvelope mapEnv = mMapViewOverlays.screenToMap(screenEnv);
         if (null == mapEnv)
-            return;
+            return false;
 
         List<Long> items = mLayer.query(mapEnv);
         if (items.isEmpty())
-            return;
+            return false;
 
         long previousFeatureId = Constants.NOT_FOUND;
         if (null != mFeature)
@@ -1210,11 +1125,11 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         }
 
         if (mFeature == null || previousFeatureId == mFeature.getId())
-            return;
+            return false;
 
         if (mMode == MODE_HIGHLIGHT) {
             mMapViewOverlays.invalidate();
-            return;
+            return false;
         }
 
         // this part should execute only in edit mode
@@ -1222,6 +1137,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
             mLayer.hideFeature(mFeature.getId());
         else
             mLayer.swapFeaturesVisibility(previousFeatureId, mFeature.getId());
+
+        return false;
     }
 
 
