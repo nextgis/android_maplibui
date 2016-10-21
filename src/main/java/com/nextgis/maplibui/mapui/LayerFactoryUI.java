@@ -102,7 +102,7 @@ public class LayerFactoryUI
 
                             @Override
                             public void onAddConnection() {
-
+                                newFragment.onAddAccount(context);
                             }
                         })
                         .setTitle(context.getString(R.string.choose_layers))
