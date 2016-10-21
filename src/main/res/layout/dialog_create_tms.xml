@@ -22,13 +22,14 @@
   -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="?attr/dialogPreferredPadding"
+            android:paddingRight="?attr/dialogPreferredPadding">
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
         android:orientation="vertical">
 
         <EditText
@@ -37,23 +38,21 @@
             android:layout_height="wrap_content"
             android:hint="@string/layer_name"
             android:inputType="text"
-            android:singleLine="true" />
+            android:maxLines="1"/>
 
         <EditText
             android:id="@+id/layer_url"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:elegantTextHeight="false"
             android:hint="@string/layer_url"
-            android:inputType="textUri"
-            android:singleLine="false" />
+            android:inputType="textUri"/>
 
         <TextView
             android:id="@+id/layer_url_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/layer_url_hint"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
 
         <TextView
             android:id="@+id/layer_type_summary"
@@ -64,13 +63,13 @@
             android:padding="2dp"
             android:text="@string/layer_type_optional"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:attr/textColorPrimary" />
+            android:textColor="?android:attr/textColorPrimary"/>
 
         <Spinner
             android:id="@+id/layer_type"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:prompt="@string/layer_type" />
+            android:prompt="@string/layer_type"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -80,7 +79,7 @@
             android:padding="2dp"
             android:text="@string/tms_layer_cache_size"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:attr/textColorPrimary" />
+            android:textColor="?android:attr/textColorPrimary"/>
 
         <Spinner
             android:id="@+id/layer_cache"
@@ -88,7 +87,7 @@
             android:layout_height="wrap_content"
             android:entries="@array/tms_tile_cache_size"
             android:entryValues="@array/tms_tile_cache_size_val"
-            android:prompt="@string/layer_type" />
+            android:prompt="@string/layer_type"/>
 
         <TextView
             android:id="@+id/auth_summary"
@@ -99,14 +98,14 @@
             android:padding="2dp"
             android:text="@string/credentials_opt"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:attr/textColorPrimary" />
+            android:textColor="?android:attr/textColorPrimary"/>
 
         <EditText
             android:id="@+id/login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/user_name"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"/>
 
         <EditText
             android:id="@+id/password"
@@ -114,7 +113,6 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="@string/password"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"/>
     </LinearLayout>
-
 </ScrollView>

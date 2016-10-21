@@ -22,6 +22,7 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              xmlns:app="http://schemas.android.com/apk/res-auto"
+             xmlns:tools="http://schemas.android.com/tools"
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
@@ -45,8 +46,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
+            android:maxLines="1"
             android:paddingTop="4dip"
-            android:singleLine="true"
             android:text="@string/message_loading"
             android:textAppearance="?android:attr/textAppearanceSmall"/>
     </LinearLayout>
@@ -62,8 +63,11 @@
             android:id="@+id/search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingEnd="12dp"
+            android:paddingRight="12dp"
             app:iconifiedByDefault="false"
-            app:queryHint="@android:string/search_go"/>
+            app:queryHint="@android:string/search_go"
+            tools:ignore="RtlSymmetry"/>
 
         <ListView
             android:id="@+id/list"

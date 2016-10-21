@@ -6,7 +6,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -25,23 +25,20 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-    >
+            android:paddingLeft="?attr/dialogPreferredPadding"
+            android:paddingRight="?attr/dialogPreferredPadding">
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_margin="5dp"
-        >
+        android:orientation="vertical">
 
         <EditText
+            android:id="@+id/layer_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/layer_name"
             android:hint="@string/layer_name"
-            android:singleLine="true"
             android:inputType="text"
-            />
+            android:maxLines="1"/>
     </LinearLayout>
-
 </ScrollView>
