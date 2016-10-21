@@ -165,6 +165,14 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
     }
 
     @Override
+    public void onBackPressed() {
+        if (!mListAdapter.isAccountsDisabled())
+            mListAdapter.goUp();
+        else
+            super.onBackPressed();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.ngw_resource, menu);
         return true;

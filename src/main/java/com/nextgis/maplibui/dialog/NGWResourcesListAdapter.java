@@ -90,7 +90,7 @@ public class NGWResourcesListAdapter
         mShowCheckboxes = show;
     }
 
-    private boolean isAccountsDisabled() {
+    public boolean isAccountsDisabled() {
         return !mShowAccounts && mCurrentResource instanceof Connection;
     }
 
@@ -294,9 +294,6 @@ public class NGWResourcesListAdapter
 
             TextView tvText = (TextView) v.findViewById(R.id.tvName);
             tvText.setText(mContext.getString(R.string.add_account));
-
-            TextView tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-            tvDesc.setVisibility(View.GONE);
         } else {
             if (null == v || v.getId() != R.id.resourcegroup_row) {
                 LayoutInflater inflater = LayoutInflater.from(mContext);
@@ -308,10 +305,10 @@ public class NGWResourcesListAdapter
 
             TextView tvText = (TextView) v.findViewById(R.id.tvName);
             tvText.setText(connection.getName());
-
-            TextView tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-            tvDesc.setVisibility(View.GONE);
         }
+
+        TextView tvDesc = (TextView) v.findViewById(R.id.tvDesc);
+        tvDesc.setVisibility(View.GONE);
 
         return v;
     }
@@ -322,6 +319,7 @@ public class NGWResourcesListAdapter
             View view)
     {
         View v = view;
+        TextView tvDesc;
         if (null == resource) { //create up button
             if (null == v || v.getId() != R.id.resourcegroup_row) {
                 LayoutInflater inflater = LayoutInflater.from(mContext);
@@ -335,10 +333,9 @@ public class NGWResourcesListAdapter
             TextView tvText = (TextView) v.findViewById(R.id.tvName);
             tvText.setText(mContext.getString(R.string.up_dots));
 
-            TextView tvDesc = (TextView) v.findViewById(R.id.tvDesc);
+            tvDesc = (TextView) v.findViewById(R.id.tvDesc);
             tvDesc.setText(mContext.getString(R.string.up));
         } else {
-            TextView tvDesc;
             ImageView ivIcon;
             CheckBox checkBox1 = null, checkBox2 = null;
             final int id = resource.getId();
@@ -443,6 +440,8 @@ public class NGWResourcesListAdapter
                 default:
                     return null;
             }
+
+            tvDesc.setVisibility(View.GONE);
 
             if (!mShowCheckboxes) {
                 if (checkBox1 != null)
@@ -559,7 +558,7 @@ public class NGWResourcesListAdapter
         mPathView.onUpdate(mCurrentResource);
     }
 
-    private void goUp() {
+    public void goUp() {
         INGWResource resource = mCurrentResource.getParent();
         if (resource instanceof Resource) {
             Resource resourceGroup = (Resource) resource;
