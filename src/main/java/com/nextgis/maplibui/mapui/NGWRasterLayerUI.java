@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -54,7 +54,7 @@ public class NGWRasterLayerUI
     @Override
     public Drawable getIcon(Context context)
     {
-        return mContext.getResources().getDrawable(R.drawable.ic_ngw_raster);
+        return mContext.getResources().getDrawable(R.drawable.ic_raster);
     }
 
 

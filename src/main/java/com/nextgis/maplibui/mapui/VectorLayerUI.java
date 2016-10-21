@@ -82,7 +82,7 @@ public class VectorLayerUI
         if (mRenderer != null && ((SimpleFeatureRenderer) mRenderer).getStyle() != null)
             color = ((SimpleFeatureRenderer) mRenderer).getStyle().getColor();
 
-        return ControlHelper.getIconByVectorType(mContext, mGeometryType, color, R.drawable.ic_local_vector, false);
+        return ControlHelper.getIconByVectorType(mContext, mGeometryType, color, R.drawable.ic_vector, false);
     }
 
 

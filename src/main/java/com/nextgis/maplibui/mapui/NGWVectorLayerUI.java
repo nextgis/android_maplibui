@@ -77,7 +77,7 @@ public class NGWVectorLayerUI
     {
         int color = ((SimpleFeatureRenderer) mRenderer).getStyle().getColor();
         boolean syncable = 0 == (getSyncType() & Constants.SYNC_NONE);
-        return ControlHelper.getIconByVectorType(mContext, mGeometryType, color, R.drawable.ic_ngw_vector, syncable);
+        return ControlHelper.getIconByVectorType(mContext, mGeometryType, color, R.drawable.ic_vector, syncable);
     }
 
 

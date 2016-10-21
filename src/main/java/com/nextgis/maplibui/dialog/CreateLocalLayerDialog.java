@@ -141,9 +141,7 @@ public class CreateLocalLayerDialog
 
 //        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, mDialogTheme);
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setTitle(mTitle)
-                .setIcon(mLayerType < 3 ? R.drawable.ic_local_vector : R.drawable.ic_local_tms)
-                .setView(view)
+        builder.setTitle(mTitle).setView(view)
                 .setPositiveButton(
                         R.string.create, new DialogInterface.OnClickListener()
                         {

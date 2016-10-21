@@ -373,7 +373,8 @@ public class NGWResourcesListAdapter
                         v.setId(R.id.ngw_layer_check_row);
                     }
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_ngw_raster));
+                    int icon = resourceType == Connection.NGWResourceTypeRasterLayer ? R.drawable.ic_raster : R.drawable.ic_ngw_wms_client;
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, icon));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
                     tvDesc.setText(mContext.getString(R.string.raster_layer));
@@ -413,9 +414,9 @@ public class NGWResourcesListAdapter
                         setCheckBox(checkBox1, id, 2);
                     }
 
-                    int icon = resourceType == Connection.NGWResourceTypeVectorLayer ? R.drawable.ic_ngw_vector : R.drawable.ic_pg_vector;
+                    int vectorIcon = resourceType == Connection.NGWResourceTypeVectorLayer ? R.drawable.ic_vector : R.drawable.ic_pg_vector;
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, icon));
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, vectorIcon));
 
                     int desc = resourceType == Connection.NGWResourceTypeVectorLayer ? R.string.vector_layer : R.string.pg_layer;
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);

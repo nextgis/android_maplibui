@@ -141,7 +141,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setTitle(mTitle).setIcon(R.drawable.ic_remote_tms).setView(R.layout.list_content)
+        builder.setTitle(mTitle).setView(R.layout.list_content)
                 .setPositiveButton(R.string.add, null)
                 .setNeutralButton(R.string.new_tms, new DialogInterface.OnClickListener() {
                     @Override

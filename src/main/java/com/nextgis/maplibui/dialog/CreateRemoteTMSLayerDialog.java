@@ -120,7 +120,7 @@ public class CreateRemoteTMSLayerDialog
 
 //        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, mDialogTheme);
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setTitle(mTitle).setIcon(R.drawable.ic_remote_tms).setView(view).setPositiveButton(
+        builder.setTitle(mTitle).setView(view).setPositiveButton(
                 R.string.create, new DialogInterface.OnClickListener()
                 {
                     public void onClick(
