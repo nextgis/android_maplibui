@@ -132,8 +132,6 @@ public class SelectNGWResourceDialog
         }
 
         View view = View.inflate(mContext, R.layout.layout_resources, null);
-        view.findViewById(R.id.main_toolbar).setVisibility(View.GONE);
-        view.findViewById(R.id.button_panel).setVisibility(View.GONE);
         ListView dialogListView = (ListView) view.findViewById(R.id.listView);
         mListAdapter.setTypeMask(mTypeMask);
         dialogListView.setAdapter(mListAdapter);

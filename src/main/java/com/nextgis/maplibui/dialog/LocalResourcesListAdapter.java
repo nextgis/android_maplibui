@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -23,7 +23,9 @@
 
 package com.nextgis.maplibui.dialog;
 
+import android.content.Context;
 import android.graphics.Typeface;
+import android.support.v4.content.ContextCompat;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +41,7 @@ import android.widget.TextView;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ISelectResourceDialog;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -61,6 +64,7 @@ public class LocalResourcesListAdapter
     protected boolean               mCanSelectMulti;
     protected boolean               mCanWrite;
     protected RadioButton           mUncheckBtn;
+    protected Context               mContext;
 
     protected File       mPath;
     protected List<File> mFiles;
@@ -69,6 +73,7 @@ public class LocalResourcesListAdapter
     public LocalResourcesListAdapter(ISelectResourceDialog dialog)
     {
         mDialog = dialog;
+        mContext = mDialog.getContext();
     }
 
 
@@ -203,26 +208,25 @@ public class LocalResourcesListAdapter
         int viewId;
         if (null == file) {
             if (null == v || v.getId() != R.id.resourcegroup_row) {
-                LayoutInflater inflater = LayoutInflater.from(mDialog.getContext());
+                LayoutInflater inflater = LayoutInflater.from(mContext);
                 v = inflater.inflate(R.layout.row_resourcegroup, null);
                 v.setId(R.id.resourcegroup_row);
 
                 ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                ivIcon.setImageDrawable(
-                        mDialog.getContext().getResources().getDrawable(R.drawable.ic_folder));
+                ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_folder));
             }
 
             TextView tvText = (TextView) v.findViewById(R.id.tvName);
-            tvText.setText(mDialog.getContext().getString(R.string.up_dots));
+            tvText.setText(mContext.getString(R.string.up_dots));
 
             TextView tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-            tvDesc.setText(mDialog.getContext().getString(R.string.up));
+            tvDesc.setText(mContext.getString(R.string.up));
         } else {
             ImageView ivIcon;
             TextView tvDesc;
             CheckBox checkBox;
             RadioButton radioButton;
-            LayoutInflater inflater = LayoutInflater.from(mDialog.getContext());
+            LayoutInflater inflater = LayoutInflater.from(mContext);
 
             switch (getFileType(file)) {
                 case FILETYPE_FOLDER:
@@ -259,11 +263,10 @@ public class LocalResourcesListAdapter
                         }
                     }
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(
-                            mDialog.getContext().getResources().getDrawable(R.drawable.ic_folder));
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_folder));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-                    tvDesc.setText(mDialog.getContext().getString(R.string.folder));
+                    tvDesc.setText(mContext.getString(R.string.folder));
                     break;
                 case FILETYPE_ZIP:
                     if (mCanSelectMulti) //chow checkbox
@@ -288,11 +291,10 @@ public class LocalResourcesListAdapter
                     }
 
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(
-                            mDialog.getContext().getResources().getDrawable(R.drawable.ic_zip));
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_zip));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-                    tvDesc.setText(mDialog.getContext().getString(R.string.zip));
+                    tvDesc.setText(mContext.getString(R.string.zip));
 
                     break;
                 case FILETYPE_FB:
@@ -318,13 +320,10 @@ public class LocalResourcesListAdapter
                     }
 
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(
-                            mDialog.getContext()
-                                    .getResources()
-                                    .getDrawable(R.drawable.ic_formbuilder));
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_formbuilder));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-                    tvDesc.setText(mDialog.getContext().getString(R.string.formbuilder));
+                    tvDesc.setText(mContext.getString(R.string.formbuilder));
 
                     break;
                 case FILETYPE_GEOJSON:
@@ -350,11 +349,10 @@ public class LocalResourcesListAdapter
                     }
 
                     ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(
-                            mDialog.getContext().getResources().getDrawable(R.drawable.ic_geojson));
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_geojson));
 
                     tvDesc = (TextView) v.findViewById(R.id.tvDesc);
-                    tvDesc.setText(mDialog.getContext().getString(R.string.geojson));
+                    tvDesc.setText(mContext.getString(R.string.geojson));
 
                     break;
             }
@@ -489,7 +487,7 @@ public class LocalResourcesListAdapter
             File parent = path;
             while (null != parent) {
                 final File parentPath = parent;
-                TextView name = new TextView(mDialog.getContext());
+                TextView name = new TextView(mContext);
                 String sName = parent.getName();
                 name.setText(sName);
                 name.setTypeface(name.getTypeface(), Typeface.BOLD);
@@ -512,11 +510,11 @@ public class LocalResourcesListAdapter
                 parent = parent.getParentFile();
 
                 if (null != parent) {
-                    ImageView image = new ImageView(mDialog.getContext());
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(30, 30);
+                    ImageView image = new ImageView(mContext);
+                    int px = ControlHelper.dpToPx(16, mContext.getResources());
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(px, px);
                     image.setLayoutParams(params);
-                    image.setImageDrawable(
-                            mDialog.getContext().getResources().getDrawable(R.drawable.ic_next_light));
+                    image.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_next_light));
                     mLinearLayout.addView(image, 0);
                 }
             }

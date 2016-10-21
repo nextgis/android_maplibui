@@ -50,7 +50,6 @@ import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.NGWRasterLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.GeoConstants;
-import com.nextgis.maplib.util.NGWUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.dialog.NGWResourcesListAdapter;
 import com.nextgis.maplibui.fragment.LayerFillProgressDialogFragment;
@@ -95,6 +94,9 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_resources);
         setToolbar(R.id.main_toolbar);
+
+        findViewById(R.id.main_toolbar).setVisibility(View.VISIBLE);
+        findViewById(R.id.button_panel).setVisibility(View.VISIBLE);
 
         mApp = (IGISApplication) getApplication();
         mAccountManager = AccountManager.get(this);
