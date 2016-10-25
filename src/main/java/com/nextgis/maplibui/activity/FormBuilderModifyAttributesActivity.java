@@ -286,7 +286,9 @@ public class FormBuilderModifyAttributesActivity
         for (Map.Entry<String, IControl> control : mFields.entrySet()) {
             IControl current = control.getValue();
             if (current instanceof Coordinates) {
-                ((Coordinates) current).setValue(((Coordinates) current).isLat() ? location.getLatitude() : location.getLongitude());
+                double lat = location == null ? 0 : location.getLatitude();
+                double lon = location == null ? 0 : location.getLongitude();
+                ((Coordinates) current).setValue(((Coordinates) current).isLat() ? lat : lon);
                 ((Coordinates) current).setText(((Coordinates) current).getFormattedValue());
             }
         }
