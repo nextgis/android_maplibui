@@ -38,6 +38,7 @@ import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.map.TrackLayer;
+import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.TrackerService;
 import com.nextgis.maplibui.util.LayerUtil;
@@ -209,7 +210,7 @@ public class TracksActivity
 
 
     protected String getSelection() {
-        return TrackLayer.FIELD_ID + " IN (" + LayerUtil.makePlaceholders(mTracks.getSelectedItemsCount()) + ")";
+        return TrackLayer.FIELD_ID + " IN (" + MapUtil.makePlaceholders(mTracks.getSelectedItemsCount()) + ")";
     }
 
 

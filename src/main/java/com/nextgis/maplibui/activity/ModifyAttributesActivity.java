@@ -68,6 +68,7 @@ import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
+import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IControl;
@@ -713,7 +714,7 @@ public class ModifyAttributesActivity
             for (int i = 0; i < size; i++)
                 args[i] = deletedAttaches.get(i).toString();
 
-            total += getContentResolver().delete(uri, LayerUtil.makePlaceholders(size), args);
+            total += getContentResolver().delete(uri, MapUtil.makePlaceholders(size), args);
             if (total == 0 && size > 0) {
                 Toast.makeText(this, getText(R.string.photo_fail_attach), Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "attach delete failed");
