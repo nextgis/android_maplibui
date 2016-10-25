@@ -81,7 +81,6 @@ import com.nextgis.maplibui.control.TextLabel;
 import com.nextgis.maplibui.formcontrol.Sign;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
-import com.nextgis.maplibui.util.LayerUtil;
 import com.nextgis.maplibui.util.NotificationHelper;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
@@ -710,11 +709,13 @@ public class ModifyAttributesActivity
                     mLayer.getPath().getName() + "/" + mFeatureId + "/" + Constants.URI_ATTACH);
 
             int size = deletedAttaches.size();
-            String[] args = new String[]{};
+            String[] args = new String[size];
             for (int i = 0; i < size; i++)
                 args[i] = deletedAttaches.get(i).toString();
 
-            total += getContentResolver().delete(uri, MapUtil.makePlaceholders(size), args);
+            if (size > 0)
+                total += getContentResolver().delete(uri, MapUtil.makePlaceholders(size), args);
+
             if (total == 0 && size > 0) {
                 Toast.makeText(this, getText(R.string.photo_fail_attach), Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "attach delete failed");
