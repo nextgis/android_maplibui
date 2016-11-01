@@ -99,7 +99,7 @@ public class NGWCreateNewResourceTask extends AsyncTask<Void, Void, String> {
                 JSONObject obj = new JSONObject(result);
                 Long id = obj.getLong(Constants.JSON_ID_KEY);
                 if (mLayer != null)
-                    mLayer.toNGW(id, mConnection.getName(), mVer);
+                    mLayer.toNGW(id, mConnection.getName(), Constants.SYNC_ALL, mVer);
                 result = "-999";
             } catch (JSONException e) {
                 result = "500";
