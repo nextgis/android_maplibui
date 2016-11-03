@@ -50,6 +50,7 @@ import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.NGWLookupTable;
+import com.nextgis.maplib.map.NGWRasterLayer;
 import com.nextgis.maplib.map.NGWTrackLayer;
 import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplib.map.Table;
@@ -276,11 +277,15 @@ public class LayersListAdapter
                             popup.getMenu().findItem(R.id.menu_download_tiles).setTitle(R.string.attributes);
                         } else if (layerui instanceof LocalTMSLayer) {
                             popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(true);
+                        } else if (layerui instanceof NGWRasterLayer) {
+                            popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(true);
+                            popup.getMenu().findItem(R.id.menu_download_tiles).setVisible(true);
                         } else if (layerui instanceof RemoteTMSLayer) {
                             popup.getMenu().findItem(R.id.menu_download_tiles).setVisible(true);
                         }
 
                         if (layerui instanceof NGWWebMapLayerUI) {
+                            popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(false);
                             popup.getMenu().findItem(R.id.menu_edit).setVisible(true);
                             popup.getMenu().findItem(R.id.menu_edit).setTitle(R.string.track_list);
                         }

@@ -73,7 +73,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
     public final static String KEY_CONNECTIONS = "connections";
     public final static String KEY_RESOURCE_ID = "resource_id";
     public final static String KEY_MASK        = "mask";
-    public final static String KEY_TASK = "type";
+    public final static String KEY_TASK        = "type";
     public final static String KEY_GROUP_ID    = "group_id";
     public final static String KEY_PUSH_ID     = "local_id";
     protected final static String KEY_STATES   = "states";
@@ -268,10 +268,13 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                         NGWWebMapLayerUI webmap = new NGWWebMapLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
                         webmap.setChildren(((WebMap) resource).getChildren());
                         newLayer = webmap;
-                    } else
+                    } else {
                         newLayer = new NGWRasterLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
+                        newLayer.getExtents().set(layer.getExtent());
+                    }
 
                     newLayer.setName(layerName);
+                    newLayer.setRemoteId(layer.getRemoteId());
                     newLayer.setURL(layerURL);
                     newLayer.setTMSType(TMSTYPE_OSM);
                     newLayer.setVisible(true);
