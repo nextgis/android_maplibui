@@ -115,7 +115,7 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
             subLastValue = preferences.getString(mSubFieldName, null);
         }
 
-        JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
+        JSONArray values = attributes.optJSONArray(JSON_VALUES_KEY);
         int defaultPosition = 0;
         int lastValuePosition = -1;
         int subLastValuePosition = -1;
@@ -126,40 +126,42 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
         final ArrayAdapter<String> comboboxAdapter = new ArrayAdapter<>(getContext(), R.layout.formtemplate_double_spinner);
         setAdapter(comboboxAdapter);
 
-        for (int j = 0; j < values.length(); j++) {
-            JSONObject keyValue = values.getJSONObject(j);
-            String value = keyValue.getString(JSON_VALUE_NAME_KEY);
-            String valueAlias = keyValue.getString(JSON_VALUE_ALIAS_KEY);
+        if (values != null) {
+            for (int j = 0; j < values.length(); j++) {
+                JSONObject keyValue = values.getJSONObject(j);
+                String value = keyValue.getString(JSON_VALUE_NAME_KEY);
+                String valueAlias = keyValue.getString(JSON_VALUE_ALIAS_KEY);
 
-            Map<String, String> subAliasValueMap = new HashMap<>();
-            AliasList subAliasList = new AliasList();
+                Map<String, String> subAliasValueMap = new HashMap<>();
+                AliasList subAliasList = new AliasList();
 
-            mAliasValueMap.put(valueAlias, value);
-            mSubAliasValueMaps.put(valueAlias, subAliasValueMap);
-            mAliasSubListMap.put(valueAlias, subAliasList);
-            comboboxAdapter.add(valueAlias);
+                mAliasValueMap.put(valueAlias, value);
+                mSubAliasValueMaps.put(valueAlias, subAliasValueMap);
+                mAliasSubListMap.put(valueAlias, subAliasList);
+                comboboxAdapter.add(valueAlias);
 
-            if (keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(JSON_DEFAULT_KEY))
-                defaultPosition = j;
+                if (keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(JSON_DEFAULT_KEY))
+                    defaultPosition = j;
 
-            if (null != lastValue && lastValue.equals(value)) // if modify data
-                lastValuePosition = j;
-
-            JSONArray subValues = keyValue.getJSONArray(JSON_VALUES_KEY);
-            for (int k = 0; k < subValues.length(); k++) {
-                JSONObject subKeyValue = subValues.getJSONObject(k);
-                String subValue = subKeyValue.getString(JSON_VALUE_NAME_KEY);
-                String subValueAlias = subKeyValue.getString(JSON_VALUE_ALIAS_KEY);
-
-                subAliasValueMap.put(subValueAlias, subValue);
-                subAliasList.aliasList.add(subValueAlias);
-
-                if (subKeyValue.has(JSON_DEFAULT_KEY) && subKeyValue.getBoolean(JSON_DEFAULT_KEY))
-                    subAliasList.defaultPosition = k;
-
-                if (null != subLastValue && subLastValue.equals(subValue)) { // if modify data
+                if (null != lastValue && lastValue.equals(value)) // if modify data
                     lastValuePosition = j;
-                    subLastValuePosition = k;
+
+                JSONArray subValues = keyValue.getJSONArray(JSON_VALUES_KEY);
+                for (int k = 0; k < subValues.length(); k++) {
+                    JSONObject subKeyValue = subValues.getJSONObject(k);
+                    String subValue = subKeyValue.getString(JSON_VALUE_NAME_KEY);
+                    String subValueAlias = subKeyValue.getString(JSON_VALUE_ALIAS_KEY);
+
+                    subAliasValueMap.put(subValueAlias, subValue);
+                    subAliasList.aliasList.add(subValueAlias);
+
+                    if (subKeyValue.has(JSON_DEFAULT_KEY) && subKeyValue.getBoolean(JSON_DEFAULT_KEY))
+                        subAliasList.defaultPosition = k;
+
+                    if (null != subLastValue && subLastValue.equals(subValue)) { // if modify data
+                        lastValuePosition = j;
+                        subLastValuePosition = k;
+                    }
                 }
             }
         }

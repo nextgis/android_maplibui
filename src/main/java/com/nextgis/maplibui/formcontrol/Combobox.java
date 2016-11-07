@@ -135,20 +135,22 @@ public class Combobox extends AppCompatSpinner implements IFormControl
                 }
             }
         } else {
-            JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
-            for (int j = 0; j < values.length(); j++) {
-                JSONObject keyValue = values.getJSONObject(j);
-                String value = keyValue.getString(JSON_VALUE_NAME_KEY);
-                String value_alias = keyValue.getString(JSON_VALUE_ALIAS_KEY);
+            JSONArray values = attributes.optJSONArray(JSON_VALUES_KEY);
+            if (values != null) {
+                for (int j = 0; j < values.length(); j++) {
+                    JSONObject keyValue = values.getJSONObject(j);
+                    String value = keyValue.getString(JSON_VALUE_NAME_KEY);
+                    String value_alias = keyValue.getString(JSON_VALUE_ALIAS_KEY);
 
-                if (keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(JSON_DEFAULT_KEY))
-                    defaultPosition = j;
+                    if (keyValue.has(JSON_DEFAULT_KEY) && keyValue.getBoolean(JSON_DEFAULT_KEY))
+                        defaultPosition = j;
 
-                if (null != lastValue && lastValue.equals(value))
-                    lastValuePosition = j;
+                    if (null != lastValue && lastValue.equals(value))
+                        lastValuePosition = j;
 
-                mAliasValueMap.put(value_alias, value);
-                spinnerArrayAdapter.add(value_alias);
+                    mAliasValueMap.put(value_alias, value);
+                    spinnerArrayAdapter.add(value_alias);
+                }
             }
         }
 
