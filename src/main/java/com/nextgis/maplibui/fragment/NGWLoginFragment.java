@@ -315,7 +315,7 @@ public class NGWLoginFragment
         String password = mPassword.getText().toString();
         if (token.equals(Constants.NGW_ACCOUNT_GUEST)) {
             login = Constants.NGW_ACCOUNT_GUEST;
-            password = Constants.NGW_ACCOUNT_GUEST;
+            password = null;
         }
 
         if (mForNewAccount) {
