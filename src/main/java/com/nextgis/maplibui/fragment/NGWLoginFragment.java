@@ -274,7 +274,9 @@ public class NGWLoginFragment
             String token)
     {
         mSignInButton.setEnabled(true);
-        mGuestButton.setEnabled(true);
+        if (null != mGuestButton) { // needed for overrides
+            mGuestButton.setEnabled(true);
+        }
 
         String accountName = "";
         try {
