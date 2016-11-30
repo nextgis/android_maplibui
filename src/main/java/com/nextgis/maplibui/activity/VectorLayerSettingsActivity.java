@@ -77,6 +77,7 @@ import com.nextgis.maplibui.util.SettingsConstantsUI;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
 
@@ -244,12 +245,9 @@ public class VectorLayerSettingsActivity
     }
 
     public static class FieldsFragment extends Fragment {
-        protected List<String> mFields;
+        protected List<String> mFieldAliases;
+        protected List<String> mFieldNames;
         protected int mDefault = -1;
-
-        public FieldsFragment() {
-
-        }
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -261,7 +259,7 @@ public class VectorLayerSettingsActivity
             View v = inflater.inflate(R.layout.fragment_vector_layer_fields, container, false);
             ListView fields = (ListView) v.findViewById(R.id.listView);
             fillFields();
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice, mFields);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice, mFieldAliases);
             fields.setAdapter(adapter);
             if (mDefault >= 0)
                 fields.setItemChecked(mDefault, true);
@@ -269,7 +267,7 @@ public class VectorLayerSettingsActivity
             fields.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    String fieldName = mFields.get(position).split(" - ")[0];
+                    String fieldName = mFieldNames.get(position);
                     mVectorLayer.getPreferences().edit().putString(SettingsConstantsUI.KEY_PREF_LAYER_LABEL, fieldName).commit();
                     Toast.makeText(getContext(), String.format(getString(R.string.label_field_toast), fieldName), Toast.LENGTH_SHORT).show();
                 }
@@ -278,17 +276,22 @@ public class VectorLayerSettingsActivity
         }
 
         private void fillFields() {
-            mFields = new ArrayList<>();
+            mFieldNames = new ArrayList<>();
+            mFieldAliases = new ArrayList<>();
+            mFieldNames.add(FIELD_ID);
+            mFieldAliases.add(getString(R.string.id) + " - " + LayerUtil.typeToString(getContext(), GeoConstants.FTInteger));
+
             int fieldsCount = mVectorLayer.getFields().size();
             String labelField = mVectorLayer.getPreferences().getString(SettingsConstantsUI.KEY_PREF_LAYER_LABEL, Constants.FIELD_ID);
 
             for (int i = 0; i < fieldsCount; i++) {
                 Field field = mVectorLayer.getFields().get(i);
-                String fieldInfo = field.getName() + " - " + LayerUtil.typeToString(getContext(), field.getType());
+                String fieldInfo = field.getAlias() + " - " + LayerUtil.typeToString(getContext(), field.getType());
                 if (field.getName().equals(labelField))
                     mDefault = i;
 
-                mFields.add(fieldInfo);
+                mFieldNames.add(field.getName());
+                mFieldAliases.add(fieldInfo);
             }
         }
     }
