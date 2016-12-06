@@ -42,6 +42,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -131,12 +132,16 @@ public class VectorLayerSettingsActivity
         intent.putExtra(ConstantsUI.KEY_LAYER_ID, mVectorLayer.getId());
 
         int i = v.getId();
-        if (i == R.id.buildCacheButton) {
+        if (i == R.id.rebuild_cache) {
             intent.setAction(RebuildCacheService.ACTION_ADD_TASK);
             startService(intent);
+            v.setEnabled(false);
+            v.getRootView().findViewById(R.id.rebuild_progress).setVisibility(View.VISIBLE);
         } else if (i == R.id.cancelBuildCacheButton) {
             intent.setAction(RebuildCacheService.ACTION_STOP);
             startService(intent);
+            v.getRootView().findViewById(R.id.rebuild_cache).setEnabled(true);
+            v.getRootView().findViewById(R.id.rebuild_progress).setVisibility(View.GONE);
         }
     }
 
@@ -313,15 +318,30 @@ public class VectorLayerSettingsActivity
             View v = inflater.inflate(R.layout.fragment_vector_layer_cache, container, false);
 
             final ProgressBar rebuildCacheProgress = (ProgressBar) v.findViewById(R.id.rebuildCacheProgressBar);
-            final ImageButton buildCacheButton = (ImageButton) v.findViewById(R.id.buildCacheButton);
+            final Button buildCacheButton = (Button) v.findViewById(R.id.rebuild_cache);
             buildCacheButton.setOnClickListener((View.OnClickListener) getActivity());
             final ImageButton cancelBuildCacheButton = (ImageButton) v.findViewById(R.id.cancelBuildCacheButton);
             cancelBuildCacheButton.setOnClickListener((View.OnClickListener) getActivity());
+            final View progressView = v.findViewById(R.id.rebuild_progress);
 
             mRebuildCacheReceiver = new BroadcastReceiver() {
                 public void onReceive(Context context, Intent intent) {
-                    rebuildCacheProgress.setMax(intent.getIntExtra(RebuildCacheService.KEY_MAX, 0));
-                    rebuildCacheProgress.setProgress(intent.getIntExtra(RebuildCacheService.KEY_PROGRESS, 0));
+                    int max = intent.getIntExtra(RebuildCacheService.KEY_MAX, 0);
+                    int progress = intent.getIntExtra(RebuildCacheService.KEY_PROGRESS, 0);
+                    int layer = intent.getIntExtra(ConstantsUI.KEY_LAYER_ID, NOT_FOUND);
+
+                    if (layer == mVectorLayer.getId()) {
+                        rebuildCacheProgress.setMax(max);
+                        rebuildCacheProgress.setProgress(progress);
+                    }
+
+                    if (progress == 0) {
+                        buildCacheButton.setEnabled(true);
+                        progressView.setVisibility(View.GONE);
+                    } else {
+                        buildCacheButton.setEnabled(false);
+                        progressView.setVisibility(View.VISIBLE);
+                    }
                 }
             };
 
@@ -340,7 +360,6 @@ public class VectorLayerSettingsActivity
             super.onPause();
             getActivity().unregisterReceiver(mRebuildCacheReceiver);
         }
-
     }
 
     public static class SyncFragment extends Fragment {

@@ -50,7 +50,7 @@ public interface ConstantsUI
 
     int TOLERANCE_DP       = 20;
     int MIN_ZOOM_LEVEL     = 18;
-    int NOTIFICATION_DELAY = 1500;
+    int NOTIFICATION_DELAY = 500;
 
     String JSON_NGW_CONNECTION_KEY    = "ngw_connection";
     String JSON_NGW_ID_KEY            = "ngw_id";

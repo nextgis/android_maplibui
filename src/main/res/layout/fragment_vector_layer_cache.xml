@@ -27,19 +27,21 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-
-    <TextView
+    <Button
+        android:id="@+id/rebuild_cache"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:text="@string/rebuild_cache"
-        android:textAppearance="?android:attr/textAppearanceMedium"/>
+        android:layout_marginTop="8dp"
+        android:text="@string/rebuild_cache"/>
 
     <LinearLayout
+        android:id="@+id/rebuild_progress"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="5dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <ProgressBar
             android:id="@+id/rebuildCacheProgressBar"
@@ -48,14 +50,6 @@
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:layout_weight="1"/>
-
-        <ImageButton
-            android:id="@+id/buildCacheButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:background="?attr/ic_apply"
-            tools:ignore="ContentDescription"/>
 
         <ImageButton
             android:id="@+id/cancelBuildCacheButton"
