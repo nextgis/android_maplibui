@@ -247,7 +247,7 @@ public class VectorLayerSettingsActivity
     public static class FieldsFragment extends Fragment {
         protected List<String> mFieldAliases;
         protected List<String> mFieldNames;
-        protected int mDefault = -1;
+        protected int mDefault = 0;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -260,10 +260,9 @@ public class VectorLayerSettingsActivity
             ListView fields = (ListView) v.findViewById(R.id.listView);
             fillFields();
             ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice, mFieldAliases);
-            fields.setAdapter(adapter);
-            if (mDefault >= 0)
-                fields.setItemChecked(mDefault, true);
 
+            fields.setAdapter(adapter);
+            fields.setItemChecked(mDefault, true);
             fields.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -272,6 +271,7 @@ public class VectorLayerSettingsActivity
                     Toast.makeText(getContext(), String.format(getString(R.string.label_field_toast), fieldName), Toast.LENGTH_SHORT).show();
                 }
             });
+
             return v;
         }
 
@@ -288,7 +288,7 @@ public class VectorLayerSettingsActivity
                 Field field = mVectorLayer.getFields().get(i);
                 String fieldInfo = field.getAlias() + " - " + LayerUtil.typeToString(getContext(), field.getType());
                 if (field.getName().equals(labelField))
-                    mDefault = i;
+                    mDefault = i + 1;
 
                 mFieldNames.add(field.getName());
                 mFieldAliases.add(fieldInfo);
