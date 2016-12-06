@@ -248,7 +248,7 @@
     <string name="feature_count">%1$d features</string>
     <string name="layer_local_path">Local path: %1$s</string>
     <string name="layer_remote_path">Remote: %1$s</string>
-    <string name="layer_has_form">Layer has custom form</string>
+    <string name="layer_has_form">with form</string>
     <string name="point">Point</string>
     <string name="multi_point">Multipoint</string>
     <string name="linestring">Linestring</string>

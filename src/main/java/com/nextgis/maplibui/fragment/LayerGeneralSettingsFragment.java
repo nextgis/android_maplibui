@@ -39,9 +39,6 @@ import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.LayerSettingsActivity;
-import com.nextgis.maplibui.util.ConstantsUI;
-
-import java.io.File;
 
 public class LayerGeneralSettingsFragment extends Fragment {
     protected static EditText mEditText;
@@ -83,13 +80,6 @@ public class LayerGeneralSettingsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_layer_general, container, false);
-
-        TextView form = (TextView) v.findViewById(R.id.layer_custom_form);
-        File formPath = new File(mLayer.getPath(), ConstantsUI.FILE_FORM);
-        if (formPath.exists()) {
-            form.setVisibility(View.VISIBLE);
-            form.setText(R.string.layer_has_form);
-        }
 
         TextView path = (TextView) v.findViewById(R.id.layer_local_lath);
         path.setText(String.format(getString(R.string.layer_local_path), mLayer.getPath()));

@@ -75,6 +75,7 @@ import com.nextgis.maplibui.service.RebuildCacheService;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,8 +108,13 @@ public class VectorLayerSettingsActivity
             mLayerMaxZoom = mVectorLayer.getMaxZoom();
             mRenderer = mVectorLayer.getRenderer();
 
+            String title = String.format(getString(R.string.layer_geom_type), getGeometryName(mVectorLayer.getGeometryType()));
+            File formPath = new File(mLayer.getPath(), ConstantsUI.FILE_FORM);
+            if (formPath.exists())
+                title += " (" + getString(R.string.layer_has_form) + ")";
+
+            setTitle(title);
             Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-            setTitle(String.format(getString(R.string.layer_geom_type), getGeometryName(mVectorLayer.getGeometryType())));
             toolbar.setSubtitle(String.format(getString(R.string.feature_count), mVectorLayer.getCount()));
         }
     }

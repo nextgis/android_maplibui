@@ -227,7 +227,7 @@
     <string name="feature_count">Записей: %1$d</string>
     <string name="layer_local_path">Локальный путь: %1$s</string>
     <string name="layer_remote_path">Удаленный: %1$s</string>
-    <string name="layer_has_form">У слоя есть пользовательская форма</string>
+    <string name="layer_has_form">с формой</string>
     <string name="point">Точка</string>
     <string name="multi_point">Мультиточка</string>
     <string name="linestring">Линия</string>

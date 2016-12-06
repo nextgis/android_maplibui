@@ -54,14 +54,6 @@
             android:visibility="gone"/>
 
         <TextView
-            android:id="@+id/layer_custom_form"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:visibility="gone"/>
-
-        <TextView
             style="?android:attr/listSeparatorTextViewStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

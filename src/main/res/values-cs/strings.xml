@@ -236,7 +236,7 @@
     <string name="feature_count">%1$d objekty</string>
     <string name="layer_local_path">Local cesta: %1$s</string>
     <string name="layer_remote_path">Vzdálená: %1$s</string>
-    <string name="layer_has_form">Vrstva má vlastní formulář</string>
+    <string name="layer_has_form">with form</string>
     <string name="point">Bod</string>
     <string name="multi_point">Multipart bod</string>
     <string name="linestring">Linie</string>
