@@ -55,7 +55,7 @@
     <string name="delete_account_ask">Удалить учетную запись?</string>
     <string name="delete_account_summary">Удаление учетной записи. Все слои связанные с этой учетной записью тоже будут удалены. Синхронизация будет остановлена.</string>
     <string name="delete_account_warn_msg">Учетная запись будет удалена!\nВсе слои будут удалены!\nСинхронизация будет остановлена!</string>
-    <string name="waiting">Ожидание</string>
+    <string name="waiting">Пожалуйста подождите</string>
     <string name="wait_sync_stopping">Ожидание остановки синхронизации</string>
     <string name="add">Добавить</string>
     <string name="select">Выбор</string>
@@ -309,4 +309,5 @@
     <string name="new_group">Создать новую группу</string>
     <string name="new_group_name">Имя группы:</string>
     <string name="message_group_created">Группа создана</string>
+    <string name="commercial">Доступно в коммерческой версии</string>
 </resources>

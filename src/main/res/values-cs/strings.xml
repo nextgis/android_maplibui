@@ -55,7 +55,7 @@
     <string name="delete_account_ask">Opravdu smazat účet?</string>
     <string name="delete_account_summary">Smazání účtu. Všechny vrstvy spojené s tímto účtem budou smazané také. Probíhající synchronizace bude zastavena.</string>
     <string name="delete_account_warn_msg">Účet bude smazán!\nVšechny vrstvy spojené s účtem budou smazány!\nProbíhající synchronizace bude zastavena!</string>
-    <string name="waiting">Čekám</string>
+    <string name="waiting">Please wait</string>
     <string name="wait_sync_stopping">Čekám na ukončení synchronizace</string>
     <string name="add">Přidat</string>
     <string name="select">Vybrat</string>
@@ -309,4 +309,5 @@
     <string name="new_group">Create new group</string>
     <string name="new_group_name">Group name:</string>
     <string name="message_group_created">Group created</string>
+    <string name="commercial">Available in commercial version</string>
 </resources>

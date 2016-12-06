@@ -52,7 +52,7 @@
     <string name="delete_account">Видалити акаунт</string>
     <string name="delete_account_ask">Видалити акаунт?</string>
     <string name="delete_account_summary">Аккаунт буде видалений!\nВсі шари акаунту будуть видалені!\nПоточна синхронізація буде зупинена!</string>
-    <string name="waiting">Очікування</string>
+    <string name="waiting">Пожалуйста подождите</string>
     <string name="wait_sync_stopping">Очікування зупинки синхронізації</string>
     <string name="add">Додати</string>
     <string name="select">Вибрати</string>
@@ -308,4 +308,5 @@
     <string name="new_group">Создать новую группу</string>
     <string name="new_group_name">Имя группы:</string>
     <string name="message_group_created">Группа создана</string>
+    <string name="commercial">Available in commercial version</string>
 </resources>

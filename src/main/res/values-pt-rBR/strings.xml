@@ -53,7 +53,7 @@
     <string name="delete_account_ask">Delete account?</string>
     <string name="delete_account_summary">Delete account. All layers connected with this account will be deleted too. Active synchronization will be stopped.</string>
     <string name="delete_account_warn_msg">Account will be deleted!\nAll account layers will be deleted!\nCurrent sync will be stopped!</string>
-    <string name="waiting">Waiting</string>
+    <string name="waiting">Please wait</string>
     <string name="wait_sync_stopping">Waiting of synchronization stopping</string>
     <string name="add">Add</string>
     <string name="select">Select</string>
@@ -308,4 +308,5 @@
     <string name="new_group">Create new group</string>
     <string name="new_group_name">Group name:</string>
     <string name="message_group_created">Group created</string>
+    <string name="commercial">Available in commercial version</string>
 </resources>
