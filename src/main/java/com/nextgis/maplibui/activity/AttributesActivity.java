@@ -47,6 +47,7 @@ import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.fragment.BottomToolbar;
@@ -84,7 +85,11 @@ public class AttributesActivity extends NGActivity {
                     IGISApplication application = (IGISApplication) getApplication();
                     MapDrawable map = (MapDrawable) application.getMap();
                     if (null != map) {
-                        map.zoomToExtent(mLayer.getFeature(mId).getGeometry().getEnvelope());
+                        if (mLayer.getGeometryType() == GeoConstants.GTPoint || mLayer.getGeometryType() == GeoConstants.GTMultiPoint)
+                            map.zoomToExtent(mLayer.getFeature(mId).getGeometry().getEnvelope(), 18);
+                        else
+                            map.zoomToExtent(mLayer.getFeature(mId).getGeometry().getEnvelope());
+
                         SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences(AttributesActivity.this).edit();
                         edit.putFloat(SettingsConstantsUI.KEY_PREF_ZOOM_LEVEL, map.getZoomLevel());
                         GeoPoint point = map.getMapCenter();
