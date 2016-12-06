@@ -205,7 +205,7 @@
     <string name="menu_download_tiles">Загрузить тайлы</string>
     <string name="select_zoom_levels_to_download">Выберите масштабные уровни для загрузки тайлов в текущем окне</string>
     <string name="start">Начать</string>
-    <string name="select_zoom_levels_to_download_title">Локальное кэширование</string>
+    <string name="current_zoom">Текущий зум %1$.2f</string>
     <string name="download_complete">Загрузка завершена</string>
     <string name="download_in_progress">Загрузка…</string>
     <string name="cancel_download">Загрузка отменена</string>

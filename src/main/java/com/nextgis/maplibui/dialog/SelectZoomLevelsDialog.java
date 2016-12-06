@@ -33,10 +33,12 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.TextView;
+
 import com.edmodo.rangebar.RangeBar;
+import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
-import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.TileDownloadService;
 import com.nextgis.maplibui.util.ConstantsUI;
@@ -47,9 +49,8 @@ import com.nextgis.maplibui.util.ConstantsUI;
 public class SelectZoomLevelsDialog
         extends DialogFragment {
 
-
     protected GeoEnvelope mEnvelope;
-    protected int        mLayerId;
+    protected int mLayerId;
 
     public GeoEnvelope getEnvelope() {
         return mEnvelope;
@@ -84,28 +85,31 @@ public class SelectZoomLevelsDialog
 
         final Context context = getActivity();
         View view = View.inflate(context, R.layout.dialog_select_zoom_levels, null);
+        IGISApplication app = (IGISApplication) getActivity().getApplication();
+        final MapDrawable map = (MapDrawable) app.getMap();
+        int left = (int) map.getZoomLevel() - 1;
+        int right = (int) map.getZoomLevel() + 1;
 
         // Gets the RangeBar
         final RangeBar rangebar = (RangeBar) view.findViewById(R.id.rangebar);
-        rangebar.setThumbIndices(8, 15);
+        rangebar.setThumbIndices(left, right);
         // Gets the index value TextViews
         final TextView leftIndexValue = (TextView) view.findViewById(R.id.leftIndexValue);
-        leftIndexValue.setText("min: " + 8);
         final TextView rightIndexValue = (TextView) view.findViewById(R.id.rightIndexValue);
-        rightIndexValue.setText("max: " + 15);
+        leftIndexValue.setText(String.format(getString(R.string.min), left));
+        rightIndexValue.setText(String.format(getString(R.string.max), right));
 
         // Sets the display values of the indices
         rangebar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
             @Override
             public void onIndexChangeListener(RangeBar rangeBar, int leftThumbIndex, int rightThumbIndex) {
-
-                leftIndexValue.setText("min: " + leftThumbIndex);
-                rightIndexValue.setText("max: " + rightThumbIndex);
+                leftIndexValue.setText(String.format(getString(R.string.min), leftThumbIndex));
+                rightIndexValue.setText(String.format(getString(R.string.max), rightThumbIndex));
             }
         });
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(R.string.select_zoom_levels_to_download_title).setView(view).setPositiveButton(
+        builder.setTitle(String.format(getString(R.string.current_zoom), map.getZoomLevel())).setView(view).setPositiveButton(
                 R.string.start, new DialogInterface.OnClickListener() {
                     public void onClick(
                             DialogInterface dialog,
@@ -117,7 +121,6 @@ public class SelectZoomLevelsDialog
 
                         //start download service
 
-                        MapBase map = MapBase.getInstance();
                         ILayer layer = map.getLayerById(layerId);
                         if (null != layer) {
                             Intent intent = new Intent(getActivity(), TileDownloadService.class);
@@ -150,8 +153,7 @@ public class SelectZoomLevelsDialog
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState)
-    {
+    public void onSaveInstanceState(Bundle outState) {
         outState.putInt(ConstantsUI.KEY_LAYER_ID, mLayerId);
         outState.putDouble(TileDownloadService.KEY_MINX, mEnvelope.getMinX());
         outState.putDouble(TileDownloadService.KEY_MAXX, mEnvelope.getMaxX());

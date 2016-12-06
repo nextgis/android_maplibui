@@ -214,7 +214,7 @@
     <string name="menu_download_tiles">Načíst dlaždice</string>
     <string name="select_zoom_levels_to_download">Vyvrat minimální a maximální přiblížení pro stáhnutí dlaždic v daném extentu</string>
     <string name="start">Zahájit</string>
-    <string name="select_zoom_levels_to_download_title">Vybrat úroveň přiblížení pro stažení</string>
+    <string name="current_zoom">Current zoom %1$.2f</string>
     <string name="download_complete">Stahování dokončeno</string>
     <string name="download_in_progress">Probíhá stahování</string>
     <string name="cancel_download">Stahování zrušeno</string>
