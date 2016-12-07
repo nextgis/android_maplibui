@@ -102,7 +102,7 @@ public abstract class LayerSettingsActivity extends NGActivity {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
 
-        public LayerTabsAdapter(FragmentManager manager) {
+        LayerTabsAdapter(FragmentManager manager) {
             super(manager);
         }
 
@@ -116,7 +116,7 @@ public abstract class LayerSettingsActivity extends NGActivity {
             return mFragmentList.size();
         }
 
-        public void addFragment(Fragment fragment, int title) {
+        void addFragment(Fragment fragment, int title) {
             mFragmentList.add(fragment);
             mFragmentTitleList.add(getString(title));
         }

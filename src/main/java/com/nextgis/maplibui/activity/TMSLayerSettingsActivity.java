@@ -38,6 +38,7 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.display.TMSRenderer;
 import com.nextgis.maplib.map.TMSLayer;
 import com.nextgis.maplib.util.Constants;
@@ -54,13 +55,8 @@ import java.io.File;
  */
 public class TMSLayerSettingsActivity
         extends LayerSettingsActivity {
-    protected static TMSLayer mRasterLayer;
-
-    protected static int mCacheSizeMulti;
-    protected static float mContrast, mBrightness;
-    protected static int mAlpha;
-    protected static boolean mForceToGrayScale;
-
+    protected TMSLayer mRasterLayer;
+    protected StyleFragment mStyleFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,20 +67,11 @@ public class TMSLayerSettingsActivity
 
         if (mLayer.getType() == Constants.LAYERTYPE_REMOTE_TMS ||
                 mLayer.getType() == Constants.LAYERTYPE_LOCAL_TMS ||
-                mLayer.getType() == Constants.LAYERTYPE_NGW_RASTER) {
+                mLayer.getType() == Constants.LAYERTYPE_NGW_RASTER ||
+                mLayer.getType() == Constants.LAYERTYPE_NGW_WEBMAP) {
             mRasterLayer = (TMSLayer) mLayer;
-            mCacheSizeMulti = mRasterLayer.getCacheSizeMultiply();
             mLayerMinZoom = mRasterLayer.getMinZoom();
             mLayerMaxZoom = mRasterLayer.getMaxZoom();
-
-            // set color
-            TMSRenderer tmsRenderer = (TMSRenderer) mRasterLayer.getRenderer();
-            if (null != tmsRenderer) {
-                mForceToGrayScale = tmsRenderer.isForceToGrayScale();
-                mContrast = tmsRenderer.getContrast();
-                mBrightness = tmsRenderer.getBrightness();
-                mAlpha = tmsRenderer.getAlpha();
-            }
         }
     }
 
@@ -93,35 +80,56 @@ public class TMSLayerSettingsActivity
         if (null == mRasterLayer)
             return;
 
+        mStyleFragment.saveSettings();
         mRasterLayer.setName(mLayerName);
-        mRasterLayer.setCacheSizeMultiply(mCacheSizeMulti);
-
-        TMSRenderer tmsRenderer = (TMSRenderer) mRasterLayer.getRenderer();
-        if (null != tmsRenderer) {
-            tmsRenderer.setContrastBrightness(mContrast, mBrightness, mForceToGrayScale);
-            tmsRenderer.setAlpha(mAlpha);
-        }
-
         mRasterLayer.setMinZoom(mLayerMinZoom);
         mRasterLayer.setMaxZoom(mLayerMaxZoom);
-
         mRasterLayer.save();
     }
 
     @Override
     void addFragments() {
-        mAdapter.addFragment(new StyleFragment(), R.string.style);
+        mStyleFragment = new StyleFragment();
+        mStyleFragment.setLayer(mLayer);
+        mAdapter.addFragment(mStyleFragment, R.string.style);
         LayerGeneralSettingsFragment generalSettingsFragment = new LayerGeneralSettingsFragment();
         generalSettingsFragment.setRoot(mLayer, this);
         mAdapter.addFragment(generalSettingsFragment, R.string.general);
-        mAdapter.addFragment(new CacheFragment(), R.string.cache);
+        CacheFragment cacheFragment = new CacheFragment();
+        cacheFragment.setLayer(mLayer);
+        mAdapter.addFragment(cacheFragment, R.string.cache);
     }
 
     public static class StyleFragment extends Fragment implements SeekBar.OnSeekBarChangeListener {
         private TextView mAlphaLabel, mBrightnessLabel, mContrastLabel;
+        private float mContrast, mBrightness;
+        private int mAlpha;
+        private boolean mForceToGrayScale;
+        private TMSLayer mRasterLayer;
 
         public StyleFragment() {
 
+        }
+
+        void saveSettings() {
+            TMSRenderer tmsRenderer = (TMSRenderer) mRasterLayer.getRenderer();
+            if (null != tmsRenderer) {
+                tmsRenderer.setContrastBrightness(mContrast, mBrightness, mForceToGrayScale);
+                tmsRenderer.setAlpha(mAlpha);
+            }
+        }
+
+        void setLayer(ILayer layer) {
+            if (layer instanceof TMSLayer) {
+                mRasterLayer = (TMSLayer) layer;
+                TMSRenderer tmsRenderer = (TMSRenderer) mRasterLayer.getRenderer();
+                if (null != tmsRenderer) {
+                    mForceToGrayScale = tmsRenderer.isForceToGrayScale();
+                    mContrast = tmsRenderer.getContrast();
+                    mBrightness = tmsRenderer.getBrightness();
+                    mAlpha = tmsRenderer.getAlpha();
+                }
+            }
         }
 
         @Override
@@ -195,8 +203,15 @@ public class TMSLayerSettingsActivity
     }
 
     public static class CacheFragment extends Fragment {
+        protected TMSLayer mRasterLayer;
+
         public CacheFragment() {
 
+        }
+
+        void setLayer(ILayer layer) {
+            if (layer instanceof TMSLayer)
+                mRasterLayer = (TMSLayer) layer;
         }
 
         @Override
@@ -209,12 +224,12 @@ public class TMSLayerSettingsActivity
             View v = inflater.inflate(R.layout.fragment_raster_layer_cache, container, false);
 
             Spinner cacheSizeMulti = (Spinner) v.findViewById(R.id.spinner);
-            cacheSizeMulti.setSelection(mCacheSizeMulti);
+            cacheSizeMulti.setSelection(mRasterLayer.getCacheSizeMultiply());
             cacheSizeMulti.setOnItemSelectedListener(
                     new AdapterView.OnItemSelectedListener() {
                         @Override
                         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                            mCacheSizeMulti = position;
+                            mRasterLayer.setCacheSizeMultiply(position);
                         }
 
                         @Override

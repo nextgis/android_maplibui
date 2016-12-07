@@ -41,10 +41,10 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.LayerSettingsActivity;
 
 public class LayerGeneralSettingsFragment extends Fragment {
-    protected static EditText mEditText;
-    protected static RangeBar mRangeBar;
-    protected static ILayer mLayer;
-    protected static LayerSettingsActivity mActivity;
+    protected EditText mEditText;
+    protected RangeBar mRangeBar;
+    protected ILayer mLayer;
+    protected LayerSettingsActivity mActivity;
 
     public LayerGeneralSettingsFragment() {
 
