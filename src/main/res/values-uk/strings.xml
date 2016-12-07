@@ -268,7 +268,6 @@
     <string name="rules">Правила</string>
     <string name="default_style">Стиль по-умолчанию</string>
     <string name="value">Значение</string>
-    <string name="id">ИД</string>
     <string name="delete_account_warn_msg">Учетная запись будет удалена!\nВсе слои будут удалены!\nСинхронизация будет остановлена!</string>
     <string name="replace_field_rule">Все текущие правила будут удалены из-за смены поля для правила. Вы уверены?</string>
     <string name="new_gis">Создать ГИС</string>

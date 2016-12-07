@@ -142,7 +142,7 @@ public class RuleFeatureRendererUI extends RendererUI {
                 key = Constants.FIELD_ID;
 
             mFields = mLayer.getFields();
-            mFields.add(0, new Field(GeoConstants.FTInteger, Constants.FIELD_ID, getString(R.string.id)));
+            mFields.add(0, new Field(GeoConstants.FTInteger, Constants.FIELD_ID, Constants.FIELD_ID));
             final List<String> fieldNames = new ArrayList<>();
             for (int i = 0; i < mFields.size(); i++) {
                 fieldNames.add(mFields.get(i).getAlias());

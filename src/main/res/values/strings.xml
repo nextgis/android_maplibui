@@ -293,7 +293,6 @@
     <string name="rules">Rules</string>
     <string name="default_style">Default style</string>
     <string name="value">Value</string>
-    <string name="id">ID</string>
     <string name="replace_field_rule">All rules will be deleted due to changing rule field. Are you sure?</string>
     <string name="new_gis">Create GIS</string>
     <string name="manual_ngw">Switch to advanced</string>

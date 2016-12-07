@@ -218,7 +218,7 @@ public class AttributesActivity extends NGActivity {
         }
 
         String[][] data = new String[rows][fields.size() + 1];
-        data[0][0] = getString(R.string.id);
+        data[0][0] = FIELD_ID;
         for (int i = 0; i < fields.size(); i++)
             data[0][i + 1] = fields.get(i).getAlias();
 

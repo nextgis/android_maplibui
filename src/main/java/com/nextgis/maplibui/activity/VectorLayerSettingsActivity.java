@@ -290,7 +290,7 @@ public class VectorLayerSettingsActivity
             mFieldNames = new ArrayList<>();
             mFieldAliases = new ArrayList<>();
             mFieldNames.add(FIELD_ID);
-            mFieldAliases.add(getString(R.string.id) + " - " + LayerUtil.typeToString(getContext(), GeoConstants.FTInteger));
+            mFieldAliases.add(FIELD_ID + " - " + LayerUtil.typeToString(getContext(), GeoConstants.FTInteger));
 
             int fieldsCount = mVectorLayer.getFields().size();
             String labelField = mVectorLayer.getPreferences().getString(SettingsConstantsUI.KEY_PREF_LAYER_LABEL, Constants.FIELD_ID);

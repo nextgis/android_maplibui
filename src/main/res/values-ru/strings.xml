@@ -270,7 +270,6 @@
     <string name="rules">Правила</string>
     <string name="default_style">Стиль по-умолчанию</string>
     <string name="value">Значение</string>
-    <string name="id">ИД</string>
     <string name="replace_field_rule">Все текущие правила будут удалены из-за смены поля для правила. Вы уверены?</string>
     <string name="new_gis">Создать ГИС</string>
     <string name="manual_ngw">Расширенные настройки</string>

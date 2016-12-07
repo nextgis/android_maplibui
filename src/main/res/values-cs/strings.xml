@@ -280,7 +280,6 @@
     <string name="rules">Pravidla</string>
     <string name="default_style">Výchozí styl</string>
     <string name="value">Hodnota</string>
-    <string name="id">ID</string>
     <string name="replace_field_rule">Všechna pravidla budou smazána, když změníte pole. Opravdu to chcete udělat?</string>
     <string name="new_gis">Nový GIS</string>
     <string name="manual_ngw">Přepnout na pokročilý</string>
