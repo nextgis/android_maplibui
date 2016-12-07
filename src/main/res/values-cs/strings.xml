@@ -220,6 +220,8 @@
     <string name="cancel_download">Stahování zrušeno</string>
     <string name="download_tiles">Stáhnout dlaždice</string>
     <string name="form_tiles_list">Seznam dlaždic</string>
+    <string name="tiles_count">%1$s tiles</string>
+    <string name="counting">Counting…</string>
     <string name="tracks_running">Trasa se nahrává</string>
     <string name="tracks_title">Trasa %s</string>
     <string name="walkedit_title">Edita chůzí %s</string>

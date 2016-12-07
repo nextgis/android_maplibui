@@ -208,6 +208,8 @@
     <string name="cancel_download">Download canceled</string>
     <string name="download_tiles">Download tiles</string>
     <string name="form_tiles_list">Form tiles list</string>
+    <string name="tiles_count">%1$s тайлов</string>
+    <string name="counting">Идет подсчет…</string>
     <string name="tracks_running">Track is recording now</string>
     <string name="tracks_title">Track %s</string>
     <string name="walkedit_title">Walk edit %s</string>

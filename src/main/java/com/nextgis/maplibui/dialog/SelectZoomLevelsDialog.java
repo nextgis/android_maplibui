@@ -28,6 +28,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -38,19 +39,27 @@ import com.edmodo.rangebar.RangeBar;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
+import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.MapDrawable;
+import com.nextgis.maplib.map.TMSLayer;
+import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.TileDownloadService;
 import com.nextgis.maplibui.util.ConstantsUI;
+
+import java.util.Locale;
 
 /**
  * Dialog to select which zoom levels to download
  */
 public class SelectZoomLevelsDialog
         extends DialogFragment {
+    final static String TILDA = "~";
 
-    protected GeoEnvelope mEnvelope;
-    protected int mLayerId;
+    private TextView mTilesCount;
+    private GeoEnvelope mEnvelope;
+    private int mLayerId;
+    private CountTilesTask mCountTask;
 
     public GeoEnvelope getEnvelope() {
         return mEnvelope;
@@ -87,26 +96,31 @@ public class SelectZoomLevelsDialog
         View view = View.inflate(context, R.layout.dialog_select_zoom_levels, null);
         IGISApplication app = (IGISApplication) getActivity().getApplication();
         final MapDrawable map = (MapDrawable) app.getMap();
-        int left = (int) map.getZoomLevel() - 1;
+        final int left = (int) map.getZoomLevel() - 1;
         int right = (int) map.getZoomLevel() + 1;
 
-        // Gets the RangeBar
-        final RangeBar rangebar = (RangeBar) view.findViewById(R.id.rangebar);
-        rangebar.setThumbIndices(left, right);
-        // Gets the index value TextViews
+        // Get the index value TextViews
+        mTilesCount = (TextView) view.findViewById(R.id.tilesCount);
         final TextView leftIndexValue = (TextView) view.findViewById(R.id.leftIndexValue);
         final TextView rightIndexValue = (TextView) view.findViewById(R.id.rightIndexValue);
-        leftIndexValue.setText(String.format(getString(R.string.min), left));
-        rightIndexValue.setText(String.format(getString(R.string.max), right));
 
-        // Sets the display values of the indices
+        // Get the RangeBar and set the display values of the indices
+        final RangeBar rangebar = (RangeBar) view.findViewById(R.id.rangebar);
         rangebar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
             @Override
-            public void onIndexChangeListener(RangeBar rangeBar, int leftThumbIndex, int rightThumbIndex) {
+            public void onIndexChangeListener(RangeBar rangeBar, final int leftThumbIndex, final int rightThumbIndex) {
                 leftIndexValue.setText(String.format(getString(R.string.min), leftThumbIndex));
                 rightIndexValue.setText(String.format(getString(R.string.max), rightThumbIndex));
+
+                if (mCountTask != null)
+                    mCountTask.cancel(true);
+
+                mTilesCount.setText(getString(R.string.counting).toLowerCase());
+                mCountTask = new CountTilesTask(map, leftThumbIndex, rightThumbIndex);
+                mCountTask.execute();
             }
         });
+        rangebar.setThumbIndices(left, right);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(String.format(getString(R.string.current_zoom), map.getZoomLevel())).setView(view).setPositiveButton(
@@ -152,6 +166,16 @@ public class SelectZoomLevelsDialog
         return dialog;
     }
 
+    private long getTilesCount(MapBase map, int leftThumbIndex, int rightThumbIndex) {
+        TMSLayer layer = (TMSLayer) map.getLayerById(getLayerId());
+        GeoEnvelope envelope = getEnvelope();
+        long total = 0;
+        for (int zoom = leftThumbIndex; zoom <= rightThumbIndex; zoom++)
+            total += MapUtil.getTileCount(envelope, zoom, layer.getTMSType());
+
+        return total;
+    }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putInt(ConstantsUI.KEY_LAYER_ID, mLayerId);
@@ -160,5 +184,35 @@ public class SelectZoomLevelsDialog
         outState.putDouble(TileDownloadService.KEY_MINY, mEnvelope.getMinY());
         outState.putDouble(TileDownloadService.KEY_MAXY, mEnvelope.getMaxY());
         super.onSaveInstanceState(outState);
+    }
+
+    private class CountTilesTask extends AsyncTask<Void, Void, String> {
+        private int mFrom, mTo;
+        private MapBase mMap;
+
+        CountTilesTask(MapBase map, int from, int to) {
+            mMap = map;
+            mFrom = from;
+            mTo = to;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            long total = getTilesCount(mMap, mFrom, mTo);
+            String value = total + "";
+            if (total >= 1000000000)
+                value = String.format(Locale.getDefault(), "%s%.1f%s", TILDA, total / 1000000000f, getString(R.string.unit_billion));
+            else if (total >= 1000000)
+                value = String.format(Locale.getDefault(), "%s%.1f%s", TILDA, total / 1000000f, getString(R.string.unit_million));
+            else if (total >= 100000)
+                value = String.format(Locale.getDefault(), "%s%.1f%s", TILDA, total / 1000f, getString(R.string.unit_thousand));
+
+            return value;
+        }
+
+        @Override
+        protected void onPostExecute(String res) {
+            mTilesCount.setText(String.format(getString(R.string.tiles_count), res));
+        }
     }
 }

@@ -211,6 +211,8 @@
     <string name="cancel_download">Загрузка отменена</string>
     <string name="download_tiles">Загрузка тайлов</string>
     <string name="form_tiles_list">Формирование списка тайлов</string>
+    <string name="tiles_count">%1$s тайлов</string>
+    <string name="counting">Идет подсчет…</string>
     <string name="tracks_running">Записывается трек</string>
     <string name="tracks_title">Трек %s</string>
     <string name="walkedit_title">Ввод обходом %s</string>
