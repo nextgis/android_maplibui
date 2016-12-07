@@ -69,6 +69,7 @@ public abstract class LayerSettingsActivity extends NGActivity {
             if (null != layer) {
                 mLayer = layer;
                 mLayerName = mLayer.getName();
+                setTitle(mLayerName);
             }
         }
 

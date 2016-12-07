@@ -108,14 +108,14 @@ public class VectorLayerSettingsActivity
             mLayerMaxZoom = mVectorLayer.getMaxZoom();
             mRenderer = mVectorLayer.getRenderer();
 
-            String title = String.format(getString(R.string.layer_geom_type), getGeometryName(mVectorLayer.getGeometryType()));
+            String subtitle = getGeometryName(mVectorLayer.getGeometryType()).toLowerCase();
             File formPath = new File(mLayer.getPath(), ConstantsUI.FILE_FORM);
             if (formPath.exists())
-                title += " (" + getString(R.string.layer_has_form) + ")";
+                subtitle += " " + getString(R.string.layer_has_form);
 
-            setTitle(title);
+            subtitle = String.format(getString(R.string.feature_count), mVectorLayer.getCount(), subtitle);
             Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-            toolbar.setSubtitle(String.format(getString(R.string.feature_count), mVectorLayer.getCount()));
+            toolbar.setSubtitle(subtitle);
         }
     }
 
@@ -177,10 +177,8 @@ public class VectorLayerSettingsActivity
             return;
 
         mVectorLayer.setName(mLayerName);
-
         mVectorLayer.setMinZoom(mLayerMinZoom);
         mVectorLayer.setMaxZoom(mLayerMaxZoom);
-
         mVectorLayer.save();
     }
 

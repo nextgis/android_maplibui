@@ -111,6 +111,7 @@ public class LayerGeneralSettingsFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
+                mActivity.setTitle(s.toString());
                 mActivity.mLayerName = s.toString();
             }
         });

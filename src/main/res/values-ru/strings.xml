@@ -223,8 +223,7 @@
     <string name="alpha">Непрозрачность</string>
     <string name="layerInfo">Информация о слое</string>
     <string name="geom_type">Тип геометрии</string>
-    <string name="layer_geom_type">%1$s</string>
-    <string name="feature_count">Записей: %1$d</string>
+    <string name="feature_count">Объектов: %1$d (%2$s)</string>
     <string name="layer_local_path">Локальный путь: %1$s</string>
     <string name="layer_remote_path">Удаленный: %1$s</string>
     <string name="layer_has_form">с формой</string>

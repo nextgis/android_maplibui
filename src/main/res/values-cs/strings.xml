@@ -232,8 +232,7 @@
     <string name="alpha">Průhlednost</string>
     <string name="layerInfo">Informace o vrstvě</string>
     <string name="geom_type">Geometrie</string>
-    <string name="layer_geom_type">%1$s vrstva</string>
-    <string name="feature_count">%1$d objekty</string>
+    <string name="feature_count">Objekty: %1$d (%2$s)</string>
     <string name="layer_local_path">Local cesta: %1$s</string>
     <string name="layer_remote_path">Vzdálená: %1$s</string>
     <string name="layer_has_form">with form</string>
