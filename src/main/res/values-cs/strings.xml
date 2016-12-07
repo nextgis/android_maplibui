@@ -246,7 +246,7 @@
     <string name="multi_polygon">Multipolygon</string>
     <string name="update_coordinates">Aktualizovat souřadnice</string>
     <string name="background_task_started">Zahájena inicializace vrstvy</string>
-    <string name="process_layer">Zpracovat vrstvu</string>
+    <string name="processing">Zpracovat</string>
     <string name="error_unsupported_layer_type">Typ vrstvy není podporován </string>
     <string name="value_not_from_list">Hodnota není ze seznamu</string>
     <string name="share_gpx_multiple">Jak chcete uložit vybranou trasu?</string>

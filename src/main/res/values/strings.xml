@@ -258,7 +258,7 @@
     <string name="multi_polygon">Multipolygon</string>
     <string name="update_coordinates">Update coordinates</string>
     <string name="background_task_started">The layer initialisation task started</string>
-    <string name="process_layer">Process layer</string>
+    <string name="processing">Processing</string>
     <string name="error_unsupported_layer_type">Current layer type is unsupported </string>
     <string name="value_not_from_list">Value is not from list</string>
     <string name="share_gpx_multiple">How do you want to save selected tracks?</string>
