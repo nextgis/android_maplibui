@@ -46,6 +46,7 @@ import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.TileDownloadService;
 import com.nextgis.maplibui.util.ConstantsUI;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import java.util.Locale;
 
@@ -109,8 +110,8 @@ public class SelectZoomLevelsDialog
         rangebar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
             @Override
             public void onIndexChangeListener(RangeBar rangeBar, final int leftThumbIndex, final int rightThumbIndex) {
-                leftIndexValue.setText(String.format(getString(R.string.min), leftThumbIndex));
-                rightIndexValue.setText(String.format(getString(R.string.max), rightThumbIndex));
+                ControlHelper.setZoomText(getActivity(), leftIndexValue, R.string.min, leftThumbIndex);
+                ControlHelper.setZoomText(getActivity(), rightIndexValue, R.string.max, rightThumbIndex);
 
                 if (mCountTask != null)
                     mCountTask.cancel(true);
@@ -166,12 +167,16 @@ public class SelectZoomLevelsDialog
         return dialog;
     }
 
-    private long getTilesCount(MapBase map, int leftThumbIndex, int rightThumbIndex) {
+    private long getTilesCount(AsyncTask task, MapBase map, int leftThumbIndex, int rightThumbIndex) {
         TMSLayer layer = (TMSLayer) map.getLayerById(getLayerId());
         GeoEnvelope envelope = getEnvelope();
         long total = 0;
-        for (int zoom = leftThumbIndex; zoom <= rightThumbIndex; zoom++)
-            total += MapUtil.getTileCount(envelope, zoom, layer.getTMSType());
+        for (int zoom = leftThumbIndex; zoom <= rightThumbIndex; zoom++) {
+            if (task != null && task.isCancelled())
+                return total;
+
+            total += MapUtil.getTileCount(task, envelope, zoom, layer.getTMSType());
+        }
 
         return total;
     }
@@ -198,7 +203,7 @@ public class SelectZoomLevelsDialog
 
         @Override
         protected String doInBackground(Void... params) {
-            long total = getTilesCount(mMap, mFrom, mTo);
+            long total = getTilesCount(this, mMap, mFrom, mTo);
             String value = total + "";
             if (total >= 1000000000)
                 value = String.format(Locale.getDefault(), "%s%.1f%s", TILDA, total / 1000000000f, getString(R.string.unit_billion));

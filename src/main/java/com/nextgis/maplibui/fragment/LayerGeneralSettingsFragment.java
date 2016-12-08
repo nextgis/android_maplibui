@@ -39,6 +39,7 @@ import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.LayerSettingsActivity;
+import com.nextgis.maplibui.util.ControlHelper;
 
 public class LayerGeneralSettingsFragment extends Fragment {
     protected EditText mEditText;
@@ -116,28 +117,24 @@ public class LayerGeneralSettingsFragment extends Fragment {
             }
         });
 
-        //set range
-        // Gets the RangeBar
+        // Gets the index value TextViews
+        final TextView leftIndexValue = (TextView) v.findViewById(R.id.leftIndexValue);
+        final TextView rightIndexValue = (TextView) v.findViewById(R.id.rightIndexValue);
+
+        // Gets the RangeBar and set range
         mRangeBar = (RangeBar) v.findViewById(R.id.rangebar);
         int nMinZoom = mActivity.mLayerMinZoom < mRangeBar.getRightIndex() ? (int) mActivity.mLayerMinZoom : mRangeBar.getRightIndex();
         int nMaxZoom = mActivity.mLayerMaxZoom < mRangeBar.getRightIndex() ? (int) mActivity.mLayerMaxZoom : mRangeBar.getRightIndex();
-        mRangeBar.setThumbIndices(nMinZoom, nMaxZoom);
-        // Gets the index value TextViews
-        final TextView leftIndexValue = (TextView) v.findViewById(R.id.leftIndexValue);
-        leftIndexValue.setText(String.format(getString(R.string.min), nMinZoom));
-        final TextView rightIndexValue = (TextView) v.findViewById(R.id.rightIndexValue);
-        rightIndexValue.setText(String.format(getString(R.string.max), nMaxZoom));
-
-        // Sets the display values of the indices
         mRangeBar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
             @Override
             public void onIndexChangeListener(RangeBar rangeBar, int leftThumbIndex, int rightThumbIndex) {
                 mActivity.mLayerMinZoom = leftThumbIndex;
                 mActivity.mLayerMaxZoom = rightThumbIndex;
-                leftIndexValue.setText(String.format(getString(R.string.min), leftThumbIndex));
-                rightIndexValue.setText(String.format(getString(R.string.max), rightThumbIndex));
+                ControlHelper.setZoomText(getActivity(), leftIndexValue, R.string.min, leftThumbIndex);
+                ControlHelper.setZoomText(getActivity(), rightIndexValue, R.string.max, rightThumbIndex);
             }
         });
+        mRangeBar.setThumbIndices(nMinZoom, nMaxZoom);
 
         return v;
     }

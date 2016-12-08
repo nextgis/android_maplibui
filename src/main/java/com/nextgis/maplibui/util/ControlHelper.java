@@ -52,8 +52,11 @@ import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.util.LocationUtil;
+import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 
 import org.json.JSONException;
@@ -357,5 +360,10 @@ public final class ControlHelper {
                 return false;
             }
         });
+    }
+
+    public static void setZoomText(Activity activity, TextView text, int string, int zoom) {
+        String scale = LocationUtil.formatLength(activity, MapUtil.getScaleInCm(activity, zoom), 0);
+        text.setText(String.format(activity.getString(string) + "\r\n" + scale, zoom));
     }
 }

@@ -40,12 +40,13 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_margin="5dp"
-        custom:tickCount="25"/>
+        custom:tickCount="26"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <TextView
