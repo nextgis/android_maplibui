@@ -23,9 +23,7 @@
 
 package com.nextgis.maplibui.activity;
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
@@ -42,13 +40,10 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.display.TMSRenderer;
 import com.nextgis.maplib.map.TMSLayer;
 import com.nextgis.maplib.util.Constants;
-import com.nextgis.maplib.util.FileUtil;
-import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.fragment.LayerGeneralSettingsFragment;
+import com.nextgis.maplibui.util.ClearCacheTask;
 import com.nextgis.maplibui.util.ControlHelper;
-
-import java.io.File;
 
 /**
  * TMS layer settings activity. Include common settings (layer name) and renderer settings.
@@ -80,11 +75,13 @@ public class TMSLayerSettingsActivity
         if (null == mRasterLayer)
             return;
 
-        mStyleFragment.saveSettings();
+        boolean changes = mStyleFragment.saveSettings();
         mRasterLayer.setName(mLayerName);
+        changes = changes || mLayerMaxZoom != mRasterLayer.getMaxZoom() || mLayerMinZoom != mRasterLayer.getMinZoom();
         mRasterLayer.setMinZoom(mLayerMinZoom);
         mRasterLayer.setMaxZoom(mLayerMaxZoom);
         mRasterLayer.save();
+        mMap.setDirty(changes);
     }
 
     @Override
@@ -111,12 +108,17 @@ public class TMSLayerSettingsActivity
 
         }
 
-        void saveSettings() {
+        boolean saveSettings() {
             TMSRenderer tmsRenderer = (TMSRenderer) mRasterLayer.getRenderer();
+            boolean changes = false;
             if (null != tmsRenderer) {
+                changes = tmsRenderer.getAlpha() != mAlpha || tmsRenderer.getBrightness() != mBrightness
+                        || tmsRenderer.getContrast() != mContrast || tmsRenderer.isForceToGrayScale() != mForceToGrayScale;
                 tmsRenderer.setContrastBrightness(mContrast, mBrightness, mForceToGrayScale);
                 tmsRenderer.setAlpha(mAlpha);
             }
+
+            return changes;
         }
 
         void setLayer(ILayer layer) {
@@ -242,26 +244,7 @@ public class TMSLayerSettingsActivity
             clearCache.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    final ProgressDialog progressDialog = new ProgressDialog(getContext());
-                    progressDialog.setMessage(getString(R.string.waiting));
-                    progressDialog.show();
-
-                    new Handler().post(new Runnable() {
-                        @Override
-                        public void run() {
-                            File path = mRasterLayer.getPath();
-                            if (path.exists() && path.isDirectory()) {
-                                File[] data = path.listFiles();
-                                for (File file : data) {
-                                    if (file.isDirectory() && MapUtil.isParsable(file.getName()))
-                                        FileUtil.deleteRecursive(file);
-                                }
-                            }
-
-                            if (progressDialog.isShowing())
-                                progressDialog.dismiss();
-                        }
-                    });
+                    new ClearCacheTask(getActivity(), null).execute(mRasterLayer.getPath());
                 }
             });
 

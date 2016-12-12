@@ -62,6 +62,7 @@ import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.dialog.NGWResourcesListAdapter;
 import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
+import com.nextgis.maplibui.mapui.MapView;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.NGWWebMapLayerUI;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
@@ -85,6 +86,7 @@ public class LayersListAdapter
         implements MapEventListener
 {
 
+    protected final MapView mMapView;
     protected final MapDrawable mMap;
     protected final Context mContext;
     protected final NGActivity mActivity;
@@ -99,9 +101,10 @@ public class LayersListAdapter
 
     public LayersListAdapter(
             NGActivity activity,
-            MapDrawable map)
+            MapView map)
     {
-        mMap = map;
+        mMapView = map;
+        mMap = map.getMap();
         mContext = mActivity = activity;
 
         if (null != mMap) {
@@ -287,7 +290,7 @@ public class LayersListAdapter
                         if (layerui instanceof NGWWebMapLayerUI) {
                             popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(false);
                             popup.getMenu().findItem(R.id.menu_edit).setVisible(true);
-                            popup.getMenu().findItem(R.id.menu_edit).setTitle(R.string.track_list);
+                            popup.getMenu().findItem(R.id.menu_edit).setTitle(R.string.sync_layers);
                         }
 
                         popup.setOnMenuItemClickListener(
@@ -336,7 +339,7 @@ public class LayersListAdapter
                                             }
                                         } else if (i == R.id.menu_edit) {
                                             if (layerui instanceof NGWWebMapLayerUI)
-                                                ((NGWWebMapLayerUI) layerui).showLayersDialog(mActivity);
+                                                ((NGWWebMapLayerUI) layerui).showLayersDialog(mMapView, mActivity);
                                             else if (mEditListener != null)
                                                 mEditListener.onLayerEdit(layer);
                                         } else if (i == R.id.menu_delete) {

@@ -51,7 +51,6 @@ public class MapViewBase
     protected MapDrawable                mMap;
     protected List<MapViewEventListener> mListeners;
 
-
     public MapViewBase(
             Context context,
             MapDrawable map)
@@ -60,6 +59,12 @@ public class MapViewBase
 
         mMap = map;
         mListeners = new ArrayList<>();
+    }
+
+
+    public MapDrawable getMap()
+    {
+        return mMap;
     }
 
 
@@ -73,6 +78,10 @@ public class MapViewBase
 
         if (View.GONE != visibility) {
             setKeepScreenOnByPref();
+        }
+
+        if (visibility == VISIBLE && mMap.isDirty()) {
+            invalidate();
         }
     }
 

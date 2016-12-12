@@ -179,7 +179,9 @@ public class VectorLayerSettingsActivity
         mVectorLayer.setName(mLayerName);
         mVectorLayer.setMinZoom(mLayerMinZoom);
         mVectorLayer.setMaxZoom(mLayerMaxZoom);
+        boolean changes = mRenderer != mVectorLayer.getRenderer() || mLayerMaxZoom != mVectorLayer.getMaxZoom() || mLayerMinZoom != mVectorLayer.getMinZoom();
         mVectorLayer.save();
+        mMap.setDirty(changes);
     }
 
     public static class StyleFragment extends Fragment {
