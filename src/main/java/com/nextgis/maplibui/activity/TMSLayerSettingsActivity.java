@@ -23,6 +23,7 @@
 
 package com.nextgis.maplibui.activity;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
@@ -52,6 +53,7 @@ public class TMSLayerSettingsActivity
         extends LayerSettingsActivity {
     protected TMSLayer mRasterLayer;
     protected StyleFragment mStyleFragment;
+    protected static boolean mClearCache;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +70,8 @@ public class TMSLayerSettingsActivity
             mLayerMinZoom = mRasterLayer.getMinZoom();
             mLayerMaxZoom = mRasterLayer.getMaxZoom();
         }
+
+        mClearCache = false;
     }
 
     @Override
@@ -81,7 +85,8 @@ public class TMSLayerSettingsActivity
         mRasterLayer.setMinZoom(mLayerMinZoom);
         mRasterLayer.setMaxZoom(mLayerMaxZoom);
         mRasterLayer.save();
-        mMap.setDirty(changes);
+        if (changes || mClearCache)
+            mMap.setDirty(true);
     }
 
     @Override
@@ -244,7 +249,14 @@ public class TMSLayerSettingsActivity
             clearCache.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    new ClearCacheTask(getActivity(), null).execute(mRasterLayer.getPath());
+                    DialogInterface.OnDismissListener listener = new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            mClearCache = true;
+                        }
+                    };
+
+                    new ClearCacheTask(getActivity(), listener).execute(mRasterLayer.getPath());
                 }
             });
 

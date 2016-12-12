@@ -51,6 +51,10 @@ public class MapViewBase
     protected MapDrawable                mMap;
     protected List<MapViewEventListener> mListeners;
 
+    interface OnNeedRedraw {
+        public void OnDirty();
+    }
+
     public MapViewBase(
             Context context,
             MapDrawable map)
@@ -78,10 +82,6 @@ public class MapViewBase
 
         if (View.GONE != visibility) {
             setKeepScreenOnByPref();
-        }
-
-        if (visibility == VISIBLE && mMap.isDirty()) {
-            invalidate();
         }
     }
 

@@ -94,7 +94,15 @@ public class MapView
         mDrawingState = DRAW_SATE_drawing_noclearbk;
     }
 
+    @Override
+    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
 
+        if (visibility == VISIBLE && mMap.isDirty()) {
+            mMap.setDirty(false);
+            drawMapDrawable();
+        }
+    }
 
     @Override
     protected void onAttachedToWindow()

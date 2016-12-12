@@ -32,7 +32,7 @@ import com.nextgis.maplibui.R;
 
 import java.io.File;
 
-public class ClearCacheTask extends AsyncTask<File, Void, Void> {
+public class ClearCacheTask extends AsyncTask<File, Integer, Void> {
     private Context mContext;
     private ProgressDialog mProgressDialog;
     private DialogInterface.OnDismissListener mListener;
@@ -56,7 +56,9 @@ public class ClearCacheTask extends AsyncTask<File, Void, Void> {
         if (path.length > 0) {
             if (path[0].exists() && path[0].isDirectory()) {
                 File[] data = path[0].listFiles();
+                int c = 0;
                 for (File file : data) {
+                    publishProgress(++c, data.length);
                     if (file.isDirectory() && MapUtil.isParsable(file.getName()))
                         FileUtil.deleteRecursive(file);
                 }
@@ -64,6 +66,15 @@ public class ClearCacheTask extends AsyncTask<File, Void, Void> {
         }
 
         return null;
+    }
+
+    @Override
+    protected void onProgressUpdate(Integer... values) {
+        super.onProgressUpdate(values);
+        if (mProgressDialog != null) {
+            mProgressDialog.setMax(values[1]);
+            mProgressDialog.setProgress(values[0]);
+        }
     }
 
     @Override
