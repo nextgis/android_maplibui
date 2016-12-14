@@ -312,4 +312,8 @@
     <string name="clear_layer">Delete all features</string>
     <string name="are_you_sure">Are you sure?</string>
     <string name="delete_features">All features will be deleted.</string>
+    <string name="sync_direction">Sync direction</string>
+    <string name="to_ngw">To server only</string>
+    <string name="from_ngw">From server only</string>
+    <string name="both_directions">Both directions</string>
 </resources>

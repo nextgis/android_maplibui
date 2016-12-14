@@ -238,10 +238,10 @@
     <string name="error_unsupported_layer_type">Current layer type is unsupported </string>
     <string name="value_not_from_list">Value is not from list</string>
     <string name="share_gpx_multiple">How do you want to save selected tracks?</string>
-    <string name="share_gpx_separate">Separate files</string>
-    <string name="share_gpx_together">All in one</string>
-    <string name="action_edit">Edit</string>
-    <string name="track_list">List</string>
+    <string name="share_gpx_separate">По отдельности</string>
+    <string name="share_gpx_together">В один файл</string>
+    <string name="action_edit">Редактировать</string>
+    <string name="track_list">Список</string>
     <string name="location_disabled">Визначення місця розташування вимкнено</string>
     <string name="location_disabled_msg">Програма не може визначити, де ви знаходитесь. Увімкніть опцію \"Моє місце розташування\".</string>
     <string name="location_accuracy">Точність розташування</string>
@@ -283,7 +283,7 @@
     <string name="export">Экспорт</string>
     <string name="accurate_finish_sound">Уведомить о завершении</string>
     <string name="no_features">В слое нет объектов </string>
-    <string name="discard">Discard</string>
+    <string name="discard">@string/cancel</string>
     <string name="error_export_geojson">Невозможно создать конечный geojson</string>
     <string name="attributes">Атрибуты</string>
     <string name="error_cache">Неверный кэш, перестройте в настройках слоя</string>
@@ -312,4 +312,8 @@
     <string name="clear_layer">Удалить все объекты</string>
     <string name="are_you_sure">Вы уверены?</string>
     <string name="delete_features">Все объекты будут удалены.</string>
+    <string name="sync_direction">Направление синхронизации</string>
+    <string name="to_ngw">Только на сервер</string>
+    <string name="from_ngw">Только с сервера</string>
+    <string name="both_directions">В обе стороны</string>
 </resources>

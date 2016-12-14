@@ -313,4 +313,8 @@
     <string name="clear_layer">Удалить все объекты</string>
     <string name="are_you_sure">Вы уверены?</string>
     <string name="delete_features">Все объекты будут удалены.</string>
+    <string name="sync_direction">Направление синхронизации</string>
+    <string name="to_ngw">Только на сервер</string>
+    <string name="from_ngw">Только с сервера</string>
+    <string name="both_directions">В обе стороны</string>
 </resources>

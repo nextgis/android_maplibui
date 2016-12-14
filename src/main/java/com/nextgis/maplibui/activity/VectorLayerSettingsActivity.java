@@ -83,7 +83,6 @@ import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
 
-
 /**
  * Vector layer settings activity. Include common settings (layer name) and renderer settings.
  */
@@ -158,7 +157,7 @@ public class VectorLayerSettingsActivity
     }
 
     private String getGeometryName(int geometryType) {
-        switch (geometryType){
+        switch (geometryType) {
             case GeoConstants.GTPoint:
                 return getString(R.string.point);
             case GeoConstants.GTMultiPoint:
@@ -396,6 +395,8 @@ public class VectorLayerSettingsActivity
 
             TextView accountName = (TextView) v.findViewById(R.id.account_name);
             accountName.setText(String.format(getString(R.string.account), account.name));
+
+            final Spinner direction = (Spinner) v.findViewById(R.id.sync_direction);
             CheckBox enabled = (CheckBox) v.findViewById(R.id.sync_enabled);
             enabled.setChecked(0 == (ngwLayer.getSyncType() & Constants.SYNC_NONE));
             enabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -407,6 +408,20 @@ public class VectorLayerSettingsActivity
                         ngwLayer.setSyncType(Constants.SYNC_NONE);
 
                     ngwLayer.save();
+                    direction.setEnabled(checked);
+                }
+            });
+
+            direction.setSelection(ngwLayer.getSyncDirection() - 1);
+            direction.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    ngwLayer.setSyncDirection(i + 1);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
                 }
             });
 
@@ -429,7 +444,7 @@ public class VectorLayerSettingsActivity
                 for (PeriodicSync sync : syncs) {
                     Bundle bundle = sync.extras;
                     long savedPeriod = bundle.getLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, Constants.NOT_FOUND);
-                    if (savedPeriod > 0){
+                    if (savedPeriod > 0) {
                         prefValue = "" + savedPeriod;
                         break;
                     }

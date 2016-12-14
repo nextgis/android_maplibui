@@ -195,4 +195,9 @@
         <item>@string/simple_renderer</item>
         <item>@string/rule_renderer</item>
     </string-array>
+    <string-array name="sync_direction" translatable="false">
+        <item>@string/to_ngw</item>
+        <item>@string/from_ngw</item>
+        <item>@string/both_directions</item>
+    </string-array>
 </resources>
