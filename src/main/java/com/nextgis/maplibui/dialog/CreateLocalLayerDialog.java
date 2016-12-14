@@ -119,6 +119,7 @@ public class CreateLocalLayerDialog
         } else {
             view = View.inflate(mContext, R.layout.dialog_create_local_tms, null);
             mCache = (Spinner) view.findViewById(R.id.layer_cache);
+            mCache.setSelection(2);
 
             final ArrayAdapter<CharSequence> adapter =
                     new ArrayAdapter<>(mContext, android.R.layout.simple_spinner_item);
