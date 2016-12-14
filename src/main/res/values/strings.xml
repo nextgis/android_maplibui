@@ -294,7 +294,7 @@
     <string name="rules">Rules</string>
     <string name="default_style">Default style</string>
     <string name="value">Value</string>
-    <string name="replace_field_rule">All rules will be deleted due to changing rule field. Are you sure?</string>
+    <string name="replace_field_rule">All rules will be deleted due to changing rule field.</string>
     <string name="new_gis">Create GIS</string>
     <string name="manual_ngw">Switch to advanced</string>
     <string name="instance_name">Instance name</string>
@@ -312,4 +312,7 @@
     <string name="error_cache">Bad cache, try rebuild it in layer settings</string>
     <string name="menu_send_to_ngw">Send to NextGIS</string>
     <string name="commercial">Available in commercial version</string>
+    <string name="clear_layer">Delete all features</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="delete_features">All features will be deleted.</string>
 </resources>

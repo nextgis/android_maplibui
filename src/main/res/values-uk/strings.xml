@@ -308,5 +308,8 @@
     <string name="new_group">Создать новую группу</string>
     <string name="new_group_name">Имя группы:</string>
     <string name="message_group_created">Группа создана</string>
-    <string name="commercial">Available in commercial version</string>
+    <string name="commercial">Доступно в коммерческой версии</string>
+    <string name="clear_layer">Удалить все объекты</string>
+    <string name="are_you_sure">Вы уверены?</string>
+    <string name="delete_features">Все объекты будут удалены.</string>
 </resources>

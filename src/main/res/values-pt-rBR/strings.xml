@@ -309,4 +309,7 @@
     <string name="new_group_name">Group name:</string>
     <string name="message_group_created">Group created</string>
     <string name="commercial">Available in commercial version</string>
+    <string name="clear_layer">Delete all features</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="delete_features">All features will be deleted.</string>
 </resources>

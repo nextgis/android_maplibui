@@ -92,6 +92,7 @@ public class VectorLayerSettingsActivity
         implements View.OnClickListener {
     protected static VectorLayer mVectorLayer;
     protected static IRenderer mRenderer;
+    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,16 +108,19 @@ public class VectorLayerSettingsActivity
             mLayerMinZoom = mVectorLayer.getMinZoom();
             mLayerMaxZoom = mVectorLayer.getMaxZoom();
             mRenderer = mVectorLayer.getRenderer();
-
-            String subtitle = getGeometryName(mVectorLayer.getGeometryType()).toLowerCase();
-            File formPath = new File(mLayer.getPath(), ConstantsUI.FILE_FORM);
-            if (formPath.exists())
-                subtitle += " " + getString(R.string.layer_has_form);
-
-            subtitle = String.format(getString(R.string.feature_count), mVectorLayer.getCount(), subtitle);
-            Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-            toolbar.setSubtitle(subtitle);
+            mToolbar = (Toolbar) findViewById(R.id.main_toolbar);
+            setSubtitle();
         }
+    }
+
+    private void setSubtitle() {
+        String subtitle = getGeometryName(mVectorLayer.getGeometryType()).toLowerCase();
+        File formPath = new File(mLayer.getPath(), ConstantsUI.FILE_FORM);
+        if (formPath.exists())
+            subtitle += " " + getString(R.string.layer_has_form);
+
+        subtitle = String.format(getString(R.string.feature_count), mVectorLayer.getCount(), subtitle);
+        mToolbar.setSubtitle(subtitle);
     }
 
     @Override
@@ -128,7 +132,9 @@ public class VectorLayerSettingsActivity
         LayerGeneralSettingsFragment generalSettingsFragment = new LayerGeneralSettingsFragment();
         generalSettingsFragment.setRoot(mLayer, this);
         mAdapter.addFragment(generalSettingsFragment, R.string.general);
-        mAdapter.addFragment(new CacheFragment(), R.string.cache);
+        CacheFragment cacheFragment = new CacheFragment();
+        cacheFragment.setActivity(this);
+        mAdapter.addFragment(cacheFragment, R.string.cache);
     }
 
     @Override
@@ -170,6 +176,9 @@ public class VectorLayerSettingsActivity
         }
     }
 
+    public void onFeaturesCountChanged() {
+        setSubtitle();
+    }
 
     @Override
     protected void saveSettings() {
@@ -309,7 +318,8 @@ public class VectorLayerSettingsActivity
     }
 
     public static class CacheFragment extends Fragment {
-        protected BroadcastReceiver mRebuildCacheReceiver;
+        private BroadcastReceiver mRebuildCacheReceiver;
+        private VectorLayerSettingsActivity mActivity;
 
         public CacheFragment() {
 
@@ -349,6 +359,8 @@ public class VectorLayerSettingsActivity
                         buildCacheButton.setEnabled(false);
                         progressView.setVisibility(View.VISIBLE);
                     }
+
+                    mActivity.onFeaturesCountChanged();
                 }
             };
 
@@ -366,6 +378,10 @@ public class VectorLayerSettingsActivity
         public void onPause() {
             super.onPause();
             getActivity().unregisterReceiver(mRebuildCacheReceiver);
+        }
+
+        public void setActivity(VectorLayerSettingsActivity activity) {
+            mActivity = activity;
         }
     }
 

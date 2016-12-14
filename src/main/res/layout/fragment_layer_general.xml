@@ -116,5 +116,14 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 tools:ignore="UnusedAttribute"/>
         </LinearLayout>
+
+        <Button
+            android:id="@+id/delete_features"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/clear_layer"
+            android:visibility="gone"/>
     </LinearLayout>
 </ScrollView>

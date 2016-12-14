@@ -97,6 +97,10 @@ public abstract class LayerSettingsActivity extends NGActivity {
             outState.putInt(ConstantsUI.KEY_LAYER_ID, mLayer.getId());
     }
 
+    public void onFeaturesCountChanged() {
+
+    }
+
     abstract void addFragments();
     abstract void saveSettings();
 

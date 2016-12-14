@@ -21,22 +21,29 @@
 
 package com.nextgis.maplibui.fragment;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.edmodo.rangebar.RangeBar;
 import com.nextgis.maplib.api.ILayer;
+import com.nextgis.maplib.api.IProgressor;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.RemoteTMSLayer;
+import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.LayerSettingsActivity;
 import com.nextgis.maplibui.util.ControlHelper;
@@ -136,6 +143,90 @@ public class LayerGeneralSettingsFragment extends Fragment {
         });
         mRangeBar.setThumbIndices(nMinZoom, nMaxZoom);
 
+        if (mLayer instanceof VectorLayer) {
+            final VectorLayer vectorLayer = (VectorLayer) mLayer;
+            Button deleteFeatures = (Button) v.findViewById(R.id.delete_features);
+            deleteFeatures.setVisibility(View.VISIBLE);
+            deleteFeatures.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AlertDialog builder = new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.are_you_sure)
+                            .setMessage(R.string.delete_features)
+                            .setNegativeButton(R.string.cancel, null)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    new DeleteFeaturesTask().execute(vectorLayer);
+                                }
+                            }).create();
+                    builder.show();
+                }
+            });
+        }
+
         return v;
+    }
+    public class DeleteFeaturesTask extends AsyncTask<VectorLayer, Integer, Void> implements IProgressor {
+        private ProgressDialog mProgressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            mProgressDialog = new ProgressDialog(getActivity());
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            mProgressDialog.setMessage(getString(R.string.waiting));
+            mProgressDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(VectorLayer... layer) {
+            layer[0].deleteAllFeatures(this);
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            if (mProgressDialog != null) {
+                mProgressDialog.setProgress(values[0]);
+                if (values[1] > 0)
+                    mProgressDialog.setMax(values[1]);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            mActivity.onFeaturesCountChanged();
+            if (mProgressDialog != null && mProgressDialog.isShowing())
+                mProgressDialog.dismiss();
+        }
+
+        @Override
+        public void setMax(int maxValue) {
+            publishProgress(0, maxValue);
+        }
+
+        @Override
+        public boolean isCanceled() {
+            return mProgressDialog == null || !mProgressDialog.isShowing();
+        }
+
+        @Override
+        public void setValue(int value) {
+            publishProgress(value, 0);
+        }
+
+        @Override
+        public void setIndeterminate(boolean indeterminate) {
+
+        }
+
+        @Override
+        public void setMessage(String message) {
+
+        }
     }
 }
