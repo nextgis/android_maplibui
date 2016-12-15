@@ -24,7 +24,6 @@
 package com.nextgis.maplibui.activity;
 
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -48,10 +47,7 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 
 import static com.nextgis.maplibui.service.TrackerService.isTrackerServiceRunning;
 
-
-public class TracksActivity
-        extends NGActivity
-        implements ActionMode.Callback {
+public class TracksActivity extends NGActivity implements ActionMode.Callback {
     private final static String BUNDLE_ACTION_MODE = "IS_IN_ACTION_MODE";
 
     private Uri mContentUriTracks;
@@ -90,13 +86,11 @@ public class TracksActivity
         mContentUriTracks = Uri.parse("content://" + application.getAuthority() + "/" + TrackLayer.TABLE_TRACKS);
     }
 
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(BUNDLE_ACTION_MODE, mActionMode != null);
     }
-
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
@@ -107,44 +101,33 @@ public class TracksActivity
         }
     }
 
-
     @Override
-    public boolean onCreateActionMode(
-            ActionMode actionMode,
-            Menu menu) {
+    public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
         MenuInflater inflater = actionMode.getMenuInflater();
         inflater.inflate(R.menu.tracks, menu);
         return true;
     }
 
-
     @Override
-    public boolean onPrepareActionMode(
-            ActionMode actionMode,
-            Menu menu) {
+    public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
         return false;
     }
 
-
     @Override
-    public boolean onActionItemClicked(
-            ActionMode actionMode,
-            MenuItem menuItem) {
+    public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
         int id = menuItem.getItemId();
-
         if (id == R.id.menu_delete) {
             Intent trackerService = new Intent(getApplicationContext(), TrackerService.class);
 
             if (isTrackerServiceRunning(getApplicationContext())) {
                 stopService(trackerService);
-                Toast.makeText(
-                        getApplicationContext(), R.string.unclosed_track_deleted,
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.unclosed_track_deleted, Toast.LENGTH_SHORT).show();
             }
 
             String selection = getSelection();
             String[] args = mTracks.getSelectedItemsIds();
             getContentResolver().delete(mContentUriTracks, selection, args);
+            closeActionMode();
         } else if (id == R.id.menu_select_all) {
             mTracks.selectAll();
             actionMode.setTitle("" + mTracks.getSelectedItemsCount());
@@ -167,26 +150,13 @@ public class TracksActivity
                 }
 
                 @Override
-                public void onCancel(AmbilWarnaDialog dialog) {
-
-                }
-            });
-
-            dialog.getDialog().setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    closeActionMode();
-                }
+                public void onCancel(AmbilWarnaDialog dialog) { }
             });
             dialog.show();
         }
 
-        if (id != R.id.menu_select_all && id != R.id.menu_color)
-            closeActionMode();
-
         return true;
     }
-
 
     protected void changeVisibility(boolean visible) {
         ContentValues cv = new ContentValues();
@@ -201,18 +171,15 @@ public class TracksActivity
         update(cv);
     }
 
-
     protected void update(ContentValues cv) {
         String selection = getSelection();
         String[] args = mTracks.getSelectedItemsIds();
         getContentResolver().update(mContentUriTracks, cv, selection, args);
     }
 
-
     protected String getSelection() {
         return TrackLayer.FIELD_ID + " IN (" + MapUtil.makePlaceholders(mTracks.getSelectedItemsCount()) + ")";
     }
-
 
     protected void closeActionMode() {
         mTracks.unselectAll();
@@ -226,7 +193,6 @@ public class TracksActivity
         mTracks.unselectAll();
         mActionMode = null;
     }
-
 
     private void checkItemsCount() {
         if (mTracks.getCount() == 0)

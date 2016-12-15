@@ -85,6 +85,7 @@ public class CreateRemoteTMSLayerDialog
         super.onCreateDialog(savedInstanceState);
         View view = View.inflate(mContext, R.layout.dialog_create_tms, null);
         mCache = (Spinner) view.findViewById(R.id.layer_cache);
+        mCache.setSelection(2);
 
         final ArrayAdapter<CharSequence> adapter =
                 new ArrayAdapter<>(mContext, android.R.layout.simple_spinner_item);

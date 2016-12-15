@@ -21,33 +21,38 @@
 
 package com.nextgis.maplibui.fragment;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.edmodo.rangebar.RangeBar;
 import com.nextgis.maplib.api.ILayer;
+import com.nextgis.maplib.api.IProgressor;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.RemoteTMSLayer;
+import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.LayerSettingsActivity;
-import com.nextgis.maplibui.util.ConstantsUI;
-
-import java.io.File;
+import com.nextgis.maplibui.util.ControlHelper;
 
 public class LayerGeneralSettingsFragment extends Fragment {
-    protected static EditText mEditText;
-    protected static RangeBar mRangeBar;
-    protected static ILayer mLayer;
-    protected static LayerSettingsActivity mActivity;
+    protected EditText mEditText;
+    protected RangeBar mRangeBar;
+    protected ILayer mLayer;
+    protected LayerSettingsActivity mActivity;
 
     public LayerGeneralSettingsFragment() {
 
@@ -84,13 +89,6 @@ public class LayerGeneralSettingsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_layer_general, container, false);
 
-        TextView form = (TextView) v.findViewById(R.id.layer_custom_form);
-        File formPath = new File(mLayer.getPath(), ConstantsUI.FILE_FORM);
-        if (formPath.exists()) {
-            form.setVisibility(View.VISIBLE);
-            form.setText(R.string.layer_has_form);
-        }
-
         TextView path = (TextView) v.findViewById(R.id.layer_local_lath);
         path.setText(String.format(getString(R.string.layer_local_path), mLayer.getPath()));
 
@@ -121,33 +119,114 @@ public class LayerGeneralSettingsFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
+                mActivity.setTitle(s.toString());
                 mActivity.mLayerName = s.toString();
             }
         });
 
-        //set range
-        // Gets the RangeBar
+        // Gets the index value TextViews
+        final TextView leftIndexValue = (TextView) v.findViewById(R.id.leftIndexValue);
+        final TextView rightIndexValue = (TextView) v.findViewById(R.id.rightIndexValue);
+
+        // Gets the RangeBar and set range
         mRangeBar = (RangeBar) v.findViewById(R.id.rangebar);
         int nMinZoom = mActivity.mLayerMinZoom < mRangeBar.getRightIndex() ? (int) mActivity.mLayerMinZoom : mRangeBar.getRightIndex();
         int nMaxZoom = mActivity.mLayerMaxZoom < mRangeBar.getRightIndex() ? (int) mActivity.mLayerMaxZoom : mRangeBar.getRightIndex();
-        mRangeBar.setThumbIndices(nMinZoom, nMaxZoom);
-        // Gets the index value TextViews
-        final TextView leftIndexValue = (TextView) v.findViewById(R.id.leftIndexValue);
-        leftIndexValue.setText(String.format(getString(R.string.min), nMinZoom));
-        final TextView rightIndexValue = (TextView) v.findViewById(R.id.rightIndexValue);
-        rightIndexValue.setText(String.format(getString(R.string.max), nMaxZoom));
-
-        // Sets the display values of the indices
         mRangeBar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
             @Override
             public void onIndexChangeListener(RangeBar rangeBar, int leftThumbIndex, int rightThumbIndex) {
                 mActivity.mLayerMinZoom = leftThumbIndex;
                 mActivity.mLayerMaxZoom = rightThumbIndex;
-                leftIndexValue.setText(String.format(getString(R.string.min), leftThumbIndex));
-                rightIndexValue.setText(String.format(getString(R.string.max), rightThumbIndex));
+                ControlHelper.setZoomText(getActivity(), leftIndexValue, R.string.min, leftThumbIndex);
+                ControlHelper.setZoomText(getActivity(), rightIndexValue, R.string.max, rightThumbIndex);
             }
         });
+        mRangeBar.setThumbIndices(nMinZoom, nMaxZoom);
+
+        if (mLayer instanceof VectorLayer) {
+            final VectorLayer vectorLayer = (VectorLayer) mLayer;
+            Button deleteFeatures = (Button) v.findViewById(R.id.delete_features);
+            deleteFeatures.setVisibility(View.VISIBLE);
+            deleteFeatures.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AlertDialog builder = new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.are_you_sure)
+                            .setMessage(R.string.delete_features)
+                            .setNegativeButton(R.string.cancel, null)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    new DeleteFeaturesTask().execute(vectorLayer);
+                                }
+                            }).create();
+                    builder.show();
+                }
+            });
+        }
 
         return v;
+    }
+    public class DeleteFeaturesTask extends AsyncTask<VectorLayer, Integer, Void> implements IProgressor {
+        private ProgressDialog mProgressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            mProgressDialog = new ProgressDialog(getActivity());
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            mProgressDialog.setMessage(getString(R.string.waiting));
+            mProgressDialog.show();
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(VectorLayer... layer) {
+            layer[0].deleteAllFeatures(this);
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            if (mProgressDialog != null) {
+                mProgressDialog.setProgress(values[0]);
+                if (values[1] > 0)
+                    mProgressDialog.setMax(values[1]);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            mActivity.onFeaturesCountChanged();
+            if (mProgressDialog != null && mProgressDialog.isShowing())
+                mProgressDialog.dismiss();
+        }
+
+        @Override
+        public void setMax(int maxValue) {
+            publishProgress(0, maxValue);
+        }
+
+        @Override
+        public boolean isCanceled() {
+            return mProgressDialog == null || !mProgressDialog.isShowing();
+        }
+
+        @Override
+        public void setValue(int value) {
+            publishProgress(value, 0);
+        }
+
+        @Override
+        public void setIndeterminate(boolean indeterminate) {
+
+        }
+
+        @Override
+        public void setMessage(String message) {
+
+        }
     }
 }

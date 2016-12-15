@@ -61,7 +61,7 @@ import static com.nextgis.maplib.util.Constants.KEEP_ALIVE_TIME_UNIT;
 /**
  * The service to batch download tiles
  */
-public class TileDownloadService extends Service{
+public class TileDownloadService extends Service {
     protected List<DownloadTask> mQueue;
     protected NotificationManager mNotifyManager;
     protected static final int TILE_DOWNLOAD_NOTIFICATION_ID = 7;
@@ -82,22 +82,18 @@ public class TileDownloadService extends Service{
 
     @Override
     public void onCreate() {
-        mNotifyManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        Bitmap largeIcon = NotificationHelper.getLargeIcon(
-                R.drawable.ic_notification_download, getResources());
+        mNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        Bitmap largeIcon = NotificationHelper.getLargeIcon(R.drawable.ic_notification_download, getResources());
 
         Intent intentStop = new Intent(this, TileDownloadService.class);
         intentStop.setAction(ACTION_STOP);
-        PendingIntent stopService = PendingIntent.getService(this, 0, intentStop,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent stopService = PendingIntent.getService(this, 0, intentStop, PendingIntent.FLAG_UPDATE_CURRENT);
 
         mBuilder = new NotificationCompat.Builder(this);
         mBuilder.setSmallIcon(R.drawable.ic_notification_download).setLargeIcon(largeIcon)
                 .setAutoCancel(false)
                 .setOngoing(true)
-                .addAction(
-                        android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.tracks_stop),
-                        stopService);
+                .addAction(android.R.drawable.ic_menu_close_clear_cancel, getString(R.string.cancel), stopService);
 
         mQueue = new LinkedList<>();
         mCanceled = false;
@@ -127,7 +123,7 @@ public class TileDownloadService extends Service{
                         addTask(layerPathName, env, zoomFrom, zoomTo);
                         return START_STICKY;
                     case ACTION_STOP:
-                        if(Constants.DEBUG_MODE)
+                        if (Constants.DEBUG_MODE)
                             Log.d(Constants.TAG, "Cancel download queue");
                         mQueue.clear();
                         mCanceled = true;
@@ -141,7 +137,6 @@ public class TileDownloadService extends Service{
         return START_STICKY;
     }
 
-
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -152,16 +147,16 @@ public class TileDownloadService extends Service{
         mQueue.add(task);
         mCanceled = false;
 
-        if(mQueue.size() == 1){
+        if (mQueue.size() == 1) {
             startDownload();
         }
     }
 
-    protected void startDownload(){
-        if(Constants.DEBUG_MODE)
+    protected void startDownload() {
+        if (Constants.DEBUG_MODE)
             Log.d(Constants.TAG, "Tile download queue size " + mQueue.size());
 
-        if(mQueue.isEmpty()){
+        if (mQueue.isEmpty()) {
             mNotifyManager.cancel(TILE_DOWNLOAD_NOTIFICATION_ID);
             stopSelf();
             return;
@@ -179,17 +174,15 @@ public class TileDownloadService extends Service{
 
     private void download(DownloadTask task) {
         MapBase map = MapBase.getInstance();
-        if(null == map)
+        if (null == map)
             return;
 
         ILayer layer = map.getLayerByPathName(task.getLayerPathName());
-        if(null != layer && layer instanceof RemoteTMSLayer) {
+        if (null != layer && layer instanceof RemoteTMSLayer) { // process only tms layers
             final RemoteTMSLayer tmsLayer = (RemoteTMSLayer) layer;
+            String notifyTitle = getString(R.string.download_tiles);
 
-            String notifyTitle = getString(R.string.download_tiles) + " (" + tmsLayer.getName() + ")";
-
-            mBuilder.setWhen(System.currentTimeMillis())
-                    .setContentTitle(notifyTitle);
+            mBuilder.setWhen(System.currentTimeMillis()).setContentTitle(notifyTitle);
             mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
 
             final List<TileItem> tiles = new LinkedList<>();
@@ -197,14 +190,13 @@ public class TileDownloadService extends Service{
             for (int zoom = task.getZoomFrom(); zoom < task.getZoomTo() + 1; zoom++) {
                 tiles.addAll(MapUtil.getTileItems(task.getEnvelope(), zoom, tmsLayer.getTMSType()));
 
-                if(mCanceled)
+                if (mCanceled)
                     break;
 
-                mBuilder.setProgress(zoomCount, zoom, false)
-                        .setContentText(getString(R.string.form_tiles_list));
+                mBuilder.setProgress(zoomCount, zoom, false).setContentText(getString(R.string.form_tiles_list));
                 mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
 
-                if(tiles.size() > Constants.MAX_TILES_COUNT)
+                if (tiles.size() > Constants.MAX_TILES_COUNT)
                     break;
             }
 
@@ -235,22 +227,17 @@ public class TileDownloadService extends Service{
             List<Future> futures = new ArrayList<>(tilesSize);
 
             for (int i = 0; i < tilesSize; ++i) {
-                if (mCanceled) {
+                if (mCanceled)
                     break;
-                }
 
                 final TileItem tile = tiles.get(i);
-
-                futures.add(
-                        mThreadPool.submit(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        android.os.Process.setThreadPriority(
-                                                Constants.DEFAULT_DRAW_THREAD_PRIORITY);
-                                        tmsLayer.downloadTile(tile);
-                                    }
-                                }));
+                futures.add(mThreadPool.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        android.os.Process.setThreadPriority(Constants.DEFAULT_DRAW_THREAD_PRIORITY);
+                        tmsLayer.downloadTile(tile);
+                    }
+                }));
             }
 
             //in separate thread
@@ -259,18 +246,17 @@ public class TileDownloadService extends Service{
             int nStep = futures.size() / Constants.DRAW_NOTIFY_STEP_PERCENT;
             if (nStep == 0)
                 nStep = 1;
+
             for (int i = 0, futuresSize = futures.size(); i < futuresSize; i++) {
-                if (mCanceled) {
+                if (mCanceled)
                     break;
-                }
 
                 try {
                     Future future = futures.get(i);
                     future.get(); // wait for task ending
 
                     if (i % nStep == 0) {
-                        mBuilder.setProgress(futuresSize, i, false)
-                                .setContentText(getString(R.string.download_in_progress));
+                        mBuilder.setProgress(futuresSize, i, false).setContentText(getString(R.string.processing) + " " + tmsLayer.getName());
                         // Displays the progress bar for the first time.
                         mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
                     }
@@ -282,13 +268,9 @@ public class TileDownloadService extends Service{
                 }
             }
         }
-        else{
-            // skip non tms layer
-        }
     }
 
-    public void cancelDownload()
-    {
+    public void cancelDownload() {
         if (mThreadPool != null) {
             //synchronized (lock) {
             mThreadPool.shutdownNow();
@@ -299,37 +281,37 @@ public class TileDownloadService extends Service{
                 //e.printStackTrace();
             }
 
-            if(Constants.DEBUG_MODE)
+            if (Constants.DEBUG_MODE)
                 Log.d(Constants.TAG, "Canceled download queue. Active count: " + mThreadPool.getActiveCount() + " queue size " + mQueue.size());
         }
     }
 
-    public class DownloadTask{
-        protected String mLayerPathName;
-        protected GeoEnvelope mEnvelope;
-        protected int mZoomFrom;
-        protected int mZoomTo;
+    public class DownloadTask {
+        String mLayerPathName;
+        GeoEnvelope mEnvelope;
+        int mZoomFrom;
+        int mZoomTo;
 
-        public DownloadTask(String layerPathName, GeoEnvelope envelope, int zoomFrom, int zoomTo) {
+        DownloadTask(String layerPathName, GeoEnvelope envelope, int zoomFrom, int zoomTo) {
             mEnvelope = envelope;
             mLayerPathName = layerPathName;
             mZoomFrom = zoomFrom;
             mZoomTo = zoomTo;
         }
 
-        public GeoEnvelope getEnvelope() {
+        GeoEnvelope getEnvelope() {
             return mEnvelope;
         }
 
-        public String getLayerPathName() {
+        String getLayerPathName() {
             return mLayerPathName;
         }
 
-        public int getZoomFrom() {
+        int getZoomFrom() {
             return mZoomFrom;
         }
 
-        public int getZoomTo() {
+        int getZoomTo() {
             return mZoomTo;
         }
     }

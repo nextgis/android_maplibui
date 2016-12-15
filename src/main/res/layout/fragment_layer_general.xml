@@ -54,14 +54,6 @@
             android:visibility="gone"/>
 
         <TextView
-            android:id="@+id/layer_custom_form"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:visibility="gone"/>
-
-        <TextView
             style="?android:attr/listSeparatorTextViewStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -92,7 +84,7 @@
         <com.edmodo.rangebar.RangeBar
             android:id="@+id/rangebar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_margin="5dp"
             custom:tickCount="26"/>
 
@@ -124,5 +116,14 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 tools:ignore="UnusedAttribute"/>
         </LinearLayout>
+
+        <Button
+            android:id="@+id/delete_features"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/clear_layer"
+            android:visibility="gone"/>
     </LinearLayout>
 </ScrollView>

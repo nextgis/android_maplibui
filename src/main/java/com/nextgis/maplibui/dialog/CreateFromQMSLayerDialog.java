@@ -169,7 +169,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         super.onStart();
 
         final AlertDialog dialog = (AlertDialog) getDialog();
-        if (dialog != null) {
+        if (dialog != null && mLayers == null) {
             mPositive = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
             mEnabledColor = mPositive.getTextColors().getDefaultColor();
             setEnabled(mPositive, false);

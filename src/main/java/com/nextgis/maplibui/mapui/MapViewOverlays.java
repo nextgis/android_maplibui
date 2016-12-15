@@ -105,12 +105,6 @@ public class MapViewOverlays
     }
 
 
-    public MapDrawable getMap()
-    {
-        return mMap;
-    }
-
-
     public void addOverlay(Overlay overlay)
     {
         mOverlays.add(overlay);

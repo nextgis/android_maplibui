@@ -62,6 +62,7 @@ import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.dialog.NGWResourcesListAdapter;
 import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
+import com.nextgis.maplibui.mapui.MapView;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.NGWWebMapLayerUI;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
@@ -85,6 +86,7 @@ public class LayersListAdapter
         implements MapEventListener
 {
 
+    protected final MapView mMapView;
     protected final MapDrawable mMap;
     protected final Context mContext;
     protected final NGActivity mActivity;
@@ -99,9 +101,10 @@ public class LayersListAdapter
 
     public LayersListAdapter(
             NGActivity activity,
-            MapDrawable map)
+            MapView map)
     {
-        mMap = map;
+        mMapView = map;
+        mMap = map.getMap();
         mContext = mActivity = activity;
 
         if (null != mMap) {
@@ -182,7 +185,7 @@ public class LayersListAdapter
     }
 
 
-    protected View getStandardLayerView(
+    private View getStandardLayerView(
             final ILayer layer,
             View view)
     {
@@ -287,7 +290,7 @@ public class LayersListAdapter
                         if (layerui instanceof NGWWebMapLayerUI) {
                             popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(false);
                             popup.getMenu().findItem(R.id.menu_edit).setVisible(true);
-                            popup.getMenu().findItem(R.id.menu_edit).setTitle(R.string.track_list);
+                            popup.getMenu().findItem(R.id.menu_edit).setTitle(R.string.sync_layers);
                         }
 
                         popup.setOnMenuItemClickListener(
@@ -297,84 +300,26 @@ public class LayersListAdapter
                                     {
                                         int i = item.getItemId();
                                         if (i == R.id.menu_settings) {
-                                            //Layer layer = mMap.getLayerById(id);
                                             assert layerui != null;
                                             layerui.changeProperties(mContext);
                                         } else if (i == R.id.menu_share) {
-                                            assert (layerui) != null;
+                                            assert layerui != null;
 
                                             if (layerui instanceof TrackLayerUI) {
-                                                if (mTracksSyncEnabled) {
-                                                    List<ILayer> tracks = new ArrayList<>();
-                                                    LayerGroup.getLayersByType(mMap, LAYERTYPE_NGW_TRACKS, tracks);
-                                                    if (tracks.size() > 0) {
-                                                        tracks.get(0).delete();
-                                                        mMap.save();
-                                                        Toast.makeText(mContext, R.string.sync_disabled, Toast.LENGTH_SHORT).show();
-                                                    }
-                                                } else {
-                                                    final SelectNGWResourceDialog selectAccountDialog = new SelectNGWResourceDialog();
-                                                    selectAccountDialog.setConnectionListener(new NGWResourcesListAdapter.OnConnectionListener() {
-                                                        @Override
-                                                        public void onConnectionSelected(final Connection connection) {
-                                                            new NGWTrackLayerCreateTask(mActivity, connection).execute();
-                                                            selectAccountDialog.dismiss();
-                                                        }
-
-                                                        @Override
-                                                        public void onAddConnection() {
-                                                            selectAccountDialog.onAddAccount(mContext);
-                                                        }
-                                                    })
-                                                            .setTitle(mContext.getString(R.string.accounts))
-                                                            .setTheme(mActivity.getThemeId())
-                                                            .show(mActivity.getSupportFragmentManager(), "choose_ngw_account");
-                                                }
+//                                                handleTrackSync();
+                                                Toast.makeText(mContext, R.string.commercial, Toast.LENGTH_SHORT).show();
+                                                return true;
                                             } else if (layerui instanceof VectorLayer) {
                                                 VectorLayer vectorLayer = (VectorLayer) layerui;
                                                 LayerUtil.shareLayerAsGeoJSON(mActivity, vectorLayer);
                                             }
                                         } else if (i == R.id.menu_edit) {
                                             if (layerui instanceof NGWWebMapLayerUI)
-                                                ((NGWWebMapLayerUI) layerui).showLayersDialog(mActivity);
+                                                ((NGWWebMapLayerUI) layerui).showLayersDialog(mMapView, mActivity);
                                             else if (mEditListener != null)
                                                 mEditListener.onLayerEdit(layer);
                                         } else if (i == R.id.menu_delete) {
-                                            final int position = mMap.removeLayer(layer);
-
-                                            View focus = mActivity.getCurrentFocus();
-                                            if (focus == null)
-                                                return true;
-
-                                            Snackbar snackbar = Snackbar.make(focus, mActivity.getString(R.string.delete_layer_done), Snackbar.LENGTH_LONG)
-                                                    .setAction(R.string.undo, new View.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(View v) {
-                                                            mMap.insertLayer(position, layer);
-                                                        }
-                                                    })
-                                                    .setCallback(new Snackbar.Callback() {
-                                                        @Override
-                                                        public void onDismissed(Snackbar snackbar, int event) {
-                                                            super.onDismissed(snackbar, event);
-                                                            if (event == DISMISS_EVENT_MANUAL)
-                                                                return;
-                                                            if (event != DISMISS_EVENT_ACTION) {
-                                                                layer.delete();
-                                                                mMap.save();
-                                                            }
-                                                        }
-
-                                                        @Override
-                                                        public void onShown(Snackbar snackbar) {
-                                                            super.onShown(snackbar);
-                                                        }
-                                                    });
-
-                                            View view = snackbar.getView();
-                                            TextView textView = (TextView) view.findViewById(R.id.snackbar_text);
-                                            textView.setTextColor(ContextCompat.getColor(mActivity, R.color.color_white));
-                                            snackbar.show();
+                                            return deleteLayer(layer);
                                         } else if (i == R.id.menu_zoom_extent) {
                                             mMap.zoomToExtent(layer.getExtents());
                                         } else if (i == R.id.menu_download_tiles) {
@@ -412,6 +357,73 @@ public class LayersListAdapter
         return v;
     }
 
+    private boolean deleteLayer(final ILayer layer) {
+        final int position = mMap.removeLayer(layer);
+
+        View focus = mActivity.getCurrentFocus();
+        if (focus == null)
+            return true;
+
+        Snackbar snackbar = Snackbar.make(focus, mActivity.getString(R.string.delete_layer_done), Snackbar.LENGTH_LONG)
+                                    .setAction(R.string.undo, new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            mMap.insertLayer(position, layer);
+                                        }
+                                    })
+                                    .setCallback(new Snackbar.Callback() {
+                                        @Override
+                                        public void onDismissed(Snackbar snackbar, int event) {
+                                            super.onDismissed(snackbar, event);
+                                            if (event == DISMISS_EVENT_MANUAL)
+                                                return;
+                                            if (event != DISMISS_EVENT_ACTION) {
+                                                layer.delete();
+                                                mMap.save();
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onShown(Snackbar snackbar) {
+                                            super.onShown(snackbar);
+                                        }
+                                    });
+
+        View view = snackbar.getView();
+        TextView textView = (TextView) view.findViewById(R.id.snackbar_text);
+        textView.setTextColor(ContextCompat.getColor(mActivity, R.color.color_white));
+        snackbar.show();
+        return true;
+    }
+
+    private void handleTrackSync() {
+        if (mTracksSyncEnabled) {
+            List<ILayer> tracks = new ArrayList<>();
+            LayerGroup.getLayersByType(mMap, LAYERTYPE_NGW_TRACKS, tracks);
+            if (tracks.size() > 0) {
+                tracks.get(0).delete();
+                mMap.save();
+                Toast.makeText(mContext, R.string.sync_disabled, Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            final SelectNGWResourceDialog selectAccountDialog = new SelectNGWResourceDialog();
+            selectAccountDialog.setConnectionListener(new NGWResourcesListAdapter.OnConnectionListener() {
+                @Override
+                public void onConnectionSelected(final Connection connection) {
+                    new NGWTrackLayerCreateTask(mActivity, connection).execute();
+                    selectAccountDialog.dismiss();
+                }
+
+                @Override
+                public void onAddConnection() {
+                    selectAccountDialog.onAddAccount(mContext);
+                }
+            })
+                               .setTitle(mContext.getString(R.string.accounts))
+                               .setTheme(mActivity.getThemeId())
+                               .show(mActivity.getSupportFragmentManager(), "choose_ngw_account");
+        }
+    }
 
     @Override
     public void onLayerAdded(int id)
@@ -466,7 +478,7 @@ public class LayersListAdapter
     }
 
 
-    protected void notifyDataChanged() {
+    void notifyDataChanged() {
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -508,7 +520,7 @@ public class LayersListAdapter
     }
 
 
-    public void beginDrag()
+    void beginDrag()
     {
         if (null == mMap) {
             return;

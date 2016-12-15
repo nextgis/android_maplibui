@@ -55,7 +55,7 @@
     <string name="delete_account_ask">Delete account?</string>
     <string name="delete_account_summary">Delete account. All layers connected with this account will be deleted too. Active synchronization will be stopped.</string>
     <string name="delete_account_warn_msg">Account will be deleted!\nAll account layers will be deleted!\nCurrent sync will be stopped!</string>
-    <string name="waiting">Waiting</string>
+    <string name="waiting">Please wait</string>
     <string name="wait_sync_stopping">Waiting of synchronization stopping</string>
     <string name="add">Add</string>
     <string name="select">Select</string>
@@ -224,12 +224,14 @@
     <string name="menu_download_tiles">Download tiles</string>
     <string name="select_zoom_levels_to_download">Select min and max zoom levels to download tiles of current extent</string>
     <string name="start">Start</string>
-    <string name="select_zoom_levels_to_download_title">Select zoom levels to download</string>
+    <string name="current_zoom">Current zoom %1$.2f</string>
     <string name="download_complete">Download complete</string>
     <string name="download_in_progress">Download in progress</string>
     <string name="cancel_download">Download canceled</string>
     <string name="download_tiles">Download tiles</string>
     <string name="form_tiles_list">Form tiles list</string>
+    <string name="tiles_count">%1$s tiles</string>
+    <string name="counting">Counting…</string>
     <string name="tracks_running">Track is recording now</string>
     <string name="tracks_title">Track %s</string>
     <string name="walkedit_title">Walk edit %s</string>
@@ -244,11 +246,10 @@
     <string name="alpha">Opacity</string>
     <string name="layerInfo">Layer info</string>
     <string name="geom_type">Geometry type</string>
-    <string name="layer_geom_type">%1$s layer</string>
-    <string name="feature_count">%1$d features</string>
+    <string name="feature_count">Features: %1$d (%2$s)</string>
     <string name="layer_local_path">Local path: %1$s</string>
     <string name="layer_remote_path">Remote: %1$s</string>
-    <string name="layer_has_form">Layer has custom form</string>
+    <string name="layer_has_form">with form</string>
     <string name="point">Point</string>
     <string name="multi_point">Multipoint</string>
     <string name="linestring">Linestring</string>
@@ -257,7 +258,7 @@
     <string name="multi_polygon">Multipolygon</string>
     <string name="update_coordinates">Update coordinates</string>
     <string name="background_task_started">The layer initialisation task started</string>
-    <string name="process_layer">Process layer</string>
+    <string name="processing">Processing</string>
     <string name="error_unsupported_layer_type">Current layer type is unsupported </string>
     <string name="value_not_from_list">Value is not from list</string>
     <string name="share_gpx_multiple">How do you want to save selected tracks?</string>
@@ -293,8 +294,7 @@
     <string name="rules">Rules</string>
     <string name="default_style">Default style</string>
     <string name="value">Value</string>
-    <string name="id">ID</string>
-    <string name="replace_field_rule">All rules will be deleted due to changing rule field. Are you sure?</string>
+    <string name="replace_field_rule">All rules will be deleted due to changing rule field.</string>
     <string name="new_gis">Create GIS</string>
     <string name="manual_ngw">Switch to advanced</string>
     <string name="instance_name">Instance name</string>
@@ -311,4 +311,12 @@
     <string name="attributes">Attributes</string>
     <string name="error_cache">Bad cache, try rebuild it in layer settings</string>
     <string name="menu_send_to_ngw">Send to NextGIS</string>
+    <string name="commercial">Available in commercial version</string>
+    <string name="clear_layer">Delete all features</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="delete_features">All features will be deleted.</string>
+    <string name="sync_direction">Sync direction</string>
+    <string name="to_ngw">To server only</string>
+    <string name="from_ngw">From server only</string>
+    <string name="both_directions">Both directions</string>
 </resources>

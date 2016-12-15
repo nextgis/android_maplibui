@@ -27,6 +27,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.IBinder;
+import android.os.Process;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 
@@ -44,6 +45,7 @@ import java.util.List;
 
 public class RebuildCacheService extends Service implements IProgressor {
     public static final String ACTION_ADD_TASK = "REBUILD_CACHE_ADD_TASK";
+    public static final String ACTION_REMOVE_TASK = "REBUILD_CACHE_REMOVE_TASK";
     public static final String ACTION_STOP = "REBUILD_CACHE_STOP";
     public static final String ACTION_SHOW = "REBUILD_CACHE_SHOW";
     public static final String ACTION_UPDATE = "REBUILD_CACHE_UPDATE_PROGRESS";
@@ -51,15 +53,15 @@ public class RebuildCacheService extends Service implements IProgressor {
     public static final String KEY_MAX = "max";
 
     protected NotificationManager mNotifyManager;
-    protected List<VectorLayer> mQueue;
+    protected List<Integer> mQueue;
     protected static final int NOTIFICATION_ID = 99;
     protected NotificationCompat.Builder mBuilder;
     protected Intent mProgressIntent;
 
     protected VectorLayer mLayer;
-    protected int mProgressMax, mTotalTasks, mCurrentTasks;
+    protected int mProgressMax, mCurrentTasks;
     protected long mLastUpdate = 0;
-    protected boolean mIsRunning, mIsCanceled;
+    protected boolean mIsRunning, mIsCanceled, mRemoveCurrent;
 
     @Override
     public void onCreate() {
@@ -70,11 +72,9 @@ public class RebuildCacheService extends Service implements IProgressor {
         mProgressIntent = new Intent(ACTION_UPDATE);
         Intent intent = new Intent(this, RebuildCacheService.class);
         intent.setAction(ACTION_STOP);
-        PendingIntent stopService = PendingIntent.getService(this, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent stopService = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         intent.setAction(ACTION_SHOW);
-        PendingIntent showProgressDialog = PendingIntent.getService(this, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent showProgressDialog = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         mBuilder = new NotificationCompat.Builder(this);
         mBuilder.setSmallIcon(R.drawable.ic_notification_rebuild_cache).setLargeIcon(largeIcon)
@@ -94,13 +94,22 @@ public class RebuildCacheService extends Service implements IProgressor {
             if (!TextUtils.isEmpty(action)) {
                 switch (action) {
                     case ACTION_ADD_TASK:
-                        int layerId = intent.getIntExtra(ConstantsUI.KEY_LAYER_ID, Constants.NOT_FOUND);
-                        mQueue.add((VectorLayer) MapBase.getInstance().getLayerById(layerId));
-                        mTotalTasks++;
+                        int layerIdAdd = intent.getIntExtra(ConstantsUI.KEY_LAYER_ID, Constants.NOT_FOUND);
+                        mQueue.add(layerIdAdd);
 
                         if (!mIsRunning)
                             startNextTask();
 
+                        return START_STICKY;
+                    case ACTION_REMOVE_TASK:
+                        int layerIdRemove = intent.getIntExtra(ConstantsUI.KEY_LAYER_ID, Constants.NOT_FOUND);
+                        mCurrentTasks--;
+
+                        if (!mQueue.contains(layerIdRemove))
+                            if (mLayer != null && mLayer.getId() == layerIdRemove)
+                                mRemoveCurrent = true;
+                            else
+                                mQueue.remove(layerIdRemove);
                         return START_STICKY;
                     case ACTION_STOP:
                         mQueue.clear();
@@ -109,7 +118,7 @@ public class RebuildCacheService extends Service implements IProgressor {
                     case ACTION_SHOW:
                         Intent settings = new Intent(this, VectorLayerSettingsActivity.class);
                         settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        settings.putExtra(ConstantsUI.KEY_LAYER_ID, mLayer.getId());
+                        settings.putExtra(ConstantsUI.KEY_LAYER_ID, mLayer != null ? mLayer.getId() : Constants.NOT_FOUND);
                         startActivity(settings);
                         break;
                 }
@@ -118,9 +127,9 @@ public class RebuildCacheService extends Service implements IProgressor {
         return START_STICKY;
     }
 
-    protected void startNextTask(){
-        if(mQueue.isEmpty()){
-            mTotalTasks = mCurrentTasks = 0;
+    protected void startNextTask() {
+        if (mQueue.isEmpty()) {
+            mCurrentTasks = 0;
             mNotifyManager.cancel(NOTIFICATION_ID);
             mProgressIntent.putExtra(KEY_PROGRESS, 0);
             sendBroadcast(mProgressIntent);
@@ -134,21 +143,21 @@ public class RebuildCacheService extends Service implements IProgressor {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                mLayer = mQueue.remove(0);
+                mLayer = (VectorLayer) MapBase.getInstance().getLayerById(mQueue.remove(0));
                 mIsRunning = true;
                 mCurrentTasks++;
-                String notifyTitle = getString(R.string.rebuild_cache) + ": " + mCurrentTasks + "/" + mTotalTasks;
+                String notifyTitle = getString(R.string.rebuild_cache) + ": " + mCurrentTasks + "/" + mQueue.size() + 1;
 
                 mBuilder.setWhen(System.currentTimeMillis())
                         .setContentTitle(notifyTitle)
                         .setTicker(notifyTitle);
                 mNotifyManager.notify(NOTIFICATION_ID, mBuilder.build());
 
-                android.os.Process.setThreadPriority(Constants.DEFAULT_DOWNLOAD_THREAD_PRIORITY);
-                progressor.setValue(0);
-                mLayer.rebuildCache(progressor);
+                Process.setThreadPriority(Constants.DEFAULT_DOWNLOAD_THREAD_PRIORITY);
+                if (mLayer != null)
+                    mLayer.rebuildCache(progressor);
 
-                mIsRunning = false;
+                mIsRunning = mRemoveCurrent = false;
                 startNextTask();
             }
         }).start();
@@ -167,7 +176,7 @@ public class RebuildCacheService extends Service implements IProgressor {
 
     @Override
     public boolean isCanceled() {
-        return mIsCanceled;
+        return mIsCanceled || mRemoveCurrent;
     }
 
     @Override
@@ -178,7 +187,8 @@ public class RebuildCacheService extends Service implements IProgressor {
             mNotifyManager.notify(NOTIFICATION_ID, mBuilder.build());
         }
 
-        mProgressIntent.putExtra(KEY_PROGRESS, value).putExtra(KEY_MAX, mProgressMax);
+        mProgressIntent.putExtra(KEY_PROGRESS, value).putExtra(KEY_MAX, mProgressMax)
+                       .putExtra(ConstantsUI.KEY_LAYER_ID, mLayer != null ? mLayer.getId() : Constants.NOT_FOUND);
         sendBroadcast(mProgressIntent);
     }
 

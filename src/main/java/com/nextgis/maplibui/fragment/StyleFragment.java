@@ -305,7 +305,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         });
 
         final List<Field> mFields = mLayer.getFields();
-        mFields.add(0, new Field(GeoConstants.FTInteger, Constants.FIELD_ID, getString(R.string.id)));
+        mFields.add(0, new Field(GeoConstants.FTInteger, Constants.FIELD_ID, Constants.FIELD_ID));
         final List<String> fieldNames = new ArrayList<>();
         int id = -1;
         for (int i = 0; i < mFields.size(); i++) {

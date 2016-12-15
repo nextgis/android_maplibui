@@ -44,6 +44,9 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.MenuItem;
@@ -52,8 +55,11 @@ import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.util.LocationUtil;
+import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 
 import org.json.JSONException;
@@ -358,4 +364,17 @@ public final class ControlHelper {
             }
         });
     }
+
+    public static void setZoomText(Activity activity, TextView text, int string, int zoom) {
+        String scale = LocationUtil.formatLength(activity, MapUtil.getScaleInCm(activity, zoom), 0);
+        text.setText(String.format(activity.getString(string) + "\r\n" + scale, zoom));
+    }
+
+    public static void highlightText(TextView textView) {
+        final CharSequence text = textView.getText();
+        final SpannableString spannableString = new SpannableString(text);
+        spannableString.setSpan(new URLSpan(""), 0, spannableString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        textView.setText(spannableString, TextView.BufferType.SPANNABLE);
+    }
+
 }

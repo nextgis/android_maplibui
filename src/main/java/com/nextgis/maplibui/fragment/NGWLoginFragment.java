@@ -31,10 +31,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.Editable;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextWatcher;
-import android.text.style.URLSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,6 +45,7 @@ import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGWSettingsActivity;
 import com.nextgis.maplibui.service.HTTPLoader;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -140,7 +138,7 @@ public class NGWLoginFragment
 
         mManual = (TextView) view.findViewById(R.id.manual);
         mManual.setOnClickListener(this);
-        highlightText();
+        ControlHelper.highlightText(mManual);
 
         mLogin.setText(DEFAULT_ACCOUNT);
         if (!mForNewAccount) {
@@ -232,16 +230,8 @@ public class NGWLoginFragment
                     mUrlText += ENDING;
             }
 
-            highlightText();
+            ControlHelper.highlightText(mManual);
         }
-    }
-
-
-    private void highlightText() {
-        final CharSequence text = mManual.getText();
-        final SpannableString spannableString = new SpannableString(text);
-        spannableString.setSpan(new URLSpan(""), 0, spannableString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mManual.setText(spannableString, TextView.BufferType.SPANNABLE);
     }
 
 

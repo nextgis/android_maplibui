@@ -55,7 +55,7 @@
     <string name="delete_account_ask">Удалить учетную запись?</string>
     <string name="delete_account_summary">Удаление учетной записи. Все слои связанные с этой учетной записью тоже будут удалены. Синхронизация будет остановлена.</string>
     <string name="delete_account_warn_msg">Учетная запись будет удалена!\nВсе слои будут удалены!\nСинхронизация будет остановлена!</string>
-    <string name="waiting">Ожидание</string>
+    <string name="waiting">Пожалуйста подождите</string>
     <string name="wait_sync_stopping">Ожидание остановки синхронизации</string>
     <string name="add">Добавить</string>
     <string name="select">Выбор</string>
@@ -203,14 +203,16 @@
     <string name="brightness">Яркость</string>
     <string name="menu_zoom_extent">Увеличить до охвата</string>
     <string name="menu_download_tiles">Загрузить тайлы</string>
-    <string name="select_zoom_levels_to_download">Выберите масштабные уровни для загрузки тайлов в текущем охвате</string>
+    <string name="select_zoom_levels_to_download">Выберите масштабные уровни для загрузки тайлов в текущем окне</string>
     <string name="start">Начать</string>
-    <string name="select_zoom_levels_to_download_title">Выберите масштабные уровни для загрузки</string>
+    <string name="current_zoom">Текущий зум %1$.2f</string>
     <string name="download_complete">Загрузка завершена</string>
     <string name="download_in_progress">Загрузка…</string>
     <string name="cancel_download">Загрузка отменена</string>
     <string name="download_tiles">Загрузка тайлов</string>
     <string name="form_tiles_list">Формирование списка тайлов</string>
+    <string name="tiles_count">%1$s тайлов</string>
+    <string name="counting">Идет подсчет…</string>
     <string name="tracks_running">Записывается трек</string>
     <string name="tracks_title">Трек %s</string>
     <string name="walkedit_title">Ввод обходом %s</string>
@@ -223,11 +225,10 @@
     <string name="alpha">Непрозрачность</string>
     <string name="layerInfo">Информация о слое</string>
     <string name="geom_type">Тип геометрии</string>
-    <string name="layer_geom_type">%1$s</string>
-    <string name="feature_count">Записей: %1$d</string>
+    <string name="feature_count">Объектов: %1$d (%2$s)</string>
     <string name="layer_local_path">Локальный путь: %1$s</string>
     <string name="layer_remote_path">Удаленный: %1$s</string>
-    <string name="layer_has_form">У слоя есть пользовательская форма</string>
+    <string name="layer_has_form">с формой</string>
     <string name="point">Точка</string>
     <string name="multi_point">Мультиточка</string>
     <string name="linestring">Линия</string>
@@ -236,7 +237,7 @@
     <string name="multi_polygon">Мультиполигон</string>
     <string name="update_coordinates">Обновить координаты</string>
     <string name="background_task_started">Задача инициализации слоя запущена</string>
-    <string name="process_layer">Обработка слоя</string>
+    <string name="processing">Обработка</string>
     <string name="error_unsupported_layer_type">Данный тип слоя не поддерживается</string>
     <string name="value_not_from_list">Значение не из списка</string>
     <string name="share_gpx_multiple">Как сохранить выбранные треки?</string>
@@ -270,7 +271,6 @@
     <string name="rules">Правила</string>
     <string name="default_style">Стиль по-умолчанию</string>
     <string name="value">Значение</string>
-    <string name="id">ИД</string>
     <string name="replace_field_rule">Все текущие правила будут удалены из-за смены поля для правила. Вы уверены?</string>
     <string name="new_gis">Создать ГИС</string>
     <string name="manual_ngw">Расширенные настройки</string>
@@ -309,4 +309,12 @@
     <string name="new_group">Создать новую группу</string>
     <string name="new_group_name">Имя группы:</string>
     <string name="message_group_created">Группа создана</string>
+    <string name="commercial">Доступно в коммерческой версии</string>
+    <string name="clear_layer">Удалить все объекты</string>
+    <string name="are_you_sure">Вы уверены?</string>
+    <string name="delete_features">Все объекты будут удалены.</string>
+    <string name="sync_direction">Направление синхронизации</string>
+    <string name="to_ngw">Только на сервер</string>
+    <string name="from_ngw">Только с сервера</string>
+    <string name="both_directions">В обе стороны</string>
 </resources>

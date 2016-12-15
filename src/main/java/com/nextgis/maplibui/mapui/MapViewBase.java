@@ -51,6 +51,9 @@ public class MapViewBase
     protected MapDrawable                mMap;
     protected List<MapViewEventListener> mListeners;
 
+    interface OnNeedRedraw {
+        public void OnDirty();
+    }
 
     public MapViewBase(
             Context context,
@@ -60,6 +63,12 @@ public class MapViewBase
 
         mMap = map;
         mListeners = new ArrayList<>();
+    }
+
+
+    public MapDrawable getMap()
+    {
+        return mMap;
     }
 
 

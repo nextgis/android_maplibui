@@ -371,7 +371,7 @@ public class LayerFillService extends Service implements IProgressor {
         public String getDescription(){
             if(null == mLayer)
                 return "";
-            return getString(R.string.process_layer) + " " + mLayer.getName();
+            return getString(R.string.processing) + " " + mLayer.getName();
         }
 
         public ILayer getLayer() {

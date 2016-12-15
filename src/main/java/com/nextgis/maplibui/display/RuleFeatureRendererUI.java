@@ -142,7 +142,7 @@ public class RuleFeatureRendererUI extends RendererUI {
                 key = Constants.FIELD_ID;
 
             mFields = mLayer.getFields();
-            mFields.add(0, new Field(GeoConstants.FTInteger, Constants.FIELD_ID, getString(R.string.id)));
+            mFields.add(0, new Field(GeoConstants.FTInteger, Constants.FIELD_ID, Constants.FIELD_ID));
             final List<String> fieldNames = new ArrayList<>();
             for (int i = 0; i < mFields.size(); i++) {
                 fieldNames.add(mFields.get(i).getAlias());
@@ -173,7 +173,7 @@ public class RuleFeatureRendererUI extends RendererUI {
                     }
 
                     AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-                    alert.setTitle(android.R.string.dialog_alert_title).setMessage(R.string.replace_field_rule)
+                    alert.setTitle(R.string.are_you_sure).setMessage(R.string.replace_field_rule)
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {

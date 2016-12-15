@@ -35,6 +35,7 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.TMSLayerSettingsActivity;
 import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.dialog.SelectZoomLevelsDialog;
+import com.nextgis.maplibui.util.ClearCacheTask;
 import com.nextgis.maplibui.util.ConstantsUI;
 
 import java.io.File;
@@ -64,7 +65,7 @@ public class NGWWebMapLayerUI extends NGWWebMapLayer implements ILayerUI {
                 show(fragmentActivity.getSupportFragmentManager(), "select_zoom_levels");
     }
 
-    public void showLayersDialog(Context context) {
+    public void showLayersDialog(final MapView map, final Context context) {
         CharSequence[] names = new CharSequence[mChildren.size()];
         final boolean[] visible = new boolean[mChildren.size()];
         for (int i = 0; i < mChildren.size(); i++) {
@@ -84,8 +85,23 @@ public class NGWWebMapLayerUI extends NGWWebMapLayer implements ILayerUI {
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        updateURL();
-                        save();
+                        String oldUrl = getURL();
+                        String newUrl = updateURL();
+
+                        if (!oldUrl.equals(newUrl)) {
+                            DialogInterface.OnDismissListener listener = new DialogInterface.OnDismissListener() {
+                                @Override
+                                public void onDismiss(DialogInterface dialogInterface) {
+                                    if (mBitmapCache != null)
+                                        mBitmapCache.clear();
+
+                                    map.drawMapDrawable();
+                                }
+                            };
+
+                            new ClearCacheTask(context, listener).execute(getPath());
+                            save();
+                        }
                     }
                 });
 

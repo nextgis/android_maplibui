@@ -43,6 +43,7 @@ public abstract class LayerSettingsActivity extends NGActivity {
     protected TabLayout mTabLayout;
     protected ViewPager mViewPager;
     protected LayerTabsAdapter mAdapter;
+    protected MapBase mMap;
 
     public String mLayerName;
     public float mLayerMinZoom;
@@ -62,13 +63,14 @@ public abstract class LayerSettingsActivity extends NGActivity {
         }
 
         IGISApplication application = (IGISApplication) getApplication();
-        MapBase map = application.getMap();
+        mMap = application.getMap();
 
-        if (null != map) {
-            ILayer layer = map.getLayerById(layerId);
+        if (null != mMap) {
+            ILayer layer = mMap.getLayerById(layerId);
             if (null != layer) {
                 mLayer = layer;
                 mLayerName = mLayer.getName();
+                setTitle(mLayerName);
             }
         }
 
@@ -95,6 +97,10 @@ public abstract class LayerSettingsActivity extends NGActivity {
             outState.putInt(ConstantsUI.KEY_LAYER_ID, mLayer.getId());
     }
 
+    public void onFeaturesCountChanged() {
+
+    }
+
     abstract void addFragments();
     abstract void saveSettings();
 
@@ -102,7 +108,7 @@ public abstract class LayerSettingsActivity extends NGActivity {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
 
-        public LayerTabsAdapter(FragmentManager manager) {
+        LayerTabsAdapter(FragmentManager manager) {
             super(manager);
         }
 
@@ -116,7 +122,7 @@ public abstract class LayerSettingsActivity extends NGActivity {
             return mFragmentList.size();
         }
 
-        public void addFragment(Fragment fragment, int title) {
+        void addFragment(Fragment fragment, int title) {
             mFragmentList.add(fragment);
             mFragmentTitleList.add(getString(title));
         }

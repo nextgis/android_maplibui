@@ -42,6 +42,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -74,12 +75,13 @@ import com.nextgis.maplibui.service.RebuildCacheService;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
-
 
 /**
  * Vector layer settings activity. Include common settings (layer name) and renderer settings.
@@ -89,6 +91,7 @@ public class VectorLayerSettingsActivity
         implements View.OnClickListener {
     protected static VectorLayer mVectorLayer;
     protected static IRenderer mRenderer;
+    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,11 +107,19 @@ public class VectorLayerSettingsActivity
             mLayerMinZoom = mVectorLayer.getMinZoom();
             mLayerMaxZoom = mVectorLayer.getMaxZoom();
             mRenderer = mVectorLayer.getRenderer();
-
-            Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-            setTitle(String.format(getString(R.string.layer_geom_type), getGeometryName(mVectorLayer.getGeometryType())));
-            toolbar.setSubtitle(String.format(getString(R.string.feature_count), mVectorLayer.getCount()));
+            mToolbar = (Toolbar) findViewById(R.id.main_toolbar);
+            setSubtitle();
         }
+    }
+
+    private void setSubtitle() {
+        String subtitle = getGeometryName(mVectorLayer.getGeometryType()).toLowerCase();
+        File formPath = new File(mLayer.getPath(), ConstantsUI.FILE_FORM);
+        if (formPath.exists())
+            subtitle += " " + getString(R.string.layer_has_form);
+
+        subtitle = String.format(getString(R.string.feature_count), mVectorLayer.getCount(), subtitle);
+        mToolbar.setSubtitle(subtitle);
     }
 
     @Override
@@ -120,7 +131,9 @@ public class VectorLayerSettingsActivity
         LayerGeneralSettingsFragment generalSettingsFragment = new LayerGeneralSettingsFragment();
         generalSettingsFragment.setRoot(mLayer, this);
         mAdapter.addFragment(generalSettingsFragment, R.string.general);
-        mAdapter.addFragment(new CacheFragment(), R.string.cache);
+        CacheFragment cacheFragment = new CacheFragment();
+        cacheFragment.setActivity(this);
+        mAdapter.addFragment(cacheFragment, R.string.cache);
     }
 
     @Override
@@ -130,17 +143,21 @@ public class VectorLayerSettingsActivity
         intent.putExtra(ConstantsUI.KEY_LAYER_ID, mVectorLayer.getId());
 
         int i = v.getId();
-        if (i == R.id.buildCacheButton) {
+        if (i == R.id.rebuild_cache) {
             intent.setAction(RebuildCacheService.ACTION_ADD_TASK);
             startService(intent);
+            v.setEnabled(false);
+            v.getRootView().findViewById(R.id.rebuild_progress).setVisibility(View.VISIBLE);
         } else if (i == R.id.cancelBuildCacheButton) {
             intent.setAction(RebuildCacheService.ACTION_STOP);
             startService(intent);
+            v.getRootView().findViewById(R.id.rebuild_cache).setEnabled(true);
+            v.getRootView().findViewById(R.id.rebuild_progress).setVisibility(View.GONE);
         }
     }
 
     private String getGeometryName(int geometryType) {
-        switch (geometryType){
+        switch (geometryType) {
             case GeoConstants.GTPoint:
                 return getString(R.string.point);
             case GeoConstants.GTMultiPoint:
@@ -158,6 +175,9 @@ public class VectorLayerSettingsActivity
         }
     }
 
+    public void onFeaturesCountChanged() {
+        setSubtitle();
+    }
 
     @Override
     protected void saveSettings() {
@@ -165,11 +185,12 @@ public class VectorLayerSettingsActivity
             return;
 
         mVectorLayer.setName(mLayerName);
-
         mVectorLayer.setMinZoom(mLayerMinZoom);
         mVectorLayer.setMaxZoom(mLayerMaxZoom);
-
+        boolean changes = mRenderer != mVectorLayer.getRenderer() || mLayerMaxZoom != mVectorLayer.getMaxZoom() || mLayerMinZoom != mVectorLayer.getMinZoom();
         mVectorLayer.save();
+        if (changes)
+            mMap.setDirty(true);
     }
 
     public static class StyleFragment extends Fragment {
@@ -244,12 +265,9 @@ public class VectorLayerSettingsActivity
     }
 
     public static class FieldsFragment extends Fragment {
-        protected List<String> mFields;
-        protected int mDefault = -1;
-
-        public FieldsFragment() {
-
-        }
+        protected List<String> mFieldAliases;
+        protected List<String> mFieldNames;
+        protected int mDefault = 0;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -261,40 +279,46 @@ public class VectorLayerSettingsActivity
             View v = inflater.inflate(R.layout.fragment_vector_layer_fields, container, false);
             ListView fields = (ListView) v.findViewById(R.id.listView);
             fillFields();
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice, mFields);
-            fields.setAdapter(adapter);
-            if (mDefault >= 0)
-                fields.setItemChecked(mDefault, true);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice, mFieldAliases);
 
+            fields.setAdapter(adapter);
+            fields.setItemChecked(mDefault, true);
             fields.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    String fieldName = mFields.get(position).split(" - ")[0];
+                    String fieldName = mFieldNames.get(position);
                     mVectorLayer.getPreferences().edit().putString(SettingsConstantsUI.KEY_PREF_LAYER_LABEL, fieldName).commit();
                     Toast.makeText(getContext(), String.format(getString(R.string.label_field_toast), fieldName), Toast.LENGTH_SHORT).show();
                 }
             });
+
             return v;
         }
 
         private void fillFields() {
-            mFields = new ArrayList<>();
+            mFieldNames = new ArrayList<>();
+            mFieldAliases = new ArrayList<>();
+            mFieldNames.add(FIELD_ID);
+            mFieldAliases.add(FIELD_ID + " - " + LayerUtil.typeToString(getContext(), GeoConstants.FTInteger));
+
             int fieldsCount = mVectorLayer.getFields().size();
             String labelField = mVectorLayer.getPreferences().getString(SettingsConstantsUI.KEY_PREF_LAYER_LABEL, Constants.FIELD_ID);
 
             for (int i = 0; i < fieldsCount; i++) {
                 Field field = mVectorLayer.getFields().get(i);
-                String fieldInfo = field.getName() + " - " + LayerUtil.typeToString(getContext(), field.getType());
+                String fieldInfo = field.getAlias() + " - " + LayerUtil.typeToString(getContext(), field.getType());
                 if (field.getName().equals(labelField))
-                    mDefault = i;
+                    mDefault = i + 1;
 
-                mFields.add(fieldInfo);
+                mFieldNames.add(field.getName());
+                mFieldAliases.add(fieldInfo);
             }
         }
     }
 
     public static class CacheFragment extends Fragment {
-        protected BroadcastReceiver mRebuildCacheReceiver;
+        private BroadcastReceiver mRebuildCacheReceiver;
+        private VectorLayerSettingsActivity mActivity;
 
         public CacheFragment() {
 
@@ -310,15 +334,32 @@ public class VectorLayerSettingsActivity
             View v = inflater.inflate(R.layout.fragment_vector_layer_cache, container, false);
 
             final ProgressBar rebuildCacheProgress = (ProgressBar) v.findViewById(R.id.rebuildCacheProgressBar);
-            final ImageButton buildCacheButton = (ImageButton) v.findViewById(R.id.buildCacheButton);
+            final Button buildCacheButton = (Button) v.findViewById(R.id.rebuild_cache);
             buildCacheButton.setOnClickListener((View.OnClickListener) getActivity());
             final ImageButton cancelBuildCacheButton = (ImageButton) v.findViewById(R.id.cancelBuildCacheButton);
             cancelBuildCacheButton.setOnClickListener((View.OnClickListener) getActivity());
+            final View progressView = v.findViewById(R.id.rebuild_progress);
 
             mRebuildCacheReceiver = new BroadcastReceiver() {
                 public void onReceive(Context context, Intent intent) {
-                    rebuildCacheProgress.setMax(intent.getIntExtra(RebuildCacheService.KEY_MAX, 0));
-                    rebuildCacheProgress.setProgress(intent.getIntExtra(RebuildCacheService.KEY_PROGRESS, 0));
+                    int max = intent.getIntExtra(RebuildCacheService.KEY_MAX, 0);
+                    int progress = intent.getIntExtra(RebuildCacheService.KEY_PROGRESS, 0);
+                    int layer = intent.getIntExtra(ConstantsUI.KEY_LAYER_ID, NOT_FOUND);
+
+                    if (layer == mVectorLayer.getId()) {
+                        rebuildCacheProgress.setMax(max);
+                        rebuildCacheProgress.setProgress(progress);
+                    }
+
+                    if (progress == 0) {
+                        buildCacheButton.setEnabled(true);
+                        progressView.setVisibility(View.GONE);
+                    } else {
+                        buildCacheButton.setEnabled(false);
+                        progressView.setVisibility(View.VISIBLE);
+                    }
+
+                    mActivity.onFeaturesCountChanged();
                 }
             };
 
@@ -338,6 +379,9 @@ public class VectorLayerSettingsActivity
             getActivity().unregisterReceiver(mRebuildCacheReceiver);
         }
 
+        public void setActivity(VectorLayerSettingsActivity activity) {
+            mActivity = activity;
+        }
     }
 
     public static class SyncFragment extends Fragment {
@@ -351,6 +395,8 @@ public class VectorLayerSettingsActivity
 
             TextView accountName = (TextView) v.findViewById(R.id.account_name);
             accountName.setText(String.format(getString(R.string.account), account.name));
+
+            final Spinner direction = (Spinner) v.findViewById(R.id.sync_direction);
             CheckBox enabled = (CheckBox) v.findViewById(R.id.sync_enabled);
             enabled.setChecked(0 == (ngwLayer.getSyncType() & Constants.SYNC_NONE));
             enabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -362,6 +408,20 @@ public class VectorLayerSettingsActivity
                         ngwLayer.setSyncType(Constants.SYNC_NONE);
 
                     ngwLayer.save();
+                    direction.setEnabled(checked);
+                }
+            });
+
+            direction.setSelection(ngwLayer.getSyncDirection() - 1);
+            direction.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    ngwLayer.setSyncDirection(i + 1);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
                 }
             });
 
@@ -384,7 +444,7 @@ public class VectorLayerSettingsActivity
                 for (PeriodicSync sync : syncs) {
                     Bundle bundle = sync.extras;
                     long savedPeriod = bundle.getLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, Constants.NOT_FOUND);
-                    if (savedPeriod > 0){
+                    if (savedPeriod > 0) {
                         prefValue = "" + savedPeriod;
                         break;
                     }

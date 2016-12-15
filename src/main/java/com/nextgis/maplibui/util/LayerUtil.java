@@ -110,13 +110,13 @@ public final class LayerUtil {
         exportTask.execute();
     }
 
-    public static class ExportGeoJSONTask extends AsyncTask<Void, Void, File> {
+    private static class ExportGeoJSONTask extends AsyncTask<Void, Void, File> {
         private Activity mActivity;
         private VectorLayer mLayer;
         private ProgressDialog mProgress;
         private boolean mIsCanceled;
 
-        public ExportGeoJSONTask(Activity activity, VectorLayer layer) {
+        ExportGeoJSONTask(Activity activity, VectorLayer layer) {
             mActivity = activity;
             mLayer = layer;
         }
@@ -262,7 +262,7 @@ public final class LayerUtil {
         }
     }
 
-    public static class ExportGPXTask extends AsyncTask<Void, Void, Void> implements DialogInterface.OnClickListener {
+    private static class ExportGPXTask extends AsyncTask<Void, Void, Void> implements DialogInterface.OnClickListener {
         private static final String XML_VERSION = "<?xml version=\"1.0\"?>";
         private static final String GPX_VERSION = "1.1";
         private static final String GPX_TAG = "<gpx version=\""
@@ -275,23 +275,23 @@ public final class LayerUtil {
         private static final String GPX_TAG_TRACK_CLOSE = "</trk>";
         private static final String GPX_TAG_TRACK_SEGMENT = "<trkseg>";
         private static final String GPX_TAG_TRACK_SEGMENT_CLOSE = "</trkseg>";
-        public static final String GPX_TAG_TRACK_SEGMENT_POINT = "<trkpt lat=\"%s\" lon=\"%s\">";
-        public static final String GPX_TAG_TRACK_SEGMENT_POINT_CLOSE = "</trkpt>";
-        public static final String GPX_TAG_TRACK_SEGMENT_POINT_TIME = "<time>%s</time>";
-        public static final String GPX_TAG_TRACK_SEGMENT_POINT_SAT = "<sat>%s</sat>";
-        public static final String GPX_TAG_TRACK_SEGMENT_POINT_ELE = "<ele>%s</ele>";
-        public static final String GPX_TAG_TRACK_SEGMENT_POINT_FIX = "<fix>%s</fix>";
+        static final String GPX_TAG_TRACK_SEGMENT_POINT = "<trkpt lat=\"%s\" lon=\"%s\">";
+        static final String GPX_TAG_TRACK_SEGMENT_POINT_CLOSE = "</trkpt>";
+        static final String GPX_TAG_TRACK_SEGMENT_POINT_TIME = "<time>%s</time>";
+        static final String GPX_TAG_TRACK_SEGMENT_POINT_SAT = "<sat>%s</sat>";
+        static final String GPX_TAG_TRACK_SEGMENT_POINT_ELE = "<ele>%s</ele>";
+        static final String GPX_TAG_TRACK_SEGMENT_POINT_FIX = "<fix>%s</fix>";
 
         protected NGActivity mActivity;
-        protected AlertDialog.Builder mDialog;
-        protected ProgressDialog mProgress;
-        protected String[] mTracksId;
-        protected boolean mIsCanceled, mIsChosen = true, mSeparateFiles = true;
-        protected int mNoPoints = 0;
-        protected String mHeader;
-        protected ArrayList<Uri> mUris;
+        AlertDialog.Builder mDialog;
+        ProgressDialog mProgress;
+        String[] mTracksId;
+        boolean mIsCanceled, mIsChosen = true, mSeparateFiles = true;
+        int mNoPoints = 0;
+        String mHeader;
+        ArrayList<Uri> mUris;
 
-        public ExportGPXTask(NGActivity activity, String creator, String[] tracksId) {
+        ExportGPXTask(NGActivity activity, String creator, String[] tracksId) {
             mTracksId = tracksId;
             mActivity = activity;
             mHeader = XML_VERSION + "\r\n" + String.format(GPX_TAG, creator) + "\r\n";
@@ -329,8 +329,8 @@ public final class LayerUtil {
                 final StringBuilder sb = new StringBuilder();
                 final Formatter f = new Formatter(sb);
                 if (!mSeparateFiles) {
-                    sb.append(mHeader);
                     temp = new File(parent, "tracks.gpx");
+                    FileUtil.writeToFile(temp, mHeader);
                 }
 
                 for (String trackId : mTracksId) {
@@ -344,19 +344,17 @@ public final class LayerUtil {
 
                     if (track != null && track.moveToFirst()) {
                         if (mSeparateFiles) {
-                            sb.setLength(0);
                             temp = new File(parent, track.getString(0) + ".gpx");
+                            FileUtil.writeToFile(temp, mHeader);
                         }
 
                         if (trackpoints != null && trackpoints.moveToFirst()) {
                             if (mSeparateFiles) {
-                                sb.append(mHeader);
-                                appendTrack(track.getString(0), sb, f, trackpoints);
-                                sb.append(GPX_TAG_CLOSE);
-                                FileUtil.writeToFile(temp, sb.toString());
+                                appendTrack(temp, track.getString(0), sb, f, trackpoints);
+                                FileUtil.writeToFile(temp, GPX_TAG_CLOSE, true);
                                 mUris.add(Uri.fromFile(temp));
                             } else
-                                appendTrack(track.getString(0), sb, f, trackpoints);
+                                appendTrack(temp, track.getString(0), sb, f, trackpoints);
 
                             trackpoints.close();
                         } else
@@ -367,8 +365,7 @@ public final class LayerUtil {
                 }
 
                 if (!mSeparateFiles) {
-                    sb.append(GPX_TAG_CLOSE);
-                    FileUtil.writeToFile(temp, sb.toString());
+                    FileUtil.writeToFile(temp, GPX_TAG_CLOSE, true);
                     mUris.add(Uri.fromFile(temp));
                 }
             } catch (IOException e) {
@@ -378,7 +375,7 @@ public final class LayerUtil {
             return null;
         }
 
-        protected void appendTrack(String name, StringBuilder sb, Formatter f, Cursor trackpoints) {
+        void appendTrack(File temp, String name, StringBuilder sb, Formatter f, Cursor trackpoints) throws IOException {
             GeoPoint point = new GeoPoint();
             int latId = trackpoints.getColumnIndex(TrackLayer.FIELD_LAT);
             int lonId = trackpoints.getColumnIndex(TrackLayer.FIELD_LON);
@@ -390,6 +387,7 @@ public final class LayerUtil {
             DecimalFormat df = new DecimalFormat("0", new DecimalFormatSymbols(Locale.ENGLISH));
             df.setMaximumFractionDigits(340); //340 = DecimalFormat.DOUBLE_FRACTION_DIGITS
 
+            sb.setLength(0);
             sb.append(GPX_TAG_TRACK);
 
             if (name != null) {
@@ -399,7 +397,10 @@ public final class LayerUtil {
             }
 
             sb.append(GPX_TAG_TRACK_SEGMENT);
+            FileUtil.writeToFile(temp, sb.toString(), true);
+
             do {
+                sb.setLength(0);
                 point.setCoordinates(trackpoints.getDouble(lonId), trackpoints.getDouble(latId));
                 point.setCRS(CRS_WEB_MERCATOR);
                 point.project(CRS_WGS84);
@@ -411,12 +412,16 @@ public final class LayerUtil {
                 f.format(GPX_TAG_TRACK_SEGMENT_POINT_SAT, trackpoints.getString(satId));
                 f.format(GPX_TAG_TRACK_SEGMENT_POINT_FIX, trackpoints.getString(fixId));
                 sb.append(GPX_TAG_TRACK_SEGMENT_POINT_CLOSE);
+                FileUtil.writeToFile(temp, sb.toString(), true);
             } while (trackpoints.moveToNext());
+
+            sb.setLength(0);
             sb.append(GPX_TAG_TRACK_SEGMENT_CLOSE);
             sb.append(GPX_TAG_TRACK_CLOSE);
+            FileUtil.writeToFile(temp, sb.toString(), true);
         }
 
-        protected String getTimeStampAsString(long nTimeStamp) {
+        String getTimeStampAsString(long nTimeStamp) {
             final SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
             utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             return utcFormat.format(new Date(nTimeStamp));
