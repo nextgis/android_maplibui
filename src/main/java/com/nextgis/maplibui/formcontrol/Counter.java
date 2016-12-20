@@ -78,27 +78,38 @@ public class Counter extends TextEdit
         mIsShowLast = true;
 
         String value = null;
-        if (ControlHelper.hasKey(savedState, mFieldName))
-            value = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
-        else if (null != featureCursor) { // feature exists
+        if (null != featureCursor) { // feature exists
             int column = featureCursor.getColumnIndex(mFieldName);
             if (column >= 0)
                 value = featureCursor.getString(column);
+        } else if (ControlHelper.hasKey(savedState, mFieldName)) {
+            mIncremented = savedState.getLong(ControlHelper.getSavedStateKey(mFieldName));
+            value = getNewValue(attributes);
         } else {    // new feature
             String last = preferences.getString(mFieldName, null);
             if (last == null)
                 last = attributes.getInt(JSON_INIT_VALUE_KEY) - 1 + "";
 
-            String prefix = attributes.optString(PREFIX);
-            String suffix = attributes.optString(SUFFIX);
             int inc = attributes.getInt(INCREMENT);
             mIncremented = Long.valueOf(last) + inc;
-            value = prefix + mIncremented + suffix;
+            value = getNewValue(attributes);
         }
 
         setEnabled(false);
         setText(value);
         setSingleLine(true);
+    }
+
+    private String getNewValue(JSONObject attributes) {
+        String prefix = attributes.optString(PREFIX);
+        String suffix = attributes.optString(SUFFIX);
+        return prefix + mIncremented + suffix;
+    }
+
+    @Override
+    public void saveState(Bundle outState) {
+        super.saveState(outState);
+        outState.putLong(ControlHelper.getSavedStateKey(mFieldName), mIncremented);
     }
 
     @Override
