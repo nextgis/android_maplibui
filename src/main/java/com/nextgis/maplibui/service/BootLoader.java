@@ -38,10 +38,13 @@ public class BootLoader extends BroadcastReceiver {
     public static void checkTrackerService(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean restoreTrack = preferences.getBoolean(SettingsConstants.KEY_PREF_TRACK_RESTORE, false);
-        Intent trackerService = new Intent(context, TrackerService.class);
-        if (!restoreTrack)
-            trackerService.setAction(TrackerService.ACTION_STOP);
 
-        context.startService(trackerService);
+        if (TrackerService.hasUnfinishedTracks(context)) {
+            Intent trackerService = new Intent(context, TrackerService.class);
+            if (!restoreTrack)
+                trackerService.setAction(TrackerService.ACTION_STOP);
+
+            context.startService(trackerService);
+        }
     }
 }
