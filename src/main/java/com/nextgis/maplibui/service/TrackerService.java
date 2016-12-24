@@ -502,7 +502,7 @@ public class TrackerService
 
 
     public static boolean hasUnfinishedTracks(Context context) {
-        IGISApplication app = (IGISApplication) ((Activity) context).getApplication();
+        IGISApplication app = (IGISApplication) context.getApplicationContext();
         Uri tracksUri = Uri.parse("content://" + app.getAuthority() + "/" + TrackLayer.TABLE_TRACKS);
         String selection = TrackLayer.FIELD_END + " IS NULL OR " + TrackLayer.FIELD_END + " = ''";
         Cursor data = context.getContentResolver().query(tracksUri, new String[]{TrackLayer.FIELD_ID}, selection, null, null);
