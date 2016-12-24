@@ -24,11 +24,11 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion '25.0.0'
+    compileSdkVersion 25
+    buildToolsVersion '25.0.1'
     defaultConfig {
-        minSdkVersion 8
-        targetSdkVersion 24
+        minSdkVersion 9
+        targetSdkVersion 25
         versionCode 18
         versionName '2.4.2'
     }
@@ -58,6 +58,6 @@ dependencies {
     compile 'com.github.yukuku:ambilwarna:2.0.1'
     compile 'com.jzxiang.pickerview:TimePickerDialog:1.0.1'
     compile 'com.github.miguelbcr:TableFixHeaders-Wrapper:0.2.0'
-    compile 'com.android.support:appcompat-v7:24.1.1'
-    compile 'com.android.support:design:24.1.1'
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.android.support:design:25.1.0'
 }
