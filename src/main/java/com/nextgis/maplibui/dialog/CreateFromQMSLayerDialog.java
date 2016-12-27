@@ -52,6 +52,7 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
@@ -61,6 +62,7 @@ import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
+import com.nextgis.maplibui.util.ConstantsUI;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -161,6 +163,8 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         mData = new ArrayList<>();
         mChecked = new ArrayList<>();
 
+        IGISApplication application = (IGISApplication) getActivity().getApplication();
+        application.sendScreen(ConstantsUI.GA_DIALOG_QMS);
         return dialog;
     }
 

@@ -92,4 +92,19 @@ public interface ConstantsUI
 
     String PERMISSION_AUTHENTICATE_ACCOUNTS = "android.permission.AUTHENTICATE_ACCOUNTS";
     String PERMISSION_MANAGE_ACCOUNTS       = "android.permission.MANAGE_ACCOUNTS";
+
+    String GA_DIALOG_QMS = "Geoservice QMS";
+    String GA_DIALOG_TMS = "Geoservice New";
+    String GA_LAYER = "Layer";
+    String GA_EDIT = "Edit";
+    String GA_FAB = "FAB";
+    String GA_MENU = "Menu";
+    String GA_CREATE = "Create";
+    String GA_LOCAL = "Local";
+    String GA_IMPORT = "Import";
+    String GA_GEOSERVICE = "Geoservice";
+    String GA_NGW = "NGW";
+    String GA_CONNECT = "Connect";
+    String GA_GUEST = "Guest";
+    String GA_USER = "User";
 }

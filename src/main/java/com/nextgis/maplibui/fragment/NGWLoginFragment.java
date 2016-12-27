@@ -45,6 +45,7 @@ import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGWSettingsActivity;
 import com.nextgis.maplibui.service.HTTPLoader;
+import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
 
 import java.net.URI;
@@ -205,6 +206,9 @@ public class NGWLoginFragment
             } else {
                 mLoader = getLoaderManager().initLoader(id, null, this);
             }
+
+            IGISApplication application = (IGISApplication) getActivity().getApplication();
+            application.sendEvent(ConstantsUI.GA_NGW, ConstantsUI.GA_CONNECT, guest ? ConstantsUI.GA_GUEST : ConstantsUI.GA_USER);
 
             mSignInButton.setEnabled(false);
             mGuestButton.setEnabled(false);

@@ -35,6 +35,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
@@ -42,6 +43,7 @@ import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
+import com.nextgis.maplibui.util.ConstantsUI;
 
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_NORMAL;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
@@ -190,9 +192,14 @@ public class CreateRemoteTMSLayerDialog
                     }
                 })
                 .setNegativeButton(R.string.cancel, null);
+
         // Create the AlertDialog object and return it
         AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
+
+        IGISApplication application = (IGISApplication) getActivity().getApplication();
+        application.sendScreen(ConstantsUI.GA_DIALOG_TMS);
+
         return dialog;
     }
 
