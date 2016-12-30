@@ -41,7 +41,7 @@ public class GreyLine
         ViewGroup.LayoutParams params = greyLine.getLayoutParams();
         params.height = (int) lineHeight;
         greyLine.setLayoutParams(params);
-        greyLine.setBackgroundResource(R.drawable.grey_line_separator);
+        greyLine.setBackgroundResource(R.color.color_grey_600);
     }
 
 }
