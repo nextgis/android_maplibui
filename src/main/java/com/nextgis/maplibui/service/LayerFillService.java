@@ -248,6 +248,7 @@ public class LayerFillService extends Service implements IProgressor {
                         .setContentTitle(notifyTitle)
                         .setTicker(notifyTitle);
                 mNotifyManager.notify(FILL_NOTIFICATION_ID, mBuilder.build());
+                mProgressIntent.getExtras().clear();
                 mProgressIntent.putExtra(KEY_STATUS, STATUS_START).putExtra(KEY_TITLE, notifyTitle);
                 sendBroadcast(mProgressIntent);
 
@@ -255,8 +256,8 @@ public class LayerFillService extends Service implements IProgressor {
                 progressor.setValue(0);
                 boolean result = task.execute(progressor);
 
-                if (task instanceof UnzipForm)
-                    mProgressIntent.removeExtra(KEY_MESSAGE);
+                if (!(task instanceof UnzipForm))
+                    mProgressIntent.putExtra(KEY_MESSAGE, mProgressMessage);
 
                 mProgressIntent.putExtra(KEY_STATUS, STATUS_STOP);
                 mProgressIntent.putExtra(KEY_CANCELLED, mIsCanceled);

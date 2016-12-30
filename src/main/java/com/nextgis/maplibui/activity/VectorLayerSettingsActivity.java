@@ -393,6 +393,9 @@ public class VectorLayerSettingsActivity
             final NGWVectorLayer ngwLayer = ((NGWVectorLayer) mVectorLayer);
             final Account account = app.getAccount(ngwLayer.getAccountName());
 
+            if (account == null)
+                return null;
+
             TextView accountName = (TextView) v.findViewById(R.id.account_name);
             accountName.setText(String.format(getString(R.string.account), account.name));
 
