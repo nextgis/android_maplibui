@@ -77,7 +77,7 @@
     <string name="auto_sync_summary">Синхронизация через заданный интервал</string>
     <string name="sync_interval">Интервал синхронизации</string>
     <string name="actions">Действия</string>
-    <string name="sync_layers">Слои</string>
+    <string name="sync_layers">Настроить слои</string>
     <string name="sync_layers_summary">Проверка слоёв для синхронизации</string>
     <string name="layer_group">Группа</string>
     <string name="layer_ngw_raster">Растр NGW</string>
@@ -286,7 +286,7 @@
     <string name="no_features">В слое нет объектов </string>
     <string name="discard">@string/cancel</string>
     <string name="error_export_geojson">Невозможно создать конечный geojson</string>
-    <string name="attributes">Атрибуты</string>
+    <string name="attributes">Таблица объектов</string>
     <string name="error_cache">Неверный кэш, перестройте в настройках слоя</string>
     <string name="sync_disable">Отключить синхронизацию</string>
     <string name="sync_enable">Включить синхронизацию</string>

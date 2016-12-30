@@ -83,7 +83,7 @@
     <string name="auto_sync_summary">Synchronizace v pravidelných intervalech</string>
     <string name="sync_interval">Interval synchronizace</string>
     <string name="actions">Akce</string>
-    <string name="sync_layers">Vrstvy</string>
+    <string name="sync_layers">Set layers</string>
     <string name="sync_layers_summary">Kontrola vrstev pro synchronizaci na server</string>
     <string name="layer_group">Skupina</string>
     <string name="layer_ngw_raster">NGW Rastr</string>
@@ -292,7 +292,7 @@
     <string name="web_map">Webová mapa</string>
     <string name="no_features">Vrstva nemá žádné objekty</string>
     <string name="error_export_geojson">Nemohu vytvořit geojson výstup</string>
-    <string name="attributes">Atributy</string>
+    <string name="attributes">Features table</string>
     <string name="error_cache">Poškozená cache, pokuste se ji obnovit v nastavení vrstvy</string>
     <string name="menu_send_to_ngw">Poslat do NextGIS</string>
     <string name="click_here">Click here!</string>

@@ -75,7 +75,7 @@
     <string name="auto_sync_summary">Synchronization at regular intervals</string>
     <string name="sync_interval">Synchronization interval</string>
     <string name="actions">Actions</string>
-    <string name="sync_layers">Layers</string>
+    <string name="sync_layers">Set layers</string>
     <string name="sync_layers_summary">Check layers to synchronize with server</string>
     <string name="layer_group">Group</string>
     <string name="layer_ngw_raster">NGW Raster</string>
@@ -285,7 +285,7 @@
     <string name="no_features">Layer has no features</string>
     <string name="discard">Discard</string>
     <string name="error_export_geojson">Can not create geojson output</string>
-    <string name="attributes">Attributes</string>
+    <string name="attributes">Features table</string>
     <string name="error_cache">Bad cache, try rebuild it in layer settings</string>
     <string name="sync_disable">Disable sync</string>
     <string name="sync_enable">Enable sync</string>
