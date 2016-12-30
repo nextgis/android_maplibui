@@ -130,6 +130,7 @@ public class ModifyAttributesActivity
     protected TextView              mAccView;
     protected SwitchCompat          mAccurateLocation;
     protected AppCompatSpinner      mAccuracyCE;
+    protected AlertDialog           mGPSDialog;
 
     protected Location              mLocation;
     protected SharedPreferences mSharedPreferences;
@@ -430,7 +431,8 @@ public class ModifyAttributesActivity
             if (null != app) {
                 GpsEventSource gpsEventSource = app.getGpsEventSource();
                 gpsEventSource.addListener(this);
-                NotificationHelper.showLocationInfo(this);
+                if (mGPSDialog == null || !mGPSDialog.isShowing())
+                    mGPSDialog = NotificationHelper.showLocationInfo(this);
                 setLocationText(gpsEventSource.getLastKnownLocation());
             }
 

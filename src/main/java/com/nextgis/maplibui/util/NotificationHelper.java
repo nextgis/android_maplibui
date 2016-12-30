@@ -40,7 +40,6 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.DisplayMetrics;
 
 import com.nextgis.maplibui.R;
 
@@ -70,10 +69,10 @@ public final class NotificationHelper {
         return largeIcon;
     }
 
-    public static void showLocationInfo(final Context context) {
+    public static AlertDialog showLocationInfo(final Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         if (!preferences.getBoolean(SettingsConstantsUI.KEY_PREF_SHOW_GEO_DIALOG, true))
-            return;
+            return null;
 
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         final boolean isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -99,13 +98,15 @@ public final class NotificationHelper {
             }
 
             if (context instanceof Activity)
-                showLocationDialog(context, title, info);
+                return showLocationDialog(context, title, info);
             else
                 showLocationNotification(context, title, info);
         }
+
+        return null;
     }
 
-    private static void showLocationDialog(final Context context, String title, String info) {
+    private static AlertDialog showLocationDialog(final Context context, String title, String info) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(title).setMessage(info)
                 .setPositiveButton(R.string.action_settings,
@@ -121,11 +122,11 @@ public final class NotificationHelper {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
                                 SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-                                editor.putBoolean(SettingsConstantsUI.KEY_PREF_SHOW_GEO_DIALOG, false).commit();
+                                editor.putBoolean(SettingsConstantsUI.KEY_PREF_SHOW_GEO_DIALOG, false).apply();
                             }
                         });
         builder.create();
-        builder.show();
+        return builder.show();
     }
 
     private static void showLocationNotification(Context context, String title, String info) {
