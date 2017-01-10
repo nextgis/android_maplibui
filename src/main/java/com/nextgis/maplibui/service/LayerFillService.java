@@ -248,7 +248,10 @@ public class LayerFillService extends Service implements IProgressor {
                         .setContentTitle(notifyTitle)
                         .setTicker(notifyTitle);
                 mNotifyManager.notify(FILL_NOTIFICATION_ID, mBuilder.build());
-                mProgressIntent.getExtras().clear();
+
+                if (mProgressIntent.getExtras() != null)
+                    mProgressIntent.getExtras().clear();
+
                 mProgressIntent.putExtra(KEY_STATUS, STATUS_START).putExtra(KEY_TITLE, notifyTitle);
                 sendBroadcast(mProgressIntent);
 
