@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -677,13 +677,12 @@ public class NGWSettingsActivity
     }
 
 
-    protected static List<INGWLayer> getLayersForAccount(
-            final IGISApplication application,
-            Account account) {
+    protected static List<INGWLayer> getLayersForAccount(final IGISApplication application, Account account) {
         List<INGWLayer> out = new ArrayList<>();
+        if (application == null || account == null)
+            return out;
 
         MapContentProviderHelper.getLayersByAccount(application.getMap(), account.name, out);
-
         return out;
     }
 
