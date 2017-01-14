@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2016-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -92,11 +92,8 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.layout_resources);
+        setContentView(R.layout.activity_resources);
         setToolbar(R.id.main_toolbar);
-
-        findViewById(R.id.main_toolbar).setVisibility(View.VISIBLE);
-        findViewById(R.id.button_panel).setVisibility(View.VISIBLE);
 
         mApp = (IGISApplication) getApplication();
         mAccountManager = AccountManager.get(this);
