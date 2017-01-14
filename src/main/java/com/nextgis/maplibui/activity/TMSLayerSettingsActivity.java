@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -229,6 +229,8 @@ public class TMSLayerSettingsActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.fragment_raster_layer_cache, container, false);
+            if (mRasterLayer == null)
+                return v;
 
             Spinner cacheSizeMulti = (Spinner) v.findViewById(R.id.spinner);
             cacheSizeMulti.setSelection(mRasterLayer.getCacheSizeMultiply());

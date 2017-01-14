@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2016-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -88,6 +88,8 @@ public class LayerGeneralSettingsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_layer_general, container, false);
+        if (mLayer == null)
+            return v;
 
         TextView path = (TextView) v.findViewById(R.id.layer_local_lath);
         path.setText(String.format(getString(R.string.layer_local_path), mLayer.getPath()));

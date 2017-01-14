@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -211,6 +211,9 @@ public class VectorLayerSettingsActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             ScrollView v = (ScrollView) inflater.inflate(R.layout.fragment_vector_layer_style, container, false);
+            if (mVectorLayer == null)
+                return v;
+
             Spinner spinner = (Spinner) v.findViewById(R.id.renderer);
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -277,6 +280,9 @@ public class VectorLayerSettingsActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.fragment_vector_layer_fields, container, false);
+            if (mVectorLayer == null)
+                return v;
+
             ListView fields = (ListView) v.findViewById(R.id.listView);
             fillFields();
             ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice, mFieldAliases);
@@ -287,7 +293,7 @@ public class VectorLayerSettingsActivity
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     String fieldName = mFieldNames.get(position);
-                    mVectorLayer.getPreferences().edit().putString(SettingsConstantsUI.KEY_PREF_LAYER_LABEL, fieldName).commit();
+                    mVectorLayer.getPreferences().edit().putString(SettingsConstantsUI.KEY_PREF_LAYER_LABEL, fieldName).apply();
                     Toast.makeText(getContext(), String.format(getString(R.string.label_field_toast), fieldName), Toast.LENGTH_SHORT).show();
                 }
             });
@@ -332,6 +338,8 @@ public class VectorLayerSettingsActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.fragment_vector_layer_cache, container, false);
+            if (mVectorLayer == null)
+                return v;
 
             final ProgressBar rebuildCacheProgress = (ProgressBar) v.findViewById(R.id.rebuildCacheProgressBar);
             final Button buildCacheButton = (Button) v.findViewById(R.id.rebuild_cache);
@@ -389,6 +397,9 @@ public class VectorLayerSettingsActivity
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.fragment_ngw_vector_layer_sync, container, false);
+            if (mVectorLayer == null)
+                return v;
+
             final IGISApplication app = (IGISApplication) getActivity().getApplication();
             final NGWVectorLayer ngwLayer = ((NGWVectorLayer) mVectorLayer);
             final Account account = app.getAccount(ngwLayer.getAccountName());
