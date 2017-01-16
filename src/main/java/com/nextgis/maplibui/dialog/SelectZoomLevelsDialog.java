@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -42,6 +42,7 @@ import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.TMSLayer;
+import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.TileDownloadService;
@@ -97,8 +98,11 @@ public class SelectZoomLevelsDialog
         View view = View.inflate(context, R.layout.dialog_select_zoom_levels, null);
         IGISApplication app = (IGISApplication) getActivity().getApplication();
         final MapDrawable map = (MapDrawable) app.getMap();
-        final int left = (int) map.getZoomLevel() - 1;
+        int left = (int) map.getZoomLevel() - 1;
         int right = (int) map.getZoomLevel() + 1;
+        final int maxZoom = GeoConstants.DEFAULT_MAX_ZOOM;
+        left = left < 0 ? 0 : left;
+        right = right > maxZoom ? maxZoom : right;
 
         // Get the index value TextViews
         mTilesCount = (TextView) view.findViewById(R.id.tilesCount);
@@ -110,6 +114,11 @@ public class SelectZoomLevelsDialog
         rangebar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
             @Override
             public void onIndexChangeListener(RangeBar rangeBar, final int leftThumbIndex, final int rightThumbIndex) {
+                if (leftThumbIndex < 0 || rightThumbIndex > maxZoom) {
+                    rangeBar.setThumbIndices(leftThumbIndex < 0 ? 0 : leftThumbIndex, rightThumbIndex > maxZoom ? maxZoom : rightThumbIndex);
+                    return;
+                }
+
                 ControlHelper.setZoomText(getActivity(), leftIndexValue, R.string.min, leftThumbIndex);
                 ControlHelper.setZoomText(getActivity(), rightIndexValue, R.string.max, rightThumbIndex);
 

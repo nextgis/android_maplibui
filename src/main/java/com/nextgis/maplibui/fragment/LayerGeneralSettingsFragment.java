@@ -44,6 +44,7 @@ import com.nextgis.maplib.api.IProgressor;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplib.map.VectorLayer;
+import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.LayerSettingsActivity;
 import com.nextgis.maplibui.util.ControlHelper;
@@ -134,9 +135,18 @@ public class LayerGeneralSettingsFragment extends Fragment {
         mRangeBar = (RangeBar) v.findViewById(R.id.rangebar);
         int nMinZoom = mActivity.mLayerMinZoom < mRangeBar.getRightIndex() ? (int) mActivity.mLayerMinZoom : mRangeBar.getRightIndex();
         int nMaxZoom = mActivity.mLayerMaxZoom < mRangeBar.getRightIndex() ? (int) mActivity.mLayerMaxZoom : mRangeBar.getRightIndex();
+        final int maxZoom = GeoConstants.DEFAULT_MAX_ZOOM;
+        nMinZoom = nMinZoom < 0 ? 0 : nMinZoom;
+        nMaxZoom = nMaxZoom > maxZoom ? maxZoom : nMaxZoom;
+
         mRangeBar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
             @Override
             public void onIndexChangeListener(RangeBar rangeBar, int leftThumbIndex, int rightThumbIndex) {
+                if (leftThumbIndex < 0 || rightThumbIndex > maxZoom) {
+                    rangeBar.setThumbIndices(leftThumbIndex < 0 ? 0 : leftThumbIndex, rightThumbIndex > maxZoom ? maxZoom : rightThumbIndex);
+                    return;
+                }
+
                 mActivity.mLayerMinZoom = leftThumbIndex;
                 mActivity.mLayerMaxZoom = rightThumbIndex;
                 ControlHelper.setZoomText(getActivity(), leftIndexValue, R.string.min, leftThumbIndex);
