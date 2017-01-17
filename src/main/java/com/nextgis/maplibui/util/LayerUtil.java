@@ -4,7 +4,7 @@
  * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -177,9 +177,9 @@ public final class LayerUtil {
 
                         feature = mLayer.cursorToFeature(featuresCursor);
                         JSONObject properties = new JSONObject();
-                        for (Field field : feature.getFields()) {
+                        properties.put(Constants.FIELD_ID, feature.getId());
+                        for (Field field : feature.getFields())
                             properties.put(field.getName(), feature.getFieldValue(field.getName()));
-                        }
 
                         File attachFile, featureDir = new File(mLayer.getPath(), feature.getId() + "");
                         JSONArray attaches = new JSONArray();
