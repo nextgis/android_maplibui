@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -104,6 +104,7 @@ public interface ConstantsUI
     String GA_IMPORT = "Import";
     String GA_GEOSERVICE = "Geoservice";
     String GA_NGW = "NGW";
+    String GA_NGID = "NGID";
     String GA_CONNECT = "Connect";
     String GA_GUEST = "Guest";
     String GA_USER = "User";
