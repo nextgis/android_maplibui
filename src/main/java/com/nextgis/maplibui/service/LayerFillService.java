@@ -4,7 +4,7 @@
  * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -500,7 +500,7 @@ public class LayerFillService extends Service implements IProgressor {
                         if (null == account) {
                             //create account
                             if (!app.addAccount(accountName, url, login, password, "ngw")) {
-                                throw new AccountsException(getString(R.string.account_already_exists));
+                                throw new AccountsException(getString(R.string.ngw_account_already_exists));
                             }
                         } else {
                             //compare login/password and report differences
@@ -518,7 +518,7 @@ public class LayerFillService extends Service implements IProgressor {
 
                             if (!same) {
                                 Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT);
-                                msg.putExtra(ConstantsUI.KEY_MESSAGE, getString(R.string.warning_different_credentials));
+                                msg.putExtra(ConstantsUI.KEY_MESSAGE, getString(R.string.ngw_different_credentials));
                                 sendBroadcast(msg);
                             }
                         }

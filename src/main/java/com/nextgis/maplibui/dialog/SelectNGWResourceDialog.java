@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -202,7 +202,7 @@ public class SelectNGWResourceDialog
 
     public static Connections fillConnections(Context context, AccountManager accountManager)
     {
-        Connections connections = new Connections(context.getString(R.string.accounts));
+        Connections connections = new Connections(context.getString(R.string.ngw_accounts));
         IGISApplication app = (IGISApplication) context.getApplicationContext();
 
         for (Account account : accountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {

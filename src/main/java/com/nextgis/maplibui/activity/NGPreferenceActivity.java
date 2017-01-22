@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -42,6 +42,7 @@ public class NGPreferenceActivity
         extends PreferenceActivity
 {
     protected boolean mIsDarkTheme;
+    protected Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -60,13 +61,13 @@ public class NGPreferenceActivity
                 toolbarContainer.addView(content);
                 root.addView(toolbarContainer);
 
-                Toolbar toolbar = (Toolbar) toolbarContainer.findViewById(R.id.main_toolbar);
-                toolbar.setTitleTextColor(getResources().getColor(R.color.textColorPrimary_Dark));
-                toolbar.getBackground().setAlpha(255);
-                toolbar.setTitle(getTitle());
-                toolbar.setNavigationIcon(R.drawable.ic_action_home_light);
+                mToolbar = (Toolbar) toolbarContainer.findViewById(R.id.main_toolbar);
+                mToolbar.setTitleTextColor(getResources().getColor(R.color.textColorPrimary_Dark));
+                mToolbar.getBackground().setAlpha(255);
+                mToolbar.setTitle(getTitle());
+                mToolbar.setNavigationIcon(R.drawable.ic_action_home_light);
 
-                toolbar.setNavigationOnClickListener(
+                mToolbar.setNavigationOnClickListener(
                         new View.OnClickListener()
                         {
                             @Override

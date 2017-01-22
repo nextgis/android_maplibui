@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -419,7 +419,7 @@ public class LayersListAdapter
                     selectAccountDialog.onAddAccount(mContext);
                 }
             })
-                               .setTitle(mContext.getString(R.string.accounts))
+                               .setTitle(mContext.getString(R.string.ngw_accounts))
                                .setTheme(mActivity.getThemeId())
                                .show(mActivity.getSupportFragmentManager(), "choose_ngw_account");
         }

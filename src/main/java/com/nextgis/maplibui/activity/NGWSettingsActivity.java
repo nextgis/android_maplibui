@@ -38,7 +38,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.PeriodicSync;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -69,6 +68,7 @@ import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplib.util.Constants.TAG;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.ACTION_PREFS_NGW;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
 
 
@@ -81,6 +81,7 @@ public class NGWSettingsActivity
     protected AccountManager mAccountManager;
     protected final Handler mHandler = new Handler();
     protected String mAction;
+    protected boolean mChangeTitle = false;
 
     protected static String mDeleteAccountSummary;
     protected static String mDeleteAccountWarnMsg;
@@ -89,7 +90,7 @@ public class NGWSettingsActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        mChangeTitle = !getIntent().getAction().equals(ACTION_PREFS_NGW);
         setStrings();
         checkAccountManager();
         createView();
@@ -120,8 +121,7 @@ public class NGWSettingsActivity
         Header header;
 
         if (null != mAccountManager) {
-            for (Account account : mAccountManager.getAccountsByType(
-                    Constants.NGW_ACCOUNT_TYPE)) {
+            for (Account account : mAccountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
                 header = new Header();
                 header.title = account.name;
                 header.fragment = NGWSettingsFragment.class.getName();
@@ -134,14 +134,8 @@ public class NGWSettingsActivity
 
             //add "Add account" header
             header = new Header();
-            header.title = getString(R.string.add_account);
+            header.title = getString(R.string.ngw_account_add);
             header.intent = new Intent(this, NGWLoginActivity.class);
-            target.add(header);
-
-            //add "New account" header
-            header = new Header();
-            header.title = getString(R.string.new_account);
-            header.intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://my.nextgis.com"));
             target.add(header);
         }
     }
@@ -150,11 +144,10 @@ public class NGWSettingsActivity
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public Header onGetInitialHeader() {
-        if (null != mAccountManager) {
-            if (mAccountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE).length > 0) {
+        if (null != mAccountManager)
+            if (mAccountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE).length > 0)
                 return super.onGetInitialHeader();
-            }
-        }
+
         //in Android 5.0 or higher need to have one header with fragment
         Header header = new Header();
         header.fragment = NGWSettingsFragment.class.getName();
@@ -166,8 +159,12 @@ public class NGWSettingsActivity
     @Override
     public Header onGetNewHeader() {
         if (!onIsHidingHeaders()) {
+            if (mToolbar != null)
+                mToolbar.setTitle(R.string.ngw_accounts);
+
             return onGetInitialHeader();
         }
+
         return super.onGetNewHeader();
     }
 
@@ -175,9 +172,8 @@ public class NGWSettingsActivity
     @Override
     public void onResume() {
         super.onResume();
-        if (null != mAccountManager) {
+        if (null != mAccountManager)
             mAccountManager.addOnAccountsUpdatedListener(this, mHandler, true);
-        }
     }
 
 
@@ -199,8 +195,8 @@ public class NGWSettingsActivity
 
     // for overriding in a subclass
     protected void setStrings() {
-        mDeleteAccountSummary = getString(R.string.delete_account_summary);
-        mDeleteAccountWarnMsg = getString(R.string.delete_account_warn_msg);
+        mDeleteAccountSummary = getString(R.string.ngw_account_delete_summary);
+        mDeleteAccountWarnMsg = getString(R.string.ngw_account_delete_warn_msg);
     }
 
 
@@ -223,8 +219,7 @@ public class NGWSettingsActivity
 
     protected void fillPreferences(PreferenceScreen screen) {
         if (null != mAccountManager) {
-            for (Account account : mAccountManager.getAccountsByType(
-                    Constants.NGW_ACCOUNT_TYPE)) {
+            for (Account account : mAccountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
                 Preference preference = new Preference(this);
                 preference.setTitle(account.name);
 
@@ -236,33 +231,23 @@ public class NGWSettingsActivity
 
                 preference.setIntent(intent);
 
-                if (null != screen) {
+                if (null != screen)
                     screen.addPreference(preference);
-                }
             }
+
             //add "Add account" preference
             Preference addAccount = new Preference(this);
-            addAccount.setTitle(R.string.add_account);
+            addAccount.setTitle(R.string.ngw_account_add);
             Intent intent = new Intent(this, NGWLoginActivity.class);
             addAccount.setIntent(intent);
 
-            //add "New account" preference
-            Preference newAccount = new Preference(this);
-            newAccount.setTitle(R.string.new_account);
-            Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse("http://my.nextgis.com"));
-            newAccount.setIntent(browser);
-
-            if (null != screen) {
+            if (null != screen)
                 screen.addPreference(addAccount);
-                screen.addPreference(newAccount);
-            }
         }
     }
 
 
-    public void fillAccountPreferences(
-            PreferenceScreen screen,
-            final Account account) {
+    public void fillAccountPreferences(PreferenceScreen screen, final Account account) {
         final IGISApplication application = (IGISApplication) getApplicationContext();
 
         // add sync settings group
@@ -289,6 +274,10 @@ public class NGWSettingsActivity
 
         // add delete account action
         addDeleteAccountAction(application, account, actionCategory);
+
+        if (mToolbar != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB && !onIsMultiPane())
+            if (mChangeTitle)
+                mToolbar.setTitle(account.name);
     }
 
 
@@ -594,7 +583,7 @@ public class NGWSettingsActivity
 
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(NGWSettingsActivity.this);
         dialogBuilder.setIcon(R.drawable.ic_action_warning_light)
-                .setTitle(R.string.delete_account_ask)
+                .setTitle(getString(R.string.ngw_account_delete) + "?")
                 .setMessage(mDeleteAccountWarnMsg)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(
@@ -606,31 +595,22 @@ public class NGWSettingsActivity
                                     int which)
                             {
                                 Log.d(Constants.TAG, "NGWSettingsActivity - OK pressed");
-
                                 IntentFilter intentFilter = new IntentFilter();
                                 intentFilter.addAction(SyncAdapter.SYNC_CANCELED);
                                 registerReceiver(broadcastReceiver, intentFilter);
 
-                                wasCurrentSyncActive[0] = AccountUtil.isSyncActive(
-                                        account, application.getAuthority());
-
-                                ContentResolver.removePeriodicSync(
-                                        account, application.getAuthority(), Bundle.EMPTY);
-                                ContentResolver.setSyncAutomatically(
-                                        account, application.getAuthority(), false);
-
+                                wasCurrentSyncActive[0] = AccountUtil.isSyncActive(account, application.getAuthority());
+                                ContentResolver.removePeriodicSync(account, application.getAuthority(), Bundle.EMPTY);
+                                ContentResolver.setSyncAutomatically(account, application.getAuthority(), false);
                                 ContentResolver.cancelSync(account, application.getAuthority());
 
-                                Log.d(
-                                        Constants.TAG,
-                                        "NGWSettingsActivity - ContentResolver.cancelSync() is performed");
-
+                                Log.d(Constants.TAG, "NGWSettingsActivity - ContentResolver.cancelSync() is performed");
                                 broadcastReceiver.onReceive(NGWSettingsActivity.this, null);
                             }
                         });
 
         Preference preferenceDelete = new Preference(this);
-        preferenceDelete.setTitle(R.string.delete_account);
+        preferenceDelete.setTitle(R.string.ngw_account_delete);
         preferenceDelete.setSummary(mDeleteAccountSummary);
 
         if (actionCategory.addPreference(preferenceDelete)) {

@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -162,7 +162,7 @@ public class VectorLayerUI
             @Override
             public void onConnectionSelected(final Connection connection) {
                 Intent intent = new Intent(activity, SelectNGWResourceActivity.class);
-                Connections connections = new Connections(activity.getString(R.string.accounts));
+                Connections connections = new Connections(activity.getString(R.string.ngw_accounts));
                 connections.add(connection);
                 intent.putExtra(SelectNGWResourceActivity.KEY_TASK, SelectNGWResourceActivity.TYPE_SELECT);
                 intent.putExtra(SelectNGWResourceActivity.KEY_CONNECTIONS, connections);
@@ -177,7 +177,7 @@ public class VectorLayerUI
                 selectAccountDialog.onAddAccount(mContext);
             }
         })
-                .setTitle(mContext.getString(R.string.accounts))
+                .setTitle(mContext.getString(R.string.ngw_accounts))
                 .setTheme(activity.getThemeId())
                 .show(activity.getSupportFragmentManager(), "send_layer_to_ngw");
     }

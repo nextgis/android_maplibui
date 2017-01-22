@@ -408,7 +408,7 @@ public class VectorLayerSettingsActivity
                 return null;
 
             TextView accountName = (TextView) v.findViewById(R.id.account_name);
-            accountName.setText(String.format(getString(R.string.account), account.name));
+            accountName.setText(String.format(getString(R.string.ngw_account), account.name));
 
             final Spinner direction = (Spinner) v.findViewById(R.id.sync_direction);
             CheckBox enabled = (CheckBox) v.findViewById(R.id.sync_enabled);

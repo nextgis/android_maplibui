@@ -5,7 +5,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2017 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -46,15 +46,14 @@
     <string name="login">Sign in</string>
     <string name="user_name">Login</string>
     <string name="canceled">Zrušeno</string>
-    <string name="account_already_exists">Účet již existuje</string>
+    <string name="ngw_account_already_exists">Účet již existuje</string>
     <string name="error_login">Přihlášení selhalo</string>
-    <string name="add_nextgis">Přidat z NextGIS</string>
-    <string name="ngw_settings">NextGIS nastavení</string>
-    <string name="add_account">Přidat účet</string>
-    <string name="delete_account">Smazat účet</string>
-    <string name="delete_account_ask">Opravdu smazat účet?</string>
-    <string name="delete_account_summary">Smazání účtu. Všechny vrstvy spojené s tímto účtem budou smazané také. Probíhající synchronizace bude zastavena.</string>
-    <string name="delete_account_warn_msg">Účet bude smazán!\nVšechny vrstvy spojené s účtem budou smazány!\nProbíhající synchronizace bude zastavena!</string>
+    <string name="ngw_layer_add">Přidat z Web GIS</string>
+    <string name="ngw_accounts">Web GIS</string>
+    <string name="ngw_account_add">Add Web GIS</string>
+    <string name="ngw_account_delete">Smazat účet</string>
+    <string name="ngw_account_delete_summary">Všechny vrstvy spojené s tímto účtem budou smazané.\nProbíhající synchronizace bude zastavena.</string>
+    <string name="ngw_account_delete_warn_msg">Účet bude smazán!\nVšechny vrstvy spojené s účtem budou smazány!\nProbíhající synchronizace bude zastavena!</string>
     <string name="waiting">Please wait</string>
     <string name="wait_sync_stopping">Čekám na ukončení synchronizace</string>
     <string name="add">Přidat</string>
@@ -64,8 +63,7 @@
     <string name="up_dots">..</string>
     <string name="up">Up</string>
     <string name="resource_group">Skupina zdrojů</string>
-    <string name="account">Účet - %1$s</string>
-    <string name="accounts">Účty</string>
+    <string name="ngw_account">Účet - %1$s</string>
     <string name="raster">Rastr</string>
     <string name="vector">Vektor</string>
     <string name="raster_layer">Rastrová vrstva</string>
@@ -124,7 +122,7 @@
     <string name="two_hours">2 h</string>
     <string name="sync_set_interval">Nastavit interval synchronizace</string>
     <string name="last_sync_time">Synchronizováno %1$s v %2$s</string>
-    <string name="warning_different_credentials">Existující účet je odlišný od účtu nastaveného ve formuláři. Bude použit existující účet</string>
+    <string name="ngw_different_credentials">Existující účet je odlišný od účtu nastaveného ve formuláři. Bude použit existující účet</string>
     <string name="error_no_location">Žádná poloha</string>
     <string name="error_layer_not_inited">Vrstva není inicializovaná. Přeskočit</string>
     <string name="n_a">n/a</string>
@@ -284,9 +282,9 @@
     <string name="replace_field_rule">Všechna pravidla budou smazána, když změníte pole. Opravdu to chcete udělat?</string>
     <string name="new_gis">Nový GIS</string>
     <string name="manual_ngw">Přepnout na pokročilý</string>
-    <string name="instance_name">Název instance</string>
+    <string name="instance_name">Název Web GIS</string>
     <string name="ngw_from_my_nextgis">Do you have GIS? Sign up at my.nextgis.com to get your own one!</string>
-    <string name="new_account">Vytvořit účet na nextgis.com</string>
+    <string name="ngid_account_new">Sign up</string>
     <string name="guest">Návštěvník</string>
     <string name="field_not_filled">Některá pole jsou prázdná</string>
     <string name="web_map">Webová mapa</string>
@@ -317,4 +315,10 @@
     <string name="to_ngw">To server only</string>
     <string name="from_ngw">From server only</string>
     <string name="both_directions">Both directions</string>
+    <string name="ngid_settings">Account</string>
+    <string name="ngid_username">Username</string>
+    <string name="ngid_email">E-mail</string>
+    <string name="ngid_first_name">First name</string>
+    <string name="ngid_last_name">Last name</string>
+    <string name="ngid_my">my.nextgis.com</string>
 </resources>

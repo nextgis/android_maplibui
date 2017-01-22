@@ -5,7 +5,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2017 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -31,11 +31,19 @@
         <activity
             android:name=".activity.NGWLoginActivity"
             android:windowSoftInputMode="stateHidden"
-            android:label="@string/add_nextgis" />
+            android:label="@string/ngw_account_add" />
 
         <activity
             android:name=".activity.NGWSettingsActivity"
-            android:label="@string/ngw_settings" />
+            android:label="@string/ngw_accounts" />
+
+        <activity
+            android:name=".activity.NGIDSettingsActivity"
+            android:label="@string/ngid_settings" />
+
+        <activity
+            android:name=".activity.NGIDLoginActivity"
+            android:label="@string/login" />
 
         <activity
             android:name=".activity.ModifyAttributesActivity"
@@ -67,7 +75,7 @@
 
         <activity
             android:name=".activity.SelectNGWResourceActivity"
-            android:label="@string/accounts"
+            android:label="@string/ngw_accounts"
             android:windowSoftInputMode="stateHidden" />
 
         <service

@@ -5,7 +5,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2017 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -46,15 +46,14 @@
     <string name="login">Sign in</string>
     <string name="user_name">Login</string>
     <string name="canceled">Canceled</string>
-    <string name="account_already_exists">Account already exist</string>
     <string name="error_login">Login failed</string>
-    <string name="add_nextgis">Add from NextGIS</string>
-    <string name="ngw_settings">NextGIS settings</string>
-    <string name="add_account">Add account</string>
-    <string name="delete_account">Delete account</string>
-    <string name="delete_account_ask">Delete account?</string>
-    <string name="delete_account_summary">Delete account. All layers connected with this account will be deleted too. Active synchronization will be stopped.</string>
-    <string name="delete_account_warn_msg">Account will be deleted!\nAll account layers will be deleted!\nCurrent sync will be stopped!</string>
+    <string name="ngw_layer_add">Add from Web GIS</string>
+    <string name="ngw_account_already_exists">Account already exist</string>
+    <string name="ngw_accounts">Web GIS</string>
+    <string name="ngw_account_add">Add Web GIS</string>
+    <string name="ngw_account_delete">Delete account</string>
+    <string name="ngw_account_delete_summary">Всі шари акаунту будуть видалені.\nПоточна синхронізація буде зупинена.</string>
+    <string name="ngw_account_delete_warn_msg">Account will be deleted!\nAll account layers will be deleted!\nCurrent sync will be stopped!</string>
     <string name="waiting">Please wait</string>
     <string name="wait_sync_stopping">Waiting of synchronization stopping</string>
     <string name="add">Add</string>
@@ -64,8 +63,7 @@
     <string name="up_dots">..</string>
     <string name="up">Up</string>
     <string name="resource_group">Resource group</string>
-    <string name="account">Account - %1$s</string>
-    <string name="accounts">Accounts</string>
+    <string name="ngw_account">Account - %1$s</string>
     <string name="raster">Raster</string>
     <string name="vector">Vector</string>
     <string name="raster_layer">Raster layer</string>
@@ -82,7 +80,7 @@
     <string name="auto_sync">Automatic synchronization</string>
     <string name="auto_sync_summary">Synchronization at regular intervals</string>
     <string name="sync_dialog_title">Sync with NextGIS Web?</string>
-    <string name="sync_dialog_message">Which option do you want to use for this layer? You can change it later in layer settings or NextGIS accounts.</string>
+    <string name="sync_dialog_message">Which option do you want to use for this layer? You can change it later in layer settings or Web GIS.</string>
     <string name="auto">Auto</string>
     <string name="manual">Manual</string>
     <string name="skip">Skip</string>
@@ -132,7 +130,7 @@
     <string name="two_hours">2 hours</string>
     <string name="sync_set_interval">Set synchronization interval</string>
     <string name="last_sync_time">Synced %1$s at %2$s</string>
-    <string name="warning_different_credentials">Existing account differs the one from form. The existing account will be used</string>
+    <string name="ngw_different_credentials">Existing account differs the one from form. The existing account will be used.</string>
     <string name="error_no_location">No location</string>
     <string name="error_layer_not_inited">Layer is not initialized. Abort</string>
     <string name="n_a">n/a</string>
@@ -297,9 +295,10 @@
     <string name="replace_field_rule">All rules will be deleted due to changing rule field.</string>
     <string name="new_gis">Create GIS</string>
     <string name="manual_ngw">Switch to advanced</string>
-    <string name="instance_name">Instance name</string>
+    <string name="instance_name">Web GIS name</string>
     <string name="ngw_from_my_nextgis">Do you have GIS? Sign up at my.nextgis.com to get your own one!</string>
-    <string name="new_account">Sign up in nextgis.com</string>
+    <string name="ngid_settings">Account</string>
+    <string name="ngid_account_new">Sign up</string>
     <string name="guest">Guest</string>
     <string name="click_here">Click here!</string>
     <string name="nextgis_com">Back to nextgis.com login screen</string>
@@ -319,4 +318,9 @@
     <string name="to_ngw">To server only</string>
     <string name="from_ngw">From server only</string>
     <string name="both_directions">Both directions</string>
+    <string name="ngid_username">Username</string>
+    <string name="ngid_email">E-mail</string>
+    <string name="ngid_first_name">First name</string>
+    <string name="ngid_last_name">Last name</string>
+    <string name="ngid_my">my.nextgis.com</string>
 </resources>

@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -114,7 +114,7 @@ public class LayerFactoryUI
 
     private void startNGWResourceActivity(Context context, Connection connection, LayerGroup layerGroup) {
         Intent intent = new Intent(context, SelectNGWResourceActivity.class);
-        Connections connections = new Connections(context.getString(R.string.accounts));
+        Connections connections = new Connections(context.getString(R.string.ngw_accounts));
         connections.add(connection);
         intent.putExtra(SelectNGWResourceActivity.KEY_TASK, SelectNGWResourceActivity.TYPE_ADD);
         intent.putExtra(SelectNGWResourceActivity.KEY_CONNECTIONS, connections);
