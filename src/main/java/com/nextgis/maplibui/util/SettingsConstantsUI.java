@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -60,6 +60,7 @@ public interface SettingsConstantsUI
     String ACTION_PREFS_NGW      = "com.nextgis.mobile.PREFS_NGW";
     String ACTION_PREFS_COMPASS  = "com.nextgis.mobile.PREFS_COMPASS";
     String ACTION_PREFS_TRACKING = "com.nextgis.mobile.PREFS_TRACKING";
+    String ACTION_PREFS_UPDATE   = "com.nextgis.mobile.PREFS_UPDATE";
     String ACTION_PREFS_LOCATION = "com.nextgis.mobile.PREFS_LOCATION";
     String ACTION_PREFS_EDIT     = "com.nextgis.mobile.PREFS_EDIT";
 }

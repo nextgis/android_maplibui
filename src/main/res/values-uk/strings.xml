@@ -320,6 +320,6 @@
     <string name="ngid_first_name">Имя</string>
     <string name="ngid_last_name">Фамилия</string>
     <string name="ngid_my">my.nextgis.com</string>
-    <string name="sign_out">Sign out</string>
+    <string name="sign_out">Выйти</string>
     <string name="not_set">Не задано</string>
 </resources>
