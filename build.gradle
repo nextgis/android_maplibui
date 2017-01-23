@@ -31,6 +31,7 @@ android {
         targetSdkVersion 25
         versionCode 22
         versionName '2.5.3'
+        buildConfigField "String", "CLIENT_ID", "\"Im6GFdPPuPM09BnvFb3EacFZyq8TpRBSAAex7JDZ\""
     }
     productFlavors {
     }

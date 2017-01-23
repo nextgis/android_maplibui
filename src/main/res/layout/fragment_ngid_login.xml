@@ -40,7 +40,6 @@
                 android:id="@+id/login"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="become.glory@yandex.ru"
                 android:layout_margin="5dp"
                 android:ems="10"
                 android:hint="@string/user_name"
@@ -57,7 +56,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:text="KSD4j8ZwhX4zA0lKCLT1"
                 android:ems="10"
                 android:hint="@string/password"
                 android:inputType="textPassword"/>

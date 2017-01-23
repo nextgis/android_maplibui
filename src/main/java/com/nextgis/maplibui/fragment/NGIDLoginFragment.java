@@ -33,6 +33,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
+import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.NGIDUtils;
@@ -74,8 +75,12 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
             NGIDUtils.getToken(activity, mLogin.getText().toString(), mPassword.getText().toString(), new NGIDUtils.OnFinish() {
                 @Override
                 public void onFinish(String data) {
-                    Toast.makeText(activity, "Logged in", Toast.LENGTH_SHORT).show();
-                    activity.finish();
+                    mSignInButton.setEnabled(true);
+
+                    if (data == null)
+                        activity.finish();
+                    else
+                        Toast.makeText(activity, NetworkUtil.getError(activity, data), Toast.LENGTH_SHORT).show();
                 }
             });
         }

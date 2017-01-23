@@ -48,6 +48,10 @@ public final class NGIDUtils {
 
     public static final String PREF_ACCESS_TOKEN = "access_token";
     public static final String PREF_REFRESH_TOKEN = "refresh_token";
+    public static final String PREF_USERNAME = "username";
+    public static final String PREF_EMAIL = "email";
+    public static final String PREF_FIRST_NAME = "first_name";
+    public static final String PREF_LAST_NAME = "last_name";
 
     private static SharedPreferences mPreferences;
 
@@ -88,6 +92,8 @@ public final class NGIDUtils {
                 String password = args.length > 4 ? args[4] : null;
                 String accessNew = String.format(OAUTH_NEW, login, password, BuildConfig.CLIENT_ID);
                 token = parseResponse(getData(accessNew, POST, null))[0];
+                if (token == null)
+                    return "0";
             }
 
             String userCheck = getData(USER_INFO, GET, token);
@@ -95,6 +101,8 @@ public final class NGIDUtils {
                 String refreshToken = mPreferences.getString(PREF_REFRESH_TOKEN, "");
                 String accessRefresh = String.format(OAUTH_REFRESH, BuildConfig.CLIENT_ID, refreshToken);
                 token = parseResponse(getData(accessRefresh, POST, null))[0];
+                if (token == null)
+                    return "0";
                 userCheck = getData(USER_INFO, GET, token);
             }
 
@@ -114,13 +122,11 @@ public final class NGIDUtils {
     private static void saveUserInfo(String userInfo) {
         try {
             JSONObject json = new JSONObject(userInfo);
-            mPreferences.edit().putString("username", json.getString("username"))
-                        .putString("email", json.getString("email"))
-                        .putString("first_name", json.getString("first_name"))
-                        .putString("last_name", json.getString("last_name")).apply();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            mPreferences.edit().putString(PREF_USERNAME, json.getString(PREF_USERNAME))
+                        .putString(PREF_EMAIL, json.getString(PREF_EMAIL))
+                        .putString(PREF_FIRST_NAME, json.getString(PREF_FIRST_NAME))
+                        .putString(PREF_LAST_NAME, json.getString(PREF_LAST_NAME)).apply();
+        } catch (JSONException | NullPointerException ignored) {}
     }
 
     private static String[] parseResponse(String response) {
@@ -130,9 +136,7 @@ public final class NGIDUtils {
             token = j.getString("token_type") + " " + j.getString(PREF_ACCESS_TOKEN);
             refreshToken = j.getString(PREF_REFRESH_TOKEN);
             mPreferences.edit().putString(PREF_ACCESS_TOKEN, token).putString(PREF_REFRESH_TOKEN, refreshToken).apply();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        } catch (JSONException | NullPointerException ignored) {}
 
         return new String[]{token, refreshToken};
     }
@@ -155,8 +159,8 @@ public final class NGIDUtils {
             in.close();
 
             return data;
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
+            ignored.printStackTrace();
         }
 
         return null;

@@ -21,7 +21,6 @@
 
 package com.nextgis.maplibui.activity;
 
-
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -62,6 +61,14 @@ public class NGIDSettingsActivity extends NGPreferenceActivity {
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+            invalidateHeaders();
+    }
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onBuildHeaders(List<Header> target) {
@@ -73,7 +80,7 @@ public class NGIDSettingsActivity extends NGPreferenceActivity {
         } else {
             header.title = getString(R.string.login);
             header.intent = new Intent(this, NGIDLoginActivity.class);
-//            header.fragment = NGIDLoginFragment.class.getName();
+            //            header.fragment = NGIDLoginFragment.class.getName();
         }
 
         target.add(header);
@@ -134,9 +141,32 @@ public class NGIDSettingsActivity extends NGPreferenceActivity {
     }
 
     public void fillAccountPreferences(PreferenceScreen screen) {
-        screen.findPreference("username").setSummary(mPreferences.getString("username", null));
-        screen.findPreference("email").setSummary(mPreferences.getString("email", null));
-        screen.findPreference("first_name").setSummary(mPreferences.getString("first_name", null));
-        screen.findPreference("last_name").setSummary(mPreferences.getString("last_name", null));
+        String notDefined = getString(R.string.not_set);
+        String value = mPreferences.getString(NGIDUtils.PREF_USERNAME, null);
+        screen.findPreference(NGIDUtils.PREF_USERNAME).setSummary(TextUtils.isEmpty(value) ? notDefined : value);
+        value = mPreferences.getString(NGIDUtils.PREF_EMAIL, null);
+        screen.findPreference(NGIDUtils.PREF_EMAIL).setSummary(TextUtils.isEmpty(value) ? notDefined : value);
+        value = mPreferences.getString(NGIDUtils.PREF_FIRST_NAME, null);
+        screen.findPreference(NGIDUtils.PREF_FIRST_NAME).setSummary(TextUtils.isEmpty(value) ? notDefined : value);
+        value = mPreferences.getString(NGIDUtils.PREF_LAST_NAME, null);
+        screen.findPreference(NGIDUtils.PREF_LAST_NAME).setSummary(TextUtils.isEmpty(value) ? notDefined : value);
+        screen.findPreference("sign_out").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                mPreferences.edit().remove(NGIDUtils.PREF_USERNAME).remove(NGIDUtils.PREF_EMAIL).remove(NGIDUtils.PREF_FIRST_NAME)
+                            .remove(NGIDUtils.PREF_LAST_NAME).remove(NGIDUtils.PREF_ACCESS_TOKEN).remove(NGIDUtils.PREF_REFRESH_TOKEN).apply();
+
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
+                    finish();
+                else {
+                    if (onIsHidingHeaders())
+                        finish();
+                    else
+                        invalidateHeaders();
+                }
+
+                return false;
+            }
+        });
     }
 }

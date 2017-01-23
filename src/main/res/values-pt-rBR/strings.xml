@@ -320,4 +320,6 @@
     <string name="ngid_first_name">First name</string>
     <string name="ngid_last_name">Last name</string>
     <string name="ngid_my">my.nextgis.com</string>
+    <string name="sign_out">Sign out</string>
+    <string name="not_set">Not set</string>
 </resources>
