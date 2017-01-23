@@ -35,7 +35,9 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -90,6 +92,11 @@ public final class NGIDUtils {
             if (TextUtils.isEmpty(url) && TextUtils.isEmpty(token)) {
                 String login = args.length > 3 ? args[3] : null;
                 String password = args.length > 4 ? args[4] : null;
+                try {
+                    login = URLEncoder.encode(login, "UTF-8").replaceAll("\\+", "%20");
+                    password = URLEncoder.encode(password, "UTF-8").replaceAll("\\+", "%20");
+                } catch (UnsupportedEncodingException ignored) {}
+
                 String accessNew = String.format(OAUTH_NEW, login, password, BuildConfig.CLIENT_ID);
                 token = parseResponse(getData(accessNew, POST, null))[0];
                 if (token == null)
