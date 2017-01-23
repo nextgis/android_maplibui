@@ -28,11 +28,17 @@
 
     <include layout="@layout/actionbar"/>
 
-    <fragment
-        android:id="@+id/login_screen"
-        android:name="com.nextgis.maplibui.fragment.NGIDLoginFragment"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize"
-        tools:layout="@layout/fragment_ngid_login"/>
+        android:padding="8dp">
+
+        <fragment
+            android:id="@+id/login_screen"
+            android:name="com.nextgis.maplibui.fragment.NGIDLoginFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="?attr/actionBarSize"
+            tools:layout="@layout/fragment_ngid_login"/>
+    </FrameLayout>
 </FrameLayout>

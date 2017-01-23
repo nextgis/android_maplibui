@@ -22,6 +22,8 @@
 package com.nextgis.maplibui.fragment;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -30,12 +32,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.ConstantsUI;
+import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.NGIDUtils;
 
 public class NGIDLoginFragment extends Fragment implements View.OnClickListener {
@@ -56,6 +60,9 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
         mPassword = (EditText) view.findViewById(R.id.password);
         mSignInButton = (Button) view.findViewById(R.id.signin);
         mSignInButton.setOnClickListener(this);
+        TextView signUp = (TextView) view.findViewById(R.id.signup);
+        ControlHelper.highlightText(signUp);
+        signUp.setOnClickListener(this);
         return view;
     }
 
@@ -83,6 +90,9 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
                         Toast.makeText(activity, NetworkUtil.getError(activity, data), Toast.LENGTH_SHORT).show();
                 }
             });
+        } else if (v.getId() == R.id.signup) {
+            Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse("http://my.nextgis.com"));
+            startActivity(browser);
         }
     }
 

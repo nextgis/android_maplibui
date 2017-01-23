@@ -43,7 +43,7 @@
 
         <activity
             android:name=".activity.NGIDLoginActivity"
-            android:label="@string/login" />
+            android:label="@string/ngid_my" />
 
         <activity
             android:name=".activity.ModifyAttributesActivity"
