@@ -21,73 +21,71 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.nextgis.maplibui">
+<manifest package="com.nextgis.maplibui"
+          xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <application
-        android:allowBackup="true"
-        android:label="@string/app_name">
+    <application>
 
         <activity
             android:name=".activity.NGWLoginActivity"
-            android:windowSoftInputMode="stateHidden"
-            android:label="@string/ngw_account_add" />
+            android:label="@string/ngw_account_add"
+            android:windowSoftInputMode="stateHidden"/>
 
         <activity
             android:name=".activity.NGWSettingsActivity"
-            android:label="@string/ngw_accounts" />
+            android:label="@string/ngw_accounts"/>
 
         <activity
             android:name=".activity.NGIDSettingsActivity"
-            android:label="@string/ngid_settings" />
+            android:label="@string/ngid_settings"/>
 
         <activity
             android:name=".activity.NGIDLoginActivity"
-            android:label="@string/ngid_my" />
+            android:label="@string/ngid_my"/>
 
         <activity
             android:name=".activity.ModifyAttributesActivity"
             android:label="@string/set_attributes"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden"/>
 
         <activity
             android:name=".activity.FormBuilderModifyAttributesActivity"
             android:label="@string/set_attributes"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden"/>
 
         <activity
             android:name=".activity.TracksActivity"
-            android:label="@string/tracks" />
+            android:label="@string/tracks"/>
 
         <activity
             android:name=".activity.AttributesActivity"
-            android:label="@string/attributes" />
+            android:label="@string/attributes"/>
 
         <activity
             android:name=".activity.VectorLayerSettingsActivity"
             android:label="@string/layerSettings"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden"/>
 
         <activity
             android:name=".activity.TMSLayerSettingsActivity"
             android:label="@string/layerSettings"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden"/>
 
         <activity
             android:name=".activity.SelectNGWResourceActivity"
             android:label="@string/ngw_accounts"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden"/>
 
         <service
             android:name=".account.NGWAuthenticatorService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
+                <action android:name="android.accounts.AccountAuthenticator"/>
             </intent-filter>
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" />
+                android:resource="@xml/authenticator"/>
         </service>
 
         <!-- android:process=":tile_download" -->
@@ -95,29 +93,29 @@
             android:name="com.nextgis.maplibui.service.TileDownloadService"
             android:enabled="true"
             android:exported="true"
-            android:process=":tile_download" />
+            android:process=":tile_download"/>
 
         <!-- android:process=":fill_layer" -->
         <service
             android:name="com.nextgis.maplibui.service.LayerFillService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"/>
 
         <service
             android:name="com.nextgis.maplibui.service.RebuildCacheService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"/>
 
         <service
             android:name="com.nextgis.maplibui.service.TrackerService"
             android:enabled="true"
             android:exported="true"
-            android:process=":tracks" />
+            android:process=":tracks"/>
 
         <service
             android:name="com.nextgis.maplibui.service.WalkEditService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"/>
 
         <receiver
             android:name=".service.BootLoader"
