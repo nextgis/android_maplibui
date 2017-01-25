@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -205,7 +205,7 @@ public class TrackerService
             // there are no tracks or last track correctly ended
             if (mSharedPreferencesTemp.getString(TRACK_URI, null) == null) {
                 startTrack();
-                mSharedPreferencesTemp.edit().putString(ConstantsUI.TARGET_CLASS, targetActivity).commit();
+                mSharedPreferencesTemp.edit().putString(ConstantsUI.TARGET_CLASS, targetActivity).apply();
             } else {
                 // looks like service was killed, restore data
                 restoreData();
@@ -246,7 +246,7 @@ public class TrackerService
         if(null != newTrack) {
             // save vars
             mTrackId = newTrack.getLastPathSegment();
-            mSharedPreferencesTemp.edit().putString(TRACK_URI, newTrack.toString()).commit();
+            mSharedPreferencesTemp.edit().putString(TRACK_URI, newTrack.toString()).apply();
         }
 
         mIsRunning = true;
@@ -265,8 +265,8 @@ public class TrackerService
         // cancel midnight splitter
         mAlarmManager.cancel(mSplitService);
 
-        mSharedPreferencesTemp.edit().remove(ConstantsUI.TARGET_CLASS).commit();
-        mSharedPreferencesTemp.edit().remove(TRACK_URI).commit();
+        mSharedPreferencesTemp.edit().remove(ConstantsUI.TARGET_CLASS).apply();
+        mSharedPreferencesTemp.edit().remove(TRACK_URI).apply();
     }
 
 
@@ -294,10 +294,9 @@ public class TrackerService
     private void addNotification()
     {
         String name = "";
-
         String selection = TrackLayer.FIELD_ID + " = ?";
         Cursor currentTrack = getContentResolver().query(mContentUriTracks, new String[]{TrackLayer.FIELD_NAME}, selection, new String[]{mTrackId}, null);
-        if(null != currentTrack) {
+        if (null != currentTrack) {
             if (currentTrack.moveToFirst())
                 name = currentTrack.getString(0);
             currentTrack.close();
