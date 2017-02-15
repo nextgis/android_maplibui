@@ -61,7 +61,7 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
         mSignInButton = (Button) view.findViewById(R.id.signin);
         mSignInButton.setOnClickListener(this);
         TextView signUp = (TextView) view.findViewById(R.id.signup);
-        ControlHelper.highlightText(signUp);
+        signUp.setText(signUp.getText().toString().toUpperCase());
         signUp.setOnClickListener(this);
         return view;
     }

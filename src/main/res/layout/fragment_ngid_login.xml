@@ -31,16 +31,62 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <android.support.design.widget.TextInputLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"/>
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:src="@drawable/ngm_logo_shadow"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/login"
+            android:textColor="@color/primary_dark"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="@string/sign_in_tip"
+            android:textColor="@color/color_grey_600"/>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp">
 
             <EditText
                 android:id="@+id/login"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
+                android:layout_margin="4dp"
                 android:ems="10"
+                android:gravity="center"
                 android:hint="@string/user_name"
                 android:inputType="textPersonName"/>
         </android.support.design.widget.TextInputLayout>
@@ -48,14 +94,16 @@
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp">
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp">
 
             <EditText
                 android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
+                android:layout_margin="4dp"
                 android:ems="10"
+                android:gravity="center"
                 android:hint="@string/password"
                 android:inputType="textPassword"/>
         </android.support.design.widget.TextInputLayout>
@@ -65,28 +113,19 @@
             android:layout_width="match_parent"
             android:layout_height="42dp"
             android:layout_gravity="center_horizontal"
-            android:layout_margin="10dp"
-            android:background="@drawable/dark_button"
+            android:layout_margin="16dp"
+            android:background="@drawable/blue_rounded_button"
             android:text="@string/login"
             android:textColor="@color/color_white"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/signup"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ngid_account_ask"/>
-
-            <TextView
-                android:id="@+id/signup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="@string/ngid_account_new"/>
-        </LinearLayout>
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp"
+            android:text="@string/ngid_account_new"
+            android:textColor="@color/primary_dark"
+            android:textSize="14sp"/>
     </LinearLayout>
 </ScrollView>
