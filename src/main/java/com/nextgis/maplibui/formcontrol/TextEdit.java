@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -27,7 +27,6 @@ import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -50,7 +49,11 @@ import org.json.JSONObject;
 import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
-import static com.nextgis.maplibui.util.ConstantsUI.*;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_MAX_STRING_COUNT_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_ONLY_FIGURES_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_KEY;
 
 
 @SuppressLint("ViewConstructor")
@@ -95,7 +98,7 @@ public class TextEdit extends AppCompatEditText
             if (column >= 0)
                 value = featureCursor.getString(column);
         } else {    // new feature
-            if (attributes.has(JSON_TEXT_KEY) && !attributes.isNull(JSON_TEXT_KEY))
+            if (!attributes.isNull(JSON_TEXT_KEY))
                 value = attributes.getString(JSON_TEXT_KEY);
 
             if (mIsShowLast)
@@ -151,7 +154,7 @@ public class TextEdit extends AppCompatEditText
 
     @Override
     public void saveLastValue(SharedPreferences preferences) {
-        preferences.edit().putString(mFieldName, getText().toString()).commit();
+        preferences.edit().putString(mFieldName, getText().toString()).apply();
     }
 
     @Override

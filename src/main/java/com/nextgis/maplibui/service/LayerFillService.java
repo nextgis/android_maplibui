@@ -452,6 +452,9 @@ public class LayerFillService extends Service implements IProgressor {
 
                     //read meta.json
                     File meta = new File(mLayerPath, NGFP_FILE_META);
+                    // prevent overwrite meta.json by layer save routine
+                    //noinspection ResultOfMethodCallIgnored
+                    meta.renameTo(meta = new File(meta.getParentFile(), LayerFillService.NGFP_META));
                     String jsonText = FileUtil.readFromFile(meta);
                     JSONObject metaJson = new JSONObject(jsonText);
                     File dataFile = new File(mLayerPath, NGFP_FILE_DATA);
@@ -460,8 +463,7 @@ public class LayerFillService extends Service implements IProgressor {
                     extra.putString(KEY_NAME, mLayerName);
 
                     //read if this local o remote source
-                    boolean isNgwConnection = metaJson.has(ConstantsUI.JSON_NGW_CONNECTION_KEY)
-                            && !metaJson.isNull(ConstantsUI.JSON_NGW_CONNECTION_KEY);
+                    boolean isNgwConnection = !metaJson.isNull(ConstantsUI.JSON_NGW_CONNECTION_KEY);
                     if (isNgwConnection) {
                         FileUtil.deleteRecursive(dataFile);
                         JSONObject connection = metaJson.getJSONObject(ConstantsUI.JSON_NGW_CONNECTION_KEY);
@@ -480,7 +482,8 @@ public class LayerFillService extends Service implements IProgressor {
                         long resourceId = connection.getLong("id");
                         //check account exist and try to create
 
-                        FileUtil.deleteRecursive(meta);
+                        metaJson.remove(ConstantsUI.JSON_NGW_CONNECTION_KEY);
+                        FileUtil.writeToFile(meta, metaJson.toString());
 
                         String accountName = "";
                         URI uri = new URI(url);
@@ -534,10 +537,6 @@ public class LayerFillService extends Service implements IProgressor {
                         if (!isCanceled())
                             mQueue.add(new NGWVectorLayerFillTask(extra));
                     } else {
-                        // prevent overwrite meta.json by layer save routine
-                        //noinspection ResultOfMethodCallIgnored
-                        meta.renameTo(new File(meta.getParentFile(), LayerFillService.NGFP_META));
-
                         extra.putSerializable(LayerFillService.KEY_PATH, dataFile);
                         extra.putBoolean(LayerFillService.KEY_DELETE_SRC_FILE, true);
 
@@ -584,8 +583,7 @@ public class LayerFillService extends Service implements IProgressor {
                     String jsonText = FileUtil.readFromFile(meta);
                     JSONObject metaJson = new JSONObject(jsonText);
                     //read fields
-                    List<Field> fields =
-                            NGWUtil.getFieldsFromJson(metaJson.getJSONArray(NGWUtil.NGWKEY_FIELDS));
+                    List<Field> fields = NGWUtil.getFieldsFromJson(metaJson.getJSONArray(NGWUtil.NGWKEY_FIELDS));
                     //read geometry type
                     String geomTypeString = metaJson.getString("geometry_type");
                     int geomType = GeoGeometryFactory.typeFromString(geomTypeString);
@@ -597,10 +595,8 @@ public class LayerFillService extends Service implements IProgressor {
                         int nSRS = srs.getInt(NGWUtil.NGWKEY_ID);
                         vectorLayer.fillFromGeoJson(mPath, nSRS, progressor);
                     }
-
-                    FileUtil.deleteRecursive(meta);
                 } else
-                    vectorLayer.createFromGeoJson(mPath, progressor);
+                    vectorLayer.createFromGeoJson(mPath, progressor); // should never get there
             } catch (IOException | JSONException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();
 

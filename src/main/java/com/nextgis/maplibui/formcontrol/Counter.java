@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2016-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -26,9 +26,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
-import android.view.ViewGroup;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.api.IFormControl;
@@ -49,8 +47,10 @@ public class Counter extends TextEdit
         implements IFormControl
 {
     private static final String INCREMENT = "increment";
-    private static final String PREFIX = "prefix";
-    private static final String SUFFIX = "suffix";
+    public static final String PREFIX = "prefix";
+    public static final String SUFFIX = "suffix";
+    public static final String PREFIX_LIST = "prefix_from_list";
+    public static final String SUFFIX_LIST = "suffix_from_list";
 
     protected long mIncremented = -1;
 
@@ -115,7 +115,7 @@ public class Counter extends TextEdit
     @Override
     public void saveLastValue(SharedPreferences preferences) {
         if (mIncremented != -1)
-            preferences.edit().putString(mFieldName, Long.toString(mIncremented)).commit();
+            preferences.edit().putString(mFieldName, Long.toString(mIncremented)).apply();
     }
 
 }

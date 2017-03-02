@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -24,11 +24,9 @@
 package com.nextgis.maplibui.mapui;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.display.SimpleFeatureRenderer;
@@ -39,8 +37,6 @@ import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.AttributesActivity;
-import com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity;
-import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.activity.VectorLayerSettingsActivity;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.util.ConstantsUI;
@@ -52,12 +48,6 @@ import org.json.JSONException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY_CHANGED;
-import static com.nextgis.maplibui.util.ConstantsUI.KEY_LAYER_ID;
 
 
 public class NGWVectorLayerUI
@@ -92,43 +82,8 @@ public class NGWVectorLayerUI
 
 
     @Override
-    public void showEditForm(
-            Context context,
-            long featureId,
-            GeoGeometry geometry)
-    {
-        if (mFields == null) {
-            Toast.makeText(
-                    context, context.getString(R.string.error_layer_not_inited), Toast.LENGTH_SHORT)
-                    .show();
-            return;
-        }
-
-        boolean isGeometryChanged = geometry != null;
-        //get geometry
-        if (geometry == null && featureId != Constants.NOT_FOUND) {
-            geometry = getGeometryForId(featureId);
-        }
-
-        Intent intent;
-        //check custom form
-        File form = new File(mPath, ConstantsUI.FILE_FORM);
-        if (form.exists()) {
-            //show custom form
-            intent = new Intent(context, FormBuilderModifyAttributesActivity.class);
-            intent.putExtra(KEY_FORM_PATH, form);
-        } else {
-            //if not exist show standard form
-            intent = new Intent(context, ModifyAttributesActivity.class);
-        }
-
-        intent.putExtra(KEY_LAYER_ID, getId());
-        intent.putExtra(KEY_FEATURE_ID, featureId);
-        intent.putExtra(KEY_GEOMETRY_CHANGED, isGeometryChanged);
-        if (null != geometry)
-            intent.putExtra(KEY_GEOMETRY, geometry);
-
-        ((Activity) context).startActivityForResult(intent, MODIFY_REQUEST);
+    public void showEditForm(Context context, long featureId, GeoGeometry geometry) {
+        LayerUtil.showEditForm(this, context, featureId, geometry);
     }
 
 

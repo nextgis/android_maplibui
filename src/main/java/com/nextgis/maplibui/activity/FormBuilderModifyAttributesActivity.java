@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -24,13 +24,18 @@
 package com.nextgis.maplibui.activity;
 
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
 import android.provider.SyncStateContract;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Field;
@@ -63,6 +68,9 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -78,6 +86,8 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_COUNTER_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DATE_TIME_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DOUBLE_COMBOBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_KEY_LIST_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_LISTS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_PHOTO_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_PORTRAIT_ELEMENTS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_RADIO_GROUP_VALUE;
@@ -87,34 +97,37 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_TABS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_EDIT_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_LABEL_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
-
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_META_PATH;
 
 /**
  * Activity to add or modify vector layer attributes
  */
-public class FormBuilderModifyAttributesActivity
-        extends ModifyAttributesActivity
-{
+public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivity {
+    private Map<String, List<String>> mTable;
+    private int mRow = -1;
+
     @Override
-    protected void fillControls(LinearLayout layout, Bundle savedState)
-    {
+    protected void fillControls(LinearLayout layout, Bundle savedState) {
         //TODO: add location control via fragment only defined by user space
+        Bundle extras = getIntent().getExtras();
 
-        Bundle extras = getIntent().getExtras(); // null != extras
-        File form = (File) extras.getSerializable(KEY_FORM_PATH);
-
-        int orientation = getResources().getConfiguration().orientation;
-        boolean isLand = orientation == Configuration.ORIENTATION_LANDSCAPE;
+        if (mTable == null) {
+            fillTable(layout, savedState, extras);
+            return;
+        }
 
         try {
+            File form = (File) extras.getSerializable(KEY_FORM_PATH);
+
+            int orientation = getResources().getConfiguration().orientation;
+            boolean isLand = orientation == Configuration.ORIENTATION_LANDSCAPE;
+
             String formString = FileUtil.readFromFile(form);
-            if(TextUtils.indexOf(formString, "tabs") == -1){
+            if (TextUtils.indexOf(formString, "tabs") == -1) {
                 JSONArray elements = new JSONArray(formString);
-                if (elements.length() > 0) {
+                if (elements.length() > 0)
                     fillTabControls(layout, savedState, elements);
-                }
-            }
-            else {
+            } else {
                 JSONObject jsonFormContents = new JSONObject(formString);
                 JSONArray tabs = jsonFormContents.getJSONArray(JSON_TABS_KEY);
 
@@ -126,18 +139,18 @@ public class FormBuilderModifyAttributesActivity
                         elements = tab.getJSONArray(JSON_ALBUM_ELEMENTS_KEY);
                     }
 
-                    if(null == elements) {
+                    if (null == elements) {
                         if (!isLand && !tab.isNull(JSON_PORTRAIT_ELEMENTS_KEY)) {
                             elements = tab.getJSONArray(JSON_PORTRAIT_ELEMENTS_KEY);
                         }
                     }
 
-                    if(null == elements) {
-                        if(!tab.isNull(JSON_ALBUM_ELEMENTS_KEY)) {
+                    if (null == elements) {
+                        if (!tab.isNull(JSON_ALBUM_ELEMENTS_KEY)) {
                             elements = tab.getJSONArray(JSON_ALBUM_ELEMENTS_KEY);
                         }
 
-                        if(!tab.isNull(JSON_PORTRAIT_ELEMENTS_KEY)) {
+                        if (!tab.isNull(JSON_PORTRAIT_ELEMENTS_KEY)) {
                             elements = tab.getJSONArray(JSON_ALBUM_ELEMENTS_KEY);
                         }
                     }
@@ -147,20 +160,76 @@ public class FormBuilderModifyAttributesActivity
                     }
                 }
             }
-
         } catch (JSONException | IOException e) {
             e.printStackTrace();
             Toast.makeText(this, getString(R.string.error_form_create), Toast.LENGTH_SHORT).show();
         }
     }
 
+    private void fillTable(LinearLayout layout, Bundle savedState, Bundle extras) {
+        mTable = new HashMap<>();
+        File meta = (File) extras.getSerializable(KEY_META_PATH);
+        if (meta != null && meta.exists()) {
+            try {
+                String metaString = FileUtil.readFromFile(meta);
+                JSONObject metaJson = new JSONObject(metaString);
+                if (metaJson.has(JSON_LISTS_KEY)) {
+                    JSONObject lists = metaJson.getJSONObject(JSON_LISTS_KEY);
+                    Iterator<String> i = lists.keys();
+                    while (i.hasNext()) {
+                        String key = i.next();
+                        JSONArray list = lists.getJSONArray(key);
+                        List<String> value = new ArrayList<>();
+                        for (int j = 0; j < list.length(); j++)
+                            value.add(list.getString(j));
+
+                        mTable.put(key, value);
+                    }
+                }
+
+                if (metaJson.has(JSON_KEY_LIST_KEY)) {
+                    askForRow(layout, savedState, metaJson.getString(JSON_KEY_LIST_KEY));
+                    return;
+                }
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        fillControls(layout, savedState);
+    }
+
+    private void askForRow(final LinearLayout layout, final Bundle savedState, String column) {
+        ArrayAdapter<String> spinnerMenu = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, mTable.get(column));
+        final Spinner spinner = (Spinner) View.inflate(this, R.layout.table_select_row, null);
+        spinner.setAdapter(spinnerMenu);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.select_row).setView(spinner)
+               .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialog, int which) {
+                       mRow = spinner.getSelectedItemPosition();
+                   }
+               })
+               .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                   @Override
+                   public void onDismiss(DialogInterface dialogInterface) {
+                       if (mRow == -1)
+                           finish();
+                       else
+                           fillControls(layout, savedState);
+                   }
+               });
+        AlertDialog dialog = builder.show();
+        dialog.setCanceledOnTouchOutside(false);
+    }
 
     protected void fillTabControls(
             LinearLayout layout,
             Bundle savedState,
             JSONArray elements)
-            throws JSONException
-    {
+            throws JSONException {
         Cursor featureCursor = null;
 
         if (mFeatureId != NOT_FOUND) {
@@ -175,25 +244,23 @@ public class FormBuilderModifyAttributesActivity
         for (int i = 0; i < elements.length(); i++) {
             JSONObject element = elements.getJSONObject(i);
             String type = element.getString(JSON_TYPE_KEY);
-
             IFormControl control = null;
 
             switch (type) {
-
                 case JSON_TEXT_LABEL_VALUE:
-                    control = (TextLabel)getLayoutInflater().inflate(R.layout.formtemplate_textlabel, layout, false);
+                    control = (TextLabel) getLayoutInflater().inflate(R.layout.formtemplate_textlabel, layout, false);
                     break;
 
                 case JSON_TEXT_EDIT_VALUE:
-                    control = (TextEdit)getLayoutInflater().inflate(R.layout.formtemplate_edittext, layout, false);
+                    control = (TextEdit) getLayoutInflater().inflate(R.layout.formtemplate_edittext, layout, false);
                     break;
 
                 case JSON_DATE_TIME_VALUE:
-                    control = (DateTime)getLayoutInflater().inflate(R.layout.formtemplate_datetime, layout, false);
+                    control = (DateTime) getLayoutInflater().inflate(R.layout.formtemplate_datetime, layout, false);
                     break;
 
                 case JSON_RADIO_GROUP_VALUE:
-                    control = (RadioGroup)getLayoutInflater().inflate(R.layout.formtemplate_radiogroup, layout, false);
+                    control = (RadioGroup) getLayoutInflater().inflate(R.layout.formtemplate_radiogroup, layout, false);
                     break;
 
                 case JSON_COMBOBOX_VALUE:
@@ -204,7 +271,7 @@ public class FormBuilderModifyAttributesActivity
                     break;
 
                 case JSON_DOUBLE_COMBOBOX_VALUE:
-                    control = (DoubleCombobox)getLayoutInflater().inflate(R.layout.formtemplate_doublecombobox, layout, false);
+                    control = (DoubleCombobox) getLayoutInflater().inflate(R.layout.formtemplate_doublecombobox, layout, false);
                     break;
 
                 case JSON_SPACE_VALUE:
@@ -281,7 +348,7 @@ public class FormBuilderModifyAttributesActivity
     }
 
     @Override
-    protected void setLocationText(Location location){
+    protected void setLocationText(Location location) {
         super.setLocationText(location);
         for (Map.Entry<String, IControl> control : mFields.entrySet()) {
             IControl current = control.getValue();
@@ -294,17 +361,36 @@ public class FormBuilderModifyAttributesActivity
         }
     }
 
-    protected void addToLayout(IFormControl control, JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, LinearLayout layout) throws JSONException {
+    protected void addToLayout(IFormControl control, JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, LinearLayout layout)
+            throws JSONException {
         if (null != control) {
-            if (mLayer instanceof NGWVectorLayer)
-                element.put(SyncStateContract.Columns.ACCOUNT_NAME, ((NGWVectorLayer) mLayer).getAccountName());
+            appendData(control, element);
 
             control.init(element, fields, savedState, featureCursor, mSharedPreferences);
             control.addToLayout(layout);
-            String fieldName = control.getFieldName();
 
-            if (null != fieldName) {
+            String fieldName = control.getFieldName();
+            if (null != fieldName)
                 mFields.put(fieldName, control);
+        }
+    }
+
+    private void appendData(IFormControl control, JSONObject element) throws JSONException {
+        if (mLayer instanceof NGWVectorLayer)
+            element.put(SyncStateContract.Columns.ACCOUNT_NAME, ((NGWVectorLayer) mLayer).getAccountName());
+
+        if (control instanceof Counter && mTable != null) {
+            JSONObject attrs = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+            if (!attrs.isNull(Counter.PREFIX_LIST)) {
+                String prefix = attrs.getString(Counter.PREFIX_LIST);
+                prefix = mTable.get(prefix).get(mRow);
+                attrs.put(Counter.PREFIX, prefix);
+            }
+
+            if (!attrs.isNull(Counter.SUFFIX_LIST)) {
+                String suffix = attrs.getString(Counter.SUFFIX_LIST);
+                suffix = mTable.get(suffix).get(mRow);
+                attrs.put(Counter.SUFFIX, suffix);
             }
         }
     }
@@ -319,16 +405,11 @@ public class FormBuilderModifyAttributesActivity
         return success;
     }
 
-    protected Object putFieldValue(
-            ContentValues values,
-            Field field)
-    {
+    protected Object putFieldValue(ContentValues values, Field field) {
         Object value = super.putFieldValue(values, field);
         IFormControl control = (IFormControl) mFields.get(field.getName());
-
-        if (null == control) {
+        if (null == control)
             return null;
-        }
 
         if (null != value) {
             if (value instanceof DoubleComboboxValue) {

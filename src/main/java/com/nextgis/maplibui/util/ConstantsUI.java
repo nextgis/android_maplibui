@@ -41,6 +41,7 @@ public interface ConstantsUI
     String KEY_GEOMETRY         = "geometry";
     String KEY_GEOMETRY_CHANGED = "geometry_changed";
     String KEY_FORM_PATH        = "form_path";
+    String KEY_META_PATH        = "meta_path";
     String KEY_VIEW_ONLY        = "view_only";
 
     String MESSAGE_INTENT = "com.nextgis.malibui.MESSAGE";
@@ -76,6 +77,8 @@ public interface ConstantsUI
     String JSON_INPUT_SEARCH          = "input_search";
     String JSON_ALLOW_NEW_VALUES      = "allow_adding_values";
     String JSON_HIDDEN_KEY            = "hidden";
+    String JSON_LISTS_KEY             = "lists";
+    String JSON_KEY_LIST_KEY          = "key_list";
 
     String JSON_TEXT_LABEL_VALUE      = "text_label";
     String JSON_TEXT_EDIT_VALUE       = "text_edit";

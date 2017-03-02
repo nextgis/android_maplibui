@@ -24,6 +24,7 @@ package com.nextgis.maplibui.util;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -36,6 +37,7 @@ import android.widget.Toast;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.map.VectorLayer;
@@ -43,7 +45,11 @@ import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity;
+import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.activity.NGActivity;
+import com.nextgis.maplibui.api.IVectorLayerUI;
+import com.nextgis.maplibui.service.LayerFillService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -77,6 +83,12 @@ import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE;
 import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FEATURES;
 import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_Feature;
 import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FeatureCollection;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY_CHANGED;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_LAYER_ID;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_META_PATH;
 
 /**
  * Raster and vector layer utilities
@@ -98,6 +110,42 @@ public final class LayerUtil {
         }
 
         return lookupTableIds;
+    }
+
+    public static void showEditForm(VectorLayer layer, Context context, long featureId, GeoGeometry geometry) {
+        if (!layer.isFieldsInitialized()) {
+            Toast.makeText(context, context.getString(R.string.error_layer_not_inited), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        boolean isGeometryChanged = geometry != null;
+        //get geometry
+        if (geometry == null && featureId != Constants.NOT_FOUND) {
+            geometry = layer.getGeometryForId(featureId);
+        }
+
+        Intent intent;
+        //check custom form
+        File form = new File(layer.getPath(), ConstantsUI.FILE_FORM);
+        if (form.exists()) {
+            //show custom form
+            intent = new Intent(context, FormBuilderModifyAttributesActivity.class);
+            intent.putExtra(KEY_FORM_PATH, form);
+            File meta = new File(layer.getPath(), LayerFillService.NGFP_META);
+            if (meta.exists())
+                intent.putExtra(KEY_META_PATH, meta);
+        } else {
+            //if not exist show standard form
+            intent = new Intent(context, ModifyAttributesActivity.class);
+        }
+
+        intent.putExtra(KEY_LAYER_ID, layer.getId());
+        intent.putExtra(KEY_FEATURE_ID, featureId);
+        intent.putExtra(KEY_GEOMETRY_CHANGED, isGeometryChanged);
+        if (null != geometry)
+            intent.putExtra(KEY_GEOMETRY, geometry);
+
+        ((Activity) context).startActivityForResult(intent, IVectorLayerUI.MODIFY_REQUEST);
     }
 
     public static void shareTrackAsGPX(NGActivity activity, String creator, String[] tracksId) {
