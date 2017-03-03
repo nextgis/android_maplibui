@@ -30,8 +30,11 @@ import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
 import android.provider.SyncStateContract;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
@@ -87,6 +90,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_DATE_TIME_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DOUBLE_COMBOBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_KEY_LIST_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_KEY_LIST_SAVED_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_LISTS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_PHOTO_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_PORTRAIT_ELEMENTS_KEY;
@@ -103,8 +107,48 @@ import static com.nextgis.maplibui.util.ConstantsUI.KEY_META_PATH;
  * Activity to add or modify vector layer attributes
  */
 public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivity {
+    private static final int RESELECT_ROW = 999;
+
     private Map<String, List<String>> mTable;
     private int mRow = -1;
+    private File mMeta;
+    private String mColumn;
+
+    interface OnAskRowListener {
+        void onRowChosen();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        if (mColumn != null) {
+            MenuItem apply = menu.add(0, RESELECT_ROW, 50, R.string.select_row);
+            apply.setIcon(R.drawable.ic_altitude);
+            MenuItemCompat.setShowAsAction(apply, MenuItemCompat.SHOW_AS_ACTION_ALWAYS);
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case RESELECT_ROW:
+                if (mMeta != null && mMeta.exists()) {
+                    try {
+                        String metaString = FileUtil.readFromFile(mMeta);
+                        JSONObject metaJson = new JSONObject(metaString);
+                        metaJson.remove(JSON_KEY_LIST_SAVED_KEY);
+                        FileUtil.writeToFile(mMeta, metaJson.toString());
+                        refreshActivityView();
+                    } catch (JSONException | IOException ignored) {}
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     protected void fillControls(LinearLayout layout, Bundle savedState) {
@@ -166,13 +210,13 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
         }
     }
 
-    private void fillTable(LinearLayout layout, Bundle savedState, Bundle extras) {
+    private void fillTable(final LinearLayout layout, final Bundle savedState, Bundle extras) {
         mTable = new HashMap<>();
-        File meta = (File) extras.getSerializable(KEY_META_PATH);
-        if (meta != null && meta.exists()) {
+        mMeta = (File) extras.getSerializable(KEY_META_PATH);
+        if (mMeta != null && mMeta.exists()) {
             try {
-                String metaString = FileUtil.readFromFile(meta);
-                JSONObject metaJson = new JSONObject(metaString);
+                String metaString = FileUtil.readFromFile(mMeta);
+                final JSONObject metaJson = new JSONObject(metaString);
                 if (metaJson.has(JSON_LISTS_KEY)) {
                     JSONObject lists = metaJson.getJSONObject(JSON_LISTS_KEY);
                     Iterator<String> i = lists.keys();
@@ -188,8 +232,27 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                 }
 
                 if (metaJson.has(JSON_KEY_LIST_KEY)) {
-                    askForRow(layout, savedState, metaJson.getString(JSON_KEY_LIST_KEY));
-                    return;
+                    mColumn = metaJson.getString(JSON_KEY_LIST_KEY);
+
+                    if (metaJson.has(JSON_KEY_LIST_SAVED_KEY))
+                        mRow = metaJson.getInt(JSON_KEY_LIST_SAVED_KEY);
+                    else {
+                        askForRow(new OnAskRowListener() {
+                            @Override
+                            public void onRowChosen() {
+                                if (mRow == -1)
+                                    finish();
+                                else {
+                                    try {
+                                        metaJson.put(JSON_KEY_LIST_SAVED_KEY, mRow);
+                                        FileUtil.writeToFile(mMeta, metaJson.toString());
+                                    } catch (JSONException | IOException ignored) {}
+                                    fillControls(layout, savedState);
+                                }
+                            }
+                        });
+                        return;
+                    }
                 }
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
@@ -199,8 +262,8 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
         fillControls(layout, savedState);
     }
 
-    private void askForRow(final LinearLayout layout, final Bundle savedState, String column) {
-        ArrayAdapter<String> spinnerMenu = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, mTable.get(column));
+    private void askForRow(final OnAskRowListener listener) {
+        ArrayAdapter<String> spinnerMenu = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, mTable.get(mColumn));
         final Spinner spinner = (Spinner) View.inflate(this, R.layout.table_select_row, null);
         spinner.setAdapter(spinnerMenu);
 
@@ -215,10 +278,7 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                .setOnDismissListener(new DialogInterface.OnDismissListener() {
                    @Override
                    public void onDismiss(DialogInterface dialogInterface) {
-                       if (mRow == -1)
-                           finish();
-                       else
-                           fillControls(layout, savedState);
+                       listener.onRowChosen();
                    }
                });
         AlertDialog dialog = builder.show();
@@ -379,7 +439,7 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
         if (mLayer instanceof NGWVectorLayer)
             element.put(SyncStateContract.Columns.ACCOUNT_NAME, ((NGWVectorLayer) mLayer).getAccountName());
 
-        if (control instanceof Counter && mTable != null) {
+        if (control instanceof Counter && mTable != null && mRow != -1) {
             JSONObject attrs = element.getJSONObject(JSON_ATTRIBUTES_KEY);
             if (!attrs.isNull(Counter.PREFIX_LIST)) {
                 String prefix = attrs.getString(Counter.PREFIX_LIST);
