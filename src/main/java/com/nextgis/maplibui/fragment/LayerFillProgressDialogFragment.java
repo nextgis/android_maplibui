@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2016-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -180,7 +180,8 @@ public class LayerFillProgressDialogFragment extends Fragment {
 
                     boolean canceled = intent.getBooleanExtra(LayerFillService.KEY_CANCELLED, false);
                     String toast = mActivity.getString(com.nextgis.maplibui.R.string.message_layer_created);
-                    if (!intent.getBooleanExtra(LayerFillService.KEY_RESULT, false)) {
+                    boolean success = intent.getBooleanExtra(LayerFillService.KEY_RESULT, false);
+                    if (!success) {
                         if (canceled)
                             toast = mActivity.getString(com.nextgis.maplibui.R.string.canceled);
                         else
@@ -190,7 +191,8 @@ public class LayerFillProgressDialogFragment extends Fragment {
                     if (intent.hasExtra(LayerFillService.KEY_MESSAGE))
                         Toast.makeText(mActivity, toast, Toast.LENGTH_LONG).show();
 
-                    if (!canceled && intent.getBooleanExtra(LayerFillService.KEY_SYNC, false)) {
+                    boolean isNgwSync = intent.getBooleanExtra(LayerFillService.KEY_SYNC, false);
+                    if (success && !canceled && isNgwSync) {
                         int id = intent.getIntExtra(LayerFillService.KEY_REMOTE_ID, -1);
                         final IGISApplication app = (IGISApplication) mActivity.getApplication();
                         final NGWVectorLayer ngwLayer = (NGWVectorLayer) app.getMap().getLayerById(id);

@@ -331,8 +331,13 @@ public class LayerFillService extends Service implements IProgressor {
         }
 
         mProgressIntent.getExtras().clear();
+        if (mProgressMessage != null)
+            mProgressIntent.putExtra(KEY_MESSAGE, mProgressMessage);
+        else
+            mProgressIntent.removeExtra(KEY_MESSAGE);
+
         mProgressIntent.putExtra(KEY_STATUS, STATUS_UPDATE).putExtra(KEY_TOTAL, mProgressMax)
-                .putExtra(KEY_PROGRESS, mProgressValue).putExtra(KEY_MESSAGE, mProgressMessage);
+                .putExtra(KEY_PROGRESS, mProgressValue);
         sendBroadcast(mProgressIntent);
     }
 
@@ -449,6 +454,7 @@ public class LayerFillService extends Service implements IProgressor {
                         progressor.setValue(nIncrement);
                     }
                     zis.close();
+                    progressor.setMessage(null);
 
                     //read meta.json
                     File meta = new File(mLayerPath, NGFP_FILE_META);
