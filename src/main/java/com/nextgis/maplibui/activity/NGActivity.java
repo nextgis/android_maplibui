@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -24,6 +24,7 @@
 package com.nextgis.maplibui.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -68,6 +69,14 @@ public class NGActivity
         return mIsDarkTheme
                ? R.style.Theme_NextGIS_AppCompat_Dark
                : R.style.Theme_NextGIS_AppCompat_Light;
+    }
+
+
+    public static boolean isDarkTheme(Context context)
+    {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light")
+                .equals("dark");
     }
 
 

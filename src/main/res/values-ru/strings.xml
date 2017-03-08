@@ -133,6 +133,7 @@
     <string name="zip">zip-архив</string>
     <string name="formbuilder">Файл FormBuilder</string>
     <string name="geojson">Файл GeoJSON</string>
+    <string name="unknown_file">Файл неизвестного типа</string>
     <string name="add_point">Добавить точку</string>
     <string name="edit_attributes">Редактировать атрибуты</string>
     <string name="move_point_to_current_location">Точка в текущее местоположение</string>

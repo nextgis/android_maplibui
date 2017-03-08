@@ -1,9 +1,11 @@
 /*
  * Project:  NextGIS Mobile
  * Purpose:  Mobile GIS for Android.
+ * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
+ * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -21,152 +23,48 @@
 
 package com.nextgis.maplibui.activity;
 
-import android.annotation.TargetApi;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
-import android.text.TextUtils;
-import android.view.MenuItem;
-
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.fragment.NGIDSettingsFragment;
-import com.nextgis.maplibui.util.NGIDUtils;
+import com.nextgis.maplibui.fragment.NGIDSettingsHeaderFragment;
+import com.nextgis.maplibui.fragment.NGPreferenceSettingsFragment;
+import com.nextgis.maplibui.fragment.NGPreferenceHeaderFragment;
+import com.nextgis.maplibui.util.ConstantsUI;
 
-import java.util.List;
 
-public class NGIDSettingsActivity extends NGPreferenceActivity {
-    protected static final String ACCOUNT_ACTION = "com.nextgis.maplibui.ACCOUNT";
-    SharedPreferences mPreferences;
+public class NGIDSettingsActivity
+        extends NGPreferenceActivity
+{
+    @Override
+    protected String getPreferenceHeaderFragmentTag()
+    {
+        return ConstantsUI.FRAGMENT_NGID_HEADER_SETTINGS;
+    }
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        super.onCreate(savedInstanceState);
-        createView();
+    protected NGPreferenceHeaderFragment getNewPreferenceHeaderFragment()
+    {
+        return new NGIDSettingsHeaderFragment();
     }
+
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+    protected String getPreferenceSettingsFragmentTag()
+    {
+        return ConstantsUI.FRAGMENT_NGID_SETTINGS;
     }
+
 
     @Override
-    protected void onStart() {
-        super.onStart();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-            invalidateHeaders();
+    protected NGPreferenceSettingsFragment getNewPreferenceSettingsFragment(String subScreenKey)
+    {
+        return new NGIDSettingsFragment();
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+
     @Override
-    public void onBuildHeaders(List<Header> target) {
-        boolean isLoggedIn = !TextUtils.isEmpty(mPreferences.getString(NGIDUtils.PREF_ACCESS_TOKEN, ""));
-        Header header = new Header();
-        if (isLoggedIn) {
-            header.title = getString(R.string.ngid_my);
-            header.fragment = NGIDSettingsFragment.class.getName();
-        } else {
-            header.title = getString(R.string.login);
-            header.intent = new Intent(this, NGIDLoginActivity.class);
-            //            header.fragment = NGIDLoginFragment.class.getName();
-        }
-
-        target.add(header);
-
-        //add "New account" header
-        header = new Header();
-        header.title = getString(R.string.ngid_account_new);
-        header.intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://my.nextgis.com"));
-        target.add(header);
-    }
-
-    @TargetApi(Build.VERSION_CODES.KITKAT)
-    @Override
-    protected boolean isValidFragment(String fragmentName) {
-        return true;
-    }
-
-    protected void createView() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            PreferenceScreen screen = getPreferenceManager().createPreferenceScreen(this);
-            String action = getIntent().getAction();
-            if (action != null && action.equals(ACCOUNT_ACTION)) {
-                addPreferencesFromResource(R.xml.preferences_ngid);
-                fillAccountPreferences(screen);
-                setPreferenceScreen(screen);
-            } else {
-                fillPreferences(screen);
-                setPreferenceScreen(screen);
-            }
-        }
-    }
-
-    protected void fillPreferences(PreferenceScreen screen) {
-        boolean isLoggedIn = !TextUtils.isEmpty(mPreferences.getString(NGIDUtils.PREF_ACCESS_TOKEN, ""));
-        Preference preference = new Preference(this);
-
-        if (isLoggedIn) {
-            preference.setTitle(R.string.ngid_my);
-            Intent intent = new Intent(this, NGIDSettingsActivity.class);
-            intent.setAction(ACCOUNT_ACTION);
-            preference.setIntent(intent);
-        } else {
-            preference.setTitle(R.string.login);
-            Intent intent = new Intent(this, NGIDLoginActivity.class);
-            preference.setIntent(intent);
-        }
-
-        //add "New account" preference
-        Preference newAccount = new Preference(this);
-        newAccount.setTitle(R.string.ngid_account_new);
-        Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse("http://my.nextgis.com"));
-        newAccount.setIntent(browser);
-
-        if (null != screen) {
-            screen.addPreference(newAccount);
-            screen.addPreference(preference);
-        }
-    }
-
-    public void fillAccountPreferences(PreferenceScreen screen) {
-        String notDefined = getString(R.string.not_set);
-        String value = mPreferences.getString(NGIDUtils.PREF_USERNAME, null);
-        screen.findPreference(NGIDUtils.PREF_USERNAME).setSummary(TextUtils.isEmpty(value) ? notDefined : value);
-        value = mPreferences.getString(NGIDUtils.PREF_EMAIL, null);
-        screen.findPreference(NGIDUtils.PREF_EMAIL).setSummary(TextUtils.isEmpty(value) ? notDefined : value);
-        value = mPreferences.getString(NGIDUtils.PREF_FIRST_NAME, null);
-        screen.findPreference(NGIDUtils.PREF_FIRST_NAME).setSummary(TextUtils.isEmpty(value) ? notDefined : value);
-        value = mPreferences.getString(NGIDUtils.PREF_LAST_NAME, null);
-        screen.findPreference(NGIDUtils.PREF_LAST_NAME).setSummary(TextUtils.isEmpty(value) ? notDefined : value);
-        screen.findPreference("sign_out").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                mPreferences.edit().remove(NGIDUtils.PREF_USERNAME).remove(NGIDUtils.PREF_EMAIL).remove(NGIDUtils.PREF_FIRST_NAME)
-                            .remove(NGIDUtils.PREF_LAST_NAME).remove(NGIDUtils.PREF_ACCESS_TOKEN).remove(NGIDUtils.PREF_REFRESH_TOKEN).apply();
-
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
-                    finish();
-                else {
-                    if (onIsHidingHeaders())
-                        finish();
-                    else
-                        invalidateHeaders();
-                }
-
-                return false;
-            }
-        });
+    protected String getTitleString()
+    {
+        return getString(R.string.ngid_settings);
     }
 }

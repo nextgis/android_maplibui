@@ -38,15 +38,33 @@
             android:layout_gravity="center"
             android:orientation="vertical"
             >
+
         <include
                 layout="@layout/actionbar"/>
-        <FrameLayout
-                android:id="@+id/setting_fragment"
+
+        <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:orientation="horizontal"
                 android:layout_below="@id/main_toolbar"
                 >
-        </FrameLayout>
+            <FrameLayout
+                    android:id="@+id/header_fragment"
+                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    >
+            </FrameLayout>
+            <FrameLayout
+                    android:id="@+id/setting_fragment"
+                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="2"
+                    >
+            </FrameLayout>
+        </LinearLayout>
     </RelativeLayout>
 
 </LinearLayout>

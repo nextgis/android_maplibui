@@ -71,6 +71,7 @@ import com.nextgis.maplibui.display.RendererUI;
 import com.nextgis.maplibui.display.RuleFeatureRendererUI;
 import com.nextgis.maplibui.display.SimpleFeatureRendererUI;
 import com.nextgis.maplibui.fragment.LayerGeneralSettingsFragment;
+import com.nextgis.maplibui.fragment.NGWSettingsFragment;
 import com.nextgis.maplibui.service.RebuildCacheService;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
@@ -441,12 +442,12 @@ public class VectorLayerSettingsActivity
 
             final Spinner period = (Spinner) v.findViewById(R.id.sync_interval);
             CheckBox auto = (CheckBox) v.findViewById(R.id.sync_auto);
-            boolean isAccountSyncEnabled = NGWSettingsActivity.isAccountSyncEnabled(account, app.getAuthority());
+            boolean isAccountSyncEnabled = NGWSettingsFragment.isAccountSyncEnabled(account, app.getAuthority());
             auto.setChecked(isAccountSyncEnabled);
             auto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                    NGWSettingsActivity.setAccountSyncEnabled(account, app.getAuthority(), checked);
+                    NGWSettingsFragment.setAccountSyncEnabled(account, app.getAuthority(), checked);
                     period.setEnabled(checked);
                 }
             });
@@ -465,8 +466,8 @@ public class VectorLayerSettingsActivity
                 }
             }
 
-            final CharSequence[] keys = NGWSettingsActivity.getPeriodTitles(getActivity());
-            final CharSequence[] values = NGWSettingsActivity.getPeriodValues();
+            final CharSequence[] keys = NGWSettingsFragment.getPeriodTitles(getActivity());
+            final CharSequence[] values = NGWSettingsFragment.getPeriodValues();
 
             SpinnerAdapter adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, keys);
             period.setAdapter(adapter);

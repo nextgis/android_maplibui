@@ -6,7 +6,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2017 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -44,6 +44,7 @@
     <attr name="ic_action_refresh" format="reference"/>
     <attr name="ic_apply" format="reference"/>
     <attr name="ic_cancel" format="reference"/>
+    <attr name="ic_next" format="reference"/>
     <attr name="layer_list_background" format="reference"/>
     <attr name="control_disabled" format="reference"/>
 
@@ -95,9 +96,11 @@
         <item name="ic_action_refresh">@drawable/ic_action_refresh_light</item>
         <item name="ic_apply">@drawable/ic_action_apply_light</item>
         <item name="ic_cancel">@drawable/ic_action_cancel_light</item>
+        <item name="ic_next">@drawable/ic_next_light</item>
         <item name="layer_list_background">@color/textColor.Dark</item>
 
         <item name="DatePickSpinnerBackground">@drawable/ic_spinner_calendar_light</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
 
     <style name="Theme.NextGIS.AppCompat.Light" parent="Theme.NextGIS.AppCompat.Light.Base">
@@ -143,9 +146,11 @@
         <item name="ic_action_refresh">@drawable/ic_action_refresh_dark</item>
         <item name="ic_apply">@drawable/ic_action_apply_dark</item>
         <item name="ic_cancel">@drawable/ic_action_cancel_dark</item>
+        <item name="ic_next">@drawable/ic_next_dark</item>
         <item name="layer_list_background">@color/textColor.Light</item>
 
         <item name="DatePickSpinnerBackground">@drawable/ic_spinner_calendar_dark</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
 
     <style name="Theme.NextGIS.AppCompat.Dark" parent="Theme.NextGIS.AppCompat.Dark.Base">

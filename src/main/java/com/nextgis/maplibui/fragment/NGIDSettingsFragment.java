@@ -1,9 +1,11 @@
 /*
  * Project:  NextGIS Mobile
  * Purpose:  Mobile GIS for Android.
+ * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
+ * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -21,21 +23,81 @@
 
 package com.nextgis.maplibui.fragment;
 
-import android.annotation.TargetApi;
-import android.os.Build;
-import android.os.Bundle;
-import android.preference.PreferenceFragment;
-
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceGroup;
+import android.support.v7.preference.PreferenceScreen;
+import android.text.TextUtils;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.activity.NGIDSettingsActivity;
+import com.nextgis.maplibui.activity.NGPreferenceActivity;
+import com.nextgis.maplibui.util.NGIDUtils;
+import com.nextgis.maplibui.util.SettingsConstantsUI;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class NGIDSettingsFragment extends PreferenceFragment {
+
+public class NGIDSettingsFragment
+        extends NGPreferenceSettingsFragment
+{
+    protected SharedPreferences mPreferences;
+
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.preferences_ngid);
-        NGIDSettingsActivity activity = (NGIDSettingsActivity) getActivity();
-        activity.fillAccountPreferences(getPreferenceScreen());
+    public void createSettings(PreferenceScreen screen)
+    {
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
+        fillPreferences(screen);
+    }
+
+
+    // for overriding in a subclass
+    protected void fillPreferences(PreferenceGroup screen)
+    {
+        if (mAction != null && mAction.equals(SettingsConstantsUI.ACTION_ACCOUNT)) {
+            addPreferencesFromResource(R.xml.preferences_ngid);
+            fillAccountPreferences(screen);
+        }
+    }
+
+
+    public void fillAccountPreferences(PreferenceGroup screen)
+    {
+        String notDefined = getString(R.string.not_set);
+        String value = mPreferences.getString(NGIDUtils.PREF_USERNAME, null);
+        screen.findPreference(NGIDUtils.PREF_USERNAME)
+                .setSummary(TextUtils.isEmpty(value) ? notDefined : value);
+        value = mPreferences.getString(NGIDUtils.PREF_EMAIL, null);
+        screen.findPreference(NGIDUtils.PREF_EMAIL)
+                .setSummary(TextUtils.isEmpty(value) ? notDefined : value);
+        value = mPreferences.getString(NGIDUtils.PREF_FIRST_NAME, null);
+        screen.findPreference(NGIDUtils.PREF_FIRST_NAME)
+                .setSummary(TextUtils.isEmpty(value) ? notDefined : value);
+        value = mPreferences.getString(NGIDUtils.PREF_LAST_NAME, null);
+        screen.findPreference(NGIDUtils.PREF_LAST_NAME)
+                .setSummary(TextUtils.isEmpty(value) ? notDefined : value);
+        screen.findPreference("sign_out")
+                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
+                {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference)
+                    {
+                        mPreferences.edit()
+                                .remove(NGIDUtils.PREF_USERNAME)
+                                .remove(NGIDUtils.PREF_EMAIL)
+                                .remove(NGIDUtils.PREF_FIRST_NAME)
+                                .remove(NGIDUtils.PREF_LAST_NAME)
+                                .remove(NGIDUtils.PREF_ACCESS_TOKEN)
+                                .remove(NGIDUtils.PREF_REFRESH_TOKEN)
+                                .apply();
+
+                        if (!NGPreferenceActivity.isMultiPane(getActivity())) {
+                            mActivity.onBackPressed();
+                            mActivity.onBackPressed();
+                        } else {
+                            mActivity.invalidatePreferences();
+                        }
+                        mActivity.replaceSettingsFragment(null);
+                        return false;
+                    }
+                });
     }
 }

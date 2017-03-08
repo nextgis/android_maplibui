@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -43,7 +43,6 @@ import android.widget.Toast;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.activity.NGWSettingsActivity;
 import com.nextgis.maplibui.service.HTTPLoader;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
@@ -332,7 +331,7 @@ public class NGWLoginFragment
                 app.setUserData(accountName, "login", login);
 
             app.setPassword(accountName, password);
-            NGWSettingsActivity.updateAccountLayersCacheData(app, app.getAccount(accountName));
+            NGWSettingsFragment.updateAccountLayersCacheData(app, app.getAccount(accountName));
 
             getActivity().finish();
         }

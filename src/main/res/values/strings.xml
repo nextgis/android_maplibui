@@ -52,7 +52,7 @@
     <string name="ngw_accounts">Web GIS</string>
     <string name="ngw_account_add">Add Web GIS</string>
     <string name="ngw_account_delete">Delete account</string>
-    <string name="ngw_account_delete_summary">Всі шари акаунту будуть видалені.\nПоточна синхронізація буде зупинена.</string>
+    <string name="ngw_account_delete_summary">Delete account. All layers connected with this account will be deleted too. Active synchronization will be stopped.</string>
     <string name="ngw_account_delete_warn_msg">Account will be deleted!\nAll account layers will be deleted!\nCurrent sync will be stopped!</string>
     <string name="waiting">Please wait</string>
     <string name="wait_sync_stopping">Waiting of synchronization stopping</string>
@@ -151,6 +151,7 @@
     <string name="zip">ZIP file</string>
     <string name="formbuilder">FormBuilder file</string>
     <string name="geojson">GeoJSON file</string>
+    <string name="unknown_file">Unknown file</string>
     <string name="add_point">Add point</string>
     <string name="edit_attributes">Edit attributes</string>
     <string name="move_point_to_current_location">Point to current location</string>

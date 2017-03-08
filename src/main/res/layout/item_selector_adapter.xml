@@ -22,11 +22,24 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<resources>
-    <item name="auth_token_loader"
-          type="id"/>
-    <item name="non_auth_token_loader"
-          type="id"/>
-    <item name="local_resources_loader"
-          type="id"/>
-</resources>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBox
+            android:id="@+id/item_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:focusable="false"
+            android:visibility="gone"
+            />
+
+    <RadioButton
+            android:id="@+id/item_radio_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:focusable="false"
+            android:visibility="gone"
+            />
+
+</merge>

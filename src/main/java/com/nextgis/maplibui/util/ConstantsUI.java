@@ -53,8 +53,8 @@ public interface ConstantsUI
     int MIN_ZOOM_LEVEL     = 18;
     int NOTIFICATION_DELAY = 500;
 
-    String JSON_NGW_CONNECTION_KEY    = "ngw_connection";
-    String JSON_NGW_ID_KEY            = "ngw_id";
+    String JSON_NGW_CONNECTION_KEY = "ngw_connection";
+    String JSON_NGW_ID_KEY         = "ngw_id";
 
     String JSON_ATTRIBUTES_KEY        = "attributes";
     String JSON_TABS_KEY              = "tabs";
@@ -99,17 +99,29 @@ public interface ConstantsUI
 
     String GA_DIALOG_QMS = "Geoservice QMS";
     String GA_DIALOG_TMS = "Geoservice New";
-    String GA_LAYER = "Layer";
-    String GA_EDIT = "Edit";
-    String GA_FAB = "FAB";
-    String GA_MENU = "Menu";
-    String GA_CREATE = "Create";
-    String GA_LOCAL = "Local";
-    String GA_IMPORT = "Import";
+    String GA_LAYER      = "Layer";
+    String GA_EDIT       = "Edit";
+    String GA_FAB        = "FAB";
+    String GA_MENU       = "Menu";
+    String GA_CREATE     = "Create";
+    String GA_LOCAL      = "Local";
+    String GA_IMPORT     = "Import";
     String GA_GEOSERVICE = "Geoservice";
-    String GA_NGW = "NGW";
-    String GA_NGID = "NGID";
-    String GA_CONNECT = "Connect";
-    String GA_GUEST = "Guest";
-    String GA_USER = "User";
+    String GA_NGW        = "NGW";
+    String GA_NGID       = "NGID";
+    String GA_CONNECT    = "Connect";
+    String GA_GUEST      = "Guest";
+    String GA_USER       = "User";
+
+    /**
+     * Fragments tags
+     */
+    String FRAGMENT_NGW_HEADER_SETTINGS  = "ngw_header_settings";
+    String FRAGMENT_NGW_SETTINGS         = "ngw_settings";
+    String FRAGMENT_NGID_HEADER_SETTINGS = "ngid_header_settings";
+    String FRAGMENT_NGID_SETTINGS        = "ngid_settings";
+    String FRAGMENT_NGID_LOGIN           = "ngid_login";
+    String FRAGMENT_SELECT_RESOURCE      = "select_resource";
+
+    String PREF_SCREEN_TITLE = "pref_screen_title";
 }

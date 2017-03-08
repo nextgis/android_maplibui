@@ -25,7 +25,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.1'
+    buildToolsVersion '25.0.2'
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 25
@@ -61,4 +61,5 @@ dependencies {
     compile 'com.github.miguelbcr:TableFixHeaders-Wrapper:0.2.0'
     compile 'com.android.support:appcompat-v7:25.2.0'
     compile 'com.android.support:design:25.2.0'
+    compile 'com.android.support:preference-v7:25.2.0'
 }

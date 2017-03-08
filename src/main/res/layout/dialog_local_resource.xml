@@ -22,31 +22,44 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<LinearLayout
+<RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:context=".activity.NGPreferenceActivity"
-        tools:actionBarNavMode="standard"
         >
 
-    <RelativeLayout
+    <HorizontalScrollView
+            android:id="@+id/scroll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical"
+            android:layout_marginBottom="0dp"
+            android:scrollbars="horizontal"
+            android:layout_alignParentTop="true"
             >
-        <include
-                layout="@layout/actionbar"/>
-        <FrameLayout
-                android:id="@+id/setting_fragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/main_toolbar"
-                >
-        </FrameLayout>
-    </RelativeLayout>
 
-</LinearLayout>
+        <LinearLayout
+                android:id="@+id/path_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                >
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+    <android.support.v7.widget.RecyclerView
+            android:id="@+id/list"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_marginTop="0dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            android:scrollbars="vertical"
+            android:layout_alignParentBottom="true"
+            android:layout_below="@+id/scroll"
+            />
+
+</RelativeLayout>

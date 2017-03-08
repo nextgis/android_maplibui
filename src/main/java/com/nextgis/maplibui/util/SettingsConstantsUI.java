@@ -25,9 +25,9 @@ package com.nextgis.maplibui.util;
 
 public interface SettingsConstantsUI
 {
-    String KEY_PREF_SCROLL_X      = "map_scroll_x";
-    String KEY_PREF_SCROLL_Y      = "map_scroll_y";
-    String KEY_PREF_ZOOM_LEVEL    = "map_zoom_level";
+    String KEY_PREF_SCROLL_X   = "map_scroll_x";
+    String KEY_PREF_SCROLL_Y   = "map_scroll_y";
+    String KEY_PREF_ZOOM_LEVEL = "map_zoom_level";
 
     String KEY_PREF_KEEPSCREENON         = "keep_screen_on";
     String KEY_PREF_COORD_FORMAT         = "coordinates_format";
@@ -58,9 +58,11 @@ public interface SettingsConstantsUI
     String ACTION_PREFS_GENERAL  = "com.nextgis.mobile.PREFS_GENERAL";
     String ACTION_PREFS_MAP      = "com.nextgis.mobile.PREFS_MAP";
     String ACTION_PREFS_NGW      = "com.nextgis.mobile.PREFS_NGW";
+    String ACTION_PREFS_NGID     = "com.nextgis.mobile.PREFS_NGID";
     String ACTION_PREFS_COMPASS  = "com.nextgis.mobile.PREFS_COMPASS";
     String ACTION_PREFS_TRACKING = "com.nextgis.mobile.PREFS_TRACKING";
     String ACTION_PREFS_UPDATE   = "com.nextgis.mobile.PREFS_UPDATE";
     String ACTION_PREFS_LOCATION = "com.nextgis.mobile.PREFS_LOCATION";
     String ACTION_PREFS_EDIT     = "com.nextgis.mobile.PREFS_EDIT";
+    String ACTION_ACCOUNT        = "com.nextgis.mobile.ACCOUNT";
 }

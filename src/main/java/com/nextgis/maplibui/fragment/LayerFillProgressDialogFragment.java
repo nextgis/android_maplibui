@@ -1,9 +1,11 @@
 /*
  * Project:  NextGIS Mobile
  * Purpose:  Mobile GIS for Android.
+ * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
+ * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -42,7 +44,6 @@ import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.activity.NGWSettingsActivity;
 import com.nextgis.maplibui.service.LayerFillService;
 
 // http://www.androiddesignpatterns.com/2013/04/retaining-objects-across-config-changes.html
@@ -203,7 +204,7 @@ public class LayerFillProgressDialogFragment extends Fragment {
                                 .setPositiveButton(R.string.auto, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        NGWSettingsActivity.setAccountSyncEnabled(account, app.getAuthority(), true);
+                                        NGWSettingsFragment.setAccountSyncEnabled(account, app.getAuthority(), true);
                                         ngwLayer.setSyncType(Constants.SYNC_ALL);
                                         ngwLayer.save();
                                     }
