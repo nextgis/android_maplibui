@@ -308,23 +308,8 @@ public class LocalResourceListAdapter
 
             File parent = path;
             while (null != parent) {
-                final File parentPath = parent;
-
-                boolean accessToAllFS = true;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    // TODO: get list of sdcards
-                    if (parentPath.getAbsolutePath().equals("/storage/emulated")) {
-                        accessToAllFS = false;
-                    }
-                }
                 // TODO: get list of sdcards
-                if (parentPath.getAbsolutePath().equals("/data/data")) {
-                    accessToAllFS = false;
-                }
-                if (!accessToAllFS) {
-                    break;
-                }
-
+                final File parentPath = parent;
                 LayoutInflater inflater = LayoutInflater.from(mContext);
 
                 TextView nameView =

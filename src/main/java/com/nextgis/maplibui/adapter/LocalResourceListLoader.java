@@ -105,22 +105,10 @@ public class LocalResourceListLoader
 
         File parentFile = mPath.getParentFile();
         if (null != parentFile) {
-            boolean accessToAllFS = true;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                // TODO: get list of sdcards
-                if (parentFile.getAbsolutePath().equals("/storage/emulated")) {
-                    accessToAllFS = false;
-                }
-            }
             // TODO: get list of sdcards
-            if (parentFile.getAbsolutePath().equals("/data/data")) {
-                accessToAllFS = false;
-            }
-            if (accessToAllFS) {
-                LocalResourceListItem item =
-                        new LocalResourceListItem(parentFile, FILETYPE_PARENT, false, false);
-                resources.add(item);
-            }
+            LocalResourceListItem item =
+                    new LocalResourceListItem(parentFile, FILETYPE_PARENT, false, false);
+            resources.add(item);
         }
 
         File[] files = mPath.listFiles();
