@@ -23,14 +23,22 @@
 
 package com.nextgis.maplibui.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
-import com.nextgis.maplibui.util.ConstantsUI;
+import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceScreen;
+import com.nextgis.maplibui.activity.NGPreferenceActivity;
 
 
-public abstract class NGPreferenceSettingsFragment
-        extends NGPreferenceFragment
+public abstract class NGPreferenceFragment
+        extends PreferenceFragmentCompat
+        implements NGPreferenceActivity.OnInvalidatePreferencesListener
 {
-    protected String mAction;
+    protected Context              mStyledContext;
+    protected NGPreferenceActivity mActivity;
+
+
+    protected abstract void createPreferences(PreferenceScreen screen);
 
 
     @Override
@@ -38,21 +46,25 @@ public abstract class NGPreferenceSettingsFragment
             Bundle savedInstanceState,
             String rootKey)
     {
-        mAction = rootKey;
-        if (null == rootKey) {
-            return;
-        }
+        mActivity = (NGPreferenceActivity) getActivity();
+        mStyledContext = getPreferenceManager().getContext();
 
-        super.onCreatePreferences(savedInstanceState, rootKey);
+        PreferenceScreen screen = getPreferenceManager().createPreferenceScreen(mStyledContext);
+        // https://groups.google.com/d/msg/android-developers/nbRw6OzWXYY/N2ckkMXmzhoJ
+        // 1st setPreferenceScreen() then others
+        setPreferenceScreen(screen);
+
+        createPreferences(screen);
     }
 
 
-    public String getFragmentTitle()
+    @Override
+    public void onInvalidatePreferences()
     {
-        Bundle args = getArguments();
-        if (null != args) {
-            return args.getString(ConstantsUI.PREF_SCREEN_TITLE);
+        PreferenceScreen screen = getPreferenceScreen();
+        if (null != screen) {
+            screen.removeAll();
+            createPreferences(screen);
         }
-        return null;
     }
 }

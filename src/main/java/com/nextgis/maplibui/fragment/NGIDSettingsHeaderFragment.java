@@ -46,7 +46,7 @@ public class NGIDSettingsHeaderFragment
 
 
     @Override
-    protected void createHeaders(PreferenceScreen screen)
+    protected void createPreferences(PreferenceScreen screen)
     {
         mPreferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
         fillHeaders(screen);

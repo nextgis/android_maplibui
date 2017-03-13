@@ -42,7 +42,7 @@ public class NGIDSettingsFragment
 
 
     @Override
-    public void createSettings(PreferenceScreen screen)
+    public void createPreferences(PreferenceScreen screen)
     {
         mPreferences = PreferenceManager.getDefaultSharedPreferences(mActivity);
         fillPreferences(screen);

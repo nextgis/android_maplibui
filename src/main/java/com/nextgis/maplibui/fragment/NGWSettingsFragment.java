@@ -83,7 +83,7 @@ public class NGWSettingsFragment
 
 
     @Override
-    public void createSettings(PreferenceScreen screen)
+    public void createPreferences(PreferenceScreen screen)
     {
         mChangeTitle = !mAction.equals(ACTION_PREFS_NGW);
         fillPreferences(screen);

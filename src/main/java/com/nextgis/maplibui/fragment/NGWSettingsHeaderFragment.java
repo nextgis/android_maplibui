@@ -49,7 +49,7 @@ public class NGWSettingsHeaderFragment
 
 
     @Override
-    protected void createHeaders(PreferenceScreen screen)
+    protected void createPreferences(PreferenceScreen screen)
     {
         if (null == mAccountManager) {
             Context appContext = mActivity.getApplicationContext();

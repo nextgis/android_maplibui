@@ -23,48 +23,8 @@
 
 package com.nextgis.maplibui.fragment;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.PreferenceScreen;
-import com.nextgis.maplibui.activity.NGPreferenceActivity;
-
 
 public abstract class NGPreferenceHeaderFragment
-        extends PreferenceFragmentCompat
-        implements NGPreferenceActivity.OnInvalidatePreferencesListener
+        extends NGPreferenceFragment
 {
-    protected Context              mStyledContext;
-    protected NGPreferenceActivity mActivity;
-
-
-    protected abstract void createHeaders(PreferenceScreen screen);
-
-
-    @Override
-    public void onCreatePreferences(
-            Bundle bundle,
-            String s)
-    {
-        mActivity = (NGPreferenceActivity) getActivity();
-        mStyledContext = getPreferenceManager().getContext();
-
-        PreferenceScreen screen = getPreferenceManager().createPreferenceScreen(mStyledContext);
-        // https://groups.google.com/d/msg/android-developers/nbRw6OzWXYY/N2ckkMXmzhoJ
-        // 1st setPreferenceScreen() then others
-        setPreferenceScreen(screen);
-
-        createHeaders(screen);
-    }
-
-
-    @Override
-    public void onInvalidatePreferences()
-    {
-        PreferenceScreen screen = getPreferenceScreen();
-        if (null != screen) {
-            screen.removeAll();
-            createHeaders(screen);
-        }
-    }
 }
