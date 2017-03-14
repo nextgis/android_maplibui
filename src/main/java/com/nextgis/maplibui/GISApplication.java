@@ -174,7 +174,7 @@ public abstract class GISApplication extends Application
             return null;
         }
         try {
-            for (Account account : mAccountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
+            for (Account account : mAccountManager.getAccountsByType(getAccountsType())) {
                 if (account == null) {
                     continue;
                 }
@@ -289,7 +289,7 @@ public abstract class GISApplication extends Application
         if (!isAccountManagerValid())
             return false;
 
-        final Account account = new Account(name, Constants.NGW_ACCOUNT_TYPE);
+        final Account account = new Account(name, getAccountsType());
 
         Bundle userData = new Bundle();
         userData.putString("url", url.trim());

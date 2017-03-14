@@ -205,7 +205,7 @@ public class SelectNGWResourceDialog
         Connections connections = new Connections(context.getString(R.string.ngw_accounts));
         IGISApplication app = (IGISApplication) context.getApplicationContext();
 
-        for (Account account : accountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
+        for (Account account : accountManager.getAccountsByType(app.getAccountsType())) {
             String url = app.getAccountUrl(account);
             String password = app.getAccountPassword(account);
             String login = app.getAccountLogin(account);
@@ -234,7 +234,7 @@ public class SelectNGWResourceDialog
                 Connections connections = mListAdapter.getConnections();
                 IGISApplication app = (IGISApplication) mContext.getApplicationContext();
 
-                for (Account account : mAccountManager.getAccountsByType(Constants.NGW_ACCOUNT_TYPE)) {
+                for (Account account : mAccountManager.getAccountsByType(app.getAccountsType())) {
                     boolean find = false;
                     for (int i = 0; i < connections.getChildrenCount(); i++) {
                         Connection connection = (Connection) connections.getChild(i);

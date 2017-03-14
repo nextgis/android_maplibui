@@ -33,7 +33,8 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceGroup;
 import android.support.v7.preference.PreferenceScreen;
 import android.util.Log;
-import com.nextgis.maplib.util.Constants;
+
+import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGWLoginActivity;
 import com.nextgis.maplibui.activity.NGWSettingsActivity;
@@ -63,9 +64,9 @@ public class NGWSettingsHeaderFragment
 
     protected void fillHeaders(PreferenceGroup screen)
     {
+        IGISApplication app = (IGISApplication) mActivity.getApplication();
         if (null != mAccountManager) {
-            for (final Account account : mAccountManager.getAccountsByType(
-                    Constants.NGW_ACCOUNT_TYPE)) {
+            for (final Account account : mAccountManager.getAccountsByType(app.getAccountsType())) {
 
                 Preference preference = new Preference(mStyledContext);
                 preference.setTitle(account.name);

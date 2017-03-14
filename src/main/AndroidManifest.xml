@@ -76,18 +76,6 @@
             android:label="@string/ngw_accounts"
             android:windowSoftInputMode="stateHidden"/>
 
-        <service
-            android:name=".account.NGWAuthenticatorService"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator"/>
-            </intent-filter>
-            <meta-data
-                android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator"/>
-        </service>
-
         <!-- android:process=":tile_download" -->
         <service
             android:name="com.nextgis.maplibui.service.TileDownloadService"

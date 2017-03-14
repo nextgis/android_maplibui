@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2015, 2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -32,10 +32,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplibui.activity.NGWLoginActivity;
-
-import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_TYPE;
 
 
 public class NGWAccountAuthenticator
@@ -69,10 +67,10 @@ public class NGWAccountAuthenticator
             Bundle options)
             throws NetworkErrorException
     {
+        IGISApplication app = (IGISApplication) mContext.getApplicationContext();
         final Intent intent = new Intent(mContext, NGWLoginActivity.class);
-        intent.putExtra(Constants.NGW_ACCOUNT_TYPE, accountType);
-        intent.putExtra(
-                AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, accountAuthenticatorResponse);
+        intent.putExtra(app.getAccountsType(), accountType);
+        intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, accountAuthenticatorResponse);
         final Bundle bundle = new Bundle();
         if (options != null) {
             bundle.putAll(options);
