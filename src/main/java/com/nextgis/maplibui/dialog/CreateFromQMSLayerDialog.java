@@ -263,7 +263,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
 
             try {
                 mLayerId = params[0];
-                return NetworkUtil.get(QMS_GEOSERVICE_URL + mLayerId + QMS_DETAIL_APPENDIX, null, null);
+                return NetworkUtil.get(QMS_GEOSERVICE_URL + mLayerId + QMS_DETAIL_APPENDIX, null, null, false);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -350,7 +350,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 return "-1";
 
             try {
-                return NetworkUtil.get(QMS_GEOSERVICE_LIST_URL, null, null);
+                return NetworkUtil.get(QMS_GEOSERVICE_LIST_URL, null, null, false);
             } catch (IOException e) {
                 e.printStackTrace();
             }
