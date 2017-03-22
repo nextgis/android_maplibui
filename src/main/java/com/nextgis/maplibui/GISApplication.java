@@ -41,6 +41,7 @@ import android.util.Log;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.ngw.SyncAdapter;
 import com.nextgis.maplib.location.GpsEventSource;
+import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.util.Constants;
@@ -139,7 +140,7 @@ public abstract class GISApplication extends Application
 
         final Bitmap bkBitmap = BitmapFactory.decodeResource(
                 getResources(), R.drawable.bk_tile);
-        mMap = new MapDrawable(bkBitmap, this, mapFullPath, new LayerFactoryUI());
+        mMap = new MapDrawable(bkBitmap, this, mapFullPath, getLayerFactory());
         mMap.setName(mapName);
         mMap.load();
 
@@ -350,5 +351,11 @@ public abstract class GISApplication extends Application
             mAccountManager = AccountManager.get(getApplicationContext());
         }
         return null != mAccountManager;
+    }
+
+    @Override
+    public LayerFactory getLayerFactory()
+    {
+        return new LayerFactoryUI();
     }
 }
