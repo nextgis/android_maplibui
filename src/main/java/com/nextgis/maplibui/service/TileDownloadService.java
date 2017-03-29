@@ -75,6 +75,7 @@ public class TileDownloadService extends Service {
     public static final String KEY_PATH = "path";
     public static final String KEY_ZOOM_FROM = "zoom_from";
     public static final String KEY_ZOOM_TO = "zoom_to";
+    public static final String KEY_ZOOM_LIST = "zoom_list";
     public static final String ACTION_STOP = "TILE_DOWNLOAD_STOP";
     public static final String ACTION_ADD_TASK = "ADD_TILE_DOWNLOAD_TASK";
 
@@ -116,11 +117,17 @@ public class TileDownloadService extends Service {
                         double dfMinY = intent.getDoubleExtra(KEY_MINY, 0);
                         double dfMaxX = intent.getDoubleExtra(KEY_MAXX, GeoConstants.MERCATOR_MAX);
                         double dfMaxY = intent.getDoubleExtra(KEY_MAXY, GeoConstants.MERCATOR_MAX);
-                        int zoomFrom = intent.getIntExtra(KEY_ZOOM_FROM, 0);
-                        int zoomTo = intent.getIntExtra(KEY_ZOOM_TO, 18);
-
                         GeoEnvelope env = new GeoEnvelope(dfMinX, dfMaxX, dfMinY, dfMaxY);
-                        addTask(layerPathName, env, zoomFrom, zoomTo);
+
+                        if (intent.hasExtra(KEY_ZOOM_FROM) && intent.hasExtra(KEY_ZOOM_TO)) {
+                            int zoomFrom = intent.getIntExtra(KEY_ZOOM_FROM, 0);
+                            int zoomTo = intent.getIntExtra(KEY_ZOOM_TO, 18);
+                            addTask(layerPathName, env, zoomFrom, zoomTo);
+                        } else if (intent.hasExtra(KEY_ZOOM_LIST)) {
+                            List<Integer> zoomList = intent.getIntegerArrayListExtra(KEY_ZOOM_LIST);
+                            addTask(layerPathName, env, zoomList);
+                        }
+
                         return START_STICKY;
                     case ACTION_STOP:
                         if (Constants.DEBUG_MODE)
@@ -143,7 +150,15 @@ public class TileDownloadService extends Service {
     }
 
     protected void addTask(String layerPathName, GeoEnvelope env, int zoomFrom, int zoomTo) {
-        DownloadTask task = new DownloadTask(layerPathName, env, zoomFrom, zoomTo);
+        List<Integer> zoomList = new ArrayList<>(zoomTo - zoomFrom + 1);
+        for (int zoom = zoomFrom; zoom < zoomTo + 1; ++zoom) {
+            zoomList.add(zoom);
+        }
+        addTask(layerPathName, env, zoomList);
+    }
+
+    protected void addTask(String layerPathName, GeoEnvelope env, List<Integer> zoomList) {
+        DownloadTask task = new DownloadTask(layerPathName, env, zoomList);
         mQueue.add(task);
         mCanceled = false;
 
@@ -186,8 +201,8 @@ public class TileDownloadService extends Service {
             mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
 
             final List<TileItem> tiles = new LinkedList<>();
-            int zoomCount = task.getZoomTo() + 1 - task.getZoomFrom();
-            for (int zoom = task.getZoomFrom(); zoom < task.getZoomTo() + 1; zoom++) {
+            int zoomCount = task.getZoomList().size();
+            for (Integer zoom : task.getZoomList()) {
                 tiles.addAll(MapUtil.getTileItems(task.getEnvelope(), zoom, tmsLayer.getTMSType()));
 
                 if (mCanceled)
@@ -289,14 +304,12 @@ public class TileDownloadService extends Service {
     public class DownloadTask {
         String mLayerPathName;
         GeoEnvelope mEnvelope;
-        int mZoomFrom;
-        int mZoomTo;
+        List<Integer> mZoomList;
 
-        DownloadTask(String layerPathName, GeoEnvelope envelope, int zoomFrom, int zoomTo) {
+        DownloadTask(String layerPathName, GeoEnvelope envelope, List<Integer> zoomList) {
             mEnvelope = envelope;
             mLayerPathName = layerPathName;
-            mZoomFrom = zoomFrom;
-            mZoomTo = zoomTo;
+            mZoomList = zoomList;
         }
 
         GeoEnvelope getEnvelope() {
@@ -307,12 +320,9 @@ public class TileDownloadService extends Service {
             return mLayerPathName;
         }
 
-        int getZoomFrom() {
-            return mZoomFrom;
-        }
-
-        int getZoomTo() {
-            return mZoomTo;
+        List<Integer> getZoomList()
+        {
+            return mZoomList;
         }
     }
 }
