@@ -33,7 +33,7 @@ import android.util.TypedValue;
 public class GridAutofitLayoutManager
         extends GridLayoutManager
 {
-    protected float mColumnWidth;
+    protected float mColumnWidthPx;
     protected boolean mColumnWidthChanged = true;
 
     protected int mWidth;
@@ -41,42 +41,42 @@ public class GridAutofitLayoutManager
 
     public GridAutofitLayoutManager(
             Context context,
-            float columnWidthDp)
+            float columnWidthPx)
     {
         // Initially set spanCount to 1, will be changed automatically later.
         super(context, 1);
-        setColumnWidth(checkedColumnWidth(context, columnWidthDp));
+        setColumnWidthPx(checkedColumnWidth(context, columnWidthPx));
     }
 
     public GridAutofitLayoutManager(
             Context context,
-            float columnWidth,
+            float columnWidthPx,
             int orientation,
             boolean reverseLayout)
     {
         // Initially set spanCount to 1, will be changed automatically later.
         super(context, 1, orientation, reverseLayout);
-        setColumnWidth(checkedColumnWidth(context, columnWidth));
+        setColumnWidthPx(checkedColumnWidth(context, columnWidthPx));
     }
 
     protected float checkedColumnWidth(
             Context context,
-            float columnWidthDp)
+            float columnWidthPx)
     {
-        if (columnWidthDp <= 0) {
-            // Set default columnWidthDp value (48dp here).
+        if (columnWidthPx <= 0) {
+            // Set default columnWidthPx value (48dp here).
             // It is better to move this constant to static constant on top,
             // but we need context to convert it to dp, so can't really do so.
-            columnWidthDp = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 48,
+            columnWidthPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 48,
                     context.getResources().getDisplayMetrics());
         }
-        return columnWidthDp;
+        return columnWidthPx;
     }
 
-    public void setColumnWidth(float newColumnWidthDp)
+    public void setColumnWidthPx(float newColumnWidthPx)
     {
-        if (newColumnWidthDp > 0 && newColumnWidthDp != mColumnWidth) {
-            mColumnWidth = newColumnWidthDp;
+        if (newColumnWidthPx > 0 && newColumnWidthPx != mColumnWidthPx) {
+            mColumnWidthPx = newColumnWidthPx;
             mColumnWidthChanged = true;
         }
     }
@@ -95,14 +95,15 @@ public class GridAutofitLayoutManager
             mWidth = width;
         }
 
-        if ((mWidthChanged || mColumnWidthChanged) && mColumnWidth > 0 && width > 0 && height > 0) {
+        if ((mWidthChanged || mColumnWidthChanged) && mColumnWidthPx > 0 && width > 0
+                && height > 0) {
             int totalSpace;
             if (getOrientation() == VERTICAL) {
                 totalSpace = width - getPaddingRight() - getPaddingLeft();
             } else {
                 totalSpace = height - getPaddingTop() - getPaddingBottom();
             }
-            int spanCount = Math.max(1, (int) Math.floor(totalSpace / mColumnWidth));
+            int spanCount = Math.max(1, (int) Math.floor(totalSpace / mColumnWidthPx));
             setSpanCount(spanCount);
             mColumnWidthChanged = false;
             mWidthChanged = false;
