@@ -27,6 +27,8 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
+import com.nextgis.maplib.util.HttpResponse;
+import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.BuildConfig;
 
 import org.json.JSONException;
@@ -58,7 +60,7 @@ public final class NGIDUtils {
     private static SharedPreferences mPreferences;
 
     public interface OnFinish {
-        void onFinish(String data);
+        void onFinish(HttpResponse response);
     }
 
     public static void get(Context context, String url, OnFinish callback) {
@@ -76,7 +78,7 @@ public final class NGIDUtils {
         new Load(callback).execute(null, null, null, login, password);
     }
 
-    private static class Load extends AsyncTask<String, Void, String> {
+    private static class Load extends AsyncTask<String, Void, HttpResponse> {
         private OnFinish mCallback;
 
         Load(OnFinish callback) {
@@ -84,7 +86,7 @@ public final class NGIDUtils {
         }
 
         @Override
-        protected String doInBackground(String... args) {
+        protected HttpResponse doInBackground(String... args) {
             String url = args[0];
             String method = args[1];
             String token = args[2];
@@ -98,27 +100,46 @@ public final class NGIDUtils {
                 } catch (UnsupportedEncodingException ignored) {}
 
                 String accessNew = String.format(OAUTH_NEW, login, password, BuildConfig.CLIENT_ID);
-                token = parseResponse(getData(accessNew, POST, null))[0];
+
+                HttpResponse response = getResponse(accessNew, POST, null);
+                if (!response.isOk())
+                    return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
+
+                token = parseResponseBody(response.getResponseBody())[0];
                 if (token == null)
-                    return "0";
+                    return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
             }
 
-            String userCheck = getData(USER_INFO, GET, token);
+            HttpResponse response = getResponse(USER_INFO, GET, token);
+            if (!response.isOk())
+                return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
+
+            String userCheck = response.getResponseBody();
             if (userCheck == null) {
                 String refreshToken = mPreferences.getString(PREF_REFRESH_TOKEN, "");
                 String accessRefresh = String.format(OAUTH_REFRESH, BuildConfig.CLIENT_ID, refreshToken);
-                token = parseResponse(getData(accessRefresh, POST, null))[0];
+
+                response = getResponse(accessRefresh, POST, null);
+                if (!response.isOk())
+                    return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
+
+                token = parseResponseBody(response.getResponseBody())[0];
                 if (token == null)
-                    return "0";
-                userCheck = getData(USER_INFO, GET, token);
+                    return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
+
+                response = getResponse(USER_INFO, GET, token);
+                if (!response.isOk())
+                    return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
+
+                userCheck = response.getResponseBody();
             }
 
             saveUserInfo(userCheck);
-            return getData(url, method, token);
+            return getResponse(url, method, token);
         }
 
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(HttpResponse result) {
             super.onPostExecute(result);
 
             if (mCallback != null)
@@ -136,10 +157,10 @@ public final class NGIDUtils {
         } catch (JSONException | NullPointerException ignored) {}
     }
 
-    private static String[] parseResponse(String response) {
+    private static String[] parseResponseBody(String responseBody) {
         String token = null, refreshToken = null;
         try {
-            JSONObject j = new JSONObject(response);
+            JSONObject j = new JSONObject(responseBody);
             token = j.getString("token_type") + " " + j.getString(PREF_ACCESS_TOKEN);
             refreshToken = j.getString(PREF_REFRESH_TOKEN);
             mPreferences.edit().putString(PREF_ACCESS_TOKEN, token).putString(PREF_REFRESH_TOKEN, refreshToken).apply();
@@ -148,7 +169,7 @@ public final class NGIDUtils {
         return new String[]{token, refreshToken};
     }
 
-    private static String getData(String target, String method, String token) {
+    private static HttpResponse getResponse(String target, String method, String token) {
         try {
             URL url = new URL(target);
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
@@ -165,12 +186,14 @@ public final class NGIDUtils {
                 data += line;
             in.close();
 
-            return data;
+            HttpResponse response = new HttpResponse(200);
+            response.setResponseBody(data);
+            response.setOk(true);
+            return response;
         } catch (IOException ignored) {
             ignored.printStackTrace();
         }
 
-        return null;
+        return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
     }
-
 }

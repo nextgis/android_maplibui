@@ -30,7 +30,7 @@ import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplib.util.Constants;
-import com.nextgis.maplib.util.MapUtil;
+import com.nextgis.maplib.util.HttpResponse;
 import com.nextgis.maplib.util.NGWUtil;
 import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
@@ -40,7 +40,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class NGWCreateNewResourceTask extends AsyncTask<Void, Void, String> {
+public class NGWCreateNewResourceTask extends AsyncTask<Void, Void, HttpResponse> {
     private Connection mConnection;
     private VectorLayer mLayer;
     private Context mContext;
@@ -65,17 +65,17 @@ public class NGWCreateNewResourceTask extends AsyncTask<Void, Void, String> {
     }
 
     @Override
-    protected String doInBackground(Void... voids) {
+    protected HttpResponse doInBackground(Void... voids) {
         if (mConnection.connect()) {
             mVer = null;
             try {
                 AccountUtil.AccountData accountData = AccountUtil.getAccountData(mContext, mConnection.getName());
                 if (null == accountData.url)
-                    return "404";
+                    return new HttpResponse(404);
 
                 mVer = NGWUtil.getNgwVersion(accountData.url, accountData.login, accountData.password);
             } catch (IllegalStateException e) {
-                return "401";
+                return new HttpResponse(401);
             } catch (JSONException | IOException | NumberFormatException e) {
                 e.printStackTrace();
             }
@@ -86,33 +86,36 @@ public class NGWCreateNewResourceTask extends AsyncTask<Void, Void, String> {
                 return NGWUtil.createNewGroup(mContext, mConnection, mParentId, mName);
         }
 
-        return "0";
+        return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
     }
 
     @Override
-    protected void onPostExecute(String result) {
+    protected void onPostExecute(HttpResponse result)
+    {
         super.onPostExecute(result);
 
         String message;
-        if (!MapUtil.isParsable(result)) {
+        if (result.isOk()) {
             try {
-                JSONObject obj = new JSONObject(result);
+                JSONObject obj = new JSONObject(result.getResponseBody());
                 Long id = obj.getLong(Constants.JSON_ID_KEY);
                 if (mLayer != null)
                     mLayer.toNGW(id, mConnection.getName(), Constants.SYNC_ALL, mVer);
-                result = "-999";
+                result.setResponseCode(-999);
             } catch (JSONException e) {
-                result = "500";
+                result.setResponseCode(500);
                 e.printStackTrace();
             }
         }
 
-        switch (result) {
-            case "-999":
-                message = mContext.getString(mLayer == null ? R.string.message_group_created : R.string.message_layer_created);
+        switch (result.getResponseCode()) {
+            case -999:
+                message = mContext.getString(mLayer == null
+                                             ? R.string.message_group_created
+                                             : R.string.message_layer_created);
                 break;
             default:
-                message = NetworkUtil.getError(mContext, result);
+                message = NetworkUtil.getError(mContext, result.getResponseCode());
                 break;
         }
 

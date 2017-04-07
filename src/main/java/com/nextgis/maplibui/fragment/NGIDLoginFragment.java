@@ -36,10 +36,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
+import com.nextgis.maplib.util.HttpResponse;
 import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.ConstantsUI;
-import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.NGIDUtils;
 
 public class NGIDLoginFragment extends Fragment implements View.OnClickListener {
@@ -81,13 +81,17 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
             final Activity activity = getActivity();
             NGIDUtils.getToken(activity, mLogin.getText().toString(), mPassword.getText().toString(), new NGIDUtils.OnFinish() {
                 @Override
-                public void onFinish(String data) {
+                public void onFinish(HttpResponse response) {
                     mSignInButton.setEnabled(true);
 
-                    if (data == null)
+                    if (response.isOk()) {
                         activity.finish();
-                    else
-                        Toast.makeText(activity, NetworkUtil.getError(activity, data), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(
+                                activity,
+                                NetworkUtil.getError(activity, response.getResponseCode()),
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         } else if (v.getId() == R.id.signup) {

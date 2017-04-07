@@ -57,6 +57,7 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplib.util.HttpResponse;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
@@ -253,13 +254,13 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         }
     }
 
-    private class LoadLayer extends AsyncTask<Integer, Void, String> {
+    private class LoadLayer extends AsyncTask<Integer, Void, HttpResponse> {
         private Integer mLayerId;
 
         @Override
-        protected String doInBackground(Integer... params) {
+        protected HttpResponse doInBackground(Integer... params) {
             if (!mNet.isNetworkAvailable())
-                return "-1";
+                return new HttpResponse(NetworkUtil.ERROR_NETWORK_UNAVAILABLE);
 
             try {
                 mLayerId = params[0];
@@ -268,25 +269,26 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 e.printStackTrace();
             }
 
-            return "1";
+            return new HttpResponse(NetworkUtil.ERROR_DOWNLOAD_DATA);
         }
 
         @Override
-        protected void onPostExecute(String response) {
+        protected void onPostExecute(HttpResponse response)
+        {
             super.onPostExecute(response);
-            switch (response) {
-                case "-1":
-                    Toast.makeText(mContext, R.string.error_network_unavailable, Toast.LENGTH_SHORT).show();
-                    break;
-                default:
-                    try {
-                        new JSONObject(response);
-                        createLayer(response);
-                        break;
-                    } catch (JSONException ignored) { }
 
+            if (response.isOk()) {
+                try {
+                    new JSONObject(response.getResponseBody());
+                    createLayer(response.getResponseBody());
+                } catch (JSONException ignored) {
                     Toast.makeText(mContext, R.string.qms_unavailable, Toast.LENGTH_SHORT).show();
-                    break;
+                }
+
+            } else {
+                Toast.makeText(
+                        mContext, NetworkUtil.getError(mContext, response.getResponseCode()),
+                        Toast.LENGTH_SHORT).show();
             }
 
             mChecked.remove(mLayerId);
@@ -341,13 +343,13 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         }
     }
 
-    private class LoadLayersList extends AsyncTask<Void, Void, String> {
+    private class LoadLayersList extends AsyncTask<Void, Void, HttpResponse> {
         private SimpleAdapter mAdapter;
 
         @Override
-        protected String doInBackground(Void... params) {
+        protected HttpResponse doInBackground(Void... params) {
             if (!mNet.isNetworkAvailable())
-                return "-1";
+                return new HttpResponse(NetworkUtil.ERROR_NETWORK_UNAVAILABLE);
 
             try {
                 return NetworkUtil.get(QMS_GEOSERVICE_LIST_URL, null, null, false);
@@ -355,27 +357,26 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 e.printStackTrace();
             }
 
-            return "1";
+            return new HttpResponse(NetworkUtil.ERROR_DOWNLOAD_DATA);
         }
 
         @Override
-        protected void onPostExecute(String response) {
+        protected void onPostExecute(HttpResponse response) {
             super.onPostExecute(response);
-            switch (response) {
-                case "-1":
-                    Toast.makeText(mContext, R.string.error_network_unavailable, Toast.LENGTH_SHORT).show();
-                    showRetry();
-                    break;
-                default:
-                    try {
-                        new JSONArray(response);
-                        createList(response);
-                        break;
-                    } catch (JSONException ignored) { }
 
+            if (response.isOk()) {
+                try {
+                    new JSONArray(response.getResponseBody());
+                    createList(response.getResponseBody());
+                } catch (JSONException ignored) {
                     Toast.makeText(mContext, R.string.qms_unavailable, Toast.LENGTH_SHORT).show();
                     showRetry();
-                    break;
+                }
+            } else {
+                Toast.makeText(
+                        mContext, NetworkUtil.getError(mContext, response.getResponseCode()),
+                        Toast.LENGTH_SHORT).show();
+                showRetry();
             }
         }
 
