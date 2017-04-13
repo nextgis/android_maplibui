@@ -208,8 +208,8 @@ public final class ControlHelper
     public static boolean isDarkTheme(Context context)
     {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light")
-                .equals("dark");
+                .getString(SettingsConstantsUI.KEY_PREF_THEME, SettingsConstantsUI.KEY_PREF_LIGHT)
+                .equals(SettingsConstantsUI.KEY_PREF_DARK);
     }
 
     public static Drawable tintDrawable(

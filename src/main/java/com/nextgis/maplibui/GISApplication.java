@@ -4,7 +4,7 @@
  * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -49,6 +49,7 @@ import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.mapui.LayerFactoryUI;
 import com.nextgis.maplibui.util.ConstantsUI;
+import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.File;
@@ -57,6 +58,9 @@ import java.util.concurrent.TimeUnit;
 
 import static com.nextgis.maplib.util.Constants.MAP_EXT;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_MAP;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_DARK;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_LIGHT;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_NEUTRAL;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIODICALLY;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
 
@@ -86,7 +90,7 @@ public abstract class GISApplication extends Application
 
         getMap();
 
-        boolean mIsDarkTheme = mSharedPreferences.getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
+        boolean mIsDarkTheme = ControlHelper.isDarkTheme(this);
         setTheme(getThemeId(mIsDarkTheme));
 
         if (mSharedPreferences.getBoolean(SettingsConstantsUI.KEY_PREF_APP_FIRST_RUN, true)) {
@@ -138,8 +142,7 @@ public abstract class GISApplication extends Application
 
         File mapFullPath = new File(mapPath, mapName + MAP_EXT);
 
-        final Bitmap bkBitmap = BitmapFactory.decodeResource(
-                getResources(), R.drawable.bk_tile);
+        final Bitmap bkBitmap = getMapBackground();
         mMap = new MapDrawable(bkBitmap, this, mapFullPath, getLayerFactory());
         mMap.setName(mapName);
         mMap.load();
@@ -149,11 +152,11 @@ public abstract class GISApplication extends Application
 
     public Bitmap getMapBackground() {
         int backgroundResId;
-        switch (mSharedPreferences.getString(SettingsConstantsUI.KEY_PREF_MAP_BG, "neutral")) {
-            case "light":
+        switch (mSharedPreferences.getString(SettingsConstantsUI.KEY_PREF_MAP_BG, KEY_PREF_NEUTRAL)) {
+            case KEY_PREF_LIGHT:
                 backgroundResId = com.nextgis.maplibui.R.drawable.bk_tile_light;
                 break;
-            case "dark":
+            case KEY_PREF_DARK:
                 backgroundResId = com.nextgis.maplibui.R.drawable.bk_tile_dark;
                 break;
             default:

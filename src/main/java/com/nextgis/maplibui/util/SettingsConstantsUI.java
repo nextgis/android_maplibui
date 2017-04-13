@@ -48,6 +48,9 @@ public interface SettingsConstantsUI
     String KEY_PREF_MAP_BG               = "map_bg";
     String KEY_PREF_LAYER_LABEL          = "layer_label";
     String KEY_PREF_SHOW_GEO_DIALOG      = "show_geo_dialog";
+    String KEY_PREF_LIGHT                = "light";
+    String KEY_PREF_DARK                 = "dark";
+    String KEY_PREF_NEUTRAL              = "neutral";
 
     String OSM_URL = "http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 

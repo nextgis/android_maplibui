@@ -3,7 +3,7 @@
  * Purpose: Mobile application for registering facts of the forest violations.
  * Author:  Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -120,8 +120,7 @@ public class Sign extends View implements IFormControl {
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
 
-        boolean bDark = PreferenceManager.getDefaultSharedPreferences(getContext())
-                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
+        boolean bDark = ControlHelper.isDarkTheme(getContext());
         if(bDark)
             mPaint.setColor(Color.WHITE);
         else

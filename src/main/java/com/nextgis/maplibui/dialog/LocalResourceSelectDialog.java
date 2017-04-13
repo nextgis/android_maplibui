@@ -41,6 +41,7 @@ import com.nextgis.maplibui.adapter.LocalResourceListAdapter;
 import com.nextgis.maplibui.adapter.LocalResourceListItem;
 import com.nextgis.maplibui.adapter.LocalResourceListLoader;
 import com.nextgis.maplibui.adapter.SimpleDividerItemDecoration;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -120,7 +121,7 @@ public class LocalResourceSelectDialog
     public void onCreate(Bundle savedInstanceState)
     {
         setKeepInstance(true);
-        setThemeDark(NGActivity.isDarkTheme(getActivity()));
+        setThemeDark(ControlHelper.isDarkTheme(getActivity()));
 
         super.onCreate(savedInstanceState);
 

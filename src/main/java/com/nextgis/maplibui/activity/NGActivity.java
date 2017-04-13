@@ -39,6 +39,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 
@@ -56,8 +57,7 @@ public class NGActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        mIsDarkTheme =
-                mPreferences.getString(SettingsConstantsUI.KEY_PREF_THEME, "light").equals("dark");
+        mIsDarkTheme = ControlHelper.isDarkTheme(this);
         setCurrentThemePref();
         setTheme(getThemeId());
         super.onCreate(savedInstanceState);
@@ -66,31 +66,23 @@ public class NGActivity
 
     public int getThemeId()
     {
-        return mIsDarkTheme
-               ? R.style.Theme_NextGIS_AppCompat_Dark
-               : R.style.Theme_NextGIS_AppCompat_Light;
-    }
-
-
-    public static boolean isDarkTheme(Context context)
-    {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(SettingsConstantsUI.KEY_PREF_THEME, "light")
-                .equals("dark");
+        return mIsDarkTheme ? R.style.Theme_NextGIS_AppCompat_Dark : R.style.Theme_NextGIS_AppCompat_Light;
     }
 
 
     // for overriding in a subclass
     protected void setCurrentThemePref()
     {
-        mCurrentTheme = mIsDarkTheme ? "dark" : "light";
+        mCurrentTheme = mIsDarkTheme ?
+                SettingsConstantsUI.KEY_PREF_DARK :
+                SettingsConstantsUI.KEY_PREF_LIGHT;
     }
 
 
     // for overriding in a subclass
     protected void refreshCurrentTheme()
     {
-        String newTheme = mPreferences.getString(SettingsConstantsUI.KEY_PREF_THEME, "light");
+        String newTheme = mPreferences.getString(SettingsConstantsUI.KEY_PREF_THEME, SettingsConstantsUI.KEY_PREF_LIGHT);
 
         if (!newTheme.equals(mCurrentTheme)) {
             refreshActivityView();
