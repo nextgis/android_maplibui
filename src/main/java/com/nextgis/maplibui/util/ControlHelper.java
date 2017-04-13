@@ -478,15 +478,9 @@ public final class ControlHelper
      *
      * @return Wrapped drawable with {@link android.support.v4.graphics.drawable.DrawableCompat#wrap(Drawable)}
      */
-    public static Drawable getTintedDrawable(
-            @NonNull
-                    Drawable inputDrawable,
-            @ColorInt
-                    int tint)
-    {
-        Drawable wrapDrawable = DrawableCompat.wrap(inputDrawable);
+    public static Drawable getTintedDrawable(@NonNull Drawable inputDrawable, @ColorInt int tint) {
+        Drawable wrapDrawable = DrawableCompat.wrap(inputDrawable.mutate());
         DrawableCompat.setTint(wrapDrawable, tint);
-//        DrawableCompat.setTintMode(wrapDrawable, PorterDuff.Mode.SRC_IN);
         return wrapDrawable;
     }
 }
