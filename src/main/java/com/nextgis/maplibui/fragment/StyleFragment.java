@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2016-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -137,7 +137,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
             }
         });
 
-        mStrokeColor = ((SimpleMarkerStyle) mStyle).getOutlineColor();
+        mStrokeColor = ((SimpleMarkerStyle) mStyle).getOutColor();
         mColorFillName = (TextView) v.findViewById(R.id.color_fill_name);
         mColorFillImage = (ImageView) v.findViewById(R.id.color_fill_ring);
         mColorStrokeName = (TextView) v.findViewById(R.id.color_stroke_name);
@@ -418,9 +418,9 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
                     setStrokeColor(color);
 
                     if (mStyle instanceof SimpleMarkerStyle)
-                        ((SimpleMarkerStyle) mStyle).setOutlineColor(color);
+                        mStyle.setOutColor(color);
                     else if (mStyle instanceof SimpleLineStyle)
-                        ((SimpleLineStyle) mStyle).setOutColor(color);
+                        mStyle.setOutColor(color);
                 }
 
                 @Override
