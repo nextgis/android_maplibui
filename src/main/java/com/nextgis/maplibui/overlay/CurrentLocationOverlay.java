@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -53,32 +53,25 @@ import com.nextgis.maplibui.mapui.MapViewOverlays;
 import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
-
-public class CurrentLocationOverlay
-        extends Overlay
-        implements GpsEventListener
-{
-    public static final int WITH_MARKER   = 1;
+public class CurrentLocationOverlay extends Overlay implements GpsEventListener {
+    public static final int WITH_MARKER = 1;
     public static final int WITH_ACCURACY = 1 << 1;
     private static final int AUTOPAN_THRESHOLD = 10;  // distance in pixels
     protected final float mTolerancePX;
 
     private GpsEventSource mGpsEventSource;
-    private Location       mCurrentLocation, mInitialLocation;
-    private boolean        mIsInBounds, mIsInScreenBounds;
+    private Location mCurrentLocation, mInitialLocation;
+    private boolean mIsInBounds, mIsInScreenBounds;
     private boolean mIsAutopanningEnabled = false;
     private boolean mIsAccuracyEnabled = true;
     private boolean mIsStandingMarkerCustom, mIsMovingMarkerCustom;
     private int mStandingMarkerRes = R.drawable.ic_action_maps_directions_walk;
     private int mMovingMarkerRes = android.R.drawable.arrow_up_float;
-    private int         mMarkerColor;
+    private int mMarkerColor;
     private OverlayItem mMarker, mAccuracy;
     private int mShowMode;
 
-    public CurrentLocationOverlay(
-            Context context,
-            MapViewOverlays mapViewOverlays)
-    {
+    public CurrentLocationOverlay(Context context, MapViewOverlays mapViewOverlays) {
         super(context, mapViewOverlays);
         Activity parent = (Activity) context;
         mGpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
@@ -87,22 +80,16 @@ public class CurrentLocationOverlay
         mTolerancePX = context.getResources().getDisplayMetrics().density * AUTOPAN_THRESHOLD;
 
         double longitude = 0, latitude = 0;
-        mMarker =
-                new OverlayItem(mapViewOverlays.getMap(), longitude, latitude, getDefaultMarker());
+        mMarker = new OverlayItem(mapViewOverlays.getMap(), longitude, latitude, getDefaultMarker());
         mAccuracy = new OverlayItem(mapViewOverlays.getMap(), longitude, latitude, null);
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        mShowMode = Integer.parseInt(
-                preferences.getString(SettingsConstantsUI.KEY_PREF_SHOW_CURRENT_LOC, "3"));
+        mShowMode = Integer.parseInt(preferences.getString(SettingsConstantsUI.KEY_PREF_SHOW_CURRENT_LOC, "3"));
         setShowAccuracy(0 != (mShowMode & WITH_ACCURACY));
     }
 
-
     @Override
-    public void drawOnPanning(
-            Canvas canvas,
-            PointF currentMouseOffset)
-    {
+    public void drawOnPanning(Canvas canvas, PointF currentMouseOffset) {
         if (mMapViewOverlays.isLockMap()) {
             draw(canvas, null);
             return;
@@ -117,13 +104,8 @@ public class CurrentLocationOverlay
         }
     }
 
-
     @Override
-    public void drawOnZooming(
-            Canvas canvas,
-            PointF currentFocusLocation,
-            float scale)
-    {
+    public void drawOnZooming(Canvas canvas, PointF currentFocusLocation, float scale) {
         if (mMapViewOverlays.isLockMap()) {
             draw(canvas, null);
             return;
@@ -138,12 +120,8 @@ public class CurrentLocationOverlay
         }
     }
 
-
     @Override
-    public void draw(
-            Canvas canvas,
-            MapDrawable mapDrawable)
-    {
+    public void draw(Canvas canvas, MapDrawable mapDrawable) {
         if (mCurrentLocation != null && isMarkerEnabled()) {
             double lat = mCurrentLocation.getLatitude();
             double lon = mCurrentLocation.getLongitude();
@@ -185,11 +163,7 @@ public class CurrentLocationOverlay
         }
     }
 
-
-    private double getAccuracyRadius(
-            double lat,
-            double accuracy)
-    {
+    private double getAccuracyRadius(double lat, double accuracy) {
         int R = 6378137;
         double dxLat = accuracy / R;
 //        double dxLon = offsetLon / (R * Math.cos(Math.PI * lat / 180));
@@ -197,72 +171,53 @@ public class CurrentLocationOverlay
         return lat + dxLat * 180 / Math.PI;
     }
 
-
-    public void startShowingCurrentLocation()
-    {
+    public void startShowingCurrentLocation() {
         mCurrentLocation = null;
         mGpsEventSource.addListener(this);
     }
 
-
-    public void stopShowingCurrentLocation()
-    {
+    public void stopShowingCurrentLocation() {
         mGpsEventSource.removeListener(this);
     }
 
-
-    public void updateMode(String newMode)
-    {
+    public void updateMode(String newMode) {
         mShowMode = Integer.parseInt(newMode);
         setShowAccuracy(0 != (mShowMode & WITH_ACCURACY));
     }
 
-
-    private boolean isMarkerEnabled()
-    {
+    private boolean isMarkerEnabled() {
         return 0 != (mShowMode & WITH_MARKER);
     }
 
-
-    public void setShowAccuracy(boolean isEnabled)
-    {
+    public void setShowAccuracy(boolean isEnabled) {
         mIsAccuracyEnabled = isEnabled;
     }
 
-
-    public void setStandingMarker(int standingMarkerResource)
-    {
+    public void setStandingMarker(int standingMarkerResource) {
         mStandingMarkerRes = standingMarkerResource;
         mIsStandingMarkerCustom = true;
     }
 
-
-    public void setMovingMarker(int movingMarkerResource)
-    {
+    public void setMovingMarker(int movingMarkerResource) {
         mMovingMarkerRes = movingMarkerResource;
         mIsMovingMarkerCustom = true;
     }
 
-
     /**
      * Set default markers overlay color and accuracy marker color
      *
-     * @param color
-     *         new color
+     * @param color new color
      */
-    public void setColor(int color)
-    {
+    public void setColor(int color) {
         mMarkerColor = color;
     }
-
 
     public void setAutopanningEnabled(boolean isAutopanningEnabled) {
         mIsAutopanningEnabled = isAutopanningEnabled;
     }
 
     @Override
-    public void onLocationChanged(Location location)
-    {
+    public void onLocationChanged(Location location) {
         boolean update;
         if (location != null) {
             String provider = location.getProvider();
@@ -277,8 +232,6 @@ public class CurrentLocationOverlay
                 if (mInitialLocation == null || mMapViewOverlays.isLockMap())
                     mInitialLocation = location;
 
-
-
                 if (mInitialLocation.distanceTo(location) >= getPanThreshold()) {
                     if (mIsInScreenBounds) {
                         autopanTo(mInitialLocation, location);
@@ -290,30 +243,25 @@ public class CurrentLocationOverlay
         }
     }
 
-    double getPanThreshold(){
-        double dMinX = - mTolerancePX;
-        double dMaxX = + mTolerancePX;
-        double dMinY = - mTolerancePX;
-        double dMaxY = + mTolerancePX;
+    double getPanThreshold() {
+        double dMinX = -mTolerancePX;
+        double dMaxX = +mTolerancePX;
+        double dMinY = -mTolerancePX;
+        double dMaxY = +mTolerancePX;
         GeoEnvelope screenEnv = new GeoEnvelope(dMinX, dMaxX, dMinY, dMaxY);
         GeoEnvelope mapEnv = mMapViewOverlays.screenToMap(screenEnv);
         return (mapEnv.width() + mapEnv.height()) / 4;
     }
 
-
     @Override
-    public void onBestLocationChanged(Location location)
-    {
+    public void onBestLocationChanged(Location location) {
 
     }
 
-
     @Override
-    public void onGpsStatusChanged(int event)
-    {
+    public void onGpsStatusChanged(int event) {
 
     }
-
 
     private void autopanTo(Location autopanLocation, Location location) {
         GeoPoint oldLocation = new GeoPoint(autopanLocation.getLongitude(), autopanLocation.getLatitude());
@@ -332,11 +280,8 @@ public class CurrentLocationOverlay
         mMapViewOverlays.panTo(newCenter);
     }
 
-
-    private Bitmap getDefaultMarker()
-    {
-        boolean isStanding = mCurrentLocation == null || !mCurrentLocation.hasBearing() ||
-                             !mCurrentLocation.hasSpeed() || mCurrentLocation.getSpeed() == 0;
+    public Bitmap getDefaultMarker() {
+        boolean isStanding = mCurrentLocation == null || !mCurrentLocation.hasBearing() || !mCurrentLocation.hasSpeed() || mCurrentLocation.getSpeed() == 0;
 
         int resource = isStanding ? mStandingMarkerRes : mMovingMarkerRes;
         Bitmap marker = BitmapFactory.decodeResource(mContext.getResources(), resource);
@@ -369,9 +314,7 @@ public class CurrentLocationOverlay
         return marker;
     }
 
-
-    private Bitmap applyColorFilter(Bitmap marker)
-    {
+    private Bitmap applyColorFilter(Bitmap marker) {
         Canvas canvas = new Canvas(marker);
 
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -383,15 +326,11 @@ public class CurrentLocationOverlay
         return marker;
     }
 
-
-    private Bitmap getAccuracyMarker(int accuracy)
-    {
-        int max = Math.max(
-                mContext.getResources().getDisplayMetrics().widthPixels,
-                mContext.getResources().getDisplayMetrics().heightPixels);
+    private Bitmap getAccuracyMarker(int accuracy) {
+        int max = Math.max(mContext.getResources().getDisplayMetrics().widthPixels, mContext.getResources().getDisplayMetrics().heightPixels);
 
         if (accuracy * 2 > max) {
-            return  null;
+            return null;
         }
 
         if (accuracy <= 0) {
@@ -415,5 +354,9 @@ public class CurrentLocationOverlay
         }
 
         return result;
+    }
+
+    public Location getCurrentLocation() {
+        return mCurrentLocation;
     }
 }
