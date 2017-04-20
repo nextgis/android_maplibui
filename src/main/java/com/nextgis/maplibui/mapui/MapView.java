@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -481,12 +481,6 @@ public class MapView
     @Override
     public boolean onSingleTapUp(MotionEvent e)
     {
-        //Log.d(Constants.TAG, "onSingleTapUp: " + e.toString());
-        for (MapViewEventListener listener : mListeners) {
-            if (null != listener) {
-                listener.onSingleTapUp(e);
-            }
-        }
         return false;
     }
 
@@ -535,6 +529,12 @@ public class MapView
     @Override
     public boolean onSingleTapConfirmed(final MotionEvent e)
     {
+        //Log.d(Constants.TAG, "onSingleTapUp: " + e.toString());
+        for (MapViewEventListener listener : mListeners) {
+            if (null != listener) {
+                listener.onSingleTapUp(e);
+            }
+        }
         return false;
     }
 
