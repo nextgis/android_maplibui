@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -29,6 +29,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -76,6 +77,9 @@ import com.nextgis.maplibui.util.SettingsConstantsUI;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.nextgis.maplibui.api.DrawItem.EDGE_RADIUS;
+import static com.nextgis.maplibui.api.DrawItem.LINE_WIDTH;
+import static com.nextgis.maplibui.api.DrawItem.VERTEX_RADIUS;
 
 /**
  * The class for edit vector features
@@ -94,7 +98,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     /**
      * edit feature style
      */
-    protected final static int LINE_WIDTH = 4;
 
     protected static final int mType = 3;
 
@@ -152,7 +155,12 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         mMap = mMapViewOverlays.getMap();
         mMapViewOverlays.addListener(this);
         mOverlayPoint = new OverlayItem(mMap, 0, 0, getMarker());
-        DrawItem.init(context);
+
+        int outlineColor = Color.BLACK;
+        int fillColor = ControlHelper.getColor(context, R.attr.colorAccent);
+        int selectColor = Color.RED;
+        Bitmap anchor = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_action_anchor);
+        DrawItem.init(context, anchor, outlineColor, fillColor, selectColor, 10, 8, EDGE_RADIUS + 2, EDGE_RADIUS, LINE_WIDTH);
     }
 
 

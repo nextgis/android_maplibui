@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,10 +23,9 @@ package com.nextgis.maplibui.api;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PointF;
 
 import com.nextgis.maplib.datasource.GeoEnvelope;
@@ -34,19 +33,17 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
-import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.util.ControlHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DrawItem {
     public static final int TYPE_VERTEX = 1;
-    public static final int TYPE_EDGE   = 2;
+    public static final int TYPE_EDGE = 2;
 
-    protected final static int VERTEX_RADIUS = 20;
-    protected final static int EDGE_RADIUS = 12;
-    protected final static int LINE_WIDTH = 4;
+    public final static int VERTEX_RADIUS = 5;
+    public final static int EDGE_RADIUS = 3;
+    public final static int LINE_WIDTH = 4;
 
     protected static Paint mPaint;
     protected static int mFillColor;
@@ -57,6 +54,11 @@ public class DrawItem {
     public static float mAnchorTolerancePX;
     protected static float mAnchorCenterX, mAnchorCenterY;
     protected static float mAnchorRectOffsetX, mAnchorRectOffsetY;
+    protected static float mVertexRadius;
+    protected static float mVertexOutRadius;
+    protected static float mEdgeOutRadius;
+    protected static float mEdgeRadius;
+    protected static float mLineWidth;
 
     protected List<float[]> mDrawItemsVertex;
     protected List<float[]> mDrawItemsEdge;
@@ -76,21 +78,29 @@ public class DrawItem {
             addEdges(points);
     }
 
-    public static void init(Context context) {
+    public static void init(Context context, Bitmap anchor, int outlineColor, int fillColor, int selectColor, float vertexOutWidth, float vertexWidth,
+                            float edgeOutWidth, float edgeWidth, float lineWidth) {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
 
-        mFillColor = ControlHelper.getColor(context, R.attr.colorAccent);
-        mOutlineColor = Color.BLACK;
-        mSelectColor = Color.RED;
+        mOutlineColor = outlineColor;
+        mFillColor = fillColor;
+        mSelectColor = selectColor;
+        mVertexOutRadius = vertexOutWidth;
+        mVertexRadius = vertexWidth;
+        mEdgeOutRadius = edgeOutWidth;
+        mEdgeRadius = edgeWidth;
+        mLineWidth = lineWidth;
 
-        mAnchor = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_action_anchor);
-        mAnchorRectOffsetX = -mAnchor.getWidth() * 0.05f;
-        mAnchorRectOffsetY = -mAnchor.getHeight() * 0.05f;
-        mAnchorCenterX = mAnchor.getWidth() * 0.75f;
-        mAnchorCenterY = mAnchor.getHeight() * 0.75f;
-        mAnchorTolerancePX = mAnchor.getScaledWidth(context.getResources().getDisplayMetrics());
+        mAnchor = anchor;
+        if (mAnchor != null) {
+            mAnchorRectOffsetX = -mAnchor.getWidth() * 0.05f;
+            mAnchorRectOffsetY = -mAnchor.getHeight() * 0.05f;
+            mAnchorCenterX = mAnchor.getWidth() * 0.75f;
+            mAnchorCenterY = mAnchor.getHeight() * 0.75f;
+            mAnchorTolerancePX = mAnchor.getScaledWidth(context.getResources().getDisplayMetrics());
+        }
     }
 
     public DrawItem zoom(PointF location, float scale) {
@@ -200,7 +210,7 @@ public class DrawItem {
 
     public PointF getSelectedPoint() {
         float[] points = getSelectedRing();
-        if (null != points &&  mSelectedPoint >= 0 && mSelectedPoint < points.length - 1)
+        if (null != points && mSelectedPoint >= 0 && mSelectedPoint < points.length - 1)
             return new PointF(points[mSelectedPoint], points[mSelectedPoint + 1]);
         else
             return null;
@@ -260,8 +270,7 @@ public class DrawItem {
     }
 
     public float[] getRing(int ring) {
-        return ring < 0 || ring >= mDrawItemsVertex.size() ? null :
-                mDrawItemsVertex.get(ring).clone();
+        return ring < 0 || ring >= mDrawItemsVertex.size() ? null : mDrawItemsVertex.get(ring).clone();
     }
 
     public int getRingCount() {
@@ -276,8 +285,7 @@ public class DrawItem {
     public boolean isTapNearSelectedPoint(GeoEnvelope screenEnv) {
         float[] points = getSelectedRing();
         if (null != points && mSelectedPoint >= 0 && points.length > mSelectedPoint + 1) {
-            if (screenEnv.contains(new GeoPoint(
-                    points[mSelectedPoint], points[mSelectedPoint + 1]))) {
+            if (screenEnv.contains(new GeoPoint(points[mSelectedPoint], points[mSelectedPoint + 1]))) {
                 return true;
             }
         }
@@ -319,8 +327,7 @@ public class DrawItem {
         return false;
     }
 
-    public static int getMinPointCount(int type)
-    {
+    public static int getMinPointCount(int type) {
         switch (type) {
             case GeoConstants.GTPoint:
             case GeoConstants.GTMultiPoint:
@@ -344,28 +351,23 @@ public class DrawItem {
                 continue;
 
             mPaint.setColor(mOutlineColor);
-            mPaint.setStrokeWidth(VERTEX_RADIUS + 2);
-            canvas.drawPoints(items, mPaint);
+            mPaint.setStrokeWidth(mVertexOutRadius);
+            drawPoints(canvas, items, VERTEX_RADIUS);
 
             mPaint.setColor(mFillColor);
-            mPaint.setStrokeWidth(VERTEX_RADIUS);
-            canvas.drawPoints(items, mPaint);
+            mPaint.setStrokeWidth(mVertexRadius);
+            drawPoints(canvas, items, VERTEX_RADIUS);
         }
 
         //draw selected point
-        if (isSelected && getSelectedRingId() != Constants.NOT_FOUND
-                && getSelectedPointId() != Constants.NOT_FOUND) {
+        if (isSelected && getSelectedRingId() != Constants.NOT_FOUND && getSelectedPointId() != Constants.NOT_FOUND) {
             float[] items = getSelectedRing();
             if (null != items) {
                 mPaint.setColor(mSelectColor);
-                mPaint.setStrokeWidth(VERTEX_RADIUS);
+                mPaint.setStrokeWidth(mVertexRadius);
 
-                canvas.drawPoint(
-                        items[getSelectedPointId()], items[getSelectedPointId() + 1], mPaint);
-
-                float anchorX = items[getSelectedPointId()] + mAnchorRectOffsetX;
-                float anchorY = items[getSelectedPointId() + 1] + mAnchorRectOffsetY;
-                canvas.drawBitmap(mAnchor, anchorX, anchorY, null);
+                drawPoints(canvas, new float[]{items[getSelectedPointId()], items[getSelectedPointId() + 1]}, VERTEX_RADIUS);
+                drawAnchor(canvas, items);
             }
         }
     }
@@ -382,52 +384,73 @@ public class DrawItem {
             else
                 mPaint.setColor(mFillColor);
 
-            mPaint.setStrokeWidth(LINE_WIDTH);
+            mPaint.setStrokeWidth(mLineWidth);
 
-            for (int i = 0; i < itemsVertex.length - 3; i += 2)
-                canvas.drawLine(itemsVertex[i], itemsVertex[i + 1], itemsVertex[i + 2], itemsVertex[i + 3], mPaint);
+            if (itemsVertex.length >= 2) {
+                Path path = new Path();
+                path.moveTo(itemsVertex[0], itemsVertex[1]);
 
-            if (closed)
-                if (itemsVertex.length >= 2)
-                    canvas.drawLine(itemsVertex[0], itemsVertex[1], itemsVertex[itemsVertex.length - 2], itemsVertex[itemsVertex.length - 1], mPaint);
+                for (int i = 2; i < itemsVertex.length - 1; i += 2)
+                    path.lineTo(itemsVertex[i], itemsVertex[i + 1]);
+
+                if (closed) {
+                    path.lineTo(itemsVertex[0], itemsVertex[1]);
+                    mPaint.setStyle(Paint.Style.FILL);
+                    mPaint.setAlpha(64);
+                    canvas.drawPath(path, mPaint);
+                }
+
+                mPaint.setStyle(Paint.Style.STROKE);
+                mPaint.setAlpha(255);
+                canvas.drawPath(path, mPaint);
+            }
 
             if (drawPoints) {
                 mPaint.setColor(mOutlineColor);
-                mPaint.setStrokeWidth(VERTEX_RADIUS + 2);
-                canvas.drawPoints(itemsVertex, mPaint);
+                mPaint.setStrokeWidth(mVertexOutRadius);
+                drawPoints(canvas, itemsVertex, VERTEX_RADIUS);
 
                 mPaint.setColor(mFillColor);
-                mPaint.setStrokeWidth(VERTEX_RADIUS);
-                canvas.drawPoints(itemsVertex, mPaint);
+                mPaint.setStrokeWidth(mVertexRadius);
+                drawPoints(canvas, itemsVertex, VERTEX_RADIUS);
             }
         }
 
         if (drawEdges) {
             for (float[] items : getEdges()) {
                 mPaint.setColor(mOutlineColor);
-                mPaint.setStrokeWidth(EDGE_RADIUS + 2);
-                canvas.drawPoints(items, mPaint);
+                mPaint.setStrokeWidth(mEdgeOutRadius);
+                drawPoints(canvas, items, EDGE_RADIUS);
 
                 mPaint.setColor(mFillColor);
-                mPaint.setStrokeWidth(EDGE_RADIUS);
-                canvas.drawPoints(items, mPaint);
+                mPaint.setStrokeWidth(mEdgeRadius);
+                drawPoints(canvas, items, EDGE_RADIUS);
             }
         }
 
         //draw selected point
-        if (isSelected && getSelectedPointId() != Constants.NOT_FOUND) {
+        if (drawPoints && isSelected && getSelectedPointId() != Constants.NOT_FOUND) {
             float[] items = getSelectedRing();
             if (null != items && getSelectedPointId() + 1 < items.length) {
                 mPaint.setColor(mSelectColor);
-                mPaint.setStrokeWidth(VERTEX_RADIUS);
+                mPaint.setStrokeWidth(mVertexRadius);
 
-                canvas.drawPoint(
-                        items[getSelectedPointId()], items[getSelectedPointId() + 1], mPaint);
-
-                float anchorX = items[getSelectedPointId()] + mAnchorRectOffsetX;
-                float anchorY = items[getSelectedPointId() + 1] + mAnchorRectOffsetY;
-                canvas.drawBitmap(mAnchor, anchorX, anchorY, null);
+                drawPoints(canvas, new float[]{items[getSelectedPointId()], items[getSelectedPointId() + 1]}, VERTEX_RADIUS);
+                drawAnchor(canvas, items);
             }
         }
+    }
+
+    protected void drawAnchor(Canvas canvas, float[] items) {
+        if (mAnchor != null) {
+            float anchorX = items[getSelectedPointId()] + mAnchorRectOffsetX;
+            float anchorY = items[getSelectedPointId() + 1] + mAnchorRectOffsetY;
+            canvas.drawBitmap(mAnchor, anchorX, anchorY, null);
+        }
+    }
+
+    protected void drawPoints(Canvas canvas, float[] items, float radius) {
+        for (int i = 0; i < items.length - 1; i += 2)
+            canvas.drawCircle(items[i], items[i + 1], radius, mPaint);
     }
 }
