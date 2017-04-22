@@ -79,7 +79,6 @@ import java.util.List;
 
 import static com.nextgis.maplibui.api.DrawItem.EDGE_RADIUS;
 import static com.nextgis.maplibui.api.DrawItem.LINE_WIDTH;
-import static com.nextgis.maplibui.api.DrawItem.VERTEX_RADIUS;
 
 /**
  * The class for edit vector features
@@ -497,7 +496,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     public void createNewGeometry() {
         clearDrawItems();
 
-        float[] geoPoints = getNewGeometry(mLayer.getGeometryType());
+        float[] geoPoints = getNewGeometry(mLayer.getGeometryType(), mTolerancePX, mMap);
         mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, geoPoints);
         mDrawItems.add(mSelectedItem);
 
@@ -505,10 +504,10 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     }
 
 
-    protected float[] getNewGeometry(int geometryType) {
+    public static float[] getNewGeometry(int geometryType, float tolerance, MapDrawable map) {
         float[] geoPoints;
-        float add = mTolerancePX * 2;
-        GeoPoint center = mMap.getFullScreenBounds().getCenter();
+        float add = tolerance * 2;
+        GeoPoint center = map.getFullScreenBounds().getCenter();
 
         switch (geometryType) {
             case GeoConstants.GTPoint:
@@ -581,7 +580,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
             case GeoConstants.GTPoint:
             case GeoConstants.GTLineString:
             case GeoConstants.GTPolygon:
-                float[] geoPoints = getNewGeometry(geometryType);
+                float[] geoPoints = getNewGeometry(geometryType, mTolerancePX, mMap);
                 mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, geoPoints);
                 mDrawItems.add(mSelectedItem);
                 break;
@@ -592,7 +591,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
 
 
     protected boolean addInnerRing() {
-        mSelectedItem.addVertices(getNewGeometry(GeoConstants.GTLinearRing));
+        mSelectedItem.addVertices(getNewGeometry(GeoConstants.GTLinearRing, mTolerancePX, mMap));
         mSelectedItem.setSelectedRing(mSelectedItem.getRingCount() - 1);
         mSelectedItem.setSelectedPoint(0);
 
