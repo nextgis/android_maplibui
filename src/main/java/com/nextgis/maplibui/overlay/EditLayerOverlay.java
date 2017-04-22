@@ -731,28 +731,28 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
 
         switch (mLayer.getGeometryType()) {
             case GeoConstants.GTPoint:
-                geometry = getBaseGeometry(GeoConstants.GTPoint, mSelectedItem);
+                geometry = getBaseGeometry(mMap, GeoConstants.GTPoint, mSelectedItem);
                 break;
             case GeoConstants.GTMultiPoint:
                 geometry = new GeoMultiPoint();
                 for (DrawItem drawItem : mDrawItems)
-                    ((GeoMultiPoint) geometry).add(getBaseGeometry(GeoConstants.GTPoint, drawItem));
+                    ((GeoMultiPoint) geometry).add(getBaseGeometry(mMap, GeoConstants.GTPoint, drawItem));
                 break;
             case GeoConstants.GTLineString:
-                geometry = getBaseGeometry(GeoConstants.GTLineString, mSelectedItem);
+                geometry = getBaseGeometry(mMap, GeoConstants.GTLineString, mSelectedItem);
                 break;
             case GeoConstants.GTMultiLineString:
                 geometry = new GeoMultiLineString();
                 for (DrawItem drawItem : mDrawItems)
-                    ((GeoMultiLineString) geometry).add(getBaseGeometry(GeoConstants.GTLineString, drawItem));
+                    ((GeoMultiLineString) geometry).add(getBaseGeometry(mMap, GeoConstants.GTLineString, drawItem));
                 break;
             case GeoConstants.GTPolygon:
-                geometry = getBaseGeometry(GeoConstants.GTPolygon, mSelectedItem);
+                geometry = getBaseGeometry(mMap, GeoConstants.GTPolygon, mSelectedItem);
                 break;
             case GeoConstants.GTMultiPolygon:
                 geometry = new GeoMultiPolygon();
                 for (DrawItem drawItem : mDrawItems)
-                    ((GeoMultiPolygon) geometry).add(getBaseGeometry(GeoConstants.GTPolygon, drawItem));
+                    ((GeoMultiPolygon) geometry).add(getBaseGeometry(mMap, GeoConstants.GTPolygon, drawItem));
                 break;
             default:
                 geometry = null;
@@ -763,30 +763,31 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
     }
 
 
-    protected GeoGeometry getBaseGeometry(int geometryType, DrawItem drawItem) {
+    public static GeoGeometry getBaseGeometry(MapDrawable map, int geometryType, DrawItem drawItem) {
         GeoPoint[] geoPoints;
         GeoGeometry geometry;
 
         switch (geometryType) {
             case GeoConstants.GTPoint:
-                geoPoints = mMap.screenToMap(drawItem.getRing(0));
+                geoPoints = map.screenToMap(drawItem.getRing(0));
                 geometry = new GeoPoint(geoPoints[0].getX(), geoPoints[0].getY());
                 break;
             case GeoConstants.GTLineString:
                 geometry = new GeoLineString();
-                geoPoints = mMap.screenToMap(drawItem.getRing(0));
+                geoPoints = map.screenToMap(drawItem.getRing(0));
                 for (GeoPoint geoPoint : geoPoints)
                     ((GeoLineString) geometry).add(geoPoint);
                 break;
             case GeoConstants.GTPolygon:
                 geometry = new GeoPolygon();
-                geoPoints = mMap.screenToMap(drawItem.getRing(0));
+                geoPoints = map.screenToMap(drawItem.getRing(0));
                 for (GeoPoint geoPoint : geoPoints)
                     ((GeoPolygon) geometry).add(geoPoint);
 
                 for (int i = 1; i < drawItem.getRingCount(); i++) {
-                    geoPoints = mMap.screenToMap(drawItem.getRing(i));
+                    geoPoints = map.screenToMap(drawItem.getRing(i));
                     GeoLinearRing ring = new GeoLinearRing();
+                    ring.setCRS(GeoConstants.CRS_WEB_MERCATOR);
                     for (GeoPoint geoPoint : geoPoints)
                         ring.add(geoPoint);
 
@@ -797,6 +798,9 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                 geometry = null;
                 break;
         }
+
+        if (geometry != null)
+            geometry.setCRS(GeoConstants.CRS_WEB_MERCATOR);
 
         return geometry;
     }
