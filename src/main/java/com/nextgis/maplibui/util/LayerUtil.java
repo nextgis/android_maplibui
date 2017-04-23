@@ -32,6 +32,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
@@ -41,6 +42,7 @@ import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.map.VectorLayer;
+import com.nextgis.maplib.util.AttachItem;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.MapUtil;
@@ -67,6 +69,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -153,8 +156,8 @@ public final class LayerUtil {
         exportTask.execute();
     }
 
-    public static void shareLayerAsGeoJSON(Activity activity, VectorLayer layer) {
-        ExportGeoJSONTask exportTask = new ExportGeoJSONTask(activity, layer);
+    public static void shareLayerAsGeoJSON(Activity activity, VectorLayer layer, boolean proceedAttaches) {
+        ExportGeoJSONTask exportTask = new ExportGeoJSONTask(activity, layer, proceedAttaches);
         exportTask.execute();
     }
 
@@ -163,10 +166,12 @@ public final class LayerUtil {
         private VectorLayer mLayer;
         private ProgressDialog mProgress;
         private boolean mIsCanceled;
+        private boolean mProceedAttaches;
 
-        ExportGeoJSONTask(Activity activity, VectorLayer layer) {
+        ExportGeoJSONTask(Activity activity, VectorLayer layer, boolean proceedAttaches) {
             mActivity = activity;
             mLayer = layer;
+            mProceedAttaches = proceedAttaches;
         }
 
         @Override
@@ -196,7 +201,6 @@ public final class LayerUtil {
                 ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(fos));
 
                 JSONObject obj = new JSONObject();
-
                 JSONArray geoJSONFeatures = new JSONArray();
                 Cursor featuresCursor = mLayer.query(null, null, null, null, null);
 
@@ -226,26 +230,35 @@ public final class LayerUtil {
                         feature = mLayer.cursorToFeature(featuresCursor);
                         JSONObject properties = new JSONObject();
                         properties.put(Constants.FIELD_ID, feature.getId());
-                        for (Field field : feature.getFields())
-                            properties.put(field.getName(), feature.getFieldValue(field.getName()));
-
-                        File attachFile, featureDir = new File(mLayer.getPath(), feature.getId() + "");
-                        JSONArray attaches = new JSONArray();
-                        for (String attachId : feature.getAttachments().keySet()) {
-                            attachFile = new File(featureDir, attachId);
-                            attaches.put(attachId + ".jpg");
-
-                            FileInputStream fis = new FileInputStream(attachFile);
-                            zos.putNextEntry(new ZipEntry(feature.getId() + "/" + attachId + ".jpg"));
-
-                            while ((length = fis.read(buffer)) > 0)
-                                zos.write(buffer, 0, length);
-
-                            zos.closeEntry();
-                            fis.close();
+                        for (Field field : feature.getFields()) {
+                            Object value = feature.getFieldValue(field.getName());
+                            properties.put(field.getName(), value == null ? JSONObject.NULL : value);
                         }
 
-                        properties.put(GEOJSON_ATTACHES, attaches);
+                        if (mProceedAttaches) {
+                            File attachFile, featureDir = new File(mLayer.getPath(), feature.getId() + "");
+                            JSONArray attaches = new JSONArray();
+                            for (Map.Entry<String, AttachItem> attach : feature.getAttachments().entrySet()) {
+                                attachFile = new File(featureDir, attach.getKey());
+                                String displayName = attach.getValue().getDisplayName();
+                                if (TextUtils.isEmpty(displayName))
+                                    displayName = attach.getKey();
+                                attaches.put(displayName);
+
+                                if (attachFile.exists()) {
+                                    FileInputStream fis = new FileInputStream(attachFile);
+                                    zos.putNextEntry(new ZipEntry(feature.getId() + "/" + displayName));
+
+                                    while ((length = fis.read(buffer)) > 0)
+                                        zos.write(buffer, 0, length);
+
+                                    zos.closeEntry();
+                                    fis.close();
+                                }
+                            }
+                            properties.put(GEOJSON_ATTACHES, attaches);
+                        }
+
                         featureJSON.put(GEOJSON_PROPERTIES, properties);
                         featureJSON.put(GEOJSON_GEOMETRY, feature.getGeometry().toJSON());
                         geoJSONFeatures.put(featureJSON);

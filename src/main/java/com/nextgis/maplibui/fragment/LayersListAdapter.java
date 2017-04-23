@@ -311,7 +311,7 @@ public class LayersListAdapter
                                                 return true;
                                             } else if (layerui instanceof VectorLayer) {
                                                 VectorLayer vectorLayer = (VectorLayer) layerui;
-                                                LayerUtil.shareLayerAsGeoJSON(mActivity, vectorLayer);
+                                                LayerUtil.shareLayerAsGeoJSON(mActivity, vectorLayer, true);
                                             }
                                         } else if (i == R.id.menu_edit) {
                                             if (layerui instanceof NGWWebMapLayerUI)
