@@ -46,19 +46,14 @@ public class DrawItem {
     public final static int LINE_WIDTH = 4;
 
     protected static Paint mPaint;
-    protected static int mFillColor;
-    protected static int mOutlineColor;
-    protected static int mSelectColor;
 
     protected static Bitmap mAnchor;
     public static float mAnchorTolerancePX;
     protected static float mAnchorCenterX, mAnchorCenterY;
     protected static float mAnchorRectOffsetX, mAnchorRectOffsetY;
-    protected static float mVertexRadius;
-    protected static float mVertexOutRadius;
-    protected static float mEdgeOutRadius;
-    protected static float mEdgeRadius;
-    protected static float mLineWidth;
+
+    private static VertexStyle mEdgeStyle, mVertexStyle;
+    private static EditStyle mLineStyle, mPolygonStyle;
 
     protected List<float[]> mDrawItemsVertex;
     protected List<float[]> mDrawItemsEdge;
@@ -67,6 +62,11 @@ public class DrawItem {
     public DrawItem() {
         mDrawItemsVertex = new ArrayList<>();
         mDrawItemsEdge = new ArrayList<>();
+
+        if (mPaint == null) {
+            mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mPaint.setStrokeCap(Paint.Cap.ROUND);
+        }
     }
 
     public DrawItem(int type, float[] points) {
@@ -78,21 +78,23 @@ public class DrawItem {
             addEdges(points);
     }
 
-    public static void init(Context context, Bitmap anchor, int outlineColor, int fillColor, int selectColor, float vertexOutWidth, float vertexWidth,
-                            float edgeOutWidth, float edgeWidth, float lineWidth) {
-        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeCap(Paint.Cap.ROUND);
+    public static void setEdgeStyle(VertexStyle edgeStyle) {
+        mEdgeStyle = edgeStyle;
+    }
 
-        mOutlineColor = outlineColor;
-        mFillColor = fillColor;
-        mSelectColor = selectColor;
-        mVertexOutRadius = vertexOutWidth;
-        mVertexRadius = vertexWidth;
-        mEdgeOutRadius = edgeOutWidth;
-        mEdgeRadius = edgeWidth;
-        mLineWidth = lineWidth;
+    public static void setVertexStyle(VertexStyle vertexStyle) {
+        mVertexStyle = vertexStyle;
+    }
 
+    public static void setLineStyle(EditStyle lineStyle) {
+        mLineStyle = lineStyle;
+    }
+
+    public static void setPolygonStyle(EditStyle polygonStyle) {
+        mPolygonStyle = polygonStyle;
+    }
+
+    public static void setAnchor(Context context, Bitmap anchor) {
         mAnchor = anchor;
         if (mAnchor != null) {
             mAnchorRectOffsetX = -mAnchor.getWidth() * 0.05f;
@@ -344,29 +346,33 @@ public class DrawItem {
     }
 
     public void drawPoints(Canvas canvas, boolean isSelected) {
+        if (mVertexStyle == null)
+            return;
+
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setAlpha(mVertexStyle.getAlpha());
         for (int i = 0; i < getRingCount(); i++) {
             float[] items = getRing(i);
-
             if (items == null)
                 continue;
 
-            mPaint.setColor(mOutlineColor);
-            mPaint.setStrokeWidth(mVertexOutRadius);
-            drawPoints(canvas, items, VERTEX_RADIUS);
+            mPaint.setColor(mVertexStyle.getOutColor());
+            mPaint.setStrokeWidth(mVertexStyle.getOutWidth());
+            drawPoints(canvas, items, mVertexStyle.getOutRadius());
 
-            mPaint.setColor(mFillColor);
-            mPaint.setStrokeWidth(mVertexRadius);
-            drawPoints(canvas, items, VERTEX_RADIUS);
+            mPaint.setColor(mVertexStyle.getColor());
+            mPaint.setStrokeWidth(mVertexStyle.getWidth());
+            drawPoints(canvas, items, mVertexStyle.getRadius());
         }
 
         //draw selected point
         if (isSelected && getSelectedRingId() != Constants.NOT_FOUND && getSelectedPointId() != Constants.NOT_FOUND) {
             float[] items = getSelectedRing();
             if (null != items) {
-                mPaint.setColor(mSelectColor);
-                mPaint.setStrokeWidth(mVertexRadius);
-
-                drawPoints(canvas, new float[]{items[getSelectedPointId()], items[getSelectedPointId() + 1]}, VERTEX_RADIUS);
+                mPaint.setColor(mVertexStyle.getSelectedColor());
+                mPaint.setStrokeWidth(mVertexStyle.getSelectedWidth());
+                float[] point = new float[]{items[getSelectedPointId()], items[getSelectedPointId() + 1]};
+                drawPoints(canvas, point, mVertexStyle.getSelectedRadius());
                 drawAnchor(canvas, items);
             }
         }
@@ -397,67 +403,48 @@ public class DrawItem {
         }
 
         // draw filled polygon
-        if (closed) {
+        if (closed && mPolygonStyle != null) {
             pathFill.setFillType(Path.FillType.EVEN_ODD);
-            mPaint.setColor(mSelectColor);
+            mPaint.setColor(isSelected ? mPolygonStyle.getSelectedColor() : mPolygonStyle.getColor());
             mPaint.setStyle(Paint.Style.FILL);
-            mPaint.setAlpha(64);
+            mPaint.setAlpha(mPolygonStyle.getAlpha());
             canvas.drawPath(pathFill, mPaint);
-            mPaint.setAlpha(255);
         }
 
-        mPaint.setStrokeWidth(mLineWidth);
-        mPaint.setStyle(Paint.Style.STROKE);
-        for (int i = 0; i < paths.length; i++) {
-            Path path = paths[i];
+        if (mLineStyle != null) {
+            mPaint.setStyle(Paint.Style.STROKE);
+            mPaint.setAlpha(mLineStyle.getAlpha());
+            for (int i = 0; i < paths.length; i++) {
+                Path path = paths[i];
 
-            if (isSelected && getSelectedRingId() == i)
-                mPaint.setColor(mSelectColor);
-            else
-                mPaint.setColor(mFillColor);
+                if (isSelected && getSelectedRingId() == i) {
+                    mPaint.setColor(mLineStyle.getSelectedColor());
+                    mPaint.setStrokeWidth(mLineStyle.getSelectedWidth());
+                } else {
+                    mPaint.setColor(mLineStyle.getColor());
+                    mPaint.setStrokeWidth(mLineStyle.getWidth());
+                }
 
-            canvas.drawPath(path, mPaint);
+                canvas.drawPath(path, mPaint);
+            }
         }
 
-        if (drawEdges) {
+        if (drawEdges && mEdgeStyle != null) {
+            mPaint.setStyle(Paint.Style.STROKE);
+            mPaint.setAlpha(mEdgeStyle.getAlpha());
             for (float[] items : getEdges()) {
-                mPaint.setColor(mOutlineColor);
-                mPaint.setStrokeWidth(mEdgeOutRadius);
-                drawPoints(canvas, items, EDGE_RADIUS);
+                mPaint.setColor(mEdgeStyle.getOutColor());
+                mPaint.setStrokeWidth(mEdgeStyle.getOutWidth());
+                drawPoints(canvas, items, mEdgeStyle.getOutRadius());
 
-                mPaint.setColor(mFillColor);
-                mPaint.setStrokeWidth(mEdgeRadius);
-                drawPoints(canvas, items, EDGE_RADIUS);
+                mPaint.setColor(mEdgeStyle.getColor());
+                mPaint.setStrokeWidth(mEdgeStyle.getWidth());
+                drawPoints(canvas, items, mEdgeStyle.getRadius());
             }
         }
 
-        if (drawPoints) {
-            for (int j = 0; j < getRingCount(); j++) {
-                float[] itemsVertex = getRing(j);
-                if (itemsVertex == null)
-                    continue;
-
-                mPaint.setColor(mOutlineColor);
-                mPaint.setStrokeWidth(mVertexOutRadius);
-                drawPoints(canvas, itemsVertex, VERTEX_RADIUS);
-
-                mPaint.setColor(mFillColor);
-                mPaint.setStrokeWidth(mVertexRadius);
-                drawPoints(canvas, itemsVertex, VERTEX_RADIUS);
-            }
-        }
-
-        //draw selected point
-        if (drawPoints && isSelected && getSelectedPointId() != Constants.NOT_FOUND) {
-            float[] items = getSelectedRing();
-            if (null != items && getSelectedPointId() + 1 < items.length) {
-                mPaint.setColor(mSelectColor);
-                mPaint.setStrokeWidth(mVertexRadius);
-
-                drawPoints(canvas, new float[]{items[getSelectedPointId()], items[getSelectedPointId() + 1]}, VERTEX_RADIUS);
-                drawAnchor(canvas, items);
-            }
-        }
+        if (drawPoints)
+            drawPoints(canvas, isSelected);
     }
 
     protected void drawAnchor(Canvas canvas, float[] items) {

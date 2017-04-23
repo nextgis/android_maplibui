@@ -64,9 +64,11 @@ import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.DrawItem;
 import com.nextgis.maplibui.api.EditEventListener;
+import com.nextgis.maplibui.api.EditStyle;
 import com.nextgis.maplibui.api.MapViewEventListener;
 import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.api.OverlayItem;
+import com.nextgis.maplibui.api.VertexStyle;
 import com.nextgis.maplibui.fragment.BottomToolbar;
 import com.nextgis.maplibui.mapui.MapViewOverlays;
 import com.nextgis.maplibui.service.WalkEditService;
@@ -155,11 +157,20 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         mMapViewOverlays.addListener(this);
         mOverlayPoint = new OverlayItem(mMap, 0, 0, getMarker());
 
-        int outlineColor = Color.BLACK;
-        int fillColor = ControlHelper.getColor(context, R.attr.colorAccent);
-        int selectColor = Color.RED;
         Bitmap anchor = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_action_anchor);
-        DrawItem.init(context, anchor, outlineColor, fillColor, selectColor, 10, 8, EDGE_RADIUS + 2, EDGE_RADIUS, LINE_WIDTH);
+        DrawItem.setAnchor(context, anchor);
+
+        int outlineColor = Color.BLACK;
+        int fillColor = ControlHelper.getColor(mContext, com.nextgis.maplibui.R.attr.colorAccent);
+        int selectColor = Color.RED;
+        VertexStyle vertexStyle = new VertexStyle(255, fillColor, 5, 2.6f, selectColor, 5, 2.6f, outlineColor, 6, 3);
+        VertexStyle edgeStyle = new VertexStyle(255, fillColor, 3, 1.6f, selectColor, 3, 1.6f, outlineColor, 4, 1.8f);
+        EditStyle lineStyle = new EditStyle(255, fillColor, 2, selectColor, 2);
+        EditStyle polygonStyle = new EditStyle(0, Color.TRANSPARENT, 2, Color.TRANSPARENT, 2);
+        DrawItem.setVertexStyle(vertexStyle);
+        DrawItem.setEdgeStyle(edgeStyle);
+        DrawItem.setLineStyle(lineStyle);
+        DrawItem.setPolygonStyle(polygonStyle);
     }
 
 
