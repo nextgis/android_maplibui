@@ -373,47 +373,50 @@ public class DrawItem {
     }
 
     public void drawLines(Canvas canvas, boolean isSelected, boolean drawPoints, boolean drawEdges, boolean closed) {
+        Path[] paths = new Path[getRingCount()];
+        Path pathFill = new Path();
+
+        // fill paths
         for (int j = 0; j < getRingCount(); j++) {
             float[] itemsVertex = getRing(j);
-
             if (itemsVertex == null)
                 continue;
-
-            if (isSelected && getSelectedRingId() == j)
-                mPaint.setColor(mSelectColor);
-            else
-                mPaint.setColor(mFillColor);
-
-            mPaint.setStrokeWidth(mLineWidth);
 
             if (itemsVertex.length >= 2) {
                 Path path = new Path();
                 path.moveTo(itemsVertex[0], itemsVertex[1]);
-
                 for (int i = 2; i < itemsVertex.length - 1; i += 2)
                     path.lineTo(itemsVertex[i], itemsVertex[i + 1]);
 
-                if (closed) {
+                if (closed)
                     path.lineTo(itemsVertex[0], itemsVertex[1]);
-                    mPaint.setStyle(Paint.Style.FILL);
-                    mPaint.setAlpha(64);
-                    canvas.drawPath(path, mPaint);
-                }
 
-                mPaint.setStyle(Paint.Style.STROKE);
-                mPaint.setAlpha(255);
-                canvas.drawPath(path, mPaint);
+                paths[j] = path;
+                pathFill.addPath(path);
             }
+        }
 
-            if (drawPoints) {
-                mPaint.setColor(mOutlineColor);
-                mPaint.setStrokeWidth(mVertexOutRadius);
-                drawPoints(canvas, itemsVertex, VERTEX_RADIUS);
+        // draw filled polygon
+        if (closed) {
+            pathFill.setFillType(Path.FillType.EVEN_ODD);
+            mPaint.setColor(mSelectColor);
+            mPaint.setStyle(Paint.Style.FILL);
+            mPaint.setAlpha(64);
+            canvas.drawPath(pathFill, mPaint);
+            mPaint.setAlpha(255);
+        }
 
+        mPaint.setStrokeWidth(mLineWidth);
+        mPaint.setStyle(Paint.Style.STROKE);
+        for (int i = 0; i < paths.length; i++) {
+            Path path = paths[i];
+
+            if (isSelected && getSelectedRingId() == i)
+                mPaint.setColor(mSelectColor);
+            else
                 mPaint.setColor(mFillColor);
-                mPaint.setStrokeWidth(mVertexRadius);
-                drawPoints(canvas, itemsVertex, VERTEX_RADIUS);
-            }
+
+            canvas.drawPath(path, mPaint);
         }
 
         if (drawEdges) {
@@ -425,6 +428,22 @@ public class DrawItem {
                 mPaint.setColor(mFillColor);
                 mPaint.setStrokeWidth(mEdgeRadius);
                 drawPoints(canvas, items, EDGE_RADIUS);
+            }
+        }
+
+        if (drawPoints) {
+            for (int j = 0; j < getRingCount(); j++) {
+                float[] itemsVertex = getRing(j);
+                if (itemsVertex == null)
+                    continue;
+
+                mPaint.setColor(mOutlineColor);
+                mPaint.setStrokeWidth(mVertexOutRadius);
+                drawPoints(canvas, itemsVertex, VERTEX_RADIUS);
+
+                mPaint.setColor(mFillColor);
+                mPaint.setStrokeWidth(mVertexRadius);
+                drawPoints(canvas, itemsVertex, VERTEX_RADIUS);
             }
         }
 
