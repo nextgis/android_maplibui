@@ -250,7 +250,12 @@ public class DrawItem {
     }
 
     public void setSelectedPoint(int selectedPoint) {
-        mSelectedPoint = selectedPoint;
+        float[] ring = getSelectedRing();
+        if (ring != null)
+            if (selectedPoint >= 0 && selectedPoint < ring.length - 1) {
+                mSelectedPoint = selectedPoint;
+            } else
+                mSelectedRing = ring.length - 2;
     }
 
     public void setRing(int ring, float[] points) {
@@ -261,6 +266,8 @@ public class DrawItem {
     public void setSelectedRing(int selectedRing) {
         if (selectedRing >= 0 && selectedRing < mDrawItemsVertex.size())
             mSelectedRing = selectedRing;
+        else
+            mSelectedRing = 0;
     }
 
     public float[] getSelectedRing() {
