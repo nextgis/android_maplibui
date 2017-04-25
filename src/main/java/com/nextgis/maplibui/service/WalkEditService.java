@@ -4,7 +4,7 @@
  *  Author:   Dmitry Baryshnikov, dmitry.baryshnikov@nextgis.com
  *  Author:   Stanislav Petriakov, becomeglory@gmail.com
  * ****************************************************************************
- *  Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ *  Copyright (c) 2012-2017 NextGIS, info@nextgis.com
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser Public License as published by
@@ -55,29 +55,32 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.NotificationHelper;
 
+import java.util.Map;
+
 /**
  * Service to gather position data during walking
  */
-public class WalkEditService
-        extends Service
-        implements LocationListener, GpsStatus.Listener{
+public class WalkEditService extends Service implements LocationListener, GpsStatus.Listener {
 
-    private static final int    WALK_NOTIFICATION_ID = 7;
-    public static final String TEMP_PREFERENCES      = "walkedit_temp";
-    public static final String ACTION_STOP           = "com.nextgis.maplibui.WALKEDIT_STOP";
-    public static final String ACTION_START          = "com.nextgis.maplibui.WALKEDIT_START";
-    public static final String WALKEDIT_CHANGE       = "com.nextgis.maplibui.WALKEDIT_CHANGE";
+    private static final int WALK_NOTIFICATION_ID = 7;
+    public static final String TEMP_PREFERENCES = "walkedit_temp";
+    public static final String EXTRA_HEADER = "extra_";
+    public static final String ACTION_STOP = "com.nextgis.maplibui.WALKEDIT_STOP";
+    public static final String ACTION_START = "com.nextgis.maplibui.WALKEDIT_START";
+    public static final String WALKEDIT_CHANGE = "com.nextgis.maplibui.WALKEDIT_CHANGE";
 
     private SharedPreferences mSharedPreferencesTemp;
     private LocationManager mLocationManager;
     private NotificationManager mNotificationManager;
     private String mTicker;
-    private int    mSmallIcon;
+    private int mSmallIcon;
     private PendingIntent mOpenActivity;
 
     protected String mTargetActivity;
+    protected Bundle mTargetExtras;
     protected GeoGeometry mGeometry;
     protected int mLayerId;
+    protected boolean mShowNotification;
 
     @Override
     public void onCreate() {
@@ -107,7 +110,7 @@ public class WalkEditService
                         break;
                     case ACTION_START:
                         int layerId = intent.getIntExtra(ConstantsUI.KEY_LAYER_ID, Constants.NOT_FOUND);
-                        if(mLayerId == layerId) { // we are already running track record
+                        if (mLayerId == layerId) { // we are already running track record
                             sendGeometryBroadcast();
                         } else {
                             mLayerId = layerId;
@@ -119,12 +122,16 @@ public class WalkEditService
                             }
 
                             mTargetActivity = intent.getStringExtra(ConstantsUI.TARGET_CLASS);
+                            mTargetExtras = intent.getBundleExtra(ConstantsUI.TARGET_EXTRAS);
+                            mShowNotification = intent.getBooleanExtra(ConstantsUI.KEY_MESSAGE, true);
                             startWalkEdit();
 
                             SharedPreferences.Editor edit = mSharedPreferencesTemp.edit();
                             edit.putInt(ConstantsUI.KEY_LAYER_ID, mLayerId);
                             edit.putString(ConstantsUI.KEY_GEOMETRY, mGeometry.toWKT(true));
                             edit.putString(ConstantsUI.TARGET_CLASS, mTargetActivity);
+                            edit.putBoolean(ConstantsUI.KEY_MESSAGE, mShowNotification);
+                            saveBundle(edit, mTargetExtras);
                             edit.commit();
                         }
                         break;
@@ -134,6 +141,8 @@ public class WalkEditService
             mLayerId = mSharedPreferencesTemp.getInt(ConstantsUI.KEY_LAYER_ID, Constants.NOT_FOUND);
             mGeometry = GeoGeometryFactory.fromWKT(mSharedPreferencesTemp.getString(ConstantsUI.KEY_GEOMETRY, ""), GeoConstants.CRS_WEB_MERCATOR);
             mTargetActivity = mSharedPreferencesTemp.getString(ConstantsUI.TARGET_CLASS, "");
+            mTargetExtras = loadBundle(mSharedPreferencesTemp);
+            mShowNotification = mSharedPreferencesTemp.getBoolean(ConstantsUI.KEY_MESSAGE, true);
             startWalkEdit();
         }
 
@@ -142,18 +151,15 @@ public class WalkEditService
     }
 
     private void startWalkEdit() {
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(getPackageName() + "_preferences", Constants.MODE_MULTI_PROCESS);
+        SharedPreferences sharedPreferences = getSharedPreferences(getPackageName() + "_preferences", Constants.MODE_MULTI_PROCESS);
 
-        String minTimeStr =
-                sharedPreferences.getString(SettingsConstants.KEY_PREF_LOCATION_MIN_TIME, "2");
-        String minDistanceStr =
-                sharedPreferences.getString(SettingsConstants.KEY_PREF_LOCATION_MIN_DISTANCE, "10");
+        String minTimeStr = sharedPreferences.getString(SettingsConstants.KEY_PREF_LOCATION_MIN_TIME, "2");
+        String minDistanceStr = sharedPreferences.getString(SettingsConstants.KEY_PREF_LOCATION_MIN_DISTANCE, "10");
         long minTime = Long.parseLong(minTimeStr) * 1000;
         float minDistance = Float.parseFloat(minDistanceStr);
 
-        if(!PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                || !PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION))
+        if (!PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) || !PermissionUtil
+                .hasPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION))
             return;
 
         mLocationManager.addGpsStatusListener(this);
@@ -180,8 +186,7 @@ public class WalkEditService
     }
 
     @Override
-    public IBinder onBind(Intent intent)
-    {
+    public IBinder onBind(Intent intent) {
         return null;
     }
 
@@ -191,8 +196,8 @@ public class WalkEditService
         removeNotification();
         stopSelf();
 
-        if(PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                && PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+        if (PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) && PermissionUtil
+                .hasPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
             mLocationManager.removeUpdates(this);
             mLocationManager.removeGpsStatusListener(this);
         }
@@ -201,8 +206,7 @@ public class WalkEditService
     }
 
     @Override
-    public void onLocationChanged(Location location)
-    {
+    public void onLocationChanged(Location location) {
         GeoPoint point;
         point = new GeoPoint(location.getLongitude(), location.getLatitude());
         point.setCRS(GeoConstants.CRS_WGS84);
@@ -227,78 +231,55 @@ public class WalkEditService
         sendGeometryBroadcast();
     }
 
-
     @Override
-    public void onStatusChanged(
-            String provider,
-            int status,
-            Bundle extras)
-    {
+    public void onStatusChanged(String provider, int status, Bundle extras) {
 
     }
 
-
     @Override
-    public void onProviderEnabled(String provider)
-    {
+    public void onProviderEnabled(String provider) {
 
     }
 
-
     @Override
-    public void onProviderDisabled(String provider)
-    {
+    public void onProviderDisabled(String provider) {
 
     }
 
-
     @Override
-    public void onGpsStatusChanged(int event)
-    {
+    public void onGpsStatusChanged(int event) {
     }
 
+    private void addNotification() {
+        if (!mShowNotification)
+            return;
 
-    private void addNotification()
-    {
         MapBase map = MapBase.getInstance();
         ILayer layer = map.getLayerById(mLayerId);
         String name = "";
-        if(null != layer)
+        if (null != layer)
             name = layer.getName();
 
         String title = String.format(getString(R.string.walkedit_title), name);
-        Bitmap largeIcon = NotificationHelper.getLargeIcon(
-                R.drawable.ic_action_maps_directions_walk, getResources());
+        Bitmap largeIcon = NotificationHelper.getLargeIcon(R.drawable.ic_action_maps_directions_walk, getResources());
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
 
-        builder.setContentIntent(mOpenActivity)
-                .setSmallIcon(mSmallIcon)
-                .setLargeIcon(largeIcon)
-                .setTicker(mTicker)
-                .setWhen(System.currentTimeMillis())
-                .setAutoCancel(false)
-                .setContentTitle(title)
-                .setContentText(mTicker)
-                .setOngoing(true);
+        builder.setContentIntent(mOpenActivity).setSmallIcon(mSmallIcon).setLargeIcon(largeIcon).setTicker(mTicker).setWhen(System.currentTimeMillis())
+               .setAutoCancel(false).setContentTitle(title).setContentText(mTicker).setOngoing(true);
 
-        builder.addAction(
-                R.drawable.ic_location, getString(R.string.tracks_open),
-                mOpenActivity);
+        builder.addAction(R.drawable.ic_location, getString(R.string.tracks_open), mOpenActivity);
 
         mNotificationManager.notify(WALK_NOTIFICATION_ID, builder.build());
         startForeground(WALK_NOTIFICATION_ID, builder.build());
     }
 
-
-    private void removeNotification()
-    {
+    private void removeNotification() {
         mNotificationManager.cancel(WALK_NOTIFICATION_ID);
     }
 
     // intent to open on notification click
-    private void initTargetIntent(String targetActivity)
-    {
+    private void initTargetIntent(String targetActivity) {
         Intent intentActivity = new Intent();
 
         if (!TextUtils.isEmpty(targetActivity)) {
@@ -316,8 +297,55 @@ public class WalkEditService
         }
 
         intentActivity.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        mOpenActivity = PendingIntent.getActivity(
-                this, 0, intentActivity, PendingIntent.FLAG_UPDATE_CURRENT);
+        if (mTargetExtras != null)
+            intentActivity.putExtras(mTargetExtras);
+        mOpenActivity = PendingIntent.getActivity(this, 0, intentActivity, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    /**
+     * Manually save a Bundle object to SharedPreferences.
+     * http://stackoverflow.com/a/13692248/2088273
+     */
+    private void saveBundle(SharedPreferences.Editor editor, Bundle bundle) {
+        if (bundle == null)
+            return;
+
+        for (String key : bundle.keySet()) {
+            Object o = bundle.get(key);
+            if (o instanceof Integer)
+                editor.putInt(EXTRA_HEADER + key, (Integer) o);
+            else if (o instanceof Long)
+                editor.putLong(EXTRA_HEADER + key, (Long) o);
+            else if (o instanceof Boolean)
+                editor.putBoolean(EXTRA_HEADER + key, (Boolean) o);
+            else if (o instanceof CharSequence)
+                editor.putString(EXTRA_HEADER + key, o.toString());
+        }
+
+        editor.commit();
+    }
+
+    /**
+     * Manually load a Bundle from SharedPreferences.
+     */
+    private Bundle loadBundle(SharedPreferences preferences) {
+        Bundle result = new Bundle();
+        for (Map.Entry o : preferences.getAll().entrySet()) {
+            String key = (String) o.getKey();
+            if (key.startsWith(EXTRA_HEADER)) {
+                key = key.replace(EXTRA_HEADER, "");
+                if (o.getValue() instanceof Integer)
+                    result.putInt(key, (Integer) o.getValue());
+                else if (o.getValue() instanceof Long)
+                    result.putLong(key, (Long) o.getValue());
+                else if (o.getValue() instanceof Boolean)
+                    result.putBoolean(key, (Boolean) o.getValue());
+                else if (o.getValue() instanceof CharSequence)
+                    result.putString(key, (String) o.getValue());
+            }
+        }
+
+        return result;
     }
 
     public static boolean isServiceRunning(Context context) {

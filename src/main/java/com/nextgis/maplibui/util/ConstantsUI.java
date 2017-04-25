@@ -46,6 +46,7 @@ public interface ConstantsUI
 
     String MESSAGE_INTENT = "com.nextgis.malibui.MESSAGE";
     String TARGET_CLASS   = "target_class";
+    String TARGET_EXTRAS  = "target_extras";
 
     String FILE_FORM = "form.json";
 

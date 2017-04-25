@@ -158,7 +158,8 @@ public class DrawItem {
     }
 
     public void addVertices(float[] points) {
-        mDrawItemsVertex.add(points);
+        if (points != null)
+            mDrawItemsVertex.add(points);
     }
 
     public void addEdges(float[] points) {
@@ -375,7 +376,7 @@ public class DrawItem {
         //draw selected point
         if (isSelected && getSelectedRingId() != Constants.NOT_FOUND && getSelectedPointId() != Constants.NOT_FOUND) {
             float[] items = getSelectedRing();
-            if (null != items) {
+            if (null != items && items.length > 0) {
                 mPaint.setColor(mVertexStyle.getSelectedColor());
                 mPaint.setStrokeWidth(mVertexStyle.getSelectedWidth());
                 float[] point = new float[]{items[getSelectedPointId()], items[getSelectedPointId() + 1]};
@@ -423,6 +424,8 @@ public class DrawItem {
             mPaint.setAlpha(mLineStyle.getAlpha());
             for (int i = 0; i < paths.length; i++) {
                 Path path = paths[i];
+                if (path == null)
+                    continue;
 
                 if (isSelected && getSelectedRingId() == i) {
                     mPaint.setColor(mLineStyle.getSelectedColor());
