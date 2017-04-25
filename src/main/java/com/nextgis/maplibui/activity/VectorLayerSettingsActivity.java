@@ -82,7 +82,7 @@ import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
-import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
 
 /**
  * Vector layer settings activity. Include common settings (layer name) and renderer settings.
@@ -458,9 +458,9 @@ public class VectorLayerSettingsActivity
             if (null != syncs && !syncs.isEmpty()) {
                 for (PeriodicSync sync : syncs) {
                     Bundle bundle = sync.extras;
-                    long savedPeriod = bundle.getLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, Constants.NOT_FOUND);
-                    if (savedPeriod > 0) {
-                        prefValue = "" + savedPeriod;
+                    String savedPeriod = bundle.getString(KEY_PREF_SYNC_PERIOD);
+                    if (savedPeriod != null) {
+                        prefValue = savedPeriod;
                         break;
                     }
                 }
@@ -483,9 +483,10 @@ public class VectorLayerSettingsActivity
             period.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                    long interval = Long.parseLong((String) values[i]);
+                    String value = values[i].toString();
+                    long interval = Long.parseLong(value);
                     Bundle bundle = new Bundle();
-                    bundle.putLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, interval);
+                    bundle.putString(KEY_PREF_SYNC_PERIOD, value);
 
                     if (interval == NOT_FOUND) {
                         ContentResolver.removePeriodicSync(account, app.getAuthority(), bundle);

@@ -44,6 +44,7 @@ import android.support.v7.preference.PreferenceCategory;
 import android.support.v7.preference.PreferenceGroup;
 import android.support.v7.preference.PreferenceScreen;
 import android.util.Log;
+
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.INGWLayer;
 import com.nextgis.maplib.datasource.ngw.SyncAdapter;
@@ -66,7 +67,6 @@ import java.util.List;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.ACTION_PREFS_NGW;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
-import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
 
 
 public class NGWSettingsFragment
@@ -232,14 +232,13 @@ public class NGWSettingsFragment
     {
 
         String prefValue = "" + Constants.DEFAULT_SYNC_PERIOD;
-        List<PeriodicSync> syncs =
-                ContentResolver.getPeriodicSyncs(account, application.getAuthority());
+        List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, application.getAuthority());
         if (null != syncs && !syncs.isEmpty()) {
             for (PeriodicSync sync : syncs) {
                 Bundle bundle = sync.extras;
-                long period = bundle.getLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, Constants.NOT_FOUND);
-                if (period > 0) {
-                    prefValue = "" + period;
+                String value = bundle.getString(KEY_PREF_SYNC_PERIOD);
+                if (value != null) {
+                    prefValue = value;
                     break;
                 }
             }
@@ -274,7 +273,8 @@ public class NGWSettingsFragment
                     Preference preference,
                     Object newValue)
             {
-                long interval = Long.parseLong((String) newValue);
+                String value =(String) newValue;
+                long interval = Long.parseLong(value);
 
                 for (int i = 0; i < values.length; i++) {
                     if (values[i].equals(newValue)) {
@@ -284,13 +284,12 @@ public class NGWSettingsFragment
                 }
 
                 Bundle bundle = new Bundle();
-                bundle.putLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, interval);
+                bundle.putString(KEY_PREF_SYNC_PERIOD, value);
 
                 if (interval == NOT_FOUND) {
                     ContentResolver.removePeriodicSync(account, application.getAuthority(), bundle);
                 } else {
-                    ContentResolver.addPeriodicSync(
-                            account, application.getAuthority(), bundle, interval);
+                    ContentResolver.addPeriodicSync(account, application.getAuthority(), bundle, interval);
                 }
 
                 return true;
@@ -495,10 +494,8 @@ public class NGWSettingsFragment
                         wasCurrentSyncActive[0] =
                                 AccountUtil.isSyncActive(account, application.getAuthority());
 
-                        ContentResolver.removePeriodicSync(
-                                account, application.getAuthority(), Bundle.EMPTY);
-                        ContentResolver.setSyncAutomatically(
-                                account, application.getAuthority(), false);
+                        ContentResolver.removePeriodicSync(account, application.getAuthority(), Bundle.EMPTY);
+                        ContentResolver.setSyncAutomatically(account, application.getAuthority(), false);
 
                         ContentResolver.cancelSync(account, application.getAuthority());
 

@@ -61,8 +61,8 @@ import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_MAP;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_DARK;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_LIGHT;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_NEUTRAL;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIODICALLY;
-import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD_SEC_LONG;
 
 /**
  * This is a base application class. Each application should inherited their base application from
@@ -102,11 +102,8 @@ public abstract class GISApplication extends Application
 
         //turn on periodic sync. Can be set for each layer individually, but this is simpler
         if (mSharedPreferences.getBoolean(KEY_PREF_SYNC_PERIODICALLY, true)) {
-            long period =
-                    mSharedPreferences.getLong(KEY_PREF_SYNC_PERIOD_SEC_LONG, Constants.DEFAULT_SYNC_PERIOD); //1 hour
-
-            if(-1 == period)
-                period = Constants.DEFAULT_SYNC_PERIOD;
+            String value = mSharedPreferences.getString(KEY_PREF_SYNC_PERIOD, Constants.DEFAULT_SYNC_PERIOD + ""); //1 hour
+            long period = Long.parseLong(value);
 
             Bundle params = new Bundle();
             params.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, false);
