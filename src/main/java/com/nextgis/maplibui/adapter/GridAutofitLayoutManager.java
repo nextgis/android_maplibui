@@ -39,6 +39,8 @@ public class GridAutofitLayoutManager
     protected int mWidth;
     protected boolean mWidthChanged = true;
 
+    protected OnChangeSpanCountListener mSpanCountListener;
+
     public GridAutofitLayoutManager(
             Context context,
             float columnWidthPx)
@@ -107,7 +109,38 @@ public class GridAutofitLayoutManager
             setSpanCount(spanCount);
             mColumnWidthChanged = false;
             mWidthChanged = false;
+
+            if (mSpanCount != spanCount) {
+                mSpanCount = spanCount;
+                mIsSpanCountChanged = true;
+            }
         }
         super.onLayoutChildren(recycler, state);
+    }
+
+    protected int mSpanCount;
+    protected boolean mIsSpanCountChanged = false;
+
+    @Override
+    public void onLayoutCompleted(RecyclerView.State state)
+    {
+        super.onLayoutCompleted(state);
+
+        if (mIsSpanCountChanged) {
+            mIsSpanCountChanged = false;
+            if (mSpanCountListener != null) {
+                mSpanCountListener.onChangeSpanCount(mSpanCount);
+            }
+        }
+    }
+
+    public void setSpanCountListener(OnChangeSpanCountListener spanCountListener)
+    {
+        mSpanCountListener = spanCountListener;
+    }
+
+    public interface OnChangeSpanCountListener
+    {
+        void onChangeSpanCount(int spanCount);
     }
 }
