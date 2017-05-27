@@ -45,6 +45,7 @@ import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.AttachItem;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
+import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity;
@@ -553,6 +554,25 @@ public final class LayerUtil {
             shareIntent = Intent.createChooser(shareIntent, mActivity.getString(R.string.menu_share));
             shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mActivity.startActivity(shareIntent);
+        }
+    }
+
+    public static String getGeometryName(Context context, int geometryType) {
+        switch (geometryType) {
+            case GeoConstants.GTPoint:
+                return context.getString(R.string.point);
+            case GeoConstants.GTMultiPoint:
+                return context.getString(R.string.multi_point);
+            case GeoConstants.GTLineString:
+                return context.getString(R.string.linestring);
+            case GeoConstants.GTMultiLineString:
+                return context.getString(R.string.multi_linestring);
+            case GeoConstants.GTPolygon:
+                return context.getString(R.string.polygon);
+            case GeoConstants.GTMultiPolygon:
+                return context.getString(R.string.multi_polygon);
+            default:
+                return context.getString(R.string.n_a);
         }
     }
 

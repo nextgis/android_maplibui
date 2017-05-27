@@ -82,6 +82,7 @@ import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
+import static com.nextgis.maplibui.util.LayerUtil.getGeometryName;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
 
 /**
@@ -114,7 +115,7 @@ public class VectorLayerSettingsActivity
     }
 
     private void setSubtitle() {
-        String subtitle = getGeometryName(mVectorLayer.getGeometryType()).toLowerCase();
+        String subtitle = getGeometryName(this, mVectorLayer.getGeometryType()).toLowerCase();
         File formPath = new File(mLayer.getPath(), ConstantsUI.FILE_FORM);
         if (formPath.exists())
             subtitle += " " + getString(R.string.layer_has_form);
@@ -154,25 +155,6 @@ public class VectorLayerSettingsActivity
             startService(intent);
             v.getRootView().findViewById(R.id.rebuild_cache).setEnabled(true);
             v.getRootView().findViewById(R.id.rebuild_progress).setVisibility(View.GONE);
-        }
-    }
-
-    private String getGeometryName(int geometryType) {
-        switch (geometryType) {
-            case GeoConstants.GTPoint:
-                return getString(R.string.point);
-            case GeoConstants.GTMultiPoint:
-                return getString(R.string.multi_point);
-            case GeoConstants.GTLineString:
-                return getString(R.string.linestring);
-            case GeoConstants.GTMultiLineString:
-                return getString(R.string.multi_linestring);
-            case GeoConstants.GTPolygon:
-                return getString(R.string.polygon);
-            case GeoConstants.GTMultiPolygon:
-                return getString(R.string.multi_polygon);
-            default:
-                return getString(R.string.n_a);
         }
     }
 
