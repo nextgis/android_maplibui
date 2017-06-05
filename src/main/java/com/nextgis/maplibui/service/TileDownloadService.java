@@ -250,7 +250,7 @@ public class TileDownloadService extends Service {
                     @Override
                     public void run() {
                         android.os.Process.setThreadPriority(Constants.DEFAULT_DRAW_THREAD_PRIORITY);
-                        tmsLayer.downloadTile(tile);
+                        tmsLayer.downloadTile(tile, false);
                     }
                 }));
             }
