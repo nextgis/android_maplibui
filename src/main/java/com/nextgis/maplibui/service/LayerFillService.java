@@ -597,7 +597,7 @@ public class LayerFillService extends Service implements IProgressor {
 
                     if (GeoJSONUtil.isGeoJsonHasFeatures(mPath)) {
                         //read SRS -- not need as we will be fill layer with 3857
-                        JSONObject srs = metaJson.getJSONObject("srs");
+                        JSONObject srs = metaJson.getJSONObject(NGWUtil.NGWKEY_SRS);
                         int nSRS = srs.getInt(NGWUtil.NGWKEY_ID);
                         vectorLayer.fillFromGeoJson(mPath, nSRS, progressor);
                     }
