@@ -163,10 +163,10 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         int outlineColor = Color.BLACK;
         int fillColor = ControlHelper.getColor(mContext, com.nextgis.maplibui.R.attr.colorAccent);
         int selectColor = Color.RED;
-        VertexStyle vertexStyle = new VertexStyle(255, fillColor, 5, 2.6f, selectColor, 5, 2.6f, outlineColor, 6, 3);
-        VertexStyle edgeStyle = new VertexStyle(255, fillColor, 3, 1.6f, selectColor, 3, 1.6f, outlineColor, 4, 1.8f);
-        EditStyle lineStyle = new EditStyle(255, fillColor, 2, selectColor, 2);
-        EditStyle polygonStyle = new EditStyle(0, Color.TRANSPARENT, 2, Color.TRANSPARENT, 2);
+        VertexStyle vertexStyle = new VertexStyle(mContext, 255, fillColor, 5, 2.6f, selectColor, 5, 2.6f, outlineColor, 6, 3);
+        VertexStyle edgeStyle = new VertexStyle(mContext, 255, fillColor, 3, 1.6f, selectColor, 3, 1.6f, outlineColor, 4, 1.8f);
+        EditStyle lineStyle = new EditStyle(mContext, 255, fillColor, 2, selectColor, 2);
+        EditStyle polygonStyle = new EditStyle(mContext, 0, Color.TRANSPARENT, 2, Color.TRANSPARENT, 2);
         DrawItem.setVertexStyle(vertexStyle);
         DrawItem.setEdgeStyle(edgeStyle);
         DrawItem.setLineStyle(lineStyle);

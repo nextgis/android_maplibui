@@ -6,19 +6,21 @@
 
 package com.nextgis.maplibui.api;
 
+import android.content.Context;
+
 public class VertexStyle extends EditStyle {
     private int mOutColor;
     private float mOutWidth, mOutRadius;
     private float mRadius, mSelectedRadius;
 
-    public VertexStyle(int alpha, int color, float width, float radius, int selectedColor, float selectedWidth, float selectedRadius, int outColor,
-                       float outWidth, float outRadius) {
-        super(alpha, color, width, selectedColor, selectedWidth);
-        mRadius = radius;
-        mSelectedRadius = selectedRadius;
-        mOutColor = outColor;
-        mOutWidth = outWidth;
-        mOutRadius = outRadius;
+    public VertexStyle(Context context, int alpha, int color, float width, float radius, int selectedColor, float selectedWidth, float selectedRadius,
+                       int outColor, float outWidth, float outRadius) {
+        super(context, alpha, color, width, selectedColor, selectedWidth);
+        setRadius(radius);
+        setSelectedRadius(selectedRadius);
+        setOutColor(outColor);
+        setOutWidth(outWidth);
+        setOutRadius(outRadius);
     }
 
     public int getOutColor() {
@@ -34,7 +36,7 @@ public class VertexStyle extends EditStyle {
     }
 
     public void setOutWidth(float outWidth) {
-        mOutWidth = outWidth;
+        mOutWidth = outWidth * mScaledDensity;
     }
 
     public float getOutRadius() {
@@ -42,7 +44,7 @@ public class VertexStyle extends EditStyle {
     }
 
     public void setOutRadius(float outRadius) {
-        mOutRadius = outRadius;
+        mOutRadius = outRadius * mScaledDensity;
     }
 
     public float getRadius() {
@@ -50,7 +52,7 @@ public class VertexStyle extends EditStyle {
     }
 
     public void setRadius(float radius) {
-        mRadius = radius;
+        mRadius = radius * mScaledDensity;
     }
 
     public float getSelectedRadius() {
@@ -58,6 +60,6 @@ public class VertexStyle extends EditStyle {
     }
 
     public void setSelectedRadius(float selectedRadius) {
-        mSelectedRadius = selectedRadius;
+        mSelectedRadius = selectedRadius * mScaledDensity;
     }
 }

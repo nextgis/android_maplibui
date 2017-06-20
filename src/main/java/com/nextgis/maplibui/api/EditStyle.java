@@ -6,17 +6,21 @@
 
 package com.nextgis.maplibui.api;
 
+import android.content.Context;
+
 public class EditStyle {
     private int mAlpha;
     private int mColor, mSelectedColor;
     private float mWidth, mSelectedWidth;
+    protected float mScaledDensity;
 
-    public EditStyle(int alpha, int color, float width, int selectedColor, float selectedWidth) {
-        mAlpha = alpha;
-        mColor = color;
-        mWidth = width;
-        mSelectedColor = selectedColor;
-        mSelectedWidth = selectedWidth;
+    public EditStyle(Context context, int alpha, int color, float width, int selectedColor, float selectedWidth) {
+        mScaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
+        setAlpha(alpha);
+        setColor(color);
+        setWidth(width);
+        setSelectedColor(selectedColor);
+        setSelectedWidth(selectedWidth);
     }
 
     public int getAlpha() {
@@ -31,8 +35,8 @@ public class EditStyle {
         return mColor;
     }
 
-    public void setColor(int mColor) {
-        mColor = mColor;
+    public void setColor(int color) {
+        mColor = color;
     }
 
     public int getSelectedColor() {
@@ -48,7 +52,7 @@ public class EditStyle {
     }
 
     public void setWidth(float width) {
-        mWidth = width;
+        mWidth = width * mScaledDensity;
     }
 
     public float getSelectedWidth() {
@@ -56,6 +60,6 @@ public class EditStyle {
     }
 
     public void setSelectedWidth(float selectedWidth) {
-        mSelectedWidth = selectedWidth;
+        mSelectedWidth = selectedWidth * mScaledDensity;
     }
 }
