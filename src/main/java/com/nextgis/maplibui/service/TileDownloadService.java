@@ -78,8 +78,8 @@ public class TileDownloadService
     public static final String KEY_ZOOM_FROM   = "zoom_from";
     public static final String KEY_ZOOM_TO     = "zoom_to";
     public static final String KEY_ZOOM_LIST   = "zoom_list";
-    public static final String ACTION_STOP     = "TILE_DOWNLOAD_STOP";
-    public static final String ACTION_ADD_TASK = "ADD_TILE_DOWNLOAD_TASK";
+    public static final String ACTION_STOP     = "tile_download_stop";
+    public static final String ACTION_ADD_TASK = "add_tile_download_task";
 
     protected NotificationManager        mNotifyManager;
     protected NotificationCompat.Builder mBuilder;
@@ -87,8 +87,7 @@ public class TileDownloadService
     protected Queue<DownloadTask> mQueue;
     protected Thread              mDownloadThread;
 
-    protected final Object  mErrorLock       = new Object();
-    protected       boolean mIsDownloadError = false;
+    protected volatile boolean mIsDownloadError = false;
 
     // Thread.currentThread().isInterrupted() is not work, so we use mIsDownloadInterrupted.
     protected volatile boolean mIsDownloadInterrupted = false;
@@ -195,11 +194,18 @@ public class TileDownloadService
         }
     }
 
+    // For overriding in subclasses
     protected void cancelDownload()
     {
         if (Constants.DEBUG_MODE) {
             Log.d(Constants.TAG, "Cancel download queue");
         }
+        clearResources();
+    }
+
+    // For overriding in subclasses
+    protected void clearResources()
+    {
         mNotifyManager.cancel(TILE_DOWNLOAD_NOTIFICATION_ID);
         mQueue.clear();
         if (mDownloadThread != null && mDownloadThread.isAlive()) {
@@ -221,7 +227,7 @@ public class TileDownloadService
     @Override
     public void onDestroy()
     {
-        cancelDownload();
+        clearResources();
         if (Constants.DEBUG_MODE) {
             Log.d(Constants.TAG, "TileDownloadService.onDestroy(), service is stopped");
         }
@@ -304,9 +310,7 @@ public class TileDownloadService
 
     protected void download(DownloadTask task)
     {
-        synchronized (mErrorLock) {
-            mIsDownloadError = false;
-        }
+        mIsDownloadError = false;
 
         MapBase map = MapBase.getInstance();
         if (null == map) {
@@ -326,6 +330,8 @@ public class TileDownloadService
             final List<TileItem> tiles = new LinkedList<>();
             int zoomCount = task.getZoomList().size();
 
+            sendProgressorsValues(zoomCount, 0, tmsLayer.getPath().getName());
+
             for (Integer zoom : task.getZoomList()) {
                 if (mIsDownloadInterrupted) {
                     if (Constants.DEBUG_MODE) {
@@ -341,6 +347,7 @@ public class TileDownloadService
                 mBuilder.setProgress(zoomCount, zoom, false)
                         .setContentText(getString(R.string.form_tiles_list));
                 mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
+                sendProgressorsValues(zoomCount, zoom, tmsLayer.getPath().getName());
 
                 if (tiles.size() > Constants.MAX_TILES_COUNT) {
                     break;
@@ -378,6 +385,11 @@ public class TileDownloadService
             int tilesSize = tiles.size();
             List<Future> futures = new ArrayList<>(tilesSize);
 
+            int nStep = tilesSize / Constants.DRAW_NOTIFY_STEP_PERCENT;
+            if (nStep == 0) {
+                nStep = 1;
+            }
+
             for (int i = 0; i < tilesSize; ++i) {
                 boolean isError = isDownloadError();
                 if (isError || mIsDownloadInterrupted) {
@@ -400,9 +412,7 @@ public class TileDownloadService
                                 Constants.DEFAULT_DRAW_THREAD_PRIORITY);
 
                         if (!downloadTile(tmsLayer, tile)) {
-                            synchronized (mErrorLock) {
-                                mIsDownloadError = true;
-                            }
+                            mIsDownloadError = true;
                             if (Constants.DEBUG_MODE) {
                                 Log.d(
                                         Constants.TAG,
@@ -413,17 +423,27 @@ public class TileDownloadService
                         }
                     }
                 }));
+
+                if (i % nStep == 0) {
+                    mBuilder.setProgress(tilesSize, i, false)
+                            .setContentText(
+                                    getString(R.string.processing) + " " + tmsLayer.getName());
+                    // Displays the progress bar for the first time.
+                    mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
+                    sendProgressorsValues(tilesSize, i, tmsLayer.getPath().getName());
+                }
             }
 
             // in separate thread
 
             // wait for download ending
-            int nStep = futures.size() / Constants.DRAW_NOTIFY_STEP_PERCENT;
+            nStep = futures.size() / Constants.DRAW_NOTIFY_STEP_PERCENT;
             if (nStep == 0) {
                 nStep = 1;
             }
 
-            for (int i = 0, futuresSize = futures.size(); i < futuresSize; ++i) {
+            int futuresSize = futures.size();
+            for (int i = 0; i < futuresSize; ++i) {
                 boolean isError = isDownloadError();
                 if (isError || mIsDownloadInterrupted) {
                     if (Constants.DEBUG_MODE) {
@@ -445,6 +465,7 @@ public class TileDownloadService
                                         getString(R.string.processing) + " " + tmsLayer.getName());
                         // Displays the progress bar for the first time.
                         mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
+                        sendProgressorsValues(futuresSize, i, tmsLayer.getPath().getName());
                     }
 
                 } catch (CancellationException | InterruptedException e) {
@@ -453,6 +474,8 @@ public class TileDownloadService
                     e.printStackTrace();
                 }
             }
+
+            sendProgressorsValues(futuresSize, futuresSize, tmsLayer.getPath().getName());
 
             threadPool.shutdownNow(); // Cancel currently executing tasks
             try {
@@ -486,6 +509,14 @@ public class TileDownloadService
         }
     }
 
+    protected void sendProgressorsValues(
+            int maxValue,
+            int value,
+            String layerPathName)
+    {
+        // do nothing
+    }
+
     // For overriding in subclasses
     protected boolean downloadTile(
             RemoteTMSLayer tmsLayer,
@@ -500,11 +531,7 @@ public class TileDownloadService
         return false;
 
         // Example for error checking
-        //boolean isError;
-        //synchronized (mErrorLock) {
-        //    isError = mIsDownloadError;
-        //}
-        //return isError;
+        //return mIsDownloadError;
     }
 
     public class DownloadTask
@@ -518,19 +545,19 @@ public class TileDownloadService
                 GeoEnvelope envelope,
                 List<Integer> zoomList)
         {
-            mEnvelope = envelope;
             mLayerPathName = layerPathName;
+            mEnvelope = envelope;
             mZoomList = zoomList;
+        }
+
+        public String getLayerPathName()
+        {
+            return mLayerPathName;
         }
 
         GeoEnvelope getEnvelope()
         {
             return mEnvelope;
-        }
-
-        String getLayerPathName()
-        {
-            return mLayerPathName;
         }
 
         List<Integer> getZoomList()
