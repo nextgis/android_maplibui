@@ -51,6 +51,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -111,7 +112,7 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
         } else if (mIsShowLast)
             lastValue = preferences.getString(mFieldName, null);
 
-        mAliasValueMap = new HashMap<>();
+        mAliasValueMap = new LinkedHashMap<>();
         if (attributes.has(ConstantsUI.JSON_NGW_ID_KEY) && attributes.getLong(ConstantsUI.JSON_NGW_ID_KEY) != -1) {
             MapContentProviderHelper map = (MapContentProviderHelper) MapBase.getInstance();
             if (null == map)
