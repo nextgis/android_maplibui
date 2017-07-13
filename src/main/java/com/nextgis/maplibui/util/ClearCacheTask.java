@@ -21,8 +21,8 @@
 
 package com.nextgis.maplibui.util;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 
@@ -33,22 +33,24 @@ import com.nextgis.maplibui.R;
 import java.io.File;
 
 public class ClearCacheTask extends AsyncTask<File, Integer, Void> {
-    private Context mContext;
+    private Activity mActivity;
     private ProgressDialog mProgressDialog;
     private DialogInterface.OnDismissListener mListener;
 
-    public ClearCacheTask(Context context, DialogInterface.OnDismissListener listener) {
-        mContext = context;
+    public ClearCacheTask(Activity activity, DialogInterface.OnDismissListener listener) {
+        mActivity = activity;
         mListener = listener;
     }
 
     @Override
     protected void onPreExecute() {
-        mProgressDialog = new ProgressDialog(mContext);
-        mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        mProgressDialog.setMessage(mContext.getString(R.string.waiting));
-        mProgressDialog.show();
         super.onPreExecute();
+        if (!mActivity.isFinishing()) {
+            mProgressDialog = new ProgressDialog(mActivity);
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            mProgressDialog.setMessage(mActivity.getString(R.string.waiting));
+            mProgressDialog.show();
+        }
     }
 
     @Override

@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2016-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -21,6 +21,7 @@
 
 package com.nextgis.maplibui.mapui;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -65,7 +66,7 @@ public class NGWWebMapLayerUI extends NGWWebMapLayer implements ILayerUI {
                 show(fragmentActivity.getSupportFragmentManager(), "select_zoom_levels");
     }
 
-    public void showLayersDialog(final MapView map, final Context context) {
+    public void showLayersDialog(final MapView map, final Activity activity) {
         CharSequence[] names = new CharSequence[mChildren.size()];
         final boolean[] visible = new boolean[mChildren.size()];
         for (int i = 0; i < mChildren.size(); i++) {
@@ -73,7 +74,7 @@ public class NGWWebMapLayerUI extends NGWWebMapLayer implements ILayerUI {
             visible[i] = mChildren.get(i).isVisible();
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle(R.string.track_list)
                 .setMultiChoiceItems(names, visible, new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
@@ -99,7 +100,7 @@ public class NGWWebMapLayerUI extends NGWWebMapLayer implements ILayerUI {
                                 }
                             };
 
-                            new ClearCacheTask(context, listener).execute(getPath());
+                            new ClearCacheTask(activity, listener).execute(getPath());
                             save();
                         }
                     }
