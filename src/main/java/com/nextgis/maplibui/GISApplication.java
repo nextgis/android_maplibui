@@ -36,6 +36,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.nextgis.maplib.api.IGISApplication;
@@ -287,7 +288,7 @@ public abstract class GISApplication extends Application
             return false;
         }
 
-        if (!isAccountManagerValid())
+        if (!isAccountManagerValid() || TextUtils.isEmpty(url))
             return false;
 
         final Account account = new Account(name, getAccountsType());
