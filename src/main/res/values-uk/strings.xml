@@ -130,6 +130,7 @@
     <string name="zip">ZIP файл</string>
     <string name="formbuilder">FormBuilder файл</string>
     <string name="geojson">GeoJSON файл</string>
+    <string name="unknown_file">Файл неизвестного типа</string>
     <string name="add_point">Додати точку</string>
     <string name="edit_attributes">Редагувати атрибутивну інформацію</string>
     <string name="move_point_to_current_location">Перемістити точку у поточне місцезнаходження</string>

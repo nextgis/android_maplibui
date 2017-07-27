@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Project:  NextGIS Mobile
+  ~ Purpose:  Mobile GIS for Android.
+  ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
+  ~ ******************************************************************************
+  ~ Copyright (c) 2017 NextGIS, info@nextgis.com
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU Lesser Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string-array name="tracker_min_dist_update">
+        <item>@string/most_frequently</item>
+        <item>1 m</item>
+        <item>5 m</item>
+        <item>10 m</item>
+        <item>25 m</item>
+        <item>50 m</item>
+        <item>75 m</item>
+        <item>100 m</item>
+        <item>150 m</item>
+        <item>200 m</item>
+        <item>300 m</item>
+    </string-array>
+    <string-array name="tracker_min_time_between_updates">
+        <item>@string/most_frequently</item>
+        <item>1 sec</item>
+        <item>2 sec</item>
+        <item>5 sec</item>
+        <item>10 sec</item>
+        <item>20 sec</item>
+        <item>30 sec</item>
+        <item>45 sec</item>
+        <item>1 min</item>
+        <item>2 min</item>
+        <item>5 min</item>
+        <item>10 min</item>
+        <item>20 min</item>
+        <item>30 min</item>
+        <item>45 min</item>
+    </string-array>
+</resources>

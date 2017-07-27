@@ -142,6 +142,7 @@
     <string name="zip">ZIP soubor</string>
     <string name="formbuilder">FormBuilder soubor</string>
     <string name="geojson">GeoJSON</string>
+    <string name="unknown_file">Unknown file</string>
     <string name="add_point">Přidat bod</string>
     <string name="edit_attributes">Upravit atributy</string>
     <string name="move_point_to_current_location">Bod na současnou polohu</string>
