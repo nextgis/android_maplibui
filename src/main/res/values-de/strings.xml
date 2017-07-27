@@ -324,4 +324,5 @@
     <string name="ngid_account_ask">Do not have account?</string>
     <string name="sign_in_tip">to get more features, better synchronization and updates</string>
     <string name="select_row">Select row</string>
+    <string name="coming_soon">Coming soon</string>
 </resources>

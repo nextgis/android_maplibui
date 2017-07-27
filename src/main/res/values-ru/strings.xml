@@ -327,4 +327,5 @@
     <string name="ngid_account_ask">Еще нет своего аккаунта?</string>
     <string name="sign_in_tip">для больших возможностей, синхронизации и получения обновлений</string>
     <string name="select_row">Выберите поле</string>
+    <string name="coming_soon">Скоро будет доступно</string>
 </resources>

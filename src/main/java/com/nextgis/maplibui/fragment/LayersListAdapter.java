@@ -307,7 +307,7 @@ public class LayersListAdapter
 
                                             if (layerui instanceof TrackLayerUI) {
 //                                                handleTrackSync();
-                                                Toast.makeText(mContext, R.string.commercial, Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(mContext, R.string.coming_soon, Toast.LENGTH_SHORT).show();
                                                 return true;
                                             } else if (layerui instanceof VectorLayer) {
                                                 VectorLayer vectorLayer = (VectorLayer) layerui;
