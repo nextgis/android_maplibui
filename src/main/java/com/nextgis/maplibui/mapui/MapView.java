@@ -27,6 +27,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.PointF;
 import android.os.Build;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -39,8 +40,12 @@ import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.api.MapViewEventListener;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplibui.util.ConstantsUI.DRAW_SATE_drawing;
@@ -65,10 +70,36 @@ public class MapView
     protected       double               mCurrentSpan;
     protected       Scroller             mScroller;
     protected       long                 mStartDrawTime;
+    private Timer mTimer;
+    private InvalidateTask mInvalidateTask;
+    final Handler uiHandler = new Handler();
 
     //display redraw timeout ms
     public static final int DISPLAY_REDRAW_TIMEOUT = 750;
 
+    class InvalidateTask extends TimerTask {
+
+        @Override
+        public void run() {
+            uiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mDrawingState = DRAW_SATE_drawing;
+                    setZoomAndCenter(getZoomLevel(), getMapCenter());
+                }
+            });
+        }
+    }
+
+    private void scheduleInvalidate() {
+        if (mTimer != null) {
+            mTimer.cancel();
+        }
+
+        mTimer = new Timer();
+        mInvalidateTask = new InvalidateTask();
+        mTimer.schedule(mInvalidateTask, DISPLAY_REDRAW_TIMEOUT);
+    }
 
     public MapView(
             Context context,
@@ -112,6 +143,8 @@ public class MapView
         if (mMap != null) {
             mMap.addListener(this);
         }
+
+        scheduleInvalidate();
     }
 
 
@@ -235,7 +268,7 @@ public class MapView
     protected void panStart(final MotionEvent e)
     {
 
-        if (mDrawingState == DRAW_SATE_zooming || mDrawingState == DRAW_SATE_panning ||
+        if (/*mDrawingState == DRAW_SATE_zooming ||*/ mDrawingState == DRAW_SATE_panning ||
             mDrawingState == DRAW_SATE_panning_fling) {
             return;
         }
@@ -549,6 +582,9 @@ public class MapView
         mMap.buffer(0, 0, 1); //TODO: zoom the buffer and just draw it, not draw with scale
         invalidate();
 
+
+        scheduleInvalidate();
+
         super.zoomIn();
     }
 
@@ -562,6 +598,8 @@ public class MapView
 
         mMap.buffer(0, 0, 1); //TODO: zoom the buffer and just draw it, not draw with scale
         invalidate();
+
+        scheduleInvalidate();
 
         super.zoomOut();
     }
@@ -638,25 +676,24 @@ public class MapView
 
 
     @Override
-    public void onLayerDrawFinished(
+    public synchronized void onLayerDrawFinished(
             int id,
             float percent)
     {
-        if (!(mDrawingState == DRAW_SATE_drawing_noclearbk || mDrawingState == DRAW_SATE_drawing)) {
-            return;
+        if(Constants.DEBUG_MODE) {
+            Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent + " | draw state: " + mDrawingState);
         }
 
-        //if(Constants.DEBUG_MODE) {
-        //    Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent);
-        //}
-        //mDrawingState = DRAW_SATE_drawing_noclearbk;
+        if (mDrawingState > DRAW_SATE_drawing_noclearbk) {
+            return;
+        }
 
         if (System.currentTimeMillis() - mStartDrawTime > DISPLAY_REDRAW_TIMEOUT) {
             mStartDrawTime = System.currentTimeMillis();
             mMap.buffer(0, 0, 1);
             postInvalidate();
 
-        } else if (id == mMap.getId() && percent >= 1.0) {
+        } else if (/*id == mMap.getId() &&*/ percent >= 1.0) {
             //Log.d(TAG, "LayerDrawFinished: id - " + id + ", percent - " + percent);
 
             mMap.buffer(0, 0, 1);
