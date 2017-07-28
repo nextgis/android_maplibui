@@ -135,7 +135,7 @@ public final class NGIDUtils {
             }
 
             saveUserInfo(userCheck);
-            return getResponse(url, method, token);
+            return response;
         }
 
         @Override
