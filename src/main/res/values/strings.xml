@@ -23,8 +23,8 @@
   -->
 
 <resources>
-    <string name="layers_drawer_open">Open layers list</string>
-    <string name="layers_drawer_close">Close layers list</string>
+    <string name="layers_drawer_open">Ouvrir la liste de couches</string>
+    <string name="layers_drawer_close">Fermer la liste de couches</string>
     <string name="ok">OK</string>
     <string name="create">Créer</string>
     <string name="cancel">Annuler</string>
