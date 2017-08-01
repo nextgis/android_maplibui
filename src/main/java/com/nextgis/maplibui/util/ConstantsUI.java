@@ -70,6 +70,7 @@ public interface ConstantsUI
     String JSON_VALUES_KEY            = "values";
     String JSON_VALUE_NAME_KEY        = "name";
     String JSON_VALUE_ALIAS_KEY       = "alias";
+    String JSON_VALUE_ALIAS2_KEY      = "alias2";
     String JSON_DATE_TYPE_KEY         = "date_type";
     String JSON_FIELD_LEVEL1_KEY      = "field_level1";
     String JSON_FIELD_LEVEL2_KEY      = "field_level2";
@@ -81,12 +82,15 @@ public interface ConstantsUI
     String JSON_LISTS_KEY             = "lists";
     String JSON_KEY_LIST_KEY          = "key_list";
     String JSON_KEY_LIST_SAVED_KEY    = "key_list_saved";
+    String JSON_LABEL_KEY             = "label1";
+    String JSON_LABEL2_KEY            = "label2";
 
     String JSON_TEXT_LABEL_VALUE      = "text_label";
     String JSON_TEXT_EDIT_VALUE       = "text_edit";
     String JSON_DATE_TIME_VALUE       = "date_time";
     String JSON_RADIO_GROUP_VALUE     = "radio_group";
     String JSON_COMBOBOX_VALUE        = "combobox";
+    String JSON_SPLIT_COMBOBOX_VALUE  = "split_combobox";
     String JSON_DOUBLE_COMBOBOX_VALUE = "double_combobox";
     String JSON_SPACE_VALUE           = "space";
     String JSON_CHECKBOX_VALUE        = "checkbox";

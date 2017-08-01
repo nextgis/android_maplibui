@@ -61,6 +61,7 @@ import com.nextgis.maplibui.formcontrol.DoubleComboboxValue;
 import com.nextgis.maplibui.formcontrol.RadioGroup;
 import com.nextgis.maplibui.formcontrol.Sign;
 import com.nextgis.maplibui.formcontrol.Space;
+import com.nextgis.maplibui.formcontrol.SplitCombobox;
 import com.nextgis.maplibui.formcontrol.TextEdit;
 import com.nextgis.maplibui.formcontrol.TextLabel;
 import com.nextgis.maplibui.util.ControlHelper;
@@ -97,6 +98,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_PORTRAIT_ELEMENTS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_RADIO_GROUP_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_SIGN_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_SPACE_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_SPLIT_COMBOBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TABS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_EDIT_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_LABEL_VALUE;
@@ -328,6 +330,10 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                         control = (AutoTextEdit) getLayoutInflater().inflate(R.layout.formtemplate_autoedittext, layout, false);
                     else
                         control = (Combobox) getLayoutInflater().inflate(R.layout.formtemplate_combobox, layout, false);
+                    break;
+
+                case JSON_SPLIT_COMBOBOX_VALUE:
+                    control = new SplitCombobox(this);
                     break;
 
                 case JSON_DOUBLE_COMBOBOX_VALUE:
