@@ -120,6 +120,8 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
 
     protected void fillDrawItem() {
         GeoPoint[] geoPoints = mRulerString.getPoints().toArray(new GeoPoint[mRulerString.getPointCount()]);
+        if (geoPoints.length == 0)
+            geoPoints = null;
         float[] points = mMapViewOverlays.getMap().mapToScreen(geoPoints);
 
         int selectedPoint = 0;
