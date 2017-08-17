@@ -63,7 +63,6 @@ public interface SettingsConstantsUI
     String ACTION_PREFS_NGID     = "com.nextgis.mobile.PREFS_NGID";
     String ACTION_PREFS_COMPASS  = "com.nextgis.mobile.PREFS_COMPASS";
     String ACTION_PREFS_TRACKING = "com.nextgis.mobile.PREFS_TRACKING";
-    String ACTION_PREFS_UPDATE   = "com.nextgis.mobile.PREFS_UPDATE";
     String ACTION_PREFS_LOCATION = "com.nextgis.mobile.PREFS_LOCATION";
     String ACTION_PREFS_EDIT     = "com.nextgis.mobile.PREFS_EDIT";
     String ACTION_ACCOUNT        = "com.nextgis.mobile.ACCOUNT";

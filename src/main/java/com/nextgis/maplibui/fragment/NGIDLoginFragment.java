@@ -79,7 +79,9 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
             application.sendEvent(ConstantsUI.GA_NGID, ConstantsUI.GA_CONNECT, ConstantsUI.GA_USER);
             mSignInButton.setEnabled(false);
             final Activity activity = getActivity();
-            NGIDUtils.getToken(activity, mLogin.getText().toString(), mPassword.getText().toString(), new NGIDUtils.OnFinish() {
+            String login = mLogin.getText().toString();
+            String password = mPassword.getText().toString();
+            NGIDUtils.getToken(activity, login, password, new NGIDUtils.OnFinish() {
                 @Override
                 public void onFinish(HttpResponse response) {
                     mSignInButton.setEnabled(true);
@@ -95,7 +97,7 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
                 }
             });
         } else if (v.getId() == R.id.signup) {
-            Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse("http://my.nextgis.com"));
+            Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(NGIDUtils.NGID_MY));
             startActivity(browser);
         }
     }

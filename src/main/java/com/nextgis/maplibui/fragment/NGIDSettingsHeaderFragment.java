@@ -84,7 +84,7 @@ public class NGIDSettingsHeaderFragment
         //add "New account" preference
         Preference newAccount = new Preference(mStyledContext);
         newAccount.setTitle(R.string.ngid_account_new);
-        Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse("http://my.nextgis.com"));
+        Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(NGIDUtils.NGID_MY));
         newAccount.setIntent(browser);
 
         if (null != screen) {

@@ -35,6 +35,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -44,9 +45,12 @@ import java.net.URLEncoder;
 import javax.net.ssl.HttpsURLConnection;
 
 public final class NGIDUtils {
-    private static final String OAUTH_NEW = "https://my.nextgis.com/oauth2/token/?grant_type=password&username=%s&password=%s&client_id=%s";
-    private static final String OAUTH_REFRESH = "https://my.nextgis.com/oauth2/token/?grant_type=refresh_token&client_id=%s&refresh_token=%s";
-    private static final String USER_INFO = "https://my.nextgis.com/api/v1/user_info/";
+    public static final String NGID_MY = "https://my.nextgis.com/";
+    private static final String NGID_API = "https://my.nextgis.com/api/v1/";
+    private static final String OAUTH_NEW = NGID_MY + "oauth2/token/?grant_type=password&username=%s&password=%s&client_id=%s";
+    private static final String OAUTH_REFRESH = NGID_MY + "oauth2/token/?grant_type=refresh_token&client_id=%s&refresh_token=%s";
+    public static final String USER_INFO = NGID_API + "user_info/";
+    public static final String USER_SUPPORT = NGID_API + "support_info/";
     private static final String GET = "GET";
     private static final String POST = "POST";
 
@@ -75,7 +79,7 @@ public final class NGIDUtils {
         if (mPreferences == null)
             mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-        new Load(callback).execute(null, null, null, login, password);
+        new Load(callback).execute(USER_INFO, "GET", null, login, password);
     }
 
     private static class Load extends AsyncTask<String, Void, HttpResponse> {
@@ -91,50 +95,24 @@ public final class NGIDUtils {
             String method = args[1];
             String token = args[2];
 
-            if (TextUtils.isEmpty(url) && TextUtils.isEmpty(token)) {
-                String login = args.length > 3 ? args[3] : null;
-                String password = args.length > 4 ? args[4] : null;
+            if (TextUtils.isEmpty(token)) {
                 try {
-                    login = URLEncoder.encode(login, "UTF-8").replaceAll("\\+", "%20");
-                    password = URLEncoder.encode(password, "UTF-8").replaceAll("\\+", "%20");
-                } catch (UnsupportedEncodingException ignored) {}
-
-                String accessNew = String.format(OAUTH_NEW, login, password, BuildConfig.CLIENT_ID);
-
-                HttpResponse response = getResponse(accessNew, POST, null);
-                if (!response.isOk())
+                    token = getToken(args);
+                    userCheck(token);
+                } catch (IOError e) {
                     return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
-
-                token = parseResponseBody(response.getResponseBody())[0];
-                if (token == null)
-                    return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
+                }
             }
 
-            HttpResponse response = getResponse(USER_INFO, GET, token);
-            if (!response.isOk())
-                return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
-
-            String userCheck = response.getResponseBody();
-            if (userCheck == null) {
-                String refreshToken = mPreferences.getString(PREF_REFRESH_TOKEN, "");
-                String accessRefresh = String.format(OAUTH_REFRESH, BuildConfig.CLIENT_ID, refreshToken);
-
-                response = getResponse(accessRefresh, POST, null);
+            HttpResponse response = getResponse(url, method, token);
+            if (!response.isOk()) {
+                response = userCheck(token);
                 if (!response.isOk())
                     return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
-
-                token = parseResponseBody(response.getResponseBody())[0];
-                if (token == null)
-                    return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
-
-                response = getResponse(USER_INFO, GET, token);
-                if (!response.isOk())
-                    return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
-
-                userCheck = response.getResponseBody();
+                else
+                    response = getResponse(url, method, token);
             }
 
-            saveUserInfo(userCheck);
             return response;
         }
 
@@ -147,6 +125,57 @@ public final class NGIDUtils {
         }
     }
 
+    private static HttpResponse userCheck(String token) {
+        HttpResponse response = getResponse(USER_INFO, "GET", token);
+        String userCheck = response.getResponseBody();
+        if (userCheck == null) {
+            String refreshToken = mPreferences.getString(PREF_REFRESH_TOKEN, "");
+            String accessRefresh = String.format(OAUTH_REFRESH, BuildConfig.CLIENT_ID, refreshToken);
+
+            response = getResponse(accessRefresh, POST, null);
+            if (!response.isOk())
+                return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
+
+            token = parseResponseBody(response.getResponseBody());
+            if (token == null)
+                return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
+
+            response = getResponse(USER_INFO, GET, token);
+            if (!response.isOk())
+                return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
+
+            userCheck = response.getResponseBody();
+        }
+
+        saveUserInfo(userCheck);
+        return response;
+    }
+
+    private static String getToken(String... args) throws IOError {
+        String login = args.length > 3 ? args[3] : null;
+        String password = args.length > 4 ? args[4] : null;
+
+        if (login == null || password == null)
+            throw new IOError(new Throwable("Login or Password is NULL"));
+
+        try {
+            login = URLEncoder.encode(login, "UTF-8").replaceAll("\\+", "%20");
+            password = URLEncoder.encode(password, "UTF-8").replaceAll("\\+", "%20");
+        } catch (UnsupportedEncodingException | NullPointerException ignored) {}
+
+        String accessNew = String.format(OAUTH_NEW, login, password, BuildConfig.CLIENT_ID);
+
+        HttpResponse response = getResponse(accessNew, POST, null);
+        if (!response.isOk())
+            throw new IOError(new Throwable("Response is not OK"));
+
+        String token = parseResponseBody(response.getResponseBody());
+        if (token == null)
+            throw new IOError(new Throwable("Token is NULL"));
+
+        return token;
+    }
+
     private static void saveUserInfo(String userInfo) {
         try {
             JSONObject json = new JSONObject(userInfo);
@@ -157,16 +186,16 @@ public final class NGIDUtils {
         } catch (JSONException | NullPointerException ignored) {}
     }
 
-    private static String[] parseResponseBody(String responseBody) {
-        String token = null, refreshToken = null;
+    private static String parseResponseBody(String responseBody) {
+        String token = null, refreshToken;
         try {
-            JSONObject j = new JSONObject(responseBody);
-            token = j.getString("token_type") + " " + j.getString(PREF_ACCESS_TOKEN);
-            refreshToken = j.getString(PREF_REFRESH_TOKEN);
+            JSONObject json = new JSONObject(responseBody);
+            token = json.getString("token_type") + " " + json.getString(PREF_ACCESS_TOKEN);
+            refreshToken = json.getString(PREF_REFRESH_TOKEN);
             mPreferences.edit().putString(PREF_ACCESS_TOKEN, token).putString(PREF_REFRESH_TOKEN, refreshToken).apply();
         } catch (JSONException | NullPointerException ignored) {}
 
-        return new String[]{token, refreshToken};
+        return token;
     }
 
     private static HttpResponse getResponse(String target, String method, String token) {
