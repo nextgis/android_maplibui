@@ -24,18 +24,25 @@ package com.nextgis.maplibui.formcontrol;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.AppCompatTextView;
+import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.util.ControlHelper;
@@ -48,6 +55,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static android.widget.LinearLayout.HORIZONTAL;
+import static android.widget.LinearLayout.VERTICAL;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DEFAULT_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
@@ -58,7 +67,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_ALIAS2_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_ALIAS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_NAME_KEY;
 
-public class SplitCombobox extends LinearLayout implements IFormControl
+public class SplitCombobox extends FrameLayout implements IFormControl
 {
     protected String              mFieldName;
     protected boolean             mIsShowLast;
@@ -85,7 +94,6 @@ public class SplitCombobox extends LinearLayout implements IFormControl
                      Bundle savedState,
                      Cursor featureCursor,
                      SharedPreferences preferences) throws JSONException{
-        setOrientation(VERTICAL);
         mTitles = new LinearLayout(getContext());
         mTitles.setOrientation(HORIZONTAL);
         mSpinners = new LinearLayout(getContext());
@@ -214,8 +222,7 @@ public class SplitCombobox extends LinearLayout implements IFormControl
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerArrayAdapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        float minHeight = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 14, getResources().getDisplayMetrics());
+        float minHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14, getResources().getDisplayMetrics());
         mSpinner.setPadding(0, (int) minHeight, 0, (int) minHeight);
         mSpinner2.setPadding(0, (int) minHeight, 0, (int) minHeight);
     }
@@ -242,8 +249,30 @@ public class SplitCombobox extends LinearLayout implements IFormControl
     @Override
     public void addToLayout(ViewGroup layout)
     {
-        addView(mTitles);
-        addView(mSpinners);
+        LinearLayout container = new LinearLayout(getContext());
+        container.setOrientation(VERTICAL);
+        container.addView(mTitles);
+        container.addView(mSpinners);
+        addView(container);
+
+        if (true) {
+            FrameLayout splash = new FrameLayout(getContext());
+            splash.setClickable(true);
+            splash.setBackgroundColor(Color.argb(128, 128, 128, 128));
+            ImageView sign = new ImageView(getContext());
+            sign.setImageResource(R.drawable.ic_action_warning_dark);
+            sign.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            sign.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ControlHelper.showProDialog(getContext());
+                }
+            });
+
+            splash.addView(sign);
+            addView(splash);
+        }
+
         layout.addView(this);
     }
 

@@ -45,9 +45,11 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -482,5 +484,19 @@ public final class ControlHelper
         Drawable wrapDrawable = DrawableCompat.wrap(inputDrawable.mutate());
         DrawableCompat.setTint(wrapDrawable, tint);
         return wrapDrawable;
+    }
+
+    public static void showProDialog(Context context) {
+        AlertDialog builder = new AlertDialog.Builder(context)
+                .setTitle(R.string.pro_user_only)
+                .setMessage(R.string.get_pro)
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
+
+        TextView message = (TextView) builder.findViewById(android.R.id.message);
+        if (message != null) {
+            message.setMovementMethod(LinkMovementMethod.getInstance());
+            message.setLinksClickable(true);
+        }
     }
 }
