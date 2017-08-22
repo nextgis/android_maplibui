@@ -24,7 +24,6 @@
 package com.nextgis.maplibui.activity;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -38,6 +37,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
@@ -63,6 +63,12 @@ public class NGActivity
         super.onCreate(savedInstanceState);
     }
 
+    public String getAppName() {
+        String appName = getString(R.string.app_name);
+        if (AccountUtil.isProUser(this))
+            appName += " Pro";
+        return appName;
+    }
 
     public int getThemeId()
     {
