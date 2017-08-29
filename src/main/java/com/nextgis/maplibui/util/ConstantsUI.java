@@ -28,12 +28,12 @@ public interface ConstantsUI
     /**
      * Draw state
      */
-    int DRAW_SATE_none              = 0;
-    int DRAW_SATE_drawing           = 1;
-    int DRAW_SATE_drawing_noclearbk = 2;
-    int DRAW_SATE_panning           = 3;
-    int DRAW_SATE_zooming           = 4;
-    int DRAW_SATE_panning_fling     = 5;
+    int DRAW_STATE_none = 0;
+    int DRAW_STATE_drawing = 1;
+    int DRAW_STATE_drawing_noclearbk = 2;
+    int DRAW_STATE_panning = 3;
+    int DRAW_STATE_zooming = 4;
+    int DRAW_STATE_panning_fling = 5;
 
     String KEY_MESSAGE          = "msg";
     String KEY_LAYER_ID         = "layer_id";

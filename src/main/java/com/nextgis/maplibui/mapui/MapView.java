@@ -47,12 +47,13 @@ import com.nextgis.maplibui.api.MapViewEventListener;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.nextgis.maplib.util.Constants.DRAW_FINISH_ID;
 import static com.nextgis.maplib.util.Constants.TAG;
-import static com.nextgis.maplibui.util.ConstantsUI.DRAW_SATE_drawing;
-import static com.nextgis.maplibui.util.ConstantsUI.DRAW_SATE_drawing_noclearbk;
-import static com.nextgis.maplibui.util.ConstantsUI.DRAW_SATE_panning;
-import static com.nextgis.maplibui.util.ConstantsUI.DRAW_SATE_panning_fling;
-import static com.nextgis.maplibui.util.ConstantsUI.DRAW_SATE_zooming;
+import static com.nextgis.maplibui.util.ConstantsUI.DRAW_STATE_drawing;
+import static com.nextgis.maplibui.util.ConstantsUI.DRAW_STATE_drawing_noclearbk;
+import static com.nextgis.maplibui.util.ConstantsUI.DRAW_STATE_panning;
+import static com.nextgis.maplibui.util.ConstantsUI.DRAW_STATE_panning_fling;
+import static com.nextgis.maplibui.util.ConstantsUI.DRAW_STATE_zooming;
 
 
 public class MapView
@@ -84,7 +85,7 @@ public class MapView
             uiHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    mDrawingState = DRAW_SATE_drawing;
+                    mDrawingState = DRAW_STATE_drawing;
                     setZoomAndCenter(getZoomLevel(), getMapCenter());
                 }
             });
@@ -122,7 +123,7 @@ public class MapView
         mCurrentMouseOffset = new PointF();
         mCurrentFocusLocation = new PointF();
 
-        mDrawingState = DRAW_SATE_drawing_noclearbk;
+        mDrawingState = DRAW_STATE_drawing_noclearbk;
     }
 
     @Override
@@ -168,26 +169,26 @@ public class MapView
 
             switch (mDrawingState) {
 
-                case DRAW_SATE_panning:
-                case DRAW_SATE_panning_fling:
+                case DRAW_STATE_panning:
+                case DRAW_STATE_panning_fling:
                     mMap.draw(canvas, -mCurrentMouseOffset.x, -mCurrentMouseOffset.y, true);
                     break;
 
-                case DRAW_SATE_zooming:
+                case DRAW_STATE_zooming:
                     mMap.draw(
                             canvas, -mCurrentFocusLocation.x, -mCurrentFocusLocation.y,
                             (float) mScaleFactor);
                     break;
 //TODO: add invalidate rect to prevent flicker
-                case DRAW_SATE_drawing_noclearbk:
+                case DRAW_STATE_drawing_noclearbk:
                     mMap.draw(canvas, 0, 0, false);
                     break;
 
-                case DRAW_SATE_drawing:
+                case DRAW_STATE_drawing:
                     mMap.draw(canvas, 0, 0, true);
                     break;
 
-                //case DRAW_SATE_none:
+                //case DRAW_STATE_none:
                 //    break;
 
                 default:
@@ -203,11 +204,11 @@ public class MapView
     protected void zoomStart(ScaleGestureDetector scaleGestureDetector)
     {
 
-        if (mDrawingState == DRAW_SATE_zooming) {
+        if (mDrawingState == DRAW_STATE_zooming) {
             return;
         }
 
-        mDrawingState = DRAW_SATE_zooming;
+        mDrawingState = DRAW_STATE_zooming;
         mCurrentSpan = scaleGestureDetector.getCurrentSpan();
         mCurrentFocusLocation.set(
                 -scaleGestureDetector.getFocusX(), -scaleGestureDetector.getFocusY());
@@ -219,12 +220,12 @@ public class MapView
 
     protected void zoom(ScaleGestureDetector scaleGestureDetector)
     {
-        if (mDrawingState != DRAW_SATE_zooming) {
+        if (mDrawingState != DRAW_STATE_zooming) {
             zoomStart(scaleGestureDetector);
         }
 
 
-        if (mDrawingState == DRAW_SATE_zooming && mMap != null) {
+        if (mDrawingState == DRAW_STATE_zooming && mMap != null) {
             double scaleFactor =
                     scaleGestureDetector.getScaleFactor() * scaleGestureDetector.getCurrentSpan() /
                     mCurrentSpan;
@@ -241,7 +242,7 @@ public class MapView
 
     protected void zoomStop()
     {
-        if (mDrawingState == DRAW_SATE_zooming && mMap != null) {
+        if (mDrawingState == DRAW_STATE_zooming && mMap != null) {
 
             float zoom = MapUtil.getZoomForScaleFactor(mScaleFactor, mMap.getZoomLevel());
 
@@ -268,8 +269,8 @@ public class MapView
     protected void panStart(final MotionEvent e)
     {
 
-        if (/*mDrawingState == DRAW_SATE_zooming ||*/ mDrawingState == DRAW_SATE_panning ||
-            mDrawingState == DRAW_SATE_panning_fling) {
+        if (/*mDrawingState == DRAW_STATE_zooming ||*/ mDrawingState == DRAW_STATE_panning ||
+            mDrawingState == DRAW_STATE_panning_fling) {
             return;
         }
 
@@ -280,7 +281,7 @@ public class MapView
             }
         }
 
-        mDrawingState = DRAW_SATE_panning;
+        mDrawingState = DRAW_STATE_panning;
         mStartMouseLocation.set(e.getX(), e.getY());
         mCurrentMouseOffset.set(0, 0);
 
@@ -291,12 +292,12 @@ public class MapView
     protected void panMoveTo(final MotionEvent e)
     {
 
-        if (mDrawingState == DRAW_SATE_zooming || mDrawingState == DRAW_SATE_drawing_noclearbk ||
-            mDrawingState == DRAW_SATE_drawing) {
+        if (mDrawingState == DRAW_STATE_zooming || mDrawingState == DRAW_STATE_drawing_noclearbk ||
+            mDrawingState == DRAW_STATE_drawing) {
             return;
         }
 
-        if (mDrawingState == DRAW_SATE_panning && mMap != null) {
+        if (mDrawingState == DRAW_STATE_panning && mMap != null) {
             for (MapViewEventListener listener : mListeners) {
                 if (null != listener) {
                     listener.panMoveTo(e);
@@ -332,7 +333,7 @@ public class MapView
     {
         //Log.d(Constants.TAG, "panStop state: " + mDrawingState);
 
-        if (mDrawingState == DRAW_SATE_panning && mMap != null) {
+        if (mDrawingState == DRAW_STATE_panning && mMap != null) {
 
             float x = mCurrentMouseOffset.x;
             float y = mCurrentMouseOffset.y;
@@ -411,15 +412,15 @@ public class MapView
             return false;
         }
 
-        if (mDrawingState == DRAW_SATE_zooming || mDrawingState == DRAW_SATE_drawing_noclearbk ||
-            mDrawingState == DRAW_SATE_drawing) {
+        if (mDrawingState == DRAW_STATE_zooming || mDrawingState == DRAW_STATE_drawing_noclearbk ||
+            mDrawingState == DRAW_STATE_drawing) {
             return false;
         }
 
         float x = mCurrentMouseOffset.x;
         float y = mCurrentMouseOffset.y;
         GeoEnvelope bounds = mMap.getLimits();
-        mDrawingState = DRAW_SATE_panning_fling;
+        mDrawingState = DRAW_STATE_panning_fling;
 
         mScroller.forceFinished(true);
 
@@ -439,10 +440,10 @@ public class MapView
     public void computeScroll()
     {
         super.computeScroll();
-        if (mDrawingState == DRAW_SATE_panning_fling && mMap != null) {
+        if (mDrawingState == DRAW_STATE_panning_fling && mMap != null) {
             if (mScroller.computeScrollOffset()) {
                 if (mScroller.isFinished()) {
-                    mDrawingState = DRAW_SATE_panning;
+                    mDrawingState = DRAW_STATE_panning;
                     panStop();
                 } else {
                     float x = mScroller.getCurrX();
@@ -468,7 +469,7 @@ public class MapView
                     postInvalidate();
                 }
             } else if (mScroller.isFinished()) {
-                mDrawingState = DRAW_SATE_panning;
+                mDrawingState = DRAW_STATE_panning;
                 panStop();
             }
         }
@@ -525,7 +526,7 @@ public class MapView
             return false;
         }
 
-        mDrawingState = DRAW_SATE_zooming;
+        mDrawingState = DRAW_STATE_zooming;
         mScaleFactor = 2;
         mCurrentFocusLocation.set(-e.getX(), -e.getY());
         invalidate();
@@ -575,7 +576,7 @@ public class MapView
     @Override
     public void zoomIn()
     {
-        mDrawingState = DRAW_SATE_zooming;
+        mDrawingState = DRAW_STATE_zooming;
         mScaleFactor = 2;
         mCurrentFocusLocation.set(-getWidth() / 2, -getHeight() / 2);
 
@@ -592,7 +593,7 @@ public class MapView
     @Override
     public void zoomOut()
     {
-        mDrawingState = DRAW_SATE_zooming;
+        mDrawingState = DRAW_STATE_zooming;
         mScaleFactor = 0.5;
         mCurrentFocusLocation.set(-getWidth() / 2, -getHeight() / 2);
 
@@ -668,7 +669,7 @@ public class MapView
     public void drawMapDrawable()
     {
         if (mMap != null) {
-            mDrawingState = DRAW_SATE_drawing;
+            mDrawingState = DRAW_STATE_drawing;
             mStartDrawTime = System.currentTimeMillis();
             mMap.runDraw(null);
         }
@@ -684,7 +685,7 @@ public class MapView
             Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent + " | draw state: " + mDrawingState);
         }
 
-        if (mDrawingState > DRAW_SATE_drawing_noclearbk) {
+        if (mDrawingState > DRAW_STATE_drawing_noclearbk) {
             return;
         }
 
@@ -693,7 +694,7 @@ public class MapView
             mMap.buffer(0, 0, 1);
             postInvalidate();
 
-        } else if (/*id == mMap.getId() &&*/ percent >= 1.0) {
+        } else if (id == DRAW_FINISH_ID && percent >= 1.0) {
             //Log.d(TAG, "LayerDrawFinished: id - " + id + ", percent - " + percent);
 
             mMap.buffer(0, 0, 1);

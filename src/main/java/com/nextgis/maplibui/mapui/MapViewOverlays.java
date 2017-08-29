@@ -83,19 +83,19 @@ public class MapViewOverlays
 
         if (mMap != null) {
             switch (mDrawingState) {
-                case DRAW_SATE_drawing:
-                case DRAW_SATE_drawing_noclearbk:
+                case DRAW_STATE_drawing:
+                case DRAW_STATE_drawing_noclearbk:
                     for (Overlay overlay : mOverlays)
                         if (overlay.isVisible())
                             overlay.draw(canvas, mMap);
                     break;
-                case DRAW_SATE_panning:
-                case DRAW_SATE_panning_fling:
+                case DRAW_STATE_panning:
+                case DRAW_STATE_panning_fling:
                     for (Overlay overlay : mOverlays)
                         if (overlay.isVisible())
                             overlay.drawOnPanning(canvas, mCurrentMouseOffset);
                     break;
-                case DRAW_SATE_zooming:
+                case DRAW_STATE_zooming:
                     for (Overlay overlay : mOverlays)
                         if (overlay.isVisible())
                             overlay.drawOnZooming(canvas, mCurrentFocusLocation, (float) mScaleFactor);
@@ -161,7 +161,7 @@ public class MapViewOverlays
             GeoPoint center)
     {
         if (isLockMap()) {
-            mDrawingState = DRAW_SATE_drawing_noclearbk;
+            mDrawingState = DRAW_STATE_drawing_noclearbk;
             return;
         }
         super.setZoomAndCenter(zoom, center);
