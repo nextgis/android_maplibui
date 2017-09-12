@@ -343,7 +343,9 @@ public abstract class GISApplication extends Application
         if (!isAccountManagerValid())
             return "";
 
-        String result = mAccountManager.getUserData(account, key);
+        String result =  null;
+        if (account != null)
+            result = mAccountManager.getUserData(account, key);
         return result == null ? "" : result;
     }
 
