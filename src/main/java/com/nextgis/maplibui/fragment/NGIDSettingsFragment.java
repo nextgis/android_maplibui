@@ -29,11 +29,16 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceGroup;
 import android.support.v7.preference.PreferenceScreen;
 import android.text.TextUtils;
+
+import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGPreferenceActivity;
 import com.nextgis.maplibui.util.NGIDUtils;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
+import java.io.File;
+
+import static com.nextgis.maplib.util.Constants.SUPPORT;
 
 public class NGIDSettingsFragment
         extends NGPreferenceSettingsFragment
@@ -88,6 +93,13 @@ public class NGIDSettingsFragment
                                 .remove(NGIDUtils.PREF_ACCESS_TOKEN)
                                 .remove(NGIDUtils.PREF_REFRESH_TOKEN)
                                 .apply();
+
+                        File support = getContext().getExternalFilesDir(null);
+                        if (support == null)
+                            support = new File(getContext().getFilesDir(), SUPPORT);
+                        else
+                            support = new File(support, SUPPORT);
+                        FileUtil.deleteRecursive(support);
 
                         if (!NGPreferenceActivity.isMultiPane(getActivity())) {
                             mActivity.onBackPressed();
