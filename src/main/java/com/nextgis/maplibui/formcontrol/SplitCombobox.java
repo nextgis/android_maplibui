@@ -255,7 +255,7 @@ public class SplitCombobox extends FrameLayout implements IFormControl
         container.addView(mSpinners);
         addView(container);
 
-        if (true) {
+        if (AccountUtil.isProUser(getContext())) {
             FrameLayout splash = new FrameLayout(getContext());
             splash.setClickable(true);
             splash.setBackgroundColor(Color.argb(128, 128, 128, 128));
