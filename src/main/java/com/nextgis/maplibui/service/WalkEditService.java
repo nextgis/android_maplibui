@@ -49,6 +49,7 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
@@ -207,6 +208,10 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
 
     @Override
     public void onLocationChanged(Location location) {
+        boolean update = LocationUtil.isProviderEnabled(this, location.getProvider(), false);
+        if (!update)
+            return;
+
         GeoPoint point;
         point = new GeoPoint(location.getLongitude(), location.getLatitude());
         point.setCRS(GeoConstants.CRS_WGS84);
