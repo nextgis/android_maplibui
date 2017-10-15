@@ -137,7 +137,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
             }
         });
 
-        mStrokeColor = ((SimpleMarkerStyle) mStyle).getOutColor();
+        mStrokeColor = mStyle.getOutColor();
         mColorFillName = (TextView) v.findViewById(R.id.color_fill_name);
         mColorFillImage = (ImageView) v.findViewById(R.id.color_fill_ring);
         mColorStrokeName = (TextView) v.findViewById(R.id.color_stroke_name);
@@ -150,7 +150,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         setFillColor(mFillColor);
         setStrokeColor(mStrokeColor);
 
-        float width = ((SimpleMarkerStyle) mStyle).getWidth();
+        float width = mStyle.getWidth();
         EditText widthText = (EditText) v.findViewById(R.id.width);
         widthText.setText(String.format(Locale.getDefault(), "%.0f", width));
         widthText.addTextChangedListener(new TextWatcher() {
@@ -167,14 +167,14 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
             @Override
             public void afterTextChanged(Editable s) {
                 try {
-                    ((SimpleMarkerStyle) mStyle).setWidth(Float.parseFloat(s.toString()));
+                    mStyle.setWidth(Float.parseFloat(s.toString()));
                 } catch (Exception ignored) { }
             }
         });
     }
 
     private void inflateLine(View v) {
-        mStrokeColor = ((SimpleLineStyle) mStyle).getOutColor();
+        mStrokeColor = mStyle.getOutColor();
 
         mColorFillName = (TextView) v.findViewById(R.id.color_fill_name);
         mColorFillImage = (ImageView) v.findViewById(R.id.color_fill_ring);
@@ -188,7 +188,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         setFillColor(mFillColor);
         setStrokeColor(mStrokeColor);
 
-        float width = ((SimpleLineStyle) mStyle).getWidth();
+        float width = mStyle.getWidth();
         EditText widthText = (EditText) v.findViewById(R.id.width);
         widthText.setText(String.format(Locale.getDefault(), "%.0f", width));
         widthText.addTextChangedListener(new TextWatcher() {
@@ -205,7 +205,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
             @Override
             public void afterTextChanged(Editable s) {
                 try {
-                    ((SimpleLineStyle) mStyle).setWidth(Float.parseFloat(s.toString()));
+                    mStyle.setWidth(Float.parseFloat(s.toString()));
                 } catch (Exception ignored) { }
             }
         });
@@ -226,11 +226,14 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
     }
 
     private void inflatePolygon(View v) {
-        float width = ((SimplePolygonStyle) mStyle).getWidth();
+        float width = mStyle.getWidth();
         boolean fill = ((SimplePolygonStyle) mStyle).isFill();
+        mStrokeColor = mStyle.getOutColor();
 
         mColorFillName = (TextView) v.findViewById(R.id.color_fill_name);
         mColorFillImage = (ImageView) v.findViewById(R.id.color_fill_ring);
+        mColorStrokeName = (TextView) v.findViewById(R.id.color_stroke_name);
+        mColorStrokeImage = (ImageView) v.findViewById(R.id.color_stroke_ring);
 
         CheckBox fillCheck = (CheckBox) v.findViewById(R.id.fill);
         fillCheck.setChecked(fill);
@@ -257,7 +260,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
             @Override
             public void afterTextChanged(Editable s) {
                 try {
-                    ((SimplePolygonStyle) mStyle).setWidth(Float.parseFloat(s.toString()));
+                    mStyle.setWidth(Float.parseFloat(s.toString()));
                 } catch (Exception ignored) { }
             }
         });
@@ -265,6 +268,9 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         LinearLayout color_fill = (LinearLayout) v.findViewById(R.id.color_fill);
         color_fill.setOnClickListener(this);
         setFillColor(mFillColor);
+        LinearLayout color_stroke = (LinearLayout) v.findViewById(R.id.color_stroke);
+        color_stroke.setOnClickListener(this);
+        setStrokeColor(mStrokeColor);
     }
 
     private void inflateText(View body) {
@@ -420,6 +426,8 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
                     if (mStyle instanceof SimpleMarkerStyle)
                         mStyle.setOutColor(color);
                     else if (mStyle instanceof SimpleLineStyle)
+                        mStyle.setOutColor(color);
+                    else if (mStyle instanceof SimplePolygonStyle)
                         mStyle.setOutColor(color);
                 }
 
