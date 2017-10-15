@@ -64,6 +64,7 @@ public class NGWLoginFragment
 
     protected String mUrlText   = "";
     protected String mLoginText = "";
+    protected String mPasswordText = "";
     protected boolean mNGW;
 
     protected boolean mForNewAccount      = true;
@@ -249,15 +250,12 @@ public class NGWLoginFragment
             int id,
             Bundle args)
     {
-        String login = null;
-        String password = null;
-
         if (id == R.id.auth_token_loader) {
-            login = mLogin.getText().toString();
-            password = mPassword.getText().toString();
+            mLoginText = mLogin.getText().toString();
+            mPasswordText = mPassword.getText().toString();
         }
 
-        return new HTTPLoader(getActivity().getApplicationContext(), mUrlText, login, password);
+        return new HTTPLoader(getActivity().getApplicationContext(), mUrlText, mLoginText, mPasswordText);
     }
 
 
@@ -306,8 +304,8 @@ public class NGWLoginFragment
             String token)
     {
         IGISApplication app = (IGISApplication) getActivity().getApplication();
-        String login = mLogin.getText().toString();
-        String password = mPassword.getText().toString();
+        String login = mLoginText;
+        String password = mPasswordText;
         if (token.equals(Constants.NGW_ACCOUNT_GUEST)) {
             login = Constants.NGW_ACCOUNT_GUEST;
             password = null;
