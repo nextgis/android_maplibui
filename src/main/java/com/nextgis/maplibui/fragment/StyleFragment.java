@@ -279,6 +279,10 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
 
         final ITextStyle style = (ITextStyle) mStyle;
         mTextEnabled = (CheckBox) body.findViewById(R.id.text_enabled);
+        if (mStyle instanceof SimpleMarkerStyle) {
+            mTextEnabled.setEnabled(false);
+        }
+
         mNotHardcoded = (SwitchCompat) body.findViewById(R.id.not_hardcoded);
         mEditText = (EditText) body.findViewById(R.id.text);
         mEditText.setText(style.getText());
