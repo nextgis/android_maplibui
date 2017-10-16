@@ -46,6 +46,7 @@ import com.nextgis.maplib.util.AttachItem;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplib.util.GeoJSONUtil;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity;
@@ -77,6 +78,9 @@ import java.util.zip.ZipOutputStream;
 
 import static com.nextgis.maplib.util.GeoConstants.CRS_WEB_MERCATOR;
 import static com.nextgis.maplib.util.GeoConstants.CRS_WGS84;
+import static com.nextgis.maplib.util.GeoConstants.FTDate;
+import static com.nextgis.maplib.util.GeoConstants.FTDateTime;
+import static com.nextgis.maplib.util.GeoConstants.FTTime;
 import static com.nextgis.maplib.util.GeoConstants.GEOJSON_ATTACHES;
 import static com.nextgis.maplib.util.GeoConstants.GEOJSON_CRS;
 import static com.nextgis.maplib.util.GeoConstants.GEOJSON_CRS_EPSG_3857;
@@ -233,6 +237,9 @@ public final class LayerUtil {
                         properties.put(Constants.FIELD_ID, feature.getId());
                         for (Field field : feature.getFields()) {
                             Object value = feature.getFieldValue(field.getName());
+                            if (field.getType() == FTDateTime || field.getType() == FTDate || field.getType() == FTTime)
+                                value = GeoJSONUtil.formatDateTime((Long) value, field.getType());
+
                             properties.put(field.getName(), value == null ? JSONObject.NULL : value);
                         }
 
