@@ -237,8 +237,10 @@ public final class LayerUtil {
                         properties.put(Constants.FIELD_ID, feature.getId());
                         for (Field field : feature.getFields()) {
                             Object value = feature.getFieldValue(field.getName());
-                            if (field.getType() == FTDateTime || field.getType() == FTDate || field.getType() == FTTime)
-                                value = GeoJSONUtil.formatDateTime((Long) value, field.getType());
+                            if (value != null) {
+                                if (field.getType() == FTDateTime || field.getType() == FTDate || field.getType() == FTTime)
+                                    value = GeoJSONUtil.formatDateTime((Long) value, field.getType());
+                            }
 
                             properties.put(field.getName(), value == null ? JSONObject.NULL : value);
                         }
