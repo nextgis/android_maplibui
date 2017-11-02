@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -54,9 +54,9 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
     private static final String BUNDLE_DELETED_IMAGES = "deleted_images";
     private long mFeatureId = NOT_FOUND;
     private VectorLayer mLayer;
-    private Map<String, Integer> mAttaches;
+    private Map<String, Integer> mAttaches = new HashMap<>();
     private PhotoAdapter mAdapter;
-    private List<Integer> mDeletedImages;
+    private List<Integer> mDeletedImages = new ArrayList<>();;
 
     public PhotoGallery(Context context) {
         super(context);
@@ -76,8 +76,6 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
                      Bundle savedState,
                      Cursor featureCursor,
                      SharedPreferences preferences) throws JSONException {
-        mAttaches = new HashMap<>();
-        mDeletedImages = new ArrayList<>();
         mAdapter = (PhotoAdapter) getAdapter();
 
         if (element != null) {
