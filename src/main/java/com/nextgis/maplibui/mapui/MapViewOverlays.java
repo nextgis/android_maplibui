@@ -29,6 +29,8 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.util.Log;
+
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplibui.api.Overlay;
@@ -36,6 +38,7 @@ import com.nextgis.maplibui.api.Overlay;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplibui.util.ConstantsUI.*;
 
 
@@ -161,6 +164,7 @@ public class MapViewOverlays
             GeoPoint center)
     {
         if (isLockMap()) {
+            Log.d(TAG, "setZoomAndCenter: isLockMap");
             mDrawingState = DRAW_STATE_drawing_noclearbk;
             return;
         }

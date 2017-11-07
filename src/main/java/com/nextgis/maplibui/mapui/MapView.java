@@ -259,7 +259,9 @@ public class MapView
             GeoPoint newCenterPt = env.getCenter();
             GeoPoint newCenterPtMap = mMap.screenToMap(newCenterPt);
 
-            //Log.d(TAG, "zoomStop: setZoomAndCenter");
+            if(Constants.DEBUG_MODE) {
+                Log.d(TAG, "zoomStop: setZoomAndCenter");
+            }
 
             setZoomAndCenter(zoom, newCenterPtMap);
         }
@@ -269,7 +271,7 @@ public class MapView
     protected void panStart(final MotionEvent e)
     {
 
-        if (/*mDrawingState == DRAW_STATE_zooming ||*/ mDrawingState == DRAW_STATE_panning ||
+        if (mDrawingState == DRAW_STATE_zooming || mDrawingState == DRAW_STATE_panning ||
             mDrawingState == DRAW_STATE_panning_fling) {
             return;
         }
@@ -338,7 +340,9 @@ public class MapView
             float x = mCurrentMouseOffset.x;
             float y = mCurrentMouseOffset.y;
 
-            Log.d(TAG, "panStop x - " + x + " y - " + y);
+            if(Constants.DEBUG_MODE) {
+                Log.d(TAG, "panStop x - " + x + " y - " + y);
+            }
 
             GeoEnvelope bounds = mMap.getFullScreenBounds();
             bounds.offset(x, y);
@@ -396,7 +400,7 @@ public class MapView
     public boolean onDown(MotionEvent e)
     {
         //Log.d(TAG, "onDown: " + e.toString());
-        return false;
+        return true;
     }
 
 
@@ -515,7 +519,7 @@ public class MapView
     @Override
     public boolean onSingleTapUp(MotionEvent e)
     {
-        return false;
+        return true;
     }
 
 
@@ -529,7 +533,7 @@ public class MapView
         mDrawingState = DRAW_STATE_zooming;
         mScaleFactor = 2;
         mCurrentFocusLocation.set(-e.getX(), -e.getY());
-        invalidate();
+        //invalidate();
 
         GeoEnvelope env = mMap.getFullScreenBounds();
         GeoPoint focusPt = new GeoPoint(-mCurrentFocusLocation.x, -mCurrentFocusLocation.y);
@@ -548,6 +552,8 @@ public class MapView
 
         mMap.buffer(0, 0, 1);
         setZoomAndCenter((float) Math.ceil(getZoomLevel() + 0.5), newCenterPtMap);
+
+        postInvalidate();
 
         return true;
     }
@@ -581,12 +587,13 @@ public class MapView
         mCurrentFocusLocation.set(-getWidth() / 2, -getHeight() / 2);
 
         mMap.buffer(0, 0, 1); //TODO: zoom the buffer and just draw it, not draw with scale
-        invalidate();
 
 
-        scheduleInvalidate();
+//        scheduleInvalidate();
 
         super.zoomIn();
+
+        postInvalidate();
     }
 
 
@@ -598,11 +605,12 @@ public class MapView
         mCurrentFocusLocation.set(-getWidth() / 2, -getHeight() / 2);
 
         mMap.buffer(0, 0, 1); //TODO: zoom the buffer and just draw it, not draw with scale
-        invalidate();
 
-        scheduleInvalidate();
+//        scheduleInvalidate();
 
         super.zoomOut();
+
+        postInvalidate();
     }
 
 
@@ -677,9 +685,7 @@ public class MapView
 
 
     @Override
-    public synchronized void onLayerDrawFinished(
-            int id,
-            float percent)
+    public synchronized void onLayerDrawFinished(int id, float percent)
     {
         if(Constants.DEBUG_MODE) {
             Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent + " | draw state: " + mDrawingState);
