@@ -80,7 +80,7 @@ public class NGWSettingsActivity
 
 
     @Override
-    protected String getTitleString()
+    public String getTitleString()
     {
         return getString(R.string.ngw_accounts);
     }

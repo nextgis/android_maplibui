@@ -27,6 +27,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
 import android.view.MenuItem;
@@ -61,7 +62,7 @@ public abstract class NGPreferenceActivity
 
     protected abstract NGPreferenceSettingsFragment getNewPreferenceSettingsFragment(String subScreenKey);
 
-    protected abstract String getTitleString();
+    public abstract String getTitleString();
 
 
     protected void setCurrentThemePref()
@@ -102,7 +103,9 @@ public abstract class NGPreferenceActivity
                 } else {
                     title = getTitleString();
                 }
-                setTitle(title);
+                ActionBar ab = getSupportActionBar();
+                if (null != ab && title != null)
+                    ab.setTitle(title);
             }
         });
 

@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2015, 2017 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -30,6 +30,7 @@ import android.util.Log;
 import com.nextgis.maplib.util.NGWUtil;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.nextgis.maplib.util.Constants.TAG;
 
@@ -41,6 +42,7 @@ public class HTTPLoader
     protected final String mLogin;
     protected final String mPassword;
     protected       String mAuthToken;
+    protected AtomicReference<String> mReference;
 
 
     public HTTPLoader(
@@ -51,6 +53,19 @@ public class HTTPLoader
     {
         super(context);
         mUrl = url;
+        mLogin = login;
+        mPassword = password;
+    }
+
+    public HTTPLoader(
+            Context context,
+            AtomicReference<String> url,
+            String login,
+            String password)
+    {
+        super(context);
+        mUrl = url.get();
+        mReference = url;
         mLogin = login;
         mPassword = password;
     }
@@ -105,14 +120,11 @@ public class HTTPLoader
     protected String signIn()
             throws IOException
     {
-        //1. fix url
         String url = mUrl.trim();
-        if (!url.startsWith("http")) {
-            url = "http://" + url;
-        }
-
+        if (mReference == null)
+            mReference = new AtomicReference<>(url);
         try {
-            return NGWUtil.getConnectionCookie(url, mLogin, mPassword);
+            return NGWUtil.getConnectionCookie(mReference, mLogin, mPassword);
         } catch (IllegalArgumentException | IllegalStateException e) {
             e.printStackTrace();
             return null;

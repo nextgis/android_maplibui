@@ -49,6 +49,7 @@ import com.nextgis.maplibui.util.ControlHelper;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class NGWLoginFragment
         extends Fragment
@@ -73,6 +74,7 @@ public class NGWLoginFragment
 
     protected OnAddAccountListener mOnAddAccountListener;
     protected Loader<String> mLoader;
+    protected AtomicReference<String> mUrlWithProtocol = new AtomicReference<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -124,20 +126,20 @@ public class NGWLoginFragment
             Bundle savedInstanceState)
     {
         final View view = inflater.inflate(R.layout.fragment_ngw_login, container, false);
-        mURL = (EditText) view.findViewById(R.id.url);
-        mLogin = (EditText) view.findViewById(R.id.login);
-        mPassword = (EditText) view.findViewById(R.id.password);
-        mSignInButton = (Button) view.findViewById(R.id.signin);
+        mURL = view.findViewById(R.id.url);
+        mLogin = view.findViewById(R.id.login);
+        mPassword = view.findViewById(R.id.password);
+        mSignInButton = view.findViewById(R.id.signin);
 
         TextWatcher watcher = new LocalTextWatcher();
         mURL.addTextChangedListener(watcher);
-        mLoginTitle = (TextView) view.findViewById(R.id.login_title);
-        mTip = (TextView) view.findViewById(R.id.tip);
+        mLoginTitle = view.findViewById(R.id.login_title);
+        mTip = view.findViewById(R.id.tip);
 
-        mGuestButton = (Button) view.findViewById(R.id.guest);
+        mGuestButton = view.findViewById(R.id.guest);
         mGuestButton.setOnClickListener(this);
 
-        mManual = (TextView) view.findViewById(R.id.manual);
+        mManual = view.findViewById(R.id.manual);
         mManual.setOnClickListener(this);
         ControlHelper.highlightText(mManual);
 
@@ -255,7 +257,8 @@ public class NGWLoginFragment
             mPasswordText = mPassword.getText().toString();
         }
 
-        return new HTTPLoader(getActivity().getApplicationContext(), mUrlText, mLoginText, mPasswordText);
+        mUrlWithProtocol = new AtomicReference<>(mUrlText);
+        return new HTTPLoader(getActivity().getApplicationContext(), mUrlWithProtocol, mLoginText, mPasswordText);
     }
 
 
@@ -289,6 +292,7 @@ public class NGWLoginFragment
             accountName = mUrlText;
         }
 
+        mUrlText = mUrlWithProtocol.get();
         if (loader.getId() == R.id.auth_token_loader) {
             if (token != null && token.length() > 0)
                 onTokenReceived(accountName, token);

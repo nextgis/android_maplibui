@@ -36,6 +36,7 @@ import android.content.PeriodicSync;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.ListPreference;
@@ -581,6 +582,13 @@ public class NGWSettingsFragment
             mActivity.invalidatePreferences();
         }
         mActivity.replaceSettingsFragment(null);
+        if (!NGPreferenceActivity.isMultiPane(getActivity()))
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mActivity.onBackPressed();
+                }
+            }, 1000);
     }
 
 
