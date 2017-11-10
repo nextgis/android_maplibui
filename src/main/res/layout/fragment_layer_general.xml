@@ -4,7 +4,7 @@
   ~ Purpose:  Mobile GIS for Android.
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2016 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2016-2017 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -81,12 +81,19 @@
             android:text="@string/zoom_levels_to_show"
             android:textAppearance="?android:attr/textAppearanceMedium"/>
 
-        <com.edmodo.rangebar.RangeBar
+        <com.appyvet.materialrangebar.RangeBar
             android:id="@+id/rangebar"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_margin="5dp"
-            custom:tickCount="26"/>
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            custom:mrb_pinRadius="0dp"
+            custom:mrb_rangeBarColor="@color/accent"
+            custom:mrb_rangeBarPaddingBottom="20dp"
+            custom:mrb_selectorColor="@color/primary_dark"
+            custom:mrb_selectorSize="8dp"
+            custom:mrb_tickEnd="25"
+            custom:mrb_tickStart="0"/>
 
         <LinearLayout
             android:layout_width="match_parent"

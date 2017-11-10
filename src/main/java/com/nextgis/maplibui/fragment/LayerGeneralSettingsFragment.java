@@ -38,7 +38,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.edmodo.rangebar.RangeBar;
+import com.appyvet.materialrangebar.RangeBar;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.api.IProgressor;
 import com.nextgis.maplib.map.NGWVectorLayer;
@@ -92,10 +92,10 @@ public class LayerGeneralSettingsFragment extends Fragment {
         if (mLayer == null)
             return v;
 
-        TextView path = (TextView) v.findViewById(R.id.layer_local_lath);
+        TextView path = v.findViewById(R.id.layer_local_lath);
         path.setText(String.format(getString(R.string.layer_local_path), mLayer.getPath()));
 
-        TextView remote = (TextView) v.findViewById(R.id.layer_remote_path);
+        TextView remote = v.findViewById(R.id.layer_remote_path);
         String remoteUrl = null;
         if (mLayer instanceof NGWVectorLayer)
             remoteUrl = ((NGWVectorLayer) mLayer).getRemoteUrl();
@@ -107,7 +107,7 @@ public class LayerGeneralSettingsFragment extends Fragment {
             remote.setVisibility(View.VISIBLE);
         }
 
-        mEditText = (EditText) v.findViewById(R.id.layer_name);
+        mEditText = v.findViewById(R.id.layer_name);
         mEditText.setText(mLayer.getName());
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -128,11 +128,11 @@ public class LayerGeneralSettingsFragment extends Fragment {
         });
 
         // Gets the index value TextViews
-        final TextView leftIndexValue = (TextView) v.findViewById(R.id.leftIndexValue);
-        final TextView rightIndexValue = (TextView) v.findViewById(R.id.rightIndexValue);
+        final TextView leftIndexValue = v.findViewById(R.id.leftIndexValue);
+        final TextView rightIndexValue = v.findViewById(R.id.rightIndexValue);
 
         // Gets the RangeBar and set range
-        mRangeBar = (RangeBar) v.findViewById(R.id.rangebar);
+        mRangeBar = v.findViewById(R.id.rangebar);
         int nMinZoom = mActivity.mLayerMinZoom < mRangeBar.getRightIndex() ? (int) mActivity.mLayerMinZoom : mRangeBar.getRightIndex();
         int nMaxZoom = mActivity.mLayerMaxZoom < mRangeBar.getRightIndex() ? (int) mActivity.mLayerMaxZoom : mRangeBar.getRightIndex();
         final int maxZoom = GeoConstants.DEFAULT_MAX_ZOOM;
@@ -141,23 +141,23 @@ public class LayerGeneralSettingsFragment extends Fragment {
 
         mRangeBar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
             @Override
-            public void onIndexChangeListener(RangeBar rangeBar, int leftThumbIndex, int rightThumbIndex) {
-                if (leftThumbIndex < 0 || rightThumbIndex > maxZoom) {
-                    rangeBar.setThumbIndices(leftThumbIndex < 0 ? 0 : leftThumbIndex, rightThumbIndex > maxZoom ? maxZoom : rightThumbIndex);
+            public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
+                if (leftPinIndex < 0 || rightPinIndex > maxZoom) {
+                    rangeBar.setRangePinsByIndices(leftPinIndex < 0 ? 0 : leftPinIndex, rightPinIndex > maxZoom ? maxZoom : rightPinIndex);
                     return;
                 }
 
-                mActivity.mLayerMinZoom = leftThumbIndex;
-                mActivity.mLayerMaxZoom = rightThumbIndex;
-                ControlHelper.setZoomText(getActivity(), leftIndexValue, R.string.min, leftThumbIndex);
-                ControlHelper.setZoomText(getActivity(), rightIndexValue, R.string.max, rightThumbIndex);
+                mActivity.mLayerMinZoom = leftPinIndex;
+                mActivity.mLayerMaxZoom = rightPinIndex;
+                ControlHelper.setZoomText(getActivity(), leftIndexValue, R.string.min, leftPinIndex);
+                ControlHelper.setZoomText(getActivity(), rightIndexValue, R.string.max, rightPinIndex);
             }
         });
-        mRangeBar.setThumbIndices(nMinZoom, nMaxZoom);
+        mRangeBar.setRangePinsByIndices(nMinZoom, nMaxZoom);
 
         if (mLayer instanceof VectorLayer) {
             final VectorLayer vectorLayer = (VectorLayer) mLayer;
-            Button deleteFeatures = (Button) v.findViewById(R.id.delete_features);
+            Button deleteFeatures = v.findViewById(R.id.delete_features);
             deleteFeatures.setVisibility(View.VISIBLE);
             deleteFeatures.setOnClickListener(new View.OnClickListener() {
                 @Override

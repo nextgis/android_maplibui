@@ -96,7 +96,6 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/jniLibs" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/manifests" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/res" />
-      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/rs" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/shaders" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/symbols" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/tmp" />
@@ -110,6 +109,7 @@
     <orderEntry type="library" name="com.android.support:support-media-compat-26.1.0" level="project" />
     <orderEntry type="library" name="com.android.support:support-compat-26.1.0" level="project" />
     <orderEntry type="library" name="com.android.support:recyclerview-v7-26.1.0" level="project" />
+    <orderEntry type="library" name="com.appyvet:materialrangebar-1.4" level="project" />
     <orderEntry type="library" name="android.arch.lifecycle:common:1.0.0@jar" level="project" />
     <orderEntry type="library" name="android.arch.core:common:1.0.0@jar" level="project" />
     <orderEntry type="library" name="com.android.support:support-fragment-26.1.0" level="project" />
@@ -122,7 +122,6 @@
     <orderEntry type="library" name="com.android.support:support-annotations:26.1.0@jar" level="project" />
     <orderEntry type="library" name="com.android.support:support-core-utils-26.1.0" level="project" />
     <orderEntry type="library" name="com.android.support:design-26.1.0" level="project" />
-    <orderEntry type="library" name="com.edmodo:rangebar-1.0.0" level="project" />
     <orderEntry type="library" name="com.android.support:transition-26.1.0" level="project" />
     <orderEntry type="library" name="com.android.support:support-core-ui-26.1.0" level="project" />
     <orderEntry type="library" name="com.github.yukuku:ambilwarna-2.0.1" level="project" />

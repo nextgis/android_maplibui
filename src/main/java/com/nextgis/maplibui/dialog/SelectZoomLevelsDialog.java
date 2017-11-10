@@ -35,7 +35,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.TextView;
 
-import com.edmodo.rangebar.RangeBar;
+import com.appyvet.materialrangebar.RangeBar;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
@@ -105,32 +105,32 @@ public class SelectZoomLevelsDialog
         right = right > maxZoom ? maxZoom : right;
 
         // Get the index value TextViews
-        mTilesCount = (TextView) view.findViewById(R.id.tilesCount);
-        final TextView leftIndexValue = (TextView) view.findViewById(R.id.leftIndexValue);
-        final TextView rightIndexValue = (TextView) view.findViewById(R.id.rightIndexValue);
+        mTilesCount = view.findViewById(R.id.tilesCount);
+        final TextView leftIndexValue = view.findViewById(R.id.leftIndexValue);
+        final TextView rightIndexValue = view.findViewById(R.id.rightIndexValue);
 
         // Get the RangeBar and set the display values of the indices
-        final RangeBar rangebar = (RangeBar) view.findViewById(R.id.rangebar);
+        final RangeBar rangebar = view.findViewById(R.id.rangebar);
         rangebar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
             @Override
-            public void onIndexChangeListener(RangeBar rangeBar, final int leftThumbIndex, final int rightThumbIndex) {
-                if (leftThumbIndex < 0 || rightThumbIndex > maxZoom) {
-                    rangeBar.setThumbIndices(leftThumbIndex < 0 ? 0 : leftThumbIndex, rightThumbIndex > maxZoom ? maxZoom : rightThumbIndex);
+            public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
+                if (leftPinIndex < 0 || rightPinIndex > maxZoom) {
+                    rangeBar.setRangePinsByIndices(leftPinIndex < 0 ? 0 : leftPinIndex, rightPinIndex > maxZoom ? maxZoom : rightPinIndex);
                     return;
                 }
 
-                ControlHelper.setZoomText(getActivity(), leftIndexValue, R.string.min, leftThumbIndex);
-                ControlHelper.setZoomText(getActivity(), rightIndexValue, R.string.max, rightThumbIndex);
+                ControlHelper.setZoomText(getActivity(), leftIndexValue, R.string.min, leftPinIndex);
+                ControlHelper.setZoomText(getActivity(), rightIndexValue, R.string.max, rightPinIndex);
 
                 if (mCountTask != null)
                     mCountTask.cancel(true);
 
                 mTilesCount.setText(getString(R.string.counting).toLowerCase());
-                mCountTask = new CountTilesTask(map, leftThumbIndex, rightThumbIndex);
+                mCountTask = new CountTilesTask(map, leftPinIndex, rightPinIndex);
                 mCountTask.execute();
             }
         });
-        rangebar.setThumbIndices(left, right);
+        rangebar.setRangePinsByIndices(left, right);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(String.format(getString(R.string.current_zoom), map.getZoomLevel())).setView(view).setPositiveButton(
