@@ -50,12 +50,15 @@ android {
 repositories {
     mavenCentral()
     google()
+    jcenter()
+    maven {
+        url  "https://dl.bintray.com/krazykira/maven"
+    }
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':maplib')
-    compile 'com.appyvet:materialrangebar:1.4'
     compile 'com.4ert:easypicker:0.2.12'
     compile 'com.github.yukuku:ambilwarna:2.0.1'
     compile 'com.jzxiang.pickerview:TimePickerDialog:1.0.1'
@@ -63,4 +66,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.android.support:design:26.1.0'
     compile 'com.android.support:preference-v7:26.1.0'
+    compile 'com.appyvet:materialrangebar:1.4'
 }
