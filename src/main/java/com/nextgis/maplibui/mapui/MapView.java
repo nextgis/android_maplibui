@@ -92,7 +92,7 @@ public class MapView
         }
     }
 
-    private void scheduleInvalidate() {
+    public void scheduleInvalidate() {
         if (mTimer != null) {
             mTimer.cancel();
         }
