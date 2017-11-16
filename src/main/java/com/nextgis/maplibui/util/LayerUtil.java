@@ -201,7 +201,8 @@ public final class LayerUtil {
         protected File doInBackground(Void... voids) {
             try {
                 File temp = MapUtil.prepareTempDir(mLayer.getContext(), "shared_layers");
-                temp = new File(temp, mLayer.getName() + ".zip");
+                String fileName = com.nextgis.maplib.util.LayerUtil.normalizeLayerName(mLayer.getName()) + ".zip";
+                temp = new File(temp, fileName);
                 FileOutputStream fos = new FileOutputStream(temp);
                 ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(fos));
 
