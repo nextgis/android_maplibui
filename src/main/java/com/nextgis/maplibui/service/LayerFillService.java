@@ -412,11 +412,14 @@ public class LayerFillService extends Service implements IProgressor {
                 vectorLayer.createFromGeoJson(mUri, progressor);
             } catch (IOException | JSONException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();
+                String logMsg = e.getLocalizedMessage();
 
-                if (null != progressor)
-                    progressor.setMessage(e.getLocalizedMessage());
+                if(null != logMsg) {
+                    if (null != progressor)
+                        progressor.setMessage(logMsg);
 
-                setMessage(e.getLocalizedMessage());
+                    setMessage(logMsg);
+                }
                 notifyError(mProgressMessage);
                 return false;
             }
@@ -553,10 +556,14 @@ public class LayerFillService extends Service implements IProgressor {
             } catch (AccountsException | JSONException | IOException | URISyntaxException | RuntimeException e) {
                 e.printStackTrace();
 
-                if (null != progressor)
-                    progressor.setMessage(e.getLocalizedMessage());
+                String logMsg = e.getLocalizedMessage();
 
-                setMessage(e.getMessage());
+                if(null != logMsg) {
+                    if (null != progressor)
+                        progressor.setMessage(logMsg);
+
+                    setMessage(logMsg);
+                }
                 notifyError(mProgressMessage);
                 return false;
             }
@@ -606,10 +613,14 @@ public class LayerFillService extends Service implements IProgressor {
             } catch (IOException | JSONException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();
 
-                if (null != progressor)
-                    progressor.setMessage(e.getLocalizedMessage());
+                String logMsg = e.getLocalizedMessage();
 
-                setMessage(e.getLocalizedMessage());
+                if(null != logMsg) {
+                    if (null != progressor)
+                        progressor.setMessage(logMsg);
+
+                    setMessage(logMsg);
+                }
                 notifyError(mProgressMessage);
                 return false;
             }
@@ -651,10 +662,14 @@ public class LayerFillService extends Service implements IProgressor {
             } catch (IOException | NGException | RuntimeException e) {
                 e.printStackTrace();
 
-                if (null != progressor)
-                    progressor.setMessage(e.getLocalizedMessage());
+                String logMsg = e.getLocalizedMessage();
 
-                setMessage(e.getLocalizedMessage());
+                if(null != logMsg) {
+                    if (null != progressor)
+                        progressor.setMessage(logMsg);
+
+                    setMessage(logMsg);
+                }
                 notifyError(mProgressMessage);
                 return false;
             }
@@ -715,10 +730,14 @@ public class LayerFillService extends Service implements IProgressor {
             } catch (JSONException | IOException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();
 
-                if (null != progressor)
-                    progressor.setMessage(e.getLocalizedMessage());
+                String logMsg = e.getLocalizedMessage();
 
-                setMessage(e.getLocalizedMessage());
+                if(null != logMsg) {
+                    if (null != progressor)
+                        progressor.setMessage(logMsg);
+
+                    setMessage(logMsg);
+                }
                 notifyError(mProgressMessage);
                 return false;
             }
