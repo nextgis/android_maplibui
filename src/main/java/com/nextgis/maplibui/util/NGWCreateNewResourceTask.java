@@ -81,9 +81,9 @@ public class NGWCreateNewResourceTask extends AsyncTask<Void, Void, HttpResponse
             }
 
             if (mLayer != null)
-                return NGWUtil.createNewLayer(mConnection, mLayer, mParentId);
+                return NGWUtil.createNewLayer(mConnection, mLayer, mParentId, null);
             else
-                return NGWUtil.createNewGroup(mContext, mConnection, mParentId, mName);
+                return NGWUtil.createNewGroup(mContext, mConnection, mParentId, mName, null);
         }
 
         return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
