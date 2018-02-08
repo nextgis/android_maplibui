@@ -4,7 +4,7 @@
   ~ Author:   Maxim Dubinin, maxim.dubinin@nextgis.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2016-2017 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2016-2018 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -329,4 +329,7 @@
     <string name="coming_soon">Скоро будет доступно</string>
     <string name="get_pro">Функция доступна только подписчикам. Пожалуйста, войдите или ознакомьтесь подробнее (https://nextgis.com/pricing)</string>
     <string name="pro_user_only">Pro функция</string>
+    <string name="small">Small</string>
+    <string name="medium">Medium</string>
+    <string name="big">Big</string>
 </resources>

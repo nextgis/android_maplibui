@@ -3,7 +3,7 @@
   ~ Purpose:  Mobile GIS for Android.
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2016 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2016, 2018 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser General Public License as published by
@@ -20,10 +20,10 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="8dp"
-    android:orientation="vertical">
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="8dp"
+              android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -33,13 +33,13 @@
         <CheckBox
             android:id="@+id/text_enabled"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/text"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
 
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/not_hardcoded"
@@ -47,13 +47,13 @@
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:checked="true"
-            android:enabled="false" />
+            android:enabled="false"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/fields"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
     </LinearLayout>
 
     <FrameLayout
@@ -66,13 +66,34 @@
             android:layout_height="wrap_content"
             android:enabled="false"
             android:inputType="text"
-            android:visibility="gone" />
+            android:visibility="gone"/>
 
         <Spinner
             android:id="@+id/field"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/marker_type"
-            android:padding="5dp" />
+            android:padding="5dp"/>
     </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/tsize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/size"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+        <Spinner
+            android:id="@+id/text_size"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/sizes"
+            android:padding="5dp"/>
+    </LinearLayout>
 </LinearLayout>

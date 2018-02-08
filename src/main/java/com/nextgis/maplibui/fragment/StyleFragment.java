@@ -61,7 +61,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
     protected ImageView mColorFillImage, mColorStrokeImage;
     protected TextView mColorFillName, mColorStrokeName;
     protected EditText mEditText;
-    protected Spinner mField;
+    protected Spinner mField, mTextSize;
     protected CheckBox mTextEnabled;
     protected SwitchCompat mNotHardcoded;
     protected int mFillColor, mStrokeColor;
@@ -101,7 +101,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
     }
 
     private void inflateMarker(View v) {
-        Spinner type = (Spinner) v.findViewById(R.id.type);
+        Spinner type = v.findViewById(R.id.type);
         type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -115,8 +115,24 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         });
         type.setSelection(((SimpleMarkerStyle) mStyle).getType() - 1);
 
-        float size = ((SimpleMarkerStyle) mStyle).getSize();
-        EditText sizeText = (EditText) v.findViewById(R.id.size);
+        final float[] sizes = {3, 6, 10};
+        Spinner textSize = v.findViewById(R.id.text_size);
+        textSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                ((SimpleMarkerStyle) mStyle).setTextSize(sizes[position]);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        float size = ((SimpleMarkerStyle) mStyle).getTextSize();
+        textSize.setSelection(size == 3 ? 0 : size == 6 ? 1 : 2);
+
+        size = ((SimpleMarkerStyle) mStyle).getSize();
+        EditText sizeText = v.findViewById(R.id.size);
         sizeText.setText(String.format(Locale.getDefault(), "%.0f", size));
         sizeText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -138,20 +154,20 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         });
 
         mStrokeColor = mStyle.getOutColor();
-        mColorFillName = (TextView) v.findViewById(R.id.color_fill_name);
-        mColorFillImage = (ImageView) v.findViewById(R.id.color_fill_ring);
-        mColorStrokeName = (TextView) v.findViewById(R.id.color_stroke_name);
-        mColorStrokeImage = (ImageView) v.findViewById(R.id.color_stroke_ring);
+        mColorFillName = v.findViewById(R.id.color_fill_name);
+        mColorFillImage = v.findViewById(R.id.color_fill_ring);
+        mColorStrokeName = v.findViewById(R.id.color_stroke_name);
+        mColorStrokeImage = v.findViewById(R.id.color_stroke_ring);
 
-        LinearLayout color_fill = (LinearLayout) v.findViewById(R.id.color_fill);
-        LinearLayout color_stroke = (LinearLayout) v.findViewById(R.id.color_stroke);
+        LinearLayout color_fill = v.findViewById(R.id.color_fill);
+        LinearLayout color_stroke = v.findViewById(R.id.color_stroke);
         color_fill.setOnClickListener(this);
         color_stroke.setOnClickListener(this);
         setFillColor(mFillColor);
         setStrokeColor(mStrokeColor);
 
         float width = mStyle.getWidth();
-        EditText widthText = (EditText) v.findViewById(R.id.width);
+        EditText widthText = v.findViewById(R.id.width);
         widthText.setText(String.format(Locale.getDefault(), "%.0f", width));
         widthText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -176,20 +192,20 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
     private void inflateLine(View v) {
         mStrokeColor = mStyle.getOutColor();
 
-        mColorFillName = (TextView) v.findViewById(R.id.color_fill_name);
-        mColorFillImage = (ImageView) v.findViewById(R.id.color_fill_ring);
-        mColorStrokeName = (TextView) v.findViewById(R.id.color_stroke_name);
-        mColorStrokeImage = (ImageView) v.findViewById(R.id.color_stroke_ring);
+        mColorFillName = v.findViewById(R.id.color_fill_name);
+        mColorFillImage = v.findViewById(R.id.color_fill_ring);
+        mColorStrokeName = v.findViewById(R.id.color_stroke_name);
+        mColorStrokeImage = v.findViewById(R.id.color_stroke_ring);
 
-        LinearLayout color_fill = (LinearLayout) v.findViewById(R.id.color_fill);
-        LinearLayout color_stroke = (LinearLayout) v.findViewById(R.id.color_stroke);
+        LinearLayout color_fill = v.findViewById(R.id.color_fill);
+        LinearLayout color_stroke = v.findViewById(R.id.color_stroke);
         color_fill.setOnClickListener(this);
         color_stroke.setOnClickListener(this);
         setFillColor(mFillColor);
         setStrokeColor(mStrokeColor);
 
         float width = mStyle.getWidth();
-        EditText widthText = (EditText) v.findViewById(R.id.width);
+        EditText widthText = v.findViewById(R.id.width);
         widthText.setText(String.format(Locale.getDefault(), "%.0f", width));
         widthText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -210,7 +226,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
             }
         });
 
-        Spinner type = (Spinner) v.findViewById(R.id.type);
+        Spinner type = v.findViewById(R.id.type);
         type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -230,12 +246,12 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         boolean fill = ((SimplePolygonStyle) mStyle).isFill();
         mStrokeColor = mStyle.getOutColor();
 
-        mColorFillName = (TextView) v.findViewById(R.id.color_fill_name);
-        mColorFillImage = (ImageView) v.findViewById(R.id.color_fill_ring);
-        mColorStrokeName = (TextView) v.findViewById(R.id.color_stroke_name);
-        mColorStrokeImage = (ImageView) v.findViewById(R.id.color_stroke_ring);
+        mColorFillName = v.findViewById(R.id.color_fill_name);
+        mColorFillImage = v.findViewById(R.id.color_fill_ring);
+        mColorStrokeName = v.findViewById(R.id.color_stroke_name);
+        mColorStrokeImage = v.findViewById(R.id.color_stroke_ring);
 
-        CheckBox fillCheck = (CheckBox) v.findViewById(R.id.fill);
+        CheckBox fillCheck = v.findViewById(R.id.fill);
         fillCheck.setChecked(fill);
         fillCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -244,7 +260,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
             }
         });
 
-        EditText widthText = (EditText) v.findViewById(R.id.width);
+        EditText widthText = v.findViewById(R.id.width);
         widthText.setText(String.format(Locale.getDefault(), "%.0f", width));
         widthText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -265,10 +281,10 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
             }
         });
 
-        LinearLayout color_fill = (LinearLayout) v.findViewById(R.id.color_fill);
+        LinearLayout color_fill = v.findViewById(R.id.color_fill);
         color_fill.setOnClickListener(this);
         setFillColor(mFillColor);
-        LinearLayout color_stroke = (LinearLayout) v.findViewById(R.id.color_stroke);
+        LinearLayout color_stroke = v.findViewById(R.id.color_stroke);
         color_stroke.setOnClickListener(this);
         setStrokeColor(mStrokeColor);
     }
@@ -278,15 +294,16 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
             return;
 
         final ITextStyle style = (ITextStyle) mStyle;
-        mTextEnabled = (CheckBox) body.findViewById(R.id.text_enabled);
+        mTextEnabled = body.findViewById(R.id.text_enabled);
         if (mStyle instanceof SimpleMarkerStyle) {
-            mTextEnabled.setEnabled(false);
+            body.findViewById(R.id.tsize).setVisibility(View.VISIBLE);
         }
 
-        mNotHardcoded = (SwitchCompat) body.findViewById(R.id.not_hardcoded);
-        mEditText = (EditText) body.findViewById(R.id.text);
+        mNotHardcoded = body.findViewById(R.id.not_hardcoded);
+        mTextSize = body.findViewById(R.id.text_size);
+        mEditText = body.findViewById(R.id.text);
         mEditText.setText(style.getText());
-        mField = (Spinner) body.findViewById(R.id.field);
+        mField = body.findViewById(R.id.field);
 
         String field = style.getField();
         boolean hasText = style.getText() != null;
@@ -347,6 +364,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
                 mNotHardcoded.setEnabled(isChecked);
                 mEditText.setEnabled(isChecked);
                 mField.setEnabled(isChecked);
+                mTextSize.setEnabled(isChecked);
 
                 if (!isChecked) {
                     style.setField(null);
