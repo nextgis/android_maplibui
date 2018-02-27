@@ -343,4 +343,5 @@
     <string name="left_top">Слева вверху</string>
     <string name="alignment">Расположение</string>
     <string name="enter_signature">Введите текст</string>
+    <string name="text_color">Цвет текста</string>
 </resources>

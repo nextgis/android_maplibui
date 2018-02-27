@@ -58,13 +58,14 @@ import java.util.Locale;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class StyleFragment extends StyledDialogFragment implements View.OnClickListener {
-    protected ImageView mColorFillImage, mColorStrokeImage;
-    protected TextView mColorFillName, mColorStrokeName;
+    protected ImageView mColorFillImage, mColorStrokeImage, mColorTextImage;
+    protected TextView mColorFillName, mColorStrokeName, mColorTextName;
+    protected LinearLayout mColorText;
     protected EditText mEditText;
     protected Spinner mField, mTextSize, mTextAlignment;
     protected CheckBox mTextEnabled;
     protected SwitchCompat mNotHardcoded;
-    protected int mFillColor, mStrokeColor;
+    protected int mFillColor, mStrokeColor, mTextColor;
     protected Style mStyle;
     protected VectorLayer mLayer;
 
@@ -168,17 +169,23 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         });
 
         mStrokeColor = mStyle.getOutColor();
+        mTextColor = ((SimpleMarkerStyle) mStyle).getTextColor();
         mColorFillName = v.findViewById(R.id.color_fill_name);
         mColorFillImage = v.findViewById(R.id.color_fill_ring);
         mColorStrokeName = v.findViewById(R.id.color_stroke_name);
         mColorStrokeImage = v.findViewById(R.id.color_stroke_ring);
+        mColorTextName = v.findViewById(R.id.color_text_name);
+        mColorTextImage = v.findViewById(R.id.color_text_ring);
 
         LinearLayout color_fill = v.findViewById(R.id.color_fill);
         LinearLayout color_stroke = v.findViewById(R.id.color_stroke);
+        mColorText = v.findViewById(R.id.color_text);
         color_fill.setOnClickListener(this);
         color_stroke.setOnClickListener(this);
+        mColorText.setOnClickListener(this);
         setFillColor(mFillColor);
         setStrokeColor(mStrokeColor);
+        setTextColor(mTextColor);
 
         float width = mStyle.getWidth();
         EditText widthText = v.findViewById(R.id.width);
@@ -381,6 +388,8 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
                 mField.setEnabled(isChecked);
                 mTextSize.setEnabled(isChecked);
                 mTextAlignment.setEnabled(isChecked);
+                if (mColorText != null)
+                    mColorText.setEnabled(isChecked);
 
                 if (!isChecked) {
                     style.setField(null);
@@ -419,6 +428,10 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
 
     protected void setStrokeColor(int color) {
         setColor(mColorStrokeImage, mColorStrokeName, color);
+    }
+
+    protected void setTextColor(int color) {
+        setColor(mColorTextImage, mColorTextName, color);
     }
 
     private static void setColor(ImageView image, TextView text, int color) {
@@ -467,6 +480,24 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
                         mStyle.setOutColor(color);
                     else if (mStyle instanceof SimplePolygonStyle)
                         mStyle.setOutColor(color);
+                }
+
+                @Override
+                public void onCancel(AmbilWarnaDialog dialog) {
+
+                }
+            });
+
+            dialog.show();
+        } else if (i == R.id.color_text) {//show colors dialog
+            AmbilWarnaDialog dialog = new AmbilWarnaDialog(v.getContext(), mTextColor, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+                @Override
+                public void onOk(AmbilWarnaDialog dialog, int color) {
+                    mTextColor = color;
+                    setTextColor(color);
+
+                    if (mStyle instanceof SimpleMarkerStyle)
+                        ((SimpleMarkerStyle) mStyle).setTextColor(color);
                 }
 
                 @Override

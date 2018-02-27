@@ -343,4 +343,5 @@
     <string name="left_top">Top-left</string>
     <string name="alignment">Alignment</string>
     <string name="enter_signature">Enter constant value</string>
+    <string name="text_color">Text color</string>
 </resources>
