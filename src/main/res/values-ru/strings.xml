@@ -333,4 +333,14 @@
     <string name="small">Маленький</string>
     <string name="medium">Средний</string>
     <string name="big">Большой</string>
+    <string name="top">Вверху</string>
+    <string name="right_top">Справа вверху</string>
+    <string name="right">Справа</string>
+    <string name="right_bottom">Справа внизу</string>
+    <string name="bottom">Внизу</string>
+    <string name="left_bottom">Слева внизу</string>
+    <string name="left">Слева</string>
+    <string name="left_top">Слева вверху</string>
+    <string name="alignment">Расположение</string>
+    <string name="enter_signature">Введите текст</string>
 </resources>

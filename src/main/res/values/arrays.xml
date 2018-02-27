@@ -205,4 +205,14 @@
         <item>@string/medium</item>
         <item>@string/big</item>
     </string-array>
+    <string-array name="alignment" translatable="false">
+        <item>@string/top</item>
+        <item>@string/right_top</item>
+        <item>@string/right</item>
+        <item>@string/right_bottom</item>
+        <item>@string/bottom</item>
+        <item>@string/left_bottom</item>
+        <item>@string/left</item>
+        <item>@string/left_top</item>
+    </string-array>
 </resources>

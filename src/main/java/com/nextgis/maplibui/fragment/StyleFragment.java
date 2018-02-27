@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2016-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -61,7 +61,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
     protected ImageView mColorFillImage, mColorStrokeImage;
     protected TextView mColorFillName, mColorStrokeName;
     protected EditText mEditText;
-    protected Spinner mField, mTextSize;
+    protected Spinner mField, mTextSize, mTextAlignment;
     protected CheckBox mTextEnabled;
     protected SwitchCompat mNotHardcoded;
     protected int mFillColor, mStrokeColor;
@@ -115,12 +115,11 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         });
         type.setSelection(((SimpleMarkerStyle) mStyle).getType() - 1);
 
-        final float[] sizes = {3, 6, 10};
         Spinner textSize = v.findViewById(R.id.text_size);
         textSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                ((SimpleMarkerStyle) mStyle).setTextSize(sizes[position]);
+                ((SimpleMarkerStyle) mStyle).setTextSize(SimpleMarkerStyle.SIZES.get(position));
             }
 
             @Override
@@ -129,7 +128,22 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
             }
         });
         float size = ((SimpleMarkerStyle) mStyle).getTextSize();
-        textSize.setSelection(size == 3 ? 0 : size == 6 ? 1 : 2);
+        textSize.setSelection(SimpleMarkerStyle.SIZES.indexOf(size));
+
+        Spinner textAlignment = v.findViewById(R.id.text_alignment);
+        textAlignment.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                ((SimpleMarkerStyle) mStyle).setTextAlignment(SimpleMarkerStyle.ALIGNMENTS.get(position));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        int alignment = ((SimpleMarkerStyle) mStyle).getTextAlignment();
+        textAlignment.setSelection(SimpleMarkerStyle.ALIGNMENTS.indexOf(alignment));
 
         size = ((SimpleMarkerStyle) mStyle).getSize();
         EditText sizeText = v.findViewById(R.id.size);
@@ -301,6 +315,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
 
         mNotHardcoded = body.findViewById(R.id.not_hardcoded);
         mTextSize = body.findViewById(R.id.text_size);
+        mTextAlignment = body.findViewById(R.id.text_alignment);
         mEditText = body.findViewById(R.id.text);
         mEditText.setText(style.getText());
         mField = body.findViewById(R.id.field);
@@ -365,6 +380,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
                 mEditText.setEnabled(isChecked);
                 mField.setEnabled(isChecked);
                 mTextSize.setEnabled(isChecked);
+                mTextAlignment.setEnabled(isChecked);
 
                 if (!isChecked) {
                     style.setField(null);
@@ -389,7 +405,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
                 style.setField(isChecked ? mFields.get(mField.getSelectedItemPosition()).getName(): null);
             }
         });
-        mNotHardcoded.setChecked(hasField);
+        mNotHardcoded.setChecked(hasField || !mTextEnabled.isChecked());
     }
 
     @Override

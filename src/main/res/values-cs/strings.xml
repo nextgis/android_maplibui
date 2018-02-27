@@ -333,4 +333,14 @@
     <string name="small">Small</string>
     <string name="medium">Medium</string>
     <string name="big">Big</string>
+    <string name="top">Top</string>
+    <string name="right_top">Top-right</string>
+    <string name="right">Right</string>
+    <string name="right_bottom">Bottom-right</string>
+    <string name="bottom">Bottom</string>
+    <string name="left_bottom">Bottom-left</string>
+    <string name="left">Left</string>
+    <string name="left_top">Top-left</string>
+    <string name="alignment">Alignment</string>
+    <string name="enter_signature">Enter constant value</string>
 </resources>

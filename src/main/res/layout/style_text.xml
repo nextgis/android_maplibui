@@ -65,6 +65,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:enabled="false"
+            android:hint="@string/enter_signature"
             android:inputType="text"
             android:visibility="gone"/>
 
@@ -94,6 +95,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/sizes"
+            android:padding="5dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/alignment"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+        <Spinner
+            android:id="@+id/text_alignment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/alignment"
             android:padding="5dp"/>
     </LinearLayout>
 </LinearLayout>
