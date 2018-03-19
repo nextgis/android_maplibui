@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -24,12 +24,14 @@
 package com.nextgis.maplibui.service;
 
 import android.Manifest;
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.AsyncQueryHandler;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -43,9 +45,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -62,12 +64,17 @@ import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
+import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplib.util.NGWUtil;
+import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.NotificationHelper;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -79,7 +86,7 @@ import java.util.Locale;
 import static com.nextgis.maplib.util.Constants.FIELD_GEOM;
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_NGW_TRACKS;
 import static com.nextgis.maplib.util.Constants.ONE_MINUTE;
-
+import static com.nextgis.maplib.util.Constants.TAG;
 
 public class TrackerService
         extends Service
@@ -90,9 +97,11 @@ public class TrackerService
     public static final String ACTION_STOP            = "com.nextgis.maplibui.TRACK_STOP";
     private static final String ACTION_SPLIT          = "com.nextgis.maplibui.TRACK_SPLIT";
     private static final int    TRACK_NOTIFICATION_ID = 1;
+    public static final String URL = "http://track.nextgis.com/ng-mobile";
 
     private boolean         mIsRunning;
     private LocationManager mLocationManager;
+    private Thread          mLocationSenderThread;
 
     private SharedPreferences mSharedPreferencesTemp;
     private String            mTrackId;
@@ -171,6 +180,9 @@ public class TrackerService
         }
 
         NotificationHelper.showLocationInfo(this);
+
+        mLocationSenderThread = createLocationSenderThread();
+        mLocationSenderThread.start();
     }
 
 
@@ -380,6 +392,10 @@ public class TrackerService
             mLocationManager.removeGpsStatusListener(this);
         }
 
+        if (mLocationSenderThread != null) {
+            mLocationSenderThread.interrupt();
+        }
+
         super.onDestroy();
     }
 
@@ -414,23 +430,25 @@ public class TrackerService
         mValues.put(TrackLayer.FIELD_ELE, location.getAltitude());
         mValues.put(TrackLayer.FIELD_FIX, fixType);
         mValues.put(TrackLayer.FIELD_SAT, mSatellitesCount);
+        mValues.put(TrackLayer.FIELD_SPEED, location.getSpeed());
+        mValues.put(TrackLayer.FIELD_ACCURACY, location.getAccuracy());
+        mValues.put(TrackLayer.FIELD_SENT, 0);
         mValues.put(TrackLayer.FIELD_TIMESTAMP, location.getTime());
         getContentResolver().insert(mContentUriTrackPoints, mValues);
 
-        List<ILayer> tracks = getTrackLayers();
-        if (tracks.size() > 0) {
-            IGISApplication app = (IGISApplication) getApplication();
-            Uri uri = Uri.parse("content://" + app.getAuthority() + "/" + tracks.get(0).getPath().getName());
-            mValues.remove(TrackLayer.FIELD_LAT);
-            mValues.remove(TrackLayer.FIELD_LON);
-            try {
-                mValues.put(FIELD_GEOM, mPoint.toBlob());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        IGISApplication app = (IGISApplication) getApplication();
+        mValues.remove(TrackLayer.FIELD_LAT);
+        mValues.remove(TrackLayer.FIELD_LON);
+        try {
+            mValues.put(FIELD_GEOM, mPoint.toBlob());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        List<ILayer> tracks = getTrackLayers();
+        for (ILayer layer : tracks) {
+            Uri uri = Uri.parse("content://" + app.getAuthority() + "/" + layer.getPath().getName());
             getContentResolver().insert(uri, mValues);
-            sync(app);
         }
     }
 
@@ -444,10 +462,14 @@ public class TrackerService
     private void sync(IGISApplication app) {
         if (System.currentTimeMillis() - mLastSync > ONE_MINUTE) {
             List<ILayer> tracks = getTrackLayers();
-            if (tracks.size() > 0) {
-                new TrackSync(app.getAuthority(), (INGWLayer) tracks.get(0)).execute();
-                mLastSync = System.currentTimeMillis();
+            for (ILayer layer : tracks) {
+                if (layer instanceof INGWLayer) {
+                    INGWLayer ngwLayer = (INGWLayer) layer;
+                    Pair<Integer, Integer> ver = NGWUtil.getNgwVersion(getApplicationContext(), ngwLayer.getAccountName());
+                    ngwLayer.sync(app.getAuthority(), ver, new SyncResult());
+                }
             }
+            mLastSync = System.currentTimeMillis();
         }
     }
 
@@ -528,23 +550,100 @@ public class TrackerService
         return false;
     }
 
-    class TrackSync extends AsyncTask<Void, Void, Void> {
-        protected INGWLayer mLayer;
-        protected String mAuthority;
+    private Thread createLocationSenderThread() {
+        return new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SharedPreferences preferences = getSharedPreferences(getPackageName() + "_preferences", Constants.MODE_MULTI_PROCESS);
+                String minTimeStr = preferences.getString(SettingsConstants.KEY_PREF_TRACKS_MIN_TIME, "2");
+                long minTime = Long.parseLong(minTimeStr) * 1000;
 
-        public TrackSync(String authority, INGWLayer layer) {
-            mAuthority = authority;
-            mLayer = layer;
-        }
+                IGISApplication app = (IGISApplication) getApplication();
+                ContentResolver resolver = getContentResolver();
+                String selection = TrackLayer.FIELD_SENT + " = 0";
+                String sort = TrackLayer.FIELD_TIMESTAMP + " ASC";
+                Cursor mPoints;
 
-        protected Void doInBackground(Void... params) {
-            try {
-                Pair<Integer, Integer> ver = NGWUtil.getNgwVersion(getApplicationContext(), mLayer.getAccountName());
-                mLayer.sync(mAuthority, ver, new SyncResult());
-            } catch (Exception ignored) { }
+                while (!Thread.currentThread().isInterrupted()) {
+                    if (preferences.getBoolean(SettingsConstants.KEY_PREF_TRACK_SEND, false)) {
+                        mPoints = resolver.query(mContentUriTrackPoints, null, selection, null, sort);
+                        if (mPoints != null) {
+                            List<String> ids = new ArrayList<>();
+                            if (mPoints.moveToFirst()) {
+                                GeoPoint point = new GeoPoint();
+                                int lon = mPoints.getColumnIndex(TrackLayer.FIELD_LON);
+                                int lat = mPoints.getColumnIndex(TrackLayer.FIELD_LAT);
+                                int ele = mPoints.getColumnIndex(TrackLayer.FIELD_ELE);
+                                int fix = mPoints.getColumnIndex(TrackLayer.FIELD_FIX);
+                                int sat = mPoints.getColumnIndex(TrackLayer.FIELD_SAT);
+                                int acc = mPoints.getColumnIndex(TrackLayer.FIELD_ACCURACY);
+                                int speed = mPoints.getColumnIndex(TrackLayer.FIELD_SPEED);
+                                int time = mPoints.getColumnIndex(TrackLayer.FIELD_TIMESTAMP);
+                                JSONArray payload = new JSONArray();
 
-            return null;
-        }
+                                int counter = 0;
+                                do {
+                                    JSONObject item = new JSONObject();
+                                    try {
+                                        point.setCoordinates(mPoints.getDouble(lon), mPoints.getDouble(lat));
+                                        point.setCRS(GeoConstants.CRS_WEB_MERCATOR);
+                                        point.project(GeoConstants.CRS_WGS84);
+                                        item.put("lt", point.getY());
+                                        item.put("ln", point.getX());
+                                        item.put("ts", mPoints.getLong(time));
+                                        item.put("a", mPoints.getDouble(ele));
+                                        item.put("s", mPoints.getInt(sat));
+                                        item.put("ft", mPoints.getString(fix).equals("3d") ? 3 : 2);
+                                        item.put("sp", mPoints.getDouble(speed));
+                                        item.put("ha", mPoints.getDouble(acc));
+                                        payload.put(item);
+                                        ids.add(mPoints.getString(time));
+                                        counter++;
+
+                                        if (counter >= 100) {
+                                            post(payload.toString(), TrackerService.this, ids);
+                                            payload = new JSONArray();
+                                            ids.clear();
+                                            counter = 0;
+                                        }
+                                    } catch (Exception ignored) { }
+                                } while (mPoints.moveToNext());
+
+                                if (counter > 0) {
+                                    try {
+                                        post(payload.toString(), TrackerService.this, ids);
+                                    } catch (Exception ignored) { }
+                                }
+                            }
+                            mPoints.close();
+                        }
+                    }
+
+                    sync(app);
+
+                    try {
+                        Thread.sleep(minTime);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
+        });
     }
 
+    private void post(String payload, Context context, List<String> ids) throws IOException {
+        String url = String.format("%s/%s/packet", URL, getUid(context));
+        NetworkUtil.post(url, payload, null, null, false);
+        ContentValues cv = new ContentValues();
+        cv.put(TrackLayer.FIELD_SENT, 1);
+        String where = TrackLayer.FIELD_TIMESTAMP + " in (" + MapUtil.makePlaceholders(ids.size()) + ")";
+        String[] timestamps = ids.toArray(new String[0]);
+        context.getContentResolver().update(mContentUriTrackPoints, cv, where, timestamps);
+    }
+
+    @SuppressLint("HardwareIds")
+    public static String getUid(Context context) {
+        String uuid = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        return String.format("%X", uuid.hashCode());
+    }
 }
