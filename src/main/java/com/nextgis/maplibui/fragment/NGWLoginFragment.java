@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -42,6 +42,7 @@ import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.HTTPLoader;
 import com.nextgis.maplibui.util.ConstantsUI;
@@ -197,7 +198,7 @@ public class NGWLoginFragment
                 return;
             }
 
-            if (!android.util.Patterns.WEB_URL.matcher(mUrlText).matches()) {
+            if (!NetworkUtil.isValidUri(mUrlText)) {
                 Toast.makeText(getActivity(), R.string.error_invalid_url, Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -316,7 +317,7 @@ public class NGWLoginFragment
         }
 
         if (mForNewAccount) {
-            boolean accountAdded = app.addAccount(accountName, mUrlText, login, password, token);
+            boolean accountAdded = app.addAccount(accountName, mUrlText.toLowerCase(), login, password, token);
 
             if (null != mOnAddAccountListener) {
                 Account account = null;
