@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -109,7 +109,7 @@ public class VectorLayerSettingsActivity
             mLayerMinZoom = mVectorLayer.getMinZoom();
             mLayerMaxZoom = mVectorLayer.getMaxZoom();
             mRenderer = mVectorLayer.getRenderer();
-            mToolbar = (Toolbar) findViewById(R.id.main_toolbar);
+            mToolbar = findViewById(R.id.main_toolbar);
             setSubtitle();
         }
     }
@@ -197,7 +197,7 @@ public class VectorLayerSettingsActivity
             if (mVectorLayer == null)
                 return v;
 
-            Spinner spinner = (Spinner) v.findViewById(R.id.renderer);
+            Spinner spinner = v.findViewById(R.id.renderer);
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -266,7 +266,7 @@ public class VectorLayerSettingsActivity
             if (mVectorLayer == null)
                 return v;
 
-            ListView fields = (ListView) v.findViewById(R.id.listView);
+            ListView fields = v.findViewById(R.id.listView);
             fillFields();
             ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice, mFieldAliases);
 
@@ -324,10 +324,10 @@ public class VectorLayerSettingsActivity
             if (mVectorLayer == null)
                 return v;
 
-            final ProgressBar rebuildCacheProgress = (ProgressBar) v.findViewById(R.id.rebuildCacheProgressBar);
-            final Button buildCacheButton = (Button) v.findViewById(R.id.rebuild_cache);
+            final ProgressBar rebuildCacheProgress = v.findViewById(R.id.rebuildCacheProgressBar);
+            final Button buildCacheButton = v.findViewById(R.id.rebuild_cache);
             buildCacheButton.setOnClickListener((View.OnClickListener) getActivity());
-            final ImageButton cancelBuildCacheButton = (ImageButton) v.findViewById(R.id.cancelBuildCacheButton);
+            final ImageButton cancelBuildCacheButton = v.findViewById(R.id.cancelBuildCacheButton);
             cancelBuildCacheButton.setOnClickListener((View.OnClickListener) getActivity());
             final View progressView = v.findViewById(R.id.rebuild_progress);
 
@@ -390,11 +390,11 @@ public class VectorLayerSettingsActivity
             if (account == null)
                 return null;
 
-            TextView accountName = (TextView) v.findViewById(R.id.account_name);
+            TextView accountName = v.findViewById(R.id.account_name);
             accountName.setText(String.format(getString(R.string.ngw_account), account.name));
 
-            final Spinner direction = (Spinner) v.findViewById(R.id.sync_direction);
-            CheckBox enabled = (CheckBox) v.findViewById(R.id.sync_enabled);
+            final Spinner direction = v.findViewById(R.id.sync_direction);
+            CheckBox enabled = v.findViewById(R.id.sync_enabled);
             enabled.setChecked(0 == (ngwLayer.getSyncType() & Constants.SYNC_NONE));
             enabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -422,8 +422,8 @@ public class VectorLayerSettingsActivity
                 }
             });
 
-            final Spinner period = (Spinner) v.findViewById(R.id.sync_interval);
-            CheckBox auto = (CheckBox) v.findViewById(R.id.sync_auto);
+            final Spinner period = v.findViewById(R.id.sync_interval);
+            CheckBox auto = v.findViewById(R.id.sync_auto);
             boolean isAccountSyncEnabled = NGWSettingsFragment.isAccountSyncEnabled(account, app.getAuthority());
             auto.setChecked(isAccountSyncEnabled);
             auto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

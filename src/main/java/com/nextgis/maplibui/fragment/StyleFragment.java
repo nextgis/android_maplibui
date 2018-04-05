@@ -328,13 +328,6 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         mField = body.findViewById(R.id.field);
 
         String field = style.getField();
-        boolean hasText = style.getText() != null;
-        boolean hasField = field != null;
-
-        mTextEnabled.setChecked(hasField || hasText);
-        mNotHardcoded.setEnabled(mTextEnabled.isChecked());
-        mEditText.setEnabled(mTextEnabled.isChecked());
-        mField.setEnabled(mTextEnabled.isChecked());
 
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -363,23 +356,6 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
                 id = i;
         }
 
-        ArrayAdapter fieldAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, fieldNames);
-        mField.setAdapter(fieldAdapter);
-        if (hasField && id > -1)
-            mField.setSelection(id);
-
-        mField.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                style.setField(mFields.get(position).getName());
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
         mTextEnabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -406,6 +382,17 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
             }
         });
 
+        boolean hasText = style.getText() != null;
+        boolean hasField = field != null;
+        boolean isChecked = hasField || hasText;
+
+        mTextEnabled.setChecked(isChecked);
+        mNotHardcoded.setEnabled(isChecked);
+        mEditText.setEnabled(isChecked);
+        mField.setEnabled(isChecked);
+        mTextSize.setEnabled(isChecked);
+        mTextAlignment.setEnabled(isChecked);
+
         mNotHardcoded.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -415,6 +402,24 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
             }
         });
         mNotHardcoded.setChecked(hasField || !mTextEnabled.isChecked());
+
+        ArrayAdapter fieldAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, fieldNames);
+        mField.setAdapter(fieldAdapter);
+        if (hasField && id > -1)
+            mField.setSelection(id);
+
+        mField.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (mTextEnabled.isChecked() && mNotHardcoded.isChecked())
+                    style.setField(mFields.get(position).getName());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     @Override
