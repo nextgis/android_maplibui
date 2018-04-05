@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016, 2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -51,6 +51,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -158,12 +159,12 @@ public class ModifyAttributesActivity
     protected void createLocationPanelView(final IGISApplication app)
     {
         if (null == mGeometry && mFeatureId == NOT_FOUND) {
-            mLatView = (TextView) findViewById(R.id.latitude_view);
-            mLongView = (TextView) findViewById(R.id.longitude_view);
-            mAltView = (TextView) findViewById(R.id.altitude_view);
-            mAccView = (TextView) findViewById(R.id.accuracy_view);
-            final ImageButton refreshLocation = (ImageButton) findViewById(R.id.refresh);
-            mAccurateLocation = (SwitchCompat) findViewById(R.id.accurate_location);
+            mLatView = findViewById(R.id.latitude_view);
+            mLongView = findViewById(R.id.longitude_view);
+            mAltView = findViewById(R.id.altitude_view);
+            mAccView = findViewById(R.id.accuracy_view);
+            final ImageButton refreshLocation = findViewById(R.id.refresh);
+            mAccurateLocation = findViewById(R.id.accurate_location);
             mAccurateLocation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -173,7 +174,19 @@ public class ModifyAttributesActivity
                     }
                 }
             });
-            mAccuracyCE = (AppCompatSpinner) findViewById(R.id.accurate_ce);
+
+            mAccuracyCE = findViewById(R.id.accurate_ce);
+            SpinnerAdapter adapter = mAccuracyCE.getAdapter();
+            String def = adapter.getItem(0).toString();
+            def = mSharedPreferences.getString(SettingsConstants.KEY_PREF_LOCATION_ACCURATE_CE, def);
+            int id = 0;
+            for (int i = 0; i < adapter.getCount(); i++) {
+                if (adapter.getItem(i).toString().equals(def)) {
+                    id = i;
+                    break;
+                }
+            }
+            mAccuracyCE.setSelection(id);
 
             refreshLocation.setOnClickListener(
                     new View.OnClickListener()
@@ -191,17 +204,19 @@ public class ModifyAttributesActivity
                             if (mAccurateLocation.isChecked()) {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(ModifyAttributesActivity.this);
                                 View layout = View.inflate(ModifyAttributesActivity.this, R.layout.dialog_progress_accurate_location, null);
-                                TextView message = (TextView) layout.findViewById(R.id.message);
-                                final ProgressBar progress = (ProgressBar) layout.findViewById(R.id.progress);
-                                final TextView progressPercent = (TextView) layout.findViewById(R.id.progress_percent);
-                                final TextView progressNumber = (TextView) layout.findViewById(R.id.progress_number);
-                                final CheckBox finishBeep = (CheckBox) layout.findViewById(R.id.finish_beep);
+                                TextView message = layout.findViewById(R.id.message);
+                                final ProgressBar progress = layout.findViewById(R.id.progress);
+                                final TextView progressPercent = layout.findViewById(R.id.progress_percent);
+                                final TextView progressNumber = layout.findViewById(R.id.progress_number);
+                                final CheckBox finishBeep = layout.findViewById(R.id.finish_beep);
                                 builder.setView(layout);
                                 builder.setTitle(R.string.accurate_location);
 
+                                String selected = (String) mAccuracyCE.getSelectedItem();
+                                mSharedPreferences.edit().putString(SettingsConstants.KEY_PREF_LOCATION_ACCURATE_CE, selected).apply();
                                 final AccurateLocationTaker accurateLocation =
                                         new AccurateLocationTaker(view.getContext(), 100f,
-                                                mMaxTakeCount, MAX_TAKE_TIME, PROGRESS_DELAY, (String) mAccuracyCE.getSelectedItem());
+                                                mMaxTakeCount, MAX_TAKE_TIME, PROGRESS_DELAY, selected);
 
                                 progress.setIndeterminate(true);
                                 message.setText(R.string.accurate_taking);
@@ -267,7 +282,7 @@ public class ModifyAttributesActivity
                     });
         } else {
             //hide location panel
-            ViewGroup rootView = (ViewGroup) findViewById(R.id.controls_list);
+            ViewGroup rootView = findViewById(R.id.controls_list);
             rootView.removeView(findViewById(R.id.location_panel));
         }
     }
@@ -300,7 +315,7 @@ public class ModifyAttributesActivity
                 mIsViewOnly = extras.getBoolean(KEY_VIEW_ONLY, false);
                 mIsGeometryChanged = extras.getBoolean(KEY_GEOMETRY_CHANGED, true);
                 mGeometry = (GeoGeometry) extras.getSerializable(KEY_GEOMETRY);
-                LinearLayout layout = (LinearLayout) findViewById(R.id.controls_list);
+                LinearLayout layout = findViewById(R.id.controls_list);
                 fillControls(layout, savedState);
             } else {
                 Toast.makeText(this, R.string.error_layer_not_inited, Toast.LENGTH_SHORT).show();
@@ -400,7 +415,7 @@ public class ModifyAttributesActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        LinearLayout controlLayout = (LinearLayout) findViewById(R.id.controls_list);
+        LinearLayout controlLayout = findViewById(R.id.controls_list);
         for (int i = 0; i < controlLayout.getChildCount(); i++)
             if (controlLayout.getChildAt(i) instanceof IControl)
                 ((IControl) controlLayout.getChildAt(i)).saveState(outState);
@@ -531,7 +546,7 @@ public class ModifyAttributesActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        PhotoGallery gallery = (PhotoGallery) findViewById(R.id.pg_photos);
+        PhotoGallery gallery = findViewById(R.id.pg_photos);
         if (gallery != null)
             gallery.onActivityResult(requestCode, resultCode, data);
     }
@@ -587,7 +602,7 @@ public class ModifyAttributesActivity
 
 
     protected void putSign() {
-        LinearLayout layout = (LinearLayout) findViewById(R.id.controls_list);
+        LinearLayout layout = findViewById(R.id.controls_list);
         for (int i = 0; i < layout.getChildCount(); i++) {
             View child = layout.getChildAt(i);
             if (child instanceof Sign) {
@@ -702,7 +717,7 @@ public class ModifyAttributesActivity
 
     protected int putAttaches() {
         int total = 0;
-        PhotoGallery gallery = (PhotoGallery) findViewById(R.id.pg_photos);
+        PhotoGallery gallery = findViewById(R.id.pg_photos);
 
         if (gallery != null && mFeatureId != NOT_FOUND) {
             List<Integer> deletedAttaches = gallery.getDeletedAttaches();
