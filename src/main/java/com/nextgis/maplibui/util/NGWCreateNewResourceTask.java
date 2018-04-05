@@ -66,7 +66,7 @@ public class NGWCreateNewResourceTask extends AsyncTask<Void, Void, HttpResponse
 
     @Override
     protected HttpResponse doInBackground(Void... voids) {
-        if (mConnection.connect()) {
+        if (mConnection.connect(false)) {
             mVer = null;
             try {
                 AccountUtil.AccountData accountData = AccountUtil.getAccountData(mContext, mConnection.getName());
