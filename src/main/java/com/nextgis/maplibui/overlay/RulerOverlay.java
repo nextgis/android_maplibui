@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2016-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -76,7 +76,7 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
         mTolerancePX = context.getResources().getDisplayMetrics().density * ConstantsUI.TOLERANCE_DP;
     }
 
-    public void startMeasuring(OnRulerChanged listener) {
+    public void startMeasuring(OnRulerChanged listener, GeoPoint currentCenter) {
         mMeasuring = true;
         mRulerItem = new DrawItem();
         mRulerPolygon = new GeoPolygon();
@@ -86,8 +86,13 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
         if (mRulerString != null) {
             fillDrawItem();
             fillGeometry();
-        } else
+        } else {
             mRulerString = new GeoLineString();
+            if (currentCenter != null) {
+                mRulerString.add(currentCenter);
+                fillDrawItem();
+            }
+        }
     }
 
     public void stopMeasuring() {
