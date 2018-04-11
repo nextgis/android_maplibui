@@ -344,4 +344,6 @@
     <string name="alignment">Alignment</string>
     <string name="enter_signature">Enter constant value</string>
     <string name="text_color">Text color</string>
+    <string name="metric">Metric</string>
+    <string name="imperial">Imperial</string>
 </resources>

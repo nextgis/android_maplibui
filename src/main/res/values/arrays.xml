@@ -33,6 +33,14 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+    <string-array name="units" translatable="false">
+        <item>@string/metric</item>
+        <item>@string/imperial</item>
+    </string-array>
+    <string-array name="units_val" translatable="false">
+        <item>metric</item>
+        <item>imperial</item>
+    </string-array>
     <string-array name="tracker_min_dist_update">
         <item>@string/most_frequently</item>
         <item>1 m</item>

@@ -344,4 +344,6 @@
     <string name="alignment">Расположение</string>
     <string name="enter_signature">Введите текст</string>
     <string name="text_color">Цвет текста</string>
+    <string name="metric">Метрическая</string>
+    <string name="imperial">Британская</string>
 </resources>
