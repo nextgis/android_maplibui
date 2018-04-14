@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,6 +25,8 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -65,6 +67,7 @@ import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.NGIDLoginActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -193,7 +196,6 @@ public final class ControlHelper
                 int syncIconId = isDarkTheme(context)
                                  ? R.drawable.ic_action_refresh_dark
                                  : R.drawable.ic_action_refresh_light;
-                ;
                 src = BitmapFactory.decodeResource(context.getResources(), syncIconId);
                 src = Bitmap.createScaledBitmap(src, bitmap.getWidth() / 2, bitmap.getWidth() / 2,
                         true);
@@ -486,14 +488,21 @@ public final class ControlHelper
         return wrapDrawable;
     }
 
-    public static void showProDialog(Context context) {
+    public static void showProDialog(final Context context) {
         AlertDialog builder = new AlertDialog.Builder(context)
                 .setTitle(R.string.pro_user_only)
                 .setMessage(R.string.get_pro)
-                .setPositiveButton(android.R.string.ok, null)
+                .setPositiveButton(R.string.login, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(context, NGIDLoginActivity.class);
+                        context.startActivity(intent);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
                 .show();
 
-        TextView message = (TextView) builder.findViewById(android.R.id.message);
+        TextView message = builder.findViewById(android.R.id.message);
         if (message != null) {
             message.setMovementMethod(LinkMovementMethod.getInstance());
             message.setLinksClickable(true);

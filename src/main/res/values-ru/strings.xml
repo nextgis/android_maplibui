@@ -328,7 +328,7 @@
     <string name="sign_in_tip">для больших возможностей, синхронизации и получения обновлений</string>
     <string name="select_row">Выберите поле</string>
     <string name="coming_soon">Скоро будет доступно</string>
-    <string name="get_pro">Функция доступна только подписчикам. Пожалуйста, войдите или ознакомьтесь подробнее (<a href="https://nextgis.com/pricing">https://nextgis.com/pricing</a>)</string>
+    <string name="get_pro">Функция доступна только подписчикам. Пожалуйста, войдите или ознакомьтесь подробнее (<a href="https://nextgis.ru/pricing">https://nextgis.com/pricing</a>)</string>
     <string name="pro_user_only">Pro функция</string>
     <string name="small">Маленький</string>
     <string name="medium">Средний</string>

@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -46,6 +46,7 @@ import com.nextgis.maplib.datasource.ngw.INGWResource;
 import com.nextgis.maplib.datasource.ngw.LayerWithStyles;
 import com.nextgis.maplib.datasource.ngw.Resource;
 import com.nextgis.maplib.datasource.ngw.ResourceGroup;
+import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.CheckState;
 import com.nextgis.maplibui.util.ControlHelper;
@@ -289,10 +290,10 @@ public class NGWResourcesListAdapter
                 v = inflater.inflate(R.layout.row_resourcegroup, null);
                 v.setId(R.id.resourcegroup_row);
             }
-            ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+            ImageView ivIcon = v.findViewById(R.id.ivIcon);
             ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_add_account));
 
-            TextView tvText = (TextView) v.findViewById(R.id.tvName);
+            TextView tvText = v.findViewById(R.id.tvName);
             tvText.setText(mContext.getString(R.string.ngw_account_add));
         } else {
             if (null == v || v.getId() != R.id.resourcegroup_row) {
@@ -300,14 +301,14 @@ public class NGWResourcesListAdapter
                 v = inflater.inflate(R.layout.row_resourcegroup, null);
                 v.setId(R.id.resourcegroup_row);
             }
-            ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+            ImageView ivIcon = v.findViewById(R.id.ivIcon);
             ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_ngw));
 
-            TextView tvText = (TextView) v.findViewById(R.id.tvName);
+            TextView tvText = v.findViewById(R.id.tvName);
             tvText.setText(connection.getName());
         }
 
-        TextView tvDesc = (TextView) v.findViewById(R.id.tvDesc);
+        TextView tvDesc = v.findViewById(R.id.tvDesc);
         tvDesc.setVisibility(View.GONE);
 
         return v;
@@ -326,14 +327,14 @@ public class NGWResourcesListAdapter
                 v = inflater.inflate(R.layout.row_resourcegroup, null);
                 v.setId(R.id.resourcegroup_row);
 
-                ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+                ImageView ivIcon = v.findViewById(R.id.ivIcon);
                 ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_ngw_folder));
             }
 
-            TextView tvText = (TextView) v.findViewById(R.id.tvName);
+            TextView tvText = v.findViewById(R.id.tvName);
             tvText.setText(mContext.getString(R.string.up_dots));
 
-            tvDesc = (TextView) v.findViewById(R.id.tvDesc);
+            tvDesc = v.findViewById(R.id.tvDesc);
             tvDesc.setText(mContext.getString(R.string.up));
         } else {
             ImageView ivIcon;
@@ -358,11 +359,11 @@ public class NGWResourcesListAdapter
                         v = inflater.inflate(R.layout.row_resourcegroup, null);
                         v.setId(R.id.resourcegroup_row);
 
-                        ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+                        ivIcon = v.findViewById(R.id.ivIcon);
                         ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_ngw_folder));
                     }
 
-                    tvDesc = (TextView) v.findViewById(R.id.tvDesc);
+                    tvDesc = v.findViewById(R.id.tvDesc);
                     tvDesc.setText(mContext.getString(R.string.resource_group));
                     break;
                 case Connection.NGWResourceTypeRasterLayer:
@@ -372,16 +373,16 @@ public class NGWResourcesListAdapter
                         v = inflater.inflate(R.layout.row_ngwlayer_check, null);
                         v.setId(R.id.ngw_layer_check_row);
                     }
-                    ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+                    ivIcon = v.findViewById(R.id.ivIcon);
                     int icon = resourceType == Connection.NGWResourceTypeRasterLayer ? R.drawable.ic_raster : R.drawable.ic_ngw_wms_client;
                     ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, icon));
 
-                    tvDesc = (TextView) v.findViewById(R.id.tvDesc);
+                    tvDesc = v.findViewById(R.id.tvDesc);
                     tvDesc.setText(mContext.getString(R.string.raster_layer));
 
                     //add check listener
-                    checkBox1 = (CheckBox) v.findViewById(R.id.checkBox1);
-                    setCheckBox(checkBox1, id, 1);
+                    checkBox1 = v.findViewById(R.id.checkBox1);
+                    setCheckBox(resourceType, checkBox1, id, 1);
                     break;
                 case Connection.NGWResourceTypeVectorLayer:
                 case Connection.NGWResourceTypePostgisLayer:
@@ -394,11 +395,11 @@ public class NGWResourcesListAdapter
                         }
 
                         //add check listener
-                        checkBox1 = (CheckBox) v.findViewById(R.id.checkBox1);
-                        setCheckBox(checkBox1, id, 1);
+                        checkBox1 = v.findViewById(R.id.checkBox1);
+                        setCheckBox(resourceType, checkBox1, id, 1);
 
-                        checkBox2 = (CheckBox) v.findViewById(R.id.checkBox2);
-                        setCheckBox(checkBox2, id, 2);
+                        checkBox2 = v.findViewById(R.id.checkBox2);
+                        setCheckBox(resourceType, checkBox2, id, 2);
                     } else {
                         if (null == v || v.getId() != R.id.ngw_layer_check_row) {
                             LayoutInflater inflater = LayoutInflater.from(mContext);
@@ -406,20 +407,20 @@ public class NGWResourcesListAdapter
                             v.setId(R.id.ngw_layer_check_row);
                         }
 
-                        TextView tvType = (TextView) v.findViewById(R.id.type1);
+                        TextView tvType = v.findViewById(R.id.type1);
                         tvType.setText(mContext.getString(R.string.vector));
 
                         //add check listener
-                        checkBox1 = (CheckBox) v.findViewById(R.id.checkBox1);
-                        setCheckBox(checkBox1, id, 2);
+                        checkBox1 = v.findViewById(R.id.checkBox1);
+                        setCheckBox(resourceType, checkBox1, id, 2);
                     }
 
                     int vectorIcon = resourceType == Connection.NGWResourceTypeVectorLayer ? R.drawable.ic_vector : R.drawable.ic_pg_vector;
-                    ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+                    ivIcon = v.findViewById(R.id.ivIcon);
                     ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, vectorIcon));
 
                     int desc = resourceType == Connection.NGWResourceTypeVectorLayer ? R.string.vector_layer : R.string.pg_layer;
-                    tvDesc = (TextView) v.findViewById(R.id.tvDesc);
+                    tvDesc = v.findViewById(R.id.tvDesc);
                     tvDesc.setText(mContext.getString(desc));
                     break;
                 case Connection.NGWResourceTypeWebMap:
@@ -428,15 +429,15 @@ public class NGWResourcesListAdapter
                         v = inflater.inflate(R.layout.row_ngwlayer_check, null);
                         v.setId(R.id.ngw_layer_check_row);
                     }
-                    ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+                    ivIcon = v.findViewById(R.id.ivIcon);
                     ivIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_ngw_webmap));
 
-                    tvDesc = (TextView) v.findViewById(R.id.tvDesc);
+                    tvDesc = v.findViewById(R.id.tvDesc);
                     tvDesc.setText(mContext.getString(R.string.web_map));
 
                     //add check listener
-                    checkBox1 = (CheckBox) v.findViewById(R.id.checkBox1);
-                    setCheckBox(checkBox1, id, 1);
+                    checkBox1 = v.findViewById(R.id.checkBox1);
+                    setCheckBox(resourceType, checkBox1, id, 1);
                     break;
                 default:
                     return null;
@@ -451,7 +452,7 @@ public class NGWResourcesListAdapter
                     v.findViewById(R.id.check_vector).setVisibility(View.GONE);
             }
 
-            TextView tvText = (TextView) v.findViewById(R.id.tvName);
+            TextView tvText = v.findViewById(R.id.tvName);
             tvText.setText(resource.getName());
         }
 
@@ -460,6 +461,7 @@ public class NGWResourcesListAdapter
 
 
     public void setCheckBox(
+            final int resourceType,
             final CheckBox checkBox,
             final int id,
             final int checkNo)
@@ -485,6 +487,12 @@ public class NGWResourcesListAdapter
                             CompoundButton compoundButton,
                             boolean b)
                     {
+                        if (resourceType == Connection.NGWResourceTypePostgisLayer && !AccountUtil.isProUser(mContext)) {
+                            ControlHelper.showProDialog(mContext);
+                            compoundButton.setChecked(false);
+                            return;
+                        }
+
                         CheckState checkedState = null;
                         for (CheckState state : mCheckState) {
                             if (state.getId() == id) {
@@ -512,8 +520,6 @@ public class NGWResourcesListAdapter
                             mCheckState.remove(checkedState);
                     }
                 });
-
-
     }
 
 
