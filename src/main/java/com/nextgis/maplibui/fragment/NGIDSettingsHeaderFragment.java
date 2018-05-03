@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -32,12 +32,12 @@ import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceGroup;
 import android.support.v7.preference.PreferenceScreen;
-import android.text.TextUtils;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGIDLoginActivity;
 import com.nextgis.maplibui.util.NGIDUtils;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
+import static com.nextgis.maplibui.util.NGIDUtils.isLoggedIn;
 
 public class NGIDSettingsHeaderFragment
         extends NGPreferenceHeaderFragment
@@ -55,8 +55,7 @@ public class NGIDSettingsHeaderFragment
 
     protected void fillHeaders(PreferenceGroup screen)
     {
-        boolean isLoggedIn =
-                !TextUtils.isEmpty(mPreferences.getString(NGIDUtils.PREF_ACCESS_TOKEN, ""));
+        boolean isLoggedIn = isLoggedIn(mPreferences);
         Preference preference = new Preference(mStyledContext);
 
         if (isLoggedIn) {

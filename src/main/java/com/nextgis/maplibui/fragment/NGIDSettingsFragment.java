@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -30,15 +30,12 @@ import android.support.v7.preference.PreferenceGroup;
 import android.support.v7.preference.PreferenceScreen;
 import android.text.TextUtils;
 
-import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGPreferenceActivity;
 import com.nextgis.maplibui.util.NGIDUtils;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
-import java.io.File;
-
-import static com.nextgis.maplib.util.Constants.SUPPORT;
+import static com.nextgis.maplibui.util.NGIDUtils.signOut;
 
 public class NGIDSettingsFragment
         extends NGPreferenceSettingsFragment
@@ -85,21 +82,7 @@ public class NGIDSettingsFragment
                     @Override
                     public boolean onPreferenceClick(Preference preference)
                     {
-                        mPreferences.edit()
-                                .remove(NGIDUtils.PREF_USERNAME)
-                                .remove(NGIDUtils.PREF_EMAIL)
-                                .remove(NGIDUtils.PREF_FIRST_NAME)
-                                .remove(NGIDUtils.PREF_LAST_NAME)
-                                .remove(NGIDUtils.PREF_ACCESS_TOKEN)
-                                .remove(NGIDUtils.PREF_REFRESH_TOKEN)
-                                .apply();
-
-                        File support = getContext().getExternalFilesDir(null);
-                        if (support == null)
-                            support = new File(getContext().getFilesDir(), SUPPORT);
-                        else
-                            support = new File(support, SUPPORT);
-                        FileUtil.deleteRecursive(support);
+                        signOut(mPreferences, getContext());
 
                         if (!NGPreferenceActivity.isMultiPane(getActivity())) {
                             mActivity.onBackPressed();

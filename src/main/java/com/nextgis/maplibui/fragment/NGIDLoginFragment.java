@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2017-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -39,6 +39,7 @@ import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.util.HttpResponse;
 import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.NGIDLoginActivity;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.NGIDUtils;
 
@@ -87,6 +88,7 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
                     mSignInButton.setEnabled(true);
 
                     if (response.isOk()) {
+                        activity.getIntent().putExtra(NGIDLoginActivity.EXTRA_SUCCESS, true);
                         activity.finish();
                     } else {
                         Toast.makeText(
