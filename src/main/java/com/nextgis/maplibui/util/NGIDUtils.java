@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2017-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -27,6 +27,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
+import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.HttpResponse;
 import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.BuildConfig;
@@ -35,6 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -43,6 +45,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 import javax.net.ssl.HttpsURLConnection;
+
+import static com.nextgis.maplib.util.Constants.SUPPORT;
 
 public final class NGIDUtils {
     public static final String NGID_MY = "https://my.nextgis.com/";
@@ -224,5 +228,27 @@ public final class NGIDUtils {
         }
 
         return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
+    }
+
+    public static boolean isLoggedIn(SharedPreferences preferences) {
+        return !TextUtils.isEmpty(preferences.getString(NGIDUtils.PREF_ACCESS_TOKEN, ""));
+    }
+
+    public static void signOut(SharedPreferences preferences, Context context) {
+        preferences.edit()
+                   .remove(NGIDUtils.PREF_USERNAME)
+                   .remove(NGIDUtils.PREF_EMAIL)
+                   .remove(NGIDUtils.PREF_FIRST_NAME)
+                   .remove(NGIDUtils.PREF_LAST_NAME)
+                   .remove(NGIDUtils.PREF_ACCESS_TOKEN)
+                   .remove(NGIDUtils.PREF_REFRESH_TOKEN)
+                   .apply();
+
+        File support = context.getExternalFilesDir(null);
+        if (support == null)
+            support = new File(context.getFilesDir(), SUPPORT);
+        else
+            support = new File(support, SUPPORT);
+        FileUtil.deleteRecursive(support);
     }
 }

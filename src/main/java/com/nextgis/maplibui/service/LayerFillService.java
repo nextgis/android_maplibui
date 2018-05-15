@@ -60,6 +60,7 @@ import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.GeoJSONUtil;
 import com.nextgis.maplib.util.NGException;
 import com.nextgis.maplib.util.NGWUtil;
+import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.mapui.LocalTMSLayerUI;
 import com.nextgis.maplibui.mapui.NGWVectorLayerUI;
@@ -76,6 +77,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -111,6 +113,9 @@ public class LayerFillService extends Service implements IProgressor {
     public static final String KEY_URI = "uri";
     public static final String KEY_PATH = "path";
     public static final String KEY_LAYER_PATH = "layer_path";
+    public static final String KEY_MIN_ZOOM = "min_zoom";
+    public static final String KEY_MAX_ZOOM = "max_zoom";
+    public static final String KEY_VISIBLE = "visible";
     public static final String KEY_REMOTE_ID = "remote_id";
     public static final String KEY_LOOKUP_ID = "lookup_id";
     public static final String KEY_ACCOUNT = "account";
@@ -190,9 +195,9 @@ public class LayerFillService extends Service implements IProgressor {
                     case ACTION_ADD_TASK:
                         int layerGroupId = intent.getIntExtra(KEY_LAYER_GROUP_ID, Constants.NOT_FOUND);
                         mLayerGroup = (LayerGroup) MapBase.getInstance().getLayerById(layerGroupId);
-                        
+
+                        int layerType = intent.getIntExtra(KEY_INPUT_TYPE, Constants.NOT_FOUND);
                         Bundle extra = intent.getExtras();
-                        int layerType = extra.getInt(KEY_INPUT_TYPE, Constants.NOT_FOUND);
 
                         switch (layerType) {
                             case VECTOR_LAYER:
@@ -273,10 +278,10 @@ public class LayerFillService extends Service implements IProgressor {
                 } else
                     task.cancel();
 
-                if (task instanceof NGWVectorLayerFillTask && ((NGWVectorLayerFillTask) task).showSyncDialog()) {
-                    mProgressIntent.putExtra(KEY_SYNC, true);
+                if (task instanceof NGWVectorLayerFillTask) {
+                    mProgressIntent.putExtra(KEY_SYNC, ((NGWVectorLayerFillTask) task).showSyncDialog());
                     mProgressIntent.putExtra(KEY_ACCOUNT, ((NGWVectorLayerFillTask) task).getAccountName());
-                    mProgressIntent.putExtra(KEY_REMOTE_ID, (task.getLayer().getId()));
+                    mProgressIntent.putExtra(KEY_REMOTE_ID, task.getLayer().getId());
                 }
 
                 sendBroadcast(mProgressIntent);
@@ -357,6 +362,8 @@ public class LayerFillService extends Service implements IProgressor {
     private abstract class LayerFillTask{
         String mLayerName;
         File mLayerPath;
+        float mMinZoom, mMaxZoom;
+        boolean mVisible;
         Uri mUri;
         protected Layer mLayer;
 
@@ -366,13 +373,16 @@ public class LayerFillService extends Service implements IProgressor {
             mLayerPath = bundle.containsKey(KEY_LAYER_PATH) ?
                     (File) bundle.getSerializable(KEY_LAYER_PATH) :
                     mLayerGroup.createLayerStorage();
+            mMinZoom = bundle.getFloat(KEY_MIN_ZOOM, GeoConstants.DEFAULT_MIN_ZOOM);
+            mMaxZoom = bundle.getFloat(KEY_MAX_ZOOM, GeoConstants.DEFAULT_MAX_ZOOM);
+            mVisible = bundle.getBoolean(KEY_VISIBLE, true);
         }
 
         void initLayer() {
             mLayer.setName(mLayerName);
-            mLayer.setVisible(true);
-            mLayer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
-            mLayer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
+            mLayer.setVisible(mVisible);
+            mLayer.setMinZoom(mMinZoom);
+            mLayer.setMaxZoom(mMaxZoom);
         }
 
         public abstract boolean execute(IProgressor progressor);
@@ -429,15 +439,23 @@ public class LayerFillService extends Service implements IProgressor {
     }
 
     private class UnzipForm extends LayerFillTask {
+        boolean mSync;
 
         UnzipForm(Bundle bundle) {
             super(bundle);
+            mSync = bundle.getBoolean(KEY_SYNC, true);
         }
 
         @Override
         public boolean execute(IProgressor progressor) {
             try {
-                InputStream inputStream = getContentResolver().openInputStream(mUri);
+                InputStream inputStream;
+                String url = mUri.toString();
+                if (NetworkUtil.isValidUri(url))
+                    inputStream = new URL(url).openStream();
+                else
+                    inputStream = getContentResolver().openInputStream(mUri);
+
                 if (inputStream != null) {
                     int nSize = inputStream.available();
                     int nIncrement = 0;
@@ -478,7 +496,7 @@ public class LayerFillService extends Service implements IProgressor {
                         JSONObject connection = metaJson.getJSONObject(ConstantsUI.JSON_NGW_CONNECTION_KEY);
 
                         //read url
-                        String url = connection.getString("url");
+                        url = connection.getString("url");
                         if (!url.startsWith("http")) {
                             url = "http://" + url;
                         }
@@ -541,7 +559,7 @@ public class LayerFillService extends Service implements IProgressor {
                         extra.putStringArrayList(KEY_LOOKUP_ID, lookupTableIds);
                         extra.putLong(KEY_REMOTE_ID, resourceId);
                         extra.putString(KEY_ACCOUNT, accountName);
-                        extra.putBoolean(KEY_SYNC, true);
+                        extra.putBoolean(KEY_SYNC, mSync);
 
                         if (!isCanceled())
                             mQueue.add(new NGWVectorLayerFillTask(extra));

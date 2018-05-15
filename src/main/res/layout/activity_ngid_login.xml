@@ -4,7 +4,7 @@
   ~ Purpose:  Mobile GIS for Android.
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2017 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2017-2018 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -28,17 +28,11 @@
 
     <include layout="@layout/actionbar"/>
 
-    <FrameLayout
+    <fragment
+        android:id="@+id/login_screen"
+        android:name="com.nextgis.maplibui.fragment.NGIDLoginFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="8dp">
-
-        <fragment
-            android:id="@+id/login_screen"
-            android:name="com.nextgis.maplibui.fragment.NGIDLoginFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="?attr/actionBarSize"
-            tools:layout="@layout/fragment_ngid_login"/>
-    </FrameLayout>
+        android:layout_marginTop="?attr/actionBarSize"
+        tools:layout="@layout/fragment_ngid_login"/>
 </FrameLayout>
