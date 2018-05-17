@@ -285,6 +285,7 @@ public class LayerFillService extends Service implements IProgressor {
                 }
 
                 sendBroadcast(mProgressIntent);
+                mProgressIntent.removeExtra(KEY_STATUS);
                 mIsRunning = false;
                 startNextTask();
             }
