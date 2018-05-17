@@ -466,33 +466,38 @@ public class ModifyAttributesActivity
     }
 
 
+    private boolean checkEdits() {
+        if (hasEdits()) {
+            AlertDialog builder = new AlertDialog.Builder(this)
+                    .setTitle(R.string.save)
+                    .setMessage(R.string.has_edits)
+                    .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            saveFeature();
+                            finish();
+                        }
+                    })
+                    .setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    }).create();
+            builder.show();
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
         int id = item.getItemId();
 
         if (id == android.R.id.home) {
-            if (hasEdits()) {
-                AlertDialog builder = new AlertDialog.Builder(this)
-                        .setTitle(R.string.save)
-                        .setMessage(R.string.has_edits)
-                        .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                saveFeature();
-                                finish();
-                            }
-                        })
-                        .setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                            }
-                        }).create();
-                builder.show();
-            } else
+            if (!checkEdits())
                 finish();
-
             return true;
         } else if (id == R.id.menu_settings) {
             final IGISApplication app = (IGISApplication) getApplication();
@@ -505,6 +510,12 @@ public class ModifyAttributesActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!checkEdits())
+            super.onBackPressed();
     }
 
     private boolean hasEdits() {
