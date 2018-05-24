@@ -24,7 +24,15 @@ package com.nextgis.maplibui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.nextgis.maplib.util.FileUtil;
+import com.nextgis.maplib.util.HttpResponse;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.util.NGIDUtils;
+
+import java.io.File;
+import java.io.IOException;
+
+import static com.nextgis.maplib.util.Constants.SUPPORT;
 
 public class NGIDLoginActivity extends NGActivity {
     public static final String EXTRA_NEXT = "start_next";
@@ -43,6 +51,23 @@ public class NGIDLoginActivity extends NGActivity {
 
         if (getIntent().getBooleanExtra(EXTRA_SUCCESS, false)) {
             try {
+                String support = NGIDUtils.USER_SUPPORT;
+                NGIDUtils.get(this, support, new NGIDUtils.OnFinish() {
+                    @Override
+                    public void onFinish(HttpResponse response) {
+                        if (response.isOk()) {
+                            File support = getExternalFilesDir(null);
+                            if (support == null)
+                                support = new File(getFilesDir(), SUPPORT);
+                            else
+                                support = new File(support, SUPPORT);
+
+                            try {
+                                FileUtil.writeToFile(support, response.getResponseBody());
+                            } catch (IOException ignored) {}
+                        }
+                    }
+                });
                 Intent intent = new Intent(this, (Class<?>) getIntent().getSerializableExtra(EXTRA_NEXT));
                 startActivity(intent);
             } catch (Exception ignored) {}
