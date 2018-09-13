@@ -346,4 +346,5 @@
     <string name="text_color">Цвет текста</string>
     <string name="metric">Метрическая</string>
     <string name="imperial">Британская</string>
+    <string name="delete_confirm">Подтвердите удаление объекта.</string>
 </resources>

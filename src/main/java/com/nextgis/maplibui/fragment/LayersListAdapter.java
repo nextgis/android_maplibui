@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -24,11 +24,13 @@
 package com.nextgis.maplibui.fragment;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -206,16 +208,16 @@ public class LayersListAdapter
             layerui = null;
         }
 
-        ImageView ivIcon = (ImageView) v.findViewById(R.id.ivIcon);
+        ImageView ivIcon = v.findViewById(R.id.ivIcon);
         ivIcon.setImageDrawable(layerui != null ? layerui.getIcon(mContext) : null);
 
-        TextView tvPaneName = (TextView) v.findViewById(R.id.tvLayerName);
+        TextView tvPaneName = v.findViewById(R.id.tvLayerName);
         tvPaneName.setText(layer.getName());
         //final int id = layer.getId();
 
-        final ImageButton btMore = (ImageButton) v.findViewById(R.id.btMore);
-        ImageButton btShow = (ImageButton) v.findViewById(R.id.btShow);
-        ImageView ivEdited = (ImageView) v.findViewById(R.id.ivEdited);
+        final ImageButton btMore = v.findViewById(R.id.btMore);
+        ImageButton btShow = v.findViewById(R.id.btShow);
+        ImageView ivEdited = v.findViewById(R.id.ivEdited);
 
         boolean hide = layerui instanceof VectorLayer && ((VectorLayer) layerui).isLocked();
         btMore.setVisibility(hide ? View.GONE : View.VISIBLE);
@@ -359,40 +361,48 @@ public class LayersListAdapter
 
     private boolean deleteLayer(final ILayer layer) {
         final int position = mMap.removeLayer(layer);
-
-        View focus = mActivity.getCurrentFocus();
+        final View focus = mActivity.getCurrentFocus();
         if (focus == null)
             return true;
 
-        Snackbar snackbar = Snackbar.make(focus, mActivity.getString(R.string.delete_layer_done), Snackbar.LENGTH_LONG)
-                                    .setAction(R.string.undo, new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            mMap.insertLayer(position, layer);
-                                        }
-                                    })
-                                    .setCallback(new Snackbar.Callback() {
-                                        @Override
-                                        public void onDismissed(Snackbar snackbar, int event) {
-                                            super.onDismissed(snackbar, event);
-                                            if (event == DISMISS_EVENT_MANUAL)
-                                                return;
-                                            if (event != DISMISS_EVENT_ACTION) {
-                                                layer.delete();
-                                                mMap.save();
-                                            }
-                                        }
+        new AlertDialog.Builder(mActivity).setTitle(R.string.are_you_sure).setMessage(R.string.delete_confirm)
+               .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialogInterface, int i) {
 
-                                        @Override
-                                        public void onShown(Snackbar snackbar) {
-                                            super.onShown(snackbar);
-                                        }
-                                    });
+                       Snackbar snackbar = Snackbar.make(focus, mActivity.getString(R.string.delete_layer_done), Snackbar.LENGTH_LONG)
+                                                   .setAction(R.string.undo, new View.OnClickListener() {
+                                                       @Override
+                                                       public void onClick(View v) {
+                                                           mMap.insertLayer(position, layer);
+                                                       }
+                                                   })
+                                                   .setCallback(new Snackbar.Callback() {
+                                                       @Override
+                                                       public void onDismissed(Snackbar snackbar, int event) {
+                                                           super.onDismissed(snackbar, event);
+                                                           if (event == DISMISS_EVENT_MANUAL)
+                                                               return;
+                                                           if (event != DISMISS_EVENT_ACTION) {
+                                                               layer.delete();
+                                                               mMap.save();
+                                                           }
+                                                       }
 
-        View view = snackbar.getView();
-        TextView textView = (TextView) view.findViewById(R.id.snackbar_text);
-        textView.setTextColor(ContextCompat.getColor(mActivity, R.color.color_white));
-        snackbar.show();
+                                                       @Override
+                                                       public void onShown(Snackbar snackbar) {
+                                                           super.onShown(snackbar);
+                                                       }
+                                                   });
+
+                       View view = snackbar.getView();
+                       TextView textView = view.findViewById(R.id.snackbar_text);
+                       textView.setTextColor(ContextCompat.getColor(mActivity, R.color.color_white));
+                       snackbar.show();
+                   }
+               })
+               .setNegativeButton(R.string.cancel, null).show();
+
         return true;
     }
 
