@@ -92,6 +92,7 @@ public class LayerFillService extends Service implements IProgressor {
     protected List<LayerFillTask> mQueue;
     protected static final int FILL_NOTIFICATION_ID = 9;
     protected NotificationCompat.Builder mBuilder;
+    protected String mNotifyTitle;
 
     public final static int VECTOR_LAYER           = 1;
     public final static int VECTOR_LAYER_WITH_FORM = 2;
@@ -224,7 +225,7 @@ public class LayerFillService extends Service implements IProgressor {
                         mIsCanceled = true;
                         break;
                     case ACTION_SHOW:
-                        mProgressIntent.putExtra(KEY_STATUS, STATUS_SHOW).putExtra(KEY_TITLE, mBuilder.mContentTitle);
+                        mProgressIntent.putExtra(KEY_STATUS, STATUS_SHOW).putExtra(KEY_TITLE, mNotifyTitle);
                         sendBroadcast(mProgressIntent);
                         break;
                 }
@@ -247,17 +248,17 @@ public class LayerFillService extends Service implements IProgressor {
             public void run() {
                 mIsRunning = true;
                 LayerFillTask task = mQueue.remove(0);
-                String notifyTitle = task.getDescription();
+                mNotifyTitle = task.getDescription();
 
                 mBuilder.setWhen(System.currentTimeMillis())
-                        .setContentTitle(notifyTitle)
-                        .setTicker(notifyTitle);
+                        .setContentTitle(mNotifyTitle)
+                        .setTicker(mNotifyTitle);
                 mNotifyManager.notify(FILL_NOTIFICATION_ID, mBuilder.build());
 
                 if (mProgressIntent.getExtras() != null)
                     mProgressIntent.getExtras().clear();
 
-                mProgressIntent.putExtra(KEY_STATUS, STATUS_START).putExtra(KEY_TITLE, notifyTitle);
+                mProgressIntent.putExtra(KEY_STATUS, STATUS_START).putExtra(KEY_TITLE, mNotifyTitle);
                 sendBroadcast(mProgressIntent);
 
                 Process.setThreadPriority(Constants.DEFAULT_DOWNLOAD_THREAD_PRIORITY);
