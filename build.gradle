@@ -29,8 +29,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 27
-        versionCode 40
-        versionName '2.5.7.4'
+        versionCode 41
+        versionName '2.5.7.5'
         buildConfigField "String", "CLIENT_ID", "\"Im6GFdPPuPM09BnvFb3EacFZyq8TpRBSAAex7JDZ\""
     }
     productFlavors {
