@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2016-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -99,16 +99,16 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
         mAccountManager = AccountManager.get(this);
         Log.d(TAG, "SelectNGWActivity: AccountManager.get(" + this + ")");
 
-        mToolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        mButton = (Button) findViewById(R.id.button1);
+        mToolbar = findViewById(R.id.main_toolbar);
+        mButton = findViewById(R.id.button1);
         mButton.setOnClickListener(this);
 
         mListAdapter = new NGWResourcesListAdapter(this);
         mListAdapter.setShowAccounts(false);
-        ListView dialogListView = (ListView) findViewById(R.id.listView);
+        ListView dialogListView = findViewById(R.id.listView);
         dialogListView.setAdapter(mListAdapter);
         dialogListView.setOnItemClickListener(mListAdapter);
-        LinearLayout pathView = (LinearLayout) findViewById(R.id.path);
+        LinearLayout pathView = findViewById(R.id.path);
         mListAdapter.setPathLayout(pathView);
 
         if (mTask == TYPE_ADD) {
@@ -179,7 +179,8 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
     public boolean onOptionsItemSelected(MenuItem item) {
         int i = item.getItemId();
         if (i == R.id.menu_new_group) {
-            final EditText view = (EditText) View.inflate(this, R.layout.dialog_edittext, null);
+            View view = View.inflate(this, R.layout.dialog_edittext, null);
+            final EditText editText = view.findViewById(R.id.edit1);
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.new_group_name).setView(view)
                     .setNegativeButton(R.string.cancel, null)
@@ -189,7 +190,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Editable text = view.getText();
+                    Editable text = editText.getText();
                     if (text.length() < 1) {
                         Toast.makeText(v.getContext(), R.string.field_not_filled, Toast.LENGTH_SHORT).show();
                         return;

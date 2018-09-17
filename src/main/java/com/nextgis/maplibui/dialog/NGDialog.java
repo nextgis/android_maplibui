@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016, 2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -24,7 +24,6 @@ package com.nextgis.maplibui.dialog;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -64,6 +63,7 @@ public class NGDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         mActivity = getActivity();
         mContext = new ContextThemeWrapper(mActivity, mTheme);
+        mDisabledColor = getResources().getColor(R.color.color_grey_400);
 
         int[] attrs = {android.R.attr.alertDialogStyle};
         TypedArray ta = mContext.obtainStyledAttributes(mTheme, attrs);
@@ -76,12 +76,6 @@ public class NGDialog extends DialogFragment {
         }
 
         return super.onCreateDialog(savedInstanceState);
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        mDisabledColor = getResources().getColor(R.color.color_grey_400);
     }
 
     @Override

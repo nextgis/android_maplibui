@@ -3,7 +3,7 @@
   ~ Purpose:  Mobile GIS for Android.
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2016 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2016, 2018 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -19,11 +19,17 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<EditText android:id="@+id/edit1"
-          xmlns:android="http://schemas.android.com/apk/res/android"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:layout_margin="8dp"
-          android:layout_marginLeft="?attr/dialogPreferredPadding"
-          android:layout_marginRight="?attr/dialogPreferredPadding"
-          android:inputType="text"/>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:paddingLeft="?attr/dialogPreferredPadding"
+             android:paddingRight="?attr/dialogPreferredPadding">
+
+    <EditText
+        android:id="@+id/edit1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:inputType="text"/>
+</FrameLayout>
