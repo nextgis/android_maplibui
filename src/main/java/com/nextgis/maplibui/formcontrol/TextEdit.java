@@ -54,13 +54,16 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_MAX_STRING_COUNT_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ONLY_FIGURES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_KEY;
-
+import static com.nextgis.maplibui.util.NGIDUtils.PREF_FIRST_NAME;
+import static com.nextgis.maplibui.util.NGIDUtils.PREF_LAST_NAME;
+import static com.nextgis.maplibui.util.NGIDUtils.PREF_USERNAME;
 
 @SuppressLint("ViewConstructor")
 public class TextEdit extends AppCompatEditText
         implements IFormControl
 {
     private static final String USE_LOGIN = "ngw_login";
+    private static final String NGID_LOGIN = "ngid_login";
 
     protected boolean mIsShowLast;
     protected String mFieldName;
@@ -115,6 +118,13 @@ public class TextEdit extends AppCompatEditText
                 Account account = app.getAccount(accountName);
                 value = app.getAccountLogin(account);
             }
+        }
+
+        boolean ngidLogin = attributes.optBoolean(NGID_LOGIN);
+        if (ngidLogin) {
+            enabled = false;
+            String name = preferences.getString(PREF_FIRST_NAME, "") + " " + preferences.getString(PREF_LAST_NAME, "");
+            value = TextUtils.isEmpty(name.trim()) ? preferences.getString(PREF_USERNAME, "") : name;
         }
 
         setEnabled(enabled);
