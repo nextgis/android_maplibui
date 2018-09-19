@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -65,6 +65,7 @@ import com.nextgis.maplibui.formcontrol.SplitCombobox;
 import com.nextgis.maplibui.formcontrol.TextEdit;
 import com.nextgis.maplibui.formcontrol.TextLabel;
 import com.nextgis.maplibui.util.ControlHelper;
+import com.nextgis.maplibui.util.NGIDUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -104,6 +105,9 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_EDIT_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_LABEL_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_META_PATH;
+import static com.nextgis.maplibui.util.NGIDUtils.PREF_FIRST_NAME;
+import static com.nextgis.maplibui.util.NGIDUtils.PREF_LAST_NAME;
+import static com.nextgis.maplibui.util.NGIDUtils.PREF_USERNAME;
 
 /**
  * Activity to add or modify vector layer attributes
@@ -444,6 +448,10 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
     private void appendData(IFormControl control, JSONObject element) throws JSONException {
         if (mLayer instanceof NGWVectorLayer)
             element.put(SyncStateContract.Columns.ACCOUNT_NAME, ((NGWVectorLayer) mLayer).getAccountName());
+
+        element.put(PREF_FIRST_NAME, mPreferences.getString(PREF_FIRST_NAME, ""));
+        element.put(PREF_LAST_NAME, mPreferences.getString(PREF_LAST_NAME, ""));
+        element.put(PREF_USERNAME, mPreferences.getString(PREF_USERNAME, ""));
 
         if (control instanceof Counter && mTable != null && mRow != -1) {
             JSONObject attrs = element.getJSONObject(JSON_ATTRIBUTES_KEY);

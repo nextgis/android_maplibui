@@ -123,8 +123,8 @@ public class TextEdit extends AppCompatEditText
         boolean ngidLogin = attributes.optBoolean(NGID_LOGIN);
         if (ngidLogin) {
             enabled = false;
-            String name = preferences.getString(PREF_FIRST_NAME, "") + " " + preferences.getString(PREF_LAST_NAME, "");
-            value = TextUtils.isEmpty(name.trim()) ? preferences.getString(PREF_USERNAME, "") : name;
+            String name = element.optString(PREF_FIRST_NAME) + " " + element.optString(PREF_LAST_NAME);
+            value = TextUtils.isEmpty(name.trim()) ? element.optString(PREF_USERNAME) : name;
         }
 
         setEnabled(enabled);
