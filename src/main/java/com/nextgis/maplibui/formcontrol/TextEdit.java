@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
