@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016, 2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -45,6 +45,7 @@ import com.nextgis.maplibui.util.TrackView;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
+import static com.nextgis.maplib.map.TrackLayer.getSelection;
 import static com.nextgis.maplibui.service.TrackerService.isTrackerServiceRunning;
 
 public class TracksActivity extends NGActivity implements ActionMode.Callback {
@@ -60,7 +61,7 @@ public class TracksActivity extends NGActivity implements ActionMode.Callback {
         setContentView(R.layout.activity_tracks);
         setToolbar(R.id.main_toolbar);
 
-        mTracks = (TrackView) findViewById(R.id.lv_tracks);
+        mTracks = findViewById(R.id.lv_tracks);
         mTracks.setOnDataChangeListener(new TrackView.OnDataChangeListener() {
             @Override
             public void onDataChanged() {
@@ -124,7 +125,7 @@ public class TracksActivity extends NGActivity implements ActionMode.Callback {
                 Toast.makeText(getApplicationContext(), R.string.unclosed_track_deleted, Toast.LENGTH_SHORT).show();
             }
 
-            String selection = getSelection();
+            String selection = getSelection(mTracks.getSelectedItemsCount());
             String[] args = mTracks.getSelectedItemsIds();
             getContentResolver().delete(mContentUriTracks, selection, args);
             closeActionMode();
@@ -172,13 +173,9 @@ public class TracksActivity extends NGActivity implements ActionMode.Callback {
     }
 
     protected void update(ContentValues cv) {
-        String selection = getSelection();
+        String selection = getSelection(mTracks.getSelectedItemsCount());
         String[] args = mTracks.getSelectedItemsIds();
         getContentResolver().update(mContentUriTracks, cv, selection, args);
-    }
-
-    protected String getSelection() {
-        return TrackLayer.FIELD_ID + " IN (" + MapUtil.makePlaceholders(mTracks.getSelectedItemsCount()) + ")";
     }
 
     protected void closeActionMode() {
