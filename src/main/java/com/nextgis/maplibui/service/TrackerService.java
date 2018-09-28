@@ -434,7 +434,11 @@ public class TrackerService
         mValues.put(TrackLayer.FIELD_ACCURACY, location.getAccuracy());
         mValues.put(TrackLayer.FIELD_SENT, 0);
         mValues.put(TrackLayer.FIELD_TIMESTAMP, location.getTime());
-        getContentResolver().insert(mContentUriTrackPoints, mValues);
+        try {
+            getContentResolver().insert(mContentUriTrackPoints, mValues);
+        } catch (Exception e) {
+            return;
+        }
 
         IGISApplication app = (IGISApplication) getApplication();
         mValues.remove(TrackLayer.FIELD_LAT);
