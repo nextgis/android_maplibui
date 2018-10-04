@@ -24,11 +24,11 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.2'
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 42
         versionName '2.5.7.6'
         buildConfigField "String", "CLIENT_ID", "\"Im6GFdPPuPM09BnvFb3EacFZyq8TpRBSAAex7JDZ\""
@@ -52,19 +52,22 @@ repositories {
     google()
     jcenter()
     maven {
-        url  "https://dl.bintray.com/krazykira/maven"
+        url "https://dl.bintray.com/krazykira/maven"
     }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(':maplib')
-    compile 'com.4ert:easypicker:0.2.12'
-    compile 'com.github.yukuku:ambilwarna:2.0.1'
-    compile 'com.jzxiang.pickerview:TimePickerDialog:1.0.1'
-    compile 'com.github.miguelbcr:TableFixHeaders-Wrapper:0.2.0'
-    compile 'com.android.support:appcompat-v7:27.1.1'
-    compile 'com.android.support:design:27.1.1'
-    compile 'com.android.support:preference-v7:27.1.1'
-    compile 'com.appyvet:materialrangebar:1.4'
+    api fileTree(include: ['*.jar'], dir: 'libs')
+    api project(':maplib')
+    api 'com.4ert:easypicker:0.2.12'
+    implementation 'com.github.yukuku:ambilwarna:2.0.1'
+    implementation 'com.jzxiang.pickerview:TimePickerDialog:1.0.1'
+    implementation 'com.github.miguelbcr:TableFixHeaders-Wrapper:0.2.0'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation('com.android.support:support-v4:28.0.0') {
+        force = true
+    }
+    api 'com.android.support:design:28.0.0'
+    api 'com.android.support:preference-v7:28.0.0'
+    implementation 'com.appyvet:materialrangebar:1.4.4'
 }
