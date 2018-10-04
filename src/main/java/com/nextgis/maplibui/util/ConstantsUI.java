@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -97,6 +97,7 @@ public interface ConstantsUI
     String JSON_PHOTO_VALUE           = "photo";
     String JSON_SIGN_VALUE            = "signature";
     String JSON_COUNTER_VALUE         = "counter";
+    String JSON_DISTANCE_VALUE        = "distance";
     String JSON_COORDINATES_VALUE     = "coordinates";
 
     String PERMISSION_AUTHENTICATE_ACCOUNTS = "android.permission.AUTHENTICATE_ACCOUNTS";

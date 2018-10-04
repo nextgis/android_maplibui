@@ -255,7 +255,7 @@
     <string name="multi_linestring">Multilinestring</string>
     <string name="polygon">Polygon</string>
     <string name="multi_polygon">Multipolygon</string>
-    <string name="update_coordinates">Update coordinates</string>
+    <string name="update_coordinates">Update</string>
     <string name="background_task_started">The layer initialisation task started</string>
     <string name="processing">Processing</string>
     <string name="error_unsupported_layer_type">Current layer type is unsupported </string>

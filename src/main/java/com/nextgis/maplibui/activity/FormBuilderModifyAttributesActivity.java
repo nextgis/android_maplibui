@@ -28,6 +28,7 @@ import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.SyncStateContract;
 import android.support.v4.view.MenuItemCompat;
@@ -56,6 +57,7 @@ import com.nextgis.maplibui.formcontrol.Combobox;
 import com.nextgis.maplibui.formcontrol.Coordinates;
 import com.nextgis.maplibui.formcontrol.Counter;
 import com.nextgis.maplibui.formcontrol.DateTime;
+import com.nextgis.maplibui.formcontrol.Distance;
 import com.nextgis.maplibui.formcontrol.DoubleCombobox;
 import com.nextgis.maplibui.formcontrol.DoubleComboboxValue;
 import com.nextgis.maplibui.formcontrol.RadioGroup;
@@ -89,6 +91,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_COMBOBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_COORDINATES_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_COUNTER_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DATE_TIME_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_DISTANCE_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DOUBLE_COMBOBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_KEY_LIST_KEY;
@@ -366,10 +369,24 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                     control = (Counter) getLayoutInflater().inflate(R.layout.formtemplate_counter, layout, false);
                     break;
 
+                case JSON_DISTANCE_VALUE:
+                    control = (Distance) getLayoutInflater().inflate(R.layout.formtemplate_distance, layout, false);
+                    if (mGeometry instanceof GeoPoint) {
+                        GeoPoint point = (GeoPoint) mGeometry.copy();
+                        point.setCRS(GeoConstants.CRS_WEB_MERCATOR);
+                        point.project(GeoConstants.CRS_WGS84);
+                        Location location = new Location(LocationManager.GPS_PROVIDER);
+                        location.setLatitude(point.getY());
+                        location.setLongitude(point.getX());
+                        ((Distance) control).setLocation(location);
+                    }
+
+                    break;
+
                 case JSON_COORDINATES_VALUE:
                     Double x, y;
                     x = y = null;
-                    if (mGeometry != null && mGeometry instanceof GeoPoint) {
+                    if (mGeometry instanceof GeoPoint) {
                         GeoPoint point = (GeoPoint) mGeometry.copy();
                         point.setCRS(GeoConstants.CRS_WEB_MERCATOR);
                         point.project(GeoConstants.CRS_WGS84);
