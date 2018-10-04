@@ -84,7 +84,7 @@ public class Distance extends LinearLayout implements IFormControl {
         } else if (ControlHelper.hasKey(savedState, mFieldName))
             value = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
         else {
-            calculate();
+            calculate(false);
             value = getFormattedValue();
         }
 
@@ -92,22 +92,22 @@ public class Distance extends LinearLayout implements IFormControl {
         findViewById(R.id.refresh).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                calculate();
+                calculate(true);
                 ((AppCompatEditText) findViewById(R.id.distance)).setText(getFormattedValue());
             }
         });
     }
 
     @SuppressLint("MissingPermission")
-    private void calculate() {
+    private void calculate(boolean toast) {
         LocationManager manager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
         if (manager != null) {
             Location current = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             if (current != null && mLocation != null)
                 mValue = current.distanceTo(mLocation);
-            else
+            else if (toast)
                 Toast.makeText(getContext(), R.string.error_no_location, Toast.LENGTH_SHORT).show();
-        } else
+        } else if (toast)
             Toast.makeText(getContext(), R.string.error_no_location, Toast.LENGTH_SHORT).show();
     }
 

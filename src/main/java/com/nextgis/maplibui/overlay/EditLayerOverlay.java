@@ -36,6 +36,7 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.Toolbar;
@@ -44,6 +45,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.widget.Toast;
 
+import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.GeoEnvelope;
@@ -61,6 +63,7 @@ import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.DrawItem;
 import com.nextgis.maplibui.api.EditEventListener;
@@ -79,13 +82,12 @@ import com.nextgis.maplibui.util.SettingsConstantsUI;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.nextgis.maplibui.api.DrawItem.EDGE_RADIUS;
 import static com.nextgis.maplibui.api.DrawItem.LINE_WIDTH;
 
 /**
  * The class for edit vector features
  */
-public class EditLayerOverlay extends Overlay implements MapViewEventListener {
+public class EditLayerOverlay extends Overlay implements MapViewEventListener, GpsEventListener {
     /**
      * overlay mode constants
      */
@@ -132,7 +134,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
 
     protected List<EditEventListener> mListeners;
     protected WalkEditReceiver mReceiver;
-
+    protected GpsEventSource mGpsEventSource;
 
     public EditLayerOverlay(
             Context context,
@@ -155,6 +157,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
 
         mMap = mMapViewOverlays.getMap();
         mMapViewOverlays.addListener(this);
+        mGpsEventSource = ((IGISApplication) context.getApplicationContext()).getGpsEventSource();
         mOverlayPoint = new OverlayItem(mMap, 0, 0, getMarker());
 
         Bitmap anchor = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_action_anchor);
@@ -376,6 +379,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                 switch (mLayer.getGeometryType()) {
                     case GeoConstants.GTPoint:
                         mBottomToolbar.inflateMenu(R.menu.edit_point);
+                        Location last = mGpsEventSource.getLastKnownLocation();
+                        updateDistance(last);
                         break;
                     case GeoConstants.GTMultiPoint:
                         mBottomToolbar.inflateMenu(R.menu.edit_multipoint);
@@ -570,8 +575,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
 
     protected boolean movePointToLocation() {
         Activity parent = (Activity) mContext;
-        GpsEventSource gpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
-        Location location = gpsEventSource.getLastKnownLocation();
+        Location location = mGpsEventSource.getLastKnownLocation();
 
         if (null != location) {
             //change to screen coordinates
@@ -911,6 +915,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
                 geoPoints[0] = (GeoPoint) geom;
                 mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, mapToScreen(geoPoints));
                 mDrawItems.add(mSelectedItem);
+                Location last = mGpsEventSource.getLastKnownLocation();
+                updateDistance(last);
                 break;
             case GeoConstants.GTMultiPoint:
                 GeoMultiPoint geoMultiPoint = (GeoMultiPoint) geom;
@@ -1279,6 +1285,41 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener {
         return marker;
     }
 
+    private void updateDistance(Location location) {
+        if (location == null || mMode != MODE_EDIT || mLayer.getGeometryType() != GeoConstants.GTPoint)
+            return;
+        GeoPoint geoPoint = (GeoPoint) mFeature.getGeometry().copy();
+        geoPoint.project(GeoConstants.CRS_WGS84);
+        Location point = new Location(LocationManager.GPS_PROVIDER);
+        point.setLatitude(geoPoint.getY());
+        point.setLongitude(geoPoint.getX());
+        float distance = location.distanceTo(point);
+        String formatted = LocationUtil.formatLength(mContext, distance, 2);
+        mBottomToolbar.setTitle(formatted);
+    }
+
+    public void onResume() {
+        mGpsEventSource.addListener(this);
+    }
+
+    public void onPause() {
+        mGpsEventSource.removeListener(this);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        updateDistance(location);
+    }
+
+    @Override
+    public void onBestLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onGpsStatusChanged(int event) {
+
+    }
 
     public class WalkEditReceiver extends BroadcastReceiver {
         @Override
