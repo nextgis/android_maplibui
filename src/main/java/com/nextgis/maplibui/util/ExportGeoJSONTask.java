@@ -73,7 +73,7 @@ import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FeatureCollectio
 import static com.nextgis.maplibui.util.LayerUtil.AUTHORITY;
 import static com.nextgis.maplibui.util.LayerUtil.notFound;
 
-public class ExportGeoJSONTask extends  AsyncTask<Void, Void, File> {
+public class ExportGeoJSONTask extends AsyncTask<Void, Void, File> {
     private Activity mActivity;
     private VectorLayer mLayer;
     private ProgressDialog mProgress;

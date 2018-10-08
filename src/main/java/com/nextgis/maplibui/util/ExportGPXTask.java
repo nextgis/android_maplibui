@@ -301,7 +301,7 @@ public class ExportGPXTask extends AsyncTask<Void, Void, Void> implements Dialog
             ShareCompat.IntentBuilder builder = ShareCompat.IntentBuilder.from(mActivity);
             for (Uri uri : mUris)
                 builder.addStream(uri);
-            builder.setType(type).getIntent().setAction(action).setType(type).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            shareIntent = builder.setType(type).getIntent().setAction(action).setType(type).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         } else {
             shareIntent = Intent.createChooser(shareIntent, mActivity.getString(R.string.menu_share));
             shareIntent.setType(type);
