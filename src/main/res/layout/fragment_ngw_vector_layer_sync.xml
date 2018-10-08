@@ -4,7 +4,7 @@
   ~ Purpose:  Mobile GIS for Android.
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2016-2017 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2016-2018 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -20,89 +20,113 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:gravity="center"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/sync_enable"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+            <CheckBox
+                android:id="@+id/sync_enabled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:padding="5dp"/>
+        </LinearLayout>
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/sync_enable"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
-
-        <CheckBox
-            android:id="@+id/sync_enabled"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:padding="5dp"/>
-    </LinearLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:text="@string/sync_direction"
-        android:textAppearance="?android:attr/textAppearanceMedium"/>
-
-    <Spinner
-        android:id="@+id/sync_direction"
-        android:layout_width="match_parent"
-        android:entries="@array/sync_direction_val"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
-        android:layout_marginStart="5dp"/>
-
-    <TextView
-        android:id="@+id/account_name"
-        style="?android:attr/listSeparatorTextViewStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/auto_sync"
+            android:text="@string/sync_direction"
             android:textAppearance="?android:attr/textAppearanceMedium"/>
 
-        <CheckBox
-            android:id="@+id/sync_auto"
+        <Spinner
+            android:id="@+id/sync_direction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            android:layout_marginStart="5dp"
+            android:entries="@array/sync_direction_val"/>
+
+        <TextView
+            android:id="@+id/account_name"
+            style="?android:attr/listSeparatorTextViewStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/auto_sync"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+            <CheckBox
+                android:id="@+id/sync_auto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:padding="5dp"/>
+        </LinearLayout>
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:padding="5dp"/>
+            android:text="@string/sync_interval"
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+        <Spinner
+            android:id="@+id/sync_interval"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            android:layout_marginStart="5dp"/>
     </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:text="@string/sync_interval"
-        android:textAppearance="?android:attr/textAppearanceMedium"/>
-
-    <Spinner
-        android:id="@+id/sync_interval"
+    <FrameLayout
+        android:id="@+id/overlay"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
-        android:layout_marginStart="5dp"/>
-</LinearLayout>
+        android:layout_height="match_parent"
+        android:background="@color/color_half"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:id="@+id/locked"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_lock_black_24dp"
+            tools:ignore="ContentDescription"/>
+    </FrameLayout>
+</FrameLayout>
