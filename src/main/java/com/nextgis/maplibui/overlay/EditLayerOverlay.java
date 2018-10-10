@@ -380,7 +380,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
                     case GeoConstants.GTPoint:
                         mBottomToolbar.inflateMenu(R.menu.edit_point);
                         Location last = mGpsEventSource.getLastKnownLocation();
-                        updateDistance(last);
+                        updateDistance(last, null);
                         break;
                     case GeoConstants.GTMultiPoint:
                         mBottomToolbar.inflateMenu(R.menu.edit_multipoint);
@@ -867,6 +867,11 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
             }
 
             drawItem(drawItem, canvas, isSelected);
+            if (mLayer != null && mLayer.getGeometryType() == GeoConstants.GTPoint) {
+                GeoPoint geometry = (GeoPoint) getBaseGeometry(mMap, GeoConstants.GTPoint, mSelectedItem);
+                Location last = mGpsEventSource.getLastKnownLocation();
+                updateDistance(last, geometry);
+            }
         }
 
         drawCross(canvas);
@@ -916,7 +921,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
                 mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, mapToScreen(geoPoints));
                 mDrawItems.add(mSelectedItem);
                 Location last = mGpsEventSource.getLastKnownLocation();
-                updateDistance(last);
+                updateDistance(last, null);
                 break;
             case GeoConstants.GTMultiPoint:
                 GeoMultiPoint geoMultiPoint = (GeoMultiPoint) geom;
@@ -1285,10 +1290,13 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         return marker;
     }
 
-    private void updateDistance(Location location) {
-        if (location == null || mMode != MODE_EDIT || mLayer.getGeometryType() != GeoConstants.GTPoint)
+    private void updateDistance(Location location, GeoPoint to) {
+        GeoGeometry geometry = to == null ? mFeature.getGeometry() : to;
+        boolean mode = mMode != MODE_EDIT && mMode != MODE_CHANGE;
+        boolean type = mLayer.getGeometryType() != GeoConstants.GTPoint;
+        if (geometry == null || location == null || mode || type)
             return;
-        GeoPoint geoPoint = (GeoPoint) mFeature.getGeometry().copy();
+        GeoPoint geoPoint = (GeoPoint) geometry.copy();
         geoPoint.project(GeoConstants.CRS_WGS84);
         Location point = new Location(LocationManager.GPS_PROVIDER);
         point.setLatitude(geoPoint.getY());
@@ -1308,7 +1316,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
 
     @Override
     public void onLocationChanged(Location location) {
-        updateDistance(location);
+        updateDistance(location, null);
     }
 
     @Override
