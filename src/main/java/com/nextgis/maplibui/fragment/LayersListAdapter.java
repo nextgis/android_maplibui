@@ -360,15 +360,14 @@ public class LayersListAdapter
     }
 
     private boolean deleteLayer(final ILayer layer) {
-        final int position = mMap.removeLayer(layer);
-        final View focus = mActivity.getCurrentFocus();
-        if (focus == null)
-            return true;
-
         new AlertDialog.Builder(mActivity).setTitle(R.string.are_you_sure).setMessage(R.string.delete_confirm)
                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                    @Override
                    public void onClick(DialogInterface dialogInterface, int i) {
+                       final int position = mMap.removeLayer(layer);
+                       final View focus = mActivity.getCurrentFocus();
+                       if (focus == null)
+                           return;
 
                        Snackbar snackbar = Snackbar.make(focus, mActivity.getString(R.string.delete_layer_done), Snackbar.LENGTH_LONG)
                                                    .setAction(R.string.undo, new View.OnClickListener() {

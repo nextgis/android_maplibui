@@ -30,7 +30,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.SystemClock;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -48,6 +50,7 @@ import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.GeoJSONUtil;
 import com.nextgis.maplib.util.MapUtil;
+import com.nextgis.maplibui.BuildConfig;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
@@ -324,12 +327,16 @@ public final class LayerUtil {
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.setType("application/json,application/vnd.geo+json");
-            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(s));
+            shareIntent = Intent.createChooser(shareIntent, mLayer.getContext().getString(R.string.menu_share));
+            shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                Uri uri = FileProvider.getUriForFile(mLayer.getContext(), BuildConfig.APPLICATION_ID + ".easypicker.provider", s);
+                shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            } else
+                shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(s));
 //            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, urisArray); // multiple data
 
-            shareIntent = Intent.createChooser(
-                    shareIntent, mLayer.getContext().getString(R.string.menu_share));
-            shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             mLayer.getContext().startActivity(shareIntent);
         }
     }
@@ -405,6 +412,7 @@ public final class LayerUtil {
                     FileUtil.writeToFile(temp, mHeader);
                 }
 
+                Context app = mActivity.getApplicationContext();
                 for (String trackId : mTracksId) {
                     if (mIsCanceled)
                         return null;
@@ -424,7 +432,14 @@ public final class LayerUtil {
                             if (mSeparateFiles) {
                                 appendTrack(temp, track.getString(0), sb, f, trackpoints);
                                 FileUtil.writeToFile(temp, GPX_TAG_CLOSE, true);
-                                mUris.add(Uri.fromFile(temp));
+                                Uri uri = null;
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                    if (temp != null)
+                                        uri = FileProvider.getUriForFile(app, BuildConfig.APPLICATION_ID + ".easypicker.provider", temp);
+                                } else
+                                    uri = Uri.fromFile(temp);
+                                if (uri != null)
+                                    mUris.add(uri);
                             } else
                                 appendTrack(temp, track.getString(0), sb, f, trackpoints);
 
@@ -436,9 +451,16 @@ public final class LayerUtil {
                     }
                 }
 
+                Uri uri = null;
                 if (!mSeparateFiles) {
                     FileUtil.writeToFile(temp, GPX_TAG_CLOSE, true);
-                    mUris.add(Uri.fromFile(temp));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        if (temp != null)
+                            uri = FileProvider.getUriForFile(app, BuildConfig.APPLICATION_ID + ".easypicker.provider", temp);
+                    } else
+                        uri = Uri.fromFile(temp);
+                    if (uri != null)
+                        mUris.add(uri);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -563,6 +585,10 @@ public final class LayerUtil {
 
             shareIntent = Intent.createChooser(shareIntent, mActivity.getString(R.string.menu_share));
             shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
             mActivity.startActivity(shareIntent);
         }
     }

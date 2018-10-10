@@ -234,7 +234,7 @@
     <string name="multi_linestring">Мультилиния</string>
     <string name="polygon">Полигон</string>
     <string name="multi_polygon">Мультиполигон</string>
-    <string name="update_coordinates">Обновить координаты</string>
+    <string name="update_coordinates">Обновить</string>
     <string name="background_task_started">Задача инициализации слоя запущена</string>
     <string name="processing">Обработка</string>
     <string name="error_unsupported_layer_type">Данный тип слоя не поддерживается</string>

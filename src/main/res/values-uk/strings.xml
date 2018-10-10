@@ -231,7 +231,7 @@
     <string name="multi_linestring">Мультилінія</string>
     <string name="polygon">Полігон</string>
     <string name="multi_polygon">Мультиполігон</string>
-    <string name="update_coordinates">Оновити місцеположення</string>
+    <string name="update_coordinates">Оновити</string>
     <string name="background_task_started">The layer initialisation task started</string>
     <string name="processing">Обробка</string>
     <string name="error_unsupported_layer_type">Поточний тип шару не підтримується</string>
