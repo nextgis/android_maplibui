@@ -347,4 +347,5 @@
     <string name="metric">Метрическая</string>
     <string name="imperial">Британская</string>
     <string name="delete_confirm">Подтвердите удаление объекта.</string>
+    <string name="no_activity_found">Не найдено подходящего приложения</string>
 </resources>

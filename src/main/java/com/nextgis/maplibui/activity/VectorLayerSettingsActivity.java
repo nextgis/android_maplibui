@@ -31,6 +31,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.PeriodicSync;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -63,6 +64,7 @@ import com.nextgis.maplib.display.SimpleFeatureRenderer;
 import com.nextgis.maplib.display.Style;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.VectorLayer;
+import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LayerUtil;
@@ -74,6 +76,7 @@ import com.nextgis.maplibui.fragment.LayerGeneralSettingsFragment;
 import com.nextgis.maplibui.fragment.NGWSettingsFragment;
 import com.nextgis.maplibui.service.RebuildCacheService;
 import com.nextgis.maplibui.util.ConstantsUI;
+import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.File;
@@ -378,7 +381,7 @@ public class VectorLayerSettingsActivity
     public static class SyncFragment extends Fragment {
         @Nullable
         @Override
-        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.fragment_ngw_vector_layer_sync, container, false);
             if (mVectorLayer == null)
                 return v;
@@ -482,6 +485,16 @@ public class VectorLayerSettingsActivity
 
                 }
             });
+
+            if (!AccountUtil.isProUser(v.getContext())) {
+                v.findViewById(R.id.overlay).setVisibility(View.VISIBLE);
+                v.findViewById(R.id.locked).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ControlHelper.showProDialog(getContext());
+                    }
+                });
+            }
 
             return v;
         }

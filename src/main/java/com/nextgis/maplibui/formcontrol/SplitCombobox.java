@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2017-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -260,7 +260,7 @@ public class SplitCombobox extends FrameLayout implements IFormControl
             splash.setClickable(true);
             splash.setBackgroundColor(Color.argb(128, 128, 128, 128));
             ImageView sign = new ImageView(getContext());
-            sign.setImageResource(R.drawable.ic_action_warning_dark);
+            sign.setImageResource(R.drawable.ic_lock_black_24dp);
             sign.setScaleType(ImageView.ScaleType.FIT_CENTER);
             sign.setOnClickListener(new OnClickListener() {
                 @Override

@@ -58,6 +58,7 @@ import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplib.map.Table;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.map.VectorLayer;
+import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.api.ILayerUI;
@@ -70,8 +71,10 @@ import com.nextgis.maplibui.mapui.NGWWebMapLayerUI;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
 import com.nextgis.maplibui.mapui.TrackLayerUI;
 import com.nextgis.maplibui.mapui.VectorLayerUI;
+import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.LayerUtil;
 import com.nextgis.maplibui.util.NGWTrackLayerCreateTask;
+import com.nextgis.maplibui.util.UiUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -254,6 +257,7 @@ public class LayersListAdapter
                     public void onClick(View arg0)
                     {
                         PopupMenu popup = new PopupMenu(mContext, btMore);
+                        UiUtil.setForceShowIcon(popup);
                         popup.getMenuInflater().inflate(R.menu.layer_popup, popup.getMenu());
 
                         if (layerui == null) {
@@ -261,8 +265,12 @@ public class LayersListAdapter
                             popup.getMenu().findItem(R.id.menu_share).setEnabled(false);
                         }
 
-                        if (layer instanceof VectorLayerUI)
+                        if (layer instanceof VectorLayerUI) {
                             popup.getMenu().findItem(R.id.menu_send_to_ngw).setVisible(true);
+                            if (!AccountUtil.isProUser(mActivity)) {
+                                popup.getMenu().findItem(R.id.menu_send_to_ngw).setIcon(R.drawable.ic_lock_black_24dp);
+                            }
+                        }
 
                         if (layerui instanceof TrackLayer) {
                             popup.getMenu().findItem(R.id.menu_delete).setVisible(false);
@@ -341,7 +349,9 @@ public class LayersListAdapter
                                                 vectorLayerUI.showAttributes();
                                             }
                                         } else if (i == R.id.menu_send_to_ngw) {
-                                            if (layer instanceof VectorLayerUI)
+                                            if (!AccountUtil.isProUser(mActivity)) {
+                                                ControlHelper.showProDialog(mActivity);
+                                            } else if (layer instanceof VectorLayerUI)
                                                 ((VectorLayerUI) layer).sendToNGW(mActivity);
                                         }
 

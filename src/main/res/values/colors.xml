@@ -6,7 +6,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2015-2016, 2018 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -25,6 +25,7 @@
 <resources>
 
     <color name="color_black">#000000</color>
+    <color name="color_half">#77000000</color>
     <color name="color_white">#ffffff</color>
 
     <!--Grey color palette, http://www.google.co.uk/design/spec/style/color.html#color-color-palette -->
