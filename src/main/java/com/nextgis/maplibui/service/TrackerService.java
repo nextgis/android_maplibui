@@ -97,7 +97,7 @@ public class TrackerService
     public static final String ACTION_STOP            = "com.nextgis.maplibui.TRACK_STOP";
     private static final String ACTION_SPLIT          = "com.nextgis.maplibui.TRACK_SPLIT";
     private static final int    TRACK_NOTIFICATION_ID = 1;
-    public static final String URL = "http://track.nextgis.com/ng-mobile";
+    public static final String URL = "http://dev.nextgis.com/tracker-dev1-hub/ng-mobile";
 
     private boolean         mIsRunning;
     private LocationManager mLocationManager;
@@ -594,7 +594,7 @@ public class TrackerService
                                         point.project(GeoConstants.CRS_WGS84);
                                         item.put("lt", point.getY());
                                         item.put("ln", point.getX());
-                                        item.put("ts", mPoints.getLong(time));
+                                        item.put("ts", mPoints.getLong(time)/1000);
                                         item.put("a", mPoints.getDouble(ele));
                                         item.put("s", mPoints.getInt(sat));
                                         item.put("ft", mPoints.getString(fix).equals("3d") ? 3 : 2);
