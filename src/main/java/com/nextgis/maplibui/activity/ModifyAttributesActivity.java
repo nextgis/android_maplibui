@@ -681,6 +681,10 @@ public class ModifyAttributesActivity
                 values.put(field.getName(), (Integer) value);
             } else if (value instanceof String) {
                 values.put(field.getName(), (String) value);
+            } else if (value instanceof Double) {
+                values.put(field.getName(), (Double) value);
+            } else if (value instanceof Float) {
+                values.put(field.getName(), (Float) value);
             }
         }
 
