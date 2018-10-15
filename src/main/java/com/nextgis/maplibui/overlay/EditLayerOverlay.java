@@ -1291,6 +1291,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
     }
 
     private void updateDistance(Location location, GeoPoint to) {
+        if (mFeature == null)
+            return;
         GeoGeometry geometry = to == null ? mFeature.getGeometry() : to;
         boolean mode = mMode != MODE_EDIT && mMode != MODE_CHANGE;
         boolean type = mLayer.getGeometryType() != GeoConstants.GTPoint;
