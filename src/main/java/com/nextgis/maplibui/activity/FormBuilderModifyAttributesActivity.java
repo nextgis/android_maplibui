@@ -24,7 +24,9 @@
 package com.nextgis.maplibui.activity;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.location.Location;
@@ -33,7 +35,6 @@ import android.os.Bundle;
 import android.provider.SyncStateContract;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,8 +44,10 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.NGWVectorLayer;
+import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
@@ -64,14 +67,15 @@ import com.nextgis.maplibui.formcontrol.RadioGroup;
 import com.nextgis.maplibui.formcontrol.Sign;
 import com.nextgis.maplibui.formcontrol.Space;
 import com.nextgis.maplibui.formcontrol.SplitCombobox;
+import com.nextgis.maplibui.formcontrol.Tabs;
 import com.nextgis.maplibui.formcontrol.TextEdit;
 import com.nextgis.maplibui.formcontrol.TextLabel;
 import com.nextgis.maplibui.util.ControlHelper;
-import com.nextgis.maplibui.util.NGIDUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.File;
 import java.io.IOException;
@@ -176,7 +180,8 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
             boolean isLand = orientation == Configuration.ORIENTATION_LANDSCAPE;
 
             String formString = FileUtil.readFromFile(form);
-            if (TextUtils.indexOf(formString, "tabs") == -1) {
+            Object json = new JSONTokener(formString).nextValue();
+            if (json instanceof JSONArray) {
                 JSONArray elements = new JSONArray(formString);
                 if (elements.length() > 0)
                     fillTabControls(layout, savedState, elements);
@@ -299,8 +304,8 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
             Bundle savedState,
             JSONArray elements)
             throws JSONException {
-        Cursor featureCursor = null;
 
+        Cursor featureCursor = null;
         if (mFeatureId != NOT_FOUND) {
             featureCursor = mLayer.query(null, FIELD_ID + " = " + mFeatureId, null, null, null);
             if (!featureCursor.moveToFirst()) {
@@ -309,120 +314,27 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
         }
 
         List<Field> fields = mLayer.getFields();
-
         for (int i = 0; i < elements.length(); i++) {
+            IFormControl control;
             JSONObject element = elements.getJSONObject(i);
-            String type = element.getString(JSON_TYPE_KEY);
-            IFormControl control = null;
+            String type = element.optString(JSON_TYPE_KEY);
+            if (type.equals(JSON_COORDINATES_VALUE)) {
+                JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+                String fieldY = attributes.optString(JSON_FIELD_NAME_KEY + "_lat");
+                attributes.put(JSON_FIELD_NAME_KEY, fieldY);
+                element.put(JSON_TYPE_KEY, type + "_lat");
+                control = getControl(this, element, mLayer, mFeatureId, mGeometry);
+                addToLayout(control, element, fields, savedState, featureCursor, layout);
 
-            switch (type) {
-                case JSON_TEXT_LABEL_VALUE:
-                    control = (TextLabel) getLayoutInflater().inflate(R.layout.formtemplate_textlabel, layout, false);
-                    break;
-
-                case JSON_TEXT_EDIT_VALUE:
-                    control = (TextEdit) getLayoutInflater().inflate(R.layout.formtemplate_edittext, layout, false);
-                    break;
-
-                case JSON_DATE_TIME_VALUE:
-                    control = (DateTime) getLayoutInflater().inflate(R.layout.formtemplate_datetime, layout, false);
-                    break;
-
-                case JSON_RADIO_GROUP_VALUE:
-                    control = (RadioGroup) getLayoutInflater().inflate(R.layout.formtemplate_radiogroup, layout, false);
-                    break;
-
-                case JSON_COMBOBOX_VALUE:
-                    if (ControlHelper.isAutoComplete(element.getJSONObject(JSON_ATTRIBUTES_KEY)))
-                        control = (AutoTextEdit) getLayoutInflater().inflate(R.layout.formtemplate_autoedittext, layout, false);
-                    else
-                        control = (Combobox) getLayoutInflater().inflate(R.layout.formtemplate_combobox, layout, false);
-                    break;
-
-                case JSON_SPLIT_COMBOBOX_VALUE:
-                    control = new SplitCombobox(this);
-                    break;
-
-                case JSON_DOUBLE_COMBOBOX_VALUE:
-                    control = (DoubleCombobox) getLayoutInflater().inflate(R.layout.formtemplate_doublecombobox, layout, false);
-                    break;
-
-                case JSON_SPACE_VALUE:
-                    control = (Space) getLayoutInflater().inflate(R.layout.formtemplate_space, layout, false);
-                    break;
-
-                case JSON_CHECKBOX_VALUE:
-                    control = (Checkbox) getLayoutInflater().inflate(R.layout.formtemplate_checkbox, layout, false);
-                    break;
-
-                case JSON_PHOTO_VALUE:
-                    control = (PhotoGallery) getLayoutInflater().inflate(R.layout.formtemplate_photo, layout, false);
-                    ((PhotoGallery) control).init(mLayer, mFeatureId);
-                    break;
-
-                case JSON_SIGN_VALUE:
-                    control = (Sign) getLayoutInflater().inflate(R.layout.formtemplate_sign, layout, false);
-                    ((Sign) control).setPath(mLayer.getPath().getPath() + File.separator + mFeatureId);
-                    break;
-
-                case JSON_COUNTER_VALUE:
-                    control = (Counter) getLayoutInflater().inflate(R.layout.formtemplate_counter, layout, false);
-                    break;
-
-                case JSON_DISTANCE_VALUE:
-                    control = (Distance) getLayoutInflater().inflate(R.layout.formtemplate_distance, layout, false);
-                    if (mGeometry instanceof GeoPoint) {
-                        GeoPoint point = (GeoPoint) mGeometry.copy();
-                        point.setCRS(GeoConstants.CRS_WEB_MERCATOR);
-                        point.project(GeoConstants.CRS_WGS84);
-                        Location location = new Location(LocationManager.GPS_PROVIDER);
-                        location.setLatitude(point.getY());
-                        location.setLongitude(point.getX());
-                        ((Distance) control).setLocation(location);
-                    }
-
-                    break;
-
-                case JSON_COORDINATES_VALUE:
-                    Double x, y;
-                    x = y = null;
-                    if (mGeometry instanceof GeoPoint) {
-                        GeoPoint point = (GeoPoint) mGeometry.copy();
-                        point.setCRS(GeoConstants.CRS_WEB_MERCATOR);
-                        point.project(GeoConstants.CRS_WGS84);
-                        y = point.getY();
-                        x = point.getX();
-                    }
-
-                    JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
-                    String field = attributes.optString(JSON_FIELD_NAME_KEY + "_lat");
-                    attributes.put(JSON_FIELD_NAME_KEY, field);
-                    control = (Coordinates) getLayoutInflater().inflate(R.layout.formtemplate_coordinates, layout, false);
-                    if (control != null) {
-                        ((Coordinates) control).setIsLat();
-                        if (y != null)
-                            ((Coordinates) control).setValue(y);
-                    }
-
-                    addToLayout(control, element, fields, savedState, featureCursor, layout);
-
-                    field = attributes.optString(JSON_FIELD_NAME_KEY + "_long");
-                    attributes.put(JSON_FIELD_NAME_KEY, field);
-                    control = (Coordinates) getLayoutInflater().inflate(R.layout.formtemplate_coordinates, layout, false);
-                    if (control != null && x != null)
-                        ((Coordinates) control).setValue(x);
-                    break;
-
-                //TODO: add controls
-                //button
-                //group
-                //orientation
-                //tabs
-                //compass
-
-                default:
-                    break;
+                attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+                String fieldX = attributes.optString(JSON_FIELD_NAME_KEY + "_long");
+                attributes.put(JSON_FIELD_NAME_KEY, fieldX);
+                element.put(JSON_TYPE_KEY, type + "_lon");
             }
+
+            control = getControl(this, element, mLayer, mFeatureId, mGeometry);
+            if (type.equals(JSON_TABS_KEY))
+                ((Tabs) control).init(mLayer, mFeatureId, mGeometry, mTable, mRow, mSharedPreferences, mPreferences, getSupportFragmentManager());
 
             addToLayout(control, element, fields, savedState, featureCursor, layout);
         }
@@ -432,6 +344,125 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
         }
 
         layout.requestLayout();
+    }
+
+    public static IFormControl getControl(Context context, JSONObject element, VectorLayer layer, long feature,
+                                          GeoGeometry geometry) throws JSONException {
+        String type = element.getString(JSON_TYPE_KEY);
+        IFormControl control = null;
+
+        switch (type) {
+            case JSON_TEXT_LABEL_VALUE:
+                control = (TextLabel) View.inflate(context, R.layout.formtemplate_textlabel, null);
+                break;
+
+            case JSON_TEXT_EDIT_VALUE:
+                control = (TextEdit) View.inflate(context, R.layout.formtemplate_edittext, null);
+                break;
+
+            case JSON_DATE_TIME_VALUE:
+                control = (DateTime) View.inflate(context, R.layout.formtemplate_datetime, null);
+                break;
+
+            case JSON_RADIO_GROUP_VALUE:
+                control = (RadioGroup) View.inflate(context, R.layout.formtemplate_radiogroup, null);
+                break;
+
+            case JSON_COMBOBOX_VALUE:
+                if (ControlHelper.isAutoComplete(element.getJSONObject(JSON_ATTRIBUTES_KEY)))
+                    control = (AutoTextEdit) View.inflate(context, R.layout.formtemplate_autoedittext, null);
+                else
+                    control = (Combobox) View.inflate(context, R.layout.formtemplate_combobox, null);
+                break;
+
+            case JSON_SPLIT_COMBOBOX_VALUE:
+                control = new SplitCombobox(context);
+                break;
+
+            case JSON_DOUBLE_COMBOBOX_VALUE:
+                control = (DoubleCombobox) View.inflate(context, R.layout.formtemplate_doublecombobox, null);
+                break;
+
+            case JSON_SPACE_VALUE:
+                control = (Space) View.inflate(context, R.layout.formtemplate_space, null);
+                break;
+
+            case JSON_CHECKBOX_VALUE:
+                control = (Checkbox) View.inflate(context, R.layout.formtemplate_checkbox, null);
+                break;
+
+            case JSON_PHOTO_VALUE:
+                control = (PhotoGallery) View.inflate(context, R.layout.formtemplate_photo, null);
+                ((PhotoGallery) control).init(layer, feature);
+                break;
+
+            case JSON_SIGN_VALUE:
+                control = (Sign) View.inflate(context, R.layout.formtemplate_sign, null);
+                ((Sign) control).setPath(layer.getPath().getPath() + File.separator + feature);
+                break;
+
+            case JSON_COUNTER_VALUE:
+                control = (Counter) View.inflate(context, R.layout.formtemplate_counter, null);
+                break;
+
+            case JSON_DISTANCE_VALUE:
+                control = (Distance) View.inflate(context, R.layout.formtemplate_distance, null);
+                if (geometry instanceof GeoPoint) {
+                    GeoPoint point = (GeoPoint) geometry.copy();
+                    point.setCRS(GeoConstants.CRS_WEB_MERCATOR);
+                    point.project(GeoConstants.CRS_WGS84);
+                    Location location = new Location(LocationManager.GPS_PROVIDER);
+                    location.setLatitude(point.getY());
+                    location.setLongitude(point.getX());
+                    ((Distance) control).setLocation(location);
+                }
+                break;
+
+            case JSON_COORDINATES_VALUE + "_lon":
+                Double x = getCoordinate(geometry, false);
+                control = (Coordinates) View.inflate(context, R.layout.formtemplate_coordinates, null);
+                if (control != null && x != null)
+                    ((Coordinates) control).setValue(x);
+                break;
+
+            case JSON_COORDINATES_VALUE + "_lat":
+                Double y = getCoordinate(geometry, true);
+                control = (Coordinates) View.inflate(context, R.layout.formtemplate_coordinates, null);
+                if (control != null) {
+                    ((Coordinates) control).setIsLat();
+                    if (y != null)
+                        ((Coordinates) control).setValue(y);
+                }
+                break;
+
+            case JSON_TABS_KEY:
+                control = (Tabs) View.inflate(context, R.layout.formtemplate_tabs, null);
+                break;
+
+            //TODO: add controls
+            //button
+            //group
+            //orientation
+            //compass
+
+            default:
+                break;
+        }
+
+        return control;
+    }
+
+    protected static Double getCoordinate(GeoGeometry geometry, boolean latitude) {
+        Double x, y;
+        x = y = null;
+        if (geometry instanceof GeoPoint) {
+            GeoPoint point = (GeoPoint) geometry.copy();
+            point.setCRS(GeoConstants.CRS_WEB_MERCATOR);
+            point.project(GeoConstants.CRS_WGS84);
+            y = point.getY();
+            x = point.getX();
+        }
+        return latitude ? y : x;
     }
 
     @Override
@@ -451,7 +482,7 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
     protected void addToLayout(IFormControl control, JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, LinearLayout layout)
             throws JSONException {
         if (null != control) {
-            appendData(control, element);
+            appendData(mLayer, mPreferences, mTable, mRow, control, element);
 
             control.init(element, fields, savedState, featureCursor, mSharedPreferences);
             control.addToLayout(layout);
@@ -459,28 +490,33 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
             String fieldName = control.getFieldName();
             if (null != fieldName)
                 mFields.put(fieldName, control);
+            if (control instanceof Tabs) {
+                Tabs tabs = (Tabs) control;
+                mFields.putAll(tabs.getFields());
+            }
         }
     }
 
-    private void appendData(IFormControl control, JSONObject element) throws JSONException {
-        if (mLayer instanceof NGWVectorLayer)
-            element.put(SyncStateContract.Columns.ACCOUNT_NAME, ((NGWVectorLayer) mLayer).getAccountName());
+    public static void appendData(VectorLayer layer, SharedPreferences preferences, Map<String, List<String>> table, int row,
+                                  IFormControl control, JSONObject element) throws JSONException {
+        if (layer instanceof NGWVectorLayer)
+            element.put(SyncStateContract.Columns.ACCOUNT_NAME, ((NGWVectorLayer) layer).getAccountName());
 
-        element.put(PREF_FIRST_NAME, mPreferences.getString(PREF_FIRST_NAME, ""));
-        element.put(PREF_LAST_NAME, mPreferences.getString(PREF_LAST_NAME, ""));
-        element.put(PREF_USERNAME, mPreferences.getString(PREF_USERNAME, ""));
+        element.put(PREF_FIRST_NAME, preferences.getString(PREF_FIRST_NAME, ""));
+        element.put(PREF_LAST_NAME, preferences.getString(PREF_LAST_NAME, ""));
+        element.put(PREF_USERNAME, preferences.getString(PREF_USERNAME, ""));
 
-        if (control instanceof Counter && mTable != null && mRow != -1) {
+        if (control instanceof Counter && table != null && row != -1) {
             JSONObject attrs = element.getJSONObject(JSON_ATTRIBUTES_KEY);
             if (!attrs.isNull(Counter.PREFIX_LIST)) {
                 String prefix = attrs.getString(Counter.PREFIX_LIST);
-                prefix = mTable.get(prefix).get(mRow);
+                prefix = table.get(prefix).get(row);
                 attrs.put(Counter.PREFIX, prefix);
             }
 
             if (!attrs.isNull(Counter.SUFFIX_LIST)) {
                 String suffix = attrs.getString(Counter.SUFFIX_LIST);
-                suffix = mTable.get(suffix).get(mRow);
+                suffix = table.get(suffix).get(row);
                 attrs.put(Counter.SUFFIX, suffix);
             }
         }

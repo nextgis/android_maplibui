@@ -59,6 +59,9 @@ public interface ConstantsUI
 
     String JSON_ATTRIBUTES_KEY        = "attributes";
     String JSON_TABS_KEY              = "tabs";
+    String JSON_PAGES_KEY             = "pages";
+    String JSON_CAPTION_KEY           = "caption";
+    String JSON_ELEMENTS_KEY          = "elements";
     String JSON_ALBUM_ELEMENTS_KEY    = "album_elements";
     String JSON_PORTRAIT_ELEMENTS_KEY = "portrait_elements";
     String JSON_FIELD_NAME_KEY        = "field";
