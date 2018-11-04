@@ -26,6 +26,7 @@ package com.nextgis.maplibui.fragment;
 import android.accounts.Account;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -120,7 +121,7 @@ public class NGWLoginFragment
 
     @Override
     public View onCreateView(
-            LayoutInflater inflater,
+            @NonNull LayoutInflater inflater,
             @Nullable
             ViewGroup container,
             @Nullable
@@ -248,13 +249,14 @@ public class NGWLoginFragment
     }
 
 
+    @NonNull
     @Override
     public Loader<String> onCreateLoader(
             int id,
             Bundle args)
     {
         if (id == R.id.auth_token_loader) {
-            mLoginText = mLogin.getText().toString();
+            mLoginText = mLogin.getText().toString().trim();
             mPasswordText = mPassword.getText().toString();
         }
 
@@ -265,7 +267,7 @@ public class NGWLoginFragment
 
     @Override
     public void onLoadFinished(
-            Loader<String> loader,
+            @NonNull Loader<String> loader,
             String token)
     {
         mSignInButton.setEnabled(true);
@@ -342,7 +344,7 @@ public class NGWLoginFragment
 
 
     @Override
-    public void onLoaderReset(Loader<String> loader)
+    public void onLoaderReset(@NonNull Loader<String> loader)
     {
 
     }
