@@ -25,6 +25,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -55,13 +56,13 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_ngid_login, container, false);
-        mLogin = (EditText) view.findViewById(R.id.login);
-        mPassword = (EditText) view.findViewById(R.id.password);
-        mSignInButton = (Button) view.findViewById(R.id.signin);
+        mLogin = view.findViewById(R.id.login);
+        mPassword = view.findViewById(R.id.password);
+        mSignInButton = view.findViewById(R.id.signin);
         mSignInButton.setOnClickListener(this);
-        TextView signUp = (TextView) view.findViewById(R.id.signup);
+        TextView signUp = view.findViewById(R.id.signup);
         signUp.setText(signUp.getText().toString().toUpperCase());
         signUp.setOnClickListener(this);
         return view;
@@ -70,17 +71,20 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.signin) {
+            final Activity activity = getActivity();
+            if (activity == null)
+                return;
+
             boolean loginPasswordFilled = checkEditText(mLogin) && checkEditText(mPassword);
             if (!loginPasswordFilled) {
-                Toast.makeText(getActivity(), R.string.field_not_filled, Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, R.string.field_not_filled, Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            IGISApplication application = (IGISApplication) getActivity().getApplication();
+            IGISApplication application = (IGISApplication) activity.getApplication();
             application.sendEvent(ConstantsUI.GA_NGID, ConstantsUI.GA_CONNECT, ConstantsUI.GA_USER);
             mSignInButton.setEnabled(false);
-            final Activity activity = getActivity();
-            String login = mLogin.getText().toString();
+            String login = mLogin.getText().toString().trim();
             String password = mPassword.getText().toString();
             NGIDUtils.getToken(activity, login, password, new NGIDUtils.OnFinish() {
                 @Override
