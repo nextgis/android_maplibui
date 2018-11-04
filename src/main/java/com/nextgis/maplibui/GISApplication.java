@@ -349,7 +349,7 @@ public abstract class GISApplication extends Application
         return result == null ? "" : result;
     }
 
-    private boolean isAccountManagerValid(){
+    protected boolean isAccountManagerValid(){
         if(null == mAccountManager){
             mAccountManager = AccountManager.get(getApplicationContext());
         }
