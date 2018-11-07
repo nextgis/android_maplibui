@@ -217,7 +217,9 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
             return null;
         }
 
-        return mAliasValueMap.get(getText().toString());
+        String text = getText().toString();
+        String value = mAliasValueMap.get(text);
+        return value == null ? text : value;
     }
 
 
