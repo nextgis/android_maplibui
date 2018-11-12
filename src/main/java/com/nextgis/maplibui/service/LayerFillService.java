@@ -4,7 +4,7 @@
  * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -270,7 +270,7 @@ public class LayerFillService extends Service implements IProgressor {
 
                 mProgressIntent.putExtra(KEY_STATUS, STATUS_STOP);
                 mProgressIntent.putExtra(KEY_CANCELLED, mIsCanceled);
-                mProgressIntent.putExtra(KEY_RESULT, result);
+                mProgressIntent.putExtra(KEY_RESULT, result && !mIsCanceled);
                 mProgressIntent.putExtra(KEY_TOTAL, mQueue.size());
 
                 if (result) {
@@ -405,6 +405,15 @@ public class LayerFillService extends Service implements IProgressor {
             else if (mLayerPath != null)
                 FileUtil.deleteRecursive(mLayerPath);
         }
+
+        void setError(Exception e, IProgressor progressor) {
+            String logMsg = e.getLocalizedMessage();
+            if (null != logMsg) {
+                if (null != progressor)
+                    progressor.setMessage(logMsg);
+                setMessage(logMsg);
+            }
+        }
     }
 
     private class VectorLayerFillTask extends LayerFillTask{
@@ -424,14 +433,7 @@ public class LayerFillService extends Service implements IProgressor {
                 vectorLayer.createFromGeoJson(mUri, progressor);
             } catch (IOException | JSONException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();
-                String logMsg = e.getLocalizedMessage();
-
-                if(null != logMsg) {
-                    if (null != progressor)
-                        progressor.setMessage(logMsg);
-
-                    setMessage(logMsg);
-                }
+                setError(e, progressor);
                 notifyError(mProgressMessage);
                 return false;
             }
@@ -575,15 +577,7 @@ public class LayerFillService extends Service implements IProgressor {
                 }
             } catch (AccountsException | JSONException | IOException | URISyntaxException | RuntimeException e) {
                 e.printStackTrace();
-
-                String logMsg = e.getLocalizedMessage();
-
-                if(null != logMsg) {
-                    if (null != progressor)
-                        progressor.setMessage(logMsg);
-
-                    setMessage(logMsg);
-                }
+                setError(e, progressor);
                 notifyError(mProgressMessage);
                 return false;
             }
@@ -632,15 +626,7 @@ public class LayerFillService extends Service implements IProgressor {
                     vectorLayer.createFromGeoJson(mPath, progressor); // should never get there
             } catch (IOException | JSONException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();
-
-                String logMsg = e.getLocalizedMessage();
-
-                if(null != logMsg) {
-                    if (null != progressor)
-                        progressor.setMessage(logMsg);
-
-                    setMessage(logMsg);
-                }
+                setError(e, progressor);
                 notifyError(mProgressMessage);
                 return false;
             }
@@ -681,15 +667,7 @@ public class LayerFillService extends Service implements IProgressor {
                     tmsLayer.fillFromZip(mUri, progressor);
             } catch (IOException | NGException | RuntimeException e) {
                 e.printStackTrace();
-
-                String logMsg = e.getLocalizedMessage();
-
-                if(null != logMsg) {
-                    if (null != progressor)
-                        progressor.setMessage(logMsg);
-
-                    setMessage(logMsg);
-                }
+                setError(e, progressor);
                 notifyError(mProgressMessage);
                 return false;
             }
@@ -733,7 +711,7 @@ public class LayerFillService extends Service implements IProgressor {
         public boolean execute(IProgressor progressor) {
             try {
                 NGWVectorLayer ngwVectorLayer = (NGWVectorLayer) mLayer;
-                if(null == ngwVectorLayer)
+                if (null == ngwVectorLayer)
                     return false;
 
                 for (String id : mLookupIds) {
@@ -749,15 +727,7 @@ public class LayerFillService extends Service implements IProgressor {
                 ngwVectorLayer.createFromNGW(progressor);
             } catch (JSONException | IOException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();
-
-                String logMsg = e.getLocalizedMessage();
-
-                if(null != logMsg) {
-                    if (null != progressor)
-                        progressor.setMessage(logMsg);
-
-                    setMessage(logMsg);
-                }
+                setError(e, progressor);
                 notifyError(mProgressMessage);
                 return false;
             }
