@@ -25,8 +25,11 @@ package com.nextgis.maplibui.service;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -39,12 +42,14 @@ import android.content.SharedPreferences;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -69,6 +74,7 @@ import com.nextgis.maplib.util.NGWUtil;
 import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
+import com.nextgis.maplibui.BuildConfig;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.NotificationHelper;
@@ -323,7 +329,11 @@ public class TrackerService
         PendingIntent stopService = PendingIntent.getService(
                 this, 0, intentStop, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        NotificationCompat.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            builder = createBuilder();
+        else
+            builder = new NotificationCompat.Builder(this);
 
         builder.setContentIntent(mOpenActivity)
                 .setSmallIcon(mSmallIcon)
@@ -344,8 +354,20 @@ public class TrackerService
 
         mNotificationManager.notify(TRACK_NOTIFICATION_ID, builder.build());
         startForeground(TRACK_NOTIFICATION_ID, builder.build());
-
         Toast.makeText(this, title, Toast.LENGTH_SHORT).show();
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private NotificationCompat.Builder createBuilder() {
+        String NOTIFICATION_CHANNEL_ID = BuildConfig.APPLICATION_ID;
+        String channelName = getString(R.string.title_edit_by_walk);
+        NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_HIGH);
+        chan.setLightColor(Color.CYAN);
+        chan.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        assert manager != null;
+        manager.createNotificationChannel(chan);
+        return new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
     }
 
 

@@ -4,7 +4,7 @@
  *  Author:   Dmitry Baryshnikov, dmitry.baryshnikov@nextgis.com
  *  Author:   Stanislav Petriakov, becomeglory@gmail.com
  * ****************************************************************************
- *  Copyright (c) 2012-2017 NextGIS, info@nextgis.com
+ *  Copyright (c) 2012-2018 NextGIS, info@nextgis.com
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser Public License as published by
@@ -23,7 +23,10 @@
 package com.nextgis.maplibui.service;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -31,10 +34,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -52,6 +57,7 @@ import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
+import com.nextgis.maplibui.BuildConfig;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.NotificationHelper;
@@ -159,8 +165,8 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
         long minTime = Long.parseLong(minTimeStr) * 1000;
         float minDistance = Float.parseFloat(minDistanceStr);
 
-        if (!PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) || !PermissionUtil
-                .hasPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION))
+        if (!PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) || !PermissionUtil.hasPermission(this,
+                                                                                                                           Manifest.permission.ACCESS_COARSE_LOCATION))
             return;
 
         mLocationManager.addGpsStatusListener(this);
@@ -197,8 +203,8 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
         removeNotification();
         stopSelf();
 
-        if (PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) && PermissionUtil
-                .hasPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+        if (PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) && PermissionUtil.hasPermission(this,
+                                                                                                                         Manifest.permission.ACCESS_COARSE_LOCATION)) {
             mLocationManager.removeUpdates(this);
             mLocationManager.removeGpsStatusListener(this);
         }
@@ -268,15 +274,39 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
         String title = String.format(getString(R.string.walkedit_title), name);
         Bitmap largeIcon = NotificationHelper.getLargeIcon(R.drawable.ic_action_maps_directions_walk, getResources());
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        NotificationCompat.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            builder = createBuilder();
+        else
+            builder = new NotificationCompat.Builder(this);
 
-        builder.setContentIntent(mOpenActivity).setSmallIcon(mSmallIcon).setLargeIcon(largeIcon).setTicker(mTicker).setWhen(System.currentTimeMillis())
-               .setAutoCancel(false).setContentTitle(title).setContentText(mTicker).setOngoing(true);
+        builder.setContentIntent(mOpenActivity)
+               .setSmallIcon(mSmallIcon)
+               .setLargeIcon(largeIcon)
+               .setTicker(mTicker)
+               .setWhen(System.currentTimeMillis())
+               .setAutoCancel(false)
+               .setContentTitle(title)
+               .setContentText(mTicker)
+               .setOngoing(true);
 
         builder.addAction(R.drawable.ic_location, getString(R.string.tracks_open), mOpenActivity);
 
         mNotificationManager.notify(WALK_NOTIFICATION_ID, builder.build());
         startForeground(WALK_NOTIFICATION_ID, builder.build());
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private NotificationCompat.Builder createBuilder() {
+        String NOTIFICATION_CHANNEL_ID = BuildConfig.APPLICATION_ID;
+        String channelName = getString(R.string.title_edit_by_walk);
+        NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_HIGH);
+        chan.setLightColor(Color.CYAN);
+        chan.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        assert manager != null;
+        manager.createNotificationChannel(chan);
+        return new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
     }
 
     private void removeNotification() {
