@@ -350,4 +350,5 @@
     <string name="imperial">Imperial</string>
     <string name="delete_confirm">Confirm object deletion.</string>
     <string name="no_activity_found">Suitable activity not found</string>
+    <string name="fb_form">Form</string>
 </resources>
