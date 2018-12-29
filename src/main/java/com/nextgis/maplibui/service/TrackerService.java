@@ -567,6 +567,12 @@ public class TrackerService
                 Cursor mPoints;
 
                 while (!Thread.currentThread().isInterrupted()) {
+                    try {
+                        Thread.sleep(minTime);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+
                     if (preferences.getBoolean(SettingsConstants.KEY_PREF_TRACK_SEND, false)) {
                         mPoints = resolver.query(mContentUriTrackPoints, null, selection, null, sort);
                         if (mPoints != null) {
@@ -622,12 +628,6 @@ public class TrackerService
                     }
 
                     sync(app);
-
-                    try {
-                        Thread.sleep(minTime);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
                 }
             }
         });
