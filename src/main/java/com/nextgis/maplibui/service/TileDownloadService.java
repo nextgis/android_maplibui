@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -60,7 +60,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import static com.nextgis.maplib.util.Constants.DRAWING_SEPARATE_THREADS;
 import static com.nextgis.maplib.util.Constants.KEEP_ALIVE_TIME;
 import static com.nextgis.maplib.util.Constants.KEEP_ALIVE_TIME_UNIT;
-
+import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 
 /**
  * The service to batch download tiles
@@ -112,7 +112,7 @@ public class TileDownloadService
         Bitmap largeIcon = NotificationHelper.getLargeIcon(R.drawable.ic_notification_download,
                 getResources());
 
-        mBuilder = new NotificationCompat.Builder(this);
+        mBuilder = createBuilder(this, R.string.download_tiles);
         mBuilder.setSmallIcon(R.drawable.ic_notification_download)
                 .setLargeIcon(largeIcon)
                 .setAutoCancel(false)
@@ -321,7 +321,7 @@ public class TileDownloadService
 
         ILayer layer = map.getLayerByPathName(task.getLayerPathName());
 
-        if (null != layer && layer instanceof RemoteTMSLayer) { // process only tms layers
+        if (layer instanceof RemoteTMSLayer) { // process only tms layers
             String notifyTitle = getString(R.string.download_tiles);
             mBuilder.setContentTitle(notifyTitle).setWhen(System.currentTimeMillis());
             mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());

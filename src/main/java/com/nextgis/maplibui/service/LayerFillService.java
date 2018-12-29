@@ -84,6 +84,8 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
+
 /**
  * Service for filling layers with data
  */
@@ -164,7 +166,7 @@ public class LayerFillService extends Service implements IProgressor {
         PendingIntent showProgressDialog = PendingIntent.getService(this, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        mBuilder = new NotificationCompat.Builder(this);
+        mBuilder = createBuilder(this, R.string.start_fill_layer);
         mBuilder.setSmallIcon(R.drawable.ic_notification_download).setLargeIcon(largeIcon)
                 .setAutoCancel(false)
                 .setOngoing(true)

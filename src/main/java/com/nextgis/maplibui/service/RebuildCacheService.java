@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016, 2018 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -43,6 +43,8 @@ import com.nextgis.maplibui.util.NotificationHelper;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
+
 public class RebuildCacheService extends Service implements IProgressor {
     public static final String ACTION_ADD_TASK = "REBUILD_CACHE_ADD_TASK";
     public static final String ACTION_REMOVE_TASK = "REBUILD_CACHE_REMOVE_TASK";
@@ -76,7 +78,7 @@ public class RebuildCacheService extends Service implements IProgressor {
         intent.setAction(ACTION_SHOW);
         PendingIntent showProgressDialog = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        mBuilder = new NotificationCompat.Builder(this);
+        mBuilder = createBuilder(this, R.string.rebuild_cache);
         mBuilder.setSmallIcon(R.drawable.ic_notification_rebuild_cache).setLargeIcon(largeIcon)
                 .setAutoCancel(false)
                 .setOngoing(true)
