@@ -35,16 +35,19 @@ public class CheckState
     protected int     mId;
     protected boolean mCheckState1;
     protected boolean mCheckState2;
+    protected boolean mCheckState3;
 
 
     public CheckState(
             int id,
             boolean checkState1,
-            boolean checkState2)
+            boolean checkState2,
+            boolean checkState3)
     {
         mId = id;
         mCheckState1 = checkState1;
         mCheckState2 = checkState2;
+        mCheckState3 = checkState3;
     }
 
 
@@ -63,6 +66,7 @@ public class CheckState
         parcel.writeInt(mId);
         parcel.writeByte(mCheckState1 ? (byte) 1 : (byte) 0);
         parcel.writeByte(mCheckState2 ? (byte) 1 : (byte) 0);
+        parcel.writeByte(mCheckState3 ? (byte) 1 : (byte) 0);
     }
 
 
@@ -87,6 +91,7 @@ public class CheckState
         mId = in.readInt();
         mCheckState1 = in.readByte() == 1;
         mCheckState2 = in.readByte() == 1;
+        mCheckState3 = in.readByte() == 1;
     }
 
 
@@ -108,6 +113,12 @@ public class CheckState
     }
 
 
+    public boolean isCheckState3()
+    {
+        return mCheckState3;
+    }
+
+
     public void setCheckState1(boolean checkState1)
     {
         mCheckState1 = checkState1;
@@ -117,5 +128,10 @@ public class CheckState
     public void setCheckState2(boolean checkState2)
     {
         mCheckState2 = checkState2;
+    }
+
+    public void setCheckState3(boolean checkState3)
+    {
+        mCheckState3 = checkState3;
     }
 }

@@ -93,11 +93,12 @@ public class TextEdit extends AppCompatEditText
         mIsShowLast = ControlHelper.isSaveLastValue(attributes);
         boolean enabled = ControlHelper.isEnabled(fields, mFieldName);
 
+        int column = -1;
         String value = null;
         if (ControlHelper.hasKey(savedState, mFieldName))
             value = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
         else if (null != featureCursor) { // feature exists
-            int column = featureCursor.getColumnIndex(mFieldName);
+            column = featureCursor.getColumnIndex(mFieldName);
             if (column >= 0)
                 value = featureCursor.getString(column);
         } else {    // new feature
@@ -123,8 +124,10 @@ public class TextEdit extends AppCompatEditText
         boolean ngidLogin = attributes.optBoolean(NGID_LOGIN);
         if (ngidLogin) {
             enabled = false;
-            String name = element.optString(PREF_FIRST_NAME) + " " + element.optString(PREF_LAST_NAME);
-            value = TextUtils.isEmpty(name.trim()) ? element.optString(PREF_USERNAME) : name;
+            if (column == -1) {
+                String name = element.optString(PREF_FIRST_NAME) + " " + element.optString(PREF_LAST_NAME);
+                value = TextUtils.isEmpty(name.trim()) ? element.optString(PREF_USERNAME) : name;
+            }
         }
 
         setEnabled(enabled);

@@ -24,6 +24,7 @@ package com.nextgis.maplibui.activity;
 import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -50,6 +51,7 @@ import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.NGWRasterLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplib.util.NGWUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.dialog.NGWResourcesListAdapter;
 import com.nextgis.maplibui.fragment.LayerFillProgressDialogFragment;
@@ -299,6 +301,25 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     intent.putExtra(LayerFillService.KEY_REMOTE_ID, layer.getRemoteId());
                     intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, mGroupLayer.getId());
                     intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.NGW_LAYER);
+
+                    LayerFillProgressDialogFragment.startFill(intent);
+                }
+            }
+
+            if (checkState.isCheckState3()) { //create form
+                INGWResource resource = connections.getResourceById(checkState.getId());
+                if (resource instanceof LayerWithStyles) {
+                    LayerWithStyles layer = (LayerWithStyles) resource;
+                    //1. get connection for url
+                    Connection connection = layer.getConnection();
+                    // create or connect to fill layer with features
+                    Intent intent = new Intent(this, LayerFillService.class);
+                    intent.setAction(LayerFillService.ACTION_ADD_TASK);
+                    intent.putExtra(LayerFillService.KEY_NAME, layer.getName());
+                    String path = NGWUtil.getResourceUrl(connection.getURL(), layer.getFormId(0)) + "/ngfp";
+                    intent.putExtra(LayerFillService.KEY_URI, Uri.parse(path));
+                    intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, mGroupLayer.getId());
+                    intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.VECTOR_LAYER_WITH_FORM);
 
                     LayerFillProgressDialogFragment.startFill(intent);
                 }

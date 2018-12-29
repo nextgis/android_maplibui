@@ -343,8 +343,9 @@
     <string name="alignment">Alignment</string>
     <string name="enter_signature">Enter constant value</string>
     <string name="text_color">Text color</string>
-    <string name="metric">Metric</string>
-    <string name="imperial">Imperial</string>
+    <string name="metric">Метрический</string>
+    <string name="imperial">Имперская</string>
     <string name="delete_confirm">Подтвердите удаление объекта.</string>
     <string name="no_activity_found">Не найдено подходящего приложения</string>
+    <string name="fb_form">Форма</string>
 </resources>
