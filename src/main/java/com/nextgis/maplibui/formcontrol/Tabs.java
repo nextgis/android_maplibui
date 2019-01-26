@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2018-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -71,6 +71,7 @@ public class Tabs extends LinearLayout implements IFormControl
 
     protected VectorLayer mLayer;
     protected long mFeatureId;
+    protected boolean mIsViewOnly;
     protected GeoGeometry mGeometry;
     private Map<String, List<String>> mTable;
     private int mRow = -1;
@@ -86,10 +87,10 @@ public class Tabs extends LinearLayout implements IFormControl
         super(context, attrs);
     }
 
-    public void init(VectorLayer layer, long featureId, GeoGeometry geometry, Map<String, List<String>> table, int row, SharedPreferences sharedPreferences,
-                     SharedPreferences preferences, FragmentManager supportFragmentManager) {
+    public void init(VectorLayer layer, long featureId, GeoGeometry geometry, Map<String, List<String>> table, int row, SharedPreferences sharedPreferences, SharedPreferences preferences, FragmentManager supportFragmentManager, boolean isViewOnly) {
         mLayer = layer;
         mFeatureId = featureId;
+        mIsViewOnly = isViewOnly;
         mGeometry = geometry;
         mTable = table;
         mRow = row;
@@ -127,7 +128,7 @@ public class Tabs extends LinearLayout implements IFormControl
                     String fieldY = attributes.optString(JSON_FIELD_NAME_KEY + "_lat");
                     attributes.put(JSON_FIELD_NAME_KEY, fieldY);
                     element.put(JSON_TYPE_KEY, type + "_lat");
-                    IFormControl control = getControl(getContext(), element, mLayer, mFeatureId, mGeometry);
+                    IFormControl control = getControl(getContext(), element, mLayer, mFeatureId, mGeometry, mIsViewOnly);
                     addToLayout(control, element, fields, savedState, featureCursor, layout);
 
                     attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
@@ -135,7 +136,7 @@ public class Tabs extends LinearLayout implements IFormControl
                     attributes.put(JSON_FIELD_NAME_KEY, fieldX);
                     element.put(JSON_TYPE_KEY, type + "_lon");
                 }
-                IFormControl control = getControl(getContext(), element, mLayer, mFeatureId, mGeometry);
+                IFormControl control = getControl(getContext(), element, mLayer, mFeatureId, mGeometry, mIsViewOnly);
                 addToLayout(control, element, fields, savedState, featureCursor, layout);
             }
             TabFragment fragment = new TabFragment();
@@ -183,6 +184,8 @@ public class Tabs extends LinearLayout implements IFormControl
 
             control.init(element, fields, savedState, featureCursor, mSharedPreferences);
             control.addToLayout(layout);
+            if (mIsViewOnly)
+                control.setEnabled(false);
 
             String fieldName = control.getFieldName();
             if (null != fieldName)

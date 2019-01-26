@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -85,9 +85,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.JSON_TYPE_KEY;
-import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ALBUM_ELEMENTS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_CHECKBOX_VALUE;
@@ -139,6 +137,12 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
             MenuItem apply = menu.add(0, RESELECT_ROW, 50, R.string.select_row);
             apply.setIcon(R.drawable.ic_altitude);
             MenuItemCompat.setShowAsAction(apply, MenuItemCompat.SHOW_AS_ACTION_ALWAYS);
+        }
+
+        if (mIsViewOnly) {
+            MenuItem item = menu.findItem(R.id.menu_apply);
+            if (item != null)
+                item.setVisible(false);
         }
 
         return true;
@@ -299,20 +303,32 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
         dialog.setCanceledOnTouchOutside(false);
     }
 
+    @Override
+    protected Cursor getFeatureCursor() {
+        Cursor featureCursor = super.getFeatureCursor();
+        if (featureCursor != null) {
+            int id = featureCursor.getColumnIndex("author");
+            if (id >= 0) {
+                try {
+                    String author = featureCursor.getString(id);
+                    String fName = mPreferences.getString(PREF_FIRST_NAME, "");
+                    String lName = mPreferences.getString(PREF_LAST_NAME, "");
+                    String uName = mPreferences.getString(PREF_USERNAME, "");
+                    String name = TextEdit.formUserName(fName, lName, uName);
+                    mIsViewOnly = mIsViewOnly || !author.equals(name);
+                } catch (Exception ignored) {}
+            }
+        }
+        return featureCursor;
+    }
+
     protected void fillTabControls(
             LinearLayout layout,
             Bundle savedState,
             JSONArray elements)
             throws JSONException {
 
-        Cursor featureCursor = null;
-        if (mFeatureId != NOT_FOUND) {
-            featureCursor = mLayer.query(null, FIELD_ID + " = " + mFeatureId, null, null, null);
-            if (!featureCursor.moveToFirst()) {
-                featureCursor = null;
-            }
-        }
-
+        Cursor featureCursor = getFeatureCursor();
         List<Field> fields = mLayer.getFields();
         for (int i = 0; i < elements.length(); i++) {
             IFormControl control;
@@ -323,7 +339,7 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                 String fieldY = attributes.optString(JSON_FIELD_NAME_KEY + "_lat");
                 attributes.put(JSON_FIELD_NAME_KEY, fieldY);
                 element.put(JSON_TYPE_KEY, type + "_lat");
-                control = getControl(this, element, mLayer, mFeatureId, mGeometry);
+                control = getControl(this, element, mLayer, mFeatureId, mGeometry, mIsViewOnly);
                 addToLayout(control, element, fields, savedState, featureCursor, layout);
 
                 attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
@@ -332,9 +348,10 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                 element.put(JSON_TYPE_KEY, type + "_lon");
             }
 
-            control = getControl(this, element, mLayer, mFeatureId, mGeometry);
+            control = getControl(this, element, mLayer, mFeatureId, mGeometry, mIsViewOnly);
             if (type.equals(JSON_TABS_KEY))
-                ((Tabs) control).init(mLayer, mFeatureId, mGeometry, mTable, mRow, mSharedPreferences, mPreferences, getSupportFragmentManager());
+                ((Tabs) control).init(mLayer, mFeatureId, mGeometry, mTable, mRow, mSharedPreferences,
+                                      mPreferences, getSupportFragmentManager(), mIsViewOnly);
 
             addToLayout(control, element, fields, savedState, featureCursor, layout);
         }
@@ -347,7 +364,7 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
     }
 
     public static IFormControl getControl(Context context, JSONObject element, VectorLayer layer, long feature,
-                                          GeoGeometry geometry) throws JSONException {
+                                          GeoGeometry geometry, boolean isViewOnly) throws JSONException {
         String type = element.getString(JSON_TYPE_KEY);
         IFormControl control = null;
 
@@ -392,7 +409,10 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                 break;
 
             case JSON_PHOTO_VALUE:
-                control = (PhotoGallery) View.inflate(context, R.layout.formtemplate_photo, null);
+                if (isViewOnly)
+                    control = (PhotoGallery) View.inflate(context, R.layout.formtemplate_photo_disabled, null);
+                else
+                    control = (PhotoGallery) View.inflate(context, R.layout.formtemplate_photo, null);
                 ((PhotoGallery) control).init(layer, feature);
                 break;
 
@@ -479,13 +499,15 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
         }
     }
 
-    protected void addToLayout(IFormControl control, JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, LinearLayout layout)
-            throws JSONException {
+    protected void addToLayout(IFormControl control, JSONObject element, List<Field> fields, Bundle savedState,
+                               Cursor featureCursor, LinearLayout layout) throws JSONException {
         if (null != control) {
             appendData(mLayer, mPreferences, mTable, mRow, control, element);
 
             control.init(element, fields, savedState, featureCursor, mSharedPreferences);
             control.addToLayout(layout);
+            if (mIsViewOnly)
+                control.setEnabled(false);
 
             String fieldName = control.getFieldName();
             if (null != fieldName)

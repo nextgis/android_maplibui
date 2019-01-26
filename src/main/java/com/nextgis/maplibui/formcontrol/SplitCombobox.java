@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2017-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2017-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -288,5 +288,12 @@ public class SplitCombobox extends FrameLayout implements IFormControl
     @Override
     public void saveState(Bundle outState) {
         outState.putString(ControlHelper.getSavedStateKey(mFieldName), (String) getValue());
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        mSpinner.setEnabled(enabled);
+        mSpinner2.setEnabled(enabled);
     }
 }

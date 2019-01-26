@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016, 2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016, 2018-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -324,17 +324,20 @@ public class ModifyAttributesActivity
         }
     }
 
+    protected Cursor getFeatureCursor() {
+        Cursor featureCursor = null;
+        if (mFeatureId != NOT_FOUND) {
+            String selection = FIELD_ID + " = " + mFeatureId;
+            featureCursor = mLayer.query(null, selection, null, null, null);
+            if (!featureCursor.moveToFirst())
+                featureCursor = null;
+        }
+        return featureCursor;
+    }
 
     protected void fillControls(LinearLayout layout, Bundle savedState)
     {
-        Cursor featureCursor = null;
-        if (mFeatureId != NOT_FOUND) {
-            featureCursor = mLayer.query(null, FIELD_ID + " = " + mFeatureId, null, null, null);
-            if (!featureCursor.moveToFirst()) {
-                featureCursor = null;
-            }
-        }
-
+        Cursor featureCursor = getFeatureCursor();
         List<Field> fields = mLayer.getFields();
         Collections.sort(fields, new Comparator<Field>() {
             @Override
@@ -396,13 +399,12 @@ public class ModifyAttributesActivity
         }
 
         try {
-            if (!mIsViewOnly) {
-                IFormControl control = (PhotoGallery) getLayoutInflater().inflate(
-                        R.layout.formtemplate_photo, layout, false);
-                ((PhotoGallery) control).init(mLayer, mFeatureId);
-                control.init(null, null, null, null, null);
-                control.addToLayout(layout);
-            }
+            IFormControl control = (PhotoGallery) getLayoutInflater().inflate(R.layout.formtemplate_photo, layout, false);
+            if (mIsViewOnly)
+                control = (PhotoGallery) getLayoutInflater().inflate(R.layout.formtemplate_photo_disabled, layout, false);
+            ((PhotoGallery) control).init(mLayer, mFeatureId);
+            control.init(null, null, null, null, null);
+            control.addToLayout(layout);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -462,12 +464,17 @@ public class ModifyAttributesActivity
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.edit_attributes, menu);
+        if (mIsViewOnly) {
+            MenuItem item = menu.findItem(R.id.menu_apply);
+            if (item != null)
+                item.setVisible(false);
+        }
         return true;
     }
 
 
     private boolean checkEdits() {
-        if (hasEdits()) {
+        if (hasEdits() && !mIsViewOnly) {
             AlertDialog builder = new AlertDialog.Builder(this)
                     .setTitle(R.string.save)
                     .setMessage(R.string.has_edits)
@@ -565,6 +572,10 @@ public class ModifyAttributesActivity
 
     protected boolean saveFeature()
     {
+        if (mIsViewOnly) {
+            return false;
+        }
+
         if (mLayer == null) {
             Toast.makeText(this, R.string.error_layer_not_inited, Toast.LENGTH_SHORT).show();
             return false;

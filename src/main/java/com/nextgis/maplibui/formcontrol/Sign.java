@@ -3,7 +3,7 @@
  * Purpose: Mobile application for registering facts of the forest violations.
  * Author:  Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2017, 2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,6 @@ import android.graphics.Path;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -47,9 +46,7 @@ import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.util.ControlHelper;
-import com.nextgis.maplibui.util.SettingsConstantsUI;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -196,6 +193,8 @@ public class Sign extends View implements IFormControl {
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
+        if (!isEnabled())
+            return true;
 
         float x = event.getX();
         float y = event.getY();
@@ -267,7 +266,7 @@ public class Sign extends View implements IFormControl {
     }
 
     @Override
-    public void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences lastValue) throws JSONException {
+    public void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences lastValue) {
         init();
     }
 

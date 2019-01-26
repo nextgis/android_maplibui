@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -80,6 +80,11 @@ public class TextEdit extends AppCompatEditText
         super(context, attrs, defStyleAttr);
     }
 
+    public static String formUserName(String firstName, String lastName, String userName) {
+        String name = firstName + " " + lastName;
+        return TextUtils.isEmpty(name.trim()) ? userName : name;
+    }
+
     @Override
     public void init(JSONObject element,
                      List<Field> fields,
@@ -125,8 +130,10 @@ public class TextEdit extends AppCompatEditText
         if (ngidLogin) {
             enabled = false;
             if (column == -1) {
-                String name = element.optString(PREF_FIRST_NAME) + " " + element.optString(PREF_LAST_NAME);
-                value = TextUtils.isEmpty(name.trim()) ? element.optString(PREF_USERNAME) : name;
+                String fName = element.optString(PREF_FIRST_NAME);
+                String lName = element.optString(PREF_LAST_NAME);
+                String uName = element.optString(PREF_USERNAME);
+                value = formUserName(fName, lName, uName);
             }
         }
 
