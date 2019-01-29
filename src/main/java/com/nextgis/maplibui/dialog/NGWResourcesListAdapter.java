@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -338,7 +338,7 @@ public class NGWResourcesListAdapter
             tvDesc.setText(mContext.getString(R.string.up));
         } else {
             ImageView ivIcon;
-            CheckBox checkBox1 = null, checkBox2 = null, checkBox3 = null;
+            CheckBox checkBox1 = null, checkBox2 = null;
             final int id = resource.getId();
             int resourceType = resource.getType();
 
@@ -387,23 +387,24 @@ public class NGWResourcesListAdapter
                 case Connection.NGWResourceTypeVectorLayer:
                 case Connection.NGWResourceTypePostgisLayer:
                     LayerWithStyles layer = (LayerWithStyles) resource;
-                    if (layer.getStyleCount() > 0 && layer.getFormCount() > 0) {
-                        if (null == v || v.getId() != R.id.ngw_layer_triplecheck_row) {
-                            LayoutInflater inflater = LayoutInflater.from(mContext);
-                            v = inflater.inflate(R.layout.row_ngwlayer_triplecheck, null);
-                            v.setId(R.id.ngw_layer_triplecheck_row);
-                        }
-
-                        //add check listener
-                        checkBox1 = v.findViewById(R.id.checkBox1);
-                        setCheckBox(resourceType, checkBox1, id, 1);
-
-                        checkBox2 = v.findViewById(R.id.checkBox2);
-                        setCheckBox(resourceType, checkBox2, id, 2);
-
-                        checkBox3 = v.findViewById(R.id.checkBox3);
-                        setCheckBox(resourceType, checkBox3, id, 3);
-                    } else if (layer.getStyleCount() > 0) {
+//                    if (layer.getStyleCount() > 0 && layer.getFormCount() > 0) {
+//                        if (null == v || v.getId() != R.id.ngw_layer_triplecheck_row) {
+//                            LayoutInflater inflater = LayoutInflater.from(mContext);
+//                            v = inflater.inflate(R.layout.row_ngwlayer_triplecheck, null);
+//                            v.setId(R.id.ngw_layer_triplecheck_row);
+//                        }
+//
+//                        //add check listener
+//                        checkBox1 = v.findViewById(R.id.checkBox1);
+//                        setCheckBox(resourceType, checkBox1, id, 1);
+//
+//                        checkBox2 = v.findViewById(R.id.checkBox2);
+//                        setCheckBox(resourceType, checkBox2, id, 2);
+//
+//                        checkBox3 = v.findViewById(R.id.checkBox3);
+//                        setCheckBox(resourceType, checkBox3, id, 3);
+//                    } else
+                    if (layer.getStyleCount() > 0) {
                         if (null == v || v.getId() != R.id.ngw_layer_doublecheck_row) {
                             LayoutInflater inflater = LayoutInflater.from(mContext);
                             v = inflater.inflate(R.layout.row_ngwlayer_doublecheck, null);
@@ -466,8 +467,8 @@ public class NGWResourcesListAdapter
                     v.findViewById(R.id.check_raster).setVisibility(View.GONE);
                 if (checkBox2 != null)
                     v.findViewById(R.id.check_vector).setVisibility(View.GONE);
-                if (checkBox3 != null)
-                    v.findViewById(R.id.check_fb).setVisibility(View.GONE);
+//                if (checkBox3 != null)
+//                    v.findViewById(R.id.check_fb).setVisibility(View.GONE);
             }
 
             TextView tvText = v.findViewById(R.id.tvName);
@@ -494,10 +495,10 @@ public class NGWResourcesListAdapter
                 if (state.getId() == id && state.isCheckState2()) {
                     checkBox.setChecked(true);
                 }
-            } else if (checkNo == 3) {
-                if (state.getId() == id && state.isCheckState3()) {
-                    checkBox.setChecked(true);
-                }
+//            } else if (checkNo == 3) {
+//                if (state.getId() == id && state.isCheckState3()) {
+//                    checkBox.setChecked(true);
+//                }
             }
         }
 
@@ -528,23 +529,23 @@ public class NGWResourcesListAdapter
                                 if (checkedState != null)
                                     checkedState.setCheckState1(b);
                                 else
-                                    mCheckState.add(new CheckState(id, true, false, false));
+                                    mCheckState.add(new CheckState(id, true, false));//, false));
                                 break;
                             case 2:
                                 if (checkedState != null)
                                     checkedState.setCheckState2(b);
                                 else
-                                    mCheckState.add(new CheckState(id, false, true, false));
+                                    mCheckState.add(new CheckState(id, false, true));//, false));
                                 break;
-                            case 3:
-                                if (checkedState != null)
-                                    checkedState.setCheckState3(b);
-                                else
-                                    mCheckState.add(new CheckState(id, false, false, true));
-                                break;
+//                            case 3:
+//                                if (checkedState != null)
+//                                    checkedState.setCheckState3(b);
+//                                else
+//                                    mCheckState.add(new CheckState(id, false, false, true));
+//                                break;
                         }
 
-                        if (checkedState != null && !checkedState.isCheckState1() && !checkedState.isCheckState2() && !checkedState.isCheckState3())
+                        if (checkedState != null && !checkedState.isCheckState1() && !checkedState.isCheckState2())// && !checkedState.isCheckState3())
                             mCheckState.remove(checkedState);
                     }
                 });

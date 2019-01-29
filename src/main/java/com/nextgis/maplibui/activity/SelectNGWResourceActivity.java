@@ -302,28 +302,18 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, mGroupLayer.getId());
                     intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.NGW_LAYER);
 
-                    LayerFillProgressDialogFragment.startFill(intent);
-                }
-            }
-
-            if (checkState.isCheckState3()) { //create form
-                INGWResource resource = connections.getResourceById(checkState.getId());
-                if (resource instanceof LayerWithStyles) {
-                    LayerWithStyles layer = (LayerWithStyles) resource;
-                    //1. get connection for url
-                    Connection connection = layer.getConnection();
-                    // create or connect to fill layer with features
-                    Intent intent = new Intent(this, LayerFillService.class);
-                    intent.setAction(LayerFillService.ACTION_ADD_TASK);
-                    intent.putExtra(LayerFillService.KEY_NAME, layer.getName());
-                    String path = NGWUtil.getFormUrl(connection.getURL(), layer.getFormId(0));
-                    intent.putExtra(LayerFillService.KEY_URI, Uri.parse(path));
-                    intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, mGroupLayer.getId());
-                    intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.VECTOR_LAYER_WITH_FORM);
+                    if (layer.getFormCount() > 0) {
+                        String path = NGWUtil.getFormUrl(connection.getURL(), layer.getFormId(0));
+                        intent.putExtra(LayerFillService.KEY_URI, Uri.parse(path));
+                        intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.VECTOR_LAYER_WITH_FORM);
+                    }
 
                     LayerFillProgressDialogFragment.startFill(intent);
                 }
             }
+
+//            if (checkState.isCheckState3()) { //create form
+//            }
         }
 
         mGroupLayer.save();
