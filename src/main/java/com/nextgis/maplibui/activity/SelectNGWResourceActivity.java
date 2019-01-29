@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2016-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -316,7 +316,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     Intent intent = new Intent(this, LayerFillService.class);
                     intent.setAction(LayerFillService.ACTION_ADD_TASK);
                     intent.putExtra(LayerFillService.KEY_NAME, layer.getName());
-                    String path = NGWUtil.getResourceUrl(connection.getURL(), layer.getFormId(0)) + "/ngfp";
+                    String path = NGWUtil.getFormUrl(connection.getURL(), layer.getFormId(0));
                     intent.putExtra(LayerFillService.KEY_URI, Uri.parse(path));
                     intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, mGroupLayer.getId());
                     intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.VECTOR_LAYER_WITH_FORM);

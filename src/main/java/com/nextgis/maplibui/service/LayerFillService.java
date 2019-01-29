@@ -4,7 +4,7 @@
  * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -446,10 +446,14 @@ public class LayerFillService extends Service implements IProgressor {
 
     private class UnzipForm extends LayerFillTask {
         boolean mSync;
+        long mRemoteId;
+        String mAccount;
 
         UnzipForm(Bundle bundle) {
             super(bundle);
             mSync = bundle.getBoolean(KEY_SYNC, true);
+            mRemoteId = bundle.getLong(KEY_REMOTE_ID, -1);
+            mAccount = bundle.getString(KEY_ACCOUNT, "");
         }
 
         @Override
@@ -495,32 +499,29 @@ public class LayerFillService extends Service implements IProgressor {
                     extra.putSerializable(KEY_LAYER_PATH, mLayerPath);
                     extra.putString(KEY_NAME, mLayerName);
 
-                    //read if this local o remote source
+                    long resourceId = mRemoteId;
+                    String accountName = mAccount;
+                    //read if this local or remote source
                     boolean isNgwConnection = !metaJson.isNull(ConstantsUI.JSON_NGW_CONNECTION_KEY);
                     if (isNgwConnection) {
-                        FileUtil.deleteRecursive(dataFile);
                         JSONObject connection = metaJson.getJSONObject(ConstantsUI.JSON_NGW_CONNECTION_KEY);
-
                         //read url
                         url = connection.getString("url");
                         if (!url.startsWith("http")) {
                             url = "http://" + url;
                         }
-
                         //read login
                         String login = connection.getString("login");
                         //read password
                         String password = connection.getString("password");
                         //read id
-                        long resourceId = connection.getLong("id");
-                        //check account exist and try to create
+                        resourceId = connection.getLong("id");
 
                         metaJson.remove(ConstantsUI.JSON_NGW_CONNECTION_KEY);
                         FileUtil.writeToFile(meta, metaJson.toString());
 
-                        String accountName = "";
+                        //check account exist and try to create
                         URI uri = new URI(url);
-
                         if (uri.getHost() != null && uri.getHost().length() > 0) {
                             accountName += uri.getHost();
                         }
@@ -558,7 +559,11 @@ public class LayerFillService extends Service implements IProgressor {
                                 sendBroadcast(msg);
                             }
                         }
+                    }
 
+                    isNgwConnection = isNgwConnection || mRemoteId > -1;
+                    if (isNgwConnection) {
+                        FileUtil.deleteRecursive(dataFile);
                         File form = new File(mLayerPath, ConstantsUI.FILE_FORM);
                         ArrayList<String> lookupTableIds = LayerUtil.fillLookupTableIds(form);
 
