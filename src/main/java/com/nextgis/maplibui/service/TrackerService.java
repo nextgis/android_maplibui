@@ -2,10 +2,9 @@
  * Project:  NextGIS Mobile
  * Purpose:  Mobile GIS for Android.
  * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
- * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -37,6 +36,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SyncResult;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
@@ -306,7 +306,9 @@ public class TrackerService
     {
         String name = "";
         String selection = TrackLayer.FIELD_ID + " = ?";
-        Cursor currentTrack = getContentResolver().query(mContentUriTracks, new String[]{TrackLayer.FIELD_NAME}, selection, new String[]{mTrackId}, null);
+        String[] proj = new String[]{TrackLayer.FIELD_NAME};
+        String[] args = new String[]{mTrackId};
+        Cursor currentTrack = getContentResolver().query(mContentUriTracks, proj, selection, args, null);
         if (null != currentTrack) {
             if (currentTrack.moveToFirst())
                 name = currentTrack.getString(0);
@@ -528,12 +530,15 @@ public class TrackerService
         IGISApplication app = (IGISApplication) context.getApplicationContext();
         Uri tracksUri = Uri.parse("content://" + app.getAuthority() + "/" + TrackLayer.TABLE_TRACKS);
         String selection = TrackLayer.FIELD_END + " IS NULL OR " + TrackLayer.FIELD_END + " = ''";
-        Cursor data = context.getContentResolver().query(tracksUri, new String[]{TrackLayer.FIELD_ID}, selection, null, null);
+        String[] projection = new String[]{TrackLayer.FIELD_ID};
         boolean hasUnfinishedTracks = false;
-        if(data != null) {
-            hasUnfinishedTracks = data.moveToFirst();
-            data.close();
-        }
+        try {
+            Cursor data = context.getContentResolver().query(tracksUri, projection, selection, null, null);
+            if (data != null) {
+                hasUnfinishedTracks = data.moveToFirst();
+                data.close();
+            }
+        } catch (SQLiteException ignored) {}
         return hasUnfinishedTracks;
     }
 
