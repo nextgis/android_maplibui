@@ -637,7 +637,9 @@ public class ModifyAttributesActivity
                 values.put(VectorLayer.ATTACH_DESCRIPTION, "_signature");
                 values.put(VectorLayer.ATTACH_MIME_TYPE, "image/jpeg");
 
-                Cursor saved = getContentResolver().query(uri, null, VectorLayer.ATTACH_ID + " =  ?", new String[]{Sign.SIGN_FILE}, null);
+                String selection = VectorLayer.ATTACH_ID + " =  ?";
+                String[] args = new String[]{Sign.SIGN_FILE};
+                Cursor saved = getContentResolver().query(uri, null, selection, args, null);
                 boolean hasSign = false;
                 if (saved != null) {
                     hasSign = saved.moveToFirst();
@@ -675,27 +677,29 @@ public class ModifyAttributesActivity
             ContentValues values,
             Field field)
     {
-        IControl control = mFields.get(field.getName());
+        String fieldName = field.getName();
+        IControl control = mFields.get(fieldName);
 
         if (null == control) {
             return null;
         }
 
         Object value = control.getValue();
+        fieldName = "'" + fieldName + "'";
 
         if (null != value) {
             Log.d(TAG, "field: " + field.getName() + " value: " + value.toString());
 
             if (value instanceof Long) {
-                values.put(field.getName(), (Long) value);
+                values.put(fieldName, (Long) value);
             } else if (value instanceof Integer) {
-                values.put(field.getName(), (Integer) value);
+                values.put(fieldName, (Integer) value);
             } else if (value instanceof String) {
-                values.put(field.getName(), (String) value);
+                values.put(fieldName, (String) value);
             } else if (value instanceof Double) {
-                values.put(field.getName(), (Double) value);
+                values.put(fieldName, (Double) value);
             } else if (value instanceof Float) {
-                values.put(field.getName(), (Float) value);
+                values.put(fieldName, (Float) value);
             }
         }
 
