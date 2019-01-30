@@ -87,7 +87,9 @@ public class Tabs extends LinearLayout implements IFormControl
         super(context, attrs);
     }
 
-    public void init(VectorLayer layer, long featureId, GeoGeometry geometry, Map<String, List<String>> table, int row, SharedPreferences sharedPreferences, SharedPreferences preferences, FragmentManager supportFragmentManager, boolean isViewOnly) {
+    public void init(VectorLayer layer, long featureId, GeoGeometry geometry, Map<String, List<String>> table, int row,
+                     SharedPreferences sharedPreferences, SharedPreferences preferences,
+                     FragmentManager supportFragmentManager, boolean isViewOnly) {
         mLayer = layer;
         mFeatureId = featureId;
         mIsViewOnly = isViewOnly;
@@ -166,8 +168,12 @@ public class Tabs extends LinearLayout implements IFormControl
 
         if (savedState != null)
             mDefaultTab = savedState.getInt(ControlHelper.getSavedStateKey(JSON_TABS_KEY), mDefaultTab);
-        //noinspection ConstantConditions
-        tabLayout.getTabAt(mDefaultTab).select();
+
+        if (mDefaultTab > 0)
+            //noinspection ConstantConditions
+            tabLayout.getTabAt(mDefaultTab).select();
+        else
+            replaceFragment(mTabs.get(0));
     }
 
     private void replaceFragment(Fragment fragment) {
