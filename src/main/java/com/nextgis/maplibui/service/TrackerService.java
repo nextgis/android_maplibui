@@ -96,7 +96,10 @@ public class TrackerService
     public static final String ACTION_STOP            = "com.nextgis.maplibui.TRACK_STOP";
     private static final String ACTION_SPLIT          = "com.nextgis.maplibui.TRACK_SPLIT";
     private static final int    TRACK_NOTIFICATION_ID = 1;
-    public static final String URL = "http://track.nextgis.com/ng-mobile";
+    public static final String SCHEME = "http";
+//    public static final String HOST = "dev.nextgis.com/tracker-dev1-hub";
+    public static final String HOST = "track.nextgis.com";
+    public static final String URL = SCHEME + "://" + HOST + "/ng-mobile";
 
     private boolean         mIsRunning;
     private LocationManager mLocationManager;
@@ -607,7 +610,7 @@ public class TrackerService
                                         item.put("a", mPoints.getDouble(ele));
                                         item.put("s", mPoints.getInt(sat));
                                         item.put("ft", mPoints.getString(fix).equals("3d") ? 3 : 2);
-                                        item.put("sp", mPoints.getDouble(speed));
+                                        item.put("sp", mPoints.getDouble(speed) * 18 / 5);
                                         item.put("ha", mPoints.getDouble(acc));
                                         payload.put(item);
                                         ids.add(mPoints.getString(time));
