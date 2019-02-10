@@ -54,6 +54,7 @@ import com.nextgis.maplib.map.NGWLookupTable;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.TMSLayer;
 import com.nextgis.maplib.map.VectorLayer;
+import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.GeoConstants;
@@ -78,7 +79,9 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -461,9 +464,17 @@ public class LayerFillService extends Service implements IProgressor {
             try {
                 InputStream inputStream;
                 String url = mUri.toString();
-                if (NetworkUtil.isValidUri(url))
-                    inputStream = new URL(url).openStream();
-                else
+                if (NetworkUtil.isValidUri(url)) {
+                    URLConnection connection = new URL(url).openConnection();
+                    try {
+                        AccountUtil.AccountData accountData = AccountUtil.getAccountData(getApplicationContext(), mAccount);
+                        String basicAuth = NetworkUtil.getHTTPBaseAuth(accountData.login, accountData.password);
+                        if (null != basicAuth)
+                            connection.setRequestProperty ("Authorization", basicAuth);
+                    } catch (IllegalStateException ignored) {}
+//                    inputStream = new URL(url).openStream();
+                    inputStream = connection.getInputStream();
+                } else
                     inputStream = getContentResolver().openInputStream(mUri);
 
                 if (inputStream != null) {
