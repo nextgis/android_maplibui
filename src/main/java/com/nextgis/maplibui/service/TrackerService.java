@@ -289,7 +289,10 @@ public class TrackerService
         cv.put(TrackLayer.FIELD_END, System.currentTimeMillis());
         String selection = TrackLayer.FIELD_END + " IS NULL OR " + TrackLayer.FIELD_END + " = ''";
         Uri tracksUri = Uri.parse("content://" + app.getAuthority() + "/" + TrackLayer.TABLE_TRACKS);
-        context.getContentResolver().update(tracksUri, cv, selection, null);
+        try {
+            context.getContentResolver().update(tracksUri, cv, selection, null);
+        } catch (IllegalArgumentException ignore) {
+        }
     }
 
 
