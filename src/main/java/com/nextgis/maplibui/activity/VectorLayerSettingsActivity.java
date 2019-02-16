@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -24,6 +24,7 @@
 package com.nextgis.maplibui.activity;
 
 import android.accounts.Account;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -36,6 +37,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -150,12 +152,12 @@ public class VectorLayerSettingsActivity
         int i = v.getId();
         if (i == R.id.rebuild_cache) {
             intent.setAction(RebuildCacheService.ACTION_ADD_TASK);
-            startService(intent);
+            ContextCompat.startForegroundService(this, intent);
             v.setEnabled(false);
             v.getRootView().findViewById(R.id.rebuild_progress).setVisibility(View.VISIBLE);
         } else if (i == R.id.cancelBuildCacheButton) {
             intent.setAction(RebuildCacheService.ACTION_STOP);
-            startService(intent);
+            ContextCompat.startForegroundService(this, intent);
             v.getRootView().findViewById(R.id.rebuild_cache).setEnabled(true);
             v.getRootView().findViewById(R.id.rebuild_progress).setVisibility(View.GONE);
         }
@@ -189,13 +191,15 @@ public class VectorLayerSettingsActivity
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
-            final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (getView() != null)
+            Activity activity = getActivity();
+            if (activity != null && getView() != null) {
+                InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+            }
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             ScrollView v = (ScrollView) inflater.inflate(R.layout.fragment_vector_layer_style, container, false);
             if (mVectorLayer == null)
                 return v;
@@ -204,13 +208,16 @@ public class VectorLayerSettingsActivity
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    mVectorLayer.setRenderer(mRenderers.get(position).getRenderer());
-                    FragmentManager fm = getActivity().getSupportFragmentManager();
-                    FragmentTransaction ft = fm.beginTransaction();
-                    Fragment settings = mRenderers.get(position).getSettingsScreen(mVectorLayer);
-                    ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                    ft.replace(R.id.settings, settings);
-                    ft.commit();
+                    RendererUI renderer = mRenderers.get(position);
+                    mVectorLayer.setRenderer(renderer.getRenderer());
+                    if (getActivity() != null) {
+                        FragmentManager fm = getActivity().getSupportFragmentManager();
+                        FragmentTransaction ft = fm.beginTransaction();
+                        Fragment settings = renderer.getSettingsScreen(mVectorLayer);
+                        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        ft.replace(R.id.settings, settings);
+                        ft.commit();
+                    }
                 }
 
                 @Override
@@ -264,14 +271,15 @@ public class VectorLayerSettingsActivity
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.fragment_vector_layer_fields, container, false);
-            if (mVectorLayer == null)
+            if (mVectorLayer == null || getContext() == null)
                 return v;
 
             ListView fields = v.findViewById(R.id.listView);
             fillFields();
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice, mFieldAliases);
+            int id = android.R.layout.simple_list_item_single_choice;
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), id, mFieldAliases);
 
             fields.setAdapter(adapter);
             fields.setItemChecked(mDefault, true);
@@ -322,7 +330,7 @@ public class VectorLayerSettingsActivity
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.fragment_vector_layer_cache, container, false);
             if (mVectorLayer == null)
                 return v;
@@ -363,14 +371,17 @@ public class VectorLayerSettingsActivity
         @Override
         public void onResume() {
             super.onResume();
-            IntentFilter intentFilter = new IntentFilter(RebuildCacheService.ACTION_UPDATE);
-            getActivity().registerReceiver(mRebuildCacheReceiver, intentFilter);
+            if (getActivity() != null) {
+                IntentFilter intentFilter = new IntentFilter(RebuildCacheService.ACTION_UPDATE);
+                getActivity().registerReceiver(mRebuildCacheReceiver, intentFilter);
+            }
         }
 
         @Override
         public void onPause() {
             super.onPause();
-            getActivity().unregisterReceiver(mRebuildCacheReceiver);
+            if (getActivity() != null)
+                getActivity().unregisterReceiver(mRebuildCacheReceiver);
         }
 
         public void setActivity(VectorLayerSettingsActivity activity) {
@@ -383,7 +394,7 @@ public class VectorLayerSettingsActivity
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.fragment_ngw_vector_layer_sync, container, false);
-            if (mVectorLayer == null)
+            if (mVectorLayer == null || getActivity() == null)
                 return v;
 
             final IGISApplication app = (IGISApplication) getActivity().getApplication();

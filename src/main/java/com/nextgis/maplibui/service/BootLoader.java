@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2016, 2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,13 +26,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 
 import com.nextgis.maplib.util.SettingsConstants;
 
 public class BootLoader extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        checkTrackerService(context);
+        String boot = Intent.ACTION_BOOT_COMPLETED;
+        if (intent != null && intent.getAction() != null && intent.getAction().equals(boot))
+            checkTrackerService(context);
     }
 
     public static void checkTrackerService(Context context) {
@@ -44,7 +47,7 @@ public class BootLoader extends BroadcastReceiver {
             if (!restoreTrack)
                 trackerService.setAction(TrackerService.ACTION_STOP);
 
-            context.startService(trackerService);
+            ContextCompat.startForegroundService(context, trackerService);
         }
     }
 }

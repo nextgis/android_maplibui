@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2017, 2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -32,6 +32,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.TextView;
 
@@ -54,8 +55,7 @@ import java.util.Locale;
 /**
  * Dialog to select which zoom levels to download
  */
-public class SelectZoomLevelsDialog
-        extends DialogFragment {
+public class SelectZoomLevelsDialog extends DialogFragment {
     final static String TILDA = "~";
 
     private TextView mTilesCount;
@@ -84,7 +84,6 @@ public class SelectZoomLevelsDialog
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
         if (null != savedInstanceState) {
             mLayerId = savedInstanceState.getInt(ConstantsUI.KEY_LAYER_ID);
             double dfMinX = savedInstanceState.getDouble(TileDownloadService.KEY_MINX);
@@ -158,7 +157,7 @@ public class SelectZoomLevelsDialog
                             intent.putExtra(TileDownloadService.KEY_MINY, env.getMinY());
                             intent.putExtra(TileDownloadService.KEY_MAXY, env.getMaxY());
 
-                            getActivity().startService(intent);
+                            ContextCompat.startForegroundService(context, intent);
                         }
 
                     }

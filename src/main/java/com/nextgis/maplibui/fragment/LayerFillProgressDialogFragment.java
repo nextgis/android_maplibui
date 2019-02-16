@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2017, 2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -36,6 +36,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -89,9 +90,7 @@ public class LayerFillProgressDialogFragment extends Fragment {
         else
             mProgressDialog = new ProgressDialog(mActivity);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-            mProgressDialog.setProgressNumberFormat(null);
-
+        mProgressDialog.setProgressNumberFormat(null);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         mProgressDialog.setCanceledOnTouchOutside(false);
         mProgressDialog.setButton(DialogInterface.BUTTON_POSITIVE,
@@ -107,7 +106,7 @@ public class LayerFillProgressDialogFragment extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intentStop = new Intent(mActivity, LayerFillService.class);
                         intentStop.setAction(LayerFillService.ACTION_STOP);
-                        mActivity.startService(intentStop);
+                        ContextCompat.startForegroundService(mActivity, intentStop);
                     }
                 });
     }
@@ -119,7 +118,7 @@ public class LayerFillProgressDialogFragment extends Fragment {
         protected Boolean doInBackground(Object[] params) {
             if (params.length == 1 && params[0] instanceof Intent) {
                 Intent intent = (Intent) params[0];
-                mActivity.startService(intent);
+                ContextCompat.startForegroundService(mActivity, intent);
 
                 mLayerFillReceiver = new BroadcastReceiver() {
                     public void onReceive(Context context, Intent intent) {

@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -38,6 +38,7 @@ import android.graphics.RectF;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -723,7 +724,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         trackerService.putExtra(ConstantsUI.KEY_LAYER_ID, mLayer.getId());
         trackerService.putExtra(ConstantsUI.KEY_GEOMETRY, geometry);
         trackerService.putExtra(ConstantsUI.TARGET_CLASS, mContext.getClass().getName());
-        mContext.startService(trackerService);
+        ContextCompat.startForegroundService(mContext, trackerService);
     }
 
 
