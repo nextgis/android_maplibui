@@ -117,7 +117,6 @@ public class TrackerService
     private String mTicker;
     private int    mSmallIcon, mSatellitesCount;
     private boolean             mHasGPSFix;
-    private long                mLastSync = 0;
 
     @Override
     public void onCreate()
@@ -272,7 +271,6 @@ public class TrackerService
     {
         // update unclosed tracks in DB
         closeTracks(this, (IGISApplication) getApplication());
-        sync((IGISApplication) getApplication());
 
         mIsRunning = false;
 
@@ -442,44 +440,7 @@ public class TrackerService
         mValues.put(TrackLayer.FIELD_TIMESTAMP, location.getTime());
         try {
             getContentResolver().insert(mContentUriTrackPoints, mValues);
-        } catch (Exception e) {
-            return;
-        }
-
-        IGISApplication app = (IGISApplication) getApplication();
-        mValues.remove(TrackLayer.FIELD_LAT);
-        mValues.remove(TrackLayer.FIELD_LON);
-        try {
-            mValues.put(FIELD_GEOM, mPoint.toBlob());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        List<ILayer> tracks = getTrackLayers();
-        for (ILayer layer : tracks) {
-            Uri uri = Uri.parse("content://" + app.getAuthority() + "/" + layer.getPath().getName());
-            getContentResolver().insert(uri, mValues);
-        }
-    }
-
-    private List<ILayer> getTrackLayers() {
-        MapBase map = MapBase.getInstance();
-        List<ILayer> tracks = new ArrayList<>();
-        LayerGroup.getLayersByType(map, LAYERTYPE_NGW_TRACKS, tracks);
-        return tracks;
-    }
-
-    private void sync(IGISApplication app) {
-        if (System.currentTimeMillis() - mLastSync > ONE_MINUTE) {
-            List<ILayer> tracks = getTrackLayers();
-            for (ILayer layer : tracks) {
-                if (layer instanceof INGWLayer) {
-                    INGWLayer ngwLayer = (INGWLayer) layer;
-                    Pair<Integer, Integer> ver = NGWUtil.getNgwVersion(getApplicationContext(), ngwLayer.getAccountName());
-                    ngwLayer.sync(app.getAuthority(), ver, new SyncResult());
-                }
-            }
-            mLastSync = System.currentTimeMillis();
+        } catch (Exception ignored) {
         }
     }
 
@@ -571,7 +532,6 @@ public class TrackerService
                 String minTimeStr = preferences.getString(SettingsConstants.KEY_PREF_TRACKS_MIN_TIME, "2");
                 long minTime = Long.parseLong(minTimeStr) * 1000;
 
-                IGISApplication app = (IGISApplication) getApplication();
                 ContentResolver resolver = getContentResolver();
                 String selection = TrackLayer.FIELD_SENT + " = 0";
                 String sort = TrackLayer.FIELD_TIMESTAMP + " ASC";
@@ -637,8 +597,6 @@ public class TrackerService
                             mPoints.close();
                         }
                     }
-
-                    sync(app);
                 }
             }
         });

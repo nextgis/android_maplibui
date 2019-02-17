@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -40,20 +40,16 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
-import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.Layer;
-import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.NGWLookupTable;
 import com.nextgis.maplib.map.NGWRasterLayer;
-import com.nextgis.maplib.map.NGWTrackLayer;
 import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplib.map.Table;
 import com.nextgis.maplib.map.TrackLayer;
@@ -63,34 +59,22 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.api.ILayerUI;
 import com.nextgis.maplibui.api.IVectorLayerUI;
-import com.nextgis.maplibui.dialog.NGWResourcesListAdapter;
-import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
 import com.nextgis.maplibui.mapui.MapView;
 import com.nextgis.maplibui.mapui.NGWRasterLayerUI;
 import com.nextgis.maplibui.mapui.NGWWebMapLayerUI;
 import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
-import com.nextgis.maplibui.mapui.TrackLayerUI;
 import com.nextgis.maplibui.mapui.VectorLayerUI;
 import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.LayerUtil;
-import com.nextgis.maplibui.util.NGWTrackLayerCreateTask;
 import com.nextgis.maplibui.util.UiUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.nextgis.maplib.util.Constants.LAYERTYPE_NGW_TRACKS;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 
 
 /**
  * An adapter to show layers as list
  */
-public class LayersListAdapter
-        extends BaseAdapter
-        implements MapEventListener
-{
-
+public class LayersListAdapter extends BaseAdapter implements MapEventListener {
     protected final MapView mMapView;
     protected final MapDrawable mMap;
     protected final Context mContext;
@@ -98,23 +82,18 @@ public class LayersListAdapter
     protected DrawerLayout mDrawer;
     protected onEdit mEditListener;
     protected View.OnClickListener mOnPencilClickListener;
-    protected boolean mTracksSyncEnabled;
 
     public interface onEdit {
         void onLayerEdit(ILayer layer);
     }
 
-    public LayersListAdapter(
-            NGActivity activity,
-            MapView map)
-    {
+    public LayersListAdapter(NGActivity activity, MapView map) {
         mMapView = map;
         mMap = map.getMap();
         mContext = mActivity = activity;
 
-        if (null != mMap) {
+        if (null != mMap)
             mMap.addListener(this);
-        }
     }
 
 
@@ -129,9 +108,7 @@ public class LayersListAdapter
 
 
     @Override
-    protected void finalize()
-            throws Throwable
-    {
+    protected void finalize() throws Throwable {
         if (null != mMap) {
             mMap.removeListener(this);
         }
@@ -145,61 +122,47 @@ public class LayersListAdapter
 
 
     @Override
-    public int getCount()
-    {
-        if (null != mMap) {
+    public int getCount() {
+        if (null != mMap)
             return mMap.getLayerCount();
-        }
         return 0;
     }
 
 
     @Override
-    public Object getItem(int i)
-    {
+    public Object getItem(int i) {
         int nIndex = getCount() - 1 - i;
-        if (null != mMap) {
+        if (null != mMap)
             return mMap.getLayer(nIndex);
-        }
         return null;
     }
 
 
     @Override
-    public long getItemId(int i)
-    {
-        if (i < 0 || i >= mMap.getLayerCount()) {
+    public long getItemId(int i) {
+        if (i < 0 || i >= mMap.getLayerCount())
             return NOT_FOUND;
-        }
         Table layer = (Table) getItem(i);
-        if (null != layer) {
+        if (null != layer)
             return layer.getId();
-        }
         return NOT_FOUND;
     }
 
 
     @Override
-    public View getView(
-            int i,
-            View view,
-            ViewGroup viewGroup)
-    {
+    public View getView(int i, View view, ViewGroup viewGroup) {
         final Table layer = (Table) getItem(i);
         return getStandardLayerView(layer, view);
     }
 
 
-    private View getStandardLayerView(
-            final ILayer layer,
-            View view)
-    {
+    private View getStandardLayerView(final ILayer layer, View view) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View v = view;
         if (v == null || v.getId() == R.id.empty_row)
             v = inflater.inflate(R.layout.row_layer, null);
 
-        if (layer instanceof NGWLookupTable || layer instanceof NGWTrackLayer)
+        if (layer instanceof NGWLookupTable)
             return inflater.inflate(R.layout.row_empty, null);
 
         final ILayerUI layerui;
@@ -235,13 +198,9 @@ public class LayersListAdapter
         Drawable visibilityOff = ta.getDrawable(1);
 
         if (layer instanceof Layer) {
-            btShow.setImageDrawable(//setImageResource(
-                    ((Layer) layer).isVisible()
-                            ? visibilityOn
-                            : visibilityOff);
+            btShow.setImageDrawable(((Layer) layer).isVisible() ? visibilityOn : visibilityOff);
             //btShow.refreshDrawableState();
-            btShow.setOnClickListener(
-                    new View.OnClickListener() {
+            btShow.setOnClickListener(new View.OnClickListener() {
                         public void onClick(View arg0) {
                             //Layer layer = mMap.getLayerById(id);
                             ((Layer) layer).setVisible(!((Layer) layer).isVisible());
@@ -251,11 +210,8 @@ public class LayersListAdapter
         }
         ta.recycle();
 
-        btMore.setOnClickListener(
-                new View.OnClickListener()
-                {
-                    public void onClick(View arg0)
-                    {
+        btMore.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View arg0) {
                         PopupMenu popup = new PopupMenu(mContext, btMore);
                         UiUtil.setForceShowIcon(popup);
                         popup.getMenuInflater().inflate(R.menu.layer_popup, popup.getMenu());
@@ -275,13 +231,7 @@ public class LayersListAdapter
                         if (layerui instanceof TrackLayer) {
                             popup.getMenu().findItem(R.id.menu_delete).setVisible(false);
                             popup.getMenu().findItem(R.id.menu_settings).setTitle(R.string.track_list);
-
-                            List<ILayer> tracks = new ArrayList<>();
-                            LayerGroup.getLayersByType(mMap, LAYERTYPE_NGW_TRACKS, tracks);
-                            popup.getMenu().findItem(R.id.menu_share).setVisible(true);
-                            mTracksSyncEnabled = tracks.size() > 0;
-                            int title = mTracksSyncEnabled ? R.string.sync_disable : R.string.sync;
-                            popup.getMenu().findItem(R.id.menu_share).setTitle(title);
+                            popup.getMenu().findItem(R.id.menu_share).setVisible(false);
                         } else if (layerui instanceof VectorLayer) {
                             popup.getMenu().findItem(R.id.menu_edit).setVisible(true);
                             popup.getMenu().findItem(R.id.menu_share).setVisible(true);
@@ -303,11 +253,8 @@ public class LayersListAdapter
                             popup.getMenu().findItem(R.id.menu_edit).setTitle(R.string.sync_layers);
                         }
 
-                        popup.setOnMenuItemClickListener(
-                                new PopupMenu.OnMenuItemClickListener()
-                                {
-                                    public boolean onMenuItemClick(MenuItem item)
-                                    {
+                        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                                    public boolean onMenuItemClick(MenuItem item) {
                                         int i = item.getItemId();
                                         if (i == R.id.menu_settings) {
                                             assert layerui != null;
@@ -315,11 +262,7 @@ public class LayersListAdapter
                                         } else if (i == R.id.menu_share) {
                                             assert layerui != null;
 
-                                            if (layerui instanceof TrackLayerUI) {
-//                                                handleTrackSync();
-                                                Toast.makeText(mContext, R.string.coming_soon, Toast.LENGTH_SHORT).show();
-                                                return true;
-                                            } else if (layerui instanceof VectorLayer) {
+                                            if (layerui instanceof VectorLayer) {
                                                 VectorLayer vectorLayer = (VectorLayer) layerui;
                                                 LayerUtil.shareLayerAsGeoJSON(mActivity, vectorLayer, true);
                                             }
@@ -379,7 +322,8 @@ public class LayersListAdapter
                        if (focus == null)
                            return;
 
-                       Snackbar snackbar = Snackbar.make(focus, mActivity.getString(R.string.delete_layer_done), Snackbar.LENGTH_LONG)
+                       String done = mActivity.getString(R.string.delete_layer_done);
+                       Snackbar snackbar = Snackbar.make(focus, done, Snackbar.LENGTH_LONG)
                                                    .setAction(R.string.undo, new View.OnClickListener() {
                                                        @Override
                                                        public void onClick(View v) {
@@ -415,84 +359,44 @@ public class LayersListAdapter
         return true;
     }
 
-    private void handleTrackSync() {
-        if (mTracksSyncEnabled) {
-            List<ILayer> tracks = new ArrayList<>();
-            LayerGroup.getLayersByType(mMap, LAYERTYPE_NGW_TRACKS, tracks);
-            if (tracks.size() > 0) {
-                tracks.get(0).delete();
-                mMap.save();
-                Toast.makeText(mContext, R.string.sync_disabled, Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            final SelectNGWResourceDialog selectAccountDialog = new SelectNGWResourceDialog();
-            selectAccountDialog.setConnectionListener(new NGWResourcesListAdapter.OnConnectionListener() {
-                @Override
-                public void onConnectionSelected(final Connection connection) {
-                    new NGWTrackLayerCreateTask(mActivity, connection).execute();
-                    selectAccountDialog.dismiss();
-                }
-
-                @Override
-                public void onAddConnection() {
-                    selectAccountDialog.onAddAccount(mContext);
-                }
-            })
-                               .setTitle(mContext.getString(R.string.ngw_accounts))
-                               .setTheme(mActivity.getThemeId())
-                               .show(mActivity.getSupportFragmentManager(), "choose_ngw_account");
-        }
-    }
-
     @Override
-    public void onLayerAdded(int id)
-    {
+    public void onLayerAdded(int id) {
         notifyDataChanged();
     }
 
 
     @Override
-    public void onLayerDeleted(int id)
-    {
+    public void onLayerDeleted(int id) {
         notifyDataChanged();
     }
 
 
     @Override
-    public void onLayerChanged(int id)
-    {
+    public void onLayerChanged(int id) {
         notifyDataChanged();
     }
 
 
     @Override
-    public void onExtentChanged(
-            float zoom,
-            GeoPoint center)
-    {
+    public void onExtentChanged(float zoom, GeoPoint center) {
 
     }
 
 
     @Override
-    public void onLayersReordered()
-    {
+    public void onLayersReordered() {
         notifyDataChanged();
     }
 
 
     @Override
-    public void onLayerDrawFinished(
-            int id,
-            float percent)
-    {
+    public void onLayerDrawFinished(int id, float percent) {
 
     }
 
 
     @Override
-    public void onLayerDrawStarted()
-    {
+    public void onLayerDrawStarted() {
 
     }
 
@@ -512,10 +416,7 @@ public class LayersListAdapter
     }
 
 
-    public void swapElements(
-            int originalPosition,
-            int newPosition)
-    {
+    public void swapElements(int originalPosition, int newPosition) {
         //Log.d(TAG,
         //      "Original position: " + originalPosition + " Destination position: " + newPosition);
         if (null == mMap) {
@@ -527,11 +428,9 @@ public class LayersListAdapter
     }
 
 
-    public void endDrag()
-    {
-        if (null == mMap) {
+    public void endDrag() {
+        if (null == mMap)
             return;
-        }
         mMap.save();
 
         mMap.thaw();
@@ -539,11 +438,9 @@ public class LayersListAdapter
     }
 
 
-    void beginDrag()
-    {
-        if (null == mMap) {
+    void beginDrag() {
+        if (null == mMap)
             return;
-        }
         mMap.freeze();
     }
 }
