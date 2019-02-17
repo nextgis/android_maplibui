@@ -34,7 +34,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SyncResult;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
@@ -50,21 +49,15 @@ import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Pair;
 import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
-import com.nextgis.maplib.api.ILayer;
-import com.nextgis.maplib.api.INGWLayer;
 import com.nextgis.maplib.datasource.GeoPoint;
-import com.nextgis.maplib.map.LayerGroup;
-import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplib.util.MapUtil;
-import com.nextgis.maplib.util.NGWUtil;
 import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
@@ -82,17 +75,13 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import static com.nextgis.maplib.util.Constants.FIELD_GEOM;
-import static com.nextgis.maplib.util.Constants.LAYERTYPE_NGW_TRACKS;
-import static com.nextgis.maplib.util.Constants.ONE_MINUTE;
 import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 
-public class TrackerService
-        extends Service
-        implements LocationListener, GpsStatus.Listener
-{
+@SuppressLint("MissingPermission")
+public class TrackerService extends Service implements LocationListener, GpsStatus.Listener {
     public static final  String TEMP_PREFERENCES      = "tracks_temp";
     private static final String TRACK_URI             = "track_uri";
+    public static final String ACTION_SYNC            = "com.nextgis.maplibui.TRACK_SYNC";
     public static final String ACTION_STOP            = "com.nextgis.maplibui.TRACK_STOP";
     private static final String ACTION_SPLIT          = "com.nextgis.maplibui.TRACK_SPLIT";
     private static final int    TRACK_NOTIFICATION_ID = 1;
@@ -106,6 +95,7 @@ public class TrackerService
     private Thread          mLocationSenderThread;
 
     private SharedPreferences mSharedPreferencesTemp;
+    private SharedPreferences mSharedPreferences;
     private String            mTrackId;
     private Uri mContentUriTracks, mContentUriTrackPoints;
     private ContentValues mValues;
@@ -119,8 +109,7 @@ public class TrackerService
     private boolean             mHasGPSFix;
 
     @Override
-    public void onCreate()
-    {
+    public void onCreate() {
         super.onCreate();
 
         mHasGPSFix = false;
@@ -130,21 +119,22 @@ public class TrackerService
 
         IGISApplication application = (IGISApplication) getApplication();
         String authority = application.getAuthority();
-        mContentUriTracks = Uri.parse("content://" + authority + "/" + TrackLayer.TABLE_TRACKS);
-        mContentUriTrackPoints =
-                Uri.parse("content://" + authority + "/" + TrackLayer.TABLE_TRACKPOINTS);
+        String tracks = TrackLayer.TABLE_TRACKS;
+        mContentUriTracks = Uri.parse("content://" + authority + "/" + tracks);
+        String points = TrackLayer.TABLE_TRACKPOINTS;
+        mContentUriTrackPoints = Uri.parse("content://" + authority + "/" + points);
 
         mPoint = new GeoPoint();
         mValues = new ContentValues();
 
-        SharedPreferences sharedPreferences =
-                getSharedPreferences(getPackageName() + "_preferences", Constants.MODE_MULTI_PROCESS);
+        String name = getPackageName() + "_preferences";
+        mSharedPreferences = getSharedPreferences(name, MODE_MULTI_PROCESS);
         mSharedPreferencesTemp = getSharedPreferences(TEMP_PREFERENCES, MODE_PRIVATE);
 
-        String minTimeStr =
-                sharedPreferences.getString(SettingsConstants.KEY_PREF_TRACKS_MIN_TIME, "2");
-        String minDistanceStr =
-                sharedPreferences.getString(SettingsConstants.KEY_PREF_TRACKS_MIN_DISTANCE, "10");
+        String time = SettingsConstants.KEY_PREF_TRACKS_MIN_TIME;
+        String distance = SettingsConstants.KEY_PREF_TRACKS_MIN_DISTANCE;
+        String minTimeStr = mSharedPreferences.getString(time, "2");
+        String minDistanceStr = mSharedPreferences.getString(distance, "10");
         long minTime = Long.parseLong(minTimeStr) * 1000;
         float minDistance = Float.parseFloat(minDistanceStr);
 
@@ -153,13 +143,12 @@ public class TrackerService
 
         Intent intentSplit = new Intent(this, TrackerService.class);
         intentSplit.setAction(ACTION_SPLIT);
-        mSplitService =
-                PendingIntent.getService(this, 0, intentSplit, PendingIntent.FLAG_UPDATE_CURRENT);
+        int flag = PendingIntent.FLAG_UPDATE_CURRENT;
+        mSplitService = PendingIntent.getService(this, 0, intentSplit, flag);
 
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        if(!PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                || !PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION))
+        if (!hasPermission())
             return;
 
         mLocationManager.addGpsStatusListener(this);
@@ -168,7 +157,7 @@ public class TrackerService
         if (mLocationManager.getAllProviders().contains(provider)) {
             mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
 
-            if(Constants.DEBUG_MODE)
+            if (Constants.DEBUG_MODE)
                 Log.d(Constants.TAG, "Tracker service request location updates for " + provider);
         }
 
@@ -176,7 +165,7 @@ public class TrackerService
         if (mLocationManager.getAllProviders().contains(provider)) {
             mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
 
-            if(Constants.DEBUG_MODE)
+            if (Constants.DEBUG_MODE)
                 Log.d(Constants.TAG, "Tracker service request location updates for " + provider);
         }
 
@@ -188,20 +177,18 @@ public class TrackerService
 
 
     @Override
-    public int onStartCommand(
-            Intent intent,
-            int flags,
-            int startId)
-    {
-
+    public int onStartCommand(Intent intent, int flags, int startId) {
         String targetActivity = "";
 
         if (intent != null) {
             targetActivity = intent.getStringExtra(ConstantsUI.TARGET_CLASS);
             String action = intent.getAction();
 
-            if (!TextUtils.isEmpty(action)) {
+            if (action != null && !TextUtils.isEmpty(action)) {
                 switch (action) {
+                    case ACTION_SYNC:
+                        sync();
+                        return START_NOT_STICKY;
                     case ACTION_STOP:
                         stopSelf();
                         return START_NOT_STICKY;
@@ -233,8 +220,7 @@ public class TrackerService
     }
 
 
-    private void restoreData()
-    {
+    private void restoreData() {
         Uri mNewTrack = Uri.parse(mSharedPreferencesTemp.getString(TRACK_URI, ""));
         mTrackId = mNewTrack.getLastPathSegment();
         mIsRunning = true;
@@ -242,11 +228,10 @@ public class TrackerService
     }
 
 
-    private void startTrack()
-    {
+    private void startTrack() {
         // get track name date unique appendix
-        final SimpleDateFormat simpleDateFormat =
-                new SimpleDateFormat("yyyy-MM-dd--HH-mm-ss", Locale.getDefault());
+        String pattern = "yyyy-MM-dd--HH-mm-ss";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern, Locale.getDefault());
 
         // insert DB row
         final long started = System.currentTimeMillis();
@@ -256,7 +241,7 @@ public class TrackerService
         mValues.put(TrackLayer.FIELD_START, started);
         mValues.put(TrackLayer.FIELD_VISIBLE, true);
         Uri newTrack = getContentResolver().insert(mContentUriTracks, mValues);
-        if(null != newTrack) {
+        if (null != newTrack) {
             // save vars
             mTrackId = newTrack.getLastPathSegment();
             mSharedPreferencesTemp.edit().putString(TRACK_URI, newTrack.toString()).apply();
@@ -267,8 +252,7 @@ public class TrackerService
     }
 
 
-    private void stopTrack()
-    {
+    private void stopTrack() {
         // update unclosed tracks in DB
         closeTracks(this, (IGISApplication) getApplication());
 
@@ -306,8 +290,7 @@ public class TrackerService
     }
 
 
-    private void addNotification()
-    {
+    private void addNotification() {
         String name = "";
         String selection = TrackLayer.FIELD_ID + " = ?";
         String[] proj = new String[]{TrackLayer.FIELD_NAME};
@@ -320,16 +303,15 @@ public class TrackerService
         }
 
         String title = String.format(getString(R.string.tracks_title), name);
-        Bitmap largeIcon = NotificationHelper.getLargeIcon(
-                R.drawable.ic_action_maps_directions_walk, getResources());
+        int resource = R.drawable.ic_action_maps_directions_walk;
+        Bitmap largeIcon = NotificationHelper.getLargeIcon(resource, getResources());
 
         Intent intentStop = new Intent(this, TrackerService.class);
         intentStop.setAction(ACTION_STOP);
-        PendingIntent stopService = PendingIntent.getService(
-                this, 0, intentStop, PendingIntent.FLAG_UPDATE_CURRENT);
+        int flag = PendingIntent.FLAG_UPDATE_CURRENT;
+        PendingIntent stopService = PendingIntent.getService(this, 0, intentStop, flag);
 
         NotificationCompat.Builder builder = createBuilder(this, R.string.title_edit_by_walk);
-
         builder.setContentIntent(mOpenActivity)
                 .setSmallIcon(mSmallIcon)
                 .setLargeIcon(largeIcon)
@@ -340,12 +322,10 @@ public class TrackerService
                 .setContentText(mTicker)
                 .setOngoing(true);
 
-        builder.addAction(
-                R.drawable.ic_location, getString(R.string.tracks_open),
-                mOpenActivity);
-        builder.addAction(
-                R.drawable.ic_action_cancel_dark, getString(R.string.tracks_stop),
-                stopService);
+        resource = R.drawable.ic_location;
+        builder.addAction(resource, getString(R.string.tracks_open), mOpenActivity);
+        resource = R.drawable.ic_action_cancel_dark;
+        builder.addAction(resource, getString(R.string.tracks_stop), stopService);
 
         mNotificationManager.notify(TRACK_NOTIFICATION_ID, builder.build());
         startForeground(TRACK_NOTIFICATION_ID, builder.build());
@@ -353,15 +333,13 @@ public class TrackerService
     }
 
 
-    private void removeNotification()
-    {
+    private void removeNotification() {
         mNotificationManager.cancel(TRACK_NOTIFICATION_ID);
     }
 
 
     // intent to open on notification click
-    private void initTargetIntent(String targetActivity)
-    {
+    private void initTargetIntent(String targetActivity) {
         Intent intentActivity = new Intent();
 
         if (!TextUtils.isEmpty(targetActivity)) {
@@ -379,19 +357,17 @@ public class TrackerService
         }
 
         intentActivity.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        mOpenActivity = PendingIntent.getActivity(
-                this, 0, intentActivity, PendingIntent.FLAG_UPDATE_CURRENT);
+        int flag = PendingIntent.FLAG_UPDATE_CURRENT;
+        mOpenActivity = PendingIntent.getActivity(this, 0, intentActivity, flag);
     }
 
 
-    public void onDestroy()
-    {
+    public void onDestroy() {
         stopTrack();
         removeNotification();
         stopSelf();
 
-        if(PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                && PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+        if (hasPermission()) {
             mLocationManager.removeUpdates(this);
             mLocationManager.removeGpsStatusListener(this);
         }
@@ -405,15 +381,21 @@ public class TrackerService
 
 
     @Override
-    public IBinder onBind(Intent intent)
-    {
+    public IBinder onBind(Intent intent) {
         return null;
     }
 
 
+    private boolean hasPermission() {
+        String fine = Manifest.permission.ACCESS_FINE_LOCATION;
+        String coarse = Manifest.permission.ACCESS_COARSE_LOCATION;
+        return PermissionUtil.hasPermission(this, fine)
+                && PermissionUtil.hasPermission(this, coarse);
+    }
+
+
     @Override
-    public void onLocationChanged(Location location)
-    {
+    public void onLocationChanged(Location location) {
         boolean update = LocationUtil.isProviderEnabled(this, location.getProvider(), true);
         if (!mIsRunning || !update)
             return;
@@ -445,32 +427,22 @@ public class TrackerService
     }
 
     @Override
-    public void onStatusChanged(
-            String provider,
-            int status,
-            Bundle extras)
-    {
-
+    public void onStatusChanged(String provider, int status, Bundle extras) {
     }
 
 
     @Override
-    public void onProviderEnabled(String provider)
-    {
-
+    public void onProviderEnabled(String provider) {
     }
 
 
     @Override
-    public void onProviderDisabled(String provider)
-    {
-
+    public void onProviderDisabled(String provider) {
     }
 
 
     @Override
-    public void onGpsStatusChanged(int event)
-    {
+    public void onGpsStatusChanged(int event) {
         switch (event) {
             case GpsStatus.GPS_EVENT_STARTED:
             case GpsStatus.GPS_EVENT_STOPPED:
@@ -528,14 +500,9 @@ public class TrackerService
         return new Thread(new Runnable() {
             @Override
             public void run() {
-                SharedPreferences preferences = getSharedPreferences(getPackageName() + "_preferences", Constants.MODE_MULTI_PROCESS);
-                String minTimeStr = preferences.getString(SettingsConstants.KEY_PREF_TRACKS_MIN_TIME, "2");
+                String time = SettingsConstants.KEY_PREF_TRACKS_MIN_TIME;
+                String minTimeStr = mSharedPreferences.getString(time, "2");
                 long minTime = Long.parseLong(minTimeStr) * 1000;
-
-                ContentResolver resolver = getContentResolver();
-                String selection = TrackLayer.FIELD_SENT + " = 0";
-                String sort = TrackLayer.FIELD_TIMESTAMP + " ASC";
-                Cursor mPoints;
 
                 while (!Thread.currentThread().isInterrupted()) {
                     try {
@@ -544,62 +511,69 @@ public class TrackerService
                         Thread.currentThread().interrupt();
                     }
 
-                    if (preferences.getBoolean(SettingsConstants.KEY_PREF_TRACK_SEND, false)) {
-                        mPoints = resolver.query(mContentUriTrackPoints, null, selection, null, sort);
-                        if (mPoints != null) {
-                            List<String> ids = new ArrayList<>();
-                            if (mPoints.moveToFirst()) {
-                                GeoPoint point = new GeoPoint();
-                                int lon = mPoints.getColumnIndex(TrackLayer.FIELD_LON);
-                                int lat = mPoints.getColumnIndex(TrackLayer.FIELD_LAT);
-                                int ele = mPoints.getColumnIndex(TrackLayer.FIELD_ELE);
-                                int fix = mPoints.getColumnIndex(TrackLayer.FIELD_FIX);
-                                int sat = mPoints.getColumnIndex(TrackLayer.FIELD_SAT);
-                                int acc = mPoints.getColumnIndex(TrackLayer.FIELD_ACCURACY);
-                                int speed = mPoints.getColumnIndex(TrackLayer.FIELD_SPEED);
-                                int time = mPoints.getColumnIndex(TrackLayer.FIELD_TIMESTAMP);
-                                JSONArray payload = new JSONArray();
-
-                                int counter = 0;
-                                do {
-                                    JSONObject item = new JSONObject();
-                                    try {
-                                        point.setCoordinates(mPoints.getDouble(lon), mPoints.getDouble(lat));
-                                        point.setCRS(GeoConstants.CRS_WEB_MERCATOR);
-                                        point.project(GeoConstants.CRS_WGS84);
-                                        item.put("lt", point.getY());
-                                        item.put("ln", point.getX());
-                                        item.put("ts", mPoints.getLong(time)/1000);
-                                        item.put("a", mPoints.getDouble(ele));
-                                        item.put("s", mPoints.getInt(sat));
-                                        item.put("ft", mPoints.getString(fix).equals("3d") ? 3 : 2);
-                                        item.put("sp", mPoints.getDouble(speed) * 18 / 5);
-                                        item.put("ha", mPoints.getDouble(acc));
-                                        payload.put(item);
-                                        ids.add(mPoints.getString(time));
-                                        counter++;
-
-                                        if (counter >= 100) {
-                                            post(payload.toString(), TrackerService.this, ids);
-                                            payload = new JSONArray();
-                                            ids.clear();
-                                            counter = 0;
-                                        }
-                                    } catch (Exception ignored) { }
-                                } while (mPoints.moveToNext());
-
-                                if (counter > 0) {
-                                    try {
-                                        post(payload.toString(), TrackerService.this, ids);
-                                    } catch (Exception ignored) { }
-                                }
-                            }
-                            mPoints.close();
-                        }
-                    }
+                    sync();
                 }
             }
         });
+    }
+
+    private void sync() {
+        if (mSharedPreferences.getBoolean(SettingsConstants.KEY_PREF_TRACK_SEND, false)) {
+            ContentResolver resolver = getContentResolver();
+            String selection = TrackLayer.FIELD_SENT + " = 0";
+            String sort = TrackLayer.FIELD_TIMESTAMP + " ASC";
+            Cursor points = resolver.query(mContentUriTrackPoints, null, selection, null, sort);
+            if (points != null) {
+                List<String> ids = new ArrayList<>();
+                if (points.moveToFirst()) {
+                    GeoPoint point = new GeoPoint();
+                    int lon = points.getColumnIndex(TrackLayer.FIELD_LON);
+                    int lat = points.getColumnIndex(TrackLayer.FIELD_LAT);
+                    int ele = points.getColumnIndex(TrackLayer.FIELD_ELE);
+                    int fix = points.getColumnIndex(TrackLayer.FIELD_FIX);
+                    int sat = points.getColumnIndex(TrackLayer.FIELD_SAT);
+                    int acc = points.getColumnIndex(TrackLayer.FIELD_ACCURACY);
+                    int speed = points.getColumnIndex(TrackLayer.FIELD_SPEED);
+                    int time = points.getColumnIndex(TrackLayer.FIELD_TIMESTAMP);
+                    JSONArray payload = new JSONArray();
+
+                    int counter = 0;
+                    do {
+                        JSONObject item = new JSONObject();
+                        try {
+                            point.setCoordinates(points.getDouble(lon), points.getDouble(lat));
+                            point.setCRS(GeoConstants.CRS_WEB_MERCATOR);
+                            point.project(GeoConstants.CRS_WGS84);
+                            item.put("lt", point.getY());
+                            item.put("ln", point.getX());
+                            item.put("ts", points.getLong(time)/1000);
+                            item.put("a", points.getDouble(ele));
+                            item.put("s", points.getInt(sat));
+                            item.put("ft", points.getString(fix).equals("3d") ? 3 : 2);
+                            item.put("sp", points.getDouble(speed) * 18 / 5);
+                            item.put("ha", points.getDouble(acc));
+                            payload.put(item);
+                            ids.add(points.getString(time));
+                            counter++;
+
+                            if (counter >= 100) {
+                                post(payload.toString(), this, ids);
+                                payload = new JSONArray();
+                                ids.clear();
+                                counter = 0;
+                            }
+                        } catch (Exception ignored) { }
+                    } while (points.moveToNext());
+
+                    if (counter > 0) {
+                        try {
+                            post(payload.toString(), this, ids);
+                        } catch (Exception ignored) { }
+                    }
+                }
+                points.close();
+            }
+        }
     }
 
     private void post(String payload, Context context, List<String> ids) throws IOException {

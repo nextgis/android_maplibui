@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016, 2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -35,18 +35,15 @@ import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.TracksActivity;
 import com.nextgis.maplibui.api.ILayerUI;
+import com.nextgis.maplibui.service.TrackerService;
 
 import java.io.File;
 
+import static com.nextgis.maplibui.service.TrackerService.ACTION_SYNC;
 
-public class TrackLayerUI
-        extends TrackLayer
-        implements ILayerUI
-{
-    public TrackLayerUI(
-            Context context,
-            File path)
-    {
+
+public class TrackLayerUI extends TrackLayer implements ILayerUI {
+    public TrackLayerUI(Context context, File path) {
         super(context, path);
         mColor = ContextCompat.getColor(mContext, R.color.accent);
         ((TrackRenderer) mRenderer).setEndingMarker(R.drawable.ic_track_flag);
@@ -54,9 +51,8 @@ public class TrackLayerUI
 
 
     @Override
-    public Drawable getIcon(Context context)
-    {
-        int[] attrs = new int[] { R.attr.ic_track };
+    public Drawable getIcon(Context context) {
+        int[] attrs = new int[]{R.attr.ic_track};
         TypedArray ta = context.obtainStyledAttributes(attrs);
         Drawable track = ta.getDrawable(0);
         ta.recycle();
@@ -65,8 +61,7 @@ public class TrackLayerUI
 
 
     @Override
-    public void changeProperties(Context context)
-    {
+    public void changeProperties(Context context) {
         Intent tracksSettings = new Intent(context, TracksActivity.class);
         tracksSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(tracksSettings);
@@ -74,9 +69,15 @@ public class TrackLayerUI
 
 
     @Override
-    public boolean delete()
-    {
+    public boolean delete() {
         Toast.makeText(mContext, R.string.layer_permanent, Toast.LENGTH_SHORT).show();
         return false;
+    }
+
+    @Override
+    public void sync() {
+        Intent trackerService = new Intent(mContext, TrackerService.class);
+        trackerService.setAction(ACTION_SYNC);
+        mContext.startService(trackerService);
     }
 }
