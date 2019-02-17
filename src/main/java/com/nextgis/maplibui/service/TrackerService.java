@@ -188,6 +188,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
                 switch (action) {
                     case ACTION_SYNC:
                         sync();
+                        stopSelf();
                         return START_NOT_STICKY;
                     case ACTION_STOP:
                         stopSelf();

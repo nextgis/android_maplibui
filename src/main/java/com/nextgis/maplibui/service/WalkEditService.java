@@ -4,7 +4,7 @@
  *  Author:   Dmitry Baryshnikov, dmitry.baryshnikov@nextgis.com
  *  Author:   Stanislav Petriakov, becomeglory@gmail.com
  * ****************************************************************************
- *  Copyright (c) 2012-2018 NextGIS, info@nextgis.com
+ *  Copyright (c) 2015-2019 NextGIS, info@nextgis.com
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser Public License as published by
@@ -23,6 +23,7 @@
 package com.nextgis.maplibui.service;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -63,8 +64,8 @@ import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 /**
  * Service to gather position data during walking
  */
+@SuppressLint("MissingPermission")
 public class WalkEditService extends Service implements LocationListener, GpsStatus.Listener {
-
     private static final int WALK_NOTIFICATION_ID = 7;
     public static final String TEMP_PREFERENCES = "walkedit_temp";
     public static final String EXTRA_HEADER = "extra_";
@@ -91,7 +92,7 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
 
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        mSharedPreferencesTemp = getSharedPreferences(TEMP_PREFERENCES, Constants.MODE_MULTI_PROCESS);
+        mSharedPreferencesTemp = getSharedPreferences(TEMP_PREFERENCES, MODE_MULTI_PROCESS);
 
         mTicker = getString(R.string.tracks_running);
         mSmallIcon = R.drawable.ic_action_maps_directions_walk;
@@ -104,7 +105,7 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
         if (intent != null) {
             String action = intent.getAction();
 
-            if (!TextUtils.isEmpty(action)) {
+            if (action != null && !TextUtils.isEmpty(action)) {
                 switch (action) {
                     case ACTION_STOP:
                         mGeometry = null;
@@ -135,7 +136,7 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
                             edit.putString(ConstantsUI.TARGET_CLASS, mTargetActivity);
                             edit.putBoolean(ConstantsUI.KEY_MESSAGE, mShowNotification);
                             saveBundle(edit, mTargetExtras);
-                            edit.commit();
+                            edit.apply();
                         }
                         break;
                 }
@@ -154,7 +155,7 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
     }
 
     private void startWalkEdit() {
-        SharedPreferences sharedPreferences = getSharedPreferences(getPackageName() + "_preferences", Constants.MODE_MULTI_PROCESS);
+        SharedPreferences sharedPreferences = getSharedPreferences(getPackageName() + "_preferences", MODE_MULTI_PROCESS);
 
         String minTimeStr = sharedPreferences.getString(SettingsConstants.KEY_PREF_LOCATION_MIN_TIME, "2");
         String minDistanceStr = sharedPreferences.getString(SettingsConstants.KEY_PREF_LOCATION_MIN_DISTANCE, "10");
@@ -195,7 +196,7 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
 
     @Override
     public void onDestroy() {
-        mSharedPreferencesTemp.edit().clear().commit();
+        mSharedPreferencesTemp.edit().clear().apply();
         removeNotification();
         stopSelf();
 
@@ -233,7 +234,7 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
         }
 
         SharedPreferences.Editor edit = mSharedPreferencesTemp.edit();
-        edit.putString(ConstantsUI.KEY_GEOMETRY, mGeometry.toWKT(true)).commit();
+        edit.putString(ConstantsUI.KEY_GEOMETRY, mGeometry.toWKT(true)).apply();
 
         sendGeometryBroadcast();
     }
