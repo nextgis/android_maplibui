@@ -22,7 +22,6 @@
 
 package com.nextgis.maplibui.service;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
@@ -43,6 +42,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -104,8 +104,9 @@ public class TrackerService extends Service implements LocationListener, GpsStat
     private NotificationManager mNotificationManager;
     private AlarmManager        mAlarmManager;
     private PendingIntent       mSplitService, mOpenActivity;
-    private String mTicker;
-    private int    mSmallIcon, mSatellitesCount;
+    private String              mTicker;
+    private int                 mSmallIcon, mSatellitesCount;
+    private Bitmap              mLargeIcon;
     private boolean             mHasGPSFix;
 
     @Override
@@ -140,6 +141,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
 
         mTicker = getString(R.string.tracks_running);
         mSmallIcon = R.drawable.ic_action_maps_directions_walk;
+        mLargeIcon = NotificationHelper.getLargeIcon(mSmallIcon, getResources());
 
         Intent intentSplit = new Intent(this, TrackerService.class);
         intentSplit.setAction(ACTION_SPLIT);
@@ -148,7 +150,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
 
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        if (!hasPermission())
+        if (!PermissionUtil.hasLocationPermissions(this))
             return;
 
         mLocationManager.addGpsStatusListener(this);
@@ -187,10 +189,31 @@ public class TrackerService extends Service implements LocationListener, GpsStat
             if (action != null && !TextUtils.isEmpty(action)) {
                 switch (action) {
                     case ACTION_SYNC:
-                        sync();
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            int res = R.string.sync_started;
+                            String title = getString(res);
+                            NotificationCompat.Builder builder = createBuilder(this, res);
+                            builder.setSmallIcon(mSmallIcon)
+                                    .setLargeIcon(mLargeIcon)
+                                    .setTicker(title)
+                                    .setWhen(System.currentTimeMillis())
+                                    .setAutoCancel(false)
+                                    .setContentTitle(title)
+                                    .setContentText(title)
+                                    .setOngoing(true);
+
+                            startForeground(TRACK_NOTIFICATION_ID, builder.build());
+                        }
+
+                        try {
+                            sync();
+                        } catch (SQLiteException ignored) {
+                        }
+                        removeNotification();
                         stopSelf();
                         return START_NOT_STICKY;
                     case ACTION_STOP:
+                        removeNotification();
                         stopSelf();
                         return START_NOT_STICKY;
                     case ACTION_SPLIT:
@@ -241,15 +264,18 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         mValues.put(TrackLayer.FIELD_NAME, mTrackName);
         mValues.put(TrackLayer.FIELD_START, started);
         mValues.put(TrackLayer.FIELD_VISIBLE, true);
-        Uri newTrack = getContentResolver().insert(mContentUriTracks, mValues);
-        if (null != newTrack) {
-            // save vars
-            mTrackId = newTrack.getLastPathSegment();
-            mSharedPreferencesTemp.edit().putString(TRACK_URI, newTrack.toString()).apply();
-        }
+        try {
+            Uri newTrack = getContentResolver().insert(mContentUriTracks, mValues);
+            if (null != newTrack) {
+                // save vars
+                mTrackId = newTrack.getLastPathSegment();
+                mSharedPreferencesTemp.edit().putString(TRACK_URI, newTrack.toString()).apply();
+            }
 
-        mIsRunning = true;
-        addSplitter();
+            mIsRunning = true;
+            addSplitter();
+        } catch (SQLiteException ignored) {
+        }
     }
 
 
@@ -274,7 +300,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         Uri tracksUri = Uri.parse("content://" + app.getAuthority() + "/" + TrackLayer.TABLE_TRACKS);
         try {
             context.getContentResolver().update(tracksUri, cv, selection, null);
-        } catch (IllegalArgumentException ignore) {
+        } catch (IllegalArgumentException | SQLiteException ignore) {
         }
     }
 
@@ -296,17 +322,17 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         String selection = TrackLayer.FIELD_ID + " = ?";
         String[] proj = new String[]{TrackLayer.FIELD_NAME};
         String[] args = new String[]{mTrackId};
-        Cursor currentTrack = getContentResolver().query(mContentUriTracks, proj, selection, args, null);
-        if (null != currentTrack) {
-            if (currentTrack.moveToFirst())
-                name = currentTrack.getString(0);
-            currentTrack.close();
+        try {
+            Cursor currentTrack = getContentResolver().query(mContentUriTracks, proj, selection, args, null);
+            if (null != currentTrack) {
+                if (currentTrack.moveToFirst())
+                    name = currentTrack.getString(0);
+                currentTrack.close();
+            }
+        } catch (SQLiteException ignored){
         }
 
         String title = String.format(getString(R.string.tracks_title), name);
-        int resource = R.drawable.ic_action_maps_directions_walk;
-        Bitmap largeIcon = NotificationHelper.getLargeIcon(resource, getResources());
-
         Intent intentStop = new Intent(this, TrackerService.class);
         intentStop.setAction(ACTION_STOP);
         int flag = PendingIntent.FLAG_UPDATE_CURRENT;
@@ -315,7 +341,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         NotificationCompat.Builder builder = createBuilder(this, R.string.title_edit_by_walk);
         builder.setContentIntent(mOpenActivity)
                 .setSmallIcon(mSmallIcon)
-                .setLargeIcon(largeIcon)
+                .setLargeIcon(mLargeIcon)
                 .setTicker(mTicker)
                 .setWhen(System.currentTimeMillis())
                 .setAutoCancel(false)
@@ -323,7 +349,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
                 .setContentText(mTicker)
                 .setOngoing(true);
 
-        resource = R.drawable.ic_location;
+        int resource = R.drawable.ic_location;
         builder.addAction(resource, getString(R.string.tracks_open), mOpenActivity);
         resource = R.drawable.ic_action_cancel_dark;
         builder.addAction(resource, getString(R.string.tracks_stop), stopService);
@@ -335,7 +361,10 @@ public class TrackerService extends Service implements LocationListener, GpsStat
 
 
     private void removeNotification() {
-        mNotificationManager.cancel(TRACK_NOTIFICATION_ID);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            stopForeground(true);
+        else
+            mNotificationManager.cancel(TRACK_NOTIFICATION_ID);
     }
 
 
@@ -365,10 +394,9 @@ public class TrackerService extends Service implements LocationListener, GpsStat
 
     public void onDestroy() {
         stopTrack();
-        removeNotification();
         stopSelf();
 
-        if (hasPermission()) {
+        if (PermissionUtil.hasLocationPermissions(this)) {
             mLocationManager.removeUpdates(this);
             mLocationManager.removeGpsStatusListener(this);
         }
@@ -384,14 +412,6 @@ public class TrackerService extends Service implements LocationListener, GpsStat
     @Override
     public IBinder onBind(Intent intent) {
         return null;
-    }
-
-
-    private boolean hasPermission() {
-        String fine = Manifest.permission.ACCESS_FINE_LOCATION;
-        String coarse = Manifest.permission.ACCESS_COARSE_LOCATION;
-        return PermissionUtil.hasPermission(this, fine)
-                && PermissionUtil.hasPermission(this, coarse);
     }
 
 
@@ -512,13 +532,16 @@ public class TrackerService extends Service implements LocationListener, GpsStat
                         Thread.currentThread().interrupt();
                     }
 
-                    sync();
+                    try {
+                        sync();
+                    } catch (SQLiteException ignored) {
+                    }
                 }
             }
         });
     }
 
-    private void sync() {
+    private void sync() throws SQLiteException {
         if (mSharedPreferences.getBoolean(SettingsConstants.KEY_PREF_TRACK_SEND, false)) {
             ContentResolver resolver = getContentResolver();
             String selection = TrackLayer.FIELD_SENT + " = 0";
@@ -584,7 +607,10 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         cv.put(TrackLayer.FIELD_SENT, 1);
         String where = TrackLayer.FIELD_TIMESTAMP + " in (" + MapUtil.makePlaceholders(ids.size()) + ")";
         String[] timestamps = ids.toArray(new String[0]);
-        context.getContentResolver().update(mContentUriTrackPoints, cv, where, timestamps);
+        try {
+            context.getContentResolver().update(mContentUriTrackPoints, cv, where, timestamps);
+        } catch (SQLiteException ignored) {
+        }
     }
 
     @SuppressLint("HardwareIds")

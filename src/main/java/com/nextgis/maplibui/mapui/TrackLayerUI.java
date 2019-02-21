@@ -78,6 +78,6 @@ public class TrackLayerUI extends TrackLayer implements ILayerUI {
     public void sync() {
         Intent trackerService = new Intent(mContext, TrackerService.class);
         trackerService.setAction(ACTION_SYNC);
-        mContext.startService(trackerService);
+        ContextCompat.startForegroundService(mContext, trackerService);
     }
 }

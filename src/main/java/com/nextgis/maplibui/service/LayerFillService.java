@@ -31,6 +31,7 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -157,24 +158,23 @@ public class LayerFillService extends Service implements IProgressor {
     @Override
     public void onCreate() {
         mNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        Bitmap largeIcon = NotificationHelper.getLargeIcon(
-                R.drawable.ic_notification_download, getResources());
+        int icon = R.drawable.ic_notification_download;
+        Bitmap largeIcon = NotificationHelper.getLargeIcon(icon, getResources());
 
         mProgressIntent = new Intent(ACTION_UPDATE);
         Intent intent = new Intent(this, LayerFillService.class);
         intent.setAction(ACTION_STOP);
-        PendingIntent stopService = PendingIntent.getService(this, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        int flag = PendingIntent.FLAG_UPDATE_CURRENT;
+        PendingIntent stop = PendingIntent.getService(this, 0, intent, flag);
         intent.setAction(ACTION_SHOW);
-        PendingIntent showProgressDialog = PendingIntent.getService(this, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent show = PendingIntent.getService(this, 0, intent, flag);
 
         mBuilder = createBuilder(this, R.string.start_fill_layer);
-        mBuilder.setSmallIcon(R.drawable.ic_notification_download).setLargeIcon(largeIcon)
+        mBuilder.setSmallIcon(icon).setLargeIcon(largeIcon)
                 .setAutoCancel(false)
                 .setOngoing(true)
-                .setContentIntent(showProgressDialog)
-                .addAction(R.drawable.ic_action_cancel_dark, getString(R.string.tracks_stop), stopService);
+                .setContentIntent(show)
+                .addAction(R.drawable.ic_action_cancel_dark, getString(R.string.tracks_stop), stop);
         mIsCanceled = false;
 
         mQueue = new LinkedList<>();
@@ -188,6 +188,11 @@ public class LayerFillService extends Service implements IProgressor {
             }
         };
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String title = getString(R.string.start_fill_layer);
+            mBuilder.setWhen(System.currentTimeMillis()).setContentTitle(title).setTicker(title);
+            startForeground(FILL_NOTIFICATION_ID, mBuilder.build());
+        }
     }
 
     @Override
@@ -195,8 +200,7 @@ public class LayerFillService extends Service implements IProgressor {
         Log.i("LayerFillService", "Received start id " + startId + ": " + intent);
         if (intent != null) {
             String action = intent.getAction();
-
-            if (!TextUtils.isEmpty(action)) {
+            if (action != null && !TextUtils.isEmpty(action)) {
                 switch (action) {
                     case ACTION_ADD_TASK:
                         int layerGroupId = intent.getIntExtra(KEY_LAYER_GROUP_ID, Constants.NOT_FOUND);
@@ -240,8 +244,12 @@ public class LayerFillService extends Service implements IProgressor {
     }
 
     protected void startNextTask(){
-        if(mQueue.isEmpty()){
-            mNotifyManager.cancel(FILL_NOTIFICATION_ID);
+        if (mQueue.isEmpty()){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                stopForeground(true);
+            else
+                mNotifyManager.cancel(FILL_NOTIFICATION_ID);
+
             stopSelf();
             return;
         }
@@ -342,7 +350,8 @@ public class LayerFillService extends Service implements IProgressor {
             mNotifyManager.notify(FILL_NOTIFICATION_ID, mBuilder.build());
         }
 
-        mProgressIntent.getExtras().clear();
+        if (mProgressIntent.getExtras() != null)
+            mProgressIntent.getExtras().clear();
         if (mProgressMessage != null)
             mProgressIntent.putExtra(KEY_MESSAGE, mProgressMessage);
         else

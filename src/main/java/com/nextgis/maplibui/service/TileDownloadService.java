@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -65,9 +65,7 @@ import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 /**
  * The service to batch download tiles
  */
-public class TileDownloadService
-        extends Service
-{
+public class TileDownloadService extends Service {
     protected static final int TILE_DOWNLOAD_NOTIFICATION_ID = 7;
 
     public static final String KEY_MINX        = "env_minx";
@@ -93,8 +91,7 @@ public class TileDownloadService
     protected volatile boolean mIsDownloadInterrupted = false;
 
     @Override
-    public void onCreate()
-    {
+    public void onCreate() {
         super.onCreate();
         //android.os.Debug.waitForDebugger();
 
@@ -106,74 +103,65 @@ public class TileDownloadService
 
         Intent intentStop = getStopIntent();
         intentStop.setAction(ACTION_STOP);
-        PendingIntent stopService =
-                PendingIntent.getService(this, 0, intentStop, PendingIntent.FLAG_UPDATE_CURRENT);
+        int flag = PendingIntent.FLAG_UPDATE_CURRENT;
+        PendingIntent stop = PendingIntent.getService(this, 0, intentStop, flag);
 
-        Bitmap largeIcon = NotificationHelper.getLargeIcon(R.drawable.ic_notification_download,
-                getResources());
+        int icon = R.drawable.ic_notification_download;
+        Bitmap largeIcon = NotificationHelper.getLargeIcon(icon, getResources());
 
         mBuilder = createBuilder(this, R.string.download_tiles);
-        mBuilder.setSmallIcon(R.drawable.ic_notification_download)
+        mBuilder.setSmallIcon(icon)
                 .setLargeIcon(largeIcon)
                 .setAutoCancel(false)
                 .setOngoing(true)
-                .addAction(android.R.drawable.ic_menu_close_clear_cancel,
-                        getString(R.string.cancel), stopService);
+                .addAction(R.drawable.ic_action_cancel_dark, getString(R.string.cancel), stop);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String title = getString(R.string.download_tiles);
+            mBuilder.setContentTitle(title).setTicker(title).setWhen(System.currentTimeMillis());
+            startForeground(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
+        }
 
         mQueue = new ConcurrentLinkedQueue<>();
     }
 
     // For overriding in subclasses
-    protected Intent getStopIntent()
-    {
+    protected Intent getStopIntent() {
         return new Intent(this, TileDownloadService.class);
     }
 
     @Override
-    public int onStartCommand(
-            Intent intent,
-            int flags,
-            int startId)
-    {
-        Log.i("TileDownloadService", "Received start id " + startId + ": " + intent);
-        // We want this service to continue running until it is explicitly
-        // stopped, so return sticky.
-
+    public int onStartCommand(Intent intent, int flags, int startId) {
         if (Constants.DEBUG_MODE) {
+            Log.i("TileDownloadService", "Received start id " + startId + ": " + intent);
             Log.d(Constants.TAG, "TileDownloadService.onStartCommand() is starting");
         }
 
         if (intent != null) {
             String action = intent.getAction();
-
-            if (!TextUtils.isEmpty(action)) {
+            if (action != null && !TextUtils.isEmpty(action)) {
                 switch (action) {
                     case ACTION_ADD_TASK:
                         if (Constants.DEBUG_MODE) {
-                            Log.d(
-                                    Constants.TAG,
-                                    "TileDownloadService.onStartCommand(), ACTION_ADD_TASK");
+                            Log.d(Constants.TAG, "TileDownloadService, ACTION_ADD_TASK");
                         }
                         addDownloadTask(intent);
                         break;
-
                     case ACTION_STOP:
                         if (Constants.DEBUG_MODE) {
-                            Log.d(
-                                    Constants.TAG,
-                                    "TileDownloadService.onStartCommand(), ACTION_STOP");
+                            Log.d(Constants.TAG, "TileDownloadService, ACTION_STOP");
                         }
                         cancelDownload();
                         stopSelf();
                         break;
                 }
+                return START_STICKY;
             }
         }
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
-    protected void addDownloadTask(Intent intent)
-    {
+    protected void addDownloadTask(Intent intent) {
         if (Constants.DEBUG_MODE) {
             Log.d(Constants.TAG, "Add task to download queue");
         }
@@ -195,38 +183,41 @@ public class TileDownloadService
     }
 
     // For overriding in subclasses
-    protected void cancelDownload()
-    {
+    protected void cancelDownload() {
         if (Constants.DEBUG_MODE) {
             Log.d(Constants.TAG, "Cancel download queue");
         }
+        cancelNotification();
         clearResources();
     }
 
+    protected void cancelNotification() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            stopForeground(true);
+        else
+            mNotifyManager.cancel(TILE_DOWNLOAD_NOTIFICATION_ID);
+    }
+
     // For overriding in subclasses
-    protected void clearResources()
-    {
-        mNotifyManager.cancel(TILE_DOWNLOAD_NOTIFICATION_ID);
+    protected void clearResources() {
         mQueue.clear();
         if (mDownloadThread != null && mDownloadThread.isAlive()) {
             mDownloadThread.interrupt();
             mDownloadThread = null;
             mIsDownloadInterrupted = true;
             if (Constants.DEBUG_MODE) {
-                Log.d(Constants.TAG, "TileDownloadService.cancelDownload(), interrupted service");
+                Log.d(Constants.TAG, "TileDownloadService.cancelDownload(), interrupt service");
             }
         }
     }
 
     @Override
-    public IBinder onBind(Intent intent)
-    {
+    public IBinder onBind(Intent intent) {
         return null;
     }
 
     @Override
-    public void onDestroy()
-    {
+    public void onDestroy() {
         clearResources();
         if (Constants.DEBUG_MODE) {
             Log.d(Constants.TAG, "TileDownloadService.onDestroy(), service is stopped");
@@ -266,8 +257,7 @@ public class TileDownloadService
         }
     }
 
-    private Thread createDownloadThread()
-    {
+    private Thread createDownloadThread() {
         mIsDownloadInterrupted = false;
         return new Thread(new Runnable()
         {
@@ -289,6 +279,7 @@ public class TileDownloadService
                     download(task);
                 }
 
+                cancelNotification();
                 stopSelf();
 
                 if (Constants.DEBUG_MODE) {
@@ -308,8 +299,7 @@ public class TileDownloadService
         return MapUtil.getTileItems(bounds, zoom, tmsLayer.getTMSType());
     }
 
-    protected void download(DownloadTask task)
-    {
+    protected void download(DownloadTask task) {
         mIsDownloadError = false;
 
         MapBase map = MapBase.getInstance();

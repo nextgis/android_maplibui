@@ -4,7 +4,7 @@
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * Based on https://github.com/nextgis/nextgismobile/blob/master/src/com/nextgis/mobile/forms/CompassFragment.java
  * *****************************************************************************
- * Copyright (c) 2015-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016, 2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,7 +22,8 @@
 
 package com.nextgis.maplibui.fragment;
 
-import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -114,13 +115,13 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_compass, container, false);
-        mParent = (FrameLayout) view.findViewById(R.id.compass_fragment);
-        mBasePlate = (ImageView) view.findViewById(R.id.base_plate);
-        mBubbleView = (BubbleSurfaceView) view.findViewById(R.id.bubble_view);
-        mCompass = (CompassImage) view.findViewById(R.id.compass);
-        mTvAzimuth = (TextView) view.findViewById(R.id.azimuth);
-        mCompassNeedle = (CompassImage) view.findViewById(R.id.needle);
-        mCompassNeedleMagnetic = (CompassImage) view.findViewById(R.id.needle_magnetic);
+        mParent = view.findViewById(R.id.compass_fragment);
+        mBasePlate = view.findViewById(R.id.base_plate);
+        mBubbleView = view.findViewById(R.id.bubble_view);
+        mCompass = view.findViewById(R.id.compass);
+        mTvAzimuth = view.findViewById(R.id.azimuth);
+        mCompassNeedle = view.findViewById(R.id.needle);
+        mCompassNeedleMagnetic = view.findViewById(R.id.needle_magnetic);
 
         mBasePlate.post(new Runnable() {
             @Override
@@ -157,7 +158,7 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
         else
             height = view.getRootView().getMeasuredHeight();
 
-        InputStream is = null;
+        InputStream is;
         try {
             is = getContext().getAssets().open(image);
             BitmapFactory.Options options = ControlHelper.getOptions(is, width, height);
@@ -169,6 +170,7 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
         }
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -179,20 +181,20 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
 
         // reference to vibrator service
         mDeclination = 0;
-        mVibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
-        mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-
-        if(!PermissionUtil.hasPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                || !PermissionUtil.hasPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION))
+        Activity activity = getActivity();
+        if (activity == null)
             return;
 
-        if (mCurrentLocation == null) {
-            LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-            mCurrentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (!PermissionUtil.hasLocationPermissions(activity))
+            return;
 
-            if (mCurrentLocation == null) {
+        mVibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
+        mSensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
+        if (mCurrentLocation == null) {
+            LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+            mCurrentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (mCurrentLocation == null)
                 mCurrentLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            }
         }
 
         if (mCurrentLocation != null)
@@ -223,6 +225,7 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
         super.onResume();
     }
 
+    @SuppressLint("MissingPermission")
     public boolean onTouch(View v, MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -378,6 +381,9 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
     }
 
     public int getDeviceRotation() {
+        if (getActivity() == null)
+            return 0;
+
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         final int rotation = display.getRotation();
 

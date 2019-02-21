@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2016, 2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016, 2018-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,6 +26,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.Process;
 import android.support.v4.app.NotificationCompat;
@@ -68,22 +69,31 @@ public class RebuildCacheService extends Service implements IProgressor {
     @Override
     public void onCreate() {
         mNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        Bitmap largeIcon = NotificationHelper.getLargeIcon(
-                R.drawable.ic_notification_rebuild_cache, getResources());
 
         mProgressIntent = new Intent(ACTION_UPDATE);
         Intent intent = new Intent(this, RebuildCacheService.class);
         intent.setAction(ACTION_STOP);
-        PendingIntent stopService = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        int flag = PendingIntent.FLAG_UPDATE_CURRENT;
+        PendingIntent stop = PendingIntent.getService(this, 0, intent, flag);
         intent.setAction(ACTION_SHOW);
-        PendingIntent showProgressDialog = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
+        PendingIntent show = PendingIntent.getService(this, 0, intent, flag);
         mBuilder = createBuilder(this, R.string.rebuild_cache);
-        mBuilder.setSmallIcon(R.drawable.ic_notification_rebuild_cache).setLargeIcon(largeIcon)
-                .setAutoCancel(false)
+
+        int icon = R.drawable.ic_notification_rebuild_cache;
+        Bitmap largeIcon = NotificationHelper.getLargeIcon(icon, getResources());
+        mBuilder.setSmallIcon(icon).setLargeIcon(largeIcon);
+        icon = R.drawable.ic_action_cancel_dark;
+
+        mBuilder.setAutoCancel(false)
                 .setOngoing(true)
-                .setContentIntent(showProgressDialog)
-                .addAction(R.drawable.ic_action_cancel_dark, getString(android.R.string.cancel), stopService);
+                .setContentIntent(show)
+                .addAction(icon, getString(android.R.string.cancel), stop);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String title = getString(R.string.rebuild_cache);
+            mBuilder.setWhen(System.currentTimeMillis()).setContentTitle(title).setTicker(title);
+            startForeground(NOTIFICATION_ID, mBuilder.build());
+        }
 
         mQueue = new LinkedList<>();
     }
@@ -92,11 +102,11 @@ public class RebuildCacheService extends Service implements IProgressor {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null) {
             String action = intent.getAction();
-
-            if (!TextUtils.isEmpty(action)) {
+            if (action != null && !TextUtils.isEmpty(action)) {
+                String key = ConstantsUI.KEY_LAYER_ID;
                 switch (action) {
                     case ACTION_ADD_TASK:
-                        int layerIdAdd = intent.getIntExtra(ConstantsUI.KEY_LAYER_ID, Constants.NOT_FOUND);
+                        int layerIdAdd = intent.getIntExtra(key, Constants.NOT_FOUND);
                         mQueue.add(layerIdAdd);
 
                         if (!mIsRunning)
@@ -104,7 +114,7 @@ public class RebuildCacheService extends Service implements IProgressor {
 
                         return START_STICKY;
                     case ACTION_REMOVE_TASK:
-                        int layerIdRemove = intent.getIntExtra(ConstantsUI.KEY_LAYER_ID, Constants.NOT_FOUND);
+                        int layerIdRemove = intent.getIntExtra(key, Constants.NOT_FOUND);
                         mCurrentTasks--;
 
                         if (!mQueue.contains(layerIdRemove))
@@ -120,23 +130,32 @@ public class RebuildCacheService extends Service implements IProgressor {
                     case ACTION_SHOW:
                         Intent settings = new Intent(this, VectorLayerSettingsActivity.class);
                         settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        settings.putExtra(ConstantsUI.KEY_LAYER_ID, mLayer != null ? mLayer.getId() : Constants.NOT_FOUND);
+                        settings.putExtra(key, mLayer != null ? mLayer.getId() : Constants.NOT_FOUND);
                         startActivity(settings);
                         break;
                 }
             }
         }
-        return START_STICKY;
+        return START_NOT_STICKY;
+    }
+
+    protected void stopService() {
+        mCurrentTasks = 0;
+        mProgressIntent.putExtra(KEY_PROGRESS, 0);
+        sendBroadcast(mProgressIntent);
+        mLayer = null;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            stopForeground(true);
+        else
+            mNotifyManager.cancel(NOTIFICATION_ID);
+
+        stopSelf();
     }
 
     protected void startNextTask() {
         if (mQueue.isEmpty()) {
-            mCurrentTasks = 0;
-            mNotifyManager.cancel(NOTIFICATION_ID);
-            mProgressIntent.putExtra(KEY_PROGRESS, 0);
-            sendBroadcast(mProgressIntent);
-            mLayer = null;
-            stopSelf();
+            stopService();
             return;
         }
 
@@ -148,7 +167,8 @@ public class RebuildCacheService extends Service implements IProgressor {
                 mLayer = (VectorLayer) MapBase.getInstance().getLayerById(mQueue.remove(0));
                 mIsRunning = true;
                 mCurrentTasks++;
-                String notifyTitle = getString(R.string.rebuild_cache) + ": " + mCurrentTasks + "/" + mQueue.size() + 1;
+                String notifyTitle = getString(R.string.rebuild_cache);
+                notifyTitle += ": " + mCurrentTasks + "/" + mQueue.size() + 1;
 
                 mBuilder.setWhen(System.currentTimeMillis())
                         .setContentTitle(notifyTitle)
@@ -163,7 +183,6 @@ public class RebuildCacheService extends Service implements IProgressor {
                 startNextTask();
             }
         }).start();
-
     }
 
     @Override
@@ -189,8 +208,10 @@ public class RebuildCacheService extends Service implements IProgressor {
             mNotifyManager.notify(NOTIFICATION_ID, mBuilder.build());
         }
 
-        mProgressIntent.putExtra(KEY_PROGRESS, value).putExtra(KEY_MAX, mProgressMax)
-                       .putExtra(ConstantsUI.KEY_LAYER_ID, mLayer != null ? mLayer.getId() : Constants.NOT_FOUND);
+        int id = mLayer != null ? mLayer.getId() : Constants.NOT_FOUND;
+        mProgressIntent.putExtra(KEY_PROGRESS, value)
+                .putExtra(KEY_MAX, mProgressMax)
+                .putExtra(ConstantsUI.KEY_LAYER_ID, id);
         sendBroadcast(mProgressIntent);
     }
 

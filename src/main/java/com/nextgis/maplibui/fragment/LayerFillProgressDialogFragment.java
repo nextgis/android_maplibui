@@ -106,7 +106,7 @@ public class LayerFillProgressDialogFragment extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intentStop = new Intent(mActivity, LayerFillService.class);
                         intentStop.setAction(LayerFillService.ACTION_STOP);
-                        ContextCompat.startForegroundService(mActivity, intentStop);
+                        mActivity.startService(intentStop);
                     }
                 });
     }

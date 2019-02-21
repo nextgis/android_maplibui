@@ -22,7 +22,6 @@
 
 package com.nextgis.maplibui.service;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.NotificationManager;
@@ -36,6 +35,7 @@ import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -94,7 +94,7 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         mSharedPreferencesTemp = getSharedPreferences(TEMP_PREFERENCES, MODE_MULTI_PROCESS);
 
-        mTicker = getString(R.string.tracks_running);
+        mTicker = getString(R.string.walkedit_title);
         mSmallIcon = R.drawable.ic_action_maps_directions_walk;
 
         mLayerId = Constants.NOT_FOUND;
@@ -110,6 +110,7 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
                     case ACTION_STOP:
                         mGeometry = null;
                         mLayerId = Constants.NOT_FOUND;
+                        removeNotification();
                         stopSelf();
                         break;
                     case ACTION_START:
@@ -162,8 +163,7 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
         long minTime = Long.parseLong(minTimeStr) * 1000;
         float minDistance = Float.parseFloat(minDistanceStr);
 
-        if (!PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) || !PermissionUtil.hasPermission(this,
-                                                                                                                           Manifest.permission.ACCESS_COARSE_LOCATION))
+        if (!PermissionUtil.hasLocationPermissions(this))
             return;
 
         mLocationManager.addGpsStatusListener(this);
@@ -200,8 +200,7 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
         removeNotification();
         stopSelf();
 
-        if (PermissionUtil.hasPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) && PermissionUtil.hasPermission(this,
-                                                                                                                         Manifest.permission.ACCESS_COARSE_LOCATION)) {
+        if (PermissionUtil.hasLocationPermissions(this)) {
             mLocationManager.removeUpdates(this);
             mLocationManager.removeGpsStatusListener(this);
         }
@@ -268,8 +267,8 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
         if (null != layer)
             name = layer.getName();
 
-        String title = String.format(getString(R.string.walkedit_title), name);
-        Bitmap largeIcon = NotificationHelper.getLargeIcon(R.drawable.ic_action_maps_directions_walk, getResources());
+        mTicker = String.format(getString(R.string.walkedit_title), name);
+        Bitmap largeIcon = NotificationHelper.getLargeIcon(mSmallIcon, getResources());
 
         NotificationCompat.Builder builder = createBuilder(this, R.string.title_edit_by_walk);
 
@@ -279,7 +278,7 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
                .setTicker(mTicker)
                .setWhen(System.currentTimeMillis())
                .setAutoCancel(false)
-               .setContentTitle(title)
+               .setContentTitle(mTicker)
                .setContentText(mTicker)
                .setOngoing(true);
 
@@ -290,7 +289,10 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
     }
 
     private void removeNotification() {
-        mNotificationManager.cancel(WALK_NOTIFICATION_ID);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            stopForeground(true);
+        else
+            mNotificationManager.cancel(WALK_NOTIFICATION_ID);
     }
 
     // intent to open on notification click
