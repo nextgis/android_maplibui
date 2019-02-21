@@ -232,6 +232,7 @@ public class LayerFillService extends Service implements IProgressor {
                     case ACTION_STOP:
                         mQueue.clear();
                         mIsCanceled = true;
+                        startNextTask();
                         break;
                     case ACTION_SHOW:
                         mProgressIntent.putExtra(KEY_STATUS, STATUS_SHOW).putExtra(KEY_TITLE, mNotifyTitle);
@@ -254,12 +255,14 @@ public class LayerFillService extends Service implements IProgressor {
             return;
         }
 
-        mIsCanceled = false;
+        mIsRunning = true;
         final  IProgressor progressor = this;
         new Thread(new Runnable() {
             @Override
             public void run() {
-                mIsRunning = true;
+                if (mIsCanceled)
+                    return;
+
                 LayerFillTask task = mQueue.remove(0);
                 mNotifyTitle = task.getDescription();
 
