@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -131,6 +131,7 @@ public class ExportGPXTask extends AsyncTask<Void, Void, Void> implements Dialog
             }
 
             Context app = mActivity.getApplicationContext();
+            String authority = mActivity.getPackageName() + AUTHORITY;
             for (String trackId : mTracksId) {
                 if (mIsCanceled)
                     return null;
@@ -153,7 +154,7 @@ public class ExportGPXTask extends AsyncTask<Void, Void, Void> implements Dialog
                             Uri uri = null;
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 if (temp != null)
-                                    uri = FileProvider.getUriForFile(app, AUTHORITY, temp);
+                                    uri = FileProvider.getUriForFile(app, authority, temp);
                             } else
                                 uri = Uri.fromFile(temp);
                             if (uri != null)
@@ -174,7 +175,7 @@ public class ExportGPXTask extends AsyncTask<Void, Void, Void> implements Dialog
                 FileUtil.writeToFile(temp, GPX_TAG_CLOSE, true);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     if (temp != null)
-                        uri = FileProvider.getUriForFile(app, AUTHORITY, temp);
+                        uri = FileProvider.getUriForFile(app, authority, temp);
                 } else
                     uri = Uri.fromFile(temp);
                 if (uri != null)

@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -231,7 +231,8 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Void, File> {
         Intent shareIntent = new Intent();
         String type = "application/json,application/vnd.geo+json,application/zip";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Uri uri = FileProvider.getUriForFile(mActivity, AUTHORITY, path);
+            String authority = mActivity.getPackageName() + AUTHORITY;
+            Uri uri = FileProvider.getUriForFile(mActivity, authority, path);
             shareIntent = ShareCompat.IntentBuilder.from(mActivity)
                                                    .setStream(uri)
                                                    .setType(type)

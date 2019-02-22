@@ -4,7 +4,7 @@
  * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -113,7 +113,7 @@ public final class LayerUtil {
         ((Activity) context).startActivityForResult(intent, IVectorLayerUI.MODIFY_REQUEST);
     }
 
-    final static String AUTHORITY = BuildConfig.APPLICATION_ID + ".easypicker.provider";
+    final static String AUTHORITY = ".easypicker.provider";
     static void notFound(Activity activity) {
         Toast.makeText(activity, R.string.no_activity_found, Toast.LENGTH_SHORT).show();
     }
