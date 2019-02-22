@@ -56,6 +56,7 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplib.util.HttpResponse;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplib.util.NetworkUtil;
@@ -132,13 +133,6 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         mSharedPreferences = getSharedPreferences(name, MODE_MULTI_PROCESS);
         mSharedPreferencesTemp = getSharedPreferences(TEMP_PREFERENCES, MODE_PRIVATE);
 
-        String time = SettingsConstants.KEY_PREF_TRACKS_MIN_TIME;
-        String distance = SettingsConstants.KEY_PREF_TRACKS_MIN_DISTANCE;
-        String minTimeStr = mSharedPreferences.getString(time, "2");
-        String minDistanceStr = mSharedPreferences.getString(distance, "10");
-        long minTime = Long.parseLong(minTimeStr) * 1000;
-        float minDistance = Float.parseFloat(minDistanceStr);
-
         mTicker = getString(R.string.tracks_running);
         mSmallIcon = R.drawable.ic_action_maps_directions_walk;
         mLargeIcon = NotificationHelper.getLargeIcon(mSmallIcon, getResources());
@@ -147,34 +141,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         intentSplit.setAction(ACTION_SPLIT);
         int flag = PendingIntent.FLAG_UPDATE_CURRENT;
         mSplitService = PendingIntent.getService(this, 0, intentSplit, flag);
-
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        if (!PermissionUtil.hasLocationPermissions(this))
-            return;
-
-        mLocationManager.addGpsStatusListener(this);
-
-        String provider = LocationManager.GPS_PROVIDER;
-        if (mLocationManager.getAllProviders().contains(provider)) {
-            mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
-
-            if (Constants.DEBUG_MODE)
-                Log.d(Constants.TAG, "Tracker service request location updates for " + provider);
-        }
-
-        provider = LocationManager.NETWORK_PROVIDER;
-        if (mLocationManager.getAllProviders().contains(provider)) {
-            mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
-
-            if (Constants.DEBUG_MODE)
-                Log.d(Constants.TAG, "Tracker service request location updates for " + provider);
-        }
-
-        NotificationHelper.showLocationInfo(this);
-
-        mLocationSenderThread = createLocationSenderThread();
-        mLocationSenderThread.start();
     }
 
 
@@ -189,6 +156,9 @@ public class TrackerService extends Service implements LocationListener, GpsStat
             if (action != null && !TextUtils.isEmpty(action)) {
                 switch (action) {
                     case ACTION_SYNC:
+                        if (mIsRunning || mLocationSenderThread != null)
+                            return START_STICKY;
+
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             int res = R.string.sync_started;
                             String title = getString(res);
@@ -205,10 +175,8 @@ public class TrackerService extends Service implements LocationListener, GpsStat
                             startForeground(TRACK_NOTIFICATION_ID, builder.build());
                         }
 
-                        try {
-                            sync();
-                        } catch (SQLiteException ignored) {
-                        }
+                        mLocationSenderThread = createLocationSenderThread(500L);
+                        mLocationSenderThread.start();
                         removeNotification();
                         stopSelf();
                         return START_NOT_STICKY;
@@ -226,6 +194,39 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         }
 
         if (!mIsRunning) {
+            if (!PermissionUtil.hasLocationPermissions(this)) {
+                stopForeground(true);
+                stopSelf();
+                return START_NOT_STICKY;
+            }
+
+            mLocationManager.addGpsStatusListener(this);
+
+            String time = SettingsConstants.KEY_PREF_TRACKS_MIN_TIME;
+            String distance = SettingsConstants.KEY_PREF_TRACKS_MIN_DISTANCE;
+            String minTimeStr = mSharedPreferences.getString(time, "2");
+            String minDistanceStr = mSharedPreferences.getString(distance, "10");
+            long minTime = Long.parseLong(minTimeStr) * 1000;
+            float minDistance = Float.parseFloat(minDistanceStr);
+
+            String provider = LocationManager.GPS_PROVIDER;
+            if (mLocationManager.getAllProviders().contains(provider)) {
+                mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
+
+                if (Constants.DEBUG_MODE)
+                    Log.d(Constants.TAG, "Tracker service request location updates for " + provider);
+            }
+
+            provider = LocationManager.NETWORK_PROVIDER;
+            if (mLocationManager.getAllProviders().contains(provider)) {
+                mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
+
+                if (Constants.DEBUG_MODE)
+                    Log.d(Constants.TAG, "Tracker service request location updates for " + provider);
+            }
+
+            NotificationHelper.showLocationInfo(this);
+
             // there are no tracks or last track correctly ended
             if (mSharedPreferencesTemp.getString(TRACK_URI, null) == null) {
                 startTrack();
@@ -235,6 +236,9 @@ public class TrackerService extends Service implements LocationListener, GpsStat
                 restoreData();
                 targetActivity = mSharedPreferencesTemp.getString(ConstantsUI.TARGET_CLASS, "");
             }
+
+            mLocationSenderThread = createLocationSenderThread(minTime);
+            mLocationSenderThread.start();
 
             initTargetIntent(targetActivity);
             addNotification();
@@ -401,9 +405,8 @@ public class TrackerService extends Service implements LocationListener, GpsStat
             mLocationManager.removeGpsStatusListener(this);
         }
 
-        if (mLocationSenderThread != null) {
+        if (mLocationSenderThread != null)
             mLocationSenderThread.interrupt();
-        }
 
         super.onDestroy();
     }
@@ -421,7 +424,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         if (!mIsRunning || !update)
             return;
 
-        if(mHasGPSFix && !location.getProvider().equals(LocationManager.GPS_PROVIDER))
+        if (mHasGPSFix && !location.getProvider().equals(LocationManager.GPS_PROVIDER))
             return;
 
         String fixType = location.hasAltitude() ? "3d" : "2d";
@@ -504,9 +507,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
 
 
     public static boolean isTrackerServiceRunning(Context context) {
-        ActivityManager manager =
-                (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(
                 Integer.MAX_VALUE)) {
             if (TrackerService.class.getName().equals(service.service.getClassName())) {
@@ -517,17 +518,13 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         return false;
     }
 
-    private Thread createLocationSenderThread() {
+    private Thread createLocationSenderThread(final Long delay) {
         return new Thread(new Runnable() {
             @Override
             public void run() {
-                String time = SettingsConstants.KEY_PREF_TRACKS_MIN_TIME;
-                String minTimeStr = mSharedPreferences.getString(time, "2");
-                long minTime = Long.parseLong(minTimeStr) * 1000;
-
                 while (!Thread.currentThread().isInterrupted()) {
                     try {
-                        Thread.sleep(minTime);
+                        Thread.sleep(delay);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
@@ -535,6 +532,11 @@ public class TrackerService extends Service implements LocationListener, GpsStat
                     try {
                         sync();
                     } catch (SQLiteException ignored) {
+                    }
+
+                    if (!mIsRunning) {
+                        removeNotification();
+                        stopSelf();
                     }
                 }
             }
@@ -580,7 +582,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
                             ids.add(points.getString(time));
                             counter++;
 
-                            if (counter >= 100) {
+                            if (counter >= 5) {
                                 post(payload.toString(), this, ids);
                                 payload = new JSONArray();
                                 ids.clear();
@@ -602,7 +604,10 @@ public class TrackerService extends Service implements LocationListener, GpsStat
 
     private void post(String payload, Context context, List<String> ids) throws IOException {
         String url = String.format("%s/%s/packet", URL, getUid(context));
-        NetworkUtil.post(url, payload, null, null, false);
+        HttpResponse response = NetworkUtil.post(url, payload, null, null, false);
+        if (!response.isOk())
+            return;
+
         ContentValues cv = new ContentValues();
         cv.put(TrackLayer.FIELD_SENT, 1);
         String where = TrackLayer.FIELD_TIMESTAMP + " in (" + MapUtil.makePlaceholders(ids.size()) + ")";
