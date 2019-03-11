@@ -5,7 +5,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2018 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2012-2019 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -349,4 +349,6 @@
     <string name="delete_confirm">Подтвердите удаление объекта.</string>
     <string name="no_activity_found">Не найдено подходящего приложения</string>
     <string name="fb_form">Форма</string>
+    <string name="trackpoints_stats">Всего точек: %1$d\nСинхронизировано: %2$d\Время последней точки: %3$s</string>
+    <string name="stats">Статистика</string>
 </resources>

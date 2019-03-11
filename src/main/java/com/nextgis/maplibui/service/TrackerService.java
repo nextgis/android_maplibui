@@ -177,8 +177,6 @@ public class TrackerService extends Service implements LocationListener, GpsStat
 
                         mLocationSenderThread = createLocationSenderThread(500L);
                         mLocationSenderThread.start();
-                        removeNotification();
-                        stopSelf();
                         return START_NOT_STICKY;
                     case ACTION_STOP:
                         removeNotification();
@@ -522,8 +520,10 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         return new Thread(new Runnable() {
             @Override
             public void run() {
+//                Log.d(Constants.TAG, "Entering sync thread");
                 while (!Thread.currentThread().isInterrupted()) {
                     try {
+//                        Log.d(Constants.TAG, "Sleep sync thread");
                         Thread.sleep(delay);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
@@ -544,6 +544,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
     }
 
     private void sync() throws SQLiteException {
+//        Log.d(Constants.TAG, "Syncing trackpoints");
         if (mSharedPreferences.getBoolean(SettingsConstants.KEY_PREF_TRACK_SEND, false)) {
             ContentResolver resolver = getContentResolver();
             String selection = TrackLayer.FIELD_SENT + " = 0";
@@ -582,7 +583,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
                             ids.add(points.getString(time));
                             counter++;
 
-                            if (counter >= 5) {
+                            if (counter >= 100) {
                                 post(payload.toString(), this, ids);
                                 payload = new JSONArray();
                                 ids.clear();
@@ -604,7 +605,9 @@ public class TrackerService extends Service implements LocationListener, GpsStat
 
     private void post(String payload, Context context, List<String> ids) throws IOException {
         String url = String.format("%s/%s/packet", URL, getUid(context));
+//        Log.d(Constants.TAG, "Post to " + url);
         HttpResponse response = NetworkUtil.post(url, payload, null, null, false);
+//        Log.d(Constants.TAG, "Response is " + response.getResponseCode());
         if (!response.isOk())
             return;
 

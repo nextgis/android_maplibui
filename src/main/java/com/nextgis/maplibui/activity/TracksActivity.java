@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016, 2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016, 2018-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -23,11 +23,15 @@
 
 package com.nextgis.maplibui.activity;
 
+import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,11 +41,14 @@ import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.map.TrackLayer;
-import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.TrackerService;
 import com.nextgis.maplibui.util.LayerUtil;
 import com.nextgis.maplibui.util.TrackView;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
@@ -51,9 +58,10 @@ import static com.nextgis.maplibui.service.TrackerService.isTrackerServiceRunnin
 public class TracksActivity extends NGActivity implements ActionMode.Callback {
     private final static String BUNDLE_ACTION_MODE = "IS_IN_ACTION_MODE";
 
-    private Uri mContentUriTracks;
+    private Uri mContentUriTracks, mContentUriTrackPoints;
     private TrackView mTracks;
     private ActionMode mActionMode;
+    private ProgressDialog mProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +92,9 @@ public class TracksActivity extends NGActivity implements ActionMode.Callback {
         });
 
         IGISApplication application = (IGISApplication) getApplication();
-        mContentUriTracks = Uri.parse("content://" + application.getAuthority() + "/" + TrackLayer.TABLE_TRACKS);
+        String authority = application.getAuthority();
+        mContentUriTracks = Uri.parse("content://" + authority + "/" + TrackLayer.TABLE_TRACKS);
+        mContentUriTrackPoints = Uri.parse("content://" + authority + "/" + TrackLayer.TABLE_TRACKPOINTS);
     }
 
     @Override
@@ -103,9 +113,68 @@ public class TracksActivity extends NGActivity implements ActionMode.Callback {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_tracks, menu);
+        return true;
+    }
+
+    private void showStats() {
+        mProgress = new ProgressDialog(this);
+        mProgress.setTitle(R.string.stats);
+        mProgress.setMessage(getString(R.string.preparing));
+        mProgress.setCanceledOnTouchOutside(false);
+        mProgress.show();
+        getStats();
+    }
+
+    private void getStats() {
+        ContentResolver resolver = getContentResolver();
+        String sort = TrackLayer.FIELD_TIMESTAMP + " ASC";
+        Cursor points = resolver.query(mContentUriTrackPoints, null, null, null, sort);
+        int total = 0, sent = 0;
+        DateFormat df = SimpleDateFormat.getDateTimeInstance();
+        String last = "-";
+        if (points != null) {
+            total = points.getCount();
+            if (points.moveToLast()) {
+                int id = points.getColumnIndex(TrackLayer.FIELD_TIMESTAMP);
+                long lastL = points.getLong(id);
+                last = df.format(new Date(lastL));
+            }
+            points.close();
+        }
+
+        String selection = TrackLayer.FIELD_SENT + " = 1";
+        points = resolver.query(mContentUriTrackPoints, null, selection, null, sort);
+        if (points != null) {
+            sent = points.getCount();
+            points.close();
+        }
+
+        if (mProgress != null)
+            mProgress.dismiss();
+
+        AlertDialog builder = new AlertDialog.Builder(this)
+                .setTitle(R.string.stats)
+                .setMessage(getString(R.string.trackpoints_stats, total, sent, last))
+                .setPositiveButton(R.string.ok, null).create();
+        builder.show();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int i = item.getItemId();
+        if (i == R.id.menu_info) {
+            showStats();
+            return true;
+        } else
+            return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
         MenuInflater inflater = actionMode.getMenuInflater();
-        inflater.inflate(R.menu.tracks, menu);
+        inflater.inflate(R.menu.action_tracks, menu);
         return true;
     }
 

@@ -351,4 +351,6 @@
     <string name="delete_confirm">Confirm object deletion.</string>
     <string name="no_activity_found">Suitable activity not found</string>
     <string name="fb_form">Form</string>
+    <string name="trackpoints_stats">Total points: %1$d\nSynced count: %2$d\nLast point time: %3$s</string>
+    <string name="stats">Stats</string>
 </resources>
