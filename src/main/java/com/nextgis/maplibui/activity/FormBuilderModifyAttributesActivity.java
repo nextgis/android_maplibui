@@ -45,6 +45,7 @@ import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometry;
+import com.nextgis.maplib.datasource.GeoMultiPoint;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.VectorLayer;
@@ -427,8 +428,12 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
 
             case JSON_DISTANCE_VALUE:
                 control = (Distance) View.inflate(context, R.layout.formtemplate_distance, null);
-                if (geometry instanceof GeoPoint) {
-                    GeoPoint point = (GeoPoint) geometry.copy();
+                if (geometry instanceof GeoPoint || geometry instanceof GeoMultiPoint) {
+                    GeoPoint point;
+                    if (geometry instanceof GeoMultiPoint)
+                        point = (GeoPoint) ((GeoMultiPoint) geometry).get(0).copy();
+                    else
+                        point = (GeoPoint) geometry.copy();
                     point.setCRS(GeoConstants.CRS_WEB_MERCATOR);
                     point.project(GeoConstants.CRS_WGS84);
                     Location location = new Location(LocationManager.GPS_PROVIDER);

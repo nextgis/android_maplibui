@@ -35,7 +35,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IFormControl;
@@ -100,9 +102,10 @@ public class Distance extends LinearLayout implements IFormControl {
 
     @SuppressLint("MissingPermission")
     private void calculate(boolean toast) {
-        LocationManager manager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
-        if (manager != null) {
-            Location current = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (getContext() != null) {
+            IGISApplication app = (IGISApplication) getContext().getApplicationContext();
+            GpsEventSource gpsEventSource = app.getGpsEventSource();
+            Location current = gpsEventSource.getLastKnownLocation();
             if (current != null && mLocation != null)
                 mValue = current.distanceTo(mLocation);
             else if (toast)
