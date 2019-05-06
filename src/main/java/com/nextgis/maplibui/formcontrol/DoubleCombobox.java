@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016, 2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -255,7 +255,8 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
         String subValueAlias = (String) mSubCombobox.getSelectedItem();
 
         String value = mAliasValueMap.get(valueAlias);
-        String subValue = mSubAliasValueMaps.get(valueAlias).get(subValueAlias);
+        Map<String, String> val = mSubAliasValueMaps.get(valueAlias);
+        String subValue = val != null ? val.get(subValueAlias) : null;
 
         DoubleComboboxValue retValue = new DoubleComboboxValue();
 

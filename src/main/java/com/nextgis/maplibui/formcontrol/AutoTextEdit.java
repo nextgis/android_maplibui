@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -212,7 +212,7 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
     @Override
     public Object getValue()
     {
-        if (!mAllowSaveNewValue && !mAliasValueMap.containsKey(getText().toString())) {
+        if (isNotFromList()) {
             Toast.makeText(getContext(), R.string.value_not_from_list, Toast.LENGTH_SHORT).show();
             return null;
         }
@@ -222,6 +222,10 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
         return value == null ? text : value;
     }
 
+
+    public boolean isNotFromList() {
+        return !mAllowSaveNewValue && !mAliasValueMap.containsKey(getText().toString());
+    }
 
     @Override
     public void saveState(Bundle outState) {

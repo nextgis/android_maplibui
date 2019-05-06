@@ -79,6 +79,7 @@ import com.nextgis.maplibui.control.DateTime;
 import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.control.TextEdit;
 import com.nextgis.maplibui.control.TextLabel;
+import com.nextgis.maplibui.formcontrol.AutoTextEdit;
 import com.nextgis.maplibui.formcontrol.Sign;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
@@ -481,8 +482,8 @@ public class ModifyAttributesActivity
                     .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            saveFeature();
-                            finish();
+                            if (saveFeature())
+                                finish();
                         }
                     })
                     .setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
@@ -511,8 +512,8 @@ public class ModifyAttributesActivity
             app.showSettings(SettingsConstantsUI.ACTION_PREFS_GENERAL);
             return true;
         } else if (id == R.id.menu_apply) {
-            saveFeature();
-            finish();
+            if (saveFeature())
+                finish();
             return true;
         }
 
@@ -587,6 +588,12 @@ public class ModifyAttributesActivity
 
         for (Field field : fields) {
             putFieldValue(values, field);
+            IFormControl control = (IFormControl) mFields.get(field.getName());
+            if (control instanceof AutoTextEdit) {
+                if (((AutoTextEdit) control).isNotFromList()) {
+                    return false;
+                }
+            }
         }
 
         putGeometry(values);
