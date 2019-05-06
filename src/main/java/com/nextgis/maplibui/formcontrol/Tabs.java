@@ -171,6 +171,7 @@ public class Tabs extends LinearLayout implements IFormControl
         FrameLayout container = new FrameLayout(getContext());
         container.setId(R.id.root_view);
         addView(container);
+        tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
         if (savedState != null)
             mDefaultTab = savedState.getInt(ControlHelper.getSavedStateKey(JSON_TABS_KEY), mDefaultTab);
