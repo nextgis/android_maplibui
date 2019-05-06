@@ -32,6 +32,7 @@ import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometry;
@@ -141,8 +142,13 @@ public class Tabs extends LinearLayout implements IFormControl
                 IFormControl control = getControl(getContext(), element, mLayer, mFeatureId, mGeometry, mIsViewOnly);
                 addToLayout(control, element, fields, savedState, featureCursor, layout);
             }
+
+            ScrollView scroll = new ScrollView(getContext());
+            scroll.addView(layout, new ScrollView.LayoutParams(ScrollView.LayoutParams.MATCH_PARENT, ScrollView.LayoutParams.WRAP_CONTENT));
+            LinearLayout container = new LinearLayout(getContext());
+            container.addView(scroll, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
             TabFragment fragment = new TabFragment();
-            fragment.setLayout(layout);
+            fragment.setLayout(container);
             mTabs.add(fragment);
             tabLayout.addTab(tab);
         }
