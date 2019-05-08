@@ -219,7 +219,10 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
 
     @Override
     public void onResume() {
-        mSensorManager.registerListener(sensorListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_NORMAL);
+        if (mSensorManager != null) {
+            Sensor orientation = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+            mSensorManager.registerListener(sensorListener, orientation, SensorManager.SENSOR_DELAY_NORMAL);
+        }
 
         setInterface();
         super.onResume();
