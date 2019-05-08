@@ -588,7 +588,7 @@ public class ModifyAttributesActivity
 
         for (Field field : fields) {
             putFieldValue(values, field);
-            IFormControl control = (IFormControl) mFields.get(field.getName());
+            IControl control = mFields.get(field.getName());
             if (control instanceof AutoTextEdit) {
                 if (((AutoTextEdit) control).isNotFromList()) {
                     return false;

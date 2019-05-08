@@ -28,11 +28,10 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometry;
@@ -143,12 +142,9 @@ public class Tabs extends LinearLayout implements IFormControl
                 addToLayout(control, element, fields, savedState, featureCursor, layout);
             }
 
-            ScrollView scroll = new ScrollView(getContext());
-            scroll.addView(layout, new ScrollView.LayoutParams(ScrollView.LayoutParams.MATCH_PARENT, ScrollView.LayoutParams.WRAP_CONTENT));
-            LinearLayout container = new LinearLayout(getContext());
-            container.addView(scroll, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
             TabFragment fragment = new TabFragment();
-            fragment.setLayout(container);
+            layout.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+            fragment.setLayout(layout);
             mTabs.add(fragment);
             tabLayout.addTab(tab);
         }
@@ -168,10 +164,6 @@ public class Tabs extends LinearLayout implements IFormControl
 
             }
         });
-        FrameLayout container = new FrameLayout(getContext());
-        container.setId(R.id.root_view);
-        addView(container);
-        tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
 
         if (savedState != null)
             mDefaultTab = savedState.getInt(ControlHelper.getSavedStateKey(JSON_TABS_KEY), mDefaultTab);
@@ -185,8 +177,8 @@ public class Tabs extends LinearLayout implements IFormControl
 
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = mFragmentManager;
-        android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.root_view, fragment);
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.tab, fragment);
         transaction.commit();
     }
 
