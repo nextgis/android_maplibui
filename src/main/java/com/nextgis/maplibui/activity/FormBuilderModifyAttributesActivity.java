@@ -43,6 +43,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoMultiPoint;
@@ -304,19 +305,32 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
         dialog.setCanceledOnTouchOutside(false);
     }
 
+    private void setViewOnly(String author) {
+        String fName = mPreferences.getString(PREF_FIRST_NAME, "");
+        String lName = mPreferences.getString(PREF_LAST_NAME, "");
+        String uName = mPreferences.getString(PREF_USERNAME, "");
+        String name = TextEdit.formUserName(fName, lName, uName);
+        mIsViewOnly = mIsViewOnly || !author.equals(name);
+    }
+
     @Override
     protected Cursor getFeatureCursor() {
         Cursor featureCursor = super.getFeatureCursor();
         if (featureCursor != null) {
+            Feature feature = mLayer.getFeature(mFeatureId);
+            List<Field> fields = feature.getFields();
+            for (Field field : fields) {
+                if (field.getAlias().toLowerCase().equals("author")) {
+                    String author = feature.getFieldValueAsString(field.getName());
+                    setViewOnly(author);
+                    return featureCursor;
+                }
+            }
             int id = featureCursor.getColumnIndex("author");
             if (id >= 0) {
                 try {
                     String author = featureCursor.getString(id);
-                    String fName = mPreferences.getString(PREF_FIRST_NAME, "");
-                    String lName = mPreferences.getString(PREF_LAST_NAME, "");
-                    String uName = mPreferences.getString(PREF_USERNAME, "");
-                    String name = TextEdit.formUserName(fName, lName, uName);
-                    mIsViewOnly = mIsViewOnly || !author.equals(name);
+                    setViewOnly(author);
                 } catch (Exception ignored) {}
             }
         }
