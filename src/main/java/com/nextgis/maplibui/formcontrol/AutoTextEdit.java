@@ -56,6 +56,7 @@ import java.util.Map;
 
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ALLOW_NEW_VALUES;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_DEFAULT_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_NGW_ID_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUES_KEY;
@@ -101,7 +102,7 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
             setTextColor(Color.GRAY);
         }
 
-        String lastValue = null;
+        String lastValue = null, def = null;
         if (ControlHelper.hasKey(savedState, mFieldName))
             lastValue = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
         else if (null != featureCursor) {
@@ -143,10 +144,12 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
                 mAliasValueMap.put(alias, value);
                 if (value.equals(lastValue))
                     lastValue = alias;
+                if (keyValue.optBoolean(JSON_DEFAULT_KEY))
+                    def = alias;
             }
         }
 
-        setText(lastValue);
+        setText(lastValue != null ? lastValue : def);
         mAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, new ArrayList<>(mAliasValueMap.keySet()));
         setAdapter(mAdapter);
 
