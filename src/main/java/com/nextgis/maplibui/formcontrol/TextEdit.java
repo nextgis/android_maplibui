@@ -162,11 +162,11 @@ public class TextEdit extends AppCompatEditText
             switch (fieldType) {
                 default:
                 case GeoConstants.FTInteger:
-                    setInputType(InputType.TYPE_CLASS_NUMBER);
+                    setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED | InputType.TYPE_CLASS_NUMBER);
                     break;
 
                 case GeoConstants.FTReal:
-                    setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                    setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED | InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
                     break;
             }
         }
