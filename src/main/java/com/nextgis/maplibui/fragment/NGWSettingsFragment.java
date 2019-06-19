@@ -331,8 +331,7 @@ public class NGWSettingsFragment
                 layerSync.setChecked(0 == (ngwLayer.getSyncType() & Constants.SYNC_NONE));
                 //layerSync.setKey("" + ngwLayer.getId());
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
-                        && ngwLayer instanceof ILayerUI) {
+                if (ngwLayer instanceof ILayerUI) {
                     ILayerUI layerUI = (ILayerUI) ngwLayer;
                     layerSync.setIcon(layerUI.getIcon(mStyledContext));
                 }
