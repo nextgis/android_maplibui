@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -354,7 +354,7 @@ public class NGWLoginFragment
         public void afterTextChanged(Editable s) {
             mUrlText = mURL.getText().toString().trim();
 
-            if (!mNGW)
+            if (!mNGW && !mUrlText.endsWith(ENDING))
                 mUrlText += ENDING;
         }
 
