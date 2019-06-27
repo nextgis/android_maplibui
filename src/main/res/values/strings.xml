@@ -330,7 +330,7 @@
     <string name="sign_in_tip">to get more features, better synchronization and updates</string>
     <string name="select_row">Select row</string>
     <string name="coming_soon">Coming soon</string>
-    <string name="get_pro">This feature is available only under subscription. Please sign in or sign up here (<a href="https://nextgis.com/pricing">https://nextgis.com/pricing</a>)</string>
+    <string name="get_pro">This feature is available only under subscription. Please sign in or sign up here (<a href="https://nextgis.com/pricing-base">https://nextgis.com/pricing-base</a>)</string>
     <string name="pro_user_only">Pro feature</string>
     <string name="small">Small</string>
     <string name="medium">Medium</string>
