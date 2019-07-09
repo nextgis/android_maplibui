@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2016-2017, 2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -88,10 +88,11 @@ public class Counter extends TextEdit
         } else {    // new feature
             String last = preferences.getString(mFieldName, null);
             if (last == null)
-                last = attributes.getInt(JSON_INIT_VALUE_KEY) - 1 + "";
-
-            int inc = attributes.getInt(INCREMENT);
-            mIncremented = Long.valueOf(last) + inc;
+                mIncremented = attributes.getInt(JSON_INIT_VALUE_KEY);
+            else {
+                int inc = attributes.getInt(INCREMENT);
+                mIncremented = Long.valueOf(last) + inc;
+            }
             value = getNewValue(attributes);
         }
 
