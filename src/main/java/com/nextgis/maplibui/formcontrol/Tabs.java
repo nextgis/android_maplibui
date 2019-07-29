@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import static com.nextgis.maplib.util.Constants.JSON_TYPE_KEY;
 import static com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity.appendData;
@@ -78,6 +79,7 @@ public class Tabs extends LinearLayout implements IFormControl
     protected SharedPreferences mSharedPreferences;
     protected SharedPreferences mPreferences;
     protected FragmentManager mFragmentManager;
+    protected int mTag;
 
     public Tabs(Context context) {
         super(context);
@@ -99,6 +101,8 @@ public class Tabs extends LinearLayout implements IFormControl
         mSharedPreferences = sharedPreferences;
         mPreferences = preferences;
         mFragmentManager = supportFragmentManager;
+        mTag = new Random().nextInt();
+        findViewById(R.id.tab).setId(mTag);
     }
 
     @Override
@@ -139,6 +143,9 @@ public class Tabs extends LinearLayout implements IFormControl
                     element.put(JSON_TYPE_KEY, type + "_lon");
                 }
                 IFormControl control = getControl(getContext(), element, mLayer, mFeatureId, mGeometry, mIsViewOnly);
+                if (control instanceof Tabs) {
+                    ((Tabs) control).init(mLayer, mFeatureId, mGeometry, mTable, mRow, mSharedPreferences, mPreferences, mFragmentManager, mIsViewOnly);
+                }
                 addToLayout(control, element, fields, savedState, featureCursor, layout);
             }
 
@@ -175,11 +182,16 @@ public class Tabs extends LinearLayout implements IFormControl
             replaceFragment(mTabs.get(0));
     }
 
-    private void replaceFragment(Fragment fragment) {
-        FragmentManager fragmentManager = mFragmentManager;
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.tab, fragment);
-        transaction.commit();
+    private void replaceFragment(final Fragment fragment) {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                FragmentManager fragmentManager = mFragmentManager;
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(mTag, fragment);
+                transaction.commit();
+            }
+        });
     }
 
     protected void addToLayout(IFormControl control, JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, LinearLayout layout)
