@@ -1162,9 +1162,19 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         if (null != mFeature)
             previousFeatureId = mFeature.getId();
 
+        GeoEnvelope exactEnv = new GeoEnvelope(x, x, y, y);
+        exactEnv = mMap.screenToMap(exactEnv);
+        if (null == exactEnv)
+            return false;
+        GeoPoint point = new GeoPoint(exactEnv.getMaxX(), exactEnv.getMinY());
+        point.setCRS(GeoConstants.CRS_WEB_MERCATOR);
+
         for (int i = 0; i < items.size(); i++) {    // FIXME hack for bad RTree cache
             long featureId = items.get(i);
             GeoGeometry geometry = mLayer.getGeometryForId(featureId);
+            if (notContains(geometry, point))
+                continue;
+
             if (geometry != null && previousFeatureId != featureId) {
                 mFeature = new Feature(featureId, mLayer.getFields());
                 mFeature.setGeometry(mLayer.getGeometryForId(featureId));
@@ -1185,6 +1195,30 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         else
             mLayer.swapFeaturesVisibility(previousFeatureId, mFeature.getId());
 
+        return false;
+    }
+
+
+    public boolean notContains(GeoGeometry geometry, GeoPoint point) {
+        if (geometry instanceof GeoPolygon) {
+            GeoPolygon polygon = (GeoPolygon) geometry;
+            if (!polygon.contains(point))
+                return true;
+        }
+
+        if (geometry instanceof GeoMultiPolygon) {
+            GeoMultiPolygon multiPolygon = (GeoMultiPolygon) geometry;
+            boolean contains = false;
+            for (int j = 0; j < multiPolygon.size(); j++) {
+                GeoPolygon geom = (GeoPolygon) multiPolygon.getGeometry(j);
+                if (geom.contains(point)) {
+                    contains = true;
+                    break;
+                }
+            }
+
+            return !contains;
+        }
         return false;
     }
 
