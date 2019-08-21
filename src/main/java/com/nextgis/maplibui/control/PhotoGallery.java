@@ -56,7 +56,7 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
     private VectorLayer mLayer;
     private Map<String, Integer> mAttaches = new HashMap<>();
     private PhotoAdapter mAdapter;
-    private List<Integer> mDeletedImages = new ArrayList<>();;
+    private List<Integer> mDeletedImages = new ArrayList<>();
 
     public PhotoGallery(Context context) {
         super(context);
@@ -90,6 +90,20 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
         if (mLayer != null && mFeatureId != NOT_FOUND && mAdapter.getItemCount() < 2) { // feature exists
             IGISApplication app = (IGISApplication) ((Activity) getContext()).getApplication();
             getAttaches(app, mLayer, mFeatureId, mAttaches, true);
+        }
+
+        if (savedState != null) {
+            if (savedState.getBoolean("<tabs&", false)) {
+                final Bundle bundle = new Bundle();
+                bundle.putAll(savedState);
+                savedState.remove("<tabs&");
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        onRestoreInstanceState(bundle);
+                    }
+                });
+            }
         }
     }
 
@@ -142,6 +156,7 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
+        ArrayList<String> list = null;
         if (state instanceof Bundle) {
             Bundle bundle = (Bundle) state;
 
@@ -151,9 +166,23 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
                 if (deletedImages != null)
                     mDeletedImages.addAll(deletedImages);
             }
+
+            if (mAdapter.getItemCount() >= 2) {
+                list = bundle.getStringArrayList("attached_images");
+                if (list == null)
+                    list = new ArrayList<>();
+                bundle.putStringArrayList("attached_images", new ArrayList<String>());
+            }
         }
 
         super.onRestoreInstanceState(state);
+
+        if (list != null) {
+            if (state instanceof Bundle) {
+                Bundle bundle = (Bundle) state;
+                bundle.putStringArrayList("attached_images", list);
+            }
+        }
     }
 
     @Override
@@ -167,7 +196,7 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
 
     @Override
     public String getFieldName() {
-        return null;
+        return "PhotoGallery_" + System.currentTimeMillis();
     }
 
     @Override
@@ -182,7 +211,10 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
 
     @Override
     public void saveState(Bundle outState) {
-
+        Bundle bundle = (Bundle) super.onSaveInstanceState();
+        bundle.putIntegerArrayList(BUNDLE_DELETED_IMAGES, new ArrayList<>(getDeletedAttaches()));
+        bundle.remove("instanceState");
+        outState.putAll(bundle);
     }
 
     public List<String> getNewAttaches() {

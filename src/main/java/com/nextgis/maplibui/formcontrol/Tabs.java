@@ -40,6 +40,7 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IControl;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.control.GreyLine;
+import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.util.ControlHelper;
 
 import org.json.JSONArray;
@@ -199,6 +200,10 @@ public class Tabs extends LinearLayout implements IFormControl
         if (null != control) {
             appendData(mLayer, mPreferences, mTable, mRow, control, element);
 
+            if (control instanceof PhotoGallery) {
+                if (savedState != null)
+                    savedState.putBoolean("<tabs&", true);
+            }
             control.init(element, fields, savedState, featureCursor, mSharedPreferences);
             control.addToLayout(layout);
             if (mIsViewOnly)
