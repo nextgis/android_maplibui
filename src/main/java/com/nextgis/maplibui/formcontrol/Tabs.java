@@ -29,6 +29,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -102,7 +103,7 @@ public class Tabs extends LinearLayout implements IFormControl
         mSharedPreferences = sharedPreferences;
         mPreferences = preferences;
         mFragmentManager = supportFragmentManager;
-        mTag = new Random().nextInt();
+        mTag = ViewCompat.generateViewId();
         findViewById(R.id.tab).setId(mTag);
     }
 

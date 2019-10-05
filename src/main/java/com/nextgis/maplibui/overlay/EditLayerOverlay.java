@@ -1248,7 +1248,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
 
     @Override
     public void panMoveTo(MotionEvent e) {
-        if (mMode == MODE_CHANGE) {
+        if (mMode == MODE_CHANGE && mTempPointOffset != null) {
             mSelectedItem.setSelectedPointCoordinates(
                     e.getX() + mTempPointOffset.x, e.getY() + mTempPointOffset.y);
         }

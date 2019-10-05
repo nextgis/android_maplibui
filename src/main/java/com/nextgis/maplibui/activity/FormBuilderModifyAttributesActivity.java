@@ -543,9 +543,11 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
         if (layer instanceof NGWVectorLayer)
             element.put(SyncStateContract.Columns.ACCOUNT_NAME, ((NGWVectorLayer) layer).getAccountName());
 
-        element.put(PREF_FIRST_NAME, preferences.getString(PREF_FIRST_NAME, ""));
-        element.put(PREF_LAST_NAME, preferences.getString(PREF_LAST_NAME, ""));
-        element.put(PREF_USERNAME, preferences.getString(PREF_USERNAME, ""));
+        if (preferences != null) {
+            element.put(PREF_FIRST_NAME, preferences.getString(PREF_FIRST_NAME, ""));
+            element.put(PREF_LAST_NAME, preferences.getString(PREF_LAST_NAME, ""));
+            element.put(PREF_USERNAME, preferences.getString(PREF_USERNAME, ""));
+        }
 
         if (control instanceof Counter && table != null && row != -1) {
             JSONObject attrs = element.getJSONObject(JSON_ATTRIBUTES_KEY);
