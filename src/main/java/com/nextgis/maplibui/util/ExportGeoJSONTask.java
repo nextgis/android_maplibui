@@ -21,6 +21,7 @@
 
 package com.nextgis.maplibui.util;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -42,6 +43,7 @@ import com.nextgis.maplib.util.AttachItem;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoJSONUtil;
 import com.nextgis.maplib.util.MapUtil;
+import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplibui.R;
 
 import org.json.JSONArray;
@@ -70,10 +72,11 @@ import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE;
 import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FEATURES;
 import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_Feature;
 import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FeatureCollection;
+import static com.nextgis.maplib.util.LayerUtil.normalizeLayerName;
 import static com.nextgis.maplibui.util.LayerUtil.AUTHORITY;
 import static com.nextgis.maplibui.util.LayerUtil.notFound;
 
-public class ExportGeoJSONTask extends AsyncTask<Void, Void, File> {
+public class ExportGeoJSONTask extends AsyncTask<Void, Void, Object> {
     private Activity mActivity;
     private VectorLayer mLayer;
     private ProgressDialog mProgress;
@@ -105,10 +108,16 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Void, File> {
     }
 
     @Override
-    protected File doInBackground(Void... voids) {
+    protected Object doInBackground(Void... voids) {
         try {
+            if (!PermissionUtil.hasPermission(mLayer.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE))
+                return R.string.no_permission;
+
             File temp = MapUtil.prepareTempDir(mLayer.getContext(), "shared_layers");
-            String fileName = com.nextgis.maplib.util.LayerUtil.normalizeLayerName(mLayer.getName()) + ".zip";
+            String fileName = normalizeLayerName(mLayer.getName()) + ".zip";
+            if (temp == null)
+                return R.string.error_file_create;
+
             temp = new File(temp, fileName);
             FileOutputStream fos = new FileOutputStream(temp);
             ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(fos));
@@ -118,7 +127,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Void, File> {
             Cursor featuresCursor = mLayer.query(null, null, null, null, null);
 
             if (mIsCanceled)
-                return null;
+                return R.string.canceled;
 
             JSONObject crs = new JSONObject();
             crs.put(GEOJSON_TYPE, GEOJSON_NAME);
@@ -135,7 +144,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Void, File> {
             if (featuresCursor != null && featuresCursor.moveToFirst()) {
                 do {
                     if (mIsCanceled)
-                        return null;
+                        return R.string.canceled;
 
                     JSONObject featureJSON = new JSONObject();
                     featureJSON.put(GEOJSON_TYPE, GEOJSON_TYPE_Feature);
@@ -185,7 +194,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Void, File> {
                 featuresCursor.close();
             } else {
                 publishProgress();
-                return null;
+                return R.string.error_db_query;
             }
 
             obj.put(GEOJSON_TYPE_FEATURES, geoJSONFeatures);
@@ -197,11 +206,13 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Void, File> {
             zos.close();
 
             return temp;
-        } catch (JSONException | IOException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
+            return R.string.error_export_geojson;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return R.string.error_file_create;
         }
-
-        return null;
     }
 
     @Override
@@ -211,18 +222,28 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Void, File> {
     }
 
     @Override
-    protected void onPostExecute(File path) {
-        super.onPostExecute(path);
+    protected void onPostExecute(Object result) {
+        super.onPostExecute(result);
 
         ControlHelper.unlockScreenOrientation(mActivity);
         if (mProgress != null)
             mProgress.dismiss();
 
-        if (mIsCanceled && path == null) {
+        if (mIsCanceled) {
             Toast.makeText(mActivity, R.string.canceled, Toast.LENGTH_SHORT).show();
             return;
         }
 
+        if (result instanceof File) {
+            share((File) result);
+        } else {
+            if (result == null)
+                result = R.string.error_file_create;
+            Toast.makeText(mActivity, (int) result, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void share(File path) {
         if (path == null || !path.exists()) {
             Toast.makeText(mActivity, R.string.error_create_feature, Toast.LENGTH_SHORT).show();
             return;
@@ -247,7 +268,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Void, File> {
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         }
-//        shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, urisArray); // multiple data
+        //        shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, urisArray); // multiple data
         try {
             mActivity.startActivity(shareIntent);
         } catch (ActivityNotFoundException e) {

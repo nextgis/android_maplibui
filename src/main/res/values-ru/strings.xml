@@ -351,4 +351,6 @@
     <string name="fb_form">Форма</string>
     <string name="trackpoints_stats">Всего точек: %1$d\nСинхронизировано: %2$d\Время последней точки: %3$s</string>
     <string name="stats">Статистика</string>
+    <string name="no_permission">Нет разрешений на запись</string>
+    <string name="error_file_create">Ошибка создания файла</string>
 </resources>

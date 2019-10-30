@@ -349,4 +349,6 @@
     <string name="fb_form">Form</string>
     <string name="trackpoints_stats">Total points: %1$d\nSynced count: %2$d\nLast point time: %3$s</string>
     <string name="stats">Stats</string>
+    <string name="no_permission">Write permission is not granted</string>
+    <string name="error_file_create">Error creating file</string>
 </resources>
