@@ -119,7 +119,8 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Void, Object> {
                 return R.string.error_file_create;
 
             temp = new File(temp, fileName);
-            FileOutputStream fos = new FileOutputStream(temp);
+            temp.createNewFile();
+            FileOutputStream fos = new FileOutputStream(temp, false);
             ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(fos));
 
             JSONObject obj = new JSONObject();
@@ -204,6 +205,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Void, Object> {
             zos.write(buffer);
             zos.closeEntry();
             zos.close();
+            fos.close();
 
             return temp;
         } catch (JSONException e) {

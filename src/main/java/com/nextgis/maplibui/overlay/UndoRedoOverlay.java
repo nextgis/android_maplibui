@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2016-2017, 2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -32,7 +32,6 @@ import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoGeometryFactory;
 import com.nextgis.maplib.map.MapDrawable;
-import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.Overlay;
 import com.nextgis.maplibui.mapui.MapViewOverlays;
@@ -96,7 +95,7 @@ public class UndoRedoOverlay extends Overlay {
         for (int i = 0; i < bundle.getInt(BUNDLE_KEY_HISTORY_SIZE, mHistory.size()); i++)
             try {
                 mHistory.add(GeoGeometryFactory.fromBlob(bundle.getByteArray(BUNDLE_KEY_HISTORY + i)));
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 

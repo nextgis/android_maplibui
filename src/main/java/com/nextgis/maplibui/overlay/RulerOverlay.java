@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2016-2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -220,7 +220,7 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
         if (bundle.containsKey(BUNDLE_GEOMETRY))
             try {
                 mRulerString = (GeoLineString) GeoGeometryFactory.fromBlob(bundle.getByteArray(BUNDLE_GEOMETRY));
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 
