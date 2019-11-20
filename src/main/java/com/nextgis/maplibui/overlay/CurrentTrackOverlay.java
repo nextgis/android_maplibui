@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016, 2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -164,13 +164,23 @@ public class CurrentTrackOverlay
         String id = mCursor.getString(0);
         String[] proj = new String[] {TrackLayer.FIELD_LON, TrackLayer.FIELD_LAT};
 
-        Cursor track = mContext.getContentResolver().query(
-                Uri.withAppendedPath(mContentUriTracks, id), proj, null, null, null);
+        try {
+            Cursor track = mContext.getContentResolver().query(Uri.withAppendedPath(mContentUriTracks, id), proj, null, null, null);
 
-        if (track == null) {
-            return;
+            if (track == null) {
+                return;
+            }
+
+            drawTrack(track, mapDrawable, canvas);
+
+            track.close();
+        } catch (Exception e) {
+
         }
+    }
 
+
+    private void drawTrack(Cursor track, MapDrawable mapDrawable, Canvas canvas) {
         if (track.moveToFirst()) {
             float x0 = track.getFloat(track.getColumnIndex(TrackLayer.FIELD_LON)),
                     y0 = track.getFloat(track.getColumnIndex(TrackLayer.FIELD_LAT)), x1, y1;
@@ -200,8 +210,6 @@ public class CurrentTrackOverlay
 
             mTrackpoints.add(new GeoPoint(x0, y0));
         }
-
-        track.close();
     }
 
 

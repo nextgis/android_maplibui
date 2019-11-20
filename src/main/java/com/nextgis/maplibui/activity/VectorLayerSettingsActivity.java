@@ -380,8 +380,12 @@ public class VectorLayerSettingsActivity
         @Override
         public void onPause() {
             super.onPause();
-            if (getActivity() != null)
-                getActivity().unregisterReceiver(mRebuildCacheReceiver);
+            try {
+                if (getActivity() != null && mRebuildCacheReceiver != null)
+                    getActivity().unregisterReceiver(mRebuildCacheReceiver);
+            } catch (IllegalArgumentException ignored) {
+
+            }
         }
 
         public void setActivity(VectorLayerSettingsActivity activity) {
