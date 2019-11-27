@@ -128,6 +128,16 @@ public class SelectZoomLevelsDialog extends DialogFragment {
                 mCountTask = new CountTilesTask(map, leftPinIndex, rightPinIndex);
                 mCountTask.execute();
             }
+
+            @Override
+            public void onTouchStarted(RangeBar rangeBar) {
+
+            }
+
+            @Override
+            public void onTouchEnded(RangeBar rangeBar) {
+
+            }
         });
         rangebar.setRangePinsByIndices(left, right);
 

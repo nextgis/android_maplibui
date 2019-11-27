@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2016-2017, 2019 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -62,9 +62,11 @@ public class LayerGeneralSettingsFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (getView() != null)
-            imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+        if (getActivity() != null) {
+            final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (getView() != null)
+                imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+        }
     }
 
     public Fragment setRoot(ILayer layer, LayerSettingsActivity activity) {
@@ -152,10 +154,20 @@ public class LayerGeneralSettingsFragment extends Fragment {
                 ControlHelper.setZoomText(getActivity(), leftIndexValue, R.string.min, leftPinIndex);
                 ControlHelper.setZoomText(getActivity(), rightIndexValue, R.string.max, rightPinIndex);
             }
+
+            @Override
+            public void onTouchStarted(RangeBar rangeBar) {
+
+            }
+
+            @Override
+            public void onTouchEnded(RangeBar rangeBar) {
+
+            }
         });
         mRangeBar.setRangePinsByIndices(nMinZoom, nMaxZoom);
 
-        if (mLayer instanceof VectorLayer) {
+        if (mLayer instanceof VectorLayer && getActivity() != null) {
             final VectorLayer vectorLayer = (VectorLayer) mLayer;
             Button deleteFeatures = v.findViewById(R.id.delete_features);
             deleteFeatures.setVisibility(View.VISIBLE);
