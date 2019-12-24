@@ -492,15 +492,23 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
     }
 
     protected static Double getCoordinate(GeoGeometry geometry, boolean latitude) {
-        Double x, y;
-        x = y = null;
+        double x, y;
+        x = y = Double.NaN;
+        GeoPoint point = null;
         if (geometry instanceof GeoPoint) {
-            GeoPoint point = (GeoPoint) geometry.copy();
+            point = (GeoPoint) geometry.copy();
+        }
+        if (geometry instanceof GeoMultiPoint) {
+            point = ((GeoMultiPoint) geometry.copy()).get(0);
+        }
+
+        if (point != null) {
             point.setCRS(GeoConstants.CRS_WEB_MERCATOR);
             point.project(GeoConstants.CRS_WGS84);
             y = point.getY();
             x = point.getX();
         }
+
         return latitude ? y : x;
     }
 
