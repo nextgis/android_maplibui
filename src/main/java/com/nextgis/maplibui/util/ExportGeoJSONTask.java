@@ -76,10 +76,10 @@ import static com.nextgis.maplib.util.LayerUtil.normalizeLayerName;
 import static com.nextgis.maplibui.util.LayerUtil.AUTHORITY;
 import static com.nextgis.maplibui.util.LayerUtil.notFound;
 
-public class ExportGeoJSONTask extends AsyncTask<Void, Void, Object> {
+public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
     Activity mActivity;
     private VectorLayer mLayer;
-    ProgressDialog mProgress;
+    private ProgressDialog mProgress;
     boolean mIsCanceled;
     boolean mProceedAttaches;
     private boolean mResultOnly;
@@ -222,7 +222,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Void, Object> {
     }
 
     @Override
-    protected void onProgressUpdate(Void... values) {
+    protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
         Toast.makeText(mActivity, R.string.no_features, Toast.LENGTH_SHORT).show();
     }
@@ -251,7 +251,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Void, Object> {
         }
     }
 
-    void share(File path) {
+    private void share(File path) {
         if (path == null || !path.exists()) {
             Toast.makeText(mActivity, R.string.error_create_feature, Toast.LENGTH_SHORT).show();
             return;

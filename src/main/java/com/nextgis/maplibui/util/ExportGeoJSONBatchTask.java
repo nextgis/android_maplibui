@@ -97,10 +97,10 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
                         } else {
                             if (result == null)
                                 result = R.string.error_file_create;
-                            Toast.makeText(mActivity, (int) result, Toast.LENGTH_SHORT).show();
+                            publishProgress((int) result);
                         }
                     } catch (ExecutionException | InterruptedException ex) {
-                        Toast.makeText(mActivity, R.string.error_file_create, Toast.LENGTH_SHORT).show();
+                        publishProgress(R.string.sync_error_io);
                     }
                 }
 
@@ -115,4 +115,11 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
         }
         return R.string.error_file_create;
     }
+
+    @Override
+    protected void onProgressUpdate(Integer... values) {
+        super.onProgressUpdate(values);
+        Toast.makeText(mActivity, R.string.error_file_create, Toast.LENGTH_SHORT).show();
+    }
+
 }
