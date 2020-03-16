@@ -119,7 +119,7 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
     @Override
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
-        Toast.makeText(mActivity, R.string.error_file_create, Toast.LENGTH_SHORT).show();
+        Toast.makeText(mActivity, values[0], Toast.LENGTH_SHORT).show();
     }
 
 }

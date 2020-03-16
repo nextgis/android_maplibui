@@ -199,7 +199,6 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
                 featuresCursor.close();
             } else {
                 publishProgress();
-                return R.string.error_db_query;
             }
 
             obj.put(GEOJSON_TYPE_FEATURES, geoJSONFeatures);
