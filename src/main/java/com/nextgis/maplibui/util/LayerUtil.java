@@ -4,7 +4,7 @@
  * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -124,7 +124,7 @@ public final class LayerUtil {
     }
 
     public static void shareLayerAsGeoJSON(Activity activity, VectorLayer layer, boolean proceedAttaches) {
-        ExportGeoJSONTask exportTask = new ExportGeoJSONTask(activity, layer, proceedAttaches);
+        ExportGeoJSONTask exportTask = new ExportGeoJSONTask(activity, layer, proceedAttaches, false);
         exportTask.execute();
     }
 

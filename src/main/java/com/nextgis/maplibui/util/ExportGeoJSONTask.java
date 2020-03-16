@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,21 +77,25 @@ import static com.nextgis.maplibui.util.LayerUtil.AUTHORITY;
 import static com.nextgis.maplibui.util.LayerUtil.notFound;
 
 public class ExportGeoJSONTask extends AsyncTask<Void, Void, Object> {
-    private Activity mActivity;
+    Activity mActivity;
     private VectorLayer mLayer;
-    private ProgressDialog mProgress;
-    private boolean mIsCanceled;
-    private boolean mProceedAttaches;
+    ProgressDialog mProgress;
+    boolean mIsCanceled;
+    boolean mProceedAttaches;
+    private boolean mResultOnly;
 
-    ExportGeoJSONTask(Activity activity, VectorLayer layer, boolean proceedAttaches) {
+    ExportGeoJSONTask(Activity activity, VectorLayer layer, boolean proceedAttaches, boolean resultOnly) {
         mActivity = activity;
         mLayer = layer;
         mProceedAttaches = proceedAttaches;
+        mResultOnly = resultOnly;
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
+        if (mResultOnly)
+            return;
 
         mProgress = new ProgressDialog(mActivity);
         mProgress.setTitle(R.string.export);
@@ -226,6 +230,8 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Void, Object> {
     @Override
     protected void onPostExecute(Object result) {
         super.onPostExecute(result);
+        if (mResultOnly)
+            return;
 
         ControlHelper.unlockScreenOrientation(mActivity);
         if (mProgress != null)
@@ -245,7 +251,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Void, Object> {
         }
     }
 
-    private void share(File path) {
+    void share(File path) {
         if (path == null || !path.exists()) {
             Toast.makeText(mActivity, R.string.error_create_feature, Toast.LENGTH_SHORT).show();
             return;
