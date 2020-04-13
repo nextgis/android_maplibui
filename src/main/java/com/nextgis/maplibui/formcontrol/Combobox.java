@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016, 2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -113,7 +113,7 @@ public class Combobox extends AppCompatSpinner implements IFormControl
                 throw new IllegalArgumentException("The map should extends MapContentProviderHelper or inherited");
 
             String account = element.optString(SyncStateContract.Columns.ACCOUNT_NAME);
-            long id = attributes.getLong(JSON_NGW_ID_KEY);
+            long id = attributes.optLong(JSON_NGW_ID_KEY, -1);
             for (int i = 0; i < map.getLayerCount(); i++) {
                 if (map.getLayer(i) instanceof NGWLookupTable) {
                     NGWLookupTable table = (NGWLookupTable) map.getLayer(i);

@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -119,7 +119,7 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
                 throw new IllegalArgumentException("The map should extends MapContentProviderHelper or inherited");
 
             String account = element.optString(SyncStateContract.Columns.ACCOUNT_NAME);
-            long id = attributes.getLong(JSON_NGW_ID_KEY);
+            long id = attributes.optLong(JSON_NGW_ID_KEY, -1);
             for (int i = 0; i < map.getLayerCount(); i++) {
                 if (map.getLayer(i) instanceof NGWLookupTable) {
                     NGWLookupTable table = (NGWLookupTable) map.getLayer(i);
@@ -136,16 +136,18 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
                 }
             }
         } else {
-            JSONArray values = attributes.getJSONArray(JSON_VALUES_KEY);
-            for (int j = 0; j < values.length(); j++) {
-                JSONObject keyValue = values.getJSONObject(j);
-                String value = keyValue.getString(JSON_VALUE_NAME_KEY);
-                String alias = keyValue.getString(JSON_VALUE_ALIAS_KEY);
-                mAliasValueMap.put(alias, value);
-                if (value.equals(lastValue))
-                    lastValue = alias;
-                if (keyValue.optBoolean(JSON_DEFAULT_KEY))
-                    def = alias;
+            JSONArray values = attributes.optJSONArray(JSON_VALUES_KEY);
+            if (values != null) {
+                for (int j = 0; j < values.length(); j++) {
+                    JSONObject keyValue = values.getJSONObject(j);
+                    String value = keyValue.getString(JSON_VALUE_NAME_KEY);
+                    String alias = keyValue.getString(JSON_VALUE_ALIAS_KEY);
+                    mAliasValueMap.put(alias, value);
+                    if (value.equals(lastValue))
+                        lastValue = alias;
+                    if (keyValue.optBoolean(JSON_DEFAULT_KEY))
+                        def = alias;
+                }
             }
         }
 
