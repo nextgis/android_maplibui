@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016, 2018-2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016, 2018-2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -23,6 +23,7 @@
 
 package com.nextgis.maplibui.activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -70,6 +71,7 @@ import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplib.util.MapUtil;
+import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IControl;
@@ -564,6 +566,12 @@ public class ModifyAttributesActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        String read = Manifest.permission.READ_EXTERNAL_STORAGE;
+        if (!PermissionUtil.hasPermission(this, read)) {
+            Toast.makeText(this, R.string.no_permission_granted, Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         PhotoGallery gallery = findViewById(R.id.pg_photos);
         if (gallery != null)

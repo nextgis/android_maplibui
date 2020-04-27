@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016, 2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -114,13 +114,14 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
             addView(radioButton);
         }
 
-        check(getChildAt(position).getId());
+        if (getChildAt(position) != null)
+            check(getChildAt(position).getId());
         setOrientation(RadioGroup.VERTICAL);
     }
 
     @Override
     public void saveLastValue(SharedPreferences preferences) {
-        preferences.edit().putString(mFieldName, (String) getValue()).commit();
+        preferences.edit().putString(mFieldName, (String) getValue()).apply();
     }
 
     @Override
@@ -146,7 +147,7 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
     @Override
     public Object getValue()
     {
-        RadioButton radioButton = (RadioButton) findViewById(getCheckedRadioButtonId());
+        RadioButton radioButton = findViewById(getCheckedRadioButtonId());
         String value_alias = (String) radioButton.getText();
         return mAliasValueMap.get(value_alias);
     }

@@ -5,7 +5,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2012-2019 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2015-2020 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -352,5 +352,6 @@
     <string name="trackpoints_stats">Всего точек: %1$d\nСинхронизировано: %2$d\Время последней точки: %3$s</string>
     <string name="stats">Статистика</string>
     <string name="no_permission">Нет разрешений на запись</string>
+    <string name="no_permission_granted">Не хватает разрешений</string>
     <string name="error_file_create">Ошибка создания файла</string>
 </resources>

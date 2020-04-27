@@ -4,7 +4,7 @@
   ~ Author:   Maxim Dubinin, maxim.dubinin@nextgis.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2016-2019 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2016-2020 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -351,5 +351,6 @@
     <string name="trackpoints_stats">Total points: %1$d\nSynced count: %2$d\nLast point time: %3$s</string>
     <string name="stats">Stats</string>
     <string name="no_permission">Write permission is not granted</string>
+    <string name="no_permission_granted">Permission is not granted</string>
     <string name="error_file_create">Error creating file</string>
 </resources>
