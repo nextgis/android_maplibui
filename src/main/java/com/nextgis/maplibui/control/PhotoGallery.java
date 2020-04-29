@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2017, 2019-2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -51,6 +51,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_MAX_PHOTO_KEY;
 
 public class PhotoGallery extends PhotoPicker implements IFormControl {
+    public static final String GALLERY_PREFIX = "<&PhotoGallery_";
     private static final String BUNDLE_DELETED_IMAGES = "deleted_images";
     private long mFeatureId = NOT_FOUND;
     private VectorLayer mLayer;
@@ -87,7 +88,7 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
             }
         }
 
-        if (mLayer != null && mFeatureId != NOT_FOUND && mAdapter.getItemCount() < 2) { // feature exists
+        if (mLayer != null && mFeatureId != NOT_FOUND && mAdapter != null && mAdapter.getItemCount() < 2) { // feature exists
             IGISApplication app = (IGISApplication) ((Activity) getContext()).getApplication();
             getAttaches(app, mLayer, mFeatureId, mAttaches, true);
         }
@@ -196,7 +197,7 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
 
     @Override
     public String getFieldName() {
-        return "PhotoGallery_" + System.currentTimeMillis();
+        return GALLERY_PREFIX + System.currentTimeMillis();
     }
 
     @Override

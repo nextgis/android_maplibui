@@ -357,7 +357,6 @@ public class ModifyAttributesActivity
 
             //create control
             switch (field.getType()) {
-
                 case GeoConstants.FTString:
                 case GeoConstants.FTInteger:
                 case GeoConstants.FTReal:
@@ -406,6 +405,7 @@ public class ModifyAttributesActivity
             control.init(mLayer, mFeatureId);
             control.init(null, null, null, null, null);
             control.addToLayout(layout);
+            mFields.put(control.getFieldName(), control);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -629,7 +629,10 @@ public class ModifyAttributesActivity
                 Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT).show();
         }
 
-        putAttaches();
+        for (Map.Entry<String, IControl> field : mFields.entrySet()) {
+            if (field.getKey().startsWith(PhotoGallery.GALLERY_PREFIX) && field.getValue() instanceof PhotoGallery)
+                putAttaches((PhotoGallery) field.getValue());
+        }
         putSign();
         Intent data = new Intent();
         data.putExtra(ConstantsUI.KEY_FEATURE_ID, mFeatureId);
@@ -760,10 +763,8 @@ public class ModifyAttributesActivity
         return true;
     }
 
-    protected int putAttaches() {
+    protected int putAttaches(PhotoGallery gallery) {
         int total = 0;
-        PhotoGallery gallery = findViewById(R.id.pg_photos);
-
         if (gallery != null && mFeatureId != NOT_FOUND) {
             List<Integer> deletedAttaches = gallery.getDeletedAttaches();
             IGISApplication application = (IGISApplication) getApplication();
@@ -785,7 +786,7 @@ public class ModifyAttributesActivity
                 Log.d(TAG, "attach delete success: " + total);
             }
 
-            List<String> imagesPath =  gallery.getNewAttaches();
+            List<String> imagesPath = gallery.getNewAttaches();
             for (String path : imagesPath) {
                 String[] segments = path.split("/");
                 String name = segments.length > 0 ? segments[segments.length - 1] : "image.jpg";
