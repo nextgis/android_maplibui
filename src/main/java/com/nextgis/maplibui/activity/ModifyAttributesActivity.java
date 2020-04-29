@@ -75,7 +75,6 @@ import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IControl;
-import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.api.ISimpleControl;
 import com.nextgis.maplibui.control.DateTime;
 import com.nextgis.maplibui.control.PhotoGallery;
@@ -290,7 +289,6 @@ public class ModifyAttributesActivity
         }
     }
 
-    @SuppressWarnings("deprecation")
     protected void createSoundPool() {
         mSoundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 100);
         mBeepId = mSoundPool.load(this, R.raw.beep, 1);
@@ -402,10 +400,10 @@ public class ModifyAttributesActivity
         }
 
         try {
-            IFormControl control = (PhotoGallery) getLayoutInflater().inflate(R.layout.formtemplate_photo, layout, false);
+            PhotoGallery control = (PhotoGallery) getLayoutInflater().inflate(R.layout.formtemplate_photo, layout, false);
             if (mIsViewOnly)
                 control = (PhotoGallery) getLayoutInflater().inflate(R.layout.formtemplate_photo_disabled, layout, false);
-            ((PhotoGallery) control).init(mLayer, mFeatureId);
+            control.init(mLayer, mFeatureId);
             control.init(null, null, null, null, null);
             control.addToLayout(layout);
         } catch (JSONException e) {
@@ -457,7 +455,9 @@ public class ModifyAttributesActivity
             }
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            mMaxTakeCount = Integer.parseInt(prefs.getString(SettingsConstants.KEY_PREF_LOCATION_ACCURATE_COUNT, "20"));
+            String def = "20";
+            String preferred = prefs.getString(SettingsConstants.KEY_PREF_LOCATION_ACCURATE_COUNT, def);
+            mMaxTakeCount = Integer.parseInt(preferred != null ? preferred : def);
         }
         super.onResume();
     }
@@ -854,14 +854,16 @@ public class ModifyAttributesActivity
         mLongView.setText(formatCoordinates(location.getLongitude(), R.string.longitude_caption_short));
 
         mAltView.setText(formatMeters(location.getAltitude(), R.string.altitude_caption_short));
-        mAccView.setText(formatMeters(location.getAccuracy(), R.string.accuracy_caption_short));
+        mAccView.setText(formatMeters((double) location.getAccuracy(), R.string.accuracy_caption_short));
     }
 
-    private String formatCoordinates(double value, int caption) {
+    private String formatCoordinates(Double value, int caption) {
         String appendix;
-        if (value != Double.NaN) {
+        if (!value.isNaN()) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            int nFormat = Integer.parseInt(prefs.getString(SettingsConstantsUI.KEY_PREF_COORD_FORMAT, Location.FORMAT_DEGREES + ""));
+            String def = Location.FORMAT_DEGREES + "";
+            String preferred = prefs.getString(SettingsConstantsUI.KEY_PREF_COORD_FORMAT, def);
+            int nFormat = Integer.parseInt( preferred != null ? preferred : def);
             int nFraction = prefs.getInt(SettingsConstantsUI.KEY_PREF_COORD_FRACTION, 6);
             appendix = LocationUtil.formatLatitude(value, nFormat, nFraction, getResources());
         } else
@@ -871,9 +873,9 @@ public class ModifyAttributesActivity
     }
 
 
-    private String formatMeters(double value, int caption) {
+    private String formatMeters(Double value, int caption) {
         String appendix;
-        if (value != Double.NaN) {
+        if (!value.isNaN()) {
             DecimalFormat df = new DecimalFormat("0.0");
             appendix = df.format(value) + " " + getString(R.string.unit_meter);
         } else

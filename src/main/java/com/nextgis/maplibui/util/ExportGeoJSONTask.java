@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2020 NextGIS, info@nextgis.com
+ * Copyright (c) 2018-2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -164,7 +164,8 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
                                 value = GeoJSONUtil.formatDateTime((Long) value, field.getType());
                         }
 
-                        properties.put(field.getName(), value == null ? JSONObject.NULL : value);
+                        boolean isNaN = value instanceof Double && ((Double) value).isNaN();
+                        properties.put(field.getName(), value == null || isNaN ? JSONObject.NULL : value);
                     }
 
                     if (mProceedAttaches) {

@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -460,8 +460,12 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
             case JSON_COORDINATES_VALUE + "_lon":
                 Double x = getCoordinate(geometry, false);
                 control = (Coordinates) View.inflate(context, R.layout.formtemplate_coordinates, null);
-                if (control != null && x != null)
-                    ((Coordinates) control).setValue(x);
+                if (control != null) {
+                    if (x != null)
+                        ((Coordinates) control).setValue(x);
+                    if (!(geometry instanceof GeoPoint) && !(geometry instanceof GeoMultiPoint))
+                        ((Coordinates) control).setVisibility(View.GONE);
+                }
                 break;
 
             case JSON_COORDINATES_VALUE + "_lat":
@@ -471,6 +475,8 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                     ((Coordinates) control).setIsLat();
                     if (y != null)
                         ((Coordinates) control).setValue(y);
+                    if (!(geometry instanceof GeoPoint) && !(geometry instanceof GeoMultiPoint))
+                        ((Coordinates) control).setVisibility(View.GONE);
                 }
                 break;
 
