@@ -57,6 +57,7 @@ import com.nextgis.maplibui.api.IControl;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.formcontrol.AutoTextEdit;
+import com.nextgis.maplibui.formcontrol.Averaging;
 import com.nextgis.maplibui.formcontrol.Checkbox;
 import com.nextgis.maplibui.formcontrol.Combobox;
 import com.nextgis.maplibui.formcontrol.Coordinates;
@@ -90,6 +91,7 @@ import java.util.Map;
 import static com.nextgis.maplib.util.Constants.JSON_TYPE_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ALBUM_ELEMENTS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_AVERAGING_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_CHECKBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_COMBOBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_COORDINATES_VALUE;
@@ -421,6 +423,10 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
 
             case JSON_CHECKBOX_VALUE:
                 control = (Checkbox) View.inflate(context, R.layout.formtemplate_checkbox, null);
+                break;
+
+            case JSON_AVERAGING_VALUE:
+                control = (Averaging) View.inflate(context, R.layout.formtemplate_averaging, null);
                 break;
 
             case JSON_PHOTO_VALUE:

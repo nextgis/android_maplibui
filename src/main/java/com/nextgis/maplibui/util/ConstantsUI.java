@@ -98,6 +98,7 @@ public interface ConstantsUI
     String JSON_DOUBLE_COMBOBOX_VALUE = "double_combobox";
     String JSON_SPACE_VALUE           = "space";
     String JSON_CHECKBOX_VALUE        = "checkbox";
+    String JSON_AVERAGING_VALUE       = "average_counter";
     String JSON_PHOTO_VALUE           = "photo";
     String JSON_SIGN_VALUE            = "signature";
     String JSON_COUNTER_VALUE         = "counter";

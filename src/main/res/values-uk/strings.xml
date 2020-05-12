@@ -353,4 +353,7 @@
     <string name="no_permission">Write permission is not granted</string>
     <string name="no_permission_granted">Permission is not granted</string>
     <string name="error_file_create">Error creating file</string>
+    <string name="averaging">Average</string>
+    <string name="averaging_enter_value">Type value (%1$d/%2$d)</string>
+    <string name="average_next">Continue</string>
 </resources>
