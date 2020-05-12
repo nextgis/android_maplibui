@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2018, 2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -79,6 +79,7 @@ public interface ConstantsUI
     String JSON_FIELD_LEVEL2_KEY      = "field_level2";
     String JSON_INIT_VALUE_KEY        = "init_value";
     String JSON_MAX_PHOTO_KEY         = "gallery_size";
+    String JSON_PHOTO_COMMENT_KEY     = "comment";
     String JSON_INPUT_SEARCH          = "input_search";
     String JSON_ALLOW_NEW_VALUES      = "allow_adding_values";
     String JSON_HIDDEN_KEY            = "hidden";

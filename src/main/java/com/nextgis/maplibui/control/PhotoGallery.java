@@ -49,6 +49,7 @@ import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_MAX_PHOTO_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_PHOTO_COMMENT_KEY;
 
 public class PhotoGallery extends PhotoPicker implements IFormControl {
     public static final String GALLERY_PREFIX = "<&PhotoGallery_";
@@ -57,6 +58,7 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
     private VectorLayer mLayer;
     private Map<String, Integer> mAttaches = new HashMap<>();
     private PhotoAdapter mAdapter;
+    private String mComment;
     private List<Integer> mDeletedImages = new ArrayList<>();
 
     public PhotoGallery(Context context) {
@@ -80,17 +82,21 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
         mAdapter = (PhotoAdapter) getAdapter();
 
         if (element != null) {
-            JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+            JSONObject attributes = element.optJSONObject(JSON_ATTRIBUTES_KEY);
 
-            if (attributes.has(JSON_MAX_PHOTO_KEY)) {
+            if (attributes != null && attributes.has(JSON_MAX_PHOTO_KEY)) {
                 int maxPhotos = attributes.getInt(JSON_MAX_PHOTO_KEY);
                 setMaxPhotos(maxPhotos);
+            }
+
+            if (attributes != null && attributes.has(JSON_PHOTO_COMMENT_KEY)) {
+                mComment = attributes.getString(JSON_PHOTO_COMMENT_KEY);
             }
         }
 
         if (mLayer != null && mFeatureId != NOT_FOUND && mAdapter != null && mAdapter.getItemCount() < 2) { // feature exists
             IGISApplication app = (IGISApplication) ((Activity) getContext()).getApplication();
-            getAttaches(app, mLayer, mFeatureId, mAttaches, true);
+            getAttaches(app, mLayer, mFeatureId, mAttaches, true, mComment);
         }
 
         if (savedState != null) {
@@ -108,11 +114,11 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
         }
     }
 
-    public static void getAttaches(IGISApplication app, VectorLayer layer, long featureId, Map<String, Integer> map, boolean excludeSign) {
+    public static void getAttaches(IGISApplication app, VectorLayer layer, long featureId, Map<String, Integer> map, boolean excludeSign, String comment) {
         Uri uri = Uri.parse("content://" + app.getAuthority() + "/" +
                 layer.getPath().getName() + "/" + featureId + "/" + Constants.URI_ATTACH);
         MatrixCursor attachCursor = (MatrixCursor) layer.query(uri,
-                new String[]{VectorLayer.ATTACH_DATA, VectorLayer.ATTACH_ID},
+                new String[]{VectorLayer.ATTACH_DATA, VectorLayer.ATTACH_ID, VectorLayer.ATTACH_DESCRIPTION},
                 FIELD_ID + " = " + featureId, null, null, null);
 
         if (attachCursor.moveToFirst()) {
@@ -120,6 +126,8 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
                 if (excludeSign && attachCursor.getInt(1) == Integer.MAX_VALUE)
                     continue;
 
+                if (comment != null && !attachCursor.getString(2).equals(comment))
+                    continue;
                 map.put(attachCursor.getString(0), attachCursor.getInt(1));
             } while (attachCursor.moveToNext());
         }
@@ -150,8 +158,8 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
     @Override
     protected Parcelable onSaveInstanceState() {
         Bundle bundle = (Bundle) super.onSaveInstanceState();
-        bundle.putIntegerArrayList(BUNDLE_DELETED_IMAGES, new ArrayList<>(getDeletedAttaches()));
-
+        if (bundle != null)
+            bundle.putIntegerArrayList(BUNDLE_DELETED_IMAGES, new ArrayList<>(getDeletedAttaches()));
         return bundle;
     }
 
@@ -213,9 +221,15 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
     @Override
     public void saveState(Bundle outState) {
         Bundle bundle = (Bundle) super.onSaveInstanceState();
-        bundle.putIntegerArrayList(BUNDLE_DELETED_IMAGES, new ArrayList<>(getDeletedAttaches()));
-        bundle.remove("instanceState");
-        outState.putAll(bundle);
+        if (bundle != null) {
+            bundle.putIntegerArrayList(BUNDLE_DELETED_IMAGES, new ArrayList<>(getDeletedAttaches()));
+            bundle.remove("instanceState");
+            outState.putAll(bundle);
+        }
+    }
+
+    public String getComment() {
+        return mComment;
     }
 
     public List<String> getNewAttaches() {

@@ -573,9 +573,14 @@ public class ModifyAttributesActivity
             return;
         }
 
-        PhotoGallery gallery = findViewById(R.id.pg_photos);
-        if (gallery != null)
-            gallery.onActivityResult(requestCode, resultCode, data);
+        LinearLayout layout = findViewById(R.id.controls_list);
+        for (int i = 0; i < layout.getChildCount(); i++) {
+            View child = layout.getChildAt(i);
+            if (child instanceof PhotoGallery) {
+                PhotoGallery gallery = (PhotoGallery) child;
+                gallery.onActivityResult(requestCode, resultCode, data);
+            }
+        }
     }
 
 
@@ -787,11 +792,14 @@ public class ModifyAttributesActivity
             }
 
             List<String> imagesPath = gallery.getNewAttaches();
+            String comment = gallery.getComment();
             for (String path : imagesPath) {
                 String[] segments = path.split("/");
                 String name = segments.length > 0 ? segments[segments.length - 1] : "image.jpg";
                 ContentValues values = new ContentValues();
                 values.put(VectorLayer.ATTACH_DISPLAY_NAME, name);
+                if (comment != null && !comment.isEmpty())
+                    values.put(VectorLayer.ATTACH_DESCRIPTION, comment);
                 values.put(VectorLayer.ATTACH_MIME_TYPE, "image/jpeg");
 
                 Uri result = getContentResolver().insert(uri, values);
