@@ -81,6 +81,7 @@ public class Tabs extends LinearLayout implements IFormControl
     protected SharedPreferences mPreferences;
     protected FragmentManager mFragmentManager;
     protected int mTag;
+    private Map<String, Map<String, String>> mTranslations;
 
     public Tabs(Context context) {
         super(context);
@@ -111,8 +112,9 @@ public class Tabs extends LinearLayout implements IFormControl
                      List<Field> fields,
                      Bundle savedState,
                      Cursor featureCursor,
-                     SharedPreferences preferences) throws JSONException{
-
+                     SharedPreferences preferences,
+                     Map<String, Map<String, String>> translations) throws JSONException {
+        mTranslations = translations;
         mFields = new HashMap<>();
         mTabs = new ArrayList<>();
         TabLayout tabLayout = (TabLayout) getChildAt(0);
@@ -204,7 +206,7 @@ public class Tabs extends LinearLayout implements IFormControl
                 if (savedState != null)
                     savedState.putBoolean("<tabs&", true);
             }
-            control.init(element, fields, savedState, featureCursor, mSharedPreferences);
+            control.init(element, fields, savedState, featureCursor, mSharedPreferences, mTranslations);
             control.addToLayout(layout);
             if (mIsViewOnly)
                 control.setEnabled(false);

@@ -3,7 +3,7 @@
  * Purpose: Mobile application for registering facts of the forest violations.
  * Author:  Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2017, 2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2017, 2019-2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,6 +56,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A special control for create sign picture.
@@ -266,7 +267,9 @@ public class Sign extends View implements IFormControl {
     }
 
     @Override
-    public void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences lastValue) {
+    public void init(JSONObject element, List<Field> fields, Bundle savedState,
+                     Cursor featureCursor, SharedPreferences lastValue,
+                     Map<String, Map<String, String>> translations) {
         init();
     }
 

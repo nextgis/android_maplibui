@@ -88,6 +88,7 @@ public interface ConstantsUI
     String JSON_KEY_LIST_SAVED_KEY    = "key_list_saved";
     String JSON_LABEL_KEY             = "label1";
     String JSON_LABEL2_KEY            = "label2";
+    String JSON_TRANSLATIONS_KEY      = "translations";
 
     String JSON_TEXT_LABEL_VALUE      = "text_label";
     String JSON_TEXT_EDIT_VALUE       = "text_edit";

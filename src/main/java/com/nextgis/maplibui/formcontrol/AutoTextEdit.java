@@ -89,7 +89,8 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
                      List<Field> fields,
                      Bundle savedState,
                      Cursor featureCursor,
-                     SharedPreferences preferences) throws JSONException{
+                     SharedPreferences preferences,
+                     Map<String, Map<String, String>> translations) throws JSONException{
         ControlHelper.setClearAction(this);
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);

@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2018, 2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -78,6 +78,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static com.nextgis.maplib.util.GeoConstants.GTLineString;
 import static com.nextgis.maplib.util.GeoConstants.GTMultiLineString;
@@ -129,6 +130,19 @@ public final class ControlHelper
             throws JSONException
     {
         return !attributes.isNull(JSON_SHOW_LAST_KEY) && attributes.getBoolean(JSON_SHOW_LAST_KEY);
+    }
+
+    public static String translate(String text, Map<String, Map<String, String>> translations) {
+        if (translations != null) {
+            Map<String, String> value = translations.get(text);
+            if (value != null) {
+                String languageCode = Locale.getDefault().getLanguage();
+                String translation = value.get(languageCode);
+                if (translation != null)
+                    return translation;
+            }
+        }
+        return text;
     }
 
     public static boolean isAutoComplete(JSONObject attributes)

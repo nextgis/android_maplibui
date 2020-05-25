@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2016, 2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016, 2019-2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -90,7 +90,9 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
     //TODO: add mode_dialog if attribute asDialog == true, Spinner.MODE_DIALOG API Level 11+
 
     @Override
-    public void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences preferences) throws JSONException {
+    public void init(JSONObject element, List<Field> fields, Bundle savedState,
+                     Cursor featureCursor, SharedPreferences preferences,
+                     Map<String, Map<String, String>> translations) throws JSONException {
         mSubCombobox = new Spinner(getContext());
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = attributes.getString(JSON_FIELD_LEVEL1_KEY);

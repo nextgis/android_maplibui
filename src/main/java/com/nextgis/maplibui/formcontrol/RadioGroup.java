@@ -72,7 +72,8 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
                      List<Field> fields,
                      Bundle savedState,
                      Cursor featureCursor,
-                     SharedPreferences preferences) throws JSONException{
+                     SharedPreferences preferences,
+                     Map<String, Map<String, String>> translations) throws JSONException{
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);

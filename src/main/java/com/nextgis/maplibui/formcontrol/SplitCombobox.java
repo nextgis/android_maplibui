@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2017-2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2017-2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -93,7 +93,8 @@ public class SplitCombobox extends FrameLayout implements IFormControl
                      List<Field> fields,
                      Bundle savedState,
                      Cursor featureCursor,
-                     SharedPreferences preferences) throws JSONException{
+                     SharedPreferences preferences,
+                     Map<String, Map<String, String>> translations) throws JSONException{
         mTitles = new LinearLayout(getContext());
         mTitles.setOrientation(HORIZONTAL);
         mSpinners = new LinearLayout(getContext());

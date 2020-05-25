@@ -112,6 +112,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_SPLIT_COMBOBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TABS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_EDIT_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_LABEL_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_TRANSLATIONS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_META_PATH;
 import static com.nextgis.maplibui.util.NGIDUtils.PREF_FIRST_NAME;
@@ -125,6 +126,7 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
     private static final int RESELECT_ROW = 999;
 
     private Map<String, List<String>> mTable;
+    private Map<String, Map<String, String>> mTranslations;
     private int mRow = -1;
     private File mMeta;
     private String mColumn;
@@ -234,6 +236,7 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
 
     private void fillTable(final LinearLayout layout, final Bundle savedState, Bundle extras) {
         mTable = new HashMap<>();
+        mTranslations = new HashMap<>();
         mMeta = (File) extras.getSerializable(KEY_META_PATH);
         if (mMeta != null && mMeta.exists()) {
             try {
@@ -274,6 +277,29 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                             }
                         });
                         return;
+                    }
+                }
+
+                if (metaJson.has(JSON_TRANSLATIONS_KEY)) {
+                    JSONArray translations = metaJson.getJSONArray(JSON_TRANSLATIONS_KEY);
+                    if (translations != null) {
+                        for (int i = 0; i < translations.length(); i++) {
+                            JSONObject translation = translations.getJSONObject(i);
+                            String translationKey = null;
+                            Map<String, String> mappings = new HashMap<>();
+                            for (Iterator<String> iter = translation.keys(); iter.hasNext(); ) {
+                                String key = iter.next();
+                                String value = translation.getString(key);
+                                if (key.equals("key")) {
+                                    translationKey = value;
+                                } else {
+                                    mappings.put(key, value);
+                                }
+                            }
+
+                            if (translationKey != null)
+                                mTranslations.put(translationKey, mappings);
+                        }
                     }
                 }
             } catch (IOException | JSONException e) {
@@ -543,7 +569,7 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
         if (null != control) {
             appendData(mLayer, mPreferences, mTable, mRow, control, element);
 
-            control.init(element, fields, savedState, featureCursor, mSharedPreferences);
+            control.init(element, fields, savedState, featureCursor, mSharedPreferences, mTranslations);
             control.addToLayout(layout);
             if (mIsViewOnly)
                 control.setEnabled(false);

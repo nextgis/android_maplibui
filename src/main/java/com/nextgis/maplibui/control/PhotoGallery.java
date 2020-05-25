@@ -78,7 +78,8 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
                      List<Field> fields,
                      Bundle savedState,
                      Cursor featureCursor,
-                     SharedPreferences preferences) throws JSONException {
+                     SharedPreferences preferences,
+                     Map<String, Map<String, String>> translations) throws JSONException {
         mAdapter = (PhotoAdapter) getAdapter();
 
         if (element != null) {

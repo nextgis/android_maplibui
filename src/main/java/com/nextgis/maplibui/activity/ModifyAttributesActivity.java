@@ -403,7 +403,7 @@ public class ModifyAttributesActivity
             if (mIsViewOnly)
                 control = (PhotoGallery) getLayoutInflater().inflate(R.layout.formtemplate_photo_disabled, layout, false);
             control.init(mLayer, mFeatureId);
-            control.init(null, null, null, null, null);
+            control.init(null, null, null, null, null, null);
             control.addToLayout(layout);
             mFields.put(control.getFieldName(), control);
         } catch (JSONException e) {

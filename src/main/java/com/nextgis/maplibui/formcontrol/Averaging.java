@@ -46,6 +46,7 @@ import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
@@ -72,7 +73,9 @@ public class Averaging extends LinearLayout implements IFormControl, View.OnClic
     }
 
     @Override
-    public void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences preferences) throws JSONException {
+    public void init(JSONObject element, List<Field> fields, Bundle savedState,
+                     Cursor featureCursor, SharedPreferences preferences,
+                     Map<String, Map<String, String>> translations) throws JSONException {
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);

@@ -2,8 +2,9 @@
  * Project:  NextGIS Mobile
  * Purpose:  Mobile GIS for Android.
  * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
+ * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2015. NextGIS, info@nextgis.com
+ * Copyright (c) 2015, 2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,12 +32,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Interface for formbuilder controls
  */
 public interface IFormControl extends IControl {
-    void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences lastValue) throws JSONException;
+    void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences lastValue, Map<String, Map<String, String>> translations) throws JSONException;
+
     void saveLastValue(SharedPreferences preferences);
+
     boolean isShowLast();
 }

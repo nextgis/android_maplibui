@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -47,6 +47,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
@@ -90,7 +91,8 @@ public class TextEdit extends AppCompatEditText
                      List<Field> fields,
                      Bundle savedState,
                      Cursor featureCursor,
-                     SharedPreferences preferences) throws JSONException{
+                     SharedPreferences preferences,
+                     Map<String, Map<String, String>> translations) throws JSONException{
         ControlHelper.setClearAction(this);
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);

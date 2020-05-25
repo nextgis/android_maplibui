@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2018-2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2018-2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -26,7 +26,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
@@ -47,6 +46,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
@@ -72,7 +72,9 @@ public class Distance extends LinearLayout implements IFormControl {
     }
 
     @Override
-    public void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences preferences) throws JSONException {
+    public void init(JSONObject element, List<Field> fields, Bundle savedState,
+                     Cursor featureCursor, SharedPreferences preferences,
+                     Map<String, Map<String, String>> translations) throws JSONException {
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);
         mHidden = attributes.optBoolean(JSON_HIDDEN_KEY);
