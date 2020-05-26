@@ -123,7 +123,7 @@ public class Tabs extends LinearLayout implements IFormControl
             JSONObject item = pages.getJSONObject(i);
             mDefaultTab = item.optBoolean(JSON_DEFAULT_KEY, false) ? i : mDefaultTab;
             TabLayout.Tab tab = tabLayout.newTab();
-            String title = item.optString(JSON_CAPTION_KEY);
+            String title = ControlHelper.translate(item.optString(JSON_CAPTION_KEY), translations);
             tab.setText(title);
 
             LinearLayout layout = new LinearLayout(getContext());

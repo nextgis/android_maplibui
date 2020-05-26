@@ -87,7 +87,7 @@ public class Checkbox extends AppCompatCheckBox implements IFormControl {
             value = false;
 
         setChecked(value);
-        setText(attributes.getString(JSON_TEXT_KEY));
+        setText(ControlHelper.translate(attributes.getString(JSON_TEXT_KEY), translations));
         setEnabled(ControlHelper.isEnabled(fields, mFieldName));
     }
 

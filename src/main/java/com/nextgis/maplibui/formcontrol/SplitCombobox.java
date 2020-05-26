@@ -26,10 +26,8 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.AppCompatTextView;
-import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -39,7 +37,6 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.AccountUtil;
@@ -142,8 +139,8 @@ public class SplitCombobox extends FrameLayout implements IFormControl
         mSpinner.setEnabled(ControlHelper.isEnabled(fields, mFieldName));
         mSpinner2.setEnabled(ControlHelper.isEnabled(fields, mFieldName));
 
-        mTitle.setText(attributes.getString(JSON_LABEL_KEY));
-        mTitle2.setText(attributes.getString(JSON_LABEL2_KEY));
+        mTitle.setText(ControlHelper.translate(attributes.getString(JSON_LABEL_KEY), translations));
+        mTitle2.setText(ControlHelper.translate(attributes.getString(JSON_LABEL2_KEY), translations));
 
         String lastValue = null;
         if (ControlHelper.hasKey(savedState, mFieldName))
