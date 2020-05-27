@@ -242,7 +242,7 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
             try {
                 String metaString = FileUtil.readFromFile(mMeta);
                 final JSONObject metaJson = new JSONObject(metaString);
-                if (metaJson.has(JSON_LISTS_KEY)) {
+                if (metaJson.has(JSON_LISTS_KEY) && !metaJson.isNull(JSON_LISTS_KEY)) {
                     JSONObject lists = metaJson.getJSONObject(JSON_LISTS_KEY);
                     Iterator<String> i = lists.keys();
                     while (i.hasNext()) {
@@ -256,7 +256,7 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                     }
                 }
 
-                if (metaJson.has(JSON_KEY_LIST_KEY)) {
+                if (metaJson.has(JSON_KEY_LIST_KEY) && !metaJson.isNull(JSON_KEY_LIST_KEY)) {
                     mColumn = metaJson.getString(JSON_KEY_LIST_KEY);
 
                     if (metaJson.has(JSON_KEY_LIST_SAVED_KEY))
@@ -280,7 +280,7 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                     }
                 }
 
-                if (metaJson.has(JSON_TRANSLATIONS_KEY)) {
+                if (metaJson.has(JSON_TRANSLATIONS_KEY) && !metaJson.isNull(JSON_TRANSLATIONS_KEY)) {
                     JSONArray translations = metaJson.getJSONArray(JSON_TRANSLATIONS_KEY);
                     if (translations != null) {
                         for (int i = 0; i < translations.length(); i++) {
