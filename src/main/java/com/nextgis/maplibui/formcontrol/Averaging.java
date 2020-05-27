@@ -147,7 +147,11 @@ public class Averaging extends LinearLayout implements IFormControl, View.OnClic
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 mDoneMeasures++;
-                mValue += Double.parseDouble(editText.getText().toString());
+                double value = 0;
+                try {
+                    value = Double.parseDouble(editText.getText().toString());
+                } catch (Exception ignored) {}
+                mValue += value;
                 if (mDoneMeasures < mMeasures) {
                     createDialog();
                 } else {
