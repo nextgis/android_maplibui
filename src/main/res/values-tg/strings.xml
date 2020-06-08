@@ -90,7 +90,7 @@
     <string name="altitude_caption_short">Б.</string>
     <string name="accuracy_caption_short">Д.</string>
     <string name="accurate_location">Дақиқтар кардани макон</string>
-    <string name="accurate_taking">Ҷамъоварӣ ва ба ҳисоби миёна координатаҳо...</string>
+    <string name="accurate_taking">Ҷамъоварӣ ва ба ҳисоби миёна координатаҳо…</string>
     <string name="action_settings">Танзимот</string>
     <string name="do_not_ask_again">Дигар савол надиҳед</string>
     <string name="apply">Ба кор бурдан</string>
@@ -204,12 +204,12 @@
     <string name="start">Оғоз</string>
     <string name="current_zoom">Ҷойгиркунии зум %1$.2f</string>
     <string name="download_complete">Боркунӣ ба анҷом расид</string>
-    <string name="download_in_progress">Боркунӣ...</string>
+    <string name="download_in_progress">Боркунӣ…</string>
     <string name="cancel_download">ЗБоркунӣ бекор карда шуд</string>
     <string name="download_tiles">Боркунӣ плиткаҳо</string>
     <string name="form_tiles_list">Сохтани рӯйхати сафҳаҳо</string>
     <string name="tiles_count">%1$s сафолҳои</string>
-    <string name="counting">Ҳисоб кардан ...</string>
+    <string name="counting">Ҳисоб кардан …</string>
     <string name="tracks_running">Трек сабт карда шуд</string>
     <string name="tracks_title">Роҳрав %s</string>
     <string name="walkedit_title">Воридкунӣ, гузаштан аз %s</string>
@@ -282,7 +282,7 @@
     <string name="accurate_finish_sound">Дар бораи анҷомдиҳӣ хабардор кунед</string>
     <string name="no_features">Дар қабати объектҳо нест</string>
     <string name="discard">@string/cancel</string>
-    <string name="error_export_geojson">Эҷод ниҳоӣ ғайримумкин geojson/string>
+    <string name="error_export_geojson">Эҷод ниҳоӣ ғайримумкин geojson</string>
     <string name="attributes">Ҷадвали объектҳо</string>
     <string name="error_cache">Неверный кэш, перестройте в настройках слоя</string>
     <string name="sync_disable">Ҳамоҳангсозиро ғайрифаъол кунед</string>

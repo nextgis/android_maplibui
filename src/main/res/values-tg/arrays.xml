@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Project:  NextGIS Mobile
+  ~ Purpose:  Mobile GIS for Android.
+  ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
+  ~ *********************************************************************
+  ~ Copyright (c) 2020 NextGIS, info@nextgis.com
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU Lesser Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string-array name="tracker_min_dist_update">
+        <item>@string/most_frequently</item>
+        <item>1 м</item>
+        <item>5 м</item>
+        <item>10 м</item>
+        <item>25 м</item>
+        <item>50 м</item>
+        <item>75 м</item>
+        <item>100 м</item>
+        <item>150 м</item>
+        <item>200 м</item>
+        <item>300 м</item>
+    </string-array>
+    <string-array name="tracker_min_time_between_updates">
+        <item>@string/most_frequently</item>
+        <item>1 сон</item>
+        <item>2 сон</item>
+        <item>5 сон</item>
+        <item>10 сон</item>
+        <item>20 сон</item>
+        <item>30 сон</item>
+        <item>45 сон</item>
+        <item>1 дақ</item>
+        <item>2 дақ</item>
+        <item>5 дақ</item>
+        <item>10 дақ</item>
+        <item>20 дақ</item>
+        <item>30 дақ</item>
+        <item>45 дақ</item>
+    </string-array>
+</resources>
