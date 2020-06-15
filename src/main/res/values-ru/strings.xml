@@ -274,7 +274,7 @@
     <string name="new_gis">Создать ГИС</string>
     <string name="manual_ngw">Расширенные настройки</string>
     <string name="instance_name">Имя ГИС</string>
-    <string name="ngw_from_my_nextgis">Еще нет своей Веб ГИС? Создайте на nextgis.com!</string>
+    <string name="ngw_from_my_nextgis">Еще нет своей Веб ГИС? Создайте на my.nextgis.com!</string>
     <string name="guest">Гость</string>
     <string name="field_not_filled">Некоторые поля пустые</string>
     <string name="web_map">Веб карта</string>
