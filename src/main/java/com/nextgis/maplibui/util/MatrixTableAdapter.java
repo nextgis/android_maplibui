@@ -26,6 +26,8 @@ import com.nextgis.maplibui.R;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -78,13 +80,17 @@ public class MatrixTableAdapter<T> extends BaseTableAdapter {
 		return table[0].length - 1;
 	}
 
+	private static void setPadding(Context context, TextView view) {
+		int padding = ControlHelper.dpToPx(2, context.getResources());
+		view.setPadding(padding, padding, padding, padding);
+		view.setGravity(Gravity.CENTER_VERTICAL);
+	}
+
 	@Override
 	public View getView(int row, int column, View convertView, ViewGroup parent) {
 		if (convertView == null) {
 			convertView = new TextView(context);
-			int padding = ControlHelper.dpToPx(2, context.getResources());
-			convertView.setPadding(padding, padding, padding, padding);
-			((TextView) convertView).setGravity(Gravity.CENTER_VERTICAL);
+			setPadding(context, (TextView) convertView);
 		}
 
 		convertView.setOnClickListener(mListener);
@@ -93,9 +99,41 @@ public class MatrixTableAdapter<T> extends BaseTableAdapter {
 		return convertView;
 	}
 
+	public static int getHeight2(Context context, String text, int deviceWidth) {
+		TextView textView = new TextView(context);
+		Rect bounds = new Rect();
+		Paint textPaint = textView.getPaint();
+		textPaint.getTextBounds(text, 0, text.length(), bounds);
+		int height = bounds.height();
+		int width = bounds.width();
+		return height;
+	}
+
+	public static int getHeight(Context context, String text, int deviceWidth) {
+		TextView textView = new TextView(context);
+		setPadding(context, textView);
+
+		textView.setWidth(deviceWidth);
+
+		textView.setLayoutParams(new ViewGroup.LayoutParams(deviceWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+		textView.setText(text);
+		textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+
+		int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(deviceWidth, View.MeasureSpec.EXACTLY);
+		int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+
+		textView.measure(widthMeasureSpec, heightMeasureSpec);
+		return textView.getMeasuredHeight();
+	}
+
 	@Override
 	public int getHeight(int row) {
-		return height;
+		int max = height;
+		for (T value : table[row + 1]) {
+			max = Math.max(getHeight(context, value.toString(), width), height);
+		}
+		return max;
 	}
 
 	@Override
