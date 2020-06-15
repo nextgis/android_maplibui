@@ -574,11 +574,19 @@ public class ModifyAttributesActivity
         }
 
         LinearLayout layout = findViewById(R.id.controls_list);
+        passResultToGallery(layout, requestCode, resultCode, data);
+    }
+
+
+    private void passResultToGallery(ViewGroup layout, int requestCode, int resultCode, Intent data) {
         for (int i = 0; i < layout.getChildCount(); i++) {
             View child = layout.getChildAt(i);
             if (child instanceof PhotoGallery) {
                 PhotoGallery gallery = (PhotoGallery) child;
                 gallery.onActivityResult(requestCode, resultCode, data);
+            }
+            if (child instanceof  ViewGroup) {
+                passResultToGallery((ViewGroup) child, requestCode, resultCode, data);
             }
         }
     }
