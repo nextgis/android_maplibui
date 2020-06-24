@@ -340,12 +340,6 @@ public class ModifyAttributesActivity
     {
         Cursor featureCursor = getFeatureCursor();
         List<Field> fields = mLayer.getFields();
-        Collections.sort(fields, new Comparator<Field>() {
-            @Override
-            public int compare(Field lhs, Field rhs) {
-                return lhs.getAlias().compareToIgnoreCase(rhs.getAlias());
-            }
-        });
 
         for (Field field : fields) {
             //create static text with alias
