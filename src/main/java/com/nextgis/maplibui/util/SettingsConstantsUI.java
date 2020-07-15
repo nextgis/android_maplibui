@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2017 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2017, 2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -44,6 +44,7 @@ public interface SettingsConstantsUI
     String KEY_PREF_COMPASS_MAGNETIC     = "compass_show_magnetic";
     String KEY_PREF_COMPASS_KEEP_SCREEN  = "compass_wake_lock";
     String KEY_PREF_RESET_SETTINGS       = "reset_settings";
+    String KEY_PREF_RESTORE_LAYERS       = "restore_layers";
     String KEY_PREF_MAP_BG               = "map_bg";
     String KEY_PREF_LAYER_LABEL          = "layer_label";
     String KEY_PREF_SHOW_GEO_DIALOG      = "show_geo_dialog";
