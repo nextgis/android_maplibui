@@ -319,7 +319,7 @@
     <string name="ngid_email">E-mail</string>
     <string name="ngid_first_name">First name</string>
     <string name="ngid_last_name">Last name</string>
-    <string name="ngid_my">my.nextgis.com</string>
+    <string name="ngid_my">NextGIS ID (%s)</string>
     <string name="sign_out">Sign out</string>
     <string name="not_set">Not set</string>
     <string name="ngid_account_ask">Do not have account?</string>
@@ -355,4 +355,7 @@
     <string name="averaging">Average</string>
     <string name="averaging_enter_value">Type value (%1$d/%2$d)</string>
     <string name="average_next">Continue</string>
+    <string name="ngid_onpremise">Connect to on-premise server</string>
+    <string name="ngid_server">Current server is %s</string>
+    <string name="ngid_type_url">Type URL</string>
 </resources>

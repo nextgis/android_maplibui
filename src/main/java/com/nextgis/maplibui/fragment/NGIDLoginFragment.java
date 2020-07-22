@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2017-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2017-2018, 2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -22,12 +22,17 @@
 package com.nextgis.maplibui.fragment;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +52,7 @@ import com.nextgis.maplibui.util.NGIDUtils;
 public class NGIDLoginFragment extends Fragment implements View.OnClickListener {
     protected EditText mLogin, mPassword;
     protected Button mSignInButton;
+    protected TextView mServer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,19 +68,34 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
         mPassword = view.findViewById(R.id.password);
         mSignInButton = view.findViewById(R.id.signin);
         mSignInButton.setOnClickListener(this);
+        mServer = view.findViewById(R.id.server);
+        setUpServerInfo();
         TextView signUp = view.findViewById(R.id.signup);
         signUp.setText(signUp.getText().toString().toUpperCase());
         signUp.setOnClickListener(this);
+        view.findViewById(R.id.onpremise).setOnClickListener(this);
         return view;
+    }
+
+    private void setUpServerInfo() {
+        Activity activity = getActivity();
+        if (activity == null)
+            return;
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+        String url = preferences != null ? preferences.getString("ngid_url", NGIDUtils.NGID_MY) : NGIDUtils.NGID_MY;
+        url = NetworkUtil.trimSlash(url);
+        if (mServer != null)
+            mServer.setText(getString(R.string.ngid_server, url));
     }
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.signin) {
-            final Activity activity = getActivity();
-            if (activity == null)
-                return;
+        final Activity activity = getActivity();
+        if (activity == null)
+            return;
 
+        if (v.getId() == R.id.signin) {
             boolean loginPasswordFilled = checkEditText(mLogin) && checkEditText(mPassword);
             if (!loginPasswordFilled) {
                 Toast.makeText(activity, R.string.field_not_filled, Toast.LENGTH_SHORT).show();
@@ -105,7 +126,38 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
         } else if (v.getId() == R.id.signup) {
             Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(NGIDUtils.NGID_MY));
             startActivity(browser);
+        } else if (v.getId() == R.id.onpremise) {
+            createDialog();
         }
+    }
+
+    private void createDialog() {
+        if (getContext() == null)
+            return;
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String url = preferences != null ? preferences.getString("ngid_url", NGIDUtils.NGID_MY) : NGIDUtils.NGID_MY;
+        final EditText editText = new EditText(getContext());
+        editText.setInputType(InputType.TYPE_TEXT_VARIATION_URI);
+        editText.setHint(NGIDUtils.NGID_MY);
+        if (!url.equals(NGIDUtils.NGID_MY))
+            editText.setText(url);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(R.string.ngid_type_url).setView(editText).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                String url = editText.getText().toString();
+                if (url.isEmpty()) {
+                    url = NGIDUtils.NGID_MY;
+                }
+                if (!NetworkUtil.isValidUri(url)) {
+                    Toast.makeText(getContext(), R.string.error_invalid_url, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putString("ngid_url", url).apply();
+                setUpServerInfo();
+            }
+        }).setNegativeButton(R.string.cancel, null);
+        builder.create().show();
     }
 
     private boolean checkEditText(EditText edit) {

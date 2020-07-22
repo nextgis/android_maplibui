@@ -319,7 +319,7 @@
     <string name="ngid_first_name">Ном</string>
     <string name="ngid_last_name">Насаб</string>
     <string name="ngid_username">Номи истифодабаранда</string>
-    <string name="ngid_my">my.nextgis.com</string>
+    <string name="ngid_my">NextGIS ID (%s)</string>
     <string name="not_set">Таъин нашудааст</string>
     <string name="sign_out">Баромадан</string>
     <string name="ngid_account_ask">ЕҲоло истифода баранда нестед?</string>
@@ -355,4 +355,7 @@
     <string name="averaging">Миёна</string>
     <string name="averaging_enter_value">Арзишро ворид кунед (%1$d/%2$d)</string>
     <string name="average_next">Баъдан</string>
+    <string name="ngid_onpremise">Connect to on-premise server</string>
+    <string name="ngid_server">Current server is %s</string>
+    <string name="ngid_type_url">Type URL</string>
 </resources>

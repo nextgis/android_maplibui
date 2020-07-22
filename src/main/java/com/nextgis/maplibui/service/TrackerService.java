@@ -4,7 +4,7 @@
  * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -86,10 +86,9 @@ public class TrackerService extends Service implements LocationListener, GpsStat
     public static final String ACTION_STOP            = "com.nextgis.maplibui.TRACK_STOP";
     private static final String ACTION_SPLIT          = "com.nextgis.maplibui.TRACK_SPLIT";
     private static final int    TRACK_NOTIFICATION_ID = 1;
-    public static final String SCHEME = "http";
-//    public static final String HOST = "dev.nextgis.com/tracker-dev1-hub";
-    public static final String HOST = "track.nextgis.com";
-    public static final String URL = SCHEME + "://" + HOST + "/ng-mobile";
+//    public static final String HOST = "http://dev.nextgis.com/tracker-dev1-hub";
+    public static final String HOST = "http://track.nextgis.com";
+    public static final String URL = "/ng-mobile";
 
     private boolean         mIsRunning;
     private LocationManager mLocationManager;
@@ -604,7 +603,8 @@ public class TrackerService extends Service implements LocationListener, GpsStat
     }
 
     private void post(String payload, Context context, List<String> ids) throws IOException {
-        String url = String.format("%s/%s/packet", URL, getUid(context));
+        String base = mSharedPreferences.getString("tracker_hub_url", HOST);
+        String url = String.format("%s/%s/packet", base + URL, getUid(context));
 //        Log.d(Constants.TAG, "Post to " + url);
         HttpResponse response = NetworkUtil.post(url, payload, null, null, false);
 //        Log.d(Constants.TAG, "Response is " + response.getResponseCode());

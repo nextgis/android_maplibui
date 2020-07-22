@@ -321,7 +321,7 @@
     <string name="ngid_first_name">Имя</string>
     <string name="ngid_last_name">Фамилия</string>
     <string name="ngid_username">Имя пользователя</string>
-    <string name="ngid_my">my.nextgis.com</string>
+    <string name="ngid_my">NextGIS ID (%s)</string>
     <string name="not_set">Не задано</string>
     <string name="sign_out">Выйти</string>
     <string name="ngid_account_ask">Еще нет своего аккаунта?</string>
@@ -357,4 +357,7 @@
     <string name="averaging">Усреднить</string>
     <string name="averaging_enter_value">Введите значение (%1$d/%2$d)</string>
     <string name="average_next">Дальше</string>
+    <string name="ngid_onpremise">Подключиться к серверу организации</string>
+    <string name="ngid_server">Текущий сервер %s</string>
+    <string name="ngid_type_url">Введите URL</string>
 </resources>

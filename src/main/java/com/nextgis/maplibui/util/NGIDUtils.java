@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2017-2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2017-2018, 2020 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -31,16 +31,21 @@ import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.HttpResponse;
 import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.BuildConfig;
+import com.nextgis.maplibui.service.TrackerService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
@@ -49,12 +54,13 @@ import javax.net.ssl.HttpsURLConnection;
 import static com.nextgis.maplib.util.Constants.SUPPORT;
 
 public final class NGIDUtils {
-    public static final String NGID_MY = "https://my.nextgis.com/";
-    private static final String NGID_API = "https://my.nextgis.com/api/v1/";
-    private static final String OAUTH_NEW = NGID_MY + "oauth2/token/?grant_type=password&username=%s&password=%s&client_id=%s";
-    private static final String OAUTH_REFRESH = NGID_MY + "oauth2/token/?grant_type=refresh_token&client_id=%s&refresh_token=%s";
-    public static final String USER_INFO = NGID_API + "user_info/";
-    public static final String USER_SUPPORT = NGID_API + "support_info/";
+    public static final String NGID_MY = "https://my.nextgis.com";
+    private static final String OAUTH_URL = "/oauth2/token/";
+    private static final String OAUTH_NEW = "grant_type=password&username=%s&password=%s&client_id=%s";
+    private static final String OAUTH_REFRESH = "grant_type=refresh_token&client_id=%s&refresh_token=%s";
+    private static final String USER_INFO = "/api/v1/user_info/";
+    private static final String USER_SUPPORT = "/api/v1/support_info/";
+    private static final String HUB_INFO_URL = "/api/v1/settings/";
     private static final String GET = "GET";
     private static final String POST = "POST";
 
@@ -65,56 +71,66 @@ public final class NGIDUtils {
     public static final String PREF_FIRST_NAME = "first_name";
     public static final String PREF_LAST_NAME = "last_name";
 
+//    public static final String COLLECTOR_HUB_URL = "http://dev.nextgis.com/collector_hub/api/collector/projects"
+    public static final String COLLECTOR_HUB_URL = "http://collector-hub.nextgis.com";
+    public static final String COLLECTOR_PROJECTS_URL = "/api/collector/projects";
+
     private static SharedPreferences mPreferences;
 
     public interface OnFinish {
         void onFinish(HttpResponse response);
     }
 
-    public static void get(Context context, String url, OnFinish callback) {
+    public static void get(Context context, OnFinish callback) {
         if (mPreferences == null)
             mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
+        String base = mPreferences.getString("ngid_url", NGIDUtils.NGID_MY);
         String token = mPreferences.getString(PREF_ACCESS_TOKEN, "");
-        new Load(callback).execute(url, "GET", token);
+        new Load(callback, base).execute(USER_SUPPORT, "GET", token);
     }
 
     public static void getToken(Context context, String login, String password, OnFinish callback) {
         if (mPreferences == null)
             mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-        new Load(callback).execute(USER_INFO, "GET", null, login, password);
+        String base = mPreferences.getString("ngid_url", NGIDUtils.NGID_MY);
+        base = NetworkUtil.trimSlash(base);
+        new Load(callback, base).execute(USER_INFO, "GET", null, login, password);
     }
 
     private static class Load extends AsyncTask<String, Void, HttpResponse> {
         private OnFinish mCallback;
+        private String mBaseUrl;
 
-        Load(OnFinish callback) {
+        Load(OnFinish callback, String base) {
             mCallback = callback;
+            mBaseUrl = base;
         }
 
         @Override
         protected HttpResponse doInBackground(String... args) {
-            String url = args[0];
+            String url = mBaseUrl + args[0];
             String method = args[1];
             String token = args[2];
 
             if (TextUtils.isEmpty(token)) {
                 try {
-                    token = getToken(args);
-                    userCheck(token);
+                    token = getToken(mBaseUrl, args);
+                    userCheck(mBaseUrl, token);
+                    getHubUrls(mBaseUrl, token);
                 } catch (IOError e) {
                     return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
                 }
             }
 
-            HttpResponse response = getResponse(url, method, token);
+            HttpResponse response = getResponse(url, method, token, null);
             if (!response.isOk()) {
-                response = userCheck(token);
+                response = userCheck(mBaseUrl, token);
                 if (!response.isOk())
                     return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
                 else
-                    response = getResponse(url, method, token);
+                    response = getResponse(url, method, token, null);
             }
 
             return response;
@@ -129,14 +145,32 @@ public final class NGIDUtils {
         }
     }
 
-    private static HttpResponse userCheck(String token) {
-        HttpResponse response = getResponse(USER_INFO, "GET", token);
+    private static void getHubUrls(String base, String token) {
+        String infoUrl = base + HUB_INFO_URL;
+        HttpResponse response = getResponse(infoUrl, "GET", token, null);
+        if (mPreferences != null) {
+            try {
+                String body = response.getResponseBody();
+                JSONObject json = new JSONObject(body);
+                String tracker = json.optString("tracker_hub", TrackerService.HOST);
+                tracker = NetworkUtil.trimSlash(tracker);
+                String collector = json.optString("collector_hub", COLLECTOR_HUB_URL);
+                collector = NetworkUtil.trimSlash(collector);
+                mPreferences.edit().putString("tracker_hub_url", tracker).putString("collector_hub_url", collector).apply();
+            } catch (JSONException | NullPointerException ignored) {}
+        }
+    }
+
+    private static HttpResponse userCheck(String base, String token) {
+        String infoUrl = base + USER_INFO;
+        HttpResponse response = getResponse(infoUrl, "GET", token, null);
         String userCheck = response.getResponseBody();
         if (userCheck == null) {
+            String refreshUrl = base + OAUTH_URL;
             String refreshToken = mPreferences.getString(PREF_REFRESH_TOKEN, "");
-            String accessRefresh = String.format(OAUTH_REFRESH, BuildConfig.CLIENT_ID, refreshToken);
+            String body = String.format(OAUTH_REFRESH, BuildConfig.CLIENT_ID, refreshToken);
 
-            response = getResponse(accessRefresh, POST, null);
+            response = getResponse(refreshUrl, POST, null, body);
             if (!response.isOk())
                 return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
 
@@ -144,7 +178,7 @@ public final class NGIDUtils {
             if (token == null)
                 return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
 
-            response = getResponse(USER_INFO, GET, token);
+            response = getResponse(infoUrl, GET, token, null);
             if (!response.isOk())
                 return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
 
@@ -155,7 +189,7 @@ public final class NGIDUtils {
         return response;
     }
 
-    private static String getToken(String... args) throws IOError {
+    private static String getToken(String base, String... args) throws IOError {
         String login = args.length > 3 ? args[3] : null;
         String password = args.length > 4 ? args[4] : null;
 
@@ -167,9 +201,10 @@ public final class NGIDUtils {
             password = URLEncoder.encode(password, "UTF-8").replaceAll("\\+", "%20");
         } catch (UnsupportedEncodingException | NullPointerException ignored) {}
 
-        String accessNew = String.format(OAUTH_NEW, login, password, BuildConfig.CLIENT_ID);
+        String newUrl = base + OAUTH_URL;
+        String body = String.format(OAUTH_NEW, login, password, BuildConfig.CLIENT_ID);
 
-        HttpResponse response = getResponse(accessNew, POST, null);
+        HttpResponse response = getResponse(newUrl, POST, null, body);
         if (!response.isOk())
             throw new IOError(new Throwable("Response is not OK"));
 
@@ -202,15 +237,32 @@ public final class NGIDUtils {
         return token;
     }
 
-    private static HttpResponse getResponse(String target, String method, String token) {
+    private static HttpResponse getResponse(String target, String method, String token, String payload) {
         try {
             URL url = new URL(target);
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-
+            HttpURLConnection conn;
+            if (target.startsWith("https"))
+                conn = (HttpsURLConnection) url.openConnection();
+            else
+                conn = (HttpURLConnection) url.openConnection();
             if (!TextUtils.isEmpty(token))
                 conn.setRequestProperty("Authorization", token);
 
             conn.setRequestMethod(method);
+
+            if (method.equals("POST")) {
+                // Allow Outputs
+                conn.setDoOutput(true);
+
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+                writer.write(payload);
+
+                writer.flush();
+                writer.close();
+                os.close();
+            }
+
             conn.connect();
 
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
