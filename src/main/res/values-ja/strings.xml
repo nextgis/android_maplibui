@@ -355,8 +355,8 @@
     <string name="averaging">Average</string>
     <string name="averaging_enter_value">Type value (%1$d/%2$d)</string>
     <string name="average_next">Continue</string>
-    <string name="ngid_onpremise">Connect to on-premise server</string>
-    <string name="ngid_server">Current server is %s</string>
+    <string name="ngid_onpremise">Change authorization server</string>
+    <string name="ngid_server">Currently used: %s</string>
     <string name="ngid_type_url">Type URL</string>
     <string name="user_name_ngw">Web GIS login</string>
     <string name="user_name_ngid">Login or E-mail</string>

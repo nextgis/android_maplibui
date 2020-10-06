@@ -355,8 +355,8 @@
     <string name="averaging">Миёна</string>
     <string name="averaging_enter_value">Арзишро ворид кунед (%1$d/%2$d)</string>
     <string name="average_next">Баъдан</string>
-    <string name="ngid_onpremise">Connect to on-premise server</string>
-    <string name="ngid_server">Current server is %s</string>
+    <string name="ngid_onpremise">Изменить сервер авторизации</string>
+    <string name="ngid_server">Текущий: %s</string>
     <string name="ngid_type_url">Type URL</string>
     <string name="user_name_ngw">Логин Веб ГИС</string>
     <string name="user_name_ngid">Логин или E-mail</string>
