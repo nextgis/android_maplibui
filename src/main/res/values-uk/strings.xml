@@ -272,7 +272,7 @@
     <string name="replace_field_rule">Всі поточні правила будуть видалені через зміну поля для правила. Ви впевнені?</string>
     <string name="new_gis">Створити ГІС</string>
     <string name="manual_ngw">Розширені налаштування</string>
-    <string name="instance_name">Ім\'я ГІС</string>
+    <string name="instance_name">URL ГІС</string>
     <string name="ngw_from_my_nextgis">Ще не маєте своєї ГІС? Зареєструйтеся на my.nextgis.com та створіть!</string>
     <string name="ngid_account_new">Зареєструватися</string>
     <string name="guest">Гість</string>
@@ -359,4 +359,6 @@
     <string name="ngid_onpremise">Connect to on-premise server</string>
     <string name="ngid_server">Current server is %s</string>
     <string name="ngid_type_url">Type URL</string>
+    <string name="user_name_ngw">Логин Веб ГИС</string>
+    <string name="user_name_ngid">Логин или E-mail</string>
 </resources>

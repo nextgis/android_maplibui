@@ -283,7 +283,7 @@
     <string name="replace_field_rule">Všechna pravidla budou smazána, když změníte pole. Opravdu to chcete udělat?</string>
     <string name="new_gis">Nový GIS</string>
     <string name="manual_ngw">Přepnout na pokročilý</string>
-    <string name="instance_name">Název Web GIS</string>
+    <string name="instance_name">Web GIS URL</string>
     <string name="ngw_from_my_nextgis">Do you have GIS? Sign up at my.nextgis.com to get your own one!</string>
     <string name="ngid_account_new">Sign up</string>
     <string name="guest">Návštěvník</string>
@@ -360,4 +360,6 @@
     <string name="ngid_onpremise">Connect to on-premise server</string>
     <string name="ngid_server">Current server is %s</string>
     <string name="ngid_type_url">Type URL</string>
+    <string name="user_name_ngw">Web GIS login</string>
+    <string name="user_name_ngid">Login or E-mail</string>
 </resources>

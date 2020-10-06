@@ -45,6 +45,8 @@
     <string name="password">Password</string>
     <string name="login">Sign in</string>
     <string name="user_name">Login</string>
+    <string name="user_name_ngw">Web GIS login</string>
+    <string name="user_name_ngid">Login or E-mail</string>
     <string name="canceled">Canceled</string>
     <string name="error_login">Login failed</string>
     <string name="ngw_layer_add">Add from Web GIS</string>
@@ -296,7 +298,7 @@
     <string name="replace_field_rule">All rules will be deleted due to changing rule field.</string>
     <string name="new_gis">Create GIS</string>
     <string name="manual_ngw">Switch to advanced</string>
-    <string name="instance_name">Web GIS name</string>
+    <string name="instance_name">Web GIS address</string>
     <string name="ngw_from_my_nextgis">Do you have GIS? Sign up at my.nextgis.com to get your own one!</string>
     <string name="ngid_settings">Account</string>
     <string name="ngid_account_new">Sign up</string>

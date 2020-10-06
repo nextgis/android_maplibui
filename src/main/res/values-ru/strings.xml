@@ -44,6 +44,8 @@
     <string name="password">Пароль</string>
     <string name="login">Войти</string>
     <string name="user_name">Имя пользователя</string>
+    <string name="user_name_ngw">Логин Веб ГИС</string>
+    <string name="user_name_ngid">Логин или E-mail</string>
     <string name="canceled">Отменено</string>
     <string name="ngw_account_already_exists">Учетная запись уже существует</string>
     <string name="error_login">Ошибка входа</string>
@@ -273,7 +275,7 @@
     <string name="replace_field_rule">Все текущие правила будут удалены из-за смены поля для правила. Вы уверены?</string>
     <string name="new_gis">Создать ГИС</string>
     <string name="manual_ngw">Расширенные настройки</string>
-    <string name="instance_name">Имя ГИС</string>
+    <string name="instance_name">Адрес Веб ГИС</string>
     <string name="ngw_from_my_nextgis">Еще нет своей Веб ГИС? Создайте на my.nextgis.com!</string>
     <string name="guest">Гость</string>
     <string name="field_not_filled">Некоторые поля пустые</string>

@@ -271,7 +271,7 @@
     <string name="replace_field_rule">Бо сабаби тағир ёфтани майдон барои қоида, ҳамаи қоидаҳои ҷорӣ тоза карда мешаванд. Шумо мутмаъин ҳастед?</string>
     <string name="new_gis">Сохтани GIS</string>
     <string name="manual_ngw">Танзисоти тақвият </string>
-    <string name="instance_name">Номи GIS</string>
+    <string name="instance_name">Web GIS URL</string>
     <string name="ngw_from_my_nextgis">Шумо ҳоло ҳам Web GIS-и худ надоред? Эҷод дар my.nextgis.com!</string>
     <string name="guest">меҳмон</string>
     <string name="field_not_filled">Баъзе майдонҳо холӣ ҳастанд.</string>
@@ -358,4 +358,6 @@
     <string name="ngid_onpremise">Connect to on-premise server</string>
     <string name="ngid_server">Current server is %s</string>
     <string name="ngid_type_url">Type URL</string>
+    <string name="user_name_ngw">Логин Веб ГИС</string>
+    <string name="user_name_ngid">Логин или E-mail</string>
 </resources>
