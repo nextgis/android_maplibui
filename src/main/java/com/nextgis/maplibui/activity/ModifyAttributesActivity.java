@@ -561,7 +561,7 @@ public class ModifyAttributesActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        String read = Manifest.permission.READ_EXTERNAL_STORAGE;
+        String read = Manifest.permission.WRITE_EXTERNAL_STORAGE;
         if (!PermissionUtil.hasPermission(this, read)) {
             Toast.makeText(this, R.string.no_permission_granted, Toast.LENGTH_SHORT).show();
             return;

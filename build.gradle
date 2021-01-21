@@ -29,8 +29,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 75
-        versionName '2.6.18'
+        versionCode 76
+        versionName '2.6.19'
         buildConfigField "String", "CLIENT_ID", "\"Im6GFdPPuPM09BnvFb3EacFZyq8TpRBSAAex7JDZ\""
     }
     productFlavors {
@@ -59,7 +59,7 @@ repositories {
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
     api project(':maplib')
-    api 'com.4ert:easypicker:0.2.13'
+    api 'com.4ert:easypicker:0.2.14'
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
     implementation 'com.jzxiang.pickerview:TimePickerDialog:1.0.1'
     implementation 'com.github.miguelbcr:TableFixHeaders-Wrapper:0.2.0'
