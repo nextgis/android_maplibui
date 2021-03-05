@@ -3,7 +3,7 @@
  * Purpose:  Light mobile GIS for collecting data
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * ********************************************************************
- * Copyright (c) 2020 NextGIS, info@nextgis.com
+ * Copyright (c) 2020-2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,10 +24,13 @@ package com.nextgis.maplibui.util;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Environment;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.VectorLayer;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 
@@ -46,19 +49,25 @@ import static com.nextgis.maplib.util.LayerUtil.normalizeLayerName;
 public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
     private List<VectorLayer> mLayers;
     private String mName;
+    private boolean mSaveLog;
 
-    public ExportGeoJSONBatchTask(Activity activity, List<VectorLayer> layers, boolean proceedAttaches, String name) {
+    public ExportGeoJSONBatchTask(Activity activity, List<VectorLayer> layers, boolean proceedAttaches, String name, boolean saveLog) {
         super(activity, null, proceedAttaches, false);
         mLayers = layers;
         mName = name;
+        mSaveLog = saveLog;
     }
 
     @Override
     protected Object doInBackground(Void... voids) {
         Context context = null;
+        Log.d(Constants.TAG, "ExportGeoJSONBatchTask: start doInBackground");
         for (ILayer layer : mLayers)
-            if (layer != null)
+            if (layer != null) {
+                Log.d(Constants.TAG, "ExportGeoJSONBatchTask: found context from layer " + layer.getName());
                 context = layer.getContext();
+                break;
+            }
 
         if (context != null) {
             try {
@@ -66,14 +75,18 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
                     mName = Long.toString(System.currentTimeMillis());
                 File temp = MapUtil.prepareTempDir(context, "shared_layers");
                 String fileName = normalizeLayerName(mName) + ".zip";
-                if (temp == null)
+                Log.d(Constants.TAG, "ExportGeoJSONBatchTask: result fileName is " + fileName);
+                if (temp == null) {
+                    Log.d(Constants.TAG, "ExportGeoJSONBatchTask: error creating file due to temp = null");
                     return R.string.error_file_create;
+                }
 
                 temp = new File(temp, fileName);
                 temp.createNewFile();
                 FileOutputStream fos = new FileOutputStream(temp, false);
                 ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(fos));
 
+                Log.d(Constants.TAG, "ExportGeoJSONBatchTask: Temp file created, start zipping");
                 if (mIsCanceled)
                     return R.string.canceled;
 
@@ -81,38 +94,48 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
                 int length;
 
                 for (VectorLayer layer : mLayers) {
+                    Log.d(Constants.TAG, "ExportGeoJSONBatchTask: process " + layer.getName());
                     try {
+                        Log.d(Constants.TAG, "ExportGeoJSONBatchTask: executeOnExecutor ExportGeoJSONTask");
                         ExportGeoJSONTask exportTask = new ExportGeoJSONTask(mActivity, layer, mProceedAttaches, true);
                         Object result = exportTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
 
                         if (result instanceof File) {
+                            Log.d(Constants.TAG, "ExportGeoJSONBatchTask: result is File");
                             FileInputStream fis = new FileInputStream((File) result);
                             zos.putNextEntry(new ZipEntry(((File) result).getName()));
 
+                            Log.d(Constants.TAG, "ExportGeoJSONBatchTask: put result to zip");
                             while ((length = fis.read(buffer)) > 0)
                                 zos.write(buffer, 0, length);
 
+                            Log.d(Constants.TAG, "ExportGeoJSONBatchTask: close entry");
                             zos.closeEntry();
                             fis.close();
                         } else {
+                            Log.d(Constants.TAG, "ExportGeoJSONBatchTask: result is NOT File: " + result);
                             if (result == null)
                                 result = R.string.error_file_create;
                             publishProgress((int) result);
                         }
                     } catch (ExecutionException | InterruptedException ex) {
+                        Log.d(Constants.TAG, "ExportGeoJSONBatchTask: zip error: " + ex.getMessage());
                         publishProgress(R.string.sync_error_io);
                     }
                 }
 
+                Log.d(Constants.TAG, "ExportGeoJSONBatchTask: close streams and return a result");
                 zos.close();
                 fos.close();
 
                 return temp;
             } catch (IOException e) {
+                Log.d(Constants.TAG, "ExportGeoJSONBatchTask: error: " + e.getMessage());
                 e.printStackTrace();
                 return R.string.error_file_create;
             }
         }
+        Log.d(Constants.TAG, "ExportGeoJSONBatchTask: error creating file due to context = null");
         return R.string.error_file_create;
     }
 
@@ -122,4 +145,21 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
         Toast.makeText(mActivity, values[0], Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    protected void onPostExecute(Object result) {
+        super.onPostExecute(result);
+        saveLog();
+    }
+
+    private void saveLog() {
+        if (!mSaveLog)
+            return;
+        try {
+            File outputFile = new File(Environment.getExternalStorageDirectory(), "ng_log_" + System.currentTimeMillis() + ".txt");
+            Runtime.getRuntime().exec("logcat -c");
+            Runtime.getRuntime().exec("logcat -s -v time -f " + outputFile.getAbsolutePath() + " " + Constants.TAG);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

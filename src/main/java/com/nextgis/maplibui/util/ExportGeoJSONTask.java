@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2018-2020 NextGIS, info@nextgis.com
+ * Copyright (c) 2018-2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ import android.os.Build;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Feature;
@@ -113,27 +114,36 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
 
     @Override
     protected Object doInBackground(Void... voids) {
+        Log.d(Constants.TAG, "ExportGeoJSONTask: start doInBackground");
         try {
-            if (!PermissionUtil.hasPermission(mLayer.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE))
+            if (!PermissionUtil.hasPermission(mLayer.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                Log.d(Constants.TAG, "ExportGeoJSONTask: no write permission granted");
                 return R.string.no_permission;
+            }
 
             File temp = MapUtil.prepareTempDir(mLayer.getContext(), "shared_layers");
             String fileName = normalizeLayerName(mLayer.getName()) + ".zip";
-            if (temp == null)
+            Log.d(Constants.TAG, "ExportGeoJSONTask: result fileName is " + fileName);
+            if (temp == null) {
+                Log.d(Constants.TAG, "ExportGeoJSONTask: prepare temp directory is null");
                 return R.string.error_file_create;
+            }
 
             temp = new File(temp, fileName);
             temp.createNewFile();
             FileOutputStream fos = new FileOutputStream(temp, false);
             ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(fos));
 
+            Log.d(Constants.TAG, "ExportGeoJSONTask: temp file created");
             JSONObject obj = new JSONObject();
             JSONArray geoJSONFeatures = new JSONArray();
             Cursor featuresCursor = mLayer.query(null, null, null, null, null);
 
+            Log.d(Constants.TAG, "ExportGeoJSONTask: cursor fetched from db");
             if (mIsCanceled)
                 return R.string.canceled;
 
+            Log.d(Constants.TAG, "ExportGeoJSONTask: create json with crs");
             JSONObject crs = new JSONObject();
             crs.put(GEOJSON_TYPE, GEOJSON_NAME);
             JSONObject crsName = new JSONObject();
@@ -146,7 +156,9 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
             byte[] buffer = new byte[1024];
             int length;
 
+            Log.d(Constants.TAG, "ExportGeoJSONTask: iterate over all features");
             if (featuresCursor != null && featuresCursor.moveToFirst()) {
+                Log.d(Constants.TAG, "ExportGeoJSONTask: move to first");
                 do {
                     if (mIsCanceled)
                         return R.string.canceled;
@@ -197,16 +209,21 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
                     geoJSONFeatures.put(featureJSON);
                 } while (featuresCursor.moveToNext());
 
+                Log.d(Constants.TAG, "ExportGeoJSONTask: close cursor");
                 featuresCursor.close();
             } else {
                 publishProgress();
             }
 
+            Log.d(Constants.TAG, "ExportGeoJSONTask: put features to json");
             obj.put(GEOJSON_TYPE_FEATURES, geoJSONFeatures);
 
+            Log.d(Constants.TAG, "ExportGeoJSONTask: put json to zip");
             buffer = obj.toString().getBytes();
             zos.putNextEntry(new ZipEntry(mLayer.getName() + ".geojson"));
             zos.write(buffer);
+
+            Log.d(Constants.TAG, "ExportGeoJSONTask: close entry and streams");
             zos.closeEntry();
             zos.close();
             fos.close();
@@ -214,9 +231,11 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
             return temp;
         } catch (JSONException e) {
             e.printStackTrace();
+            Log.d(Constants.TAG, "ExportGeoJSONTask: JSON error: " + e.getMessage());
             return R.string.error_export_geojson;
         } catch (IOException e) {
             e.printStackTrace();
+            Log.d(Constants.TAG, "ExportGeoJSONTask: IOException: " + e.getMessage());
             return R.string.error_file_create;
         }
     }
@@ -224,12 +243,14 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
     @Override
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
+        Log.d(Constants.TAG, "ExportGeoJSONTask: layer has no features");
         Toast.makeText(mActivity, R.string.no_features, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     protected void onPostExecute(Object result) {
         super.onPostExecute(result);
+        Log.d(Constants.TAG, "ExportGeoJSONTask: result is: " + result);
         if (mResultOnly)
             return;
 
