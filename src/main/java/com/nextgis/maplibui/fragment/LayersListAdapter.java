@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2014-2019, 2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -239,7 +239,8 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                             popup.getMenu().findItem(R.id.menu_download_tiles).setVisible(true);
                             popup.getMenu().findItem(R.id.menu_download_tiles).setTitle(R.string.attributes);
                         } else if (layerui instanceof LocalTMSLayer) {
-                            popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(true);
+                            GeoEnvelope extents = ((LocalTMSLayer) layerui).getExtents();
+                            popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(extents != null && extents.isInit());
                         } else if (layerui instanceof NGWRasterLayer) {
                             popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(true);
                             popup.getMenu().findItem(R.id.menu_download_tiles).setVisible(true);
@@ -318,12 +319,15 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                    @Override
                    public void onClick(DialogInterface dialogInterface, int i) {
                        final int position = mMap.removeLayer(layer);
-                       final View focus = mActivity.getCurrentFocus();
-                       if (focus == null)
+                       final View root = mActivity.getWindow().getDecorView().getRootView();
+                       if (root == null) {
+                           layer.delete();
+                           mMap.save();
                            return;
+                       }
 
                        String done = mActivity.getString(R.string.delete_layer_done);
-                       Snackbar snackbar = Snackbar.make(focus, done, Snackbar.LENGTH_LONG)
+                       Snackbar snackbar = Snackbar.make(root, done, Snackbar.LENGTH_LONG)
                                                    .setAction(R.string.undo, new View.OnClickListener() {
                                                        @Override
                                                        public void onClick(View v) {
