@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2018-2019, 2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,8 +57,6 @@ import java.util.TimeZone;
 
 import static com.nextgis.maplib.util.GeoConstants.CRS_WEB_MERCATOR;
 import static com.nextgis.maplib.util.GeoConstants.CRS_WGS84;
-import static com.nextgis.maplibui.util.LayerUtil.AUTHORITY;
-import static com.nextgis.maplibui.util.LayerUtil.notFound;
 
 public class ExportGPXTask extends AsyncTask<Void, Void, Void> implements DialogInterface.OnClickListener {
     private static final String XML_VERSION = "<?xml version=\"1.0\"?>";
@@ -131,7 +129,7 @@ public class ExportGPXTask extends AsyncTask<Void, Void, Void> implements Dialog
             }
 
             Context app = mActivity.getApplicationContext();
-            String authority = mActivity.getPackageName() + AUTHORITY;
+            String authority = mActivity.getPackageName() + FileUtil.AUTHORITY;
             for (String trackId : mTracksId) {
                 if (mIsCanceled)
                     return null;
@@ -317,7 +315,7 @@ public class ExportGPXTask extends AsyncTask<Void, Void, Void> implements Dialog
         try {
             mActivity.startActivity(shareIntent);
         } catch (ActivityNotFoundException e) {
-            notFound(mActivity);
+            UiUtil.notFound(mActivity);
         }
     }
 }

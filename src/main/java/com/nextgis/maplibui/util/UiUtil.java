@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2018 NextGIS, info@nextgis.com
+ * Copyright (c) 2018, 2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -21,7 +21,11 @@
 
 package com.nextgis.maplibui.util;
 
+import android.app.Activity;
 import android.support.v7.widget.PopupMenu;
+import android.widget.Toast;
+
+import com.nextgis.maplibui.R;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -45,6 +49,10 @@ public final class UiUtil {
         } catch (Throwable e) {
             e.printStackTrace();
         }
+    }
+
+    static void notFound(Activity activity) {
+        Toast.makeText(activity, R.string.no_activity_found, Toast.LENGTH_SHORT).show();
     }
 
 }
