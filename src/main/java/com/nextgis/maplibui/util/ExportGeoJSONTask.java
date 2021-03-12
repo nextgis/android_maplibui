@@ -24,15 +24,9 @@ package com.nextgis.maplibui.util;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.support.v4.app.ShareCompat;
-import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -42,7 +36,6 @@ import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.AttachItem;
 import com.nextgis.maplib.util.Constants;
-import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.GeoJSONUtil;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplib.util.PermissionUtil;
@@ -283,30 +276,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
             return;
         }
 
-        Intent shareIntent = new Intent();
         String type = "application/json,application/vnd.geo+json,application/zip";
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            String authority = mActivity.getPackageName() + FileUtil.AUTHORITY;
-            Uri uri = FileProvider.getUriForFile(mActivity, authority, path);
-            shareIntent = ShareCompat.IntentBuilder.from(mActivity)
-                                                   .setStream(uri)
-                                                   .setType(type)
-                                                   .getIntent()
-                                                   .setAction(Intent.ACTION_SEND)
-                                                   .setDataAndType(uri, type)
-                                                   .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        } else {
-            shareIntent = Intent.createChooser(shareIntent, mActivity.getString(R.string.menu_share));
-            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(path));
-            shareIntent.setType(type);
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        }
-        //        shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, urisArray); // multiple data
-        try {
-            mActivity.startActivity(shareIntent);
-        } catch (ActivityNotFoundException e) {
-            UiUtil.notFound(mActivity);
-        }
+        UiUtil.share(path, type, mActivity);
     }
 }
