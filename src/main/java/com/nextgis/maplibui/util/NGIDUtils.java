@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2017-2018, 2020 NextGIS, info@nextgis.com
+ * Copyright (c) 2017-2018, 2020-2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -116,7 +116,30 @@ public final class NGIDUtils {
 
             if (TextUtils.isEmpty(token)) {
                 try {
-                    token = getToken(mBaseUrl, args);
+                    String login = args.length > 3 ? args[3] : null;
+                    String password = args.length > 4 ? args[4] : null;
+
+                    if (login == null || password == null)
+                        return new HttpResponse(NetworkUtil.ERROR_AUTH);
+
+                    try {
+                        login = URLEncoder.encode(login, "UTF-8").replaceAll("\\+", "%20");
+                        password = URLEncoder.encode(password, "UTF-8").replaceAll("\\+", "%20");
+                    } catch (UnsupportedEncodingException | NullPointerException ignored) {
+                        return new HttpResponse(NetworkUtil.ERROR_AUTH);
+                    }
+
+                    String newUrl = mBaseUrl + OAUTH_URL;
+                    String body = String.format(OAUTH_NEW, login, password, BuildConfig.CLIENT_ID);
+
+                    HttpResponse response = getResponse(newUrl, POST, null, body);
+                    if (!response.isOk())
+                        return new HttpResponse(response.getResponseCode());
+
+                    token = parseResponseBody(response.getResponseBody());
+                    if (token == null)
+                        return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
+
                     userCheck(mBaseUrl, token);
                     getHubUrls(mBaseUrl, token);
                 } catch (IOError e) {
@@ -189,32 +212,6 @@ public final class NGIDUtils {
         return response;
     }
 
-    private static String getToken(String base, String... args) throws IOError {
-        String login = args.length > 3 ? args[3] : null;
-        String password = args.length > 4 ? args[4] : null;
-
-        if (login == null || password == null)
-            throw new IOError(new Throwable("Login or Password is NULL"));
-
-        try {
-            login = URLEncoder.encode(login, "UTF-8").replaceAll("\\+", "%20");
-            password = URLEncoder.encode(password, "UTF-8").replaceAll("\\+", "%20");
-        } catch (UnsupportedEncodingException | NullPointerException ignored) {}
-
-        String newUrl = base + OAUTH_URL;
-        String body = String.format(OAUTH_NEW, login, password, BuildConfig.CLIENT_ID);
-
-        HttpResponse response = getResponse(newUrl, POST, null, body);
-        if (!response.isOk())
-            throw new IOError(new Throwable("Response is not OK"));
-
-        String token = parseResponseBody(response.getResponseBody());
-        if (token == null)
-            throw new IOError(new Throwable("Token is NULL"));
-
-        return token;
-    }
-
     private static void saveUserInfo(String userInfo) {
         try {
             JSONObject json = new JSONObject(userInfo);
@@ -264,6 +261,14 @@ public final class NGIDUtils {
             }
 
             conn.connect();
+
+            if (conn.getResponseCode() != 200) {
+                int code = NetworkUtil.ERROR_CONNECT_FAILED;
+                String msg = NetworkUtil.responseToString(conn.getErrorStream());
+                if (msg.contains("Invalid credentials given"))
+                    code = NetworkUtil.ERROR_AUTH;
+                return new HttpResponse(code);
+            }
 
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line, data = "";
