@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.ZipEntry;
@@ -53,6 +54,16 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
         super(activity, null, proceedAttaches, false);
         mLayers = layers;
         mName = name;
+    }
+
+    private String getUniqueName(String name, ArrayList<String> names) {
+        int i = 0;
+        String result = name;
+        while (names.contains(result)) {
+            i++;
+            result = name.replace(ZIP_EXT, "") + "-" + i + ZIP_EXT;
+        }
+        return result;
     }
 
     @Override
@@ -90,6 +101,7 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
                 byte[] buffer = new byte[1024];
                 int length;
 
+                ArrayList<String> existingFiles = new ArrayList<>();
                 for (VectorLayer layer : mLayers) {
                     HyperLog.v(Constants.TAG, "ExportGeoJSONBatchTask: process " + layer.getName());
                     try {
@@ -98,9 +110,13 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
                         Object result = exportTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
 
                         if (result instanceof File) {
+                            File file = (File) result;
                             HyperLog.v(Constants.TAG, "ExportGeoJSONBatchTask: result is File");
-                            FileInputStream fis = new FileInputStream((File) result);
-                            zos.putNextEntry(new ZipEntry(((File) result).getName()));
+                            String name = file.getName();
+                            name = getUniqueName(name, existingFiles);
+                            existingFiles.add(name);
+                            FileInputStream fis = new FileInputStream(file);
+                            zos.putNextEntry(new ZipEntry(name));
 
                             HyperLog.v(Constants.TAG, "ExportGeoJSONBatchTask: put result to zip");
                             while ((length = fis.read(buffer)) > 0)

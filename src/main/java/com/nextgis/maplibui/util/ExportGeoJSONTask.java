@@ -70,6 +70,7 @@ import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FeatureCollectio
 import static com.nextgis.maplib.util.LayerUtil.normalizeLayerName;
 
 public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
+    protected static String ZIP_EXT = ".zip";
     Activity mActivity;
     private VectorLayer mLayer;
     private ProgressDialog mProgress;
@@ -114,7 +115,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
             }
 
             File temp = MapUtil.prepareTempDir(mLayer.getContext(), "shared_layers");
-            String fileName = normalizeLayerName(mLayer.getName()) + ".zip";
+            String fileName = normalizeLayerName(mLayer.getName()) + ZIP_EXT;
             HyperLog.v(Constants.TAG, "ExportGeoJSONTask: result fileName is " + fileName);
             if (temp == null) {
                 HyperLog.v(Constants.TAG, "ExportGeoJSONTask: prepare temp directory is null");
