@@ -4,7 +4,7 @@
  * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2020 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,6 @@ import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.GeoConstants;
-import com.nextgis.maplibui.BuildConfig;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
@@ -111,11 +110,6 @@ public final class LayerUtil {
             intent.putExtra(KEY_GEOMETRY, geometry);
 
         ((Activity) context).startActivityForResult(intent, IVectorLayerUI.MODIFY_REQUEST);
-    }
-
-    final static String AUTHORITY = ".easypicker.provider";
-    static void notFound(Activity activity) {
-        Toast.makeText(activity, R.string.no_activity_found, Toast.LENGTH_SHORT).show();
     }
 
     public static void shareTrackAsGPX(NGActivity activity, String creator, String[] tracksId) {

@@ -24,19 +24,13 @@ package com.nextgis.maplibui.util;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.support.v4.app.ShareCompat;
-import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 
+import com.hypertrack.hyperlog.HyperLog;
 import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.map.VectorLayer;
@@ -74,8 +68,6 @@ import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FEATURES;
 import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_Feature;
 import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FeatureCollection;
 import static com.nextgis.maplib.util.LayerUtil.normalizeLayerName;
-import static com.nextgis.maplibui.util.LayerUtil.AUTHORITY;
-import static com.nextgis.maplibui.util.LayerUtil.notFound;
 
 public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
     Activity mActivity;
@@ -114,18 +106,18 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
 
     @Override
     protected Object doInBackground(Void... voids) {
-        Log.d(Constants.TAG, "ExportGeoJSONTask: start doInBackground");
+        HyperLog.v(Constants.TAG, "ExportGeoJSONTask: start doInBackground");
         try {
             if (!PermissionUtil.hasPermission(mLayer.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                Log.d(Constants.TAG, "ExportGeoJSONTask: no write permission granted");
+                HyperLog.v(Constants.TAG, "ExportGeoJSONTask: no write permission granted");
                 return R.string.no_permission;
             }
 
             File temp = MapUtil.prepareTempDir(mLayer.getContext(), "shared_layers");
             String fileName = normalizeLayerName(mLayer.getName()) + ".zip";
-            Log.d(Constants.TAG, "ExportGeoJSONTask: result fileName is " + fileName);
+            HyperLog.v(Constants.TAG, "ExportGeoJSONTask: result fileName is " + fileName);
             if (temp == null) {
-                Log.d(Constants.TAG, "ExportGeoJSONTask: prepare temp directory is null");
+                HyperLog.v(Constants.TAG, "ExportGeoJSONTask: prepare temp directory is null");
                 return R.string.error_file_create;
             }
 
@@ -134,16 +126,14 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
             FileOutputStream fos = new FileOutputStream(temp, false);
             ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(fos));
 
-            Log.d(Constants.TAG, "ExportGeoJSONTask: temp file created");
+            HyperLog.v(Constants.TAG, "ExportGeoJSONTask: temp file created");
             JSONObject obj = new JSONObject();
             JSONArray geoJSONFeatures = new JSONArray();
-            Cursor featuresCursor = mLayer.query(null, null, null, null, null);
 
-            Log.d(Constants.TAG, "ExportGeoJSONTask: cursor fetched from db");
             if (mIsCanceled)
                 return R.string.canceled;
 
-            Log.d(Constants.TAG, "ExportGeoJSONTask: create json with crs");
+            HyperLog.v(Constants.TAG, "ExportGeoJSONTask: create json with crs");
             JSONObject crs = new JSONObject();
             crs.put(GEOJSON_TYPE, GEOJSON_NAME);
             JSONObject crsName = new JSONObject();
@@ -152,16 +142,21 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
             obj.put(GEOJSON_CRS, crs);
             obj.put(GEOJSON_TYPE, GEOJSON_TYPE_FeatureCollection);
 
+            if (mIsCanceled)
+                return R.string.canceled;
+
             Feature feature;
             byte[] buffer = new byte[1024];
             int length;
 
-            Log.d(Constants.TAG, "ExportGeoJSONTask: iterate over all features");
+            Cursor featuresCursor = mLayer.query(null, null, null, null, null);
+            HyperLog.v(Constants.TAG, "ExportGeoJSONTask: cursor fetched from db");
+            HyperLog.v(Constants.TAG, "ExportGeoJSONTask: iterate over all features");
             if (featuresCursor != null && featuresCursor.moveToFirst()) {
-                Log.d(Constants.TAG, "ExportGeoJSONTask: move to first");
+                HyperLog.v(Constants.TAG, "ExportGeoJSONTask: move to first");
                 do {
                     if (mIsCanceled)
-                        return R.string.canceled;
+                        break;
 
                     JSONObject featureJSON = new JSONObject();
                     featureJSON.put(GEOJSON_TYPE, GEOJSON_TYPE_Feature);
@@ -209,21 +204,24 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
                     geoJSONFeatures.put(featureJSON);
                 } while (featuresCursor.moveToNext());
 
-                Log.d(Constants.TAG, "ExportGeoJSONTask: close cursor");
+                HyperLog.v(Constants.TAG, "ExportGeoJSONTask: close cursor");
                 featuresCursor.close();
             } else {
                 publishProgress();
             }
 
-            Log.d(Constants.TAG, "ExportGeoJSONTask: put features to json");
+            if (mIsCanceled)
+                return R.string.canceled;
+
+            HyperLog.v(Constants.TAG, "ExportGeoJSONTask: put features to json");
             obj.put(GEOJSON_TYPE_FEATURES, geoJSONFeatures);
 
-            Log.d(Constants.TAG, "ExportGeoJSONTask: put json to zip");
+            HyperLog.v(Constants.TAG, "ExportGeoJSONTask: put json to zip");
             buffer = obj.toString().getBytes();
             zos.putNextEntry(new ZipEntry(mLayer.getName() + ".geojson"));
             zos.write(buffer);
 
-            Log.d(Constants.TAG, "ExportGeoJSONTask: close entry and streams");
+            HyperLog.v(Constants.TAG, "ExportGeoJSONTask: close entry and streams");
             zos.closeEntry();
             zos.close();
             fos.close();
@@ -231,11 +229,11 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
             return temp;
         } catch (JSONException e) {
             e.printStackTrace();
-            Log.d(Constants.TAG, "ExportGeoJSONTask: JSON error: " + e.getMessage());
+            HyperLog.v(Constants.TAG, "ExportGeoJSONTask: JSON error: " + e.getMessage());
             return R.string.error_export_geojson;
         } catch (IOException e) {
             e.printStackTrace();
-            Log.d(Constants.TAG, "ExportGeoJSONTask: IOException: " + e.getMessage());
+            HyperLog.v(Constants.TAG, "ExportGeoJSONTask: IOException: " + e.getMessage());
             return R.string.error_file_create;
         }
     }
@@ -243,14 +241,14 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
     @Override
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
-        Log.d(Constants.TAG, "ExportGeoJSONTask: layer has no features");
+        HyperLog.v(Constants.TAG, "ExportGeoJSONTask: layer has no features");
         Toast.makeText(mActivity, R.string.no_features, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     protected void onPostExecute(Object result) {
         super.onPostExecute(result);
-        Log.d(Constants.TAG, "ExportGeoJSONTask: result is: " + result);
+        HyperLog.v(Constants.TAG, "ExportGeoJSONTask: result is: " + result);
         if (mResultOnly)
             return;
 
@@ -278,30 +276,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
             return;
         }
 
-        Intent shareIntent = new Intent();
         String type = "application/json,application/vnd.geo+json,application/zip";
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            String authority = mActivity.getPackageName() + AUTHORITY;
-            Uri uri = FileProvider.getUriForFile(mActivity, authority, path);
-            shareIntent = ShareCompat.IntentBuilder.from(mActivity)
-                                                   .setStream(uri)
-                                                   .setType(type)
-                                                   .getIntent()
-                                                   .setAction(Intent.ACTION_SEND)
-                                                   .setDataAndType(uri, type)
-                                                   .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        } else {
-            shareIntent = Intent.createChooser(shareIntent, mActivity.getString(R.string.menu_share));
-            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(path));
-            shareIntent.setType(type);
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        }
-        //        shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, urisArray); // multiple data
-        try {
-            mActivity.startActivity(shareIntent);
-        } catch (ActivityNotFoundException e) {
-            notFound(mActivity);
-        }
+        UiUtil.share(path, type, mActivity);
     }
 }
