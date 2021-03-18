@@ -253,6 +253,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
         if (mResultOnly)
             return;
 
+        HyperLog.v(Constants.TAG, "ExportGeoJSONTask: unlock orientation and close dialog");
         ControlHelper.unlockScreenOrientation(mActivity);
         if (mProgress != null)
             mProgress.dismiss();
@@ -263,8 +264,10 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
         }
 
         if (result instanceof File) {
+            HyperLog.v(Constants.TAG, "ExportGeoJSONTask: show share dialog");
             share((File) result);
         } else {
+            HyperLog.v(Constants.TAG, "ExportGeoJSONTask: error: result is null");
             if (result == null)
                 result = R.string.error_file_create;
             Toast.makeText(mActivity, (int) result, Toast.LENGTH_SHORT).show();
