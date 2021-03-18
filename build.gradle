@@ -29,9 +29,12 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 78
-        versionName '2.6.21'
-        buildConfigField "String", "CLIENT_ID", "\"Im6GFdPPuPM09BnvFb3EacFZyq8TpRBSAAex7JDZ\""
+        versionCode 79
+        versionName '2.6.22'
+        def props = new Properties()
+        file("../local.properties").withInputStream { props.load(it) }
+
+        buildConfigField "String", "CLIENT_ID", "\"${props.getProperty("client.id")}\""
     }
     productFlavors {
     }
