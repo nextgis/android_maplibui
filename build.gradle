@@ -57,12 +57,15 @@ repositories {
     maven {
         url "https://dl.bintray.com/krazykira/maven"
     }
+    maven {
+        url "https://jitpack.io"
+    }
 }
 
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
     api project(':maplib')
-    api 'com.4ert:easypicker:0.2.14'
+    api 'com.github.4eRTuk:easypicker:0.2.15'
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
     implementation 'com.jzxiang.pickerview:TimePickerDialog:1.0.1'
     implementation 'com.github.miguelbcr:TableFixHeaders-Wrapper:0.2.0'
