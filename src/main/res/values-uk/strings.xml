@@ -361,4 +361,5 @@
     <string name="ngid_type_url">Type URL</string>
     <string name="user_name_ngw">Логин Веб ГИС</string>
     <string name="user_name_ngid">Логин или E-mail</string>
+    <string name="get_file_manually">No installed apps found to open file %1$s. You can pick it manually at path:\n%2$s</string>
 </resources>

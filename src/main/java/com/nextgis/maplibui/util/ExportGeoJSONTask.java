@@ -301,6 +301,6 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
         }
 
         String type = "application/json,application/vnd.geo+json,application/zip";
-        UiUtil.share(path, type, mActivity);
+        UiUtil.share(path, type, mActivity, true);
     }
 }

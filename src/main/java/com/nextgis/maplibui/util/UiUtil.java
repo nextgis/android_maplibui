@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.widget.Toast;
 
@@ -63,7 +64,7 @@ public final class UiUtil {
         Toast.makeText(activity, R.string.no_activity_found, Toast.LENGTH_SHORT).show();
     }
 
-    public static void share(File file, String mimeType, Activity activity) {
+    public static void share(File file, String mimeType, Activity activity, Boolean showInfoDialog) {
         Intent shareIntent = new Intent();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             String authority = activity.getPackageName() + FileUtil.AUTHORITY;
@@ -86,7 +87,15 @@ public final class UiUtil {
         try {
             activity.startActivity(shareIntent);
         } catch (ActivityNotFoundException e) {
-            notFound(activity);
+            if (showInfoDialog) {
+                String info = activity.getString(R.string.get_file_manually, file.getName(), file.getAbsolutePath());
+                AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
+                dialog.setTitle(R.string.error_file_create)
+                        .setMessage(info)
+                        .setPositiveButton(R.string.ok, null)
+                        .show();
+            } else
+                notFound(activity);
         }
     }
 }

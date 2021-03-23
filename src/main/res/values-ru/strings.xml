@@ -362,4 +362,5 @@
     <string name="ngid_onpremise">Изменить сервер авторизации</string>
     <string name="ngid_server">Текущий: %s</string>
     <string name="ngid_type_url">Введите URL</string>
+    <string name="get_file_manually">Нет связанных приложений чтобы открыть файл %1$s. Файл можно забрать вручную по адресу:\n%2$s</string>
 </resources>
