@@ -200,7 +200,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
 
                             if (attachFile.exists()) {
                                 String[] parts = displayName.split("\\.");
-                                displayName = getUniqueName(displayName, existingFiles, parts[parts.length - 1]);
+                                displayName = getUniqueName(displayName, existingFiles, "." + parts[parts.length - 1]);
                                 existingFiles.add(displayName);
                                 FileInputStream fis = new FileInputStream(attachFile);
                                 zos.putNextEntry(new ZipEntry(feature.getId() + "/" + displayName));
