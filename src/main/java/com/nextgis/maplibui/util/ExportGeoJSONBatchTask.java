@@ -56,16 +56,6 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
         mName = name;
     }
 
-    private String getUniqueName(String name, ArrayList<String> names) {
-        int i = 0;
-        String result = name;
-        while (names.contains(result)) {
-            i++;
-            result = name.replace(ZIP_EXT, "") + "-" + i + ZIP_EXT;
-        }
-        return result;
-    }
-
     @Override
     protected Object doInBackground(Void... voids) {
         Context context = null;
@@ -113,7 +103,7 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
                             File file = (File) result;
                             HyperLog.v(Constants.TAG, "ExportGeoJSONBatchTask: result is File");
                             String name = file.getName();
-                            name = getUniqueName(name, existingFiles);
+                            name = getUniqueName(name, existingFiles, ZIP_EXT);
                             existingFiles.add(name);
                             FileInputStream fis = new FileInputStream(file);
                             zos.putNextEntry(new ZipEntry(name));
@@ -128,7 +118,7 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
                         } else {
                             HyperLog.v(Constants.TAG, "ExportGeoJSONBatchTask: result is NOT File: " + result);
                             if (result == null)
-                                result = R.string.error_file_create;
+                                result = R.string.error_export_geojson;
                             publishProgress((int) result);
                         }
                     } catch (ExecutionException | InterruptedException ex) {

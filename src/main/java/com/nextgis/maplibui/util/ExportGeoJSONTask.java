@@ -50,6 +50,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -103,6 +104,16 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
         });
         mProgress.show();
         ControlHelper.lockScreenOrientation(mActivity);
+    }
+
+    protected String getUniqueName(String name, ArrayList<String> names, String ext) {
+        int i = 0;
+        String result = name;
+        while (names.contains(result)) {
+            i++;
+            result = name.replace(ext, "") + "-" + i + ext;
+        }
+        return result;
     }
 
     @Override
@@ -165,6 +176,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
                     feature = mLayer.cursorToFeature(featuresCursor);
                     JSONObject properties = new JSONObject();
                     properties.put(Constants.FIELD_ID, feature.getId());
+                    ArrayList<String> existingFiles = new ArrayList<>();
                     for (Field field : feature.getFields()) {
                         Object value = feature.getFieldValue(field.getName());
                         if (value != null) {
@@ -187,6 +199,9 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
                             attaches.put(displayName);
 
                             if (attachFile.exists()) {
+                                String[] parts = displayName.split("\\.");
+                                displayName = getUniqueName(displayName, existingFiles, parts[parts.length - 1]);
+                                existingFiles.add(displayName);
                                 FileInputStream fis = new FileInputStream(attachFile);
                                 zos.putNextEntry(new ZipEntry(feature.getId() + "/" + displayName));
 
@@ -208,7 +223,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
                 HyperLog.v(Constants.TAG, "ExportGeoJSONTask: close cursor");
                 featuresCursor.close();
             } else {
-                publishProgress();
+                publishProgress(R.string.no_features);
             }
 
             if (mIsCanceled)
@@ -242,8 +257,13 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
     @Override
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
-        HyperLog.v(Constants.TAG, "ExportGeoJSONTask: layer has no features");
-        Toast.makeText(mActivity, R.string.no_features, Toast.LENGTH_SHORT).show();
+        HyperLog.v(Constants.TAG, "ExportGeoJSONTask: onProgressUpdate error");
+        if (values.length > 0) {
+            String error = mActivity.getString(values[0]);
+            Toast.makeText(mActivity, error, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(mActivity, R.string.sync_error_io, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
