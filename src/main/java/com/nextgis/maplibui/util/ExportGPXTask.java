@@ -116,7 +116,7 @@ public class ExportGPXTask extends AsyncTask<Void, Void, Void> implements Dialog
             return null;
 
         publishProgress();
-        File temp = null, parent = MapUtil.prepareTempDir(mActivity, "exported_tracks");
+        File temp = null, parent = MapUtil.prepareTempDir(mActivity, "exported_tracks", false);
         try {
             IGISApplication application = (IGISApplication) mActivity.getApplication();
             Uri mContentUriTracks = Uri.parse("content://" + application.getAuthority() + "/" + TrackLayer.TABLE_TRACKS);

@@ -125,7 +125,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
                 return R.string.no_permission;
             }
 
-            File temp = MapUtil.prepareTempDir(mLayer.getContext(), "shared_layers");
+            File temp = MapUtil.prepareTempDir(mLayer.getContext(), "shared_layers", mResultOnly);
             String fileName = normalizeLayerName(mLayer.getName()) + ZIP_EXT;
             HyperLog.v(Constants.TAG, "ExportGeoJSONTask: result fileName is " + fileName);
             if (temp == null) {

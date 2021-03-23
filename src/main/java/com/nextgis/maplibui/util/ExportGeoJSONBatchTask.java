@@ -71,7 +71,7 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
             try {
                 if (mName.trim().isEmpty())
                     mName = Long.toString(System.currentTimeMillis());
-                File temp = MapUtil.prepareTempDir(context, "shared_layers");
+                File temp = MapUtil.prepareTempDir(context, "exported_projects", false);
                 String fileName = normalizeLayerName(mName) + ".zip";
                 HyperLog.v(Constants.TAG, "ExportGeoJSONBatchTask: result fileName is " + fileName);
                 if (temp == null) {
