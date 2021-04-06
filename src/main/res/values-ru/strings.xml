@@ -363,4 +363,6 @@
     <string name="ngid_server">Текущий: %s</string>
     <string name="ngid_type_url">Введите URL</string>
     <string name="get_file_manually">Нет связанных приложений чтобы открыть файл %1$s. Файл можно забрать вручную по адресу:\n%2$s</string>
+    <string name="not_enough_space">Недостаточно места</string>
+    <string name="free_space_message">Необходимо минимум %1$s, но на устройстве свободно только %2$s.</string>
 </resources>

@@ -69,6 +69,17 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
 
         if (context != null) {
             try {
+                Boolean enoughSpace = null;
+                try {
+                    CheckDirSizeTask sizeTask = new CheckDirSizeTask(mActivity, mLayers);
+                    enoughSpace = sizeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
+                } catch (ExecutionException | InterruptedException ignored) {
+
+                }
+
+                if (enoughSpace != Boolean.valueOf(true))
+                    return R.string.not_enough_space;
+
                 if (mName.trim().isEmpty())
                     mName = Long.toString(System.currentTimeMillis());
                 File temp = MapUtil.prepareTempDir(context, "exported_projects", false);

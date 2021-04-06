@@ -362,4 +362,6 @@
     <string name="user_name_ngw">Логин Веб ГИС</string>
     <string name="user_name_ngid">Логин или E-mail</string>
     <string name="get_file_manually">No installed apps found to open file %1$s. You can pick it manually at path:\n%2$s</string>
+    <string name="not_enough_space">Not enough space</string>
+    <string name="free_space_message">You need at least %1$s free, but you have %2$s only.</string>
 </resources>
