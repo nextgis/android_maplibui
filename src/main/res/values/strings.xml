@@ -60,7 +60,7 @@
     <string name="wait_sync_stopping">Waiting of synchronization stopping</string>
     <string name="add">Add</string>
     <string name="select">Select</string>
-    <string name="choose_layers">Select layer</string>
+    <string name="choose_layers">Select layers</string>
     <string name="loading_summary">Wait a little. The data is loading</string>
     <string name="up_dots">..</string>
     <string name="up">Up</string>

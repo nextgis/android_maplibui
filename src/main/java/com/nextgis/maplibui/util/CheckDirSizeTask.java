@@ -53,6 +53,9 @@ public class CheckDirSizeTask extends AsyncTask<Void, Long, Boolean> {
             mNeeded += FileUtil.getDirectorySize(layer.getPath());
         }
 
+        if (mLayers.size() > 1)
+            mNeeded *= 2;
+
         // https://stackoverflow.com/a/64600129/2088273
         long total = 0, used = 0;
         File[] files = ContextCompat.getExternalFilesDirs(mActivity, null);

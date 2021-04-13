@@ -60,7 +60,7 @@
     <string name="wait_sync_stopping">Ожидание остановки синхронизации</string>
     <string name="add">Добавить</string>
     <string name="select">Выбор</string>
-    <string name="choose_layers">Выбрать слой</string>
+    <string name="choose_layers">Выбрать слои</string>
     <string name="loading_summary">Подождите, идет загрузка данных</string>
     <string name="up_dots">..</string>
     <string name="up">Вверх</string>

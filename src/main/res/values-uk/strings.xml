@@ -55,7 +55,7 @@
     <string name="wait_sync_stopping">Очікування зупинки синхронізації</string>
     <string name="add">Додати</string>
     <string name="select">Вибрати</string>
-    <string name="choose_layers">Вибрати шар</string>
+    <string name="choose_layers">Вибрати шари</string>
     <string name="loading_summary">Зачекайте трохи. Дані завантажуються</string>
     <string name="up_dots">..</string>
     <string name="up">Вгору</string>

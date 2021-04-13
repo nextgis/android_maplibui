@@ -79,7 +79,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
     boolean mProceedAttaches;
     private boolean mResultOnly;
 
-    ExportGeoJSONTask(Activity activity, VectorLayer layer, boolean proceedAttaches, boolean resultOnly) {
+    public ExportGeoJSONTask(Activity activity, VectorLayer layer, boolean proceedAttaches, boolean resultOnly) {
         mActivity = activity;
         mLayer = layer;
         mProceedAttaches = proceedAttaches;
