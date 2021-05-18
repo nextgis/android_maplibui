@@ -29,6 +29,7 @@ import android.text.TextUtils;
 
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.HttpResponse;
+import com.nextgis.maplib.util.NGWUtil;
 import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.BuildConfig;
 import com.nextgis.maplibui.service.TrackerService;
@@ -163,6 +164,7 @@ public final class NGIDUtils {
         protected void onPostExecute(HttpResponse result) {
             super.onPostExecute(result);
 
+            NGWUtil.NGID = getUserInfo(null, PREF_USERNAME);
             if (mCallback != null)
                 mCallback.onFinish(result);
         }
@@ -220,6 +222,16 @@ public final class NGIDUtils {
                         .putString(PREF_FIRST_NAME, json.getString(PREF_FIRST_NAME))
                         .putString(PREF_LAST_NAME, json.getString(PREF_LAST_NAME)).apply();
         } catch (JSONException | NullPointerException ignored) {}
+    }
+
+    public static String getUserInfo(Context context, String key) {
+        if (mPreferences == null)
+            mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        try {
+            return mPreferences.getString(PREF_USERNAME, null);
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     private static String parseResponseBody(String responseBody) {
