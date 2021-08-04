@@ -4,7 +4,7 @@
  * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2020 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -22,6 +22,7 @@
 
 package com.nextgis.maplibui.service;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
@@ -31,8 +32,10 @@ import android.app.Service;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
@@ -47,8 +50,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
@@ -63,6 +68,7 @@ import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.NotificationHelper;
 
@@ -625,5 +631,73 @@ public class TrackerService extends Service implements LocationListener, GpsStat
     public static String getUid(Context context) {
         String uuid = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         return String.format("%X", uuid.hashCode());
+    }
+
+    public static Pair<Integer, Integer> controlAndGetIconWithTitle(Context context) {
+        Intent trackerService = new Intent(context, TrackerService.class);
+        trackerService.putExtra(ConstantsUI.TARGET_CLASS, context.getClass().getName());
+
+        int title = R.string.track_start, icon = R.drawable.ic_action_maps_directions_walk;
+        if (isTrackerServiceRunning(context)) {
+            trackerService.setAction(TrackerService.ACTION_STOP);
+            context.startService(trackerService);
+        } else if (hasUnfinishedTracks(context)) {
+            trackerService.setAction(TrackerService.ACTION_STOP);
+            context.startService(trackerService);
+            trackerService.setAction(null);
+            context.startService(trackerService);
+        } else {
+            context.startService(trackerService);
+            title = R.string.track_stop;
+            icon = R.drawable.ic_action_maps_directions_walk_rec;
+        }
+        return new Pair<>(icon, title);
+    }
+
+    public static void showBackgroundDialog(final NGActivity context, final BackgroundPermissionCallback listener) {
+        int okButton = R.string.ok;
+        CharSequence backgroundPermissionTitle = context.getString(R.string.background_location_always);
+        if (android.os.Build.VERSION.SDK_INT >= 30) {
+            backgroundPermissionTitle = context.getPackageManager().getBackgroundPermissionOptionLabel();
+        }
+        String message = context.getString(R.string.background_location_message, backgroundPermissionTitle);
+        boolean hasBackground = PermissionUtil.hasBackgroundLocationPermissions(context);
+        boolean hasLocation = PermissionUtil.hasLocationPermissions(context);
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+            if (hasBackground) {
+                listener.onAndroid10(true);
+                return;
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (hasBackground) {
+                listener.afterAndroid10(true);
+                return;
+            }
+            okButton = R.string.action_settings;
+        } else {
+            listener.beforeAndroid10(hasLocation);
+            return;
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(R.string.background_location)
+               .setMessage(message)
+               .setPositiveButton(okButton, new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialogInterface, int i) {
+                       if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+                           listener.onAndroid10(false);
+                       } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                           listener.afterAndroid10(false);
+                       }
+                   }
+               })
+               .setNegativeButton(R.string.cancel, null)
+               .show();
+    }
+
+    public interface BackgroundPermissionCallback {
+        void beforeAndroid10(boolean hasBackgroundPermission);
+        void onAndroid10(boolean hasBackgroundPermission);
+        void afterAndroid10(boolean hasBackgroundPermission);
     }
 }

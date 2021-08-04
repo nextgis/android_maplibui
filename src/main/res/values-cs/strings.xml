@@ -5,7 +5,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2016-2020 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2016-2021 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -221,6 +221,8 @@
     <string name="form_tiles_list">Seznam dlaždic</string>
     <string name="tiles_count">%1$s tiles</string>
     <string name="counting">Counting…</string>
+    <string name="track_start">Zahájit trasování</string>
+    <string name="track_stop">Zastavit trasování</string>
     <string name="tracks_running">Trasa se nahrává</string>
     <string name="tracks_title">Trasa %s</string>
     <string name="walkedit_title">Edita chůzí %s</string>
@@ -365,4 +367,7 @@
     <string name="get_file_manually">No installed apps found to open file %1$s. You can pick it manually at path:\n%2$s</string>
     <string name="not_enough_space">Not enough space</string>
     <string name="free_space_message">You need at least %1$s free, but you have %2$s only.</string>
+    <string name="background_location">Background location usage</string>
+    <string name="background_location_message">You need to provide background geolocation permission for NextGIS app to collect tracks continuously. Otherwise the track will be collected only when the app in foreground. Please select \'%s\'.</string>
+    <string name="background_location_always">Allow all the time</string>
 </resources>

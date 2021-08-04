@@ -5,7 +5,7 @@
   ~ Author:   NikitaFeodonit, nfeodonit@yandex.com
   ~ Author:   Stanislav Petriakov, becomeglory@gmail.com
   ~ ******************************************************************************
-  ~ Copyright (c) 2015-2020 NextGIS, info@nextgis.com
+  ~ Copyright (c) 2015-2021 NextGIS, info@nextgis.com
   ~
   ~ This program is free software: you can redistribute it and/or modify
   ~ it under the terms of the GNU Lesser Public License as published by
@@ -214,6 +214,8 @@
     <string name="form_tiles_list">Формирование списка тайлов</string>
     <string name="tiles_count">%1$s тайлов</string>
     <string name="counting">Идет подсчет…</string>
+    <string name="track_start">Начать запись трека</string>
+    <string name="track_stop">Завершить запись трека</string>
     <string name="tracks_running">Записывается трек</string>
     <string name="tracks_title">Трек %s</string>
     <string name="walkedit_title">Ввод обходом %s</string>
@@ -365,4 +367,8 @@
     <string name="get_file_manually">Нет связанных приложений чтобы открыть файл %1$s. Файл можно забрать вручную по адресу:\n%2$s</string>
     <string name="not_enough_space">Недостаточно места</string>
     <string name="free_space_message">Необходимо минимум %1$s, но на устройстве свободно только %2$s.</string>
+    <string name="background_location">Использование геолокации в фоне</string>
+    <string name="background_location_message">Для того, чтобы приложение NextGIS могло записывать треки в фоне (когда приложение свернуто), нужно разрешить
+        доступ к фоновой геолокации. Иначе трек будет записываться только тогда когда приложение развернуто. Пожалуйста, выберите \'%s\'.</string>
+    <string name="background_location_always">Разрешить в любом режиме</string>
 </resources>
