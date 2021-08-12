@@ -114,7 +114,7 @@
         android:layout_height="42dp"
         android:layout_gravity="center_horizontal"
         android:layout_margin="16dp"
-        android:background="@drawable/blue_rounded_button"
+        android:background="@drawable/rounded_button"
         android:text="@string/login"
         android:textColor="@color/color_white" />
 
