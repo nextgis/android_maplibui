@@ -22,8 +22,8 @@
 
 package com.nextgis.maplibui.service;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
@@ -35,7 +35,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
@@ -68,7 +67,6 @@ import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.NotificationHelper;
 
@@ -654,7 +652,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         return new Pair<>(icon, title);
     }
 
-    public static void showBackgroundDialog(final NGActivity context, final BackgroundPermissionCallback listener) {
+    public static void showBackgroundDialog(final Activity context, final BackgroundPermissionCallback listener) {
         int okButton = R.string.ok;
         CharSequence backgroundPermissionTitle = context.getString(R.string.background_location_always);
         if (android.os.Build.VERSION.SDK_INT >= 30) {
