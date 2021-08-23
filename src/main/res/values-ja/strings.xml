@@ -366,6 +366,7 @@
     <string name="not_enough_space">Not enough space</string>
     <string name="free_space_message">You need at least %1$s free, but you have %2$s only.</string>
     <string name="background_location">Background location usage</string>
-    <string name="background_location_message">You need to provide background geolocation permission for NextGIS app to collect tracks continuously. Otherwise the track will be collected only when the app in foreground. Please select \'%s\'.</string>
+    <string name="background_location_message">NextGIS app needs background location permission to collect tracks continuously even when the app is not in
+        use. Otherwise the track will be collected only when the app in foreground. Please select \'%s\'.</string>
     <string name="background_location_always">Allow all the time</string>
 </resources>
