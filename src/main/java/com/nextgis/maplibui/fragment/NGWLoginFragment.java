@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2019, 2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -279,7 +279,7 @@ public class NGWLoginFragment
         try {
             String url = mUrlText;
             if (!url.startsWith("http")) {
-                url = "http://" + url;
+                url = "https://" + url;
             }
             URI uri = new URI(url);
             if (uri.getHost() != null && uri.getHost().length() > 0) {
