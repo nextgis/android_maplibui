@@ -4,7 +4,7 @@
  * Author:   Dmitry Baryshnikov (aka Bishop), bishop.dev@gmail.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2019, 2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -530,9 +530,7 @@ public class LayerFillService extends Service implements IProgressor {
                         JSONObject connection = metaJson.getJSONObject(ConstantsUI.JSON_NGW_CONNECTION_KEY);
                         //read url
                         url = connection.getString("url");
-                        if (!url.startsWith("http")) {
-                            url = "http://" + url;
-                        }
+                        url = NGWUtil.getServerUrl(url);
                         //read login
                         String login = connection.getString("login");
                         //read password

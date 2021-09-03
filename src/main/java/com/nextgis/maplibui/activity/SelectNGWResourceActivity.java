@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2016-2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2016-2019, 2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -257,9 +257,6 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                         return false;
                     }
 
-                    if (!layerURL.startsWith("http")) {
-                        layerURL = "http://" + layerURL;
-                    }
                     //3. create layer
                     String layerName = layer.getName();
 
