@@ -90,8 +90,8 @@
             custom:mrb_pinRadius="0dp"
             custom:mrb_rangeBarColor="@color/accent"
             custom:mrb_rangeBarPaddingBottom="20dp"
-            custom:mrb_thumbColor="@color/primary_dark"
-            custom:mrb_thumbSize="8dp"
+            custom:mrb_selectorColor="@color/primary_dark"
+            custom:mrb_selectorSize="8dp"
             custom:mrb_tickEnd="25"
             custom:mrb_tickStart="0"/>
 
