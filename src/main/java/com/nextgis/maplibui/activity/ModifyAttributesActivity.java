@@ -35,7 +35,9 @@ import android.location.Location;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatSpinner;
@@ -562,7 +564,13 @@ public class ModifyAttributesActivity
         super.onActivityResult(requestCode, resultCode, data);
 
         String read = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-        if (!PermissionUtil.hasPermission(this, read)) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                Toast.makeText(this, R.string.no_permission_granted, Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } else if (!PermissionUtil.hasPermission(this, read)) {
             Toast.makeText(this, R.string.no_permission_granted, Toast.LENGTH_SHORT).show();
             return;
         }
