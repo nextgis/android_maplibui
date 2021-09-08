@@ -60,7 +60,7 @@ repositories {
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
     api project(':maplib')
-    api 'com.github.4eRTuk:easypicker:0.2.16'
+    api 'com.github.4eRTuk:easypicker:0.2.17'
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
     implementation 'com.github.damianocorrado:TimePickerDialog:1.0.4'
     implementation 'com.github.miguelbcr:TableFixHeaders-Wrapper:0.2.0'
