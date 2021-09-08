@@ -723,7 +723,7 @@ public class LayerFillService extends Service implements IProgressor {
             if (bundle.containsKey(KEY_LOOKUP_ID))
                 mLookupIds = bundle.getStringArrayList(KEY_LOOKUP_ID);
 
-            mShowSyncDialog = bundle.getBoolean(KEY_SYNC, false);
+            mShowSyncDialog = bundle.getBoolean(KEY_SYNC, true);
 
             for (int i = 0; i < mLayerGroup.getLayerCount(); i++) {
                 if (mLayerGroup.getLayer(i) instanceof NGWLookupTable) {
