@@ -91,7 +91,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
     private static final String ACTION_SPLIT          = "com.nextgis.maplibui.TRACK_SPLIT";
     private static final int    TRACK_NOTIFICATION_ID = 1;
 //    public static final String HOST = "http://dev.nextgis.com/tracker-dev1-hub";
-    public static final String HOST = "http://track.nextgis.com";
+    public static final String HOST = "https://track.nextgis.com";
     public static final String URL = "/ng-mobile";
 
     private boolean         mIsRunning;

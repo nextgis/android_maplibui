@@ -279,7 +279,7 @@ public class NGWLoginFragment
         try {
             String url = mUrlText;
             if (!url.startsWith("http")) {
-                url = "https://" + url;
+                url = "http://" + url;
             }
             URI uri = new URI(url);
             if (uri.getHost() != null && uri.getHost().length() > 0) {
