@@ -77,16 +77,17 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 
@@ -477,7 +478,13 @@ public class LayerFillService extends Service implements IProgressor {
                 InputStream inputStream;
                 String url = mUri.toString();
                 if (NetworkUtil.isValidUri(url)) {
-                    URLConnection connection = new URL(url).openConnection();
+                    HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+
+                    if (connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM && mUri.getScheme().equals("http")) {
+                        url = url.replace("http", "https");
+                        connection = (HttpsURLConnection) new URL(url).openConnection();
+                    }
+
                     try {
                         AccountUtil.AccountData accountData = AccountUtil.getAccountData(getApplicationContext(), mAccount);
                         String basicAuth = NetworkUtil.getHTTPBaseAuth(accountData.login, accountData.password);
