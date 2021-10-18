@@ -73,7 +73,7 @@ public final class NGIDUtils {
     public static final String PREF_LAST_NAME = "last_name";
 
 //    public static final String COLLECTOR_HUB_URL = "http://dev.nextgis.com/collector_hub/api/collector/projects"
-    public static final String COLLECTOR_HUB_URL = "http://collector-hub.nextgis.com";
+    public static final String COLLECTOR_HUB_URL = "https://collector-hub.nextgis.com";
     public static final String COLLECTOR_PROJECTS_URL = "/api/collector/projects";
 
     private static SharedPreferences mPreferences;
