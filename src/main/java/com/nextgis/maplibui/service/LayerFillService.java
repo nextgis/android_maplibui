@@ -483,6 +483,8 @@ public class LayerFillService extends Service implements IProgressor {
                     if (connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM && mUri.getScheme().equals("http")) {
                         url = url.replace("http", "https");
                         connection = (HttpsURLConnection) new URL(url).openConnection();
+                    } else {
+                        connection = (HttpURLConnection) new URL(url).openConnection();; // we need this due to getResponseCode() makes actual connection and it becomes immutable
                     }
 
                     try {
@@ -490,7 +492,12 @@ public class LayerFillService extends Service implements IProgressor {
                         String basicAuth = NetworkUtil.getHTTPBaseAuth(accountData.login, accountData.password);
                         if (null != basicAuth)
                             connection.setRequestProperty ("Authorization", basicAuth);
-                    } catch (IllegalStateException ignored) {}
+                    } catch (IllegalStateException e) {
+                        e.printStackTrace();
+                        setError(e, progressor);
+                        notifyError(mProgressMessage);
+                        return false;
+                    }
 //                    inputStream = new URL(url).openStream();
                     inputStream = connection.getInputStream();
                 } else
