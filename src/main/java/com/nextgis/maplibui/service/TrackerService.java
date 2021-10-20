@@ -552,7 +552,10 @@ public class TrackerService extends Service implements LocationListener, GpsStat
             ContentResolver resolver = getContentResolver();
             String selection = TrackLayer.FIELD_SENT + " = 0";
             String sort = TrackLayer.FIELD_TIMESTAMP + " ASC";
-            Cursor points = resolver.query(mContentUriTrackPoints, null, selection, null, sort);
+            Cursor points = null;
+            try {
+                points = resolver.query(mContentUriTrackPoints, null, selection, null, sort);
+            } catch (Exception ignored) {}
             if (points != null) {
                 List<String> ids = new ArrayList<>();
                 if (points.moveToFirst()) {
