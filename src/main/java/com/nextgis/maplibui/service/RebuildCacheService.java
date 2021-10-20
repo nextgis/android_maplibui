@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2016, 2018-2019 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016, 2018-2019, 2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -57,6 +57,7 @@ public class RebuildCacheService extends Service implements IProgressor {
 
     protected NotificationManager mNotifyManager;
     protected List<Integer> mQueue;
+    protected int mTotalTasks;
     protected static final int NOTIFICATION_ID = 99;
     protected NotificationCompat.Builder mBuilder;
     protected Intent mProgressIntent;
@@ -71,23 +72,25 @@ public class RebuildCacheService extends Service implements IProgressor {
         mNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         mProgressIntent = new Intent(ACTION_UPDATE);
-        Intent intent = new Intent(this, RebuildCacheService.class);
-        intent.setAction(ACTION_STOP);
-        int flag = PendingIntent.FLAG_UPDATE_CURRENT;
-        PendingIntent stop = PendingIntent.getService(this, 0, intent, flag);
-        intent.setAction(ACTION_SHOW);
-        PendingIntent show = PendingIntent.getService(this, 0, intent, flag);
         mBuilder = createBuilder(this, R.string.rebuild_cache);
+        mBuilder.setAutoCancel(false).setOngoing(true);
 
         int icon = R.drawable.ic_notification_rebuild_cache;
         Bitmap largeIcon = NotificationHelper.getLargeIcon(icon, getResources());
         mBuilder.setSmallIcon(icon).setLargeIcon(largeIcon);
-        icon = R.drawable.ic_action_cancel_dark;
 
-        mBuilder.setAutoCancel(false)
-                .setOngoing(true)
-                .setContentIntent(show)
-                .addAction(icon, getString(android.R.string.cancel), stop);
+        if (getPackageName().equals("com.nextgis.mobile")) {
+            Intent intent = new Intent(this, RebuildCacheService.class);
+            intent.setAction(ACTION_STOP);
+            int flag = PendingIntent.FLAG_UPDATE_CURRENT;
+            PendingIntent stop = PendingIntent.getService(this, 0, intent, flag);
+            intent.setAction(ACTION_SHOW);
+            PendingIntent show = PendingIntent.getService(this, 0, intent, flag);
+            icon = R.drawable.ic_action_cancel_dark;
+            mBuilder.setContentIntent(show).addAction(icon, getString(android.R.string.cancel), stop);
+        } else {
+            mBuilder.setContentTitle(getString(R.string.updating_data)).setContentText(getString(R.string.updating_data));
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             String title = getString(R.string.rebuild_cache);
@@ -108,6 +111,7 @@ public class RebuildCacheService extends Service implements IProgressor {
                     case ACTION_ADD_TASK:
                         int layerIdAdd = intent.getIntExtra(key, Constants.NOT_FOUND);
                         mQueue.add(layerIdAdd);
+                        mTotalTasks += 1;
 
                         if (!mIsRunning)
                             startNextTask();
@@ -167,8 +171,13 @@ public class RebuildCacheService extends Service implements IProgressor {
                 mLayer = (VectorLayer) MapBase.getInstance().getLayerById(mQueue.remove(0));
                 mIsRunning = true;
                 mCurrentTasks++;
-                String notifyTitle = getString(R.string.rebuild_cache);
-                notifyTitle += ": " + mCurrentTasks + "/" + mQueue.size() + 1;
+                String notifyTitle;
+                if (getPackageName().equals("com.nextgis.mobile")) {
+                    notifyTitle = getString(R.string.rebuild_cache);
+                    notifyTitle += ": " + mCurrentTasks + "/" + mTotalTasks;
+                } else {
+                    notifyTitle = getString(R.string.updating_data);
+                }
 
                 mBuilder.setWhen(System.currentTimeMillis())
                         .setContentTitle(notifyTitle)
