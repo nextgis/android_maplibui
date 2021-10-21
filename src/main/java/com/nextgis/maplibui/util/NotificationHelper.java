@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2016, 2018, 2020 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016, 2018, 2020-2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -45,7 +45,6 @@ import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
 
-import com.nextgis.maplibui.BuildConfig;
 import com.nextgis.maplibui.R;
 
 public final class NotificationHelper {
@@ -120,7 +119,7 @@ public final class NotificationHelper {
 
     @TargetApi(Build.VERSION_CODES.O)
     private static NotificationCompat.Builder createBuilderO(Context context, int channelNameRes) {
-        String NOTIFICATION_CHANNEL_ID = BuildConfig.APPLICATION_ID;
+        String NOTIFICATION_CHANNEL_ID = context.getApplicationContext().getPackageName();
         String channelName = context.getString(channelNameRes);
         NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_HIGH);
         chan.setLightColor(Color.CYAN);
