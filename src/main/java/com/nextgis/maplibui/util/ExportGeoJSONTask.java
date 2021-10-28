@@ -27,6 +27,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -120,7 +121,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
     protected Object doInBackground(Void... voids) {
         HyperLog.v(Constants.TAG, "ExportGeoJSONTask: start doInBackground");
         try {
-            if (!PermissionUtil.hasPermission(mLayer.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && !PermissionUtil.hasPermission(mLayer.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 HyperLog.v(Constants.TAG, "ExportGeoJSONTask: no write permission granted");
                 return R.string.no_permission;
             }
