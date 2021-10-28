@@ -565,12 +565,7 @@ public class ModifyAttributesActivity
 
         String read = Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (!Environment.isExternalStorageManager()) {
-                Toast.makeText(this, R.string.no_permission_granted, Toast.LENGTH_SHORT).show();
-                return;
-            }
-        } else if (!PermissionUtil.hasPermission(this, read)) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && !PermissionUtil.hasPermission(this, read)) {
             Toast.makeText(this, R.string.no_permission_granted, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -833,7 +828,11 @@ public class ModifyAttributesActivity
             OutputStream outStream = getContentResolver().openOutputStream(uri);
 
             if (outStream != null) {
-                InputStream inStream = new FileInputStream(path);
+                InputStream inStream;
+                if (!path.startsWith("/"))
+                    inStream = getContentResolver().openInputStream(Uri.parse(path));
+                else
+                    inStream = new FileInputStream(path);
                 byte[] buffer = new byte[8192];
                 int counter;
 

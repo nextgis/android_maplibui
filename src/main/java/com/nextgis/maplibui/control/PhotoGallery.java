@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2017, 2019-2020 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2017, 2019-2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -236,7 +236,7 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
     public List<String> getNewAttaches() {
         ArrayList<String> result = new ArrayList<>();
 
-        for (String image : mAdapter.getImagesPath())
+        for (String image : mAdapter.getImagesPathOrUri())
             if (!mAttaches.containsKey(image))
                 result.add(image);
 
@@ -248,7 +248,7 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
 
         if (mAttaches != null) {
             for (String attach : mAttaches.keySet()) {
-                if (!mAdapter.getImagesPath().contains(attach))
+                if (!mAdapter.getImagesPathOrUri().contains(attach))
                     result.add(mAttaches.get(attach));
             }
         }
