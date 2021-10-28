@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016, 2018-2020 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2016, 2018-2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -801,6 +801,10 @@ public class ModifyAttributesActivity
             for (String path : imagesPath) {
                 String[] segments = path.split("/");
                 String name = segments.length > 0 ? segments[segments.length - 1] : "image.jpg";
+                if (name.contains("%3A"))
+                    name = name.split("%3A")[1];
+                if (!name.contains("."))
+                    name = name + ".jpg";
                 ContentValues values = new ContentValues();
                 values.put(VectorLayer.ATTACH_DISPLAY_NAME, name);
                 if (comment != null && !comment.isEmpty())
