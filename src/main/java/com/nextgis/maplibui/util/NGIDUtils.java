@@ -164,7 +164,7 @@ public final class NGIDUtils {
         protected void onPostExecute(HttpResponse result) {
             super.onPostExecute(result);
 
-            NGWUtil.NGID = getUserInfo(null, PREF_USERNAME);
+            NGWUtil.NGID = getUserInfo(PREF_USERNAME);
             if (mCallback != null)
                 mCallback.onFinish(result);
         }
@@ -224,11 +224,9 @@ public final class NGIDUtils {
         } catch (JSONException | NullPointerException ignored) {}
     }
 
-    public static String getUserInfo(Context context, String key) {
-        if (mPreferences == null)
-            mPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+    public static String getUserInfo(String key) {
         try {
-            return mPreferences.getString(PREF_USERNAME, null);
+            return mPreferences.getString(key, null);
         } catch (Exception ignored) {
             return null;
         }
