@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2018-2020 NextGIS, info@nextgis.com
+ * Copyright (c) 2018-2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -76,7 +76,7 @@ public class Distance extends LinearLayout implements IFormControl {
                      Cursor featureCursor, SharedPreferences preferences,
                      Map<String, Map<String, String>> translations) throws JSONException {
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
-        mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);
+        mFieldName = ControlHelper.getFieldName(attributes.getString(JSON_FIELD_NAME_KEY));
         mHidden = attributes.optBoolean(JSON_HIDDEN_KEY);
 
         String value;

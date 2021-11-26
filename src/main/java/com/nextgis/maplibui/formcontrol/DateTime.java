@@ -5,7 +5,7 @@
  * Author:   NikitaFeodonit, nfeodonit@yandex.com
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2012-2016, 2020 NextGIS, info@nextgis.com
+ * Copyright (c) 2012-2016, 2020-2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser Public License as published by
@@ -119,7 +119,7 @@ public class DateTime
             throws JSONException
     {
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
-        mFieldName = attributes.getString(JSON_FIELD_NAME_KEY);
+        mFieldName = ControlHelper.getFieldName(attributes.getString(JSON_FIELD_NAME_KEY));
         mIsShowLast = ControlHelper.isSaveLastValue(attributes);
 
         if (!ControlHelper.isEnabled(fields, mFieldName)) {

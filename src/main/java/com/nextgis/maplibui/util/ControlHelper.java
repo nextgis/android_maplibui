@@ -3,7 +3,7 @@
  * Purpose:  Mobile GIS for Android.
  * Author:   Stanislav Petriakov, becomeglory@gmail.com
  * *****************************************************************************
- * Copyright (c) 2015-2018, 2020 NextGIS, info@nextgis.com
+ * Copyright (c) 2015-2018, 2020-2021 NextGIS, info@nextgis.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -64,6 +64,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.LayerUtil;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
@@ -149,6 +151,10 @@ public final class ControlHelper
             throws JSONException
     {
         return attributes.has(JSON_INPUT_SEARCH) && attributes.getBoolean(JSON_INPUT_SEARCH);
+    }
+
+    public static String getFieldName(String fieldName) {
+        return LayerUtil.normalizeFieldName(fieldName);
     }
 
     public static boolean hasKey(
