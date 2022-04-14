@@ -28,7 +28,7 @@
     <string name="create">Create</string>
     <string name="cancel">Cancel</string>
     <string name="discard">Discard</string>
-    <string name="osm">OpenStreetMap</string>
+    <string name="osm">OpenStreetMap Standard aka Mapnik</string>
     <string name="layer_name">Layer name</string>
     <string name="layer_url">Layer URL</string>
     <string name="layer_url_hint">For example: http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png</string>

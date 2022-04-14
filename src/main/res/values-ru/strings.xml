@@ -27,7 +27,7 @@
     <string name="ok">OK</string>
     <string name="create">Создать</string>
     <string name="cancel">Отменить</string>
-    <string name="osm">OpenStreetMap</string>
+    <string name="osm">OpenStreetMap Standard aka Mapnik</string>
     <string name="layer_name">Имя слоя</string>
     <string name="layer_url">URL слоя</string>
     <string name="layer_url_hint">Пример: http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png</string>

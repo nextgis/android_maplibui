@@ -52,7 +52,7 @@ public interface SettingsConstantsUI
     String KEY_PREF_DARK                 = "dark";
     String KEY_PREF_NEUTRAL              = "neutral";
 
-    String OSM_URL = "http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+    String OSM_URL = "https://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
     /**
      * preference pages
