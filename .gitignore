@@ -8,5 +8,8 @@ captures/
 *.iws
 *.ipr
 
+# OSX files
+.DS_Store
+
 # Temp files
 *~
