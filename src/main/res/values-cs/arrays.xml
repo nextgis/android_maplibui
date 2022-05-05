@@ -37,8 +37,6 @@
         <item>300 m</item>
     </string-array>
     <string-array name="tracker_min_time_between_updates">
-        <item>@string/most_frequently</item>
-        <item>1 s</item>
         <item>2 s</item>
         <item>5 s</item>
         <item>10 s</item>

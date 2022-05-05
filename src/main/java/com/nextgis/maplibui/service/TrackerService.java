@@ -206,6 +206,12 @@ public class TrackerService extends Service implements LocationListener, GpsStat
             String time = SettingsConstants.KEY_PREF_TRACKS_MIN_TIME;
             String distance = SettingsConstants.KEY_PREF_TRACKS_MIN_DISTANCE;
             String minTimeStr = mSharedPreferences.getString(time, "2");
+
+            // убрать этот кусок через год другой когда не будет приложений с старой версией у народа
+            if (minTimeStr.equals("0") || minTimeStr.equals("1")){
+                mSharedPreferences.edit().putString(time, "2").apply();
+                minTimeStr = "2";
+            }
             String minDistanceStr = mSharedPreferences.getString(distance, "10");
             long minTime = Long.parseLong(minTimeStr) * 1000;
             float minDistance = Float.parseFloat(minDistanceStr);

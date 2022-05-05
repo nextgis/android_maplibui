@@ -35,8 +35,6 @@
         <item>300 м</item>
     </string-array>
     <string-array name="tracker_min_time_between_updates">
-        <item>@string/most_frequently</item>
-        <item>1 сон</item>
         <item>2 сон</item>
         <item>5 сон</item>
         <item>10 сон</item>
