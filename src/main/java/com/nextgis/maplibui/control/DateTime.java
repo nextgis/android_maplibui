@@ -20,9 +20,9 @@
  * You should have received a copy of the GNU Lesser Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.nextgis.maplibui.control;
-
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -33,16 +33,13 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.jzxiang.pickerview.TimePickerDialog;
-import com.jzxiang.pickerview.data.Type;
-import com.jzxiang.pickerview.listener.OnDateSetListener;
+import android.widget.DatePicker;
+import android.widget.TimePicker;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ISimpleControl;
 import com.nextgis.maplibui.util.ControlHelper;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -51,18 +48,82 @@ import java.util.Date;
 
 import static com.nextgis.maplib.util.Constants.TAG;
 
-
 public class DateTime
         extends AppCompatTextView
-        implements ISimpleControl
-{
+        implements ISimpleControl {
+
+    public static int TYPE_DATE_TIME = 0;
+    public static int TYPE_DATE = 1;
+    public static int TYPE_TIME = 2;
+
+    int dateSelectorType= TYPE_DATE_TIME;
+    int myDay, myMonth, myYear, myHour, myMinute;
+
+    TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
+        @Override
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            Calendar newCalendar = Calendar.getInstance();
+            newCalendar.set(Calendar.YEAR, myYear);
+            newCalendar.set(Calendar.MONTH, myMonth);
+            newCalendar.set(Calendar.DAY_OF_MONTH, myDay);
+            newCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            newCalendar.set(Calendar.MINUTE, minute);
+            newCalendar.set(Calendar.SECOND, 0);
+
+            mValue = newCalendar.getTimeInMillis();
+            DateTime.this.setText(getText());
+        }
+    } ;
+
+    DatePickerDialog.OnDateSetListener onDateSetListener = new DatePickerDialog.OnDateSetListener() {
+        @Override
+        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+
+            int hour = 0, minute = 0;
+
+            myYear = year;
+            myDay = dayOfMonth;
+            myMonth = month;
+            if (dateSelectorType == TYPE_DATE_TIME) {
+
+                Calendar c = Calendar.getInstance();
+                if (myHour != 0 ){
+                    hour = myHour;
+                    minute=myMinute;
+                } else {
+                    hour = c.get(Calendar.HOUR_OF_DAY);
+                    minute = c.get(Calendar.MINUTE);
+                }
+                TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(),
+                        onTimeSetListener, hour, minute,
+                        true);
+                timePickerDialog.show();
+            } else { /// только дата -
+                Calendar newCalendar = Calendar.getInstance();
+                newCalendar.set(Calendar.YEAR, myYear);
+                newCalendar.set(Calendar.MONTH, myMonth);
+                newCalendar.set(Calendar.DAY_OF_MONTH, myDay);
+
+                mValue = newCalendar.getTimeInMillis();
+                DateTime.this.setText(getText());
+
+            }
+        }
+    };
+
+    Calendar calendar = Calendar.getInstance();
+    DatePickerDialog datePickerDialog = new DatePickerDialog(
+            getContext(), onDateSetListener,
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH));
+
     protected int mPickerType = GeoConstants.FTDateTime;
 
     protected String           mFieldName;
     protected SimpleDateFormat mDateFormat;
 
     protected Long mValue = Calendar.getInstance().getTimeInMillis();
-    protected TimePickerDialog mTimeDialog;
 
 
     public DateTime(Context context)
@@ -94,13 +155,6 @@ public class DateTime
     }
 
 
-    public void setCurrentDate()
-    {
-        mValue = Calendar.getInstance().getTimeInMillis();
-        setText(getText());
-    }
-
-
     protected View.OnClickListener getDateUpdateWatcher(final int pickerType)
     {
         return new View.OnClickListener()
@@ -126,55 +180,37 @@ public class DateTime
                     mCalendar.setTime(new Date());
                 }
 
-                String title = null;
-                Type type = Type.ALL;
                 switch (pickerType) {
                     case GeoConstants.FTDate:
-                        title = context.getString(R.string.field_type_date);
-                        type = Type.YEAR_MONTH_DAY;
+                        dateSelectorType = TYPE_DATE;
                         break;
                     case GeoConstants.FTTime:
-                        title = context.getString(R.string.field_type_time);
-                        type = Type.HOURS_MINS;
+                        dateSelectorType = TYPE_TIME;
                         break;
                     case GeoConstants.FTDateTime:
-                        title = context.getString(R.string.field_type_datetime);
-                        type = Type.ALL;
+                        dateSelectorType = TYPE_DATE_TIME;
                         break;
                 }
 
-                OnDateSetListener onDateSetListener = new OnDateSetListener() {
-                    @Override
-                    public void onDateSet(TimePickerDialog timePickerView, long milliseconds) {
-                        mCalendar.setTimeInMillis(milliseconds);
-                        setValue();
-                    }
-                };
+                if (dateSelectorType == TYPE_DATE_TIME ||
+                        dateSelectorType == TYPE_DATE) {
+                    int day = 0, month = 0, year = 0;
+                    year = mCalendar.get(Calendar.YEAR);
+                    month = mCalendar.get(Calendar.MONTH);
+                    day = mCalendar.get(Calendar.DAY_OF_MONTH);
+                    myHour = mCalendar.get(Calendar.HOUR_OF_DAY);
+                    myMinute = mCalendar.get(Calendar.MINUTE);
 
-                mTimeDialog = new TimePickerDialog.Builder()
-                        .setCallBack(onDateSetListener)
-                        .setTitleStringId(title)
-                        .setSureStringId(context.getString(android.R.string.ok))
-                        .setCancelStringId(context.getString(android.R.string.cancel))
-                        .setYearText(" " + context.getString(R.string.unit_year))
-                        .setMonthText(" " + context.getString(R.string.unit_month))
-                        .setDayText(" " + context.getString(R.string.unit_day))
-                        .setHourText(" " + context.getString(R.string.unit_hour))
-                        .setMinuteText(" " + context.getString(R.string.unit_min))
-                        .setType(type)
-                        .setCyclic(false)
-                        .setMinMillseconds(1)
-                        .setMaxMillseconds(Long.MAX_VALUE)
-                        .setCurrentMillseconds(mCalendar.getTimeInMillis())
-                        .setWheelItemTextSize(12)
-                        .setWheelItemTextNormalColor(ContextCompat.getColor(getContext(), R.color.timetimepicker_default_text_color))
-                        .setWheelItemTextSelectorColor(ContextCompat.getColor(getContext(), R.color.accent))
-                        .setThemeColor(ContextCompat.getColor(getContext(), R.color.primary_dark))
-                        .build();
-
-                AppCompatActivity activity = ControlHelper.getActivity(getContext());
-                if (activity != null)
-                    mTimeDialog.show(activity.getSupportFragmentManager(), "TimePickerDialog");
+                    datePickerDialog.getDatePicker().init(year, month, day, null);
+                    datePickerDialog.show();
+                } else {
+                    int hour = mCalendar.get(Calendar.HOUR_OF_DAY);
+                    int minute = mCalendar.get(Calendar.MINUTE);
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(),
+                            onTimeSetListener, hour, minute,
+                            true);
+                    timePickerDialog.show();
+                }
             }
         };
     }
@@ -256,8 +292,8 @@ public class DateTime
     @Override
     public void saveState(Bundle outState) {
         outState.putLong(ControlHelper.getSavedStateKey(mFieldName), mValue);
-        if (mTimeDialog != null)
-            mTimeDialog.dismiss();
+        if (datePickerDialog != null)
+            datePickerDialog.dismiss();
     }
 
 
