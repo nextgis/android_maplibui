@@ -79,7 +79,7 @@ public class DateTime
         @Override
         public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
 
-            int hour = 0, minute = 0;
+            int hour = -1, minute = 0;
 
             myYear = year;
             myDay = dayOfMonth;
@@ -87,7 +87,7 @@ public class DateTime
             if (dateSelectorType == TYPE_DATE_TIME) {
 
                 Calendar c = Calendar.getInstance();
-                if (myHour != 0 ){
+                if (myHour != -1 ){
                     hour = myHour;
                     minute=myMinute;
                 } else {
