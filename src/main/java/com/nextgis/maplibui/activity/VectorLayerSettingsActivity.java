@@ -25,9 +25,11 @@ package com.nextgis.maplibui.activity;
 
 import android.accounts.Account;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.PeriodicSync;
@@ -412,16 +414,47 @@ public class VectorLayerSettingsActivity
             accountName.setText(String.format(getString(R.string.ngw_account), account.name));
 
             final Spinner direction = v.findViewById(R.id.sync_direction);
-            CheckBox enabled = v.findViewById(R.id.sync_enabled);
+            final CheckBox enabled = v.findViewById(R.id.sync_enabled);
             enabled.setChecked(0 == (ngwLayer.getSyncType() & Constants.SYNC_NONE));
+
+
             enabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                    if (checked)
-                        ngwLayer.setSyncType(Constants.SYNC_ALL);
-                    else
-                        ngwLayer.setSyncType(Constants.SYNC_NONE);
+                    if(!compoundButton.isPressed()) {
+                        return;
+                    }
+                    if (checked) {
+                        DialogInterface.OnClickListener yesClick = new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ngwLayer.setSyncType(Constants.SYNC_ALL); } };
+                        DialogInterface.OnClickListener noClick = new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                enabled.setChecked(false); } };
+                        DialogInterface.OnCancelListener cancelClick = new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialog) {
+                                enabled.setChecked(false); } };
+                        showAttentionTurnSyncOn(compoundButton.getContext(), yesClick, noClick , cancelClick);
+                    }
+                    else {
+                        DialogInterface.OnClickListener yesClick = new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ngwLayer.setSyncType(Constants.SYNC_NONE); } };
+                        DialogInterface.OnClickListener noClick = new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                enabled.setChecked(true); } };
+                        DialogInterface.OnCancelListener cancelClick = new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialog) {
+                                enabled.setChecked(true); } };
+                        showAttentionTurnSyncOff(compoundButton.getContext(), yesClick, noClick , cancelClick);
 
+                    }
                     ngwLayer.save();
                     direction.setEnabled(checked);
                 }
@@ -514,4 +547,34 @@ public class VectorLayerSettingsActivity
             return v;
         }
     }
+
+    public static void showAttentionTurnSyncOn(Context view,
+                                               DialogInterface.OnClickListener yesClick,
+                                               DialogInterface.OnClickListener noClick,
+                                               DialogInterface.OnCancelListener cancelClick){
+        AlertDialog.Builder builder = new AlertDialog.Builder(view);
+        builder.setMessage(R.string.sync_delete_alert_turnon)
+                .setNegativeButton(R.string.cancel, noClick)
+                .setPositiveButton(R.string.sync_turn_on_confirm, yesClick)
+                .setCancelable(false)
+                .setOnCancelListener(cancelClick);
+        builder.create().show();
+    }
+
+    public static void showAttentionTurnSyncOff(Context view,
+                                                DialogInterface.OnClickListener yesClick,
+                                                DialogInterface.OnClickListener noClick,
+                                                DialogInterface.OnCancelListener cancelClick){
+        AlertDialog.Builder builder = new AlertDialog.Builder(view);
+        builder.setMessage(R.string.sync_delete_alert_turnoff)
+                .setNegativeButton(R.string.cancel, noClick)
+                .setPositiveButton(R.string.sync_turn_off_confirm, yesClick)
+                .setCancelable(false)
+                .setOnCancelListener(cancelClick)
+        ;
+
+        builder.create().show();
+
+    }
+
 }

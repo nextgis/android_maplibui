@@ -373,4 +373,11 @@
     <string name="background_location_message">NextGIS app needs background location permission to collect tracks continuously even when the app is not in
         use. Otherwise the track will be collected only when the app in foreground. Please select \'%s\'.</string>
     <string name="background_location_always">Allow all the time</string>
+    <string name="sync_delete_alert_turnon">You might loose data after you turn syncronization on for this layer. Make sure you made backup of collected data before turning synchronization on.
+</string>
+    <string name="sync_turn_on_confirm">TURN ON</string>
+    <string name="sync_turn_off_confirm">TURN OFF</string>
+    <string name="sync_delete_alert_turnoff">All unsyncronized data and data collected after syncing is turned off will be lost after you turn it back on. Make sure you synchronized data or made backup of collected data before proceeding.
+</string>
+
 </resources>

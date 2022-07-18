@@ -66,6 +66,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
+import static com.nextgis.maplibui.activity.VectorLayerSettingsActivity.showAttentionTurnSyncOff;
+import static com.nextgis.maplibui.activity.VectorLayerSettingsActivity.showAttentionTurnSyncOn;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.ACTION_PREFS_NGW;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
 
@@ -326,7 +328,7 @@ public class NGWSettingsFragment
                     continue;
                 }
 
-                CheckBoxPreference layerSync = new CheckBoxPreference(mStyledContext);
+                final CheckBoxPreference layerSync = new CheckBoxPreference(mStyledContext);
                 layerSync.setTitle(ngwLayer.getName());
                 layerSync.setChecked(0 == (ngwLayer.getSyncType() & Constants.SYNC_NONE));
                 //layerSync.setKey("" + ngwLayer.getId());
@@ -343,13 +345,48 @@ public class NGWSettingsFragment
                             Preference preference,
                             Object newValue)
                     {
-                        boolean isChecked = (boolean) newValue;
-                        if (isChecked) {
-                            ngwLayer.setSyncType(Constants.SYNC_ALL);
 
+                        boolean isChecked = (boolean) newValue;
+
+                        if (isChecked) {
+                            DialogInterface.OnClickListener yesClick = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    ngwLayer.setSyncType(Constants.SYNC_ALL); } };
+                            DialogInterface.OnClickListener noClick = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    layerSync.setChecked(false);
+                                    // не вызывает onPrefChange  -так что доп проверки не нужны как с checkbox-ом
+                                } };
+                            DialogInterface.OnCancelListener cancelClick = new DialogInterface.OnCancelListener() {
+                                @Override
+                                public void onCancel(DialogInterface dialog) {
+                                    layerSync.setChecked(false); } };
+                            showAttentionTurnSyncOn(layerSync.getContext(), yesClick, noClick , cancelClick);
                         } else {
-                            ngwLayer.setSyncType(Constants.SYNC_NONE);
+                            DialogInterface.OnClickListener yesClick = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    ngwLayer.setSyncType(Constants.SYNC_NONE); } };
+                            DialogInterface.OnClickListener noClick = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    layerSync.setChecked(true); } };
+                            DialogInterface.OnCancelListener cancelClick = new DialogInterface.OnCancelListener() {
+                                @Override
+                                public void onCancel(DialogInterface dialog) {
+                                    layerSync.setChecked(true); } };
+                            showAttentionTurnSyncOff(layerSync.getContext(), yesClick, noClick , cancelClick);
+
                         }
+
+//                        if (isChecked) {
+//                            ngwLayer.setSyncType(Constants.SYNC_ALL);
+//
+//                        } else {
+//                            ngwLayer.setSyncType(Constants.SYNC_NONE);
+//                        }
                         ngwLayer.save();
                         return true;
                     }

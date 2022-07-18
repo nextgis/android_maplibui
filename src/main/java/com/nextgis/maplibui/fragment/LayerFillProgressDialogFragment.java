@@ -198,27 +198,34 @@ public class LayerFillProgressDialogFragment extends Fragment {
                         final NGWVectorLayer ngwLayer = (NGWVectorLayer) app.getMap().getLayerById(id);
                         final Account account = app.getAccount(ngwLayer.getAccountName());
 
-                        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                        builder.setTitle(R.string.sync_dialog_title).setMessage(R.string.sync_dialog_message)
-                                .setPositiveButton(R.string.auto, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        NGWSettingsFragment.setAccountSyncEnabled(account, app.getAuthority(), true);
-                                        ngwLayer.setSyncType(Constants.SYNC_ALL);
-                                        ngwLayer.save();
-                                    }
-                                })
-                                .setNeutralButton(R.string.skip, null)
-                                .setNegativeButton(R.string.manual, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        ngwLayer.setSyncType(Constants.SYNC_ALL);
-                                        ngwLayer.save();
-                                    }
-                                });
 
-                        AlertDialog dialog = builder.show();
-                        dialog.setCanceledOnTouchOutside(false);
+                        NGWSettingsFragment.setAccountSyncEnabled(account, app.getAuthority(), true);
+                        ngwLayer.setSyncType(Constants.SYNC_ALL);
+                        ngwLayer.save();
+
+                        // убрали вопрос что делать при загрузке слоя
+                        // закоменченнное потом можно удалить
+//                        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+//                        builder.setTitle(R.string.sync_dialog_title).setMessage(R.string.sync_dialog_message)
+//                                .setPositiveButton(R.string.auto, new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialogInterface, int i) {
+//                                        NGWSettingsFragment.setAccountSyncEnabled(account, app.getAuthority(), true);
+//                                        ngwLayer.setSyncType(Constants.SYNC_ALL);
+//                                        ngwLayer.save();
+//                                    }
+//                                })
+//                                .setNeutralButton(R.string.skip, null)
+//                                .setNegativeButton(R.string.manual, new DialogInterface.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(DialogInterface dialogInterface, int i) {
+//                                        ngwLayer.setSyncType(Constants.SYNC_ALL);
+//                                        ngwLayer.save();
+//                                    }
+//                                });
+//
+//                        AlertDialog dialog = builder.show();
+//                        dialog.setCanceledOnTouchOutside(false);
                     }
                     break;
                 case LayerFillService.STATUS_SHOW:
