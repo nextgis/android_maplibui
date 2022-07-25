@@ -124,7 +124,7 @@ public class HTTPLoader
         if (mReference == null)
             mReference = new AtomicReference<>(url);
         try {
-            return NGWUtil.getConnectionCookie(mReference, mLogin, mPassword);
+            return NGWUtil.getConnectionCookie(mReference, mLogin, mPassword, true);
         } catch (IllegalArgumentException | IllegalStateException e) {
             e.printStackTrace();
             return null;
