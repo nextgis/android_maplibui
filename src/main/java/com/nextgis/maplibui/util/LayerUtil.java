@@ -117,8 +117,10 @@ public final class LayerUtil {
         exportTask.execute();
     }
 
-    public static void shareLayerAsGeoJSON(Activity activity, VectorLayer layer, boolean proceedAttaches) {
-        ExportGeoJSONTask exportTask = new ExportGeoJSONTask(activity, layer, proceedAttaches, false);
+    public static void shareLayerAsGeoJSON(Activity activity, VectorLayer layer, boolean proceedAttaches,
+                                           boolean isSave, Intent outputData) {
+        ExportGeoJSONTask exportTask = new ExportGeoJSONTask(activity, layer, proceedAttaches, false, isSave,
+                outputData);
         exportTask.execute();
     }
 
@@ -140,5 +142,7 @@ public final class LayerUtil {
                 return context.getString(R.string.n_a);
         }
     }
+
+
 
 }

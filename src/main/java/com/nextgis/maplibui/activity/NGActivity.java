@@ -23,11 +23,15 @@
 
 package com.nextgis.maplibui.activity;
 
+import static com.nextgis.maplib.util.Constants.TAG;
+import static com.nextgis.maplibui.util.ConstantsUI.CODE_SAVE_FILE;
+
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
@@ -35,12 +39,22 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.nextgis.maplib.api.ILayer;
+import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.AccountUtil;
+import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.util.ControlHelper;
+import com.nextgis.maplibui.util.LayerUtil;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
+
+import java.lang.ref.WeakReference;
 
 
 /**
@@ -52,6 +66,7 @@ public class NGActivity
     protected SharedPreferences mPreferences;
     protected boolean           mIsDarkTheme;
     protected String            mCurrentTheme;
+    protected WeakReference<ILayer> layerToSave = new WeakReference<>(null);
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -205,6 +220,33 @@ public class NGActivity
             });
         } else
             ActivityCompat.requestPermissions(this, permissions, requestCode);
+    }
+
+    @Override
+    protected void onActivityResult(
+            int requestCode,
+            int resultCode,
+            Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case CODE_SAVE_FILE: // save file to
+
+                VectorLayer layer = (VectorLayer)getLayerForSave();
+                if (layer != null) {
+                    storeLayerForSave(null);
+                    LayerUtil.shareLayerAsGeoJSON(this, layer, true, true, data);
+                }
+                break;
+        }
+    }
+
+    public void storeLayerForSave(ILayer layer){
+        layerToSave = new WeakReference<>(layer);
+    }
+
+    public ILayer getLayerForSave(){
+        return layerToSave.get();
     }
 
 }

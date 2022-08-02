@@ -36,6 +36,11 @@
         android:icon="@drawable/ic_action_social_share_dark"
         android:title="@string/menu_share"
         app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/menu_save"
+        android:icon="@drawable/ic_action_save"
+        android:title="@string/save"
+        android:visible="false"/>
 
     <item
         android:id="@+id/menu_visibility_on"

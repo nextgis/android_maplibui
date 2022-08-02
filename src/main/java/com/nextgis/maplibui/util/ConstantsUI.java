@@ -136,4 +136,9 @@ public interface ConstantsUI
     String FRAGMENT_SELECT_RESOURCE      = "select_resource";
 
     String PREF_SCREEN_TITLE = "pref_screen_title";
+
+
+    final int CODE_SAVE_FILE = 77; // сохранение файла - для onActivityResult
+
+
 }

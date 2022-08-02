@@ -25,6 +25,7 @@ package com.nextgis.maplibui.fragment;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.support.design.widget.Snackbar;
@@ -69,6 +70,9 @@ import com.nextgis.maplibui.util.LayerUtil;
 import com.nextgis.maplibui.util.UiUtil;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
+import static com.nextgis.maplib.util.LayerUtil.normalizeLayerName;
+import static com.nextgis.maplibui.util.ConstantsUI.CODE_SAVE_FILE;
+import static com.nextgis.maplibui.util.ExportGeoJSONTask.ZIP_EXT;
 
 
 /**
@@ -82,6 +86,8 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
     protected DrawerLayout mDrawer;
     protected onEdit mEditListener;
     protected View.OnClickListener mOnPencilClickListener;
+
+
 
     public interface onEdit {
         void onLayerEdit(ILayer layer);
@@ -219,6 +225,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                         if (layerui == null) {
                             popup.getMenu().findItem(R.id.menu_settings).setEnabled(false);
                             popup.getMenu().findItem(R.id.menu_share).setEnabled(false);
+                            popup.getMenu().findItem(R.id.menu_save).setVisible(false);
                         }
 
                         if (layer instanceof VectorLayerUI) {
@@ -232,9 +239,11 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                             popup.getMenu().findItem(R.id.menu_delete).setVisible(false);
                             popup.getMenu().findItem(R.id.menu_settings).setTitle(R.string.track_list);
                             popup.getMenu().findItem(R.id.menu_share).setVisible(false);
+                            popup.getMenu().findItem(R.id.menu_save).setVisible(false);
                         } else if (layerui instanceof VectorLayer) {
                             popup.getMenu().findItem(R.id.menu_edit).setVisible(true);
                             popup.getMenu().findItem(R.id.menu_share).setVisible(true);
+                            popup.getMenu().findItem(R.id.menu_save).setVisible(true);
                             popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(true);
                             popup.getMenu().findItem(R.id.menu_download_tiles).setVisible(true);
                             popup.getMenu().findItem(R.id.menu_download_tiles).setTitle(R.string.attributes);
@@ -265,9 +274,25 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 
                                             if (layerui instanceof VectorLayer) {
                                                 VectorLayer vectorLayer = (VectorLayer) layerui;
-                                                LayerUtil.shareLayerAsGeoJSON(mActivity, vectorLayer, true);
+                                                LayerUtil.shareLayerAsGeoJSON(mActivity, vectorLayer, true,
+                                                        false, null);
                                             }
-                                        } else if (i == R.id.menu_edit) {
+                                        } else if (i == R.id.menu_save) {
+                                             // запоминаем что выбрал пользователь и запускаем выбор (экспорт потом - может он и не выберет ничего )
+
+                                            assert layerui != null;
+
+                                            if (layerui instanceof VectorLayer) {
+                                                mActivity.storeLayerForSave((VectorLayer) layerui);
+                                                String fileName = normalizeLayerName(((VectorLayer) layerui).getName()) + ZIP_EXT;
+                                                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                                                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                                                intent.setType("*/*");
+                                                intent.putExtra(Intent.EXTRA_TITLE, fileName);
+                                                mActivity.startActivityForResult(intent, CODE_SAVE_FILE);
+                                            }
+                                        }
+                                        else if (i == R.id.menu_edit) {
                                             if (layerui instanceof NGWWebMapLayerUI)
                                                 ((NGWWebMapLayerUI) layerui).showLayersDialog(mMapView, mActivity);
                                             else if (mEditListener != null)

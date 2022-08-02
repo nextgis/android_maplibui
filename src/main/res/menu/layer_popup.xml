@@ -41,6 +41,12 @@
         android:visible="false"/>
 
     <item
+        android:id="@+id/menu_save"
+        android:orderInCategory="16"
+        android:title="@string/save"
+        android:visible="false"/>
+
+    <item
         android:id="@+id/menu_send_to_ngw"
         android:orderInCategory="20"
         android:title="@string/menu_send_to_ngw"

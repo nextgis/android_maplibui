@@ -25,6 +25,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -72,19 +73,25 @@ import static com.nextgis.maplib.util.GeoConstants.GEOJSON_TYPE_FeatureCollectio
 import static com.nextgis.maplib.util.LayerUtil.normalizeLayerName;
 
 public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
-    protected static String ZIP_EXT = ".zip";
+    public static String ZIP_EXT = ".zip";
     Activity mActivity;
     private VectorLayer mLayer;
     private ProgressDialog mProgress;
     boolean mIsCanceled;
     boolean mProceedAttaches;
     private boolean mResultOnly;
+    private boolean isSaveOperation;
+    private Intent outputData;
 
-    public ExportGeoJSONTask(Activity activity, VectorLayer layer, boolean proceedAttaches, boolean resultOnly) {
+
+    public ExportGeoJSONTask(Activity activity, VectorLayer layer, boolean proceedAttaches, boolean resultOnly
+            , boolean isSave, Intent outputIntent) {
         mActivity = activity;
         mLayer = layer;
         mProceedAttaches = proceedAttaches;
         mResultOnly = resultOnly;
+        isSaveOperation = isSave;
+        outputData = outputIntent;
     }
 
     @Override
@@ -286,7 +293,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
 
         if (result instanceof File) {
             HyperLog.v(Constants.TAG, "ExportGeoJSONTask: show share dialog");
-            share((File) result);
+            share((File) result, isSaveOperation);
         } else {
             HyperLog.v(Constants.TAG, "ExportGeoJSONTask: error: result is null");
             if (result == null)
@@ -295,13 +302,16 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
         }
     }
 
-    private void share(File path) {
+    private void share(File path, boolean isSaveOperation) {
         if (path == null || !path.exists()) {
             Toast.makeText(mActivity, R.string.error_create_feature, Toast.LENGTH_SHORT).show();
             return;
         }
 
         String type = "application/json,application/vnd.geo+json,application/zip";
-        UiUtil.share(path, type, mActivity, true);
+        if (!isSaveOperation)
+            UiUtil.share(path, type, mActivity, true);
+        else
+            UiUtil.save(path, type, mActivity, true, outputData);
     }
 }

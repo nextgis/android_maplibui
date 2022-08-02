@@ -21,8 +21,11 @@
 
 package com.nextgis.maplibui.util;
 
+import static com.nextgis.maplib.util.Constants.TAG;
+
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -30,12 +33,16 @@ import android.support.v4.app.ShareCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -96,6 +103,43 @@ public final class UiUtil {
                         .show();
             } else
                 notFound(activity);
+        }
+    }
+
+    public static void save(File inputFile, String mimeType, Activity activity, Boolean showInfoDialog,
+                            Intent outputData) {
+        // сохраняем в выбранное место
+        if (outputData == null)
+            return;
+        try {
+            final ContentResolver resolver = activity.getContentResolver();
+            Uri docUri = outputData.getData();
+
+            if (docUri != null) {
+                if (docUri != null) {
+                    final OutputStream output = resolver.openOutputStream(docUri);
+                    try {
+                        InputStream inputStream = new FileInputStream(inputFile);
+                        byte[] buffer = new byte[10240]; // or other buffer size
+                        int read;
+                        while ((read = inputStream.read(buffer)) != -1) {
+                            output.write(buffer, 0, read);
+                        }
+                        output.flush();
+                        Toast.makeText(activity, R.string.save_complete, Toast.LENGTH_LONG).show();
+
+                    } catch (Exception ex) {
+                        Toast.makeText(activity, R.string.error_on_save, Toast.LENGTH_LONG).show();
+                        Log.e(TAG, ex.getMessage());
+
+                    } finally {
+                        output.close();
+                    }
+                }
+            }
+        } catch (Exception exception){
+            Toast.makeText(activity, R.string.error_on_save, Toast.LENGTH_LONG).show();
+            Log.e(TAG, exception.getMessage());
         }
     }
 }
