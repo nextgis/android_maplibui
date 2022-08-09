@@ -489,7 +489,13 @@ public class ModifyAttributesActivity
                         public void onClick(DialogInterface dialog, int which) {
                             finish();
                         }
-                    }).create();
+                    })
+                    .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    })
+                    .create();
             builder.show();
             return true;
         }

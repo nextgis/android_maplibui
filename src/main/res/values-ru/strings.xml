@@ -287,7 +287,7 @@
     <string name="export">Экспорт</string>
     <string name="accurate_finish_sound">Уведомить о завершении</string>
     <string name="no_features">В слое нет объектов </string>
-    <string name="discard">@string/cancel</string>
+    <string name="discard">Не сохранять</string>
     <string name="error_export_geojson">Невозможно создать конечный geojson</string>
     <string name="attributes">Таблица объектов</string>
     <string name="error_cache">Неверный кэш, перестройте в настройках слоя</string>
