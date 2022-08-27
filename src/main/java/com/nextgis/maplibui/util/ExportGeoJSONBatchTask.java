@@ -24,6 +24,7 @@ package com.nextgis.maplibui.util;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Pair;
 import android.widget.Toast;
 
 import com.hypertrack.hyperlog.HyperLog;
@@ -38,6 +39,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -49,11 +51,17 @@ import static com.nextgis.maplib.util.LayerUtil.normalizeLayerName;
 public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
     private List<VectorLayer> mLayers;
     private String mName;
+    private ArrayList<Pair<Integer,String>> trackList;
+    WeakReference<Context> refContext;
 
-    public ExportGeoJSONBatchTask(Activity activity, List<VectorLayer> layers, boolean proceedAttaches, String name) {
+    public ExportGeoJSONBatchTask(Activity activity, List<VectorLayer> layers, boolean proceedAttaches, String name,
+    ArrayList<Pair<Integer,String>> trackList) {
         super(activity, null, proceedAttaches, false, false, null);
         mLayers = layers;
         mName = name;
+        this.trackList = trackList;
+        refContext = new WeakReference<>((Context) activity);
+
     }
 
     @Override
@@ -67,11 +75,15 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
                 break;
             }
 
+        if (context == null && refContext !=null && refContext.get() != null)
+            context = refContext.get();
+
         if (context != null) {
             try {
                 Boolean enoughSpace = null;
                 try {
-                    CheckDirSizeTask sizeTask = new CheckDirSizeTask(mActivity, mLayers);
+                    CheckDirSizeTask sizeTask = new CheckDirSizeTask(mActivity, mLayers,
+                            trackList.size() > 0);
                     enoughSpace = sizeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
                 } catch (ExecutionException | InterruptedException ignored) {
 
@@ -131,6 +143,46 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
                             if (result == null)
                                 result = R.string.error_export_geojson;
                             publishProgress((int) result);
+                        }
+                    } catch (ExecutionException | InterruptedException ex) {
+                        HyperLog.v(Constants.TAG, "ExportGeoJSONBatchTask: zip error: " + ex.getMessage());
+                        publishProgress(R.string.sync_error_io);
+                    }
+                }
+
+
+                if (trackList.size() > 0) {
+                    List<String> tracksIds = new ArrayList<>();
+                    for (Pair<Integer, String> pair : trackList)
+                        tracksIds.add(String.valueOf(pair.first));
+
+                    HyperLog.v(Constants.TAG, "ExportGeoJSONBatchTask: process tracklist" );
+                    try {
+
+                        ExportGPXTask exportTask = new ExportGPXTask(
+                                mActivity,
+                                "NextGIS Mobile",
+                                tracksIds,
+                                true);
+                        Object result = exportTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
+
+                        if (result instanceof ArrayList) {
+                            for (File file : (List<File>) result) {
+                                HyperLog.v(Constants.TAG, "ExportGeoJSONBatchTask: result is File");
+                                String name = file.getName();
+                                name = getUniqueName(name, existingFiles, ZIP_EXT);
+                                existingFiles.add(name);
+                                FileInputStream fis = new FileInputStream(file);
+                                zos.putNextEntry(new ZipEntry(name));
+
+                                HyperLog.v(Constants.TAG, "ExportGeoJSONBatchTask: put result to zip");
+                                while ((length = fis.read(buffer)) > 0)
+                                    zos.write(buffer, 0, length);
+
+                                HyperLog.v(Constants.TAG, "ExportGeoJSONBatchTask: close entry");
+                                zos.closeEntry();
+                                fis.close();
+                            }
                         }
                     } catch (ExecutionException | InterruptedException ex) {
                         HyperLog.v(Constants.TAG, "ExportGeoJSONBatchTask: zip error: " + ex.getMessage());

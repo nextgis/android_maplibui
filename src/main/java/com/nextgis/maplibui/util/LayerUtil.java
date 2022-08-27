@@ -46,6 +46,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
@@ -113,7 +114,10 @@ public final class LayerUtil {
     }
 
     public static void shareTrackAsGPX(NGActivity activity, String creator, String[] tracksId) {
-        ExportGPXTask exportTask = new ExportGPXTask(activity, creator, tracksId);
+
+        ExportGPXTask exportTask = new ExportGPXTask(activity, creator,
+                new ArrayList<String>(Arrays.asList(tracksId)),
+                false);
         exportTask.execute();
     }
 

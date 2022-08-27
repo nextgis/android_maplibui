@@ -379,5 +379,6 @@
 </string>
     <string name="save_complete">Сохранение завершено</string>
     <string name="error_on_save">Ошибка при сохранении объекта</string>
+    <string name="tracks_to_archive">(Мои треки)</string>
 
 </resources>

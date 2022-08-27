@@ -1,7 +1,7 @@
 /*
  * Project:  NextGIS Collector
  * Purpose:  Light mobile GIS for collecting data
- * Author:   Stanislav Petriakov, becomeglory@gmail.com
+ * Author:   Stanisl av Petriakov, becomeglory@gmail.com
  * ********************************************************************
  * Copyright (c) 2021 NextGIS, info@nextgis.com
  *
@@ -21,29 +21,38 @@
 
 package com.nextgis.maplibui.util;
 
+import static com.nextgis.maplib.map.TrackLayer.TABLE_TRACKPOINTS;
+
 import android.app.Activity;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.StatFs;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 
+import com.nextgis.maplib.api.IGISApplication;
+import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
 
 import java.io.File;
 import java.text.DecimalFormat;
+import java.util.Currency;
 import java.util.List;
 
 public class CheckDirSizeTask extends AsyncTask<Void, Long, Boolean> {
     private Activity mActivity;
     private List<VectorLayer> mLayers;
     private long mFree, mNeeded;
+    boolean useTracksToCalc;
 
-    public CheckDirSizeTask(Activity activity, List<VectorLayer> layers) {
+    public CheckDirSizeTask(Activity activity, List<VectorLayer> layers, boolean useTracksToCalc) {
         mActivity = activity;
         mLayers = layers;
+        this.useTracksToCalc = useTracksToCalc;
     }
 
     @Override
@@ -52,6 +61,28 @@ public class CheckDirSizeTask extends AsyncTask<Void, Long, Boolean> {
             mNeeded += layer.getFields().size() * layer.getCount() * 64; // 64 is a approximately length of each feature in geojson with 4-chars field values
             mNeeded += FileUtil.getDirectorySize(layer.getPath());
         }
+
+
+        if (useTracksToCalc) {
+            String authority = ((IGISApplication)mActivity.getApplication()).getAuthority();
+            String  projection = null ;//arrayOf(TrackLayer.FIELD_ID, TrackLayer.FIELD_NAME, TrackLayer.FIELD_VISIBLE)
+            String  selection = null; // TrackLayer.FIELD_ID + " = ?"
+            Uri mContentUriTrackpoints = Uri.parse("content://" + authority + "/" + TABLE_TRACKPOINTS);
+
+
+            Cursor  tracksPoints =  mActivity.getContentResolver().query(
+                    mContentUriTrackpoints,null,
+                    null,
+                    null,
+                    null);
+            if (tracksPoints != null && tracksPoints.moveToFirst() ) {
+                long count = tracksPoints.getCount();
+                mNeeded += count * 200; // about 200 bytes per one point
+
+            }
+
+        }
+
 
         if (mLayers.size() > 1)
             mNeeded *= 2;

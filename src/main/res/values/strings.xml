@@ -380,5 +380,6 @@
 
     <string name="save_complete">File save complete</string>
     <string name="error_on_save">Error on saving object</string>
+    <string name="tracks_to_archive">(My tracks)</string>
 
 </resources>

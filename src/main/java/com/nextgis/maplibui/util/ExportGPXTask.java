@@ -21,6 +21,7 @@
 
 package com.nextgis.maplibui.util;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -52,13 +53,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Formatter;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
 import static com.nextgis.maplib.util.GeoConstants.CRS_WEB_MERCATOR;
 import static com.nextgis.maplib.util.GeoConstants.CRS_WGS84;
 
-public class ExportGPXTask extends AsyncTask<Void, Void, Void> implements DialogInterface.OnClickListener {
+public class ExportGPXTask extends AsyncTask<Void, Integer, Object>
+        implements DialogInterface.OnClickListener {
     private static final String XML_VERSION = "<?xml version=\"1.0\"?>";
     private static final String GPX_VERSION = "1.1";
     private static final String GPX_TAG = "<gpx version=\""
@@ -78,37 +81,45 @@ public class ExportGPXTask extends AsyncTask<Void, Void, Void> implements Dialog
     private static final String GPX_TAG_TRACK_SEGMENT_POINT_ELE = "<ele>%s</ele>";
     private static final String GPX_TAG_TRACK_SEGMENT_POINT_FIX = "<fix>%s</fix>";
 
-    protected NGActivity mActivity;
+    protected Activity mActivity;
     private ProgressDialog mProgress;
-    private String[] mTracksId;
+    private List<String> mTracksId;
     private boolean mIsCanceled, mIsChosen = true, mSeparateFiles = true;
     private int mNoPoints = 0;
     private String mHeader;
     private ArrayList<Uri> mUris;
+    private ArrayList<File> mFiles;
+    boolean onlyResult;
 
-    ExportGPXTask(NGActivity activity, String creator, String[] tracksId) {
+    ExportGPXTask(Activity activity, String creator, List<String> tracksId, boolean onlyResult) {
         mTracksId = tracksId;
         mActivity = activity;
         mHeader = XML_VERSION + "\r\n" + String.format(GPX_TAG, creator) + "\r\n";
         mUris = new ArrayList<>();
+        mFiles = new ArrayList<>();
+        this.onlyResult = onlyResult;
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        if (mTracksId.length > 1) {
+        if (mTracksId.size() > 1 && ! onlyResult) {
+
             mIsChosen = false;
-            AlertDialog.Builder mDialog = new AlertDialog.Builder(mActivity);
-            mDialog.setTitle(R.string.menu_share).setMessage(R.string.share_gpx_multiple)
-                   .setPositiveButton(R.string.share_gpx_together, this)
-                   .setNeutralButton(android.R.string.cancel, this)
-                   .setNegativeButton(R.string.share_gpx_separate, this).show();
+            if (!onlyResult) {
+                AlertDialog.Builder mDialog = new AlertDialog.Builder(mActivity);
+                mDialog.setTitle(R.string.menu_share).setMessage(R.string.share_gpx_multiple)
+                        .setPositiveButton(R.string.share_gpx_together, this)
+                        .setNeutralButton(android.R.string.cancel, this)
+                        .setNegativeButton(R.string.share_gpx_separate, this).show();
+            }
             ControlHelper.lockScreenOrientation(mActivity);
-        }
+        } else if (onlyResult)
+            mIsChosen = true;
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
+    protected Object doInBackground(Void... params) {
         while (!mIsChosen)
             SystemClock.sleep(500);
 
@@ -157,6 +168,8 @@ public class ExportGPXTask extends AsyncTask<Void, Void, Void> implements Dialog
                                 uri = Uri.fromFile(temp);
                             if (uri != null)
                                 mUris.add(uri);
+                            if (temp != null)
+                                mFiles.add(temp);
                         } else
                             appendTrack(temp, track.getString(0), sb, f, trackpoints);
 
@@ -178,12 +191,14 @@ public class ExportGPXTask extends AsyncTask<Void, Void, Void> implements Dialog
                     uri = Uri.fromFile(temp);
                 if (uri != null)
                     mUris.add(uri);
+                if (temp != null)
+                    mFiles.add(temp);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return null;
+        return mFiles;
     }
 
     private void appendTrack(File temp, String name, StringBuilder sb, Formatter f, Cursor trackpoints) throws IOException {
@@ -252,7 +267,7 @@ public class ExportGPXTask extends AsyncTask<Void, Void, Void> implements Dialog
     }
 
     @Override
-    protected void onProgressUpdate(Void... values) {
+    protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
 
         mProgress = new ProgressDialog(mActivity);
@@ -269,14 +284,16 @@ public class ExportGPXTask extends AsyncTask<Void, Void, Void> implements Dialog
     }
 
     @Override
-    protected void onPostExecute(Void aVoid) {
-        super.onPostExecute(aVoid);
-
+    protected void onPostExecute(Object object) {
+        super.onPostExecute(object);
         ControlHelper.unlockScreenOrientation(mActivity);
         if (mProgress != null)
             mProgress.dismiss();
 
         if (mIsCanceled)
+            return;
+
+        if (onlyResult)
             return;
 
         String text = mActivity.getString(R.string.not_enough_points);
