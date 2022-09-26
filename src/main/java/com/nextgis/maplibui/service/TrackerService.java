@@ -319,7 +319,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
     private void addSplitter() {
         // set midnight track splitter
         Calendar today = Calendar.getInstance();
-        today.set(Calendar.HOUR, 0);
+        today.set(Calendar.HOUR_OF_DAY, 0);
         today.set(Calendar.MINUTE, 0);
         today.set(Calendar.SECOND, 0);
         today.set(Calendar.MILLISECOND, 0);
@@ -454,6 +454,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         try {
             getContentResolver().insert(mContentUriTrackPoints, mValues);
         } catch (Exception ignored) {
+            Log.e(TrackerService.class.getName(), ignored.getMessage());
         }
     }
 
