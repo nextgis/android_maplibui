@@ -41,13 +41,16 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            resValue 'string', 'nextgis_accounts_auth', '"com.nextgis.account"'
+            resValue 'string', 'nextgis_accounts_auth', 'com.nextgis.account'
+            resValue 'string', 'nextgis_accounts_name', 'NextGIS'
         }
         debug {
             minifyEnabled false
+            minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            resValue 'string', 'nextgis_accounts_auth', '"com.nextgis.account.debug"'
+            resValue 'string', 'nextgis_accounts_auth', 'com.nextgis.account.debug'
+            resValue 'string', 'nextgis_accounts_name', 'DEV_NextGIS'
             debuggable true
         }
     }
