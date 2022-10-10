@@ -29,7 +29,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 30
         versionCode 93
-        versionName '2.6.35'
+        versionName '2.6.38'
         def props = new Properties()
         file("../local.properties").withInputStream { props.load(it) }
 
