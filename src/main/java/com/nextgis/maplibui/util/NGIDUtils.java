@@ -27,6 +27,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.HttpResponse;
 import com.nextgis.maplib.util.NGWUtil;
@@ -53,6 +54,8 @@ import java.net.URLEncoder;
 import javax.net.ssl.HttpsURLConnection;
 
 import static com.nextgis.maplib.util.Constants.SUPPORT;
+import static com.nextgis.maplib.util.NetworkUtil.getUserAgentPostfix;
+import static com.nextgis.maplib.util.NetworkUtil.getUserAgentPrefix;
 
 public final class NGIDUtils {
     public static final String NGID_MY = "https://my.nextgis.com";
@@ -252,6 +255,11 @@ public final class NGIDUtils {
                 conn = (HttpsURLConnection) url.openConnection();
             else
                 conn = (HttpURLConnection) url.openConnection();
+
+            conn.setRequestProperty("User-Agent",
+                    getUserAgentPrefix() + " "
+                            + Constants.MAPLIB_USER_AGENT_PART + " " + getUserAgentPostfix());
+
             if (!TextUtils.isEmpty(token))
                 conn.setRequestProperty("Authorization", token);
 

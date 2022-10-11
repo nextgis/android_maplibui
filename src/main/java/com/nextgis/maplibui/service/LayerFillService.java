@@ -89,6 +89,8 @@ import java.util.zip.ZipInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import static com.nextgis.maplib.util.NetworkUtil.getUserAgentPostfix;
+import static com.nextgis.maplib.util.NetworkUtil.getUserAgentPrefix;
 import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 
 /**
@@ -486,6 +488,10 @@ public class LayerFillService extends Service implements IProgressor {
                     } else {
                         connection = (HttpURLConnection) new URL(url).openConnection();; // we need this due to getResponseCode() makes actual connection and it becomes immutable
                     }
+
+                    connection.setRequestProperty("User-Agent",
+                            getUserAgentPrefix() + " "
+                                    + Constants.MAPLIB_USER_AGENT_PART + " " + getUserAgentPostfix());
 
                     try {
                         AccountUtil.AccountData accountData = AccountUtil.getAccountData(getApplicationContext(), mAccount);
