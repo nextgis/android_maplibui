@@ -259,6 +259,7 @@ public final class NGIDUtils {
             conn.setRequestProperty("User-Agent",
                     getUserAgentPrefix() + " "
                             + Constants.MAPLIB_USER_AGENT_PART + " " + getUserAgentPostfix());
+            conn.setRequestProperty("connection", "keep-alive");
 
             if (!TextUtils.isEmpty(token))
                 conn.setRequestProperty("Authorization", token);

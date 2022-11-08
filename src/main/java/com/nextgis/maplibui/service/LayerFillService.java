@@ -493,6 +493,7 @@ public class LayerFillService extends Service implements IProgressor {
                             getUserAgentPrefix() + " "
                                     + Constants.MAPLIB_USER_AGENT_PART + " " + getUserAgentPostfix());
 
+                    connection.setRequestProperty("connection", "keep-alive");
                     try {
                         AccountUtil.AccountData accountData = AccountUtil.getAccountData(getApplicationContext(), mAccount);
                         String basicAuth = NetworkUtil.getHTTPBaseAuth(accountData.login, accountData.password);
