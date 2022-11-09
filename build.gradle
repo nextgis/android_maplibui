@@ -28,8 +28,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 30
-        versionCode 93
-        versionName '2.6.38'
+        versionCode 94
+        versionName '2.6.40'
         def props = new Properties()
         file("../local.properties").withInputStream { props.load(it) }
 
