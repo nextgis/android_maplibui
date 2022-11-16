@@ -24,15 +24,24 @@ package com.nextgis.maplibui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.HttpResponse;
+import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.NGIDUtils;
 
 import java.io.File;
 import java.io.IOException;
 
+import static com.nextgis.maplib.util.Constants.JSON_END_DATE_KEY;
+import static com.nextgis.maplib.util.Constants.JSON_SIGNATURE_KEY;
+import static com.nextgis.maplib.util.Constants.JSON_START_DATE_KEY;
+import static com.nextgis.maplib.util.Constants.JSON_SUPPORTED_KEY;
+import static com.nextgis.maplib.util.Constants.JSON_USER_ID_KEY;
 import static com.nextgis.maplib.util.Constants.SUPPORT;
+
+import org.json.JSONObject;
 
 public class NGIDLoginActivity extends NGActivity {
     public static final String EXTRA_NEXT = "start_next";
@@ -62,8 +71,22 @@ public class NGIDLoginActivity extends NGActivity {
                                 support = new File(support, SUPPORT);
 
                             try {
+                                String jsonString = FileUtil.readFromFile(support);
+                                JSONObject json = new JSONObject(jsonString);
+                                if (json.optBoolean(JSON_SUPPORTED_KEY)) {
+                                    final String id = json.getString(JSON_USER_ID_KEY);
+                                    NetworkUtil.setUserNGUID(id);
+                                }
+                            }catch (Exception exception){
+
+                            }
+
+                            try {
                                 FileUtil.writeToFile(support, response.getResponseBody());
                             } catch (IOException ignored) {}
+
+                            NetworkUtil.setIsPro(AccountUtil.isProUser(getBaseContext()));
+
                         }
                     }
                 });

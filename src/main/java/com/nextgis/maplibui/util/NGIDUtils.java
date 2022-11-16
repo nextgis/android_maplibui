@@ -27,6 +27,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
+import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.HttpResponse;
@@ -54,8 +55,7 @@ import java.net.URLEncoder;
 import javax.net.ssl.HttpsURLConnection;
 
 import static com.nextgis.maplib.util.Constants.SUPPORT;
-import static com.nextgis.maplib.util.NetworkUtil.getUserAgentPostfix;
-import static com.nextgis.maplib.util.NetworkUtil.getUserAgentPrefix;
+import static com.nextgis.maplib.util.NetworkUtil.getUserAgent;
 
 public final class NGIDUtils {
     public static final String NGID_MY = "https://my.nextgis.com";
@@ -256,9 +256,7 @@ public final class NGIDUtils {
             else
                 conn = (HttpURLConnection) url.openConnection();
 
-            conn.setRequestProperty("User-Agent",
-                    getUserAgentPrefix() + " "
-                            + Constants.MAPLIB_USER_AGENT_PART + " " + getUserAgentPostfix());
+            conn.setRequestProperty("User-Agent", getUserAgent(Constants.MAPLIB_USER_AGENT_PART));
             conn.setRequestProperty("connection", "keep-alive");
 
             if (!TextUtils.isEmpty(token))
@@ -326,5 +324,8 @@ public final class NGIDUtils {
         else
             support = new File(support, SUPPORT);
         FileUtil.deleteRecursive(support);
+        NetworkUtil.setUserNGUID(null);
+        NetworkUtil.setIsPro(false);
+
     }
 }
