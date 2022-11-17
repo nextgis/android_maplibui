@@ -73,10 +73,9 @@ public class NGIDLoginActivity extends NGActivity {
                             try {
                                 String jsonString = FileUtil.readFromFile(support);
                                 JSONObject json = new JSONObject(jsonString);
-                                if (json.optBoolean(JSON_SUPPORTED_KEY)) {
-                                    final String id = json.getString(JSON_USER_ID_KEY);
-                                    NetworkUtil.setUserNGUID(id);
-                                }
+                                final String id = json.getString(JSON_USER_ID_KEY);
+                                NetworkUtil.setUserNGUID(id);
+
                             }catch (Exception exception){
 
                             }
@@ -84,6 +83,16 @@ public class NGIDLoginActivity extends NGActivity {
                             try {
                                 FileUtil.writeToFile(support, response.getResponseBody());
                             } catch (IOException ignored) {}
+
+
+                            try {
+                                JSONObject json = new JSONObject(response.getResponseBody());
+                                final String id = json.getString(JSON_USER_ID_KEY);
+                                NetworkUtil.setUserNGUID(id);
+                            } catch (Exception ex){
+
+                            }
+
 
                             NetworkUtil.setIsPro(AccountUtil.isProUser(getBaseContext()));
 
