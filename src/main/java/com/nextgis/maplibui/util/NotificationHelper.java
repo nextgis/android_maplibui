@@ -41,9 +41,9 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.annotation.StringRes;
-import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.StringRes;
+import androidx.core.app.NotificationCompat;
+import androidx.appcompat.app.AlertDialog;
 
 import com.nextgis.maplibui.R;
 

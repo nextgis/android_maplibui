@@ -26,7 +26,7 @@ package com.nextgis.maplibui.control;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v7.widget.AppCompatTextView;
+import androidx.appcompat.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 

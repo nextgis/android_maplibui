@@ -43,12 +43,12 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -64,7 +64,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.nextgis.maplib.datasource.Field;
-import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.LayerUtil;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplib.util.MapUtil;
@@ -500,7 +499,7 @@ public final class ControlHelper
      * @param tint
      *         Color to use for tinting returned drawable.
      *
-     * @return Wrapped drawable with {@link android.support.v4.graphics.drawable.DrawableCompat#wrap(Drawable)}
+     * @return Wrapped drawable with {@link androidx.core.graphics.drawable.DrawableCompat#wrap(Drawable)}
      */
     public static Drawable getTintedDrawable(@NonNull Drawable inputDrawable, @ColorInt int tint) {
         Drawable wrapDrawable = DrawableCompat.wrap(inputDrawable.mutate());

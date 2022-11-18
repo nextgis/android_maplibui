@@ -29,18 +29,16 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.StatFs;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
 
 import com.nextgis.maplib.api.IGISApplication;
-import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
 
 import java.io.File;
 import java.text.DecimalFormat;
-import java.util.Currency;
 import java.util.List;
 
 public class CheckDirSizeTask extends AsyncTask<Void, Long, Boolean> {

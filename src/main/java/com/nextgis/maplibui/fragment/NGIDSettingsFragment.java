@@ -25,9 +25,9 @@ package com.nextgis.maplibui.fragment;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceGroup;
-import android.support.v7.preference.PreferenceScreen;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceGroup;
+import androidx.preference.PreferenceScreen;
 import android.text.TextUtils;
 
 import com.nextgis.maplibui.R;

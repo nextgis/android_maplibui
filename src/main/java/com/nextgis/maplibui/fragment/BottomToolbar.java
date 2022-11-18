@@ -24,9 +24,9 @@
 package com.nextgis.maplibui.fragment;
 
 import android.content.Context;
-import android.support.annotation.MenuRes;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.MenuRes;
+import androidx.core.view.MenuItemCompat;
+import androidx.appcompat.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuItem;

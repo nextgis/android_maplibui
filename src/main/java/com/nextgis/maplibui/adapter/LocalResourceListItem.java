@@ -23,7 +23,7 @@
 
 package com.nextgis.maplibui.adapter;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import com.nextgis.maplib.util.FileUtil;
 
 import java.io.File;

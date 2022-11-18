@@ -26,7 +26,7 @@ package com.nextgis.maplibui.mapui;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
+import androidx.core.content.ContextCompat;
 
 import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplibui.R;

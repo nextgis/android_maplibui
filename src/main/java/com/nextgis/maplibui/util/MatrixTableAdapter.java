@@ -26,15 +26,12 @@ import com.nextgis.maplibui.R;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.os.Build;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 public class MatrixTableAdapter<T> extends BaseTableAdapter {

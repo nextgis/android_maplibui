@@ -23,7 +23,7 @@ package com.nextgis.maplibui.fragment;
 
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.support.v7.widget.SwitchCompat;
+import androidx.appcompat.widget.SwitchCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;

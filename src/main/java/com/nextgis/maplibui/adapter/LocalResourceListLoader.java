@@ -24,8 +24,7 @@
 package com.nextgis.maplibui.adapter;
 
 import android.content.Context;
-import android.os.Build;
-import android.support.v4.content.AsyncTaskLoader;
+import androidx.loader.content.AsyncTaskLoader;
 
 import java.io.File;
 import java.util.Collections;

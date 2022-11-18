@@ -32,9 +32,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.SystemClock;
-import android.support.v4.app.ShareCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
+import androidx.core.app.ShareCompat;
+import androidx.core.content.FileProvider;
+import androidx.appcompat.app.AlertDialog;
 import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
@@ -43,7 +43,6 @@ import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.activity.NGActivity;
 
 import java.io.File;
 import java.io.IOException;

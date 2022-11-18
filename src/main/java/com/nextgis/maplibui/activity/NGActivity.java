@@ -23,7 +23,6 @@
 
 package com.nextgis.maplibui.activity;
 
-import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplibui.util.ConstantsUI.CODE_SAVE_FILE;
 
 import android.app.Activity;
@@ -31,25 +30,20 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.AccountUtil;
-import com.nextgis.maplib.util.Constants;
-import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.LayerUtil;
 import com.nextgis.maplibui.util.SettingsConstantsUI;

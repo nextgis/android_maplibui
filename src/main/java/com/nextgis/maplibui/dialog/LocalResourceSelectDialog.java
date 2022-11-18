@@ -24,18 +24,17 @@
 package com.nextgis.maplibui.dialog;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.Nullable;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.adapter.ListSelectorAdapter;
 import com.nextgis.maplibui.adapter.LocalResourceListAdapter;
 import com.nextgis.maplibui.adapter.LocalResourceListItem;

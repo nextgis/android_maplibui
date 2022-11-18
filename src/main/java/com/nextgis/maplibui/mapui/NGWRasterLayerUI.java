@@ -26,7 +26,7 @@ package com.nextgis.maplibui.mapui;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.support.v4.app.FragmentActivity;
+import androidx.fragment.app.FragmentActivity;
 
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.map.NGWRasterLayer;

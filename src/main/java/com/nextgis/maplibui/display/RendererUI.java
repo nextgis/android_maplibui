@@ -21,7 +21,7 @@
 
 package com.nextgis.maplibui.display;
 
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 
 import com.nextgis.maplib.api.IRenderer;
 import com.nextgis.maplib.map.VectorLayer;

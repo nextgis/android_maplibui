@@ -98,14 +98,14 @@
         android:layout_margin="5dp"
         android:gravity="center_vertical">
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/accurate_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
             android:text="@string/accurate_location" />
 
-        <android.support.v7.widget.AppCompatSpinner
+        <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/accurate_ce"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
