@@ -22,6 +22,8 @@
 
 package com.nextgis.maplibui.service;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.NotificationManager;
@@ -313,7 +315,7 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
             }
         }
 
-        intentActivity.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intentActivity.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | FLAG_IMMUTABLE);
         if (mTargetExtras != null)
             intentActivity.putExtras(mTargetExtras);
         mOpenActivity = PendingIntent.getActivity(this, 0, intentActivity, PendingIntent.FLAG_UPDATE_CURRENT);

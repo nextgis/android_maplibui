@@ -23,6 +23,8 @@
 
 package com.nextgis.maplibui.service;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -103,7 +105,7 @@ public class TileDownloadService extends Service {
 
         Intent intentStop = getStopIntent();
         intentStop.setAction(ACTION_STOP);
-        int flag = PendingIntent.FLAG_UPDATE_CURRENT;
+        int flag = PendingIntent.FLAG_UPDATE_CURRENT | FLAG_IMMUTABLE;
         PendingIntent stop = PendingIntent.getService(this, 0, intentStop, flag);
 
         int icon = R.drawable.ic_notification_download;

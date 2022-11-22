@@ -22,6 +22,8 @@
 
 package com.nextgis.maplibui.service;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+
 import android.accounts.Account;
 import android.accounts.AccountsException;
 import android.app.NotificationManager;
@@ -166,7 +168,7 @@ public class LayerFillService extends Service implements IProgressor {
         mProgressIntent = new Intent(ACTION_UPDATE);
         Intent intent = new Intent(this, LayerFillService.class);
         intent.setAction(ACTION_STOP);
-        int flag = PendingIntent.FLAG_UPDATE_CURRENT;
+        int flag = PendingIntent.FLAG_UPDATE_CURRENT | FLAG_IMMUTABLE;
         PendingIntent stop = PendingIntent.getService(this, 0, intent, flag);
         intent.setAction(ACTION_SHOW);
         PendingIntent show = PendingIntent.getService(this, 0, intent, flag);

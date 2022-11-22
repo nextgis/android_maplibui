@@ -21,6 +21,8 @@
 
 package com.nextgis.maplibui.service;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -82,7 +84,7 @@ public class RebuildCacheService extends Service implements IProgressor {
         if (getPackageName().equals("com.nextgis.mobile")) {
             Intent intent = new Intent(this, RebuildCacheService.class);
             intent.setAction(ACTION_STOP);
-            int flag = PendingIntent.FLAG_UPDATE_CURRENT;
+            int flag = PendingIntent.FLAG_UPDATE_CURRENT | FLAG_IMMUTABLE;
             PendingIntent stop = PendingIntent.getService(this, 0, intent, flag);
             intent.setAction(ACTION_SHOW);
             PendingIntent show = PendingIntent.getService(this, 0, intent, flag);

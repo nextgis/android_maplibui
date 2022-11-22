@@ -22,6 +22,8 @@
 
 package com.nextgis.maplibui.service;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -38,6 +40,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
+import android.location.GnssStatus;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.Location;
@@ -48,6 +51,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
@@ -96,6 +101,9 @@ public class TrackerService extends Service implements LocationListener, GpsStat
 
     private boolean         mIsRunning;
     private LocationManager mLocationManager;
+
+    protected GnssStatus.Callback mGnssCallback;
+
     private Thread          mLocationSenderThread;
 
     private SharedPreferences mSharedPreferencesTemp;
@@ -142,9 +150,40 @@ public class TrackerService extends Service implements LocationListener, GpsStat
 
         Intent intentSplit = new Intent(this, TrackerService.class);
         intentSplit.setAction(ACTION_SPLIT);
-        int flag = PendingIntent.FLAG_UPDATE_CURRENT;
+        int flag = PendingIntent.FLAG_UPDATE_CURRENT  | FLAG_IMMUTABLE;
         mSplitService = PendingIntent.getService(this, 0, intentSplit, flag);
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+
+            mGnssCallback = new GnssStatus.Callback() {
+                @Override
+                public void onStarted() {
+                    mHasGPSFix = false;
+                }
+
+                @Override
+                public void onStopped() {
+                    mHasGPSFix = false;
+                }
+
+                @Override
+                public void onFirstFix(int ttffMillis) {
+                    mHasGPSFix = true;
+                }
+
+                @Override
+                public void onSatelliteStatusChanged(@NonNull GnssStatus status) {
+                    mSatellitesCount = 0;
+
+                    for (GpsSatellite sat : mLocationManager.getGpsStatus(null).getSatellites()) {
+                        if (sat.usedInFix()) {
+                            mSatellitesCount++;
+                        }
+                    }
+                }
+
+            };
+        }
     }
 
 
@@ -201,7 +240,11 @@ public class TrackerService extends Service implements LocationListener, GpsStat
                 return START_NOT_STICKY;
             }
 
-            mLocationManager.addGpsStatusListener(this);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                mLocationManager.registerGnssStatusCallback(mGnssCallback);
+            }else
+                mLocationManager.addGpsStatusListener(this);
 
             String time = SettingsConstants.KEY_PREF_TRACKS_MIN_TIME;
             String distance = SettingsConstants.KEY_PREF_TRACKS_MIN_DISTANCE;
@@ -346,7 +389,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         String title = String.format(getString(R.string.tracks_title), name);
         Intent intentStop = new Intent(this, TrackerService.class);
         intentStop.setAction(ACTION_STOP);
-        int flag = PendingIntent.FLAG_UPDATE_CURRENT;
+        int flag = PendingIntent.FLAG_UPDATE_CURRENT | FLAG_IMMUTABLE;
         PendingIntent stopService = PendingIntent.getService(this, 0, intentStop, flag);
 
         NotificationCompat.Builder builder = createBuilder(this, R.string.title_edit_by_walk);
@@ -398,7 +441,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         }
 
         intentActivity.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        int flag = PendingIntent.FLAG_UPDATE_CURRENT;
+        int flag = PendingIntent.FLAG_UPDATE_CURRENT | FLAG_IMMUTABLE;
         mOpenActivity = PendingIntent.getActivity(this, 0, intentActivity, flag);
     }
 
@@ -409,7 +452,11 @@ public class TrackerService extends Service implements LocationListener, GpsStat
 
         if (PermissionUtil.hasLocationPermissions(this)) {
             mLocationManager.removeUpdates(this);
-            mLocationManager.removeGpsStatusListener(this);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                mLocationManager.unregisterGnssStatusCallback(mGnssCallback);
+            }else
+                mLocationManager.removeGpsStatusListener(this);
         }
 
         if (mLocationSenderThread != null)
