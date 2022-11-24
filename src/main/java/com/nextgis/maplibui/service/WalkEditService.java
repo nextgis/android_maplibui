@@ -33,6 +33,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.location.GnssStatus;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
@@ -42,7 +43,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import androidx.core.app.NotificationCompat;
 import android.text.TextUtils;
+import android.util.Log;
 
+import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoGeometryFactory;
@@ -67,7 +70,9 @@ import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
  * Service to gather position data during walking
  */
 @SuppressLint("MissingPermission")
-public class WalkEditService extends Service implements LocationListener, GpsStatus.Listener {
+public class WalkEditService extends Service implements LocationListener
+        //, GpsStatus.Listener
+{
     private static final int WALK_NOTIFICATION_ID = 7;
     public static final String TEMP_PREFERENCES = "walkedit_temp";
     public static final String EXTRA_HEADER = "extra_";
@@ -77,6 +82,7 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
 
     private SharedPreferences mSharedPreferencesTemp;
     private LocationManager mLocationManager;
+//    protected GnssStatus.Callback mGnssCallback;
     private NotificationManager mNotificationManager;
     private String mTicker;
     private int mSmallIcon;
@@ -100,6 +106,19 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
         mSmallIcon = R.drawable.ic_action_maps_directions_walk;
 
         mLayerId = Constants.NOT_FOUND;
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//            mGnssCallback = new GnssStatus.Callback() {
+//                @Override
+//                public void onSatelliteStatusChanged(GnssStatus status) {
+//                    super.onSatelliteStatusChanged(status);
+//                }
+//                @Override                public void onStarted() {                }
+//
+//                @Override                public void onStopped() {                }
+//
+//                @Override                public void onFirstFix(int ttffMillis) {                }
+//            };
+//        }
     }
 
     @Override
@@ -168,7 +187,10 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
         if (!PermissionUtil.hasLocationPermissions(this))
             return;
 
-        mLocationManager.addGpsStatusListener(this);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//            mLocationManager.registerGnssStatusCallback(mGnssCallback);
+//        }else
+//            mLocationManager.addGpsStatusListener(this);
 
         String provider = LocationManager.GPS_PROVIDER;
         if (mLocationManager.getAllProviders().contains(provider)) {
@@ -204,7 +226,11 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
 
         if (PermissionUtil.hasLocationPermissions(this)) {
             mLocationManager.removeUpdates(this);
-            mLocationManager.removeGpsStatusListener(this);
+
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                mLocationManager.unregisterGnssStatusCallback(mGnssCallback);
+//            }else
+//                mLocationManager.removeGpsStatusListener(this);
         }
 
         super.onDestroy();
@@ -255,9 +281,9 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
 
     }
 
-    @Override
-    public void onGpsStatusChanged(int event) {
-    }
+//    @Override
+//    public void onGpsStatusChanged(int event) {
+//    }
 
     private void addNotification() {
         if (!mShowNotification)
@@ -318,7 +344,7 @@ public class WalkEditService extends Service implements LocationListener, GpsSta
         intentActivity.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | FLAG_IMMUTABLE);
         if (mTargetExtras != null)
             intentActivity.putExtras(mTargetExtras);
-        mOpenActivity = PendingIntent.getActivity(this, 0, intentActivity, PendingIntent.FLAG_UPDATE_CURRENT);
+        mOpenActivity = PendingIntent.getActivity(this, 0, intentActivity, PendingIntent.FLAG_UPDATE_CURRENT | FLAG_IMMUTABLE);
     }
 
     /**

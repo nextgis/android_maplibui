@@ -174,12 +174,12 @@ public class TrackerService extends Service implements LocationListener, GpsStat
                 @Override
                 public void onSatelliteStatusChanged(@NonNull GnssStatus status) {
                     mSatellitesCount = 0;
-
-                    for (GpsSatellite sat : mLocationManager.getGpsStatus(null).getSatellites()) {
-                        if (sat.usedInFix()) {
-                            mSatellitesCount++;
-                        }
-                    }
+                    mSatellitesCount =status.getSatelliteCount();
+                //                    for (GpsSatellite sat : mLocationManager.getGpsStatus(null).getSatellites()) {
+//                        if (sat.usedInFix()) {
+//                            mSatellitesCount++;
+//                        }
+//                    }
                 }
 
             };
