@@ -380,5 +380,8 @@
     <string name="save_complete">Сохранение завершено</string>
     <string name="error_on_save">Ошибка при сохранении объекта</string>
     <string name="tracks_to_archive">(Мои треки)</string>
+    <string name="sync_need_login">Для синхронизации данных с сервером нужно приобрести подписку <a href="https://nextgis.ru/pricing-base/">https://nextgis.ru/pricing-base/</a> и авторизоваться в приложении (Настройки - Учетная запись).</string>
+    <string name="sync_off_title">Синхронизация отключена</string>
+
 
 </resources>

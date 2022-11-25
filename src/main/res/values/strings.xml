@@ -382,4 +382,8 @@
     <string name="error_on_save">Error on saving object</string>
     <string name="tracks_to_archive">(My tracks)</string>
 
+    <string name="sync_need_login">To turn on data syncing of your data with the server please subscribe <a href="https://nextgis.ru/pricing-base/">https://nextgis.ru/pricing-base/</a> and log in in the app (Settings - Account).</string>
+    <string name="sync_off_title">Sync is off</string>
+
+
 </resources>
