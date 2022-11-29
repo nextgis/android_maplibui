@@ -157,7 +157,8 @@ public final class NotificationHelper {
     private static void showLocationNotification(Context context, String title, String info) {
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         Intent locationSettings = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-        PendingIntent intentNotify = PendingIntent.getActivity(context, 0, locationSettings, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent intentNotify = PendingIntent.getActivity(context, 0, locationSettings,
+                PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = createBuilder(context, R.string.location_accuracy)
                 .setContentIntent(intentNotify)
