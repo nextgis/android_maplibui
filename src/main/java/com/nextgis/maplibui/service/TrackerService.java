@@ -383,7 +383,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
                     name = currentTrack.getString(0);
                 currentTrack.close();
             }
-        } catch (SQLiteException ignored){
+        } catch (Exception ignored){
         }
 
         String title = String.format(getString(R.string.tracks_title), name);
