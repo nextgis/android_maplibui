@@ -36,6 +36,7 @@ public interface ConstantsUI
     int DRAW_STATE_panning_fling = 5;
 
     String KEY_MESSAGE          = "msg";
+    String KEY_MESSAGE_TRACK    = "msg_track";
     String KEY_LAYER_ID         = "layer_id";
     String KEY_FEATURE_ID       = "feature_id";
     String KEY_GEOMETRY         = "geometry";
@@ -47,6 +48,8 @@ public interface ConstantsUI
     String MESSAGE_INTENT = "com.nextgis.malibui.MESSAGE";
     String TARGET_CLASS   = "target_class";
     String TARGET_EXTRAS  = "target_extras";
+
+    String MESSAGE_INTENT_TRACK = "com.nextgis.malibui.MESSAGETRACK";
 
     String FILE_FORM = "form.json";
 

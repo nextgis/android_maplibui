@@ -330,6 +330,11 @@ public class TrackerService extends Service implements LocationListener, GpsStat
             addSplitter();
         } catch (SQLiteException ignored) {
         }
+
+        Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT_TRACK);
+        msg.putExtra(ConstantsUI.KEY_MESSAGE_TRACK, true);
+        sendBroadcast(msg);
+
     }
 
 
@@ -344,6 +349,10 @@ public class TrackerService extends Service implements LocationListener, GpsStat
 
         mSharedPreferencesTemp.edit().remove(ConstantsUI.TARGET_CLASS).apply();
         mSharedPreferencesTemp.edit().remove(TRACK_URI).apply();
+
+        Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT_TRACK);
+        msg.putExtra(ConstantsUI.KEY_MESSAGE_TRACK, false);
+        sendBroadcast(msg);
     }
 
 
