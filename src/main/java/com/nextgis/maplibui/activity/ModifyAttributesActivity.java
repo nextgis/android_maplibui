@@ -569,7 +569,13 @@ public class ModifyAttributesActivity
         String read = Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && !PermissionUtil.hasPermission(this, read)) {
-            Toast.makeText(this, R.string.no_permission_granted, Toast.LENGTH_SHORT).show();
+
+            new AlertDialog.Builder(this)
+                    .setMessage(R.string.no_permission_granted)
+                    .setPositiveButton(R.string.ok, null)
+                    .create()
+                    .show();
+            // Toast.makeText(this, R.string.no_permission_granted, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -632,14 +638,24 @@ public class ModifyAttributesActivity
             // we need to get proper mFeatureId for new features first
             Uri result = getContentResolver().insert(uri, values);
             if (error = result == null)
-                Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT).show();
+                new AlertDialog.Builder(this)
+                        .setMessage(R.string.error_db_insert)
+                        .setPositiveButton(R.string.ok, null)
+                        .create()
+                        .show();
+                //Toast.makeText(this, getText(R.string.error_db_insert), Toast.LENGTH_SHORT).show();
             else
                 mFeatureId = Long.parseLong(result.getLastPathSegment());
         } else {
             Uri updateUri = ContentUris.withAppendedId(uri, mFeatureId);
             boolean valuesUpdated = getContentResolver().update(updateUri, values, null, null) == 1;
             if (error = !valuesUpdated)
-                Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT).show();
+                new AlertDialog.Builder(this)
+                        .setMessage(R.string.error_db_update)
+                        .setPositiveButton(R.string.ok, null)
+                        .create()
+                        .show();
+                //Toast.makeText(this, getText(R.string.error_db_update), Toast.LENGTH_SHORT).show();
         }
 
         for (Map.Entry<String, IControl> field : mFields.entrySet()) {

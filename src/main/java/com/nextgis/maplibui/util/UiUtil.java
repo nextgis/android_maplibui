@@ -129,7 +129,12 @@ public final class UiUtil {
                         Toast.makeText(activity, R.string.save_complete, Toast.LENGTH_LONG).show();
 
                     } catch (Exception ex) {
-                        Toast.makeText(activity, R.string.error_on_save, Toast.LENGTH_LONG).show();
+                        new AlertDialog.Builder(activity)
+                                .setMessage(R.string.error_on_save)
+                                .setPositiveButton(R.string.ok, null)
+                                .create()
+                                .show();
+                        //Toast.makeText(activity, R.string.error_on_save, Toast.LENGTH_LONG).show();
                         Log.e(TAG, ex.getMessage());
 
                     } finally {
@@ -138,7 +143,12 @@ public final class UiUtil {
                 }
             }
         } catch (Exception exception){
-            Toast.makeText(activity, R.string.error_on_save, Toast.LENGTH_LONG).show();
+            new AlertDialog.Builder(activity)
+                    .setMessage(R.string.error_on_save)
+                    .setPositiveButton(R.string.ok, null)
+                    .create()
+                    .show();
+            //Toast.makeText(activity, R.string.error_on_save, Toast.LENGTH_LONG).show();
             Log.e(TAG, exception.getMessage());
         }
     }

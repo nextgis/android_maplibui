@@ -24,14 +24,17 @@
 package com.nextgis.maplibui.fragment;
 
 import android.accounts.Account;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -49,6 +52,7 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.HTTPLoader;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
+import com.nextgis.maplibui.util.NGIDUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -201,7 +205,12 @@ public class NGWLoginFragment
             }
 
             if (!NetworkUtil.isValidUri(mUrlText)) {
-                Toast.makeText(getActivity(), R.string.error_invalid_url, Toast.LENGTH_SHORT).show();
+                new AlertDialog.Builder(getContext())
+                        .setMessage(R.string.error_invalid_url)
+                        .setPositiveButton(R.string.ok, null)
+                        .create()
+                        .show();
+                //Toast.makeText(getActivity(), R.string.error_invalid_url, Toast.LENGTH_SHORT).show();
                 return;
             }
 

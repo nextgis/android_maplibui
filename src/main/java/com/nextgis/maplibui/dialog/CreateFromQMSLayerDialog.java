@@ -282,13 +282,23 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                     new JSONObject(response.getResponseBody());
                     createLayer(response.getResponseBody());
                 } catch (JSONException ignored) {
-                    Toast.makeText(mContext, R.string.qms_unavailable, Toast.LENGTH_SHORT).show();
+                    new AlertDialog.Builder(getContext())
+                            .setMessage(R.string.qms_unavailable)
+                            .setPositiveButton(R.string.ok, null)
+                            .create()
+                            .show();
+                    //Toast.makeText(mContext, R.string.qms_unavailable, Toast.LENGTH_SHORT).show();
                 }
 
             } else {
-                Toast.makeText(
-                        mContext, NetworkUtil.getError(mContext, response.getResponseCode()),
-                        Toast.LENGTH_SHORT).show();
+                new AlertDialog.Builder(getContext())
+                        .setMessage(NetworkUtil.getError(mContext, response.getResponseCode()))
+                        .setPositiveButton(R.string.ok, null)
+                        .create()
+                        .show();
+//                Toast.makeText(
+//                        mContext, NetworkUtil.getError(mContext, response.getResponseCode()),
+//                        Toast.LENGTH_SHORT).show();
             }
 
             mChecked.remove(mLayerId);
