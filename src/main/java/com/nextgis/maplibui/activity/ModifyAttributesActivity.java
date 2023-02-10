@@ -510,7 +510,7 @@ public class ModifyAttributesActivity
             return true;
         } else if (id == R.id.menu_settings) {
             final IGISApplication app = (IGISApplication) getApplication();
-            app.showSettings(SettingsConstantsUI.ACTION_PREFS_GENERAL);
+            app.showSettings(SettingsConstantsUI.ACTION_PREFS_GENERAL, -1, null);
             return true;
         } else if (id == R.id.menu_apply) {
             if (saveFeature())

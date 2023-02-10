@@ -383,5 +383,18 @@
     <string name="sync_need_login">Для синхронизации данных с сервером нужно приобрести подписку <a href="https://nextgis.ru/pricing-base/">https://nextgis.ru/pricing-base/</a> и авторизоваться в приложении (Настройки - Учетная запись).</string>
     <string name="sync_off_title">Синхронизация отключена</string>
 
+    <string name="warning_folder_should_be_empty_clear">Папка для сохранения должна быть пустой. Очистить папку?</string>
+    <string name="map_load_exception_title">Ошибка при загрузке карт</string>
+    <string name="map_load_exception_warning">Странная ошибка при чтении карт - перезагрузите устройство или сбросьте настройки места хранения карт</string>
+    <string name="map_load_exception_warning_no_sd">Отсутвует SD карточка используемая для хранения карт, вставьте карточку обратно или сбросьте настройки места хранения карт</string>
+
+    <string name="sd_card">SD карточка</string>
+    <string name="internal_storage">внутренее хранилище:</string>
+    <string name="choose_storage">выберите хранилище</string>
+    <string name="no_sd_card_attention">Используемая sd карточка отсуствует, верните её, или сбросьте настройки для корректной работы</string>
+    <string name="clear">очистить</string>
+    <string name="no_storages_error">Странное поведение - нет ни одного хранилища,нечего выбирать,попробуйте перезагрузить устройство</string>
+    <string name="clean">Очистить</string>
+
 
 </resources>

@@ -426,7 +426,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
                             public boolean onMenuItemClick(MenuItem menuItem) {
                                 if (menuItem.getItemId() == R.id.menu_settings) {
                                     IGISApplication app = (IGISApplication) ((Activity) mContext).getApplication();
-                                    app.showSettings(SettingsConstantsUI.ACTION_PREFS_LOCATION);
+                                    app.showSettings(SettingsConstantsUI.ACTION_PREFS_LOCATION, -1, null);
                                 }
 
                                 return true;

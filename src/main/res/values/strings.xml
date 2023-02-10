@@ -385,5 +385,16 @@
     <string name="sync_need_login">To turn on data syncing of your data with the server please subscribe <a href="https://nextgis.ru/pricing-base/">https://nextgis.ru/pricing-base/</a> and log in in the app (Settings - Account).</string>
     <string name="sync_off_title">Sync is off</string>
 
+    <string name="warning_folder_should_be_empty_clear">The folder should be empty. Clear target folder?.</string>
+    <string name="map_load_exception_title">Exception on load map</string>
+    <string name="map_load_exception_warning">Error on reading map. Reload device or reset application - map path"</string>
+    <string name="map_load_exception_warning_no_sd">SD card used for storing map was removed, place SD card back to device or reset app settings"</string>
 
+    <string name="sd_card">SD card</string>
+    <string name="internal_storage">Internal storage:</string>
+    <string name="choose_storage">Choose storage</string>
+    <string name="no_sd_card_attention">The used sd card is missing, return it, or reset the settings for correct application work</string>
+    <string name="clear">clean</string>
+    <string name="no_storages_error">Strange behaviour, no any storages - nothing to choose, please restart device</string>
+    <string name="clean">Clean</string>
 </resources>

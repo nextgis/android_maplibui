@@ -30,10 +30,13 @@ import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.Application;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -58,12 +61,18 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import static com.nextgis.maplib.util.Constants.MAP_EXT;
+import static com.nextgis.maplib.util.Constants.MESSAGE_ALERT_INTENT;
+import static com.nextgis.maplib.util.Constants.MESSAGE_EXTRA;
+import static com.nextgis.maplib.util.Constants.MESSAGE_TITLE_EXTRA;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_MAP;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_DARK;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_LIGHT;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_NEUTRAL;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIODICALLY;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 
 /**
  * This is a base application class. Each application should inherited their base application from
@@ -89,7 +98,48 @@ public abstract class GISApplication extends Application
         mGpsEventSource = new GpsEventSource(this);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        getMap();
+        try {
+            getMap();
+        } catch (Exception ex){
+            // check for sd card removed
+            SharedPreferences mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            File defaultPath = getExternalFilesDir(SettingsConstants.KEY_PREF_MAP);
+            if (defaultPath == null) {
+                defaultPath = new File(getFilesDir(), SettingsConstants.KEY_PREF_MAP);
+            }
+            String mapPath = mSharedPreferences.getString(SettingsConstants.KEY_PREF_MAP_PATH, defaultPath.getPath());
+
+            int warning = R.string.map_load_exception_warning;
+            if (! mapPath.contains(defaultPath.getAbsolutePath())) {
+                //exeption and not default path - seems sdcard removed or changed  check it
+
+                File[] files = ContextCompat.getExternalFilesDirs(this, null);
+                boolean defaultPathExists = false;
+
+                for (File file : files){
+                    if (file != null) {
+                        String path = file.getAbsolutePath();
+                        if (mapPath.contains(path))
+                            defaultPathExists = true;
+                    }
+                }
+
+
+                if (!defaultPathExists)
+                    warning = R.string.map_load_exception_warning;
+            }
+
+            final String finalWarning = getResources().getString(warning);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent msg = new Intent(MESSAGE_ALERT_INTENT);
+                    msg.putExtra(MESSAGE_EXTRA, finalWarning);
+                    msg.putExtra(MESSAGE_TITLE_EXTRA, getResources().getString(R.string.map_load_exception_title));
+                    sendBroadcast(msg);
+                }
+            },1000);
+        }
 
         boolean mIsDarkTheme = ControlHelper.isDarkTheme(this);
         setTheme(getThemeId(mIsDarkTheme));
@@ -120,6 +170,17 @@ public abstract class GISApplication extends Application
             return R.style.Theme_NextGIS_AppCompat_Dark;
         else
             return R.style.Theme_NextGIS_AppCompat_Light;
+    }
+
+    public void resetMap(){
+        if (null != mMap) {
+            mMap = null;
+            getMap();
+        }
+    }
+
+    public void closeMapObj(){
+            mMap = null;
     }
 
     @Override
