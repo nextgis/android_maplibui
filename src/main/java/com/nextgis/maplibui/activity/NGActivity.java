@@ -236,31 +236,9 @@ public class NGActivity
                 // start to choose - export with aliases or not
                 VectorLayer layer = (VectorLayer)getLayerForSave();
                 if (layer != null) {
-                    final VectorLayer  finalLayer = layer;
-                    final Intent finalData = data;
-
-                    String one = getResources().getString(R.string.use_keys);
-                    String two = getResources().getString(R.string.use_names);
-
-                    final String[] items = {one, two};
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle(R.string.export_options);
-                    updateChoise(0);
-                    builder.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            updateChoise(which);
-                        }})
-                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    storeLayerForSave(null);
-                                    LayerUtil.shareLayerAsGeoJSON(NGActivity.this, finalLayer, true,
-                                            true, finalData, nChoise == 1);
-                                    dialog.cancel();
-                                }})
-                            .setNegativeButton(R.string.cancel, null)
-                                    .create()
-                                    .show();
+                    storeLayerForSave(null);
+                    LayerUtil.shareLayerAsGeoJSON(NGActivity.this, layer, true,
+                            true, data, nChoise == 1);
                 }
                 break;
         }
