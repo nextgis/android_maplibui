@@ -276,7 +276,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                                             if (layerui instanceof VectorLayer) {
                                                 VectorLayer vectorLayer = (VectorLayer) layerui;
                                                 LayerUtil.shareLayerAsGeoJSON(mActivity, vectorLayer, true,
-                                                        false, null);
+                                                        false, null, false);
                                             }
                                         } else if (i == R.id.menu_save) {
                                              // запоминаем что выбрал пользователь и запускаем выбор (экспорт потом - может он и не выберет ничего )

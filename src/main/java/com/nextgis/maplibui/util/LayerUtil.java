@@ -122,9 +122,10 @@ public final class LayerUtil {
     }
 
     public static void shareLayerAsGeoJSON(Activity activity, VectorLayer layer, boolean proceedAttaches,
-                                           boolean isSave, Intent outputData) {
+                                           boolean isSave, Intent outputData,
+                                           boolean useAliases) {
         ExportGeoJSONTask exportTask = new ExportGeoJSONTask(activity, layer, proceedAttaches, false, isSave,
-                outputData);
+                outputData, useAliases);
         exportTask.execute();
     }
 

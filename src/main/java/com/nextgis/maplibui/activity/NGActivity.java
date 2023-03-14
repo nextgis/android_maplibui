@@ -38,9 +38,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.nextgis.maplib.api.ILayer;
+import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplibui.R;
@@ -61,6 +63,7 @@ public class NGActivity
     protected boolean           mIsDarkTheme;
     protected String            mCurrentTheme;
     protected WeakReference<ILayer> layerToSave = new WeakReference<>(null);
+    int nChoise =0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -216,6 +219,10 @@ public class NGActivity
             ActivityCompat.requestPermissions(this, permissions, requestCode);
     }
 
+    public void updateChoise(int choise){
+        nChoise =choise;
+    }
+
     @Override
     protected void onActivityResult(
             int requestCode,
@@ -223,13 +230,37 @@ public class NGActivity
             Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if (resultCode == RESULT_OK)
         switch (requestCode) {
             case CODE_SAVE_FILE: // save file to
-
+                // start to choose - export with aliases or not
                 VectorLayer layer = (VectorLayer)getLayerForSave();
                 if (layer != null) {
-                    storeLayerForSave(null);
-                    LayerUtil.shareLayerAsGeoJSON(this, layer, true, true, data);
+                    final VectorLayer  finalLayer = layer;
+                    final Intent finalData = data;
+
+                    String one = getResources().getString(R.string.use_keys);
+                    String two = getResources().getString(R.string.use_names);
+
+                    final String[] items = {one, two};
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle(R.string.export_options);
+                    updateChoise(0);
+                    builder.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            updateChoise(which);
+                        }})
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    storeLayerForSave(null);
+                                    LayerUtil.shareLayerAsGeoJSON(NGActivity.this, finalLayer, true,
+                                            true, finalData, nChoise == 1);
+                                    dialog.cancel();
+                                }})
+                            .setNegativeButton(R.string.cancel, null)
+                                    .create()
+                                    .show();
                 }
                 break;
         }
