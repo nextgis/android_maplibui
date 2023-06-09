@@ -88,7 +88,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
     protected onEdit mEditListener;
     protected View.OnClickListener mOnPencilClickListener;
 
-    int nChoise =0;
+
 
     public interface onEdit {
         void onLayerEdit(ILayer layer);
@@ -218,7 +218,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
         ta.recycle();
 
         btMore.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(final View arg0) {
+                    public void onClick(View arg0) {
                         PopupMenu popup = new PopupMenu(mContext, btMore);
                         UiUtil.setForceShowIcon(popup);
                         popup.getMenuInflater().inflate(R.menu.layer_popup, popup.getMenu());
@@ -266,71 +266,33 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 
                         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                                     public boolean onMenuItemClick(MenuItem item) {
-                                        final int i = item.getItemId();
+                                        int i = item.getItemId();
                                         if (i == R.id.menu_settings) {
                                             assert layerui != null;
                                             layerui.changeProperties(mContext);
-                                        } else if (i == R.id.menu_share  || i == R.id.menu_save ) {
+                                        } else if (i == R.id.menu_share) {
                                             assert layerui != null;
 
                                             if (layerui instanceof VectorLayer) {
+                                                VectorLayer vectorLayer = (VectorLayer) layerui;
+                                                LayerUtil.shareLayerAsGeoJSON(mActivity, vectorLayer, true,
+                                                        false, null);
+                                            }
+                                        } else if (i == R.id.menu_save) {
+                                             // запоминаем что выбрал пользователь и запускаем выбор (экспорт потом - может он и не выберет ничего )
 
-                                                String one = arg0.getContext().getResources().getString(R.string.use_keys);
-                                                String two = arg0.getContext().getResources().getString(R.string.use_names);
+                                            assert layerui != null;
 
-                                                final String[] items = {one, two};
-
-                                                AlertDialog.Builder builder = new AlertDialog.Builder(arg0.getContext());
-                                                builder.setTitle(R.string.export_options);
-                                                updateChoise(0);
-                                                builder.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
-                                                            public void onClick(DialogInterface dialog, int which) {
-                                                                updateChoise(which);
-                                                            }})
-                                                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                            public void onClick(DialogInterface dialog, int which) {
-
-                                                                dialog.cancel();
-                                                                if (i == R.id.menu_share) {
-                                                                    VectorLayer vectorLayer = (VectorLayer) layerui;
-                                                                    LayerUtil.shareLayerAsGeoJSON(mActivity, vectorLayer, true,
-                                                                            false, null, nChoise == 1);
-                                                                } else if (i == R.id.menu_save){
-                                                                    mActivity.storeLayerForSave((VectorLayer) layerui);
-                                                                    String fileName = normalizeLayerName(((VectorLayer) layerui).getName()) + ZIP_EXT;
-                                                                    Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-                                                                    intent.addCategory(Intent.CATEGORY_OPENABLE);
-                                                                    intent.setType("*/*");
-                                                                    intent.putExtra(Intent.EXTRA_TITLE, fileName);
-                                                                    mActivity.updateChoise(nChoise);
-                                                                    mActivity.startActivityForResult(intent, CODE_SAVE_FILE);
-                                                                }
-                                                            }})
-                                                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                                            @Override
-                                                            public void onClick(DialogInterface dialogInterface, int i) {
-                                                                dialogInterface.cancel();
-                                                            }
-                                                        })
-                                                        .create()
-                                                        .show();
+                                            if (layerui instanceof VectorLayer) {
+                                                mActivity.storeLayerForSave((VectorLayer) layerui);
+                                                String fileName = normalizeLayerName(((VectorLayer) layerui).getName()) + ZIP_EXT;
+                                                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                                                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                                                intent.setType("*/*");
+                                                intent.putExtra(Intent.EXTRA_TITLE, fileName);
+                                                mActivity.startActivityForResult(intent, CODE_SAVE_FILE);
                                             }
                                         }
-//                                        else if (i == R.id.menu_save) {
-//                                             // запоминаем что выбрал пользователь и запускаем выбор (экспорт потом - может он и не выберет ничего )
-//
-//                                            assert layerui != null; 222
-//
-//                                            if (layerui instanceof VectorLayer) {
-//                                                mActivity.storeLayerForSave((VectorLayer) layerui);
-//                                                String fileName = normalizeLayerName(((VectorLayer) layerui).getName()) + ZIP_EXT;
-//                                                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-//                                                intent.addCategory(Intent.CATEGORY_OPENABLE);
-//                                                intent.setType("*/*");
-//                                                intent.putExtra(Intent.EXTRA_TITLE, fileName);
-//                                                mActivity.startActivityForResult(intent, CODE_SAVE_FILE);
-//                                            }
-//                                        }
                                         else if (i == R.id.menu_edit) {
                                             if (layerui instanceof NGWWebMapLayerUI)
                                                 ((NGWWebMapLayerUI) layerui).showLayersDialog(mMapView, mActivity);
@@ -511,9 +473,4 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
             return;
         mMap.freeze();
     }
-
-    public void updateChoise(int choise){
-        nChoise =choise;
-    }
-
 }

@@ -82,18 +82,16 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
     private boolean mResultOnly;
     private boolean isSaveOperation;
     private Intent outputData;
-    boolean useAliases = false;
 
 
     public ExportGeoJSONTask(Activity activity, VectorLayer layer, boolean proceedAttaches, boolean resultOnly
-            , boolean isSave, Intent outputIntent, boolean useAliases) {
+            , boolean isSave, Intent outputIntent) {
         mActivity = activity;
         mLayer = layer;
         mProceedAttaches = proceedAttaches;
         mResultOnly = resultOnly;
         isSaveOperation = isSave;
         outputData = outputIntent;
-        this.useAliases = useAliases;
     }
 
     @Override
@@ -195,7 +193,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
                         }
 
                         boolean isNaN = value instanceof Double && ((Double) value).isNaN();
-                        properties.put(useAliases ?field.getAlias() : field.getName(), value == null || isNaN ? JSONObject.NULL : value);
+                        properties.put(field.getName(), value == null || isNaN ? JSONObject.NULL : value);
                     }
 
                     if (mProceedAttaches) {

@@ -33,6 +33,7 @@ import android.os.IBinder;
 import android.os.Process;
 import androidx.core.app.NotificationCompat;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.nextgis.maplib.api.IProgressor;
 import com.nextgis.maplib.map.MapBase;
@@ -46,6 +47,7 @@ import com.nextgis.maplibui.util.NotificationHelper;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 
 public class RebuildCacheService extends Service implements IProgressor {
@@ -170,7 +172,12 @@ public class RebuildCacheService extends Service implements IProgressor {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                mLayer = (VectorLayer) MapBase.getInstance().getLayerById(mQueue.remove(0));
+                try {
+                    mLayer = (VectorLayer) MapBase.getInstance().getLayerById(mQueue.remove(0));
+                } catch (Exception ex){
+                    mLayer = null;
+                    Log.e("error", ex.getMessage());
+                }
                 mIsRunning = true;
                 mCurrentTasks++;
                 String notifyTitle;
@@ -220,9 +227,14 @@ public class RebuildCacheService extends Service implements IProgressor {
         }
 
         int id = mLayer != null ? mLayer.getId() : Constants.NOT_FOUND;
-        mProgressIntent.putExtra(KEY_PROGRESS, value)
-                .putExtra(KEY_MAX, mProgressMax)
-                .putExtra(ConstantsUI.KEY_LAYER_ID, id);
+        try {
+            mProgressIntent.putExtra(KEY_PROGRESS, value)
+                    .putExtra(KEY_MAX, mProgressMax)
+                    .putExtra(ConstantsUI.KEY_LAYER_ID, id);
+        } catch (Exception ex){
+            Log.e(TAG, "error on setIntentValue:" + ex.getMessage());
+
+        }
         sendBroadcast(mProgressIntent);
     }
 

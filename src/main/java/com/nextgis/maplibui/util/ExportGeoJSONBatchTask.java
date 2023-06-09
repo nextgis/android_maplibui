@@ -56,7 +56,7 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
 
     public ExportGeoJSONBatchTask(Activity activity, List<VectorLayer> layers, boolean proceedAttaches, String name,
     ArrayList<Pair<Integer,String>> trackList) {
-        super(activity, null, proceedAttaches, false, false, null, false);
+        super(activity, null, proceedAttaches, false, false, null);
         mLayers = layers;
         mName = name;
         this.trackList = trackList;
@@ -119,8 +119,7 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
                     HyperLog.v(Constants.TAG, "ExportGeoJSONBatchTask: process " + layer.getName());
                     try {
                         HyperLog.v(Constants.TAG, "ExportGeoJSONBatchTask: executeOnExecutor ExportGeoJSONTask");
-                        ExportGeoJSONTask exportTask = new ExportGeoJSONTask(mActivity, layer, mProceedAttaches, true,
-                                false, null, false);
+                        ExportGeoJSONTask exportTask = new ExportGeoJSONTask(mActivity, layer, mProceedAttaches, true, false, null);
                         Object result = exportTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR).get();
 
                         if (result instanceof File) {

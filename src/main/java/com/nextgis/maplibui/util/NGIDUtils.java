@@ -91,6 +91,7 @@ public final class NGIDUtils {
 
         String base = mPreferences.getString("ngid_url", NGIDUtils.NGID_MY);
         String token = mPreferences.getString(PREF_ACCESS_TOKEN, "");
+        base = NetworkUtil.trimSlash(base);
         new Load(callback, base).execute(USER_SUPPORT, "GET", token);
     }
 
