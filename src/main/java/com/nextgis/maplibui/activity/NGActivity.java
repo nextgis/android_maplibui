@@ -38,9 +38,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.nextgis.maplib.api.ILayer;
+import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplibui.R;
@@ -61,6 +63,7 @@ public class NGActivity
     protected boolean           mIsDarkTheme;
     protected String            mCurrentTheme;
     protected WeakReference<ILayer> layerToSave = new WeakReference<>(null);
+    int nChoise =0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -189,7 +192,8 @@ public class NGActivity
         return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
     }
 
-    protected void requestPermissions(int title, int message, final int requestCode, final String... permissions) {
+    protected void requestPermissions(int title, int message, final int requestCode,
+                                      final String... permissions) {
         boolean shouldShowDialog = false;
         for (String permission : permissions) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
@@ -216,6 +220,10 @@ public class NGActivity
             ActivityCompat.requestPermissions(this, permissions, requestCode);
     }
 
+    public void updateChoise(int choise){
+        nChoise =choise;
+    }
+
     @Override
     protected void onActivityResult(
             int requestCode,
@@ -223,13 +231,15 @@ public class NGActivity
             Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if (resultCode == RESULT_OK)
         switch (requestCode) {
             case CODE_SAVE_FILE: // save file to
-
+                // start to choose - export with aliases or not
                 VectorLayer layer = (VectorLayer)getLayerForSave();
                 if (layer != null) {
                     storeLayerForSave(null);
-                    LayerUtil.shareLayerAsGeoJSON(this, layer, true, true, data);
+                    LayerUtil.shareLayerAsGeoJSON(NGActivity.this, layer, true,
+                            true, data, nChoise == 1);
                 }
                 break;
         }

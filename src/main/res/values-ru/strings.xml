@@ -396,5 +396,8 @@
     <string name="no_storages_error">Странное поведение - нет ни одного хранилища,нечего выбирать,попробуйте перезагрузить устройство</string>
     <string name="clean">Очистить</string>
 
+    <string name="export_options">Параметры экспорта:</string>
+    <string name="use_keys">Использовать ключи</string>
+    <string name="use_names">Использовать наименования полей вместо ключей</string>
 
 </resources>
