@@ -91,6 +91,9 @@ import java.util.zip.ZipInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import static com.nextgis.maplib.util.Constants.MESSAGE_ALERT_INTENT;
+import static com.nextgis.maplib.util.Constants.MESSAGE_EXTRA;
+import static com.nextgis.maplib.util.Constants.MESSAGE_TITLE_EXTRA;
 import static com.nextgis.maplib.util.NetworkUtil.getUserAgent;
 import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 
@@ -773,10 +776,16 @@ public class LayerFillService extends Service implements IProgressor {
                 }
 
                 ngwVectorLayer.createFromNGW(progressor);
-            } catch (JSONException | IOException | SQLiteException | NGException | ClassCastException e) {
+            } catch (JSONException | IOException | SQLiteException | NGException |
+                     ClassCastException e) {
                 e.printStackTrace();
                 setError(e, progressor);
-                notifyError(mProgressMessage);
+                if ("POINTZ".equals(e.getMessage())){
+                    Intent msg = new Intent(MESSAGE_ALERT_INTENT);
+                    msg.putExtra(MESSAGE_EXTRA,getBaseContext().getString(R.string.pointz_alert));
+                    msg.putExtra(MESSAGE_TITLE_EXTRA,getBaseContext().getString(R.string.pointz_alert_title));
+                    getBaseContext().sendBroadcast(msg);
+                } else notifyError(mProgressMessage);
                 return false;
             }
 
