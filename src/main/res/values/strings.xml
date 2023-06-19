@@ -397,6 +397,9 @@
     <string name="clear">clean</string>
     <string name="no_storages_error">Strange behaviour, no any storages - nothing to choose, please restart device</string>
     <string name="clean">Clean</string>
+    <string name="export_options">Export options:</string>
+    <string name="use_keys">Use keys</string>
+    <string name="use_names">Use field names instead of keys</string>
 
     <string name="pointz_alert">Your project can\'t be opened because it contains GeometryZ layers. You need to fix them first.
     https://toolbox.nextgis.com/operation/flatten</string>
