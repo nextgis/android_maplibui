@@ -20,18 +20,50 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/container"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <include layout="@layout/actionbar"/>
+    <include layout="@layout/actionbar" />
 
-    <com.inqbarna.tablefixheaders.TableFixHeaders
-        android:id="@+id/attributes"
-        android:layout_width="match_parent"
+    <com.evrencoskun.tableview.TableView
+        android:layout_weight="1"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:id="@+id/my_TableView"
+        android:layout_width="match_parent"
+        android:layout_gravity="center"
+        app:allow_click_inside_cell="true"
+        app:allow_click_inside_column_header="true"
+        app:allow_click_inside_row_header="true"
+        />
+    <include layout="@layout/bottombar"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_gravity="bottom"
+        />
 
-    <include layout="@layout/bottombar"/>
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/progressArea"
+    android:visibility="gone"
+
+    >
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        />
+    <TextView
+        android:id="@+id/progressText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/loading"
+        android:layout_below="@+id/progress"
+        android:layout_centerHorizontal="true"
+        />
+</RelativeLayout>
 </LinearLayout>

@@ -24,12 +24,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion 32
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 33
+        minSdkVersion 21
+        targetSdkVersion 32
         versionCode 96
-        versionName '2.6.47'
+        versionName '2.6.49'
         def props = new Properties()
         file("../local.properties").withInputStream { props.load(it) }
 
@@ -73,14 +73,15 @@ dependencies {
     api project(':maplib')
     api 'com.github.4eRTuk:easypicker:0.2.20'
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
+    implementation 'com.github.evrencoskun:TableView:v0.8.9.4'
     implementation 'com.github.miguelbcr:TableFixHeaders-Wrapper:0.2.0'
     implementation 'com.github.scottyab:showhidepasswordedittext:0.8'
-    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation('androidx.legacy:legacy-support-v4:1.0.0') {
         force = true
     }
-    api 'com.google.android.material:material:1.0.0'
-    api 'androidx.preference:preference:1.0.0'
+    api 'com.google.android.material:material:1.7.0'
+    api 'androidx.preference:preference:1.2.0'
     implementation 'com.github.oli107:material-range-bar:1.4.6'
     implementation 'com.github.barsrb:hyperlog-android:master-SNAPSHOT'
 }

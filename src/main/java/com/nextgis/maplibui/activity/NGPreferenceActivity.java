@@ -162,7 +162,7 @@ public abstract class NGPreferenceActivity
     protected void onStart()
     {
         super.onStart();
-        invalidatePreferences();
+        //invalidatePreferences();
     }
 
 
