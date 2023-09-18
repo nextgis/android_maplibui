@@ -24,10 +24,10 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 32
+        targetSdkVersion 33
         versionCode 96
         versionName '2.6.49'
         def props = new Properties()
@@ -76,7 +76,7 @@ dependencies {
     implementation 'com.github.evrencoskun:TableView:v0.8.9.4'
     implementation 'com.github.miguelbcr:TableFixHeaders-Wrapper:0.2.0'
     implementation 'com.github.scottyab:showhidepasswordedittext:0.8'
-    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation('androidx.legacy:legacy-support-v4:1.0.0') {
         force = true
     }
