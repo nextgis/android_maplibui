@@ -23,24 +23,24 @@
 
 package com.nextgis.maplibui.mapui;
 
+import static android.content.Context.MODE_MULTI_PROCESS;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import androidx.core.content.ContextCompat;
+import android.util.Log;
 import android.widget.Toast;
-
 import com.nextgis.maplib.display.TrackRenderer;
 import com.nextgis.maplib.map.TrackLayer;
+import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.SettingsConstants;
+import com.nextgis.maplibui.GISApplication;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.TracksActivity;
 import com.nextgis.maplibui.api.ILayerUI;
-import com.nextgis.maplibui.service.TrackerService;
-
 import java.io.File;
-
-import static com.nextgis.maplibui.service.TrackerService.ACTION_SYNC;
-
 
 public class TrackLayerUI extends TrackLayer implements ILayerUI {
     public TrackLayerUI(Context context, File path) {
@@ -76,8 +76,50 @@ public class TrackLayerUI extends TrackLayer implements ILayerUI {
 
     @Override
     public void sync() {
-        Intent trackerService = new Intent(mContext, TrackerService.class);
+
+        String name = getContext().getPackageName() + "_preferences";
+        SharedPreferences mSharedPreferences = getContext().getSharedPreferences(name, MODE_MULTI_PROCESS);
+
+        if(!mSharedPreferences.getBoolean(SettingsConstants.KEY_PREF_TRACK_SEND, false))
+            return; //do not run,  if "sent track  to cloud" turned on
+
+
+        if (((GISApplication)getContext().getApplicationContext()).getIsTrackInProgress()){
+            // nothing to  sync - tracking in progress already start sending tack
+        } else {
+            // start worker
+            Log.d(Constants.TAG, "start worker scheduling");
+
+            TrackWorker.schedule(getContext());
+
+        }
+
+//        Intent trackerService = new Intent(mContext, TrackerService.class);
+//        trackerService.setAction(ACTION_SYNC);
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            getContext().startForegroundService ( trackerService );
+//        } else {
+//            getContext().startService ( trackerService );
+//        }
+
+     //   ContextCompat.startForegroundService(mContext, trackerService);
+
+        /*
+        *  Intent trackerService = new Intent(mContext, TrackerService.class);
         trackerService.setAction(ACTION_SYNC);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            OneTimeWorkRequest request = new OneTimeWorkRequest.Builder ( BackupWorker.class ).addTag ( "BACKUP_WORKER_TAG" ).build ();
+            WorkManager.getInstance ( context ).enqueue ( request );
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            getContext().startForegroundService ( trackerService );
+        } else {
+            getContext().startService ( trackerService );
+        }
+
+
         ContextCompat.startForegroundService(mContext, trackerService);
+    }*/
     }
 }

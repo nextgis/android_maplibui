@@ -27,8 +27,6 @@ import android.content.Context;
 
 import android.util.Log;
 
-import com.hypertrack.hyperlog.HyperLog;
-import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.NGWUtil;
 
 import java.io.IOException;
@@ -115,7 +113,6 @@ public class HTTPLoader
         try {
             return signIn();
         } catch (IOException e) {
-            HyperLog.v(Constants.TAG, "HTTPLoader: loadInBackground exception " + e.getMessage());
             Log.e(TAG, e.getMessage(), e);
         }
         return null;
@@ -131,7 +128,6 @@ public class HTTPLoader
         try {
             return NGWUtil.getConnectionCookie(mReference, mLogin, mPassword, true);
         } catch (IllegalArgumentException | IllegalStateException e) {
-            HyperLog.v(Constants.TAG, "HTTPLoader: signIn exception " + e.getMessage());
             e.printStackTrace();
             return null;
         }

@@ -100,14 +100,4 @@
     <color name="sdf_buttonDisabledTextColorDark">@color/color_grey_600</color>
     <color name="sdf_messageTextColorDark">@color/color_white</color>
 
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-    <color name="bg_line">#E7E7E7</color>
-
-    <color name="cell_background_color">#ffffff</color>
-    <color name="header_line_color">@android:color/holo_red_light</color>
-
-    <color name="table_view_default_text_color">#0a0a0a</color>
-
 </resources>

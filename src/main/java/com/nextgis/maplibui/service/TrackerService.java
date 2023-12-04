@@ -71,6 +71,7 @@ import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
+import com.nextgis.maplibui.GISApplication;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.NotificationHelper;
@@ -120,6 +121,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
     private int                 mSmallIcon, mSatellitesCount;
     private Bitmap              mLargeIcon;
     private boolean             mHasGPSFix;
+    int counter = 0;
 
     @Override
     public void onCreate() {
@@ -250,7 +252,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
             String distance = SettingsConstants.KEY_PREF_TRACKS_MIN_DISTANCE;
             String minTimeStr = mSharedPreferences.getString(time, "2");
 
-            // убрать этот кусок через год другой когда не будет приложений с старой версией у народа
+            // remove code after   1 - 2 year - after all old vesions gone
             if (minTimeStr.equals("0") || minTimeStr.equals("1")){
                 mSharedPreferences.edit().putString(time, "2").apply();
                 minTimeStr = "2";
@@ -334,9 +336,8 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT_TRACK);
         msg.putExtra(ConstantsUI.KEY_MESSAGE_TRACK, true);
         sendBroadcast(msg);
-
+        ((GISApplication)getApplication()).setIsTrackInProgress(true);
     }
-
 
     private void stopTrack() {
         // update unclosed tracks in DB
@@ -346,13 +347,13 @@ public class TrackerService extends Service implements LocationListener, GpsStat
 
         // cancel midnight splitter
         mAlarmManager.cancel(mSplitService);
-
         mSharedPreferencesTemp.edit().remove(ConstantsUI.TARGET_CLASS).apply();
         mSharedPreferencesTemp.edit().remove(TRACK_URI).apply();
 
         Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT_TRACK);
         msg.putExtra(ConstantsUI.KEY_MESSAGE_TRACK, false);
         sendBroadcast(msg);
+        ((GISApplication)getApplication()).setIsTrackInProgress(false);
     }
 
 
@@ -367,7 +368,6 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         }
     }
 
-
     private void addSplitter() {
         // set midnight track splitter
         Calendar today = Calendar.getInstance();
@@ -378,7 +378,6 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         today.add(Calendar.DATE, 1);
         mAlarmManager.set(AlarmManager.RTC, today.getTimeInMillis(), mSplitService);
     }
-
 
     private void addNotification() {
         String name = "";
@@ -454,7 +453,6 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         mOpenActivity = PendingIntent.getActivity(this, 0, intentActivity, flag);
     }
 
-
     public void onDestroy() {
         stopTrack();
         stopSelf();
@@ -474,24 +472,24 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         super.onDestroy();
     }
 
-
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
-
     @Override
     public void onLocationChanged(Location location) {
+        Log.d(Constants.TAG, "tracker - onLocationChanged");
+
         boolean update = LocationUtil.isProviderEnabled(this, location.getProvider(), true);
         if (!mIsRunning || !update)
             return;
-
         if (mHasGPSFix && !location.getProvider().equals(LocationManager.GPS_PROVIDER))
             return;
-
         String fixType = location.hasAltitude() ? "3d" : "2d";
 
+//        counter ++;
+//        Log.d(Constants.TAG, "tracker - onLocationChanged save point # " + counter);
         mValues.clear();
         mValues.put(TrackLayer.FIELD_SESSION, mTrackId);
 
@@ -510,7 +508,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         try {
             getContentResolver().insert(mContentUriTrackPoints, mValues);
         } catch (Exception ignored) {
-            Log.e(TrackerService.class.getName(), ignored.getMessage());
+            Log.e(TrackerService.class.getName(),  "onLocation EXCEPTION!!" +  ignored.getMessage());
         }
     }
 
@@ -518,16 +516,13 @@ public class TrackerService extends Service implements LocationListener, GpsStat
     public void onStatusChanged(String provider, int status, Bundle extras) {
     }
 
-
     @Override
     public void onProviderEnabled(String provider) {
     }
 
-
     @Override
     public void onProviderDisabled(String provider) {
     }
-
 
     @Override
     public void onGpsStatusChanged(int event) {
@@ -552,7 +547,6 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         }
     }
 
-
     public static boolean hasUnfinishedTracks(Context context) {
         IGISApplication app = (IGISApplication) context.getApplicationContext();
         Uri tracksUri = Uri.parse("content://" + app.getAuthority() + "/" + TrackLayer.TABLE_TRACKS);
@@ -568,7 +562,6 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         } catch (SQLiteException ignored) {}
         return hasUnfinishedTracks;
     }
-
 
     public static boolean isTrackerServiceRunning(Context context) {
         ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
@@ -618,8 +611,11 @@ public class TrackerService extends Service implements LocationListener, GpsStat
             Cursor points = null;
             try {
                 points = resolver.query(mContentUriTrackPoints, null, selection, null, sort);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+
+            }
             if (points != null) {
+//                int crashes  = 0;
                 List<String> ids = new ArrayList<>();
                 if (points.moveToFirst()) {
                     GeoPoint point = new GeoPoint();
@@ -658,13 +654,18 @@ public class TrackerService extends Service implements LocationListener, GpsStat
                                 ids.clear();
                                 counter = 0;
                             }
-                        } catch (Exception ignored) { }
-                    } while (points.moveToNext());
+                        } catch (Exception ignored) {
+//                            crashes++;
+
+                        }
+                    } while (points.moveToNext() );
 
                     if (counter > 0) {
                         try {
                             post(payload.toString(), this, ids);
-                        } catch (Exception ignored) { }
+                        } catch (Exception ignored) {
+
+                        }
                     }
                 }
                 points.close();
@@ -672,14 +673,14 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         }
     }
 
-    private void post(String payload, Context context, List<String> ids) throws IOException {
+    private boolean post(String payload, Context context, List<String> ids) throws IOException {
         String base = mSharedPreferences.getString("tracker_hub_url", HOST);
         String url = String.format("%s/%s/packet", base + URL, getUid(context));
 //        Log.d(Constants.TAG, "Post to " + url);
         HttpResponse response = NetworkUtil.post(url, payload, null, null, false);
 //        Log.d(Constants.TAG, "Response is " + response.getResponseCode());
         if (!response.isOk())
-            return;
+            return  false;
 
         ContentValues cv = new ContentValues();
         cv.put(TrackLayer.FIELD_SENT, 1);
@@ -688,7 +689,9 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         try {
             context.getContentResolver().update(mContentUriTrackPoints, cv, where, timestamps);
         } catch (SQLiteException ignored) {
+
         }
+        return true;
     }
 
     @SuppressLint("HardwareIds")

@@ -23,6 +23,7 @@ package com.nextgis.maplibui.service;
 
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 
+import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -31,6 +32,8 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Process;
+
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -50,7 +53,9 @@ import java.util.List;
 import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 
-public class RebuildCacheService extends Service implements IProgressor {
+public class RebuildCacheService extends IntentService implements IProgressor
+
+{
     public static final String ACTION_ADD_TASK = "REBUILD_CACHE_ADD_TASK";
     public static final String ACTION_REMOVE_TASK = "REBUILD_CACHE_REMOVE_TASK";
     public static final String ACTION_STOP = "REBUILD_CACHE_STOP";
@@ -70,6 +75,18 @@ public class RebuildCacheService extends Service implements IProgressor {
     protected int mProgressMax, mCurrentTasks;
     protected long mLastUpdate = 0;
     protected boolean mIsRunning, mIsCanceled, mRemoveCurrent;
+
+
+    public RebuildCacheService() {
+        super("RebuildCacheService");
+    }
+
+    @Override
+    protected void onHandleIntent(@Nullable Intent intent) {
+        Log.d(TAG, "onHandleIntent");
+        startNextTask();
+
+        }
 
     @Override
     public void onCreate() {
@@ -207,6 +224,8 @@ public class RebuildCacheService extends Service implements IProgressor {
     public IBinder onBind(Intent intent) {
         return null;
     }
+
+
 
     @Override
     public void setMax(int maxValue) {

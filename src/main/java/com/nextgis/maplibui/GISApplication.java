@@ -89,6 +89,15 @@ public abstract class GISApplication extends Application
     protected GpsEventSource mGpsEventSource;
     protected SharedPreferences mSharedPreferences;
     protected AccountManager mAccountManager;
+    boolean isTrackInProgress  = false;
+
+    public boolean getIsTrackInProgress(){
+        return isTrackInProgress;
+    }
+
+    public void setIsTrackInProgress(final boolean isTrackInProgress){
+        this.isTrackInProgress = isTrackInProgress;
+    }
 
     @Override
     public void onCreate()
