@@ -28,8 +28,6 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 33
-        versionCode 96
-        versionName '2.6.49'
         def props = new Properties()
         file("../local.properties").withInputStream { props.load(it) }
 
@@ -51,22 +49,32 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue 'string', 'nextgis_accounts_auth', 'com.nextgis.account.debug'
             resValue 'string', 'nextgis_accounts_name', 'DEV_NextGIS'
-            debuggable true
         }
+    }
+    dataBinding {
+        enabled = true
+    }
+    buildFeatures {
+        viewBinding = true
+    }
+    compileOptions {
+        sourceCompatibility "17"
+        targetCompatibility "17"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+    namespace 'com.nextgis.maplibui'
 }
 
-repositories {
-    mavenCentral()
-    google()
-    maven {
-        url "https://jitpack.io"
-    }
-}
+//repositories {
+//    mavenCentral()
+//    google()
+//    maven {
+//        url "https://jitpack.io"
+//    }
+//}
 
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
@@ -78,10 +86,13 @@ dependencies {
     implementation 'com.github.scottyab:showhidepasswordedittext:0.8'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation('androidx.legacy:legacy-support-v4:1.0.0') {
-        force = true
+//        force = true
     }
     api 'com.google.android.material:material:1.7.0'
     api 'androidx.preference:preference:1.2.0'
     implementation 'com.github.oli107:material-range-bar:1.4.6'
     implementation 'com.github.barsrb:hyperlog-android:master-SNAPSHOT'
+
+    implementation 'androidx.work:work-runtime:2.8.1'
+
 }

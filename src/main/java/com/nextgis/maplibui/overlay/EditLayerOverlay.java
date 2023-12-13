@@ -1389,6 +1389,11 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         @Override
         public void onReceive(Context context, Intent intent) {
             GeoGeometry geometry = (GeoGeometry) intent.getSerializableExtra(ConstantsUI.KEY_GEOMETRY);
+            try {
+                setGeometryFromWalkEdit(geometry);
+            } catch (Exception ex){
+                Log.e("tag", ex.getMessage());
+            }
             setGeometryFromWalkEdit(geometry);
             mMapViewOverlays.postInvalidate();
         }

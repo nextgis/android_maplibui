@@ -220,6 +220,11 @@ public class WalkEditService extends Service implements LocationListener
 
     @Override
     public void onDestroy() {
+        try {
+            removeNotification();
+        } catch (Exception ex){
+            Log.e("tag", ex.getMessage());
+        }
         mSharedPreferencesTemp.edit().clear().apply();
         removeNotification();
         stopSelf();
