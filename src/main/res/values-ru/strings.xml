@@ -401,4 +401,13 @@
 
     <string name="pointz_alert">Ваш проект не может быть добавлен так как содержит слои GeometryZ. Исправьте их. https://toolbox.nextgis.com/operation/flatten</string>
     <string name="pointz_alert_title">Ошибка</string>
+
+    <string name="sort_ascending">Сортировать по возрастанию</string>
+    <string name="sort_descending">Сортировать по убываанию</string>
+    <string name="sort_unsorted">Несортированно</string>
+
+    <string name="loading">загружается...</string>
+
+    <string name="loading_data_inprogress">загрузка данных в прогрессе</string>
+
 </resources>

@@ -170,14 +170,42 @@
         <item name="actionButtonStyle">@style/Widget.AppCompat.Light.ActionButton</item>
         <!--item name="selectableItemBackground">?android:selectableItemBackground</item>
         <item name="selectableItemBackgroundBorderless">?android:selectableItemBackground</item-->
-        <item name="android:textColorPrimary">@color/textColorPrimaryInverse.Light</item>
+        <item name="android:textColorPrimary">@color/textColorPrimaryInverse.Dark</item>
         <item name="android:textColor">@color/textColorPrimary.Light</item>
         <!--item name="android:textColorSecondary">@color/textColorSecondary.Light</item-->
         <item name="colorControlHighlight">@color/accent</item>
         <item name="colorControlNormal">@color/textColorSecondaryInverse.Light</item>
         <item name="titleTextColor">@color/textColorPrimaryInverse.Light</item>
         <item name="subtitleTextColor">@color/textColorSecondaryInverse.Light</item>
+        <item name="searchViewStyle">@style/MySearchViewStyle</item>
+
     </style>
+
+    <style name="MySearchViewStyle" parent="Widget.AppCompat.SearchView">
+        <!-- Background for the search query section (e.g., EditText) -->
+        <item name="queryBackground">@android:color/white</item>
+
+        <!-- Text color for the search query -->
+        <item name="android:editTextColor">@android:color/black</item>
+
+        <!-- Text color for the hint text shown in the query section of the search view -->
+        <item name="android:textColorHint">@android:color/darker_gray</item>
+
+        <!-- Icon for the search query section -->
+<!--        <item name="searchIcon">@drawable/baseline_search_24</item>-->
+
+        <!-- Icon for the close action -->
+        <item name="closeIcon">@drawable/ic_clear</item>
+<!--        <item name="android:searchHintIcon">@drawable/ic_clear</item>-->
+
+
+        <!-- Icon for the voice action -->
+<!--        <item name="voiceIcon">@drawable/ic_voice</item>-->
+
+        <!-- Customize the SearchView text style -->
+        <item name="android:textStyle">bold</item>
+    </style>
+
 
     <style name="Theme.NextGIS.AppCompat.ActionBar.Dark" parent="Theme.NextGIS.AppCompat.ActionBar">
         <item name="android:textColor">@color/textColorPrimary.Dark</item>

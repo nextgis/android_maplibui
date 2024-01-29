@@ -58,7 +58,9 @@
 
         <activity
             android:name=".activity.AttributesActivity"
-            android:label="@string/attributes"/>
+            android:label="@string/attributes"
+            android:exported="true">
+        </activity>
 
         <activity
             android:name=".activity.VectorLayerSettingsActivity"
