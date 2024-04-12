@@ -55,6 +55,7 @@ import java.net.URLEncoder;
 import javax.net.ssl.HttpsURLConnection;
 
 import static com.nextgis.maplib.util.Constants.SUPPORT;
+import static com.nextgis.maplib.util.NetworkUtil.configureSSLdefault;
 import static com.nextgis.maplib.util.NetworkUtil.getUserAgent;
 
 public final class NGIDUtils {
@@ -75,7 +76,7 @@ public final class NGIDUtils {
     public static final String PREF_FIRST_NAME = "first_name";
     public static final String PREF_LAST_NAME = "last_name";
 
-//    public static final String COLLECTOR_HUB_URL = "http://dev.nextgis.com/collector_hub/api/collector/projects"
+    //    public static final String COLLECTOR_HUB_URL = "http://dev.nextgis.com/collector_hub/api/collector/projects"
     public static final String COLLECTOR_HUB_URL = "https://collector-hub.nextgis.com";
     public static final String COLLECTOR_PROJECTS_URL = "/api/collector/projects";
 
@@ -222,9 +223,9 @@ public final class NGIDUtils {
         try {
             JSONObject json = new JSONObject(userInfo);
             mPreferences.edit().putString(PREF_USERNAME, json.getString(PREF_USERNAME))
-                        .putString(PREF_EMAIL, json.getString(PREF_EMAIL))
-                        .putString(PREF_FIRST_NAME, json.getString(PREF_FIRST_NAME))
-                        .putString(PREF_LAST_NAME, json.getString(PREF_LAST_NAME)).apply();
+                    .putString(PREF_EMAIL, json.getString(PREF_EMAIL))
+                    .putString(PREF_FIRST_NAME, json.getString(PREF_FIRST_NAME))
+                    .putString(PREF_LAST_NAME, json.getString(PREF_LAST_NAME)).apply();
         } catch (JSONException | NullPointerException ignored) {}
     }
 
@@ -252,8 +253,10 @@ public final class NGIDUtils {
         try {
             URL url = new URL(target);
             HttpURLConnection conn;
-            if (target.startsWith("https"))
+            if (target.startsWith("https")) {
+                configureSSLdefault();
                 conn = (HttpsURLConnection) url.openConnection();
+            }
             else
                 conn = (HttpURLConnection) url.openConnection();
 
@@ -311,13 +314,13 @@ public final class NGIDUtils {
 
     public static void signOut(SharedPreferences preferences, Context context) {
         preferences.edit()
-                   .remove(NGIDUtils.PREF_USERNAME)
-                   .remove(NGIDUtils.PREF_EMAIL)
-                   .remove(NGIDUtils.PREF_FIRST_NAME)
-                   .remove(NGIDUtils.PREF_LAST_NAME)
-                   .remove(NGIDUtils.PREF_ACCESS_TOKEN)
-                   .remove(NGIDUtils.PREF_REFRESH_TOKEN)
-                   .apply();
+                .remove(NGIDUtils.PREF_USERNAME)
+                .remove(NGIDUtils.PREF_EMAIL)
+                .remove(NGIDUtils.PREF_FIRST_NAME)
+                .remove(NGIDUtils.PREF_LAST_NAME)
+                .remove(NGIDUtils.PREF_ACCESS_TOKEN)
+                .remove(NGIDUtils.PREF_REFRESH_TOKEN)
+                .apply();
 
         File support = context.getExternalFilesDir(null);
         if (support == null)

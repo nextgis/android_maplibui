@@ -412,6 +412,8 @@
     <string name="loading">loading...</string>
 
     <string name="loading_data_inprogress">loading data in progress</string>
+    <string name="error_account_create">Account creation error</string>
+    <string name="action_devinfo">Device Info</string>
 
 
 </resources>

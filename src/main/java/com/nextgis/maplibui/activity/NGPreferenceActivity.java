@@ -203,7 +203,9 @@ public abstract class NGPreferenceActivity
         FragmentManager fm = getSupportFragmentManager();
 
         NGPreferenceSettingsFragment fragment = (NGPreferenceSettingsFragment) fm.findFragmentByTag(
-                getPreferenceSettingsFragmentTag());
+                args.getString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT)
+                //getPreferenceSettingsFragmentTag()
+        );
         if (null != fragment) {
             removeListener(fragment);
         }

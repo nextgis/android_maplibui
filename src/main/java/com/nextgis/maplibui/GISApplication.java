@@ -85,6 +85,15 @@ import androidx.core.content.ContextCompat;
 public abstract class GISApplication extends Application
         implements IGISApplication {
 
+    static private IGISApplication instance;
+
+    static public IGISApplication getInstance(){
+        return instance;
+    }
+
+    private Handler handler = new Handler();
+
+    private Runnable offlineRunnable = null;
     protected MapDrawable mMap;
     protected GpsEventSource mGpsEventSource;
     protected SharedPreferences mSharedPreferences;
@@ -103,6 +112,7 @@ public abstract class GISApplication extends Application
     public void onCreate()
     {
         super.onCreate();
+        instance = this;
 
         mGpsEventSource = new GpsEventSource(this);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -189,7 +199,7 @@ public abstract class GISApplication extends Application
     }
 
     public void closeMapObj(){
-            mMap = null;
+        mMap = null;
     }
 
     @Override
@@ -430,5 +440,20 @@ public abstract class GISApplication extends Application
     public LayerFactory getLayerFactory()
     {
         return new LayerFactoryUI();
+    }
+
+    public Handler getHandler(){
+        return handler;
+    }
+    @Override
+    public void stopHandler(){
+        if (offlineRunnable != null)
+            getHandler().removeCallbacks(offlineRunnable);
+    }
+
+    @Override
+    public void startRunnable (final Runnable externalRunnable){
+        offlineRunnable = externalRunnable;
+        getHandler().postDelayed(offlineRunnable, 2000);
     }
 }

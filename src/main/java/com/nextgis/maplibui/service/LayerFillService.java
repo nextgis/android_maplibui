@@ -94,6 +94,7 @@ import javax.net.ssl.HttpsURLConnection;
 import static com.nextgis.maplib.util.Constants.MESSAGE_ALERT_INTENT;
 import static com.nextgis.maplib.util.Constants.MESSAGE_EXTRA;
 import static com.nextgis.maplib.util.Constants.MESSAGE_TITLE_EXTRA;
+import static com.nextgis.maplib.util.NetworkUtil.configureSSLdefault;
 import static com.nextgis.maplib.util.NetworkUtil.getUserAgent;
 import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 
@@ -204,7 +205,8 @@ public class LayerFillService extends Service implements IProgressor {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("LayerFillService", "Received start id " + startId + ": " + intent);
+        if (Constants.DEBUG_MODE)
+            Log.i("LayerFillService", "Received start id " + startId + ": " + intent);
         if (intent != null) {
             String action = intent.getAction();
             if (action != null && !TextUtils.isEmpty(action)) {
@@ -488,6 +490,7 @@ public class LayerFillService extends Service implements IProgressor {
 
                     if (connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM && mUri.getScheme().equals("http")) {
                         url = url.replace("http", "https");
+                        configureSSLdefault();
                         connection = (HttpsURLConnection) new URL(url).openConnection();
                     } else {
                         connection = (HttpURLConnection) new URL(url).openConnection();; // we need this due to getResponseCode() makes actual connection and it becomes immutable
