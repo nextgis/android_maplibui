@@ -432,8 +432,7 @@ public class LayerFillService extends Service implements IProgressor {
                 FileUtil.deleteRecursive(mLayerPath);
         }
 
-        void setError(Exception e, IProgressor progressor) {
-            String logMsg = e.getLocalizedMessage();
+        void setError(String logMsg, IProgressor progressor) {
             if (null != logMsg) {
                 if (null != progressor)
                     progressor.setMessage(logMsg);
@@ -459,7 +458,7 @@ public class LayerFillService extends Service implements IProgressor {
                 vectorLayer.createFromGeoJson(mUri, progressor);
             } catch (IOException | JSONException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();
-                setError(e, progressor);
+                setError(e.getLocalizedMessage(), progressor);
                 notifyError(mProgressMessage);
                 return false;
             }
@@ -506,7 +505,7 @@ public class LayerFillService extends Service implements IProgressor {
                             connection.setRequestProperty ("Authorization", basicAuth);
                     } catch (IllegalStateException e) {
                         e.printStackTrace();
-                        setError(e, progressor);
+                        setError(e.getLocalizedMessage(), progressor);
                         notifyError(mProgressMessage);
                         return false;
                     }
@@ -631,7 +630,7 @@ public class LayerFillService extends Service implements IProgressor {
                 }
             } catch (AccountsException | JSONException | IOException | URISyntaxException | RuntimeException e) {
                 e.printStackTrace();
-                setError(e, progressor);
+                setError(e.getLocalizedMessage(), progressor);
                 notifyError(mProgressMessage);
                 return false;
             }
@@ -680,7 +679,7 @@ public class LayerFillService extends Service implements IProgressor {
                     vectorLayer.createFromGeoJson(mPath, progressor); // should never get there
             } catch (IOException | JSONException | SQLiteException | NGException | ClassCastException e) {
                 e.printStackTrace();
-                setError(e, progressor);
+                setError(e.getLocalizedMessage(), progressor);
                 notifyError(mProgressMessage);
                 return false;
             }
@@ -721,7 +720,7 @@ public class LayerFillService extends Service implements IProgressor {
                     tmsLayer.fillFromZip(mUri, progressor);
             } catch (IOException | NGException | RuntimeException e) {
                 e.printStackTrace();
-                setError(e, progressor);
+                setError(e.getLocalizedMessage(), progressor);
                 notifyError(mProgressMessage);
                 return false;
             }
@@ -782,7 +781,12 @@ public class LayerFillService extends Service implements IProgressor {
             } catch (JSONException | IOException | SQLiteException | NGException |
                      ClassCastException e) {
                 e.printStackTrace();
-                setError(e, progressor);
+                String error = e.getLocalizedMessage();
+                if (e instanceof JSONException && e.getMessage().equals("No value for fields")){
+                    error = getResources().getString(R.string.error_forbidden);
+                }
+
+                setError(error, progressor);
                 if ("POINTZ".equals(e.getMessage())){
                     Intent msg = new Intent(MESSAGE_ALERT_INTENT);
                     msg.putExtra(MESSAGE_EXTRA,getBaseContext().getString(R.string.pointz_alert));
