@@ -100,6 +100,10 @@ public abstract class GISApplication extends Application
     protected AccountManager mAccountManager;
     boolean isTrackInProgress  = false;
 
+    String account = null;
+    String errorMessage = null;
+    int errorCode = 0;
+
     public boolean getIsTrackInProgress(){
         return isTrackInProgress;
     }
@@ -456,4 +460,24 @@ public abstract class GISApplication extends Application
         offlineRunnable = externalRunnable;
         getHandler().postDelayed(offlineRunnable, 2000);
     }
+
+    @Override
+    public void setError (String account, String errorMessage, int errorCode){
+        this.account = account;
+        this.errorMessage = errorMessage;
+        this.errorCode = errorCode;
+    }
+
+    public String getAccountError(){
+        return account;
+    }
+
+    public String getErrorMessage(){
+        return errorMessage;
+    }
+
+    public int getErrorCode(){
+        return errorCode;
+    }
+
 }
