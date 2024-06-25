@@ -194,10 +194,7 @@ public abstract class NGPreferenceActivity
         if (isMultiPane(this)) {
             ft.replace(R.id.header_fragment, fragment, tag);
         } else {
-            Log.e("DDFFGG", tag);
-
             ft.replace(R.id.setting_fragment, fragment, tag);
-
         }
         ft.commit();
     }
@@ -208,8 +205,6 @@ public abstract class NGPreferenceActivity
         FragmentManager fm = getSupportFragmentManager();
 
         NGPreferenceSettingsFragment fragment = null;
-        if (args != null)
-            Log.e("DDFFGG", args.getString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT));
         if (args != null)
             fragment = (NGPreferenceSettingsFragment) fm.findFragmentByTag(
                 args.getString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT)
@@ -233,8 +228,6 @@ public abstract class NGPreferenceActivity
         }
 
         FragmentTransaction ft = fm.beginTransaction();
-        Log.e("DDFFGG", tag);
-
         ft.replace(R.id.setting_fragment, fragment, tag);
         if (!isMultiPane(this)) {
             ft.addToBackStack(tag);
