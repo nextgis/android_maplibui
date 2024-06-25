@@ -21,6 +21,9 @@
 
 package com.nextgis.maplibui.fragment;
 
+import static com.nextgis.maplib.util.Constants.MESSAGE_EXTRA;
+import static com.nextgis.maplib.util.Constants.MESSAGE_TITLE_EXTRA;
+
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -33,11 +36,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
 import android.text.InputType;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,7 +80,9 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
         TextView signUp = view.findViewById(R.id.signup);
         signUp.setText(signUp.getText().toString().toUpperCase());
         signUp.setOnClickListener(this);
-        view.findViewById(R.id.onpremise).setOnClickListener(this);
+        //view.findViewById(R.id.onpremise).setOnClickListener(this);
+        view.findViewById(R.id.onpremiseButton).setOnClickListener(this);
+
         return view;
     }
 
@@ -126,7 +135,7 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
         } else if (v.getId() == R.id.signup) {
             Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(NGIDUtils.NGID_MY));
             startActivity(browser);
-        } else if (v.getId() == R.id.onpremise) {
+        } else if (v.getId() == R.id.onpremiseButton) {
             createDialog();
         }
     }
@@ -136,27 +145,75 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
             return;
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         String url = preferences != null ? preferences.getString("ngid_url", NGIDUtils.NGID_MY) : NGIDUtils.NGID_MY;
-        final EditText editText = new EditText(getContext());
-        editText.setInputType(InputType.TYPE_TEXT_VARIATION_URI);
-        editText.setHint(NGIDUtils.NGID_MY);
-        if (!url.equals(NGIDUtils.NGID_MY))
-            editText.setText(url);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle(R.string.ngid_type_url).setView(editText).setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                String url = editText.getText().toString();
-                if (url.isEmpty()) {
-                    url = NGIDUtils.NGID_MY;
-                }
-                if (!NetworkUtil.isValidUri(url)) {
-                    Toast.makeText(getContext(), R.string.error_invalid_url, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putString("ngid_url", url).apply();
-                setUpServerInfo();
+        //final EditText editText = new EditText(getContext());
+
+
+        View view = View.inflate(getContext(), R.layout.custom_ngid_server, null);
+        RadioButton defaultServerRadio = view.findViewById(R.id.defaultServerRadio);
+        RadioButton customServerRadio = view.findViewById(R.id.customServerRadio);
+        EditText customURLEditText = view.findViewById(R.id.customURLEditText);
+        TextView helpTextView = view.findViewById(R.id.help);
+
+        customURLEditText.setInputType(InputType.TYPE_TEXT_VARIATION_URI);
+        customURLEditText.setHint(NGIDUtils.NGID_MY);
+
+        defaultServerRadio.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                customServerRadio.setChecked(false);
+                customURLEditText.setEnabled(false);
             }
-        }).setNegativeButton(R.string.cancel, null);
+        });
+
+        customServerRadio.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                defaultServerRadio.setChecked(false);
+                customURLEditText.setEnabled(true);
+            }
+        });
+
+        if (url.equals(NGIDUtils.NGID_MY)) {
+            defaultServerRadio.setChecked(true);
+            customURLEditText.setText("");
+        } else {
+            customServerRadio.setChecked(true);
+            customURLEditText.setText(url);
+        }
+
+
+//        String message = getContext().getString(R.string.help_custom_auth_server);
+//        final SpannableString s = new SpannableString(message); // msg should have url to enable clicking
+//        Linkify.addLinks(s, Linkify.ALL);
+//        helpTextView.setText(s);
+        helpTextView.setMovementMethod(LinkMovementMethod.getInstance());
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(R.string.ngid_server_caption)
+                //.setView(editText)
+                .setView(view)
+                .setPositiveButton(R.string.ok, (dialogInterface, i) -> {
+                    if (defaultServerRadio.isChecked()){
+                        PreferenceManager.getDefaultSharedPreferences(getContext())
+                                .edit()
+                                .putString("ngid_url", NGIDUtils.NGID_MY)
+                                .apply();
+                        setUpServerInfo();
+                        return;
+                    }
+                    // else // custom field selected
+
+                    String url1 = customURLEditText.getText().toString();
+                    if (url1.isEmpty()) {
+                        url1 = NGIDUtils.NGID_MY;
+                    }
+                    if (!NetworkUtil.isValidUri(url1)) {
+                        Toast.makeText(getContext(), R.string.error_invalid_url, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    PreferenceManager.getDefaultSharedPreferences(getContext()).edit().putString("ngid_url", url1).apply();
+                    setUpServerInfo();
+                })
+                .setNegativeButton(R.string.cancel, null);
         builder.create().show();
     }
 

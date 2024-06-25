@@ -26,7 +26,7 @@ apply plugin: 'com.android.library'
 android {
     compileSdkVersion 33
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 26
         targetSdkVersion 33
         def props = new Properties()
         file("../local.properties").withInputStream { props.load(it) }
@@ -79,7 +79,9 @@ android {
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
     api project(':maplib')
-    api 'com.github.4eRTuk:easypicker:0.2.20'
+    api project(':easypicker')
+
+//    api 'com.github.4eRTuk:easypicker:0.2.20'
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
     implementation 'com.github.evrencoskun:TableView:v0.8.9.4'
     implementation 'com.github.miguelbcr:TableFixHeaders-Wrapper:0.2.0'
@@ -94,5 +96,6 @@ dependencies {
     implementation 'com.github.barsrb:hyperlog-android:master-SNAPSHOT'
 
     implementation 'androidx.work:work-runtime:2.8.1'
+    implementation project(':easypicker')
 
 }

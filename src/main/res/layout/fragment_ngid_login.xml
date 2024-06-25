@@ -19,8 +19,16 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    >
+
+
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -116,7 +124,8 @@
         android:layout_margin="16dp"
         android:background="@drawable/rounded_button"
         android:text="@string/login"
-        android:textColor="@color/color_white" />
+        android:textColor="@color/color_white"
+        />
 
     <TextView
         android:id="@+id/signup"
@@ -133,14 +142,30 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <TextView
-        android:id="@+id/onpremise"
+<!--    <TextView-->
+<!--        android:id="@+id/onpremise"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_gravity="center"-->
+<!--        android:text="@string/ngid_onpremise"-->
+<!--        android:textColor="@color/primary_dark"-->
+<!--        android:textSize="14sp" />-->
+
+    <Button
+        android:id="@+id/onpremiseButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="32dp"
         android:layout_gravity="center"
         android:text="@string/ngid_onpremise"
-        android:textColor="@color/primary_dark"
-        android:textSize="14sp" />
+        android:textSize="12sp"
+        android:background="@drawable/rounded_button"
+        android:textColor="@color/color_white"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+
+        />
+
+
 
     <TextView
         android:id="@+id/server"
@@ -149,5 +174,8 @@
         android:layout_gravity="center"
         android:layout_marginBottom="8dp"
         android:text="@string/ngid_server"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        android:layout_marginTop="16dp"
+        />
 </LinearLayout>
+</ScrollView>

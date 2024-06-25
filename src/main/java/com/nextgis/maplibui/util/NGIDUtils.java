@@ -286,7 +286,9 @@ public final class NGIDUtils {
             if (conn.getResponseCode() != 200) {
                 int code = NetworkUtil.ERROR_CONNECT_FAILED;
                 String msg = NetworkUtil.responseToString(conn.getErrorStream());
-                if (msg.contains("Invalid credentials given"))
+                if (msg == null)
+                    code = NetworkUtil.ERROR_CONNECT_FAILED;
+                else if (msg.contains("Invalid credentials given"))
                     code = NetworkUtil.ERROR_AUTH;
                 return new HttpResponse(code);
             }

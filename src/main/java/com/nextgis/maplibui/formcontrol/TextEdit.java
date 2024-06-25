@@ -167,6 +167,10 @@ public class TextEdit extends AppCompatEditText
                     setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED | InputType.TYPE_CLASS_NUMBER);
                     break;
 
+                case GeoConstants.FTLong:
+                    setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED | InputType.TYPE_CLASS_NUMBER);
+                    break;
+
                 case GeoConstants.FTReal:
                     setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED | InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
                     break;

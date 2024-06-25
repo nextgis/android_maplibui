@@ -84,6 +84,11 @@ public class TextEdit
                 setInputType(InputType.TYPE_CLASS_NUMBER);
                 break;
 
+            case GeoConstants.FTLong:
+                setSingleLine(true);
+                setInputType(InputType.TYPE_CLASS_NUMBER);
+                break;
+
             case GeoConstants.FTReal:
                 setSingleLine(true);
                 setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);

@@ -30,6 +30,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
+
+import android.util.Log;
 import android.view.MenuItem;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.fragment.NGPreferenceSettingsFragment;
@@ -192,7 +194,10 @@ public abstract class NGPreferenceActivity
         if (isMultiPane(this)) {
             ft.replace(R.id.header_fragment, fragment, tag);
         } else {
+            Log.e("DDFFGG", tag);
+
             ft.replace(R.id.setting_fragment, fragment, tag);
+
         }
         ft.commit();
     }
@@ -202,7 +207,11 @@ public abstract class NGPreferenceActivity
     {
         FragmentManager fm = getSupportFragmentManager();
 
-        NGPreferenceSettingsFragment fragment = (NGPreferenceSettingsFragment) fm.findFragmentByTag(
+        NGPreferenceSettingsFragment fragment = null;
+        if (args != null)
+            Log.e("DDFFGG", args.getString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT));
+        if (args != null)
+            fragment = (NGPreferenceSettingsFragment) fm.findFragmentByTag(
                 args.getString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT)
                 //getPreferenceSettingsFragmentTag()
         );
@@ -224,6 +233,8 @@ public abstract class NGPreferenceActivity
         }
 
         FragmentTransaction ft = fm.beginTransaction();
+        Log.e("DDFFGG", tag);
+
         ft.replace(R.id.setting_fragment, fragment, tag);
         if (!isMultiPane(this)) {
             ft.addToBackStack(tag);

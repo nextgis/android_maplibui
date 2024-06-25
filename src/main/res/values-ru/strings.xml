@@ -362,6 +362,7 @@
     <string name="averaging_enter_value">Введите значение (%1$d/%2$d)</string>
     <string name="average_next">Дальше</string>
     <string name="ngid_onpremise">Изменить сервер авторизации</string>
+    <string name="ngid_server_caption">Сервер авторизации</string>
     <string name="ngid_server">Текущий: %s</string>
     <string name="ngid_type_url">Введите URL</string>
     <string name="get_file_manually">Нет связанных приложений чтобы открыть файл %1$s. Файл можно забрать вручную по адресу:\n%2$s</string>
@@ -411,6 +412,10 @@
     <string name="loading_data_inprogress">загрузка данных в прогрессе</string>
     <string name="action_devinfo">Информация об устройстве</string>
     <string name="error_account_create">Ошибка создания аккаунта</string>
+    <string name="delete_object">Удалить объект?</string>
+    <string name="help_custom_auth_server"><a href="https://docs.nextgis.ru/docs_ngid/source/toc.html">Справка</a></string>
+    <string name="ng_server">Облако NextGIS</string>
+    <string name="custom_server">Другой сервер NextGIS ID</string>
 
 
 </resources>

@@ -19,8 +19,14 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    >
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipToPadding="false"
@@ -82,6 +88,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:autofillHints="emailAddress"
+            android:gravity="center"
+
             android:ems="10"
             android:hint="@string/user_name_ngid"
             android:inputType="textPersonName" />
@@ -105,51 +113,72 @@
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <View
+            android:id="@+id/center_element"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_centerInParent="true"
+            />
 
         <TextView
             android:id="@+id/signup"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:gravity="end|center_vertical"
+            android:layout_height="42dp"
+            android:layout_margin="16dp"
+            android:layout_width="wrap_content"
             android:text="@string/ngid_account_new"
             android:textColor="@color/primary_dark"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:layout_toLeftOf="@+id/center_element"
+            android:gravity="center_vertical"
+
+            />
 
         <Button
             android:id="@+id/signin"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="42dp"
             android:layout_margin="16dp"
-            android:layout_weight="1"
+
             android:background="@drawable/rounded_button"
             android:text="@string/login"
-            android:textColor="@color/color_white" />
-    </LinearLayout>
+            android:textColor="@color/color_white"
+            android:layout_toRightOf="@+id/center_element"
+            />
+    </RelativeLayout>
 
     <View
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_weight="1" />
 
-    <TextView
-        android:id="@+id/onpremise"
+<!--    <TextView-->
+<!--        android:id="@+id/onpremise"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_gravity="center"-->
+<!--        android:text="@string/ngid_onpremise"-->
+<!--        android:textColor="@color/primary_dark"-->
+<!--        android:textSize="14sp" />-->
+
+    <Button
+        android:id="@+id/onpremiseButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="32dp"
         android:layout_gravity="center"
         android:text="@string/ngid_onpremise"
-        android:textColor="@color/primary_dark"
-        android:textSize="14sp" />
+        android:textSize="12sp"
+        android:background="@drawable/rounded_button"
+        android:textColor="@color/color_white"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:layout_marginTop="36dp"
+
+        />
 
     <TextView
         android:id="@+id/server"
@@ -158,5 +187,8 @@
         android:layout_gravity="center"
         android:layout_marginBottom="8dp"
         android:text="@string/ngid_server"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        android:layout_marginTop="16dp"
+        />
 </LinearLayout>
+</ScrollView>

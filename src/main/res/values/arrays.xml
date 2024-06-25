@@ -167,6 +167,7 @@
     <string-array name="field_names" translatable="false">
         <item>@string/field_type_string</item>
         <item>@string/field_type_int</item>
+        <item>@string/field_type_long</item>
         <item>@string/field_type_real</item>
         <item>@string/field_type_datetime</item>
         <item>@string/field_type_date</item>
@@ -175,6 +176,7 @@
     <integer-array name="field_types" translatable="false">
         <item>4</item>
         <item>0</item>
+        <item>13</item>
         <item>2</item>
         <item>10</item>
         <item>11</item>

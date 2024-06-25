@@ -66,6 +66,7 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.location.AccurateLocationTaker;
 import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
@@ -352,6 +353,7 @@ public class ModifyAttributesActivity
             switch (field.getType()) {
                 case GeoConstants.FTString:
                 case GeoConstants.FTInteger:
+                case GeoConstants.FTLong:
                 case GeoConstants.FTReal:
                     TextEdit textEdit = (TextEdit) getLayoutInflater().inflate(R.layout.template_textedit, layout, false);
                     if (mIsViewOnly) {
@@ -802,11 +804,16 @@ public class ModifyAttributesActivity
 
             int size = deletedAttaches.size();
             String[] args = new String[size];
-            for (int i = 0; i < size; i++)
+            for (int i = 0; i < size; i++) {
                 args[i] = deletedAttaches.get(i).toString();
+                Uri uriTMP = Uri.parse("content://" + application.getAuthority() + "/" +
+                        mLayer.getPath().getName() + "/" + mFeatureId + "/" + Constants.URI_ATTACH + "/"
+                + args[i]);
+                total += getContentResolver().delete(uriTMP, MapUtil.makePlaceholders(1), args);
+            }
 
-            if (size > 0)
-                total += getContentResolver().delete(uri, MapUtil.makePlaceholders(size), args);
+//            if (size > 0)
+//                total += getContentResolver().delete(uri, MapUtil.makePlaceholders(size), args);
 
             if (total == 0 && size > 0) {
                 Toast.makeText(this, getText(R.string.photo_fail_attach), Toast.LENGTH_SHORT).show();
