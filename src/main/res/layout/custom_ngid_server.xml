@@ -43,6 +43,6 @@
         android:layout_height="wrap_content"
         android:hint=""
         android:textColorHint="@color/color_grey_400"
-        android:enabled="false"
+        android:enabled="true"
         />
 </androidx.appcompat.widget.LinearLayoutCompat>

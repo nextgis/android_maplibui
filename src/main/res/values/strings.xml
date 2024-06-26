@@ -422,4 +422,8 @@
     <string name="ng_server">NextGIS Cloud</string>
     <string name="custom_server">NextGIS ID from custom server</string>
 
+    <string name="delete_confirm_feature">Confirm feature deletion.</string>
+    <string name="delete_feature">Delete feature?</string>
+
+
 </resources>

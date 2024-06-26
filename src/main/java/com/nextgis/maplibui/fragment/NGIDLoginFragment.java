@@ -160,14 +160,14 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
         defaultServerRadio.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 customServerRadio.setChecked(false);
-                customURLEditText.setEnabled(false);
+                customURLEditText.setVisibility(View.GONE);
             }
         });
 
         customServerRadio.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 defaultServerRadio.setChecked(false);
-                customURLEditText.setEnabled(true);
+                customURLEditText.setVisibility(View.VISIBLE);
             }
         });
 

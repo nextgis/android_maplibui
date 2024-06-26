@@ -416,6 +416,9 @@
     <string name="help_custom_auth_server"><a href="https://docs.nextgis.ru/docs_ngid/source/toc.html">Справка</a></string>
     <string name="ng_server">Облако NextGIS</string>
     <string name="custom_server">Другой сервер NextGIS ID</string>
+    <string name="delete_confirm_feature">Подтвердите удаление объекта.</string>
+    <string name="delete_feature">Удалить объект?</string>
+
 
 
 </resources>
