@@ -27,6 +27,11 @@
         android:name="android.permission.AUTHENTICATE_ACCOUNTS"
 
         />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+
     <application>
 
         <activity
@@ -86,29 +91,35 @@
             android:name="com.nextgis.maplibui.service.TileDownloadService"
             android:enabled="true"
             android:exported="true"
-            android:process=":tile_download"/>
+            android:process=":tile_download"
+            android:foregroundServiceType="dataSync"/>
 
         <!-- android:process=":fill_layer" -->
         <service
             android:name="com.nextgis.maplibui.service.LayerFillService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true"
+            android:foregroundServiceType="dataSync"
+            />
 
         <service
             android:name="com.nextgis.maplibui.service.RebuildCacheService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true"
+            android:foregroundServiceType="dataSync"/>
 
         <service
             android:name="com.nextgis.maplibui.service.TrackerService"
             android:enabled="true"
             android:exported="true"
-            android:process=":tracks"/>
+            android:process=":tracks"
+            android:foregroundServiceType="location"/>
 
         <service
             android:name="com.nextgis.maplibui.service.WalkEditService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true"
+            android:foregroundServiceType="location"/>
 
         <receiver
             android:name=".service.BootLoader"

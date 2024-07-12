@@ -78,7 +78,14 @@ public class ExportGPXTask extends AsyncTask<Void, Integer, Object>
     private static final String GPX_TAG_TRACK_SEGMENT_POINT_TIME = "<time>%s</time>";
     private static final String GPX_TAG_TRACK_SEGMENT_POINT_SAT = "<sat>%s</sat>";
     private static final String GPX_TAG_TRACK_SEGMENT_POINT_ELE = "<ele>%s</ele>";
-    private static final String GPX_TAG_TRACK_SEGMENT_POINT_FIX = "<fix>%s</fix>";
+    private static final String GPX_TAG_TRACK_SEGMENT_EXTENSION_START = "<extensions>";
+    private static final String GPX_TAG_TRACK_SEGMENT_EXTENSION_STOP = "</extensions>";
+    private static final String GPX_TAG_TRACK_SEGMENT_SATTELITES = "<satellites>%s</satellites>";
+    private static final String GPX_TAG_TRACK_SEGMENT_BEARING = "<course>%s</course>";
+    private static final String GPX_TAG_TRACK_SEGMENT_HDOP = "<hdop>%s</hdop>";
+
+
+//    private static final String GPX_TAG_TRACK_SEGMENT_POINT_FIX = "<fix>%s</fix>";
 
     protected Activity mActivity;
     private ProgressDialog mProgress;
@@ -207,10 +214,15 @@ public class ExportGPXTask extends AsyncTask<Void, Integer, Object>
         int timeId = trackpoints.getColumnIndex(TrackLayer.FIELD_TIMESTAMP);
         int eleId = trackpoints.getColumnIndex(TrackLayer.FIELD_ELE);
         int satId = trackpoints.getColumnIndex(TrackLayer.FIELD_SAT);
-        int fixId = trackpoints.getColumnIndex(TrackLayer.FIELD_FIX);
+//        int fixId = trackpoints.getColumnIndex(TrackLayer.FIELD_FIX);
+        int bearing = trackpoints.getColumnIndex(TrackLayer.FIELD_BEARING);
+        int accurancy_hdop = trackpoints.getColumnIndex(TrackLayer.FIELD_ACCURACY);
 
         DecimalFormat df = new DecimalFormat("0", new DecimalFormatSymbols(Locale.ENGLISH));
         df.setMaximumFractionDigits(340); //340 = DecimalFormat.DOUBLE_FRACTION_DIGITS
+
+        DecimalFormat dfFloat = new DecimalFormat("0", new DecimalFormatSymbols(Locale.ENGLISH));
+        dfFloat.setMaximumFractionDigits(1); //340 = DecimalFormat.DOUBLE_FRACTION_DIGITS
 
         sb.setLength(0);
         sb.append(GPX_TAG_TRACK);
@@ -233,9 +245,15 @@ public class ExportGPXTask extends AsyncTask<Void, Integer, Object>
             String sLat = df.format(point.getY());
             f.format(GPX_TAG_TRACK_SEGMENT_POINT, sLat, sLon);
             f.format(GPX_TAG_TRACK_SEGMENT_POINT_TIME, getTimeStampAsString(trackpoints.getLong(timeId)));
-            f.format(GPX_TAG_TRACK_SEGMENT_POINT_ELE, df.format(trackpoints.getDouble(eleId)));
-            f.format(GPX_TAG_TRACK_SEGMENT_POINT_SAT, trackpoints.getString(satId));
-            f.format(GPX_TAG_TRACK_SEGMENT_POINT_FIX, trackpoints.getString(fixId));
+            f.format(GPX_TAG_TRACK_SEGMENT_POINT_ELE, dfFloat.format(trackpoints.getDouble(eleId)));
+            f.format(GPX_TAG_TRACK_SEGMENT_HDOP, dfFloat.format(trackpoints.getFloat(accurancy_hdop)));
+
+            sb.append(GPX_TAG_TRACK_SEGMENT_EXTENSION_START);
+
+            f.format(GPX_TAG_TRACK_SEGMENT_SATTELITES, trackpoints.getString(satId));
+            f.format(GPX_TAG_TRACK_SEGMENT_BEARING, dfFloat.format(trackpoints.getFloat(bearing)));
+
+            sb.append(GPX_TAG_TRACK_SEGMENT_EXTENSION_STOP);
             sb.append(GPX_TAG_TRACK_SEGMENT_POINT_CLOSE);
             FileUtil.writeToFile(temp, sb.toString(), true);
         } while (trackpoints.moveToNext());

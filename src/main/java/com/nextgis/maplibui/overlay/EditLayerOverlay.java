@@ -1349,7 +1349,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         geometry = geometry.copy();
         if (to == null && type == GeoConstants.GTMultiPoint) {
             int selectedGeometry = mDrawItems.indexOf(mSelectedItem);
-            geometry = ((GeoMultiPoint) geometry).get(selectedGeometry);
+            if (geometry instanceof GeoMultiPoint)
+                geometry = ((GeoMultiPoint) geometry).get(selectedGeometry);
         }
 
         geoPoint = (GeoPoint) geometry;

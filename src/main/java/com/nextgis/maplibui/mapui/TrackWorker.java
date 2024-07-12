@@ -116,6 +116,7 @@ public class TrackWorker  extends Worker {
                     int fix = points.getColumnIndex(TrackLayer.FIELD_FIX);
                     int sat = points.getColumnIndex(TrackLayer.FIELD_SAT);
                     int acc = points.getColumnIndex(TrackLayer.FIELD_ACCURACY);
+                    int bearing = points.getColumnIndex(TrackLayer.FIELD_BEARING);
                     int speed = points.getColumnIndex(TrackLayer.FIELD_SPEED);
                     int time = points.getColumnIndex(TrackLayer.FIELD_TIMESTAMP);
                     JSONArray payload = new JSONArray();
@@ -135,6 +136,7 @@ public class TrackWorker  extends Worker {
                             item.put("ft", points.getString(fix).equals("3d") ? 3 : 2);
                             item.put("sp", points.getDouble(speed) * 18 / 5);
                             item.put("ha", points.getDouble(acc));
+                            item.put("c", points.getDouble(bearing));
                             payload.put(item);
                             ids.add(points.getString(time));
                             counter++;

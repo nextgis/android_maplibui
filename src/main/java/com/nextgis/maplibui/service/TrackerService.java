@@ -37,6 +37,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ServiceInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
@@ -89,7 +90,8 @@ import java.util.Locale;
 import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 
 @SuppressLint("MissingPermission")
-public class TrackerService extends Service implements LocationListener, GpsStatus.Listener {
+public class TrackerService extends Service
+        implements LocationListener, GpsStatus.Listener {
     public static final  String TEMP_PREFERENCES      = "tracks_temp";
     private static final String TRACK_URI             = "track_uri";
     public static final String ACTION_SYNC            = "com.nextgis.maplibui.TRACK_SYNC";
@@ -503,6 +505,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
         mValues.put(TrackLayer.FIELD_SAT, mSatellitesCount);
         mValues.put(TrackLayer.FIELD_SPEED, location.getSpeed());
         mValues.put(TrackLayer.FIELD_ACCURACY, location.getAccuracy());
+        mValues.put(TrackLayer.FIELD_BEARING, location.getBearing());
         mValues.put(TrackLayer.FIELD_SENT, 0);
         mValues.put(TrackLayer.FIELD_TIMESTAMP, location.getTime());
         try {
@@ -625,6 +628,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
                     int fix = points.getColumnIndex(TrackLayer.FIELD_FIX);
                     int sat = points.getColumnIndex(TrackLayer.FIELD_SAT);
                     int acc = points.getColumnIndex(TrackLayer.FIELD_ACCURACY);
+                    int bearing = points.getColumnIndex(TrackLayer.FIELD_BEARING);
                     int speed = points.getColumnIndex(TrackLayer.FIELD_SPEED);
                     int time = points.getColumnIndex(TrackLayer.FIELD_TIMESTAMP);
                     JSONArray payload = new JSONArray();
@@ -644,6 +648,7 @@ public class TrackerService extends Service implements LocationListener, GpsStat
                             item.put("ft", points.getString(fix).equals("3d") ? 3 : 2);
                             item.put("sp", points.getDouble(speed) * 18 / 5);
                             item.put("ha", points.getDouble(acc));
+                            item.put("c", points.getDouble(bearing));
                             payload.put(item);
                             ids.add(points.getString(time));
                             counter++;
