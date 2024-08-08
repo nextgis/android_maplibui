@@ -51,6 +51,7 @@ import com.nextgis.maplibui.util.LayerUtil;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.lang.ref.WeakReference;
+import java.util.function.Function;
 
 
 /**
@@ -192,35 +193,7 @@ public class NGActivity
         return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
     }
 
-    protected void requestPermissions(int title, int message, final int requestCode,
-                                      final String... permissions) {
-        boolean shouldShowDialog = false;
-        for (String permission : permissions) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
-                shouldShowDialog = true;
-                break;
-            }
-        }
-
-        if (shouldShowDialog) {
-            final Activity activity = this;
-            AlertDialog builder = new AlertDialog.Builder(this).setTitle(title)
-                    .setMessage(message)
-                    .setPositiveButton(android.R.string.ok, null).create();
-            builder.setCanceledOnTouchOutside(false);
-            builder.show();
-
-            builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    ActivityCompat.requestPermissions(activity, permissions, requestCode);
-                }
-            });
-        } else
-            ActivityCompat.requestPermissions(this, permissions, requestCode);
-    }
-
-    public void updateChoise(int choise){
+   public void updateChoise(int choise){
         nChoise =choise;
     }
 

@@ -24,6 +24,7 @@ package com.nextgis.maplibui.service;
 
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -54,6 +55,7 @@ import android.os.IBinder;
 import android.provider.Settings;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.appcompat.app.AlertDialog;
 import android.text.TextUtils;
@@ -74,6 +76,7 @@ import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.GISApplication;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.NotificationHelper;
 
@@ -92,6 +95,10 @@ import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 @SuppressLint("MissingPermission")
 public class TrackerService extends Service
         implements LocationListener, GpsStatus.Listener {
+
+    public final static int PERMISSIONS_REQUEST_ZERO_LOCATION_POSPONDED = 777;
+    public final static int LOCATION_BACKGROUND_REQUEST = 5;
+
     public static final  String TEMP_PREFERENCES      = "tracks_temp";
     private static final String TRACK_URI             = "track_uri";
     public static final String ACTION_SYNC            = "com.nextgis.maplibui.TRACK_SYNC";
@@ -735,6 +742,18 @@ public class TrackerService extends Service
         String message = context.getString(R.string.background_location_message, backgroundPermissionTitle);
         boolean hasBackground = PermissionUtil.hasBackgroundLocationPermissions(context);
         boolean hasLocation = PermissionUtil.hasLocationPermissions(context);
+
+        if (!hasLocation) {
+            // location first
+            List<String> permslist = new ArrayList<>();
+            permslist.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+            permslist.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            requestPermissions(context, R.string.permissions, R.string.location_permissions, LOCATION_BACKGROUND_REQUEST,
+                    permslist.toArray(new String[permslist.size()])); // list.toArray(new Foo[list.size()])
+            return;
+        }
+
+
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
             if (hasBackground) {
                 listener.onAndroid10(true);
@@ -765,6 +784,21 @@ public class TrackerService extends Service
                })
                .setNegativeButton(R.string.cancel, null)
                .show();
+    }
+
+    public static void requestPermissions(final Activity activity1, int title, int message, final int requestCode,
+                                   final String... permissions) {
+        final Activity activity = activity1;
+        if (true) {
+            androidx.appcompat.app.AlertDialog builder = new androidx.appcompat.app.AlertDialog.Builder(activity).setTitle(title)
+                    .setMessage(message)
+                    .setPositiveButton(com.nextgis.maplibui.R.string.allow, (dialog, which) -> {
+                        ActivityCompat.requestPermissions(activity, permissions, requestCode);})
+                    .setNegativeButton(com.nextgis.maplibui.R.string.deny, null)
+                    .create();
+            builder.setCanceledOnTouchOutside(false);
+            builder.show();
+        }
     }
 
     public interface BackgroundPermissionCallback {

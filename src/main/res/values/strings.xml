@@ -370,10 +370,11 @@
     <string name="get_file_manually">No installed apps found to open file %1$s. You can pick it manually at path:\n%2$s</string>
     <string name="not_enough_space">Not enough space</string>
     <string name="free_space_message">You need at least %1$s free, but you have %2$s only.</string>
+
     <string name="background_location">Background location usage</string>
-    <string name="background_location_message">NextGIS app needs background location permission to collect tracks continuously even when the app is not in
-        use. Otherwise the track will be collected only when the app in foreground. Please select \'%s\'.</string>
+    <string name="background_location_message">NextGIS Mobile collects location data to enable to collect tracks continuously in background even when the app is closed or not in use. Otherwise the track will be collected only when the app in foreground. Please select \'%s\'.</string>
     <string name="background_location_always">Allow all the time</string>
+
     <string name="sync_delete_alert_turnon">You might loose data after you turn syncronization on for this layer. Make sure you made backup of collected data before turning synchronization on.</string>
     <string name="sync_turn_on_confirm">TURN ON</string>
     <string name="sync_turn_off_confirm">TURN OFF</string>
@@ -425,5 +426,11 @@
     <string name="delete_confirm_feature">Confirm feature deletion.</string>
     <string name="delete_feature">Delete feature?</string>
 
+    <string name="allow">Allow</string>
+    <string name="deny">Deny</string>
+
+    <string name="permissions">Permissions</string>
+
+    <string name="location_permissions">NextGIS Mobile collects location  to  show your location on the map</string>
 
 </resources>

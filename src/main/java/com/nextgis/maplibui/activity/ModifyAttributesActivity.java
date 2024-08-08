@@ -41,6 +41,8 @@ import android.preference.PreferenceManager;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.ActivityCompat;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -97,6 +99,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -574,10 +577,16 @@ public class ModifyAttributesActivity
 
             new AlertDialog.Builder(this)
                     .setMessage(R.string.no_permission_granted)
-                    .setPositiveButton(R.string.ok, null)
+                    .setPositiveButton(R.string.ok, (dialog, which) -> {
+                        List<String> permslist = new ArrayList<>();
+                        permslist.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                        ActivityCompat.requestPermissions(ModifyAttributesActivity.this,
+                                permslist.toArray(new String[permslist.size()])
+                                , requestCode);
+                    })
                     .create()
                     .show();
-            // Toast.makeText(this, R.string.no_permission_granted, Toast.LENGTH_SHORT).show();
+
             return;
         }
 

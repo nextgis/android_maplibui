@@ -368,10 +368,11 @@
     <string name="get_file_manually">Нет связанных приложений чтобы открыть файл %1$s. Файл можно забрать вручную по адресу:\n%2$s</string>
     <string name="not_enough_space">Недостаточно места</string>
     <string name="free_space_message">Необходимо минимум %1$s, но на устройстве свободно только %2$s.</string>
+
     <string name="background_location">Использование геолокации в фоне</string>
-    <string name="background_location_message">Для того, чтобы приложение NextGIS могло записывать треки в фоне (когда приложение свернуто), нужно разрешить
-        доступ к фоновой геолокации. Иначе трек будет записываться только тогда когда приложение развернуто. Пожалуйста, выберите \'%s\'.</string>
+    <string name="background_location_message">NextGIS Mobile  собирает данные о местоположении, что позволяет непрерывно собирать треки в фоновом режиме, даже когда приложение закрыто или не используется. В противном случае трек будет собираться только тогда, когда приложение находится на переднем плане. Пожалуйста, выберите \'%s\'.</string>
     <string name="background_location_always">Разрешить в любом режиме</string>
+
     <string name="sync_delete_alert_turnon">Если вы изменяли этот слой вы можете потерять новые данные после включения синхронизации. Убедитесь, что вы сохранили результаты своей работы перед включением синхронизации.
 </string>
     <string name="sync_turn_on_confirm">ВКЛЮЧИТЬ</string>
@@ -418,7 +419,8 @@
     <string name="custom_server">Другой сервер NextGIS ID</string>
     <string name="delete_confirm_feature">Подтвердите удаление объекта.</string>
     <string name="delete_feature">Удалить объект?</string>
-
+    <string name="allow">"Разрешить"</string>
+    <string name="deny">"Отклонить"</string>
 
 
 </resources>
