@@ -24,6 +24,7 @@
 package com.nextgis.maplibui.activity;
 
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.widget.SwitchCompat;
@@ -258,7 +259,8 @@ public class TMSLayerSettingsActivity
                         }
                     };
 
-                    new ClearCacheTask(getActivity(), listener).execute(mRasterLayer.getPath());
+                    new ClearCacheTask(getActivity(), listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR
+                            ,mRasterLayer.getPath());
                 }
             });
 

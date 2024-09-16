@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
@@ -101,7 +102,7 @@ public class NGWWebMapLayerUI extends NGWWebMapLayer implements ILayerUI {
                                 }
                             };
 
-                            new ClearCacheTask(activity, listener).execute(getPath());
+                            new ClearCacheTask(activity, listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR ,getPath());
                             save();
                         }
                     }

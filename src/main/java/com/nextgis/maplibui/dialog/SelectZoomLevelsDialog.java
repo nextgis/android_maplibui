@@ -126,7 +126,7 @@ public class SelectZoomLevelsDialog extends DialogFragment {
 
                 mTilesCount.setText(getString(R.string.counting).toLowerCase());
                 mCountTask = new CountTilesTask(map, leftPinIndex, rightPinIndex);
-                mCountTask.execute();
+                mCountTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             }
 
             @Override

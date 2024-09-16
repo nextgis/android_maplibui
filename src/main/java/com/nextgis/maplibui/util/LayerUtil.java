@@ -25,6 +25,7 @@ package com.nextgis.maplibui.util;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.GeoGeometry;
@@ -118,7 +119,7 @@ public final class LayerUtil {
         ExportGPXTask exportTask = new ExportGPXTask(activity, creator,
                 new ArrayList<String>(Arrays.asList(tracksId)),
                 false);
-        exportTask.execute();
+        exportTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     public static void shareLayerAsGeoJSON(Activity activity, VectorLayer layer, boolean proceedAttaches,

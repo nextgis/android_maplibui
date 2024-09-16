@@ -25,6 +25,7 @@ import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
@@ -201,7 +202,8 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     long id = getRemoteResourceId();
                     Connection connection = getConnection();
                     if (connection != null && id != NOT_FOUND) {
-                        new NGWCreateNewResourceTask(SelectNGWResourceActivity.this, connection, id).setName(text.toString()).execute();
+                        new NGWCreateNewResourceTask(SelectNGWResourceActivity.this, connection, id).setName(text.toString()).
+                                executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         mListAdapter.refresh();
                     }
 
@@ -330,7 +332,8 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     long id = getRemoteResourceId();
                     Connection connection = getConnection();
                     if (connection != null && mLayer != null && id != NOT_FOUND) {
-                        new NGWCreateNewResourceTask(this, connection, id).setLayer(mLayer).execute();
+                        new NGWCreateNewResourceTask(this, connection, id).setLayer(mLayer)
+                                .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         finish();
                     }
                     break;

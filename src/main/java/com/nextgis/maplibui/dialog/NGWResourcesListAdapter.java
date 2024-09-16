@@ -129,7 +129,7 @@ public class NGWResourcesListAdapter
             ((ResourceGroup) mCurrentResource).setLoadChildren(false);
 
         NGWResourceAsyncTask task = new NGWResourceAsyncTask(mActivity, mCurrentResource);
-        task.execute();
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     public INGWResource getCurrentResource()
@@ -150,7 +150,7 @@ public class NGWResourcesListAdapter
                     notifyDataSetChanged();
                 } else {
                     NGWResourceAsyncTask task = new NGWResourceAsyncTask(mActivity, connection);
-                    task.execute();
+                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
 
@@ -577,7 +577,7 @@ public class NGWResourcesListAdapter
                     notifyDataSetChanged();
                 } else {
                     NGWResourceAsyncTask task = new NGWResourceAsyncTask(mActivity, connection);
-                    task.execute();
+                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
         } else if (mCurrentResource.getType() == Connection.NGWResourceTypeConnection) {
@@ -621,7 +621,7 @@ public class NGWResourcesListAdapter
                     notifyDataSetChanged();
                 } else {
                     NGWResourceAsyncTask task = new NGWResourceAsyncTask(mActivity, resourceGroup);
-                    task.execute();
+                    task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
         }

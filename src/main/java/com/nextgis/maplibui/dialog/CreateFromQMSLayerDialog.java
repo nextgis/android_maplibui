@@ -202,7 +202,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                     return false;
                 }
             });
-            new LoadLayersList().execute();
+            new LoadLayersList().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
             mLayers.setItemsCanFocus(false);
             mLayers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -236,14 +236,14 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                         mProgressInfo.setText(R.string.message_loading);
                         setEnabled(mPositive, false);
                         mPositive.setText(R.string.add);
-                        new LoadLayersList().execute();
+                        new LoadLayersList().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     } else {
                         if (mChecked.size() > 0) {
                             mQMSLayers.setVisibility(View.GONE);
                             mProgress.setVisibility(View.VISIBLE);
 
                             for (int i = 0; i < mChecked.size(); i++)
-                                new LoadLayer().execute(mChecked.get(i));
+                                new LoadLayer().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mChecked.get(i));
                         } else
                             Toast.makeText(mContext, R.string.nothing_selected, Toast.LENGTH_SHORT).show();
 
@@ -493,7 +493,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                             else {
                                 LoadIcon task = new LoadIcon(icon.getPath(), textView);
                                 mIconsQueue.put(id, task);
-                                task.execute();
+                                task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                             }
                         }
                     }

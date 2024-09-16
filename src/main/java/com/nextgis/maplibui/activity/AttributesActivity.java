@@ -297,7 +297,7 @@ public class AttributesActivity extends NGActivity {
 
         if (!firstLoadStart) {
             loadBigDataTask = new LoadBigData(this, mLayer, progressText, text);
-            loadBigDataTask.execute();
+            loadBigDataTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else{
             Toast.makeText(this, R.string.loading_data_inprogress, Toast.LENGTH_LONG).show();
         }
@@ -342,7 +342,7 @@ public class AttributesActivity extends NGActivity {
                     loadBigDataTask.cancel(true);
 
                 loadBigDataTask = new LoadBigData(this, mLayer, progressText, "");
-                loadBigDataTask.execute();
+                loadBigDataTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
 
                 final TableViewModel tableViewModel = new TableViewModel(0, 0, new String[0][], new String[0], new String[0]);

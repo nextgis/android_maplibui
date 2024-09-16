@@ -525,7 +525,11 @@ public class NGWSettingsFragment
 
                         IntentFilter intentFilter = new IntentFilter();
                         intentFilter.addAction(SyncAdapter.SYNC_CANCELED);
-                        mStyledContext.registerReceiver(broadcastReceiver, intentFilter);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            mStyledContext.registerReceiver(broadcastReceiver, intentFilter, Context.RECEIVER_EXPORTED);
+                        } else {
+                            mStyledContext.registerReceiver(broadcastReceiver, intentFilter);
+                        }
 
                         wasCurrentSyncActive[0] =
                                 AccountUtil.isSyncActive(account, application.getAuthority());

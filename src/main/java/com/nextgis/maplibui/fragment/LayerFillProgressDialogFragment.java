@@ -66,7 +66,11 @@ public class LayerFillProgressDialogFragment extends Fragment {
         mActivity = getActivity();
 
         IntentFilter intentFilter = new IntentFilter(LayerFillService.ACTION_UPDATE);
-        mActivity.registerReceiver(mLayerFillReceiver, intentFilter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            mActivity.registerReceiver(mLayerFillReceiver, intentFilter, Context.RECEIVER_EXPORTED);
+        } else {
+            mActivity.registerReceiver(mLayerFillReceiver, intentFilter);
+        }
     }
 
     @Override
@@ -81,7 +85,7 @@ public class LayerFillProgressDialogFragment extends Fragment {
 
     public static void startFill(Intent intent) {
         LayerFillProgressDialog dialog = new LayerFillProgressDialog();
-        dialog.execute(intent);
+        dialog.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, intent);
     }
 
     private static void createProgressDialog() {
@@ -127,7 +131,11 @@ public class LayerFillProgressDialogFragment extends Fragment {
                 };
 
                 IntentFilter intentFilter = new IntentFilter(LayerFillService.ACTION_UPDATE);
-                mActivity.registerReceiver(mLayerFillReceiver, intentFilter);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    mActivity.registerReceiver(mLayerFillReceiver, intentFilter, Context.RECEIVER_EXPORTED);
+                } else {
+                    mActivity.registerReceiver(mLayerFillReceiver, intentFilter);
+                }
 
                 while (!mIsFinished)
                     SystemClock.sleep(500);
@@ -173,7 +181,8 @@ public class LayerFillProgressDialogFragment extends Fragment {
                     if (intent.getIntExtra(LayerFillService.KEY_TOTAL, 0) == 0) {
                         mProgressDialog.dismiss();
                         mProgressDialog = null;
-                        mActivity.unregisterReceiver(mLayerFillReceiver);
+                        if (mLayerFillReceiver != null )
+                            mActivity.unregisterReceiver(mLayerFillReceiver);
                         mLayerFillReceiver = null;
                         mIsFinished = true;
                     }

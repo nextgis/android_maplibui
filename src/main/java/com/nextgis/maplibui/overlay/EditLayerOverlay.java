@@ -37,6 +37,7 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuItemCompat;
@@ -691,7 +692,11 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(WalkEditService.WALKEDIT_CHANGE);
         mReceiver = new WalkEditReceiver();
-        mContext.registerReceiver(mReceiver, intentFilter);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            mContext.registerReceiver(mReceiver, intentFilter, Context.RECEIVER_EXPORTED);
+        } else {
+            mContext.registerReceiver(mReceiver, intentFilter);
+        }
         mHasEdits = true;
 
         if (WalkEditService.isServiceRunning(mContext))

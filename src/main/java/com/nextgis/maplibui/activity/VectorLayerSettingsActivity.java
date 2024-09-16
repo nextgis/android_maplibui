@@ -33,6 +33,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.PeriodicSync;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -375,7 +376,11 @@ public class VectorLayerSettingsActivity
             super.onResume();
             if (getActivity() != null) {
                 IntentFilter intentFilter = new IntentFilter(RebuildCacheService.ACTION_UPDATE);
-                getActivity().registerReceiver(mRebuildCacheReceiver, intentFilter);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    getActivity().registerReceiver(mRebuildCacheReceiver, intentFilter, Context.RECEIVER_EXPORTED);
+                } else {
+                    getActivity().registerReceiver(mRebuildCacheReceiver, intentFilter);
+                }
             }
         }
 
@@ -383,8 +388,10 @@ public class VectorLayerSettingsActivity
         public void onPause() {
             super.onPause();
             try {
-                if (getActivity() != null && mRebuildCacheReceiver != null)
+                if (getActivity() != null && mRebuildCacheReceiver != null) {
                     getActivity().unregisterReceiver(mRebuildCacheReceiver);
+                    mRebuildCacheReceiver = null;
+                }
             } catch (IllegalArgumentException ignored) {
 
             }

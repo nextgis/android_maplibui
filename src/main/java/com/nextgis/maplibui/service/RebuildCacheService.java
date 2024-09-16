@@ -31,6 +31,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Process;
 
 import androidx.annotation.Nullable;
@@ -76,6 +77,27 @@ public class RebuildCacheService extends IntentService implements IProgressor
     protected long mLastUpdate = 0;
     protected boolean mIsRunning, mIsCanceled, mRemoveCurrent;
 
+    MyCustomThread thread = null;
+
+
+    public static class MyCustomThread extends Thread {
+
+        private Looper mLooper;
+
+        public MyCustomThread(Runnable runnable) {
+            super(runnable);
+        }
+
+        public void setLooper(Looper looper) {
+            mLooper = looper;
+        }
+
+        @Override
+        public void run() {
+            mLooper = Looper.getMainLooper();
+            super.run();
+        }
+    }
 
     public RebuildCacheService() {
         super("RebuildCacheService");
@@ -121,6 +143,9 @@ public class RebuildCacheService extends IntentService implements IProgressor
 
         mQueue = new LinkedList<>();
     }
+
+
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -170,10 +195,21 @@ public class RebuildCacheService extends IntentService implements IProgressor
         sendBroadcast(mProgressIntent);
         mLayer = null;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+
             stopForeground(true);
-        else
-            mNotifyManager.cancel(NOTIFICATION_ID);
+//        else
+//            mNotifyManager.cancel(NOTIFICATION_ID);
+
+        
+        if (thread!= null){
+            thread.interrupt();
+            try {
+                thread.join(); // Wait for the thread to finish
+            } catch (InterruptedException e) {
+                Log.e("TAG", e.getMessage());
+            }
+            thread = null; // Clean up
+        }
 
         stopSelf();
     }
@@ -186,12 +222,14 @@ public class RebuildCacheService extends IntentService implements IProgressor
 
         mIsCanceled = false;
         final IProgressor progressor = this;
-        new Thread(new Runnable() {
+        if (thread != null)
+            thread.interrupt();
+        thread = new MyCustomThread(new Runnable() {
             @Override
             public void run() {
                 try {
                     mLayer = (VectorLayer) MapBase.getInstance().getLayerById(mQueue.remove(0));
-                } catch (Exception ex){
+                } catch (Exception ex) {
                     mLayer = null;
                     Log.e("error", ex.getMessage());
                 }
@@ -217,7 +255,9 @@ public class RebuildCacheService extends IntentService implements IProgressor
                 mIsRunning = mRemoveCurrent = false;
                 startNextTask();
             }
-        }).start();
+        });
+        thread.setLooper(Looper.myLooper());
+        thread.start();
     }
 
     @Override
