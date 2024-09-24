@@ -69,6 +69,7 @@ public class NGWSettingsHeaderFragment
             for (final Account account : mAccountManager.getAccountsByType(app.getAccountsType())) {
 
                 Preference preference = new Preference(mStyledContext);
+                preference.setIconSpaceReserved(false);
                 preference.setTitle(account.name);
                 preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener()
                 {
@@ -93,6 +94,7 @@ public class NGWSettingsHeaderFragment
 
             // add "Add account" preference
             Preference preference = new Preference(mStyledContext);
+            preference.setIconSpaceReserved(false);
             preference.setTitle(R.string.ngw_account_add);
             Intent intent = new Intent(mStyledContext, NGWLoginActivity.class);
             preference.setIntent(intent);

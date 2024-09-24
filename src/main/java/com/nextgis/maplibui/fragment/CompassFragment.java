@@ -306,15 +306,15 @@ public class CompassFragment extends Fragment implements View.OnTouchListener {
         int nIndex = Math.round(azimuth / 45);
 
         String directionCodes[] = {
-                res.getString(R.string.N),
-                res.getString(R.string.N) + res.getString(R.string.E),
-                res.getString(R.string.E),
-                res.getString(R.string.S) + res.getString(R.string.E),
-                res.getString(R.string.S),
-                res.getString(R.string.S) + res.getString(R.string.W),
-                res.getString(R.string.W),
-                res.getString(R.string.N) + res.getString(R.string.W),
-                res.getString(R.string.N) };
+                res.getString(com.nextgis.maplib.R.string.N),
+                res.getString(com.nextgis.maplib.R.string.N) + res.getString(com.nextgis.maplib.R.string.E),
+                res.getString(com.nextgis.maplib.R.string.E),
+                res.getString(com.nextgis.maplib.R.string.S) + res.getString(com.nextgis.maplib.R.string.E),
+                res.getString(com.nextgis.maplib.R.string.S),
+                res.getString(com.nextgis.maplib.R.string.S) + res.getString(com.nextgis.maplib.R.string.W),
+                res.getString(com.nextgis.maplib.R.string.W),
+                res.getString(com.nextgis.maplib.R.string.N) + res.getString(com.nextgis.maplib.R.string.W),
+                res.getString(com.nextgis.maplib.R.string.N) };
 
         if (nIndex > 8 || nIndex < 0)
             return directionCodes[0];

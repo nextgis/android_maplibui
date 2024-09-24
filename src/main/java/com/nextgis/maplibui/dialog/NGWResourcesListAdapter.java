@@ -736,7 +736,7 @@ public class NGWResourcesListAdapter
                 if (connection.connect(NGW_ACCOUNT_GUEST.equals(connection.getLogin()))) {
                     connection.loadChildren();
                 } else {
-                    return mContext.getString(R.string.error_connect_failed);
+                    return mContext.getString(com.nextgis.maplib.R.string.error_connect_failed);
                 }
             } else if (mINGWResource instanceof ResourceGroup) {
                 ResourceGroup resourceGroup = (ResourceGroup) mINGWResource;

@@ -166,7 +166,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         DrawItem.setAnchor(context, anchor);
 
         int outlineColor = Color.BLACK;
-        int fillColor = ControlHelper.getColor(mContext, com.nextgis.maplibui.R.attr.colorAccent);
+        int fillColor = ControlHelper.getColor(mContext, android.R.attr.colorAccent);
         int selectColor = Color.RED;
         VertexStyle vertexStyle = new VertexStyle(mContext, 255, fillColor, 5, 2.6f, selectColor, 5, 2.6f, outlineColor, 6, 3);
         VertexStyle edgeStyle = new VertexStyle(mContext, 255, fillColor, 3, 1.6f, selectColor, 3, 1.6f, outlineColor, 4, 1.8f);

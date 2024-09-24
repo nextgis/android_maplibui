@@ -94,13 +94,13 @@ public class TMSLayerSettingsActivity
     void addFragments() {
         mStyleFragment = new StyleFragment();
         mStyleFragment.setLayer(mLayer);
-        mAdapter.addFragment(mStyleFragment, R.string.style);
+        mAdapter.addFragment(mStyleFragment, com.nextgis.maplib.R.string.style);
         LayerGeneralSettingsFragment generalSettingsFragment = new LayerGeneralSettingsFragment();
         generalSettingsFragment.setRoot(mLayer, this);
-        mAdapter.addFragment(generalSettingsFragment, R.string.general);
+        mAdapter.addFragment(generalSettingsFragment, com.nextgis.maplib.R.string.general);
         CacheFragment cacheFragment = new CacheFragment();
         cacheFragment.setLayer(mLayer);
-        mAdapter.addFragment(cacheFragment, R.string.cache);
+        mAdapter.addFragment(cacheFragment, com.nextgis.maplib.R.string.cache);
     }
 
     public static class StyleFragment extends Fragment implements SeekBar.OnSeekBarChangeListener {

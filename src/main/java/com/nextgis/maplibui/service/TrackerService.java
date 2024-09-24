@@ -213,7 +213,7 @@ public class TrackerService extends Service
                             return START_STICKY;
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            int res = R.string.sync_started;
+                            int res = com.nextgis.maplib.R.string.sync_started;
                             String title = getString(res);
                             NotificationCompat.Builder builder = createBuilder(this, res);
                             builder.setSmallIcon(mSmallIcon)

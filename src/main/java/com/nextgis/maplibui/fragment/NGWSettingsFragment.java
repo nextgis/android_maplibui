@@ -29,6 +29,7 @@ import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -37,7 +38,10 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -119,6 +123,16 @@ public class NGWSettingsFragment
     }
 
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+    }
+
     public void fillAccountPreferences(
             PreferenceGroup screen,
             final Account account)
@@ -172,6 +186,7 @@ public class NGWSettingsFragment
                 mStyledContext.getSharedPreferences(Constants.PREFERENCES, Context.MODE_MULTI_PROCESS);
 
         CheckBoxPreference enablePeriodicSync = new CheckBoxPreference(mStyledContext);
+        enablePeriodicSync.setIconSpaceReserved(false);
         enablePeriodicSync.setKey(KEY_SYNC);
         enablePeriodicSync.setPersistent(false);
         enablePeriodicSync.setTitle(R.string.auto_sync);
@@ -250,6 +265,7 @@ public class NGWSettingsFragment
         final CharSequence[] values = getPeriodValues();
 
         final ListPreference timeInterval = new ListPreference(mStyledContext);
+        timeInterval.setIconSpaceReserved(false);
         timeInterval.setKey(KEY_PREF_SYNC_PERIOD);
         timeInterval.setTitle(R.string.sync_interval);
         timeInterval.setDialogTitle(R.string.sync_set_interval);
@@ -329,6 +345,7 @@ public class NGWSettingsFragment
                 }
 
                 final CheckBoxPreference layerSync = new CheckBoxPreference(mStyledContext);
+                layerSync.setIconSpaceReserved(false);
                 layerSync.setTitle(ngwLayer.getName());
                 layerSync.setChecked(0 == (ngwLayer.getSyncType() & Constants.SYNC_NONE));
                 //layerSync.setKey("" + ngwLayer.getId());
@@ -411,6 +428,7 @@ public class NGWSettingsFragment
             PreferenceGroup actionCategory)
     {
         Preference preferenceEdit = new Preference(mStyledContext);
+        preferenceEdit.setIconSpaceReserved(false);
         preferenceEdit.setTitle(R.string.edit_account);
         preferenceEdit.setSummary(R.string.edit_account_summary);
 
@@ -548,6 +566,7 @@ public class NGWSettingsFragment
                 });
 
         Preference preferenceDelete = new Preference(mStyledContext);
+        preferenceDelete.setIconSpaceReserved(false);
         preferenceDelete.setTitle(R.string.ngw_account_delete);
         preferenceDelete.setSummary(mDeleteAccountSummary);
 

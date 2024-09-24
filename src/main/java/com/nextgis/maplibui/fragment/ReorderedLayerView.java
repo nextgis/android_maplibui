@@ -216,7 +216,7 @@ public class ReorderedLayerView
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(LINE_THICKNESS);
 
-        int accentColor = ControlHelper.getColor(getContext(), R.attr.colorAccent);
+        int accentColor = ControlHelper.getColor(getContext(), android.R.attr.colorAccent);
 
         paint.setColor(accentColor);
         canvas.drawRect(rect, paint);
@@ -235,7 +235,7 @@ public class ReorderedLayerView
 
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
-        paint.setColor(getResources().getColor(R.color.background_floating_material_light));
+        paint.setColor(getResources().getColor(com.google.android.material.R.color.background_floating_material_light));
         Rect rect = new Rect(0, 0, v.getWidth(), v.getHeight());
         canvas.drawRect(rect, paint);
 

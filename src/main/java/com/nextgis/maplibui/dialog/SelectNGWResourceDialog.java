@@ -287,7 +287,7 @@ public class SelectNGWResourceDialog
 
                     if (layerURL == null) {
                         Toast.makeText(
-                                context, getString(R.string.error_layer_create),
+                                context, getString(com.nextgis.maplib.R.string.error_layer_create),
                                 Toast.LENGTH_SHORT).show();
                         return;
                     }

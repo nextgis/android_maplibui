@@ -177,7 +177,7 @@ public class LayerFillService extends Service implements IProgressor {
         intent.setAction(ACTION_SHOW);
         PendingIntent show = PendingIntent.getService(this, 0, intent, flag);
 
-        mBuilder = createBuilder(this, R.string.start_fill_layer);
+        mBuilder = createBuilder(this,com.nextgis.maplib.R.string.start_fill_layer);
         mBuilder.setSmallIcon(icon).setLargeIcon(largeIcon)
                 .setAutoCancel(false)
                 .setOngoing(true)
@@ -197,7 +197,7 @@ public class LayerFillService extends Service implements IProgressor {
         };
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String title = getString(R.string.start_fill_layer);
+            String title = getString(com.nextgis.maplib.R.string.start_fill_layer);
             mBuilder.setWhen(System.currentTimeMillis()).setContentTitle(title).setTicker(title);
             startForeground(FILL_NOTIFICATION_ID, mBuilder.build());
         }
@@ -519,7 +519,7 @@ public class LayerFillService extends Service implements IProgressor {
                     int nIncrement = 0;
                     byte[] buffer = new byte[Constants.IO_BUFFER_SIZE];
                     progressor.setMax(nSize);
-                    progressor.setMessage(getString(R.string.message_loading));
+                    progressor.setMessage(getString(com.nextgis.maplib.R.string.message_loading));
 
                     ZipInputStream zis = new ZipInputStream(inputStream);
                     ZipEntry ze;
@@ -783,7 +783,7 @@ public class LayerFillService extends Service implements IProgressor {
                 e.printStackTrace();
                 String error = e.getLocalizedMessage();
                 if (e instanceof JSONException && e.getMessage().equals("No value for fields")){
-                    error = getResources().getString(R.string.error_forbidden);
+                    error = getResources().getString(com.nextgis.maplib.R.string.error_forbidden);
                 }
 
                 setError(error, progressor);

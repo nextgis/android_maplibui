@@ -224,11 +224,11 @@ public class SelectZoomLevelsDialog extends DialogFragment {
             long total = getTilesCount(this, mMap, mFrom, mTo);
             String value = total + "";
             if (total >= 1000000000)
-                value = String.format(Locale.getDefault(), "%s%.1f%s", TILDA, total / 1000000000f, getString(R.string.unit_billion));
+                value = String.format(Locale.getDefault(), "%s%.1f%s", TILDA, total / 1000000000f, getString(com.nextgis.maplib.R.string.unit_billion));
             else if (total >= 1000000)
-                value = String.format(Locale.getDefault(), "%s%.1f%s", TILDA, total / 1000000f, getString(R.string.unit_million));
+                value = String.format(Locale.getDefault(), "%s%.1f%s", TILDA, total / 1000000f, getString(com.nextgis.maplib.R.string.unit_million));
             else if (total >= 100000)
-                value = String.format(Locale.getDefault(), "%s%.1f%s", TILDA, total / 1000f, getString(R.string.unit_thousand));
+                value = String.format(Locale.getDefault(), "%s%.1f%s", TILDA, total / 1000f, getString(com.nextgis.maplib.R.string.unit_thousand));
 
             return value;
         }

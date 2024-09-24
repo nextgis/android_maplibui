@@ -70,7 +70,7 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(4);
         mPaint.setPathEffect(new DashPathEffect(new float[]{5, 2, 2}, 0));
-        mPaint.setColor(ControlHelper.getColor(context, R.attr.colorAccent));
+        mPaint.setColor(ControlHelper.getColor(context, android.R.attr.colorAccent));
         mPaint.setAlpha(64);
 
         mTolerancePX = context.getResources().getDisplayMetrics().density * ConstantsUI.TOLERANCE_DP;

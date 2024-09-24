@@ -255,7 +255,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     String layerURL = layer.getTMSUrl(0);
 
                     if (layerURL == null) {
-                        Toast.makeText(this, getString(R.string.error_layer_create), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString(com.nextgis.maplib.R.string.error_layer_create), Toast.LENGTH_SHORT).show();
                         return false;
                     }
 

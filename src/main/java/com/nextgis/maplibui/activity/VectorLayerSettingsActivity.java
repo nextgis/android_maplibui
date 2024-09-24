@@ -134,16 +134,16 @@ public class VectorLayerSettingsActivity
 
     @Override
     protected void addFragments() {
-        mAdapter.addFragment(new StyleFragment(), R.string.style);
-        mAdapter.addFragment(new FieldsFragment(), R.string.fields);
+        mAdapter.addFragment(new StyleFragment(), com.nextgis.maplib.R.string.style);
+        mAdapter.addFragment(new FieldsFragment(), com.nextgis.maplib.R.string.fields);
         if (mLayer instanceof NGWVectorLayer)
             mAdapter.addFragment(new SyncFragment(), R.string.sync);
         LayerGeneralSettingsFragment generalSettingsFragment = new LayerGeneralSettingsFragment();
         generalSettingsFragment.setRoot(mLayer, this);
-        mAdapter.addFragment(generalSettingsFragment, R.string.general);
+        mAdapter.addFragment(generalSettingsFragment, com.nextgis.maplib.R.string.general);
         CacheFragment cacheFragment = new CacheFragment();
         cacheFragment.setActivity(this);
-        mAdapter.addFragment(cacheFragment, R.string.cache);
+        mAdapter.addFragment(cacheFragment, com.nextgis.maplib.R.string.cache);
     }
 
     @Override

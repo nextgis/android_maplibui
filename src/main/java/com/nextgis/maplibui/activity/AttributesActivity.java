@@ -210,7 +210,7 @@ public class AttributesActivity extends NGActivity {
                             });
 
                     View view = snackbar.getView();
-                    TextView textView = (TextView) view.findViewById(R.id.snackbar_text);
+                    TextView textView = (TextView) view.findViewById(com.google.android.material.R.id.snackbar_text);
                     textView.setTextColor(ContextCompat.getColor(view.getContext(), com.nextgis.maplibui.R.color.color_white));
                     snackbar.show();
                     mToolbar.setVisibility(View.GONE);

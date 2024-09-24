@@ -147,7 +147,7 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
                         }
                     } catch (ExecutionException | InterruptedException ex) {
                         HyperLog.v(Constants.TAG, "ExportGeoJSONBatchTask: zip error: " + ex.getMessage());
-                        publishProgress(R.string.sync_error_io);
+                        publishProgress(com.nextgis.maplib.R.string.sync_error_io);
                     }
                 }
 
@@ -187,7 +187,7 @@ public class ExportGeoJSONBatchTask extends ExportGeoJSONTask {
                         }
                     } catch (ExecutionException | InterruptedException ex) {
                         HyperLog.v(Constants.TAG, "ExportGeoJSONBatchTask: zip error: " + ex.getMessage());
-                        publishProgress(R.string.sync_error_io);
+                        publishProgress(com.nextgis.maplib.R.string.sync_error_io);
                     }
                 }
 

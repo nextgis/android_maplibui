@@ -115,7 +115,7 @@ public class RebuildCacheService extends IntentService implements IProgressor
         mNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         mProgressIntent = new Intent(ACTION_UPDATE);
-        mBuilder = createBuilder(this, R.string.rebuild_cache);
+        mBuilder = createBuilder(this, com.nextgis.maplib.R.string.rebuild_cache);
         mBuilder.setAutoCancel(false).setOngoing(true);
 
         int icon = R.drawable.ic_notification_rebuild_cache;
@@ -132,11 +132,11 @@ public class RebuildCacheService extends IntentService implements IProgressor
             icon = R.drawable.ic_action_cancel_dark;
             mBuilder.setContentIntent(show).addAction(icon, getString(android.R.string.cancel), stop);
         } else {
-            mBuilder.setContentTitle(getString(R.string.updating_data)).setContentText(getString(R.string.updating_data));
+            mBuilder.setContentTitle(getString(com.nextgis.maplib.R.string.updating_data)).setContentText(getString(com.nextgis.maplib.R.string.updating_data));
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String title = getString(R.string.rebuild_cache);
+            String title = getString(com.nextgis.maplib.R.string.rebuild_cache);
             mBuilder.setWhen(System.currentTimeMillis()).setContentTitle(title).setTicker(title);
             startForeground(NOTIFICATION_ID, mBuilder.build());
         }
@@ -237,10 +237,10 @@ public class RebuildCacheService extends IntentService implements IProgressor
                 mCurrentTasks++;
                 String notifyTitle;
                 if (getPackageName().equals("com.nextgis.mobile")) {
-                    notifyTitle = getString(R.string.rebuild_cache);
+                    notifyTitle = getString(com.nextgis.maplib.R.string.rebuild_cache);
                     notifyTitle += ": " + mCurrentTasks + "/" + mTotalTasks;
                 } else {
-                    notifyTitle = getString(R.string.updating_data);
+                    notifyTitle = getString(com.nextgis.maplib.R.string.updating_data);
                 }
 
                 mBuilder.setWhen(System.currentTimeMillis())

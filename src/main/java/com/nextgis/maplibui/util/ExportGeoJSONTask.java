@@ -272,7 +272,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
             String error = mActivity.getString(values[0]);
             Toast.makeText(mActivity, error, Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(mActivity, R.string.sync_error_io, Toast.LENGTH_SHORT).show();
+            Toast.makeText(mActivity, com.nextgis.maplib.R.string.sync_error_io, Toast.LENGTH_SHORT).show();
         }
     }
 

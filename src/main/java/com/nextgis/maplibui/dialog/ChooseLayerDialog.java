@@ -27,6 +27,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import android.view.View;
 import android.widget.ListView;
@@ -49,6 +50,7 @@ public class ChooseLayerDialog
         extends NGDialog
         implements ILayerSelector
 {
+    public final static String TAG = "choose_layer";
     protected List<ILayer>           mLayers;
     protected ChooseLayerListAdapter mListAdapter;
     protected int                    mCode;
@@ -73,7 +75,7 @@ public class ChooseLayerDialog
 
     @NonNull
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState)
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
     {
         super.onCreateDialog(savedInstanceState);
         mListAdapter = new ChooseLayerListAdapter(this);
@@ -95,8 +97,8 @@ public class ChooseLayerDialog
         dialogListView.setAdapter(mListAdapter);
         dialogListView.setOnItemClickListener(mListAdapter);
 
-//        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, mDialogTheme);
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        //AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle(mTitle).setView(view).setInverseBackgroundForced(true).setNegativeButton(
                 R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(

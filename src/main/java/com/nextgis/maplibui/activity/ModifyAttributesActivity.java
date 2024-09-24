@@ -825,7 +825,7 @@ public class ModifyAttributesActivity
 //                total += getContentResolver().delete(uri, MapUtil.makePlaceholders(size), args);
 
             if (total == 0 && size > 0) {
-                Toast.makeText(this, getText(R.string.photo_fail_attach), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getText(com.keenfin.easypicker.R.string.photo_fail_attach), Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "attach delete failed");
             } else {
                 Log.d(TAG, "attach delete success: " + total);
@@ -848,7 +848,7 @@ public class ModifyAttributesActivity
 
                 Uri result = getContentResolver().insert(uri, values);
                 if (result == null) {
-                    Toast.makeText(this, getText(R.string.photo_fail_attach), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getText(com.keenfin.easypicker.R.string.photo_fail_attach), Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "attach insert failed");
                 } else {
                     if (copyToStream(result, path))
@@ -934,7 +934,7 @@ public class ModifyAttributesActivity
         String appendix;
         if (!value.isNaN()) {
             DecimalFormat df = new DecimalFormat("0.0");
-            appendix = df.format(value) + " " + getString(R.string.unit_meter);
+            appendix = df.format(value) + " " + getString(com.nextgis.maplib.R.string.unit_meter);
         } else
             appendix = getString(R.string.n_a);
 

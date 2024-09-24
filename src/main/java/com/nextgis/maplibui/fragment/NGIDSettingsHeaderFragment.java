@@ -59,6 +59,7 @@ public class NGIDSettingsHeaderFragment
     {
         boolean isLoggedIn = isLoggedIn(mPreferences);
         Preference preference = new Preference(mStyledContext);
+        preference.setIconSpaceReserved(false);
         String url = mPreferences != null ? mPreferences.getString("ngid_url", NGIDUtils.NGID_MY) : NGIDUtils.NGID_MY;
         String braces = url.replace("https://", "").replace("http://", "");
         braces = NetworkUtil.trimSlash(braces);
@@ -87,6 +88,7 @@ public class NGIDSettingsHeaderFragment
 
         //add "New account" preference
         Preference newAccount = new Preference(mStyledContext);
+        newAccount.setIconSpaceReserved(false);
         newAccount.setTitle(R.string.ngid_account_new);
         Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         newAccount.setIntent(browser);

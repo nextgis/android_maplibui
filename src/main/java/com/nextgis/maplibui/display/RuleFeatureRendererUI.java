@@ -263,7 +263,7 @@ public class RuleFeatureRendererUI extends RendererUI {
                 final StyleFragment styleFragment = new StyleFragment();
                 styleFragment.setLayer(mLayer);
                 styleFragment.setStyle(style);
-                styleFragment.setTitle(R.string.style);
+                styleFragment.setTitle(com.nextgis.maplib.R.string.style);
                 styleFragment.setPositiveText(android.R.string.ok);
                 styleFragment.setOnPositiveClickedListener(new StyledDialogFragment.OnPositiveClickedListener() {
                     @Override

@@ -71,7 +71,7 @@ public class CurrentTrackOverlay
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setColor(ControlHelper.getColor(mContext, R.attr.colorAccent));
+        mPaint.setColor(ControlHelper.getColor(mContext, android.R.attr.colorAccent));
         mPaint.setStrokeWidth(4);
 
         mTrackpoints = new ArrayList<>();

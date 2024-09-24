@@ -20,20 +20,28 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
     <Preference
+        app:iconSpaceReserved="false"
         android:key="username"
         android:title="@string/ngid_username"/>
     <Preference
+        app:iconSpaceReserved="false"
         android:key="email"
         android:title="@string/ngid_email"/>
     <Preference
+        app:iconSpaceReserved="false"
         android:key="first_name"
         android:title="@string/ngid_first_name"/>
     <Preference
+        app:iconSpaceReserved="false"
         android:key="last_name"
         android:title="@string/ngid_last_name"/>
     <Preference
+        app:iconSpaceReserved="false"
         android:key="sign_out"
         android:persistent="false"
         android:title="@string/sign_out"/>

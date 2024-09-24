@@ -75,7 +75,7 @@ public class CurrentLocationOverlay extends Overlay implements GpsEventListener 
         super(context, mapViewOverlays);
         Activity parent = (Activity) context;
         mGpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
-        mMarkerColor = ControlHelper.getColor(mContext, R.attr.colorAccent);
+        mMarkerColor = ControlHelper.getColor(mContext, android.R.attr.colorAccent);
 
         mTolerancePX = context.getResources().getDisplayMetrics().density * AUTOPAN_THRESHOLD;
 

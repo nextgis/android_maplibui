@@ -233,7 +233,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                     if (mRetry) {
                         mRetry = false;
                         mProgressBar.setVisibility(View.VISIBLE);
-                        mProgressInfo.setText(R.string.message_loading);
+                        mProgressInfo.setText(com.nextgis.maplib.R.string.message_loading);
                         setEnabled(mPositive, false);
                         mPositive.setText(R.string.add);
                         new LoadLayersList().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -393,7 +393,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         private void showRetry() {
             mRetry = true;
             mProgressBar.setVisibility(View.GONE);
-            mProgressInfo.setText(R.string.error_connect_failed);
+            mProgressInfo.setText(com.nextgis.maplib.R.string.error_connect_failed);
             setEnabled(mPositive, true);
             mPositive.setText(R.string.retry);
         }

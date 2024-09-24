@@ -91,7 +91,7 @@ public abstract class NGPreferenceFragment
                 if (preference instanceof PreferenceCategory)
                     setZeroPaddingToLayoutChildren(holder.itemView);
                 else {
-                    View iconFrame = holder.itemView.findViewById(R.id.icon_frame);
+                    View iconFrame = holder.itemView.findViewById(android.R.id.icon_frame);
                     if (iconFrame != null) {
                         iconFrame.setVisibility(preference.getIcon() == null ? View.GONE : View.VISIBLE);
                     }

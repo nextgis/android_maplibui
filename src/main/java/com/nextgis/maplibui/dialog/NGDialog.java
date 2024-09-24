@@ -27,8 +27,12 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.nextgis.maplibui.R;
@@ -58,6 +62,7 @@ public class NGDialog extends DialogFragment {
         button.setTextColor(state ? mEnabledColor : mDisabledColor);
     }
 
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -67,8 +72,12 @@ public class NGDialog extends DialogFragment {
 
         int[] attrs = {android.R.attr.alertDialogStyle};
         TypedArray ta = mContext.obtainStyledAttributes(mTheme, attrs);
-        mDialogTheme = ta.getResourceId(0, R.style.Theme_NextGIS_AppCompat_Light_Dialog);
-        ta.recycle();
+        try {
+            mDialogTheme = ta.getResourceId(0, R.style.Theme_NextGIS_AppCompat_Light_Dialog);
+        } finally {
+            ta.recycle();
+        }
+
 
         if (savedInstanceState != null) {
             mTitle = savedInstanceState.getString(KEY_TITLE);
@@ -88,6 +97,24 @@ public class NGDialog extends DialogFragment {
     @Override
     public Context getContext()
     {
-        return mActivity;
+        return mContext;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = context;
+
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mContext = null;
+    }
+
+    @Override
+    public void setInitialSavedState(@Nullable SavedState state) {
+        super.setInitialSavedState(state);
     }
 }

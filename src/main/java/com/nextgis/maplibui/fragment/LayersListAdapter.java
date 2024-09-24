@@ -417,7 +417,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                                                    });
 
                        View view = snackbar.getView();
-                       TextView textView = view.findViewById(R.id.snackbar_text);
+                       TextView textView = view.findViewById(com.google.android.material.R.id.snackbar_text);
                        textView.setTextColor(ContextCompat.getColor(mActivity, R.color.color_white));
                        snackbar.show();
                    }
