@@ -59,6 +59,7 @@ import com.nextgis.maplibui.util.NGIDUtils;
 public class NGIDLoginFragment extends Fragment implements View.OnClickListener {
     protected EditText mLogin, mPassword;
     protected Button mSignInButton;
+    protected View progressArea;
     protected TextView mServer;
 
     @Override
@@ -75,6 +76,8 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
         mPassword = view.findViewById(R.id.password);
         mSignInButton = view.findViewById(R.id.signin);
         mSignInButton.setOnClickListener(this);
+        progressArea =  view.findViewById(R.id.progressArea);
+        progressArea.setOnClickListener(this);
         mServer = view.findViewById(R.id.server);
         setUpServerInfo();
         TextView signUp = view.findViewById(R.id.signup);
@@ -104,12 +107,17 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
         if (activity == null)
             return;
 
+        if (v.getId() == R.id.progressArea)
+            return;
+
         if (v.getId() == R.id.signin) {
             boolean loginPasswordFilled = checkEditText(mLogin) && checkEditText(mPassword);
             if (!loginPasswordFilled) {
                 Toast.makeText(activity, R.string.field_not_filled, Toast.LENGTH_SHORT).show();
                 return;
             }
+
+            progressArea.setVisibility(View.VISIBLE);
 
             IGISApplication application = (IGISApplication) activity.getApplication();
             application.sendEvent(ConstantsUI.GA_NGID, ConstantsUI.GA_CONNECT, ConstantsUI.GA_USER);
@@ -120,6 +128,7 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
                 @Override
                 public void onFinish(HttpResponse response) {
                     mSignInButton.setEnabled(true);
+                    progressArea.setVisibility(View.GONE);
 
                     if (response.isOk()) {
                         activity.getIntent().putExtra(NGIDLoginActivity.EXTRA_SUCCESS, true);

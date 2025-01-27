@@ -32,11 +32,15 @@ import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
+import com.keenfin.easypicker.AttachInfo;
 import com.keenfin.easypicker.PhotoPicker;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.FeatureAttachments;
+import com.nextgis.maplibui.GISApplication;
 import com.nextgis.maplibui.api.IFormControl;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,7 +50,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.nextgis.maplib.util.Constants.FIELD_ATTACH_DESCRIPTION;
+import static com.nextgis.maplib.util.Constants.FIELD_ATTACH_DISPLAYNAME;
+import static com.nextgis.maplib.util.Constants.FIELD_ATTACH_ID;
+import static com.nextgis.maplib.util.Constants.FIELD_ATTACH_MIMETYPE;
+import static com.nextgis.maplib.util.Constants.FIELD_ATTACH_OPERATION;
+import static com.nextgis.maplib.util.Constants.FIELD_FEATURE_ID;
 import static com.nextgis.maplib.util.Constants.FIELD_ID;
+import static com.nextgis.maplib.util.Constants.FIELD_OPERATION;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_MAX_PHOTO_KEY;
@@ -57,14 +68,12 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
     private static final String BUNDLE_DELETED_IMAGES = "deleted_images";
     private long mFeatureId = NOT_FOUND;
     private VectorLayer mLayer;
-    private Map<String, Integer> mAttaches = new HashMap<>();
+    private final List<AttachInfo> mAttaches = new ArrayList<>();
+    private final Map<String, AttachInfo> onlineAttaches = new HashMap<>();
     private PhotoAdapter mAdapter;
     private String mComment;
-    private List<Integer> mDeletedImages = new ArrayList<>();
+    private final  List<Integer> mDeletedImages = new ArrayList<>();
 
-    public PhotoGallery(Context context) {
-        super(context);
-    }
 
     public PhotoGallery(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -98,7 +107,11 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
 
         if (mLayer != null && mFeatureId != NOT_FOUND && mAdapter != null && mAdapter.getItemCount() < 2) { // feature exists
             IGISApplication app = (IGISApplication) ((Activity) getContext()).getApplication();
-            getAttaches(app, mLayer, mFeatureId, mAttaches, true, mComment);
+            getOfflineAttaches(app, mLayer, mFeatureId, mAttaches, true, mComment);
+
+            Map<String, AttachInfo> onlineAttachesCache =getOnlineAttaches(app, mLayer, mFeatureId);
+            onlineAttaches.clear();
+            onlineAttaches.putAll(onlineAttachesCache);
         }
 
         if (savedState != null) {
@@ -116,7 +129,10 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
         }
     }
 
-    public static void getAttaches(IGISApplication app, VectorLayer layer, long featureId, Map<String, Integer> map, boolean excludeSign, String comment) {
+    public static void getOfflineAttaches(IGISApplication app, VectorLayer layer, long featureId,
+                                          List<AttachInfo> map,
+                                          boolean excludeSign, String comment) {
+        // get from cursor attaches in app folder (added attaches, not synced )
         Uri uri = Uri.parse("content://" + app.getAuthority() + "/" +
                 layer.getPath().getName() + "/" + featureId + "/" + Constants.URI_ATTACH);
         MatrixCursor attachCursor = (MatrixCursor) layer.query(uri,
@@ -130,11 +146,57 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
 
                 if (comment != null && !attachCursor.getString(2).equals(comment))
                     continue;
-                map.put(attachCursor.getString(0), attachCursor.getInt(1));
+                map.add(new AttachInfo(false,attachCursor.getString(0), attachCursor.getString(1) ));
+               // map.put(attachCursor.getString(0), attachCursor.getInt(1));
             } while (attachCursor.moveToNext());
         }
 
         attachCursor.close();
+
+        // get attaches from webpart - ask from db
+        //todo
+
+    }
+
+    // get attaches already On WebGIS
+     public static Map<String, AttachInfo>  getOnlineAttaches(IGISApplication app,
+                                                           VectorLayer layer,
+                                                           long featureId) {
+
+         Map<String, AttachInfo> result = new HashMap<>();
+
+         if (!(layer instanceof NGWVectorLayer))
+             return result;
+
+
+         String[] projection =  new String[]{FIELD_FEATURE_ID, FIELD_ATTACH_ID, FIELD_ATTACH_DESCRIPTION, FIELD_ATTACH_DISPLAYNAME, FIELD_ATTACH_MIMETYPE};
+         String selection = FIELD_FEATURE_ID + " = " + featureId;
+
+         String tableName = ((NGWVectorLayer)layer).getAttachmentsTableName();
+         FeatureAttachments.checkTable(tableName);
+         Cursor attachmentsCursor = FeatureAttachments.query(tableName, projection, selection, null, null);
+         // boolean onlineAttach, String url, String storePath, String filename, String description
+
+        if (attachmentsCursor.moveToFirst()) {
+            do {
+                // https://alexey655.nextgis.com/api/resource/274/feature/1/attachment/249/image
+                String attachId = attachmentsCursor.getString(1);
+                String url = "https://"+ ((NGWVectorLayer) layer).getAccountName() + "/api/resource/" + ((NGWVectorLayer) layer).getRemoteId()
+                        + "/feature/" + featureId + "/attachment/" + attachId + "/image";
+
+                String storePath = "images/" + ((NGWVectorLayer) layer).getRemoteId()
+                        + "/feature/" + featureId + "/attachment/" + attachId + "/";
+
+                AttachInfo info = new AttachInfo(true, url,  storePath, attachmentsCursor.getString(3),
+                        attachmentsCursor.getString(4), null, attachmentsCursor.getString(1));
+                result.put( attachmentsCursor.getString(1),  info );
+
+            } while (attachmentsCursor.moveToNext());
+
+        }
+         attachmentsCursor.close();
+
+        return result;
     }
 
     public void init(VectorLayer layer, long featureId) {
@@ -147,13 +209,12 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
         super.onAttachedToWindow();
 
         if (mLayer != null && mFeatureId != NOT_FOUND && mAdapter.getItemCount() < 2) {
-            ArrayList<String> images = new ArrayList<>();
+            ArrayList<AttachInfo> images = new ArrayList<>();
 
-            for (String attach : mAttaches.keySet())
-                if (!mDeletedImages.contains(mAttaches.get(attach)))
+            for (AttachInfo attach : mAttaches)
+                if (attach!=null &&  !mDeletedImages.contains(attach.oldAttachString))
                     images.add(attach);
-
-            restoreImages(images);
+            restoreImages(images, onlineAttaches );
         }
     }
 
@@ -234,13 +295,23 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
         return mComment;
     }
 
-    public List<String> getNewAttaches() {
-        ArrayList<String> result = new ArrayList<>();
+    public List<AttachInfo> getNewAttaches() {
+        ArrayList<AttachInfo> result = new ArrayList<>();
 
-        for (String image : mAdapter.getImagesPathOrUri())
-            if (!mAttaches.containsKey(image))
+        for (AttachInfo image : mAdapter.getImagesPathOrUri()) {
+            if (image == null || image.oldAttachString == null)
+                continue;
+            boolean exist = false;
+
+            for (AttachInfo attachInfo : mAttaches) {
+                if (attachInfo !=null && attachInfo.oldAttachString != null &&  image.oldAttachString.equals(attachInfo.oldAttachString)){
+                    exist = true;
+                    break;
+                }
+            }
+            if (!exist)
                 result.add(image);
-
+        }
         return result;
     }
 
@@ -248,9 +319,9 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
         ArrayList<Integer> result = new ArrayList<>();
 
         if (mAttaches != null) {
-            for (String attach : mAttaches.keySet()) {
-                if (!mAdapter.getImagesPathOrUri().contains(attach))
-                    result.add(mAttaches.get(attach));
+            for (AttachInfo attach : mAttaches) {
+                if (attach != null && !mAdapter.getImagesPathOrUri().contains(attach))
+                    result.add(Integer.valueOf(attach.attachId));
             }
         }
 

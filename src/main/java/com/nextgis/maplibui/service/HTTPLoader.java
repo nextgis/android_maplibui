@@ -28,6 +28,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.hypertrack.hyperlog.HyperLog;
+import com.nextgis.maplib.datasource.ngw.TokenContainer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.NGWUtil;
 
@@ -40,12 +41,12 @@ import androidx.loader.content.AsyncTaskLoader;
 
 
 public class HTTPLoader
-        extends AsyncTaskLoader<String>
+        extends AsyncTaskLoader<TokenContainer>
 {
     protected final String mUrl;
     protected final String mLogin;
     protected final String mPassword;
-    protected       String mAuthToken;
+    protected       TokenContainer mAuthToken;
     protected AtomicReference<String> mReference;
 
 
@@ -75,7 +76,7 @@ public class HTTPLoader
     }
 
 
-    public static String signIn(
+    public static TokenContainer signIn(
             Context context,
             String url,
             String login,
@@ -93,7 +94,7 @@ public class HTTPLoader
     @Override
     protected void onStartLoading()
     {
-        if (mAuthToken == null || mAuthToken.length() == 0) {
+        if (mAuthToken == null || mAuthToken.token == null || mAuthToken.token.length() == 0) {
             forceLoad();
         } else {
             deliverResult(mAuthToken);
@@ -102,7 +103,7 @@ public class HTTPLoader
 
 
     @Override
-    public void deliverResult(String data)
+    public void deliverResult(TokenContainer data)
     {
         mAuthToken = data;
         super.deliverResult(data);
@@ -110,7 +111,7 @@ public class HTTPLoader
 
 
     @Override
-    public String loadInBackground()
+    public TokenContainer loadInBackground()
     {
         try {
             return signIn();
@@ -122,7 +123,7 @@ public class HTTPLoader
     }
 
 
-    protected String signIn()
+    protected TokenContainer signIn()
             throws IOException
     {
         String url = mUrl.trim();

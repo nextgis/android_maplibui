@@ -78,8 +78,6 @@ public class NGActivity
 
     public String getAppName() {
         String appName = "NextGIS Mobile";
-        if (AccountUtil.isProUser(this))
-            appName += " Pro";
         return appName;
     }
 

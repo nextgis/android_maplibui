@@ -21,26 +21,44 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.nextgis.maplibui.fragment.NGWLoginFragment">
+    >
 
+<ScrollView
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:context="com.nextgis.maplibui.fragment.NGWLoginFragment"
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:orientation="horizontal"
+            >
 
             <View
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2" />
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                />
 
             <ImageView
                 android:layout_width="0dp"
@@ -53,7 +71,7 @@
 
             <View
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="2" />
         </LinearLayout>
 
@@ -102,7 +120,6 @@
             style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:paddingTop="8dp">
 
             <Button
@@ -151,4 +168,31 @@
                 android:text="@string/click_here" />
         </LinearLayout>
     </LinearLayout>
+
+
+    </RelativeLayout>
+
+
 </ScrollView>
+
+<RelativeLayout
+android:id="@+id/progressArea"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:background="@color/background"
+android:visibility="gone">
+
+<ProgressBar
+    android:id="@+id/progress"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:layout_gravity="center"
+    android:indeterminate="true"
+    android:indeterminateOnly="true"
+    android:visibility="visible"
+    android:layout_centerInParent="true"
+    />
+
+</RelativeLayout>
+</RelativeLayout>

@@ -25,6 +25,8 @@ package com.nextgis.maplibui.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.FragmentTransaction;
@@ -132,7 +134,9 @@ public abstract class NGPreferenceActivity
 
     @Override
     public boolean onPreferenceStartScreen(
+            @NonNull
             PreferenceFragmentCompat preferenceFragmentCompat,
+            @NonNull
             PreferenceScreen preferenceScreen)
     {
         if (isMultiPane(this)) {

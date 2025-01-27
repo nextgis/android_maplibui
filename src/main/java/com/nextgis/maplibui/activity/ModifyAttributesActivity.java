@@ -24,9 +24,12 @@
 package com.nextgis.maplibui.activity;
 
 import android.Manifest;
+import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -59,15 +62,20 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.keenfin.easypicker.AttachInfo;
+import com.keenfin.easypicker.PhotoPicker;
 import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoMultiPoint;
 import com.nextgis.maplib.datasource.GeoPoint;
+import com.nextgis.maplib.datasource.ngw.Connection;
+import com.nextgis.maplib.datasource.ngw.Connections;
 import com.nextgis.maplib.location.AccurateLocationTaker;
 import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
@@ -84,6 +92,7 @@ import com.nextgis.maplibui.control.DateTime;
 import com.nextgis.maplibui.control.PhotoGallery;
 import com.nextgis.maplibui.control.TextEdit;
 import com.nextgis.maplibui.control.TextLabel;
+import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
 import com.nextgis.maplibui.formcontrol.AutoTextEdit;
 import com.nextgis.maplibui.formcontrol.Sign;
 import com.nextgis.maplibui.util.ConstantsUI;
@@ -98,12 +107,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.keenfin.easypicker.DownloadPhotoIntentService.DOWNLOAD_ACTION;
+import static com.keenfin.easypicker.DownloadPhotoIntentService.getReceiverIntent;
 import static com.nextgis.maplib.util.Constants.FIELD_GEOM;
 import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
@@ -147,6 +159,9 @@ public class ModifyAttributesActivity
     protected SoundPool mSoundPool;
     private int mBeepId;
 
+    MessageReceiver messageReceiver;
+    WeakReference<PhotoPicker> photoPickerWeakReference = new WeakReference<>(null);
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -159,6 +174,24 @@ public class ModifyAttributesActivity
         createView(app, savedInstanceState);
         createLocationPanelView(app);
         createSoundPool();
+
+        if (messageReceiver == null)
+            messageReceiver = new MessageReceiver(){
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if (intent.getAction().equals(DOWNLOAD_ACTION)) {
+                        if (photoPickerWeakReference != null &&  photoPickerWeakReference.get() != null){
+                            photoPickerWeakReference.get().updateStatus(intent);
+                        }
+                    }
+                }
+            };
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(messageReceiver, getReceiverIntent(), Context.RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(messageReceiver, getReceiverIntent());
+        }
     }
 
     protected void createLocationPanelView(final IGISApplication app)
@@ -404,6 +437,22 @@ public class ModifyAttributesActivity
             control.init(null, null, null, null, null, null);
             control.addToLayout(layout);
             mFields.put(control.getFieldName(), control);
+
+            photoPickerWeakReference = new WeakReference<>(control);
+
+            AccountManager accountManager = AccountManager.get(this);
+            Connections connections = SelectNGWResourceDialog.fillConnections(this, accountManager);
+            Connection found = null;
+            if (mLayer instanceof NGWVectorLayer) {
+                for (int i = 0; i < connections.getChildrenCount(); i++) {
+                    if (connections.getChild(i).getName().equals((((NGWVectorLayer) mLayer).getAccountName()))) {
+                        found = (Connection) connections.getChild(i);
+                    }
+                }
+            }
+            if (found != null)
+                control.setLoginPass(found.getLogin(), found.getPassword());
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -435,6 +484,12 @@ public class ModifyAttributesActivity
                 gpsEventSource.removeListener(this);
             }
         }
+
+        if (messageReceiver != null) {
+            unregisterReceiver(messageReceiver);
+            messageReceiver = null;
+        }
+
         super.onPause();
     }
 
@@ -817,7 +872,7 @@ public class ModifyAttributesActivity
                 args[i] = deletedAttaches.get(i).toString();
                 Uri uriTMP = Uri.parse("content://" + application.getAuthority() + "/" +
                         mLayer.getPath().getName() + "/" + mFeatureId + "/" + Constants.URI_ATTACH + "/"
-                + args[i]);
+                        + args[i]);
                 total += getContentResolver().delete(uriTMP, MapUtil.makePlaceholders(1), args);
             }
 
@@ -831,10 +886,13 @@ public class ModifyAttributesActivity
                 Log.d(TAG, "attach delete success: " + total);
             }
 
-            List<String> imagesPath = gallery.getNewAttaches();
+            List<AttachInfo> imagesPath = gallery.getNewAttaches();
             String comment = gallery.getComment();
-            for (String path : imagesPath) {
-                String[] segments = path.split("/");
+            for (AttachInfo path : imagesPath) {
+                if (path == null || path.oldAttachString == null )
+                    continue;
+                String pathString = path.oldAttachString;
+                String[] segments = pathString.split("/");
                 String name = segments.length > 0 ? segments[segments.length - 1] : "image.jpg";
                 if (name.contains("%3A"))
                     name = name.split("%3A")[1];
@@ -846,12 +904,13 @@ public class ModifyAttributesActivity
                     values.put(VectorLayer.ATTACH_DESCRIPTION, comment);
                 values.put(VectorLayer.ATTACH_MIME_TYPE, "image/jpeg");
 
+                //Log.e(TAG, "modify insert " + uri.toString() + " values: " + values.toString());
                 Uri result = getContentResolver().insert(uri, values);
                 if (result == null) {
                     Toast.makeText(this, getText(com.keenfin.easypicker.R.string.photo_fail_attach), Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "attach insert failed");
                 } else {
-                    if (copyToStream(result, path))
+                    if (copyToStream(result, pathString))
                         total++;
 
                     Log.d(TAG, "attach insert success: " + result.toString());
@@ -960,5 +1019,10 @@ public class ModifyAttributesActivity
     public void onGpsStatusChanged(int event)
     {
 
+    }
+
+    public class MessageReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {}
     }
 }

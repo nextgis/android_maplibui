@@ -48,7 +48,8 @@
     <string name="user_name_ngid">Логин или E-mail</string>
     <string name="canceled">Отменено</string>
     <string name="ngw_account_already_exists">Учетная запись уже существует</string>
-    <string name="error_login">Ошибка входа</string>
+    <string name="error_login">Неправильное имя или пароль</string>
+    <string name="error_webgis_not_found">Веб ГИС не найдена</string>
     <string name="ngw_layer_add">Добавить из Веб ГИС</string>
     <string name="ngw_accounts">Веб ГИС</string>
     <string name="ngid_account_new">Зарегистрироваться</string>

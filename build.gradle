@@ -63,8 +63,8 @@ android {
         targetCompatibility "17"
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_16
+        targetCompatibility JavaVersion.VERSION_16
     }
     namespace 'com.nextgis.maplibui'
 }
@@ -94,9 +94,10 @@ dependencies {
     api 'com.google.android.material:material:1.12.0'
     api 'androidx.preference:preference:1.2.1'
     implementation 'com.github.oli107:material-range-bar:1.4.6'
-    implementation 'com.github.barsrb:hyperlog-android:master-SNAPSHOT'
+    //implementation 'com.hypertrack:hyperlog:0.0.9'
 
     implementation 'androidx.work:work-runtime:2.9.1'
     implementation project(':easypicker')
+    implementation 'com.solusguard.hyperlog:hyperlog:1.1.0'
 
 }

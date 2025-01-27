@@ -45,9 +45,12 @@ import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.datasource.GeoMultiPoint;
+import com.nextgis.maplib.datasource.GeoMultiPolygon;
 import com.nextgis.maplib.datasource.GeoPoint;
+import com.nextgis.maplib.datasource.GeoPolygon;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.FileUtil;
@@ -507,7 +510,10 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                     ((Coordinates) control).setIsLat();
                     if (y != null)
                         ((Coordinates) control).setValue(y);
-                    if (!(geometry instanceof GeoPoint) && !(geometry instanceof GeoMultiPoint))
+                    if (!(geometry instanceof GeoPoint) &&
+                                    !(geometry instanceof GeoMultiPoint) &&
+                                    !(geometry instanceof GeoPolygon) &&
+                                    !(geometry instanceof GeoMultiPolygon))
                         ((Coordinates) control).setVisibility(View.GONE);
                 }
                 break;
@@ -538,6 +544,17 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
         }
         if (geometry instanceof GeoMultiPoint) {
             point = ((GeoMultiPoint) geometry.copy()).get(0);
+        }
+
+        if (geometry instanceof GeoPolygon) {
+            GeoEnvelope envelope = geometry.getEnvelope();
+            point = (GeoPoint) (envelope.getCenter().copy());
+        }
+
+        if (geometry instanceof GeoMultiPolygon) {
+            GeoPolygon polygon = ((GeoMultiPolygon)geometry).get(0);
+            GeoEnvelope envelope = polygon.getEnvelope();
+            point = (GeoPoint) (envelope.getCenter().copy());
         }
 
         if (point != null) {

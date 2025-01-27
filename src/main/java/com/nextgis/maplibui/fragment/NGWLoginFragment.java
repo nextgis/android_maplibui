@@ -23,6 +23,8 @@
 
 package com.nextgis.maplibui.fragment;
 
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+
 import android.accounts.Account;
 import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
@@ -46,7 +48,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
+import com.nextgis.maplib.datasource.ngw.TokenContainer;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.HttpResponse;
 import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.HTTPLoader;
@@ -60,7 +64,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class NGWLoginFragment
         extends Fragment
-        implements LoaderManager.LoaderCallbacks<String>, View.OnClickListener
+        implements LoaderManager.LoaderCallbacks<TokenContainer>, View.OnClickListener
 {
     private static final String PASSWORD_HINT = "••••••••••";
     protected static final String ENDING = ".nextgis.com";
@@ -69,6 +73,7 @@ public class NGWLoginFragment
     protected EditText mURL, mLogin, mPassword;
     protected Button   mSignInButton, mGuestButton;
     protected TextView mLoginTitle, mManual, mTip;
+    protected View progressArea;
 
     protected String mUrlText   = "";
     protected String mLoginText = "";
@@ -80,7 +85,7 @@ public class NGWLoginFragment
     protected boolean mChangeAccountLogin = mForNewAccount;
 
     protected OnAddAccountListener mOnAddAccountListener;
-    protected Loader<String> mLoader;
+    protected Loader<TokenContainer> mLoader;
     protected AtomicReference<String> mUrlWithProtocol = new AtomicReference<>();
 
     @Override
@@ -141,6 +146,7 @@ public class NGWLoginFragment
         TextWatcher watcher = new LocalTextWatcher();
         mURL.addTextChangedListener(watcher);
         mLoginTitle = view.findViewById(R.id.login_title);
+        progressArea = view.findViewById(R.id.progressArea);
         mTip = view.findViewById(R.id.tip);
 
         mGuestButton = view.findViewById(R.id.guest);
@@ -195,6 +201,9 @@ public class NGWLoginFragment
 
     @Override
     public void onClick(View v) {
+
+        if (v.getId() == R.id.progressArea)
+            return;
         if (v.getId() == R.id.signin || v.getId() == R.id.guest) {
             boolean guest = v.getId() == R.id.guest;
             boolean urlFilled = checkEditText(mURL);
@@ -220,6 +229,7 @@ public class NGWLoginFragment
             } else {
                 mLoader = getLoaderManager().initLoader(id, null, this);
             }
+            progressArea.setVisibility(View.VISIBLE);
 
             IGISApplication application = (IGISApplication) getActivity().getApplication();
             application.sendEvent(ConstantsUI.GA_NGW, ConstantsUI.GA_CONNECT, guest ? ConstantsUI.GA_GUEST : ConstantsUI.GA_USER);
@@ -261,7 +271,7 @@ public class NGWLoginFragment
 
     @NonNull
     @Override
-    public Loader<String> onCreateLoader(
+    public Loader<TokenContainer> onCreateLoader(
             int id,
             Bundle args)
     {
@@ -277,9 +287,10 @@ public class NGWLoginFragment
 
     @Override
     public void onLoadFinished(
-            @NonNull Loader<String> loader,
-            String token)
+            @NonNull Loader<TokenContainer> loader,
+            TokenContainer token)
     {
+        progressArea.setVisibility(View.GONE);
         mSignInButton.setEnabled(true);
         if (null != mGuestButton) { // needed for overrides
             mGuestButton.setEnabled(true);
@@ -306,13 +317,24 @@ public class NGWLoginFragment
         }
 
         mUrlText = mUrlWithProtocol.get();
+        boolean error404 = token != null && token.responseCode == HTTP_NOT_FOUND;
         if (loader.getId() == R.id.auth_token_loader) {
-            if (token != null && token.length() > 0)
-                onTokenReceived(accountName, token);
+            if (token != null && token.token!= null && token.token.length() > 0)
+                onTokenReceived(accountName, token.token);
             else
-                Toast.makeText(getActivity(), R.string.error_login, Toast.LENGTH_SHORT).show();
-        } else if (loader.getId() == R.id.non_auth_token_loader)
-            onTokenReceived(accountName, Constants.NGW_ACCOUNT_GUEST);
+                Toast.makeText(getActivity(),
+                        error404 ? R.string.error_webgis_not_found : R.string.error_login
+                        , Toast.LENGTH_SHORT).show();
+        } else {
+            if (loader.getId() == R.id.non_auth_token_loader) {
+            if (token.responseCode == HTTP_NOT_FOUND)
+                Toast.makeText(getActivity(),
+                        error404 ? R.string.error_webgis_not_found : R.string.error_login
+                        , Toast.LENGTH_SHORT).show();
+            else
+                onTokenReceived(accountName, Constants.NGW_ACCOUNT_GUEST);
+            }
+        }
     }
 
 
@@ -354,7 +376,7 @@ public class NGWLoginFragment
 
 
     @Override
-    public void onLoaderReset(@NonNull Loader<String> loader)
+    public void onLoaderReset(@NonNull Loader<TokenContainer> loader)
     {
 
     }

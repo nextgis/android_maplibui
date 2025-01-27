@@ -48,7 +48,9 @@
     <string name="user_name_ngw">Web GIS login</string>
     <string name="user_name_ngid">Login or E-mail</string>
     <string name="canceled">Canceled</string>
-    <string name="error_login">Login failed</string>
+    <string name="error_login">Username or password are incorrect</string>
+    <string name="error_webgis_not_found">Web GIS not found</string>
+
     <string name="ngw_layer_add">Add from Web GIS</string>
     <string name="ngw_account_already_exists">Account already exist</string>
     <string name="ngw_accounts">Web GIS</string>

@@ -68,7 +68,6 @@ public abstract class NGPreferenceFragment
         createPreferences(screen);
     }
 
-
     @Override
     public void onInvalidatePreferences()
     {
@@ -81,7 +80,7 @@ public abstract class NGPreferenceFragment
 
     // Thanks to https://stackoverflow.com/a/51568782
     @Override
-    protected RecyclerView.Adapter onCreateAdapter(PreferenceScreen preferenceScreen) {
+    public RecyclerView.Adapter onCreateAdapter(PreferenceScreen preferenceScreen) {
         return new PreferenceGroupAdapter(preferenceScreen) {
             @SuppressLint("RestrictedApi")
             @Override
@@ -107,10 +106,8 @@ public abstract class NGPreferenceFragment
         int childCount = viewGroup.getChildCount();
         for (int i = 0; i < childCount; i++) {
             setZeroPaddingToLayoutChildren(viewGroup.getChildAt(i));
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
-                viewGroup.setPaddingRelative(0, viewGroup.getPaddingTop(), viewGroup.getPaddingEnd(), viewGroup.getPaddingBottom());
-            else
-                viewGroup.setPadding(0, viewGroup.getPaddingTop(), viewGroup.getPaddingRight(), viewGroup.getPaddingBottom());
+            viewGroup.setPaddingRelative(0, viewGroup.getPaddingTop(), viewGroup.getPaddingEnd(), viewGroup.getPaddingBottom());
+
         }
     }
 }

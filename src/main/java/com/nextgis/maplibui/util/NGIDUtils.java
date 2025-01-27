@@ -26,6 +26,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplib.util.Constants;

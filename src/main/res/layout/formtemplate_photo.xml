@@ -19,7 +19,8 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<com.nextgis.maplibui.control.PhotoGallery xmlns:android="http://schemas.android.com/apk/res/android"
+<com.nextgis.maplibui.control.PhotoGallery
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:photo="http://schemas.android.com/apk/res-auto"
     android:id="@+id/pg_photos"
     android:layout_width="match_parent"
