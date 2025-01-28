@@ -350,20 +350,20 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
         if (featureCursor != null) {
             Feature feature = mLayer.getFeature(mFeatureId);
             List<Field> fields = feature.getFields();
-            for (Field field : fields) {
-                if (field.getAlias().toLowerCase().equals("author")) {
-                    String author = feature.getFieldValueAsString(field.getName());
-                    setViewOnly(author);
-                    return featureCursor;
-                }
-            }
-            int id = featureCursor.getColumnIndex("author");
-            if (id >= 0) {
-                try {
-                    String author = featureCursor.getString(id);
-                    setViewOnly(author);
-                } catch (Exception ignored) {}
-            }
+//            for (Field field : fields) { comment - looks like it old code
+////                if (field.getAlias().toLowerCase().equals("author")) {
+////                    String author = feature.getFieldValueAsString(field.getName());
+////                    setViewOnly(author);
+////                    return featureCursor;
+////                }
+//            }
+//            int id = featureCursor.getColumnIndex("author");
+//            if (id >= 0) {
+//                try {
+//                    String author = featureCursor.getString(id);
+//                    setViewOnly(author);
+//                } catch (Exception ignored) {}
+//            }
         }
         return featureCursor;
     }
@@ -510,10 +510,9 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                     ((Coordinates) control).setIsLat();
                     if (y != null)
                         ((Coordinates) control).setValue(y);
-                    if (!(geometry instanceof GeoPoint) &&
-                                    !(geometry instanceof GeoMultiPoint) &&
-                                    !(geometry instanceof GeoPolygon) &&
-                                    !(geometry instanceof GeoMultiPolygon))
+                    if (!(geometry instanceof GeoPoint) && !(geometry instanceof GeoMultiPoint)
+                        &&!(geometry instanceof GeoPolygon)
+                            &&!(geometry instanceof GeoMultiPolygon))
                         ((Coordinates) control).setVisibility(View.GONE);
                 }
                 break;
