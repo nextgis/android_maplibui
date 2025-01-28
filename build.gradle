@@ -80,7 +80,7 @@ android {
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
     api project(':maplib')
-    api project(':easypicker')
+    api project(':easypicker-module')
 
 //    api 'com.github.4eRTuk:easypicker:0.2.20'
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
@@ -97,7 +97,7 @@ dependencies {
     //implementation 'com.hypertrack:hyperlog:0.0.9'
 
     implementation 'androidx.work:work-runtime:2.9.1'
-    implementation project(':easypicker')
+    implementation project(':easypicker-module')
     implementation 'com.github.barsrb:hyperlog-android:master-SNAPSHOT'
 
 }
