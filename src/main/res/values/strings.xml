@@ -434,5 +434,8 @@
     <string name="permissions">Permissions</string>
 
     <string name="location_permissions">NextGIS Mobile collects location  to  show your location on the map</string>
+    <string name="account_permissions">NextGIS Mobile needs access to contacts to create and manage Web GIS Accounts further used for syncronization purposes.</string>
+    <string name="no_contancts_access">You cannot use NGW account without contact permissions</string>
+
 
 </resources>

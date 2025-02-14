@@ -55,8 +55,7 @@ public class NGIDSettingsFragment
     protected void fillPreferences(PreferenceGroup screen)
     {
         if (mAction != null && mAction.equals(SettingsConstantsUI.ACTION_ACCOUNT)) {
-            setPreferencesFromResource(R.xml.preferences_ngid, null);
-
+            addPreferencesFromResource(R.xml.preferences_ngid);
             fillAccountPreferences(screen);
         }
     }

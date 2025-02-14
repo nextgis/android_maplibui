@@ -23,14 +23,24 @@
 
 package com.nextgis.maplibui.activity;
 
+import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
+import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.widget.Toast;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.fragment.NGWLoginFragment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class NGWLoginActivity
@@ -42,6 +52,8 @@ public class NGWLoginActivity
     public static final String ACCOUNT_LOGIN_TEXT   = "account_login_text";
     public static final String CHANGE_ACCOUNT_URL   = "change_account_url";
     public static final String CHANGE_ACCOUNT_LOGIN = "change_account_login";
+
+    protected final static int PERMISSIONS_REQUEST_ACCOUNT = 2;
 
     protected boolean mForNewAccount      = true;
     protected boolean mChangeAccountUrl   = mForNewAccount;
@@ -113,6 +125,31 @@ public class NGWLoginActivity
             FragmentTransaction ft = fm.beginTransaction();
             ft.add(R.id.login_frame, ngwLoginFragment, "NGWLogin");
             ft.commit();
+        }
+
+
+        if ( ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED){
+            List<String> permslist = new ArrayList<>();
+            permslist.add(Manifest.permission.GET_ACCOUNTS);
+            requestPermissions(this, R.string.permissions, R.string.account_permissions, PERMISSIONS_REQUEST_ACCOUNT,
+                    permslist.toArray(new String[permslist.size()])); // list.toArray(new Foo[list.size()])
+        }
+    }
+
+    public void requestPermissions(final Activity activity1, int title, int message, final int requestCode,
+                                   final String... permissions) {
+        final Activity activity = activity1;
+        if (true) {
+            androidx.appcompat.app.AlertDialog builder = new androidx.appcompat.app.AlertDialog.Builder(activity).setTitle(title)
+                    .setMessage(message)
+                    .setPositiveButton(com.nextgis.maplibui.R.string.allow, (dialog, which) -> {
+                        ActivityCompat.requestPermissions(activity, permissions, requestCode);})
+                    .setNegativeButton(com.nextgis.maplibui.R.string.deny, (dialog, which) -> {
+                        Toast.makeText(activity1, getString(R.string.no_contancts_access), Toast.LENGTH_LONG).show();
+                    })
+                    .create();
+            builder.setCanceledOnTouchOutside(false);
+            builder.show();
         }
     }
 

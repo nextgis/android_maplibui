@@ -422,6 +422,6 @@
     <string name="delete_feature">Удалить объект?</string>
     <string name="allow">"Разрешить"</string>
     <string name="deny">"Отклонить"</string>
-
-
+    <string name="account_permissions">NextGIS Mobile нужен доступ к контактам для создания и управления учетными записями на устройстве для синхронизации с вашей Веб-ГИС</string>
+    <string name="no_contancts_access">Вы не сможете использовать NGW аккаунт без доступа к контактам</string>
 </resources>
