@@ -490,35 +490,38 @@ public class TrackerService extends Service
     public void onLocationChanged(Location location) {
         Log.d(Constants.TAG, "tracker - onLocationChanged");
 
-        boolean update = LocationUtil.isProviderEnabled(this, location.getProvider(), true);
-        if (!mIsRunning || !update)
-            return;
-        if (mHasGPSFix && !location.getProvider().equals(LocationManager.GPS_PROVIDER))
-            return;
-        String fixType = location.hasAltitude() ? "3d" : "2d";
+        if (isFilteredAllow(location)) {
+
+            boolean update = LocationUtil.isProviderEnabled(this, location.getProvider(), true);
+            if (!mIsRunning || !update)
+                return;
+            if (mHasGPSFix && !location.getProvider().equals(LocationManager.GPS_PROVIDER))
+                return;
+            String fixType = location.hasAltitude() ? "3d" : "2d";
 
 //        counter ++;
 //        Log.d(Constants.TAG, "tracker - onLocationChanged save point # " + counter);
-        mValues.clear();
-        mValues.put(TrackLayer.FIELD_SESSION, mTrackId);
+            mValues.clear();
+            mValues.put(TrackLayer.FIELD_SESSION, mTrackId);
 
-        mPoint.setCoordinates(location.getLongitude(), location.getLatitude());
-        mPoint.setCRS(GeoConstants.CRS_WGS84);
-        mPoint.project(GeoConstants.CRS_WEB_MERCATOR);
-        mValues.put(TrackLayer.FIELD_LON, mPoint.getX());
-        mValues.put(TrackLayer.FIELD_LAT, mPoint.getY());
-        mValues.put(TrackLayer.FIELD_ELE, location.getAltitude());
-        mValues.put(TrackLayer.FIELD_FIX, fixType);
-        mValues.put(TrackLayer.FIELD_SAT, mSatellitesCount);
-        mValues.put(TrackLayer.FIELD_SPEED, location.getSpeed());
-        mValues.put(TrackLayer.FIELD_ACCURACY, location.getAccuracy());
-        mValues.put(TrackLayer.FIELD_BEARING, location.getBearing());
-        mValues.put(TrackLayer.FIELD_SENT, 0);
-        mValues.put(TrackLayer.FIELD_TIMESTAMP, location.getTime());
-        try {
-            getContentResolver().insert(mContentUriTrackPoints, mValues);
-        } catch (Exception ignored) {
-            Log.e(TrackerService.class.getName(),  "onLocation EXCEPTION!!" +  ignored.getMessage());
+            mPoint.setCoordinates(location.getLongitude(), location.getLatitude());
+            mPoint.setCRS(GeoConstants.CRS_WGS84);
+            mPoint.project(GeoConstants.CRS_WEB_MERCATOR);
+            mValues.put(TrackLayer.FIELD_LON, mPoint.getX());
+            mValues.put(TrackLayer.FIELD_LAT, mPoint.getY());
+            mValues.put(TrackLayer.FIELD_ELE, location.getAltitude());
+            mValues.put(TrackLayer.FIELD_FIX, fixType);
+            mValues.put(TrackLayer.FIELD_SAT, mSatellitesCount);
+            mValues.put(TrackLayer.FIELD_SPEED, location.getSpeed());
+            mValues.put(TrackLayer.FIELD_ACCURACY, location.getAccuracy());
+            mValues.put(TrackLayer.FIELD_BEARING, location.getBearing());
+            mValues.put(TrackLayer.FIELD_SENT, 0);
+            mValues.put(TrackLayer.FIELD_TIMESTAMP, location.getTime());
+            try {
+                getContentResolver().insert(mContentUriTrackPoints, mValues);
+            } catch (Exception ignored) {
+                Log.e(TrackerService.class.getName(), "onLocation EXCEPTION!!" + ignored.getMessage());
+            }
         }
     }
 
@@ -806,4 +809,15 @@ public class TrackerService extends Service
         void onAndroid10(boolean hasBackgroundPermission);
         void afterAndroid10(boolean hasBackgroundPermission);
     }
+
+    boolean isFilteredAllow(Location location) {
+//        if (location == null)
+//            return false
+        if (location.getAccuracy() > 50.0f)
+            return false;
+        if (location.getSpeed() > 300.0f) // about 1000 kilometers per hour
+            return false;
+        return true;
+    }
+
 }
