@@ -438,8 +438,6 @@
     <string name="no_contancts_access">You cannot use NGW account without contact permissions</string>
 
 
-    <string name="web">Website</string>
-    <string name="web_src">https://nextgis.com/nextgis-collector/</string>
-    <string name="manual_url">https://docs.nextgis.com/docs_collector/source/</string>
+
 
 </resources>
