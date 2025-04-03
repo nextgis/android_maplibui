@@ -161,7 +161,7 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
                         subAliasList.defaultPosition = k;
 
                     if (null != subLastValue && subLastValue.equals(subValue)) { // if modify data
-                        lastValuePosition = j;
+                        //lastValuePosition = j;
                         subLastValuePosition = k;
                     }
                 }
