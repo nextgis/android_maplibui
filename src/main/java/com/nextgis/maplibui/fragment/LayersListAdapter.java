@@ -357,8 +357,8 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                                                 vectorLayerUI.showAttributes();
                                             }
                                         } else if (i == R.id.menu_send_to_ngw) {
-                                            if (!AccountUtil.isProUser(mActivity)) {
-                                                ControlHelper.showProDialog(mActivity);
+                                            if (!AccountUtil.isUserExists(mActivity)) {
+                                                ControlHelper.showNoLoginDialog(mActivity);
                                             } else if (layer instanceof VectorLayerUI)
                                                 ((VectorLayerUI) layer).sendToNGW(mActivity);
                                         }

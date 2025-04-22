@@ -23,6 +23,8 @@
 
 package com.nextgis.maplibui.fragment;
 
+import static com.nextgis.maplibui.service.LayerFillService.IS_POINTS;
+
 import android.accounts.Account;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -35,6 +37,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
@@ -197,8 +201,21 @@ public class LayerFillProgressDialogFragment extends Fragment {
                             toast = intent.getStringExtra(LayerFillService.KEY_MESSAGE);
                     }
 
-                    if (intent.hasExtra(LayerFillService.KEY_MESSAGE))
-                        Toast.makeText(mActivity, toast, Toast.LENGTH_LONG).show();
+                    if (intent.hasExtra(LayerFillService.KEY_MESSAGE)) {
+                        if (!intent.getBooleanExtra(IS_POINTS, false))
+                            Toast.makeText(mActivity, toast, Toast.LENGTH_LONG).show();
+                        else {
+
+                            androidx.appcompat.app.AlertDialog builder = new androidx.appcompat.app.AlertDialog.Builder(mActivity).setTitle(title)
+                                    .setMessage(toast)
+                                    .setPositiveButton(R.string.ok, null)
+                                    .create();
+                            builder.setCanceledOnTouchOutside(false);
+                            builder.show();
+                        }
+                    }
+
+
 
                     boolean isNgwSync = intent.getBooleanExtra(LayerFillService.KEY_SYNC, false);
                     if (success && !canceled && isNgwSync) {

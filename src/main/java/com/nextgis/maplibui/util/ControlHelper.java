@@ -527,4 +527,27 @@ public final class ControlHelper
             message.setLinksClickable(true);
         }
     }
+
+
+    public static void showNoLoginDialog(final Context context) {
+        AlertDialog builder = new AlertDialog.Builder(context)
+                .setTitle(R.string.login_requred_header)
+                .setMessage(R.string.login_requred)
+                .setPositiveButton(R.string.login, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(context, NGIDLoginActivity.class);
+                        context.startActivity(intent);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+
+        TextView message = builder.findViewById(android.R.id.message);
+        if (message != null) {
+            message.setMovementMethod(LinkMovementMethod.getInstance());
+            message.setLinksClickable(true);
+        }
+    }
+
 }

@@ -117,11 +117,15 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
         if (mTask == TYPE_ADD) {
             mTypeMask = Connection.NGWResourceTypePostgisLayer |
                     Connection.NGWResourceTypeVectorLayer | Connection.NGWResourceTypeRasterLayer |
-                    Connection.NGWResourceTypeWMSClient | Connection.NGWResourceTypeWebMap;
+                    Connection.NGWResourceTypeWMSClient | Connection.NGWResourceTypeWebMap
+                    //| Connection.NGWResourceTypeCollector
+            ;
         } else {
             mTypeMask = Connection.NGWResourceTypeResourceGroup | Connection.NGWResourceTypePostgisLayer |
                     Connection.NGWResourceTypeVectorLayer | Connection.NGWResourceTypeRasterLayer |
-                    Connection.NGWResourceTypeWMSClient | Connection.NGWResourceTypeWebMap;
+                    Connection.NGWResourceTypeWMSClient | Connection.NGWResourceTypeWebMap
+                    //| Connection.NGWResourceTypeCollector
+            ;
         }
 
         int id = mPushId = NOT_FOUND;

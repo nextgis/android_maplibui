@@ -122,6 +122,7 @@ public class LayerFillService extends Service implements IProgressor {
     public static final String KEY_TOTAL = "count";
     public static final String KEY_TITLE = "title";
     public static final String KEY_MESSAGE = "message";
+    public static final String IS_POINTS = "is_points";
     public static final String KEY_CANCELLED = "cancel";
     public static final String KEY_RESULT = "result";
     public static final String KEY_SYNC = "sync";
@@ -155,6 +156,7 @@ public class LayerFillService extends Service implements IProgressor {
     protected LayerGroup mLayerGroup;
     protected long mLastUpdate = 0;
     protected String mProgressMessage;
+    protected boolean isPointz = false;
     protected boolean mIndeterminate;
     protected boolean mIsCanceled;
     protected boolean mIsRunning;
@@ -371,6 +373,11 @@ public class LayerFillService extends Service implements IProgressor {
 
         mProgressIntent.putExtra(KEY_STATUS, STATUS_UPDATE).putExtra(KEY_TOTAL, mProgressMax)
                 .putExtra(KEY_PROGRESS, mProgressValue);
+
+        if (isPointz)
+            mProgressIntent.putExtra(IS_POINTS, true);
+
+
         sendBroadcast(mProgressIntent);
     }
 
@@ -738,8 +745,10 @@ public class LayerFillService extends Service implements IProgressor {
         private ArrayList<String> mLookupIds = new ArrayList<>();
         private boolean mShowSyncDialog;
 
+
         NGWVectorLayerFillTask(Bundle bundle) {
             super(bundle);
+            isPointz = false;
             mLayer = new NGWVectorLayerUI(mLayerGroup.getContext(), mLayerPath);
             ((NGWVectorLayerUI) mLayer).setRemoteId(bundle.getLong(KEY_REMOTE_ID));
             ((NGWVectorLayerUI) mLayer).setAccountName(bundle.getString(KEY_ACCOUNT));
@@ -785,6 +794,11 @@ public class LayerFillService extends Service implements IProgressor {
                 if (e instanceof JSONException && e.getMessage().equals("No value for fields")){
                     error = getResources().getString(com.nextgis.maplib.R.string.error_forbidden);
                 }
+                if ("POINTZ".equals(e.getMessage())){
+                    error = getBaseContext().getString(R.string.pointz_alert);
+                    isPointz = true;
+                }
+
 
                 setError(error, progressor);
                 if ("POINTZ".equals(e.getMessage())){

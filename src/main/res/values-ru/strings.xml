@@ -402,7 +402,8 @@
     <string name="use_keys">Использовать ключи</string>
     <string name="use_names">Использовать наименования полей вместо ключей</string>
 
-    <string name="pointz_alert">Ваш проект не может быть добавлен так как содержит слои GeometryZ. Исправьте их. https://toolbox.nextgis.com/operation/flatten</string>
+    <string name="pointz_alert">К сожалению, на данный момент слой типом геометрии {GeometryZ} добавить нельзя. Необходимо удалить информацию о третьей координате у объектов источника чтобы использовать такие данные в NextGIS Mobile.</string>
+
     <string name="pointz_alert_title">Ошибка</string>
 
     <string name="sort_ascending">Сортировать по возрастанию</string>
@@ -415,7 +416,7 @@
     <string name="action_devinfo">Информация об устройстве</string>
     <string name="error_account_create">Ошибка создания аккаунта</string>
     <string name="delete_object">Удалить объект?</string>
-    <string name="help_custom_auth_server"><a href="https://docs.nextgis.ru/docs_ngid/source/toc.html">Справка</a></string>
+    <string name="help_custom_auth_server"><a href="https://docs.nextgis.ru/docs_ngid/source/index.html">Справка</a></string>
     <string name="ng_server">Облако NextGIS</string>
     <string name="custom_server">Другой сервер NextGIS ID</string>
     <string name="delete_confirm_feature">Подтвердите удаление объекта.</string>
@@ -425,6 +426,9 @@
 
     <string name="account_permissions">NextGIS Mobile нужен доступ к контактам для создания и управления учетными записями на устройстве для синхронизации с вашей Веб-ГИС</string>
     <string name="no_contancts_access">Вы не сможете использовать NGW аккаунт без доступа к контактам</string>
+
+    <string name="login_requred">Зарегистрируйтесь и войдите в приложении (Настройки - Учетная запись).</string>
+    <string name="login_requred_header">Нужно войти</string>
 
 
 </resources>

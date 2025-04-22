@@ -43,6 +43,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.datasource.ngw.Connections;
 import com.nextgis.maplib.datasource.ngw.INGWResource;
@@ -261,6 +262,7 @@ public class NGWResourcesListAdapter
                 final Connection connection = (Connection) getItem(i);
                 return getConnectionView(connection, view);
             case Connection.NGWResourceTypeConnection:
+//            case Connection.NGWResourceTypeCollector:
             case Connection.NGWResourceTypeResourceGroup:
                 Resource resource = (Resource) getItem(i);
                 return getResourceView(resource, view);
@@ -443,6 +445,35 @@ public class NGWResourcesListAdapter
                     tvDesc = v.findViewById(R.id.tvDesc);
                     tvDesc.setText(mActivity.getString(desc));
                     break;
+
+//                case Connection.NGWResourceTypeCollector:
+//                    CollectorResource collectorResource = (CollectorResource) resource;
+//
+//                    if (null == v || v.getId() != R.id.ngw_layer_check_row) {
+//                        LayoutInflater inflater = LayoutInflater.from(mActivity);
+//                        v = inflater.inflate(R.layout.row_ngwlayer_check, null);
+//                        v.setId(R.id.ngw_layer_check_row);
+//                    }
+//
+//                    TextView tvType = v.findViewById(R.id.type1);
+//                    tvType.setText(mActivity.getString(R.string.collector));
+//
+//                    //add check listener
+//                    checkBox1 = v.findViewById(R.id.checkBox1);
+//                    setCheckBox(resourceType, checkBox1, id, 2);
+//
+//
+//                    int vIcon = R.mipmap.ic_collector;
+//                    ivIcon = v.findViewById(R.id.ivIcon);
+//                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mActivity, vIcon));
+//
+//                    int desc1 = R.string.collector;
+//                    tvDesc = v.findViewById(R.id.tvDesc);
+//                    tvDesc.setText(mActivity.getString(desc1));
+//                    break;
+
+
+
                 case Connection.NGWResourceTypeWebMap:
                     if (null == v || v.getId() != R.id.ngw_layer_check_row) {
                         LayoutInflater inflater = LayoutInflater.from(mActivity);
@@ -513,8 +544,8 @@ public class NGWResourcesListAdapter
                             CompoundButton compoundButton,
                             boolean b)
                     {
-                        if (resourceType == Connection.NGWResourceTypePostgisLayer && !AccountUtil.isProUser(mActivity)) {
-                            ControlHelper.showProDialog(mActivity);
+                        if (resourceType == Connection.NGWResourceTypePostgisLayer && !AccountUtil.isUserExists(mActivity)) {
+                            ControlHelper.showNoLoginDialog(mActivity);
                             compoundButton.setChecked(false);
                             return;
                         }

@@ -253,7 +253,7 @@ public class SplitCombobox extends FrameLayout implements IFormControl
         container.addView(mSpinners);
         addView(container);
 
-        if (!AccountUtil.isProUser(getContext())) {
+        if (!AccountUtil.isUserExists(getContext())) {
             FrameLayout splash = new FrameLayout(getContext());
             splash.setClickable(true);
             splash.setBackgroundColor(Color.argb(128, 128, 128, 128));
@@ -263,7 +263,7 @@ public class SplitCombobox extends FrameLayout implements IFormControl
             sign.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ControlHelper.showProDialog(getContext());
+                    ControlHelper.showNoLoginDialog(getContext());
                 }
             });
 

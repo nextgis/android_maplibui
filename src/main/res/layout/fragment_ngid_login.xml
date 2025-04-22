@@ -18,12 +18,11 @@
   ~ You should have received a copy of the GNU Lesser Public License
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 <ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -91,7 +90,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
-        android:layout_marginBottom="8dp">
+        android:layout_marginBottom="8dp"
+        >
 
         <EditText
             android:id="@+id/login"
@@ -102,16 +102,19 @@
             android:ems="10"
             android:gravity="center"
             android:hint="@string/user_name_ngid"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp">
+        android:layout_marginEnd="32dp"
+        app:endIconMode="password_toggle"
+        >
 
-        <com.scottyab.showhidepasswordedittext.ShowHidePasswordEditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -120,7 +123,8 @@
             android:ems="10"
             android:gravity="center"
             android:hint="@string/password"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button

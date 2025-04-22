@@ -541,12 +541,12 @@ public class VectorLayerSettingsActivity
                 }
             });
 
-            if (!AccountUtil.isProUser(v.getContext())) {
+            if (!AccountUtil.isUserExists(v.getContext())) {
                 v.findViewById(R.id.overlay).setVisibility(View.VISIBLE);
                 v.findViewById(R.id.locked).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        ControlHelper.showProDialog(getContext());
+                        ControlHelper.showNoLoginDialog(getContext());
                     }
                 });
             }

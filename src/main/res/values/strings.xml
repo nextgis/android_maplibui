@@ -405,8 +405,7 @@
     <string name="use_keys">Use keys</string>
     <string name="use_names">Use field names instead of keys</string>
 
-    <string name="pointz_alert">Your project can\'t be opened because it contains GeometryZ layers. You need to fix them first.
-    https://toolbox.nextgis.com/operation/flatten</string>
+    <string name="pointz_alert">You can not use {GeometryZ} type geometries in NextGIS Mobile at the moment. Strip Z coordinates from your layer\'s source and try again.</string>
 
     <string name="pointz_alert_title">Error</string>
 
@@ -437,7 +436,10 @@
     <string name="account_permissions">NextGIS Mobile needs access to contacts to create and manage Web GIS Accounts further used for syncronization purposes.</string>
     <string name="no_contancts_access">You cannot use NGW account without contact permissions</string>
 
+<!--    <string name="collector">Collector</string>-->
 
+    <string name="login_requred">Sign up and sign in under Settings - Account.</string>
+    <string name="login_requred_header">Sign in required</string>
 
 
 </resources>
