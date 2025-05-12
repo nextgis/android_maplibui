@@ -48,7 +48,7 @@
     <string name="ngw_layer_add">Илова аз Web GIS</string>
     <string name="ngw_accounts">Веб ГИС</string>
     <string name="ngid_account_new">Ба қайд гирифтан</string>
-    <string name="ngw_account_add">Иловаи Web GIS</string>
+
     <string name="ngw_account_delete">Нест кардани ҳисоби худ</string>
     <string name="ngw_account_delete_summary">Ҳамаи қабатҳои марбут ба ин ҳисоб тоза карда мешаванд.\nСинхронизатсия қатъ хоҳад шуд.</string>
     <string name="ngw_account_delete_warn_msg">Ҳисоб нест карда мешавад!\nҲама қабатҳо нест карда мешаванд!\nСинхронизатсия қатъ хоҳад шуд!</string>
@@ -274,7 +274,6 @@
     <string name="new_gis">Сохтани GIS</string>
     <string name="manual_ngw">Танзисоти тақвият </string>
     <string name="instance_name">Web GIS URL</string>
-    <string name="ngw_from_my_nextgis">Шумо ҳоло ҳам Web GIS-и худ надоред? Эҷод дар my.nextgis.com!</string>
     <string name="guest">меҳмон</string>
     <string name="field_not_filled">Баъзе майдонҳо холӣ ҳастанд.</string>
     <string name="web_map">Харитаи веб</string>
@@ -325,7 +324,6 @@
     <string name="not_set">Таъин нашудааст</string>
     <string name="sign_out">Баромадан</string>
     <string name="ngid_account_ask">ЕҲоло истифода баранда нестед?</string>
-    <string name="sign_in_tip">барои хусусиятҳои бузург, ҳамоҳангсозӣ ва навсозиҳо</string>
     <string name="select_row">Соҳаеро интихоб кунед</string>
     <string name="coming_soon">Ба қарибӣ дастрас хоҳад шуд</string>
     <string name="get_pro">Ин функсия танҳо барои муштариён дастрас аст. Лутфан, ворид шавед ё маълумоти бештарро хонед (<a href="https://nextgis.ru/pricing-base">https://nextgis.com/pricing-base</a>)</string>

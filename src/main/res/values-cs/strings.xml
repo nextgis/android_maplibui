@@ -50,7 +50,6 @@
     <string name="error_login">Přihlášení selhalo</string>
     <string name="ngw_layer_add">Přidat z Web GIS</string>
     <string name="ngw_accounts">Web GIS</string>
-    <string name="ngw_account_add">Add Web GIS</string>
     <string name="ngw_account_delete">Smazat účet</string>
     <string name="ngw_account_delete_summary">Všechny vrstvy spojené s tímto účtem budou smazané.\nProbíhající synchronizace bude zastavena.</string>
     <string name="ngw_account_delete_warn_msg">Účet bude smazán!\nVšechny vrstvy spojené s účtem budou smazány!\nProbíhající synchronizace bude zastavena!</string>
@@ -286,7 +285,6 @@
     <string name="new_gis">Nový GIS</string>
     <string name="manual_ngw">Přepnout na pokročilý</string>
     <string name="instance_name">Web GIS URL</string>
-    <string name="ngw_from_my_nextgis">Do you have GIS? Sign up at my.nextgis.com to get your own one!</string>
     <string name="ngid_account_new">Sign up</string>
     <string name="guest">Návštěvník</string>
     <string name="field_not_filled">Některá pole jsou prázdná</string>
@@ -327,8 +325,7 @@
     <string name="sign_out">Sign out</string>
     <string name="not_set">Not set</string>
     <string name="ngid_account_ask">Do not have account?</string>
-    <string name="sign_in_tip">to get more features, better synchronization and updates</string>
-    <string name="select_row">Select row</string>
+        <string name="select_row">Select row</string>
     <string name="coming_soon">Coming soon</string>
     <string name="get_pro">This feature is available only under subscription. Please sign in or sign up here (<a href="https://nextgis.com/pricing-base">https://nextgis.com/pricing-base</a>)</string>
     <string name="pro_user_only">Pro feature</string>

@@ -53,7 +53,10 @@
     <string name="ngw_layer_add">Добавить из Веб ГИС</string>
     <string name="ngw_accounts">Веб ГИС</string>
     <string name="ngid_account_new">Зарегистрироваться</string>
-    <string name="ngw_account_add">Добавить Веб ГИС</string>
+
+    <string name="ngw_account_add_item">Добавить Веб ГИС</string>
+    <string name="ngw_account_add">Войти</string>
+
     <string name="ngw_account_delete">Удалить учетную запись</string>
     <string name="ngw_account_delete_summary">Все слои связанные с этой учетной записью будут удалены.\nСинхронизация будет остановлена.</string>
     <string name="ngw_account_delete_warn_msg">Учетная запись будет удалена!\nВсе слои будут удалены!\nСинхронизация будет остановлена!</string>
@@ -279,7 +282,7 @@
     <string name="new_gis">Создать ГИС</string>
     <string name="manual_ngw">Расширенные настройки</string>
     <string name="instance_name">Адрес Веб ГИС</string>
-    <string name="ngw_from_my_nextgis">Еще нет своей Веб ГИС? Создайте на my.nextgis.com!</string>
+    <string name="ngw_from_my_nextgis">Войдите с учётной записью NextGIS. <a href="https://my.nextgis.com/signup/0">Зарегистрируйтесь</a>, чтобы получить учётную запись.</string>
     <string name="guest">Гость</string>
     <string name="field_not_filled">Некоторые поля пустые</string>
     <string name="web_map">Веб карта</string>
@@ -330,7 +333,7 @@
     <string name="not_set">Не задано</string>
     <string name="sign_out">Выйти</string>
     <string name="ngid_account_ask">Еще нет своего аккаунта?</string>
-    <string name="sign_in_tip">для больших возможностей, синхронизации и получения обновлений</string>
+    <string name="sign_in_tip">Войдите с учётной записью NextGIS. Зарегистрируйтесь, чтобы получить учётную запись.</string>
     <string name="select_row">Выберите поле</string>
     <string name="coming_soon">Скоро будет доступно</string>
     <string name="get_pro">Функция доступна только подписчикам. Пожалуйста, войдите или ознакомьтесь подробнее (<a href="https://nextgis.ru/pricing-base">https://nextgis.com/pricing-base</a>)</string>

@@ -299,7 +299,7 @@ public class NGWResourcesListAdapter
             ivIcon.setImageDrawable(ContextCompat.getDrawable(mActivity, R.drawable.ic_add_account));
 
             TextView tvText = v.findViewById(R.id.tvName);
-            tvText.setText(mActivity.getString(R.string.ngw_account_add));
+            tvText.setText(mActivity.getString(R.string.ngw_account_add_item));
         } else {
             if (null == v || v.getId() != R.id.resourcegroup_row) {
                 LayoutInflater inflater = LayoutInflater.from(mActivity);

@@ -329,17 +329,33 @@ public class TrackerService extends Service
         mValues.put(TrackLayer.FIELD_NAME, mTrackName);
         mValues.put(TrackLayer.FIELD_START, started);
         mValues.put(TrackLayer.FIELD_VISIBLE, true);
+
+//        Intent msgTr = new Intent(ConstantsUI.MESSAGE_INTENT_TRACKER);
+//        msgTr.putExtra(ConstantsUI.KEY_MESSAGE, "track not started - try again");
+//        sendBroadcast(msgTr);
+
+        Intent msgTr = new Intent("com.example.ACTION_TRACKER_MESSAGE");
+        msgTr.putExtra(ConstantsUI.KEY_MESSAGE, "track not started - try again");
+        getApplicationContext().sendBroadcast(msgTr);
+
+
         try {
             Uri newTrack = getContentResolver().insert(mContentUriTracks, mValues);
             if (null != newTrack) {
                 // save vars
                 mTrackId = newTrack.getLastPathSegment();
                 mSharedPreferencesTemp.edit().putString(TRACK_URI, newTrack.toString()).apply();
+            } else {
+                // no track created - need alert
+                Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT_TRACKER);
+                msg.putExtra(ConstantsUI.KEY_MESSAGE, "track not started - try again");
+                sendBroadcast(msg);
             }
 
             mIsRunning = true;
             addSplitter();
         } catch (SQLiteException ignored) {
+
         }
 
         Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT_TRACK);

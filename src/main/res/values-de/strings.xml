@@ -48,7 +48,6 @@
     <string name="ngw_layer_add">Add from Web GIS</string>
     <string name="ngw_account_already_exists">Account already exist</string>
     <string name="ngw_accounts">Web GIS</string>
-    <string name="ngw_account_add">Add Web GIS</string>
     <string name="ngw_account_delete">Delete account</string>
     <string name="ngw_account_delete_summary">Delete account. All layers connected with this account will be deleted too. Active synchronization will be stopped.</string>
     <string name="ngw_account_delete_warn_msg">Account will be deleted!\nAll account layers will be deleted!\nCurrent sync will be stopped!</string>
@@ -295,7 +294,6 @@
     <string name="new_gis">Create GIS</string>
     <string name="manual_ngw">Switch to advanced</string>
     <string name="instance_name">Web GIS address</string>
-    <string name="ngw_from_my_nextgis">Do you have GIS? Sign up at my.nextgis.com to get your own one!</string>
     <string name="ngid_settings">Account</string>
     <string name="ngid_account_new">Sign up</string>
     <string name="guest">Guest</string>
@@ -325,8 +323,7 @@
     <string name="sign_out">Sign out</string>
     <string name="not_set">Not set</string>
     <string name="ngid_account_ask">Do not have account?</string>
-    <string name="sign_in_tip">to get more features, better synchronization and updates</string>
-    <string name="select_row">Select row</string>
+        <string name="select_row">Select row</string>
     <string name="coming_soon">Coming soon</string>
     <string name="get_pro">This feature is available only under subscription. Please sign in or sign up here (<a href="https://nextgis.com/pricing-base">https://nextgis.com/pricing-base</a>)</string>
     <string name="pro_user_only">Pro feature</string>

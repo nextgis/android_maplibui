@@ -76,19 +76,19 @@ public class HTTPLoader
     }
 
 
-    public static TokenContainer signIn(
-            Context context,
-            String url,
-            String login,
-            String password)
-    {
-        try {
-            return new HTTPLoader(context, url, login, password).signIn();
-        } catch (IOException e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
-        return null;
-    }
+//    public static TokenContainer signIn(
+//            Context context,
+//            String url,
+//            String login,
+//            String password)
+//    {
+//        try {
+//            return new HTTPLoader(context, url, login, password).signIn();
+//        } catch (IOException e) {
+//            Log.e(TAG, e.getMessage(), e);
+//        }
+//        return null;
+//    }
 
 
     @Override

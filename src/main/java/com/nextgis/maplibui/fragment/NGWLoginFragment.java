@@ -39,6 +39,7 @@ import androidx.loader.content.Loader;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,6 +74,8 @@ public class NGWLoginFragment
     protected EditText mURL, mLogin, mPassword;
     protected Button   mSignInButton, mGuestButton;
     protected TextView mLoginTitle, mManual, mTip;
+    protected TextView ngwFromMyNextgis;
+
     protected View progressArea;
 
     protected String mUrlText   = "";
@@ -149,6 +152,10 @@ public class NGWLoginFragment
         progressArea = view.findViewById(R.id.progressArea);
         mTip = view.findViewById(R.id.tip);
 
+        mLoginTitle.setMovementMethod(LinkMovementMethod.getInstance());
+
+        ngwFromMyNextgis = view.findViewById(R.id.login_title);
+
         mGuestButton = view.findViewById(R.id.guest);
         mGuestButton.setOnClickListener(this);
 
@@ -156,7 +163,7 @@ public class NGWLoginFragment
         mManual.setOnClickListener(this);
         ControlHelper.highlightText(mManual);
 
-        mLogin.setText(DEFAULT_ACCOUNT);
+        //mLogin.setText(DEFAULT_ACCOUNT);
         if (!mForNewAccount) {
             view.findViewById(R.id.ll_manual).setVisibility(View.GONE);
             mURL.setEnabled(mChangeAccountUrl);

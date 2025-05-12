@@ -130,5 +130,18 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".service.TrackerReceiver"
+            android:exported="true"
+            android:enabled="true"
+            android:process=":tracks"
+            >
+            <intent-filter>
+                <action android:name="com.example.ACTION_TRACKER_MESSAGE" />
+            </intent-filter>
+        </receiver>
+
+
+
     </application>
 </manifest>

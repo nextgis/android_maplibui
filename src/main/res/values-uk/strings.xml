@@ -48,7 +48,6 @@
     <string name="error_login">Помилка входу</string>
     <string name="ngw_layer_add">Додати з Веб ГІС</string>
     <string name="ngw_accounts">Веб ГІС</string>
-    <string name="ngw_account_add">Додати Веб ГІС</string>
     <string name="ngw_account_delete">Видалити акаунт</string>
     <string name="ngw_account_delete_summary">Акаунт буде видалений!\nВсі шари акаунту будуть видалені!\nПоточна синхронізація буде зупинена!</string>
     <string name="waiting">Будь ласка, зачекайте</string>
@@ -275,7 +274,6 @@
     <string name="new_gis">Створити ГІС</string>
     <string name="manual_ngw">Розширені налаштування</string>
     <string name="instance_name">URL ГІС</string>
-    <string name="ngw_from_my_nextgis">Ще не маєте своєї ГІС? Зареєструйтеся на my.nextgis.com та створіть!</string>
     <string name="ngid_account_new">Зареєструватися</string>
     <string name="guest">Гість</string>
     <string name="field_not_filled">Деякі поля порожні</string>
@@ -326,7 +324,6 @@
     <string name="sign_out">Вийти</string>
     <string name="not_set">Не задано</string>
     <string name="ngid_account_ask">Ще не маєте власного акаунта?</string>
-    <string name="sign_in_tip">для більших можливостей, синхронізації та отримання оновлень</string>
     <string name="select_row">Оберіть поле</string>
     <string name="coming_soon">Невдовзі стане доступне</string>
     <string name="get_pro">Функция доступна только подписчикам. Пожалуйста, войдите или ознакомьтесь подробнее (https://nextgis.com/pricing-base)</string>

@@ -70,9 +70,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="-24dp"
+        android:layout_marginBottom="36dp"
         android:text="@string/login"
         android:textColor="@color/primary_dark"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        />
 
     <TextView
         android:layout_width="wrap_content"
