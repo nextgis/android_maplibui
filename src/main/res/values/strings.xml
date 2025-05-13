@@ -46,7 +46,7 @@
     <string name="login">Sign in</string>
     <string name="user_name">Login</string>
     <string name="user_name_ngw">Web GIS login</string>
-    <string name="user_name_ngid">Login or E-mail</string>
+    <string name="user_name_ngid">E-mail</string>
     <string name="canceled">Canceled</string>
     <string name="error_login">Username or password are incorrect</string>
     <string name="error_webgis_not_found">Web GIS not found</string>
@@ -306,7 +306,8 @@
     <string name="new_gis">Create GIS</string>
     <string name="manual_ngw">Switch to advanced</string>
     <string name="instance_name">Web GIS address</string>
-    <string name="ngw_from_my_nextgis">Sign in with your NextGIS account or <a href="https://my.nextgis.com/signup/0">sing up</a>.</string>
+    <string name="ngw_login_descr_1">Connect your Web GIS</string>
+    <string name="ngw_from_my_nextgis">Web GIS is a cloud storage for your spatial data. Enter the details or <a href="https://my.nextgis.com/webgis/">create one</a> if you don\'t have it yet.</string>
     <string name="ngid_settings">Account</string>
     <string name="ngid_account_new">Sign up</string>
     <string name="guest">Guest</string>
@@ -336,7 +337,7 @@
     <string name="sign_out">Sign out</string>
     <string name="not_set">Not set</string>
     <string name="ngid_account_ask">Do not have account?</string>
-    <string name="sign_in_tip">to get more features, better synchronization and updates</string>
+    <string name="sign_in_tip">Use NextGIS Account to start adding data from your Web GIS. Sign up to get free NextGIS Account.</string>
     <string name="select_row">Select row</string>
     <string name="coming_soon">Coming soon</string>
     <string name="get_pro">This feature is available only under subscription. Please sign in or sign up here (<a href="https://nextgis.com/pricing-base">https://nextgis.com/pricing-base</a>)</string>

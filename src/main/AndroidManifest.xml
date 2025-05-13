@@ -36,7 +36,7 @@
 
         <activity
             android:name=".activity.NGWLoginActivity"
-            android:label="@string/ngw_account_add"
+            android:label="@string/ngw_account_add_item"
             android:windowSoftInputMode="stateHidden"/>
 
         <activity

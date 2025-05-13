@@ -35,8 +35,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AlertDialog;
+
+import android.text.Editable;
 import android.text.InputType;
 import android.text.SpannableString;
+import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
@@ -48,6 +51,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.util.HttpResponse;
 import com.nextgis.maplib.util.NetworkUtil;
@@ -58,6 +62,7 @@ import com.nextgis.maplibui.util.NGIDUtils;
 
 public class NGIDLoginFragment extends Fragment implements View.OnClickListener {
     protected EditText mLogin, mPassword;
+    TextInputLayout passwordLayout;
     protected Button mSignInButton;
     protected View progressArea;
     protected TextView mServer;
@@ -74,6 +79,7 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
         final View view = inflater.inflate(R.layout.fragment_ngid_login, container, false);
         mLogin = view.findViewById(R.id.login);
         mPassword = view.findViewById(R.id.password);
+        passwordLayout = view.findViewById(R.id.password_layout);
         mSignInButton = view.findViewById(R.id.signin);
         mSignInButton.setOnClickListener(this);
         progressArea =  view.findViewById(R.id.progressArea);
@@ -85,6 +91,30 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
         signUp.setOnClickListener(this);
         //view.findViewById(R.id.onpremise).setOnClickListener(this);
         view.findViewById(R.id.onpremiseButton).setOnClickListener(this);
+
+        passwordLayout.setEndIconMode(TextInputLayout.END_ICON_NONE);
+
+// Слушаем изменения текста
+        mPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() == 0) {
+                    // Если поле пустое — убираем глазик
+                    passwordLayout.setEndIconMode(TextInputLayout.END_ICON_NONE);
+                } else {
+                    // Если что-то введено — включаем глазик
+                    passwordLayout.setEndIconMode(TextInputLayout.END_ICON_PASSWORD_TOGGLE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+
 
         return view;
     }

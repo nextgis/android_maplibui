@@ -54,7 +54,7 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:adjustViewBounds="true"
-            android:src="@drawable/ngm_logo_shadow"
+            android:src="@drawable/ic_launcher"
             tools:ignore="ContentDescription" />
 
         <LinearLayout
@@ -106,12 +106,13 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/password_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp">
 
-        <com.scottyab.showhidepasswordedittext.ShowHidePasswordEditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
