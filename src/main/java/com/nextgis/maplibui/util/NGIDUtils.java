@@ -22,6 +22,7 @@
 package com.nextgis.maplibui.util;
 
 import android.accounts.Account;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -29,6 +30,7 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.hypertrack.hyperlog.HyperLog;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.ngw.TokenContainer;
 import com.nextgis.maplib.util.AccountUtil;
@@ -171,6 +173,9 @@ public final class NGIDUtils {
                     try {
                         if (contextRef.get() != null)
                             createNGWAccount(contextRef.get(), originalLogin, originalPass);
+                        else
+                            HyperLog.v(Constants.TAG, "create NGW not available - no app context");
+
                     } catch (Exception ex) {
                         Log.e(TAG, ex.getMessage());
                     }
@@ -247,33 +252,41 @@ public final class NGIDUtils {
         return response;
     }
 
-    private static void createNGWAccount(Context context, String login,  String password){
-
+    private static void createNGWAccount(Context context, final  String login, final   String password){
         Set<String> webGis = mPreferences.getStringSet(PREF_NGW_ACCOUNT, new HashSet<>());
+        HyperLog.v(Constants.TAG, "create NGW webGis: " + webGis.toString());
+
         if (webGis.size() > 0){
-            AtomicReference<String> mReference = new AtomicReference<>(webGis.iterator().next());
-            String ngwurl = mReference.get();
-            Pattern pattern = Pattern.compile("^[a-z]+://([^./]+)", Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(ngwurl);
+            for (String webGisItem : webGis){
+                AtomicReference<String> mReference = new AtomicReference<>(webGisItem);
+                String ngwurl = mReference.get();
+                Pattern pattern = Pattern.compile("^[a-z]+://([^./]+)", Pattern.CASE_INSENSITIVE);
+                Matcher matcher = pattern.matcher(ngwurl);
 
-            if (matcher.find())
-                login = matcher.group(1);
+//                if (matcher.find())
+//                    login = matcher.group(1);
 
-            String host = "";
-            int start = ngwurl.indexOf("://");
-            if (start != -1) {
-                start += 3; // пропустить "://"
-                int end = ngwurl.indexOf('/', start);
-                host = (end != -1) ? ngwurl.substring(start, end) : ngwurl.substring(start);
-            }
+                String host = "";
+                int start = ngwurl.indexOf("://");
+                if (start != -1) {
+                    start += 3; // пропустить "://"
+                    int end = ngwurl.indexOf('/', start);
+                    host = (end != -1) ? ngwurl.substring(start, end) : ngwurl.substring(start);
+                }
 
-            try {
-                TokenContainer tokenContainer = NGWUtil.getConnectionCookie(mReference, login, password, true);
-                if (tokenContainer.responseCode == HTTP_OK || tokenContainer.responseCode == HTTP_ACCEPTED){
+                try {
+                    HyperLog.v(Constants.TAG, "create NGW, url: " + mReference +
+                            "\n" + "login: " + login +
+                            "\n" + "pass: " + password );
 
-                    IGISApplication app = (IGISApplication) context.getApplicationContext();
-                    boolean accountAdded = app.addAccount(host, ngwurl.toLowerCase(), login, password, tokenContainer.token);
+                    TokenContainer tokenContainer = NGWUtil.getConnectionCookie(mReference, login, password, true);
+                    if (tokenContainer.responseCode == HTTP_OK || tokenContainer.responseCode == HTTP_ACCEPTED){
 
+                        IGISApplication app = (IGISApplication) context.getApplicationContext();
+                        boolean accountAdded = app.addAccount(host, ngwurl.toLowerCase(), login, password, tokenContainer.token);
+
+                        if (!accountAdded)
+                            Log.e(TAG, "account  not added: " + host);
 //                    if (null != mOnAddAccountListener) {
 //                        Account account = null;
 //                        if (accountAdded)
@@ -281,9 +294,13 @@ public final class NGIDUtils {
 //
 //                        //mOnAddAccountListener.onAddAccount(account, token, accountAdded);
 //                    }
+                    }
+                } catch (Exception ex){
+                    Log.e(TAG, ex.getMessage());
+
                 }
-            } catch (Exception ex){
             }
+
         }
     }
 
