@@ -92,7 +92,7 @@ public class VectorLayerUI
     }
 
     @Override
-    public boolean delete() throws SQLiteException {
+    public boolean delete(boolean keepTrack) throws SQLiteException {
         File preference = new File(mContext.getApplicationInfo().dataDir, "shared_prefs");
 
         if (preference.exists() && preference.isDirectory()) {
@@ -100,7 +100,7 @@ public class VectorLayerUI
             preference.delete();
         }
 
-        return super.delete();
+        return super.delete(keepTrack);
     }
 
     @Override

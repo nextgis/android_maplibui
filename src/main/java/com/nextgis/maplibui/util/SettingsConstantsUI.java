@@ -25,6 +25,8 @@ package com.nextgis.maplibui.util;
 
 public interface SettingsConstantsUI
 {
+    String DEFAUL_BORDERS_WAS_APPLY = "default_borders_was_apply";
+
     String KEY_PREF_SCROLL_X   = "map_scroll_x";
     String KEY_PREF_SCROLL_Y   = "map_scroll_y";
     String KEY_PREF_ZOOM_LEVEL = "map_zoom_level";

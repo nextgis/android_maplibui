@@ -47,6 +47,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,10 +63,14 @@ import com.nextgis.maplibui.util.NGIDUtils;
 
 public class NGIDLoginFragment extends Fragment implements View.OnClickListener {
     protected EditText mLogin, mPassword;
-    TextInputLayout passwordLayout;
+    protected TextInputLayout passwordLayout;
     protected Button mSignInButton;
     protected View progressArea;
     protected TextView mServer;
+    protected ImageView loginLogo;
+    protected TextView enteringText;
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,14 +90,22 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
         progressArea =  view.findViewById(R.id.progressArea);
         progressArea.setOnClickListener(this);
         mServer = view.findViewById(R.id.server);
+        loginLogo = view.findViewById(R.id.loginLogo);
+        enteringText = view.findViewById(R.id.enteringText);
+
         setUpServerInfo();
         TextView signUp = view.findViewById(R.id.signup);
         signUp.setText(signUp.getText().toString().toUpperCase());
         signUp.setOnClickListener(this);
         //view.findViewById(R.id.onpremise).setOnClickListener(this);
         view.findViewById(R.id.onpremiseButton).setOnClickListener(this);
-
         passwordLayout.setEndIconMode(TextInputLayout.END_ICON_NONE);
+
+        IGISApplication igisApplication = (IGISApplication) getActivity().getApplication();
+        if (igisApplication.isCollectorApplication()){
+            loginLogo.setImageResource(R.drawable.ic_collector_icon);
+            enteringText.setText(R.string.login_entering_text);
+        }
 
 // Слушаем изменения текста
         mPassword.addTextChangedListener(new TextWatcher() {

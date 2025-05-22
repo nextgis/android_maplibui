@@ -44,6 +44,7 @@ public interface ConstantsUI
     String KEY_FORM_PATH        = "form_path";
     String KEY_META_PATH        = "meta_path";
     String KEY_VIEW_ONLY        = "view_only";
+    String KEY_ADDED_POINT        = "added_point";
 
     String MESSAGE_INTENT = "com.nextgis.malibui.MESSAGE";
     String MESSAGE_INTENT_TRACKER = "com.nextgis.MESSAGETRACKER";

@@ -52,6 +52,7 @@
             android:layout_weight="1" />
 
         <ImageView
+            android:id="@+id/loginLogo"
             android:layout_width="0dp"
             android:layout_height="72dp"
             android:layout_gravity="center"
@@ -70,13 +71,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="36dp"
+        android:layout_marginBottom="24dp"
         android:text="@string/login"
         android:textColor="@color/primary_dark"
         android:textStyle="bold"
         />
 
     <TextView
+        android:id="@+id/enteringText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"

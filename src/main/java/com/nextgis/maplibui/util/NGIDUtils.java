@@ -171,11 +171,10 @@ public final class NGIDUtils {
                     userCheck(mBaseUrl, token);
 
                     try {
-                        if (contextRef.get() != null)
-                            createNGWAccount(contextRef.get(), originalLogin, originalPass);
-                        else
-                            HyperLog.v(Constants.TAG, "create NGW not available - no app context");
-
+                        if (contextRef.get() != null) {
+                            if (! ((IGISApplication)contextRef.get().getApplicationContext()).isCollectorApplication())
+                                createNGWAccount(contextRef.get(), originalLogin, originalPass);
+                        }
                     } catch (Exception ex) {
                         Log.e(TAG, ex.getMessage());
                     }

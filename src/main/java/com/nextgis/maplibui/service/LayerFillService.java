@@ -434,7 +434,7 @@ public class LayerFillService extends Service implements IProgressor {
 
         public void cancel() {
             if (mLayer != null)
-                mLayer.delete();
+                mLayer.delete(true);
             else if (mLayerPath != null)
                 FileUtil.deleteRecursive(mLayerPath);
         }

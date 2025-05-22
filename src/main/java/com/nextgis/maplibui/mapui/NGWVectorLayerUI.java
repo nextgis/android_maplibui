@@ -97,7 +97,7 @@ public class NGWVectorLayerUI
     }
 
     @Override
-    public boolean delete() {
+    public boolean delete(boolean keepTrack) {
         File form = new File(mPath, ConstantsUI.FILE_FORM);
         if (form.exists()) {
             try {
@@ -123,7 +123,7 @@ public class NGWVectorLayerUI
                             String id = table.getRemoteId() + "";
                             if (table.getAccountName().equals(mAccountName) && lookupTableIds.contains(id)) {
                                 map.removeLayer(table);
-                                table.delete();
+                                table.delete(keepTrack);
                                 i--;
                             }
                         }
@@ -133,7 +133,7 @@ public class NGWVectorLayerUI
             }
         }
 
-        return super.delete();
+        return super.delete(keepTrack);
     }
 
     @Override

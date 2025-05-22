@@ -418,7 +418,7 @@
 
     <string name="loading_data_inprogress">загрузка данных в прогрессе</string>
     <string name="action_devinfo">Информация об устройстве</string>
-    <string name="error_account_create">Ошибка создания аккаунта</string>
+    <string name="error_account_create">Не удалось добавить аккаунт (NGW) в хранилище.</string>
     <string name="delete_object">Удалить объект?</string>
     <string name="help_custom_auth_server"><a href="https://docs.nextgis.ru/docs_ngid/source/index.html">Справка</a></string>
     <string name="ng_server">Облако NextGIS</string>
@@ -434,5 +434,6 @@
     <string name="login_requred">Зарегистрируйтесь и войдите в приложении (Настройки - Учетная запись).</string>
     <string name="login_requred_header">Нужно войти</string>
 
+    <string name="login_entering_text">чтобы увидеть список доступных вам проектов по сбору данных. Зарегистрируйтесь, чтобы получить учетную запись.</string>
 
 </resources>

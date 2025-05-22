@@ -419,7 +419,7 @@
     <string name="loading">loading...</string>
 
     <string name="loading_data_inprogress">loading data in progress</string>
-    <string name="error_account_create">Account creation error</string>
+    <string name="error_account_create">Failed to add account (NGW) to the storage.</string>
     <string name="action_devinfo">Device Info</string>
     <string name="delete_object">Delete object?</string>
 
@@ -445,5 +445,7 @@
     <string name="login_requred">Sign up and sign in under Settings - Account.</string>
     <string name="login_requred_header">Sign in required</string>
 
+
+    <string name="login_entering_text">to see data collection projects available for you. Sign up to get NextGIS Account.</string>
 
 </resources>

@@ -114,7 +114,7 @@ public class TrackerService extends Service
 
     protected GnssStatus.Callback mGnssCallback;
 
-    private Thread          mLocationSenderThread;
+    private Thread mLocationSenderThread;
 
     private SharedPreferences mSharedPreferencesTemp;
     private SharedPreferences mSharedPreferences;

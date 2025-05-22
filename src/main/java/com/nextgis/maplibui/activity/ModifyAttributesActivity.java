@@ -120,6 +120,7 @@ import static com.nextgis.maplib.util.Constants.FIELD_GEOM;
 import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplib.util.Constants.TAG;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_ADDED_POINT;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY_CHANGED;
@@ -689,7 +690,7 @@ public class ModifyAttributesActivity
             }
         }
 
-        putGeometry(values);
+         GeoGeometry geoGeometry =  putGeometry(values);
         IGISApplication app = (IGISApplication) getApplication();
 
         if (null == app) {
@@ -731,6 +732,8 @@ public class ModifyAttributesActivity
         putSign();
         Intent data = new Intent();
         data.putExtra(ConstantsUI.KEY_FEATURE_ID, mFeatureId);
+        if (geoGeometry != null && geoGeometry instanceof GeoPoint)
+            data.putExtra(KEY_ADDED_POINT, new double[]{ ((GeoPoint)geoGeometry).getX(), ((GeoPoint)geoGeometry).getY() });
         setResult(RESULT_OK, data);
         return !error;
     }
@@ -820,7 +823,7 @@ public class ModifyAttributesActivity
     }
 
 
-    protected boolean putGeometry(ContentValues values)
+    protected GeoGeometry putGeometry(ContentValues values)
     {
         GeoGeometry geometry = null;
 
@@ -829,7 +832,7 @@ public class ModifyAttributesActivity
         } else if (NOT_FOUND == mFeatureId) {
             if (null == mLocation) {
                 Toast.makeText(this, getText(R.string.error_no_location), Toast.LENGTH_SHORT).show();
-                return false;
+                return null;
             }
 
             GeoPoint pt = new GeoPoint(mLocation.getLongitude(), mLocation.getLatitude());
@@ -855,7 +858,7 @@ public class ModifyAttributesActivity
             }
         }
 
-        return true;
+        return geometry;
     }
 
     protected int putAttaches(PhotoGallery gallery) {

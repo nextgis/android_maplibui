@@ -385,7 +385,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                        final int position = mMap.removeLayer(layer);
                        final View root = mActivity.getWindow().getDecorView().getRootView();
                        if (root == null) {
-                           layer.delete();
+                           layer.delete(true);
                            mMap.save();
                            return;
                        }
@@ -405,7 +405,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                                                            if (event == DISMISS_EVENT_MANUAL)
                                                                return;
                                                            if (event != DISMISS_EVENT_ACTION) {
-                                                               layer.delete();
+                                                               layer.delete(true);
                                                                mMap.save();
                                                            }
                                                        }

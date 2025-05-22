@@ -69,7 +69,7 @@ public class TrackLayerUI extends TrackLayer implements ILayerUI {
 
 
     @Override
-    public boolean delete() {
+    public boolean delete(boolean keepTrack) {
         Toast.makeText(mContext, R.string.layer_permanent, Toast.LENGTH_SHORT).show();
         return false;
     }
@@ -89,9 +89,7 @@ public class TrackLayerUI extends TrackLayer implements ILayerUI {
         } else {
             // start worker
             Log.d(Constants.TAG, "start worker scheduling");
-
             TrackWorker.schedule(getContext());
-
         }
 
 //        Intent trackerService = new Intent(mContext, TrackerService.class);

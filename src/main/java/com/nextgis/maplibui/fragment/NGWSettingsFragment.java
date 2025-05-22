@@ -606,7 +606,7 @@ public class NGWSettingsFragment
         List<INGWLayer> layers = getLayersForAccount(application, account);
 
         for (INGWLayer layer : layers) {
-            ((Layer) layer).delete();
+            ((Layer) layer).delete(true);
         }
 
         application.getMap().save();
