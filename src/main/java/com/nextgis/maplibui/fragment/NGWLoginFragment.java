@@ -26,7 +26,6 @@ package com.nextgis.maplibui.fragment;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 import android.accounts.Account;
-import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -36,7 +35,6 @@ import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 
-import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
@@ -51,13 +49,11 @@ import android.widget.Toast;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.ngw.TokenContainer;
 import com.nextgis.maplib.util.Constants;
-import com.nextgis.maplib.util.HttpResponse;
 import com.nextgis.maplib.util.NetworkUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.HTTPLoader;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
-import com.nextgis.maplibui.util.NGIDUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -81,7 +77,7 @@ public class NGWLoginFragment
     protected String mUrlText   = "";
     protected String mLoginText = "";
     protected String mPasswordText = "";
-    protected boolean mNGW;
+    protected boolean manualNGW = false;
 
     protected boolean mForNewAccount      = true;
     protected boolean mChangeAccountUrl   = mForNewAccount;
@@ -244,9 +240,9 @@ public class NGWLoginFragment
             mSignInButton.setEnabled(false);
             mGuestButton.setEnabled(false);
         } else if (v.getId() == R.id.manual) {
-            mNGW = !mNGW;
+            manualNGW = !manualNGW;
 
-            if (mNGW) {
+            if (manualNGW) {
                 mTip.setVisibility(View.GONE);
                 mManual.setText(R.string.nextgis_com);
                 mURL.setCompoundDrawables(null, null, null, null);
@@ -393,7 +389,7 @@ public class NGWLoginFragment
         public void afterTextChanged(Editable s) {
             mUrlText = mURL.getText().toString().trim();
 
-            if (!mNGW && !mUrlText.endsWith(ENDING))
+            if (!manualNGW && !mUrlText.endsWith(ENDING))
                 mUrlText += ENDING;
         }
 
