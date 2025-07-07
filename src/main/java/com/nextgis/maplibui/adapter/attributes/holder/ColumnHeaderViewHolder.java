@@ -96,9 +96,9 @@ public class ColumnHeaderViewHolder extends AbstractSorterViewHolder {
 
     @Override
     public void onSortingStatusChanged(@NonNull SortState sortState) {
-        Log.e(LOG_TAG, " + onSortingStatusChanged : x:  " + getAdapterPosition() + " old state "
-                + getSortState() + " current state : " + sortState + " visiblity: " +
-                column_header_sortButton.getVisibility());
+//        Log.e(LOG_TAG, " + onSortingStatusChanged : x:  " + getAdapterPosition() + " old state "
+//                + getSortState() + " current state : " + sortState + " visiblity: " +
+//                column_header_sortButton.getVisibility());
 
         super.onSortingStatusChanged(sortState);
 
@@ -107,9 +107,9 @@ public class ColumnHeaderViewHolder extends AbstractSorterViewHolder {
 
         controlSortState(sortState);
 
-        Log.e(LOG_TAG, " - onSortingStatusChanged : x:  " + getAdapterPosition() + " old state "
-                + getSortState() + " current state : " + sortState + " visiblity: " +
-                column_header_sortButton.getVisibility());
+//        Log.e(LOG_TAG, " - onSortingStatusChanged : x:  " + getAdapterPosition() + " old state "
+//                + getSortState() + " current state : " + sortState + " visiblity: " +
+//                column_header_sortButton.getVisibility());
 
         column_header_textview.requestLayout();
         column_header_sortButton.requestLayout();

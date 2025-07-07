@@ -38,8 +38,10 @@ import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.VectorLayer;
+import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FeatureAttachments;
+import com.nextgis.maplib.util.NGException;
 import com.nextgis.maplibui.GISApplication;
 import com.nextgis.maplibui.api.IFormControl;
 import org.json.JSONException;
@@ -162,6 +164,19 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
      public static Map<String, AttachInfo>  getOnlineAttaches(IGISApplication app,
                                                            VectorLayer layer,
                                                            long featureId) {
+         AccountUtil.AccountData accountData = null;
+         try {
+             accountData = AccountUtil.getAccountData(layer.getContext(), ((NGWVectorLayer) layer).getAccountName());
+         } catch (IllegalStateException e) {
+             //throw new NGException(getContext().getString(com.nextgis.maplib.R.string.error_auth));
+         }
+         String protocol = "https://";
+        if (accountData != null){
+            String accountUrl = accountData.url;
+            if (accountUrl.length() > 0 && accountUrl.startsWith("http://") && !accountUrl.startsWith("https://"))
+                protocol = "http://";
+        }
+
 
          Map<String, AttachInfo> result = new HashMap<>();
 
@@ -181,7 +196,7 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
             do {
                 // https://alexey655.nextgis.com/api/resource/274/feature/1/attachment/249/image
                 String attachId = attachmentsCursor.getString(1);
-                String url = "https://"+ ((NGWVectorLayer) layer).getAccountName() + "/api/resource/" + ((NGWVectorLayer) layer).getRemoteId()
+                String url = protocol + ((NGWVectorLayer) layer).getAccountName() + "/api/resource/" + ((NGWVectorLayer) layer).getRemoteId()
                         + "/feature/" + featureId + "/attachment/" + attachId + "/image";
 
                 String storePath = "images/" + ((NGWVectorLayer) layer).getRemoteId()

@@ -11,9 +11,8 @@ public class TrackerReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if ("com.example.ACTION_TRACKER_MESSAGE".equals(intent.getAction())) {
-            String message = intent.getStringExtra(ConstantsUI.KEY_MESSAGE);
-            // Передай в Activity через LiveData, EventBus, или напрямую
-            Log.e("TrackerReceiver", "Got message: " + message);
+//            String message = intent.getStringExtra(ConstantsUI.KEY_MESSAGE);
+//                //Log.e("TrackerReceiver", "Got message: " + message);
         }
     }
 }
