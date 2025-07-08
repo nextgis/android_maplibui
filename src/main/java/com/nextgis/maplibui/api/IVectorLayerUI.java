@@ -42,7 +42,8 @@ public interface IVectorLayerUI extends ILayerUI
     void showEditForm(
             Context context,
             long featureId,
-            GeoGeometry geometry);
+            GeoGeometry geometry,
+            long mFormId);
 
     void showAttributes();
 }

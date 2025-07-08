@@ -61,6 +61,7 @@ import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.MapDrawable;
+import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
@@ -217,7 +218,15 @@ public class AttributesActivity extends NGActivity {
 
                     return true;
                 } else if (i == R.id.menu_edit) {
-                    ((IVectorLayerUI) mLayer).showEditForm(AttributesActivity.this, mId, null);
+//                    long defid = -1;
+//                    if (mLayer instanceof NGWVectorLayer){
+//                        if (((NGWVectorLayer) mLayer).getDefaultFormId() != null &&
+//                                ((NGWVectorLayer) mLayer).getDefaultFormId().length > 0)
+//                            defid = ((NGWVectorLayer) mLayer).getDefaultFormId()[0];
+//                    }
+
+
+                    ((IVectorLayerUI) mLayer).showEditForm(AttributesActivity.this, mId, null, -1); //defid);
                     return true;
                 }
 

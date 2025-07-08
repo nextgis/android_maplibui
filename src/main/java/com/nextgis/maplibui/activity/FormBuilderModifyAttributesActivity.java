@@ -35,6 +35,8 @@ import android.os.Bundle;
 import android.provider.SyncStateContract;
 import androidx.core.view.MenuItemCompat;
 import androidx.appcompat.app.AlertDialog;
+
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -164,7 +166,10 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                 if (mMeta != null && mMeta.exists()) {
                     try {
                         String metaString = FileUtil.readFromFile(mMeta);
+
+                        Log.d("FormBuilder", "metastring: " + metaString);
                         JSONObject metaJson = new JSONObject(metaString);
+
                         metaJson.remove(JSON_KEY_LIST_SAVED_KEY);
                         FileUtil.writeToFile(mMeta, metaJson.toString());
                         refreshActivityView();
@@ -254,17 +259,27 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                         List<String> value = new ArrayList<>();
                         for (int j = 0; j < list.length(); j++)
                             value.add(list.getString(j));
-
                         mTable.put(key, value);
                     }
                 }
 
                 if (metaJson.has(JSON_KEY_LIST_KEY) && !metaJson.isNull(JSON_KEY_LIST_KEY)) {
                     mColumn = metaJson.getString(JSON_KEY_LIST_KEY);
+                    List<String> columnList = mTable.get(mColumn);
+                    if (mColumn == null || columnList == null || columnList.isEmpty()) {
+                        Toast.makeText(this, "R.string.error_invalid_column", Toast.LENGTH_SHORT).show();
+                        mColumn = null; // Сбрасываем mColumn, чтобы избежать ошибок
+                        fillControls(layout, savedState);
+                        return;
+                    }
 
-                    if (metaJson.has(JSON_KEY_LIST_SAVED_KEY))
+                    if (metaJson.has(JSON_KEY_LIST_SAVED_KEY)) {
                         mRow = metaJson.getInt(JSON_KEY_LIST_SAVED_KEY);
-                    else {
+                        if (mRow >= columnList.size() || mRow < 0) {
+                            Toast.makeText(this, "R.string.error_invalid_row", Toast.LENGTH_SHORT).show();
+                            mRow = -1;
+                        }
+                    } else {
                         askForRow(new OnAskRowListener() {
                             @Override
                             public void onRowChosen() {
@@ -281,6 +296,8 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                         });
                         return;
                     }
+                } else {
+                    mColumn = null; // Явно сбрасываем mColumn, если key_list отсутствует
                 }
 
                 if (metaJson.has(JSON_TRANSLATIONS_KEY) && !metaJson.isNull(JSON_TRANSLATIONS_KEY)) {
@@ -299,7 +316,6 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                                     mappings.put(key, value);
                                 }
                             }
-
                             if (translationKey != null)
                                 mTranslations.put(translationKey, mappings);
                         }
@@ -307,6 +323,8 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                 }
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
+                Toast.makeText(this, R.string.error_form_create, Toast.LENGTH_SHORT).show();
+                finish();
             }
         }
 
@@ -314,24 +332,38 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
     }
 
     private void askForRow(final OnAskRowListener listener) {
-        ArrayAdapter<String> spinnerMenu = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, mTable.get(mColumn));
+
+        Log.d("FormBuilder", "mColumn: " + mColumn + ", mTable: " + mTable.toString());
+
+        List<String> items = mTable.get(mColumn);
+        if (items == null || items.isEmpty()) {
+            Log.e("FormBuilder", "Empty or null list for column: " + mColumn);
+            Toast.makeText(this, "R.string.error_empty_list", Toast.LENGTH_SHORT).show();
+            mRow = -1;
+            listener.onRowChosen();
+            return;
+        }
+
+        Log.d("FormBuilder", "Items for spinner: " + items.toString());
+        ArrayAdapter<String> spinnerMenu = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
         final Spinner spinner = (Spinner) View.inflate(this, R.layout.table_select_row, null);
         spinner.setAdapter(spinnerMenu);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.select_row).setView(spinner)
-               .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                   @Override
-                   public void onClick(DialogInterface dialog, int which) {
-                       mRow = spinner.getSelectedItemPosition();
-                   }
-               })
-               .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                   @Override
-                   public void onDismiss(DialogInterface dialogInterface) {
-                       listener.onRowChosen();
-                   }
-               });
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mRow = spinner.getSelectedItemPosition();
+                        Log.d("FormBuilder", "Selected row: " + mRow);
+                    }
+                })
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        listener.onRowChosen();
+                    }
+                });
         AlertDialog dialog = builder.show();
         dialog.setCanceledOnTouchOutside(false);
     }

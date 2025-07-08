@@ -160,7 +160,8 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
                     if (subKeyValue.has(JSON_DEFAULT_KEY) && subKeyValue.getBoolean(JSON_DEFAULT_KEY))
                         subAliasList.defaultPosition = k;
 
-                    if (null != subLastValue && subLastValue.equals(subValue)) { // if modify data
+                    if (null != subLastValue && subLastValue.equals(subValue)
+                    && (null!= lastValue) && lastValue.equals(value)) { // if modify data
                         //lastValuePosition = j;
                         subLastValuePosition = k;
                     }

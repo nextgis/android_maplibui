@@ -87,8 +87,8 @@ public class VectorLayerUI
 
 
     @Override
-    public void showEditForm(Context context, long featureId, GeoGeometry geometry) {
-        LayerUtil.showEditForm(this, context, featureId, geometry);
+    public void showEditForm(Context context, long featureId, GeoGeometry geometry, long mFormId) {
+        LayerUtil.showEditForm(this, context, featureId, geometry, mFormId);
     }
 
     @Override

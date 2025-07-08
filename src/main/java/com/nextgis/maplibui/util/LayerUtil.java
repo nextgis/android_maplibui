@@ -78,7 +78,8 @@ public final class LayerUtil {
         return lookupTableIds;
     }
 
-    public static void showEditForm(VectorLayer layer, Context context, long featureId, GeoGeometry geometry) {
+    public static void showEditForm(VectorLayer layer, Context context, long featureId, GeoGeometry geometry,
+                                    long mFormId) {
         if (!layer.isFieldsInitialized()) {
             Toast.makeText(context, context.getString(R.string.error_layer_not_inited), Toast.LENGTH_SHORT).show();
             return;
@@ -92,12 +93,13 @@ public final class LayerUtil {
 
         Intent intent;
         //check custom form
-        File form = new File(layer.getPath(), ConstantsUI.FILE_FORM);
+        String formPrefix = mFormId + "_";
+        File form = new File(layer.getPath(), formPrefix+ ConstantsUI.FILE_FORM);
         if (form.exists()) {
             //show custom form
             intent = new Intent(context, FormBuilderModifyAttributesActivity.class);
             intent.putExtra(KEY_FORM_PATH, form);
-            File meta = new File(layer.getPath(), LayerFillService.NGFP_META);
+            File meta = new File(layer.getPath(), formPrefix + LayerFillService.NGFP_META);
             if (meta.exists())
                 intent.putExtra(KEY_META_PATH, meta);
         } else {

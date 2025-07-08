@@ -124,7 +124,8 @@ public class VectorLayerSettingsActivity
 
     private void setSubtitle() {
         String subtitle = getGeometryName(this, mVectorLayer.getGeometryType()).toLowerCase();
-        File formPath = new File(mLayer.getPath(), ConstantsUI.FILE_FORM);
+        String formPrefix = mVectorLayer.getId() + "_"; // todo
+        File formPath = new File(mLayer.getPath(), formPrefix + ConstantsUI.FILE_FORM);
         if (formPath.exists())
             subtitle += " " + getString(R.string.layer_has_form);
 

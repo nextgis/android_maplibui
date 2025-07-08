@@ -79,6 +79,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -96,6 +97,7 @@ import static com.nextgis.maplib.util.Constants.MESSAGE_EXTRA;
 import static com.nextgis.maplib.util.Constants.MESSAGE_TITLE_EXTRA;
 import static com.nextgis.maplib.util.NetworkUtil.configureSSLdefault;
 import static com.nextgis.maplib.util.NetworkUtil.getUserAgent;
+import static com.nextgis.maplibui.util.ConstantsUI.FILE_FORM;
 import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 
 /**
@@ -127,6 +129,8 @@ public class LayerFillService extends Service implements IProgressor {
     public static final String KEY_RESULT = "result";
     public static final String KEY_SYNC = "sync";
     public static final String KEY_URI = "uri";
+    public static final String KEY_DEFAULT_FORM_IDS = "default_form_ids"; // id of form to donwload
+    public static final String KEY_START_LAYER_FILL = "start_layer_fill";
     public static final String KEY_PATH = "path";
     public static final String KEY_LAYER_PATH = "layer_path";
     public static final String KEY_MIN_ZOOM = "min_zoom";
@@ -141,6 +145,7 @@ public class LayerFillService extends Service implements IProgressor {
     public static final String KEY_LAYER_GROUP_ID = "layer_group_id";
     public static final String KEY_TMS_TYPE   = "tms_type";
     public static final String KEY_TMS_CACHE   = "tms_cache";
+
     public static final String NGFP_META = "ngfp_meta.json";
     protected final static String NGFP_FILE_META = "meta.json";
     protected final static String NGFP_FILE_DATA = "data.geojson";
@@ -248,6 +253,8 @@ public class LayerFillService extends Service implements IProgressor {
                     case ACTION_SHOW:
                         mProgressIntent.putExtra(KEY_STATUS, STATUS_SHOW).putExtra(KEY_TITLE, mNotifyTitle);
                         sendBroadcast(mProgressIntent);
+                        //Log.e("FFRRMM", "startCommand ACTION_SHOW broadcast " + mProgressIntent.toString());
+
                         break;
                 }
             }
@@ -276,6 +283,7 @@ public class LayerFillService extends Service implements IProgressor {
 
                 LayerFillTask task = mQueue.remove(0);
                 mNotifyTitle = task.getDescription();
+                Log.e("RML", "run LayerFill: " + task.mLayerName);
 
                 mBuilder.setWhen(System.currentTimeMillis())
                         .setContentTitle(mNotifyTitle)
@@ -287,12 +295,14 @@ public class LayerFillService extends Service implements IProgressor {
 
                 mProgressIntent.putExtra(KEY_STATUS, STATUS_START).putExtra(KEY_TITLE, mNotifyTitle);
                 sendBroadcast(mProgressIntent);
+                //Log.e("FFRRMM", "Thread send broadcast 1" + mProgressIntent.toString());
+
 
                 Process.setThreadPriority(Constants.DEFAULT_DOWNLOAD_THREAD_PRIORITY);
                 progressor.setValue(0);
                 boolean result = task.execute(progressor);
 
-                if (!(task instanceof UnzipForm))
+                if ( (!(task instanceof UnzipForm) ) || task.subTaskWasRunned == false)
                     mProgressIntent.putExtra(KEY_MESSAGE, mProgressMessage);
 
                 mProgressIntent.putExtra(KEY_STATUS, STATUS_STOP);
@@ -313,7 +323,8 @@ public class LayerFillService extends Service implements IProgressor {
                 }
 
                 sendBroadcast(mProgressIntent);
-                mProgressIntent.removeExtra(KEY_STATUS);
+                //Log.e("FFRRMM", "Thread send broadcast 2" + mProgressIntent.toString());
+                //mProgressIntent.removeExtra(KEY_STATUS);
                 mIsRunning = false;
                 startNextTask();
             }
@@ -379,6 +390,10 @@ public class LayerFillService extends Service implements IProgressor {
 
 
         sendBroadcast(mProgressIntent);
+//        Log.e("FFRRMM", "updateNotify send broadcast with mProgressMessage " + mProgressMessage);
+//
+//        Log.e("FFRRMM", "updateNotify send broadcast 1 " + mProgressIntent.toString());
+
     }
 
     private void notifyError(String error) {
@@ -401,6 +416,8 @@ public class LayerFillService extends Service implements IProgressor {
         boolean mVisible;
         Uri mUri;
         protected Layer mLayer;
+        public boolean subTaskWasRunned = true;
+        public long[] defaultFormIDArray = null;
 
         LayerFillTask(Bundle bundle) {
             mUri = bundle.getParcelable(KEY_URI);
@@ -411,6 +428,21 @@ public class LayerFillService extends Service implements IProgressor {
             mMinZoom = bundle.getFloat(KEY_MIN_ZOOM, GeoConstants.DEFAULT_MIN_ZOOM);
             mMaxZoom = bundle.getFloat(KEY_MAX_ZOOM, GeoConstants.DEFAULT_MAX_ZOOM);
             mVisible = bundle.getBoolean(KEY_VISIBLE, true);
+
+            Serializable serializable = bundle.getSerializable(KEY_DEFAULT_FORM_IDS);
+            if (serializable instanceof ArrayList<?>) {
+
+                ArrayList<Long> idsList = (ArrayList<Long>) serializable;
+
+                long[] idsArray = new long[idsList.size()];
+                for (int i = 0; i < idsList.size(); i++) {
+                    idsArray[i] = idsList.get(i);
+                }
+
+                defaultFormIDArray = idsArray;
+            }
+
+            //defaultFormIDArray = bundle.getSerializable(KEY_DEFAULT_FORM_IDS);
         }
 
         void initLayer() {
@@ -478,12 +510,14 @@ public class LayerFillService extends Service implements IProgressor {
         boolean mSync;
         long mRemoteId;
         String mAccount;
+        boolean startLayerFill; // false if fill second form from layer - no need to create layer
 
         UnzipForm(Bundle bundle) {
             super(bundle);
             mSync = bundle.getBoolean(KEY_SYNC, true);
             mRemoteId = bundle.getLong(KEY_REMOTE_ID, -1);
             mAccount = bundle.getString(KEY_ACCOUNT, "");
+            startLayerFill = bundle.getBoolean(KEY_START_LAYER_FILL, true);
         }
 
         @Override
@@ -543,10 +577,19 @@ public class LayerFillService extends Service implements IProgressor {
                     progressor.setMessage(null);
 
                     //read meta.json
+
+                    long defaultFormID = -1;
+                    if (defaultFormIDArray != null && defaultFormIDArray.length > 0)
+                        defaultFormID = defaultFormIDArray[0];
+
+                    String formPrefix =  defaultFormID + "_";
+
+                    File formFile = new File(mLayerPath, FILE_FORM); // rename formfile
+                    formFile.renameTo(formFile = new File(formFile.getParentFile(), formPrefix + FILE_FORM));
                     File meta = new File(mLayerPath, NGFP_FILE_META);
                     // prevent overwrite meta.json by layer save routine
                     //noinspection ResultOfMethodCallIgnored
-                    meta.renameTo(meta = new File(meta.getParentFile(), LayerFillService.NGFP_META));
+                    meta.renameTo(meta = new File(meta.getParentFile(), formPrefix + LayerFillService.NGFP_META));
                     String jsonText = FileUtil.readFromFile(meta);
                     JSONObject metaJson = new JSONObject(jsonText);
                     File dataFile = new File(mLayerPath, NGFP_FILE_DATA);
@@ -610,6 +653,8 @@ public class LayerFillService extends Service implements IProgressor {
                                 Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT);
                                 msg.putExtra(ConstantsUI.KEY_MESSAGE, getString(R.string.ngw_different_credentials));
                                 sendBroadcast(msg);
+                                //Log.e("FFRRMM", "unzipform send broadcast " + msg.toString());
+
                             }
                         }
                     }
@@ -617,22 +662,40 @@ public class LayerFillService extends Service implements IProgressor {
                     isNgwConnection = isNgwConnection || mRemoteId > -1;
                     if (isNgwConnection) {
                         FileUtil.deleteRecursive(dataFile);
-                        File form = new File(mLayerPath, ConstantsUI.FILE_FORM);
+                        File form = new File(mLayerPath, formPrefix + FILE_FORM);
                         ArrayList<String> lookupTableIds = LayerUtil.fillLookupTableIds(form);
 
                         extra.putStringArrayList(KEY_LOOKUP_ID, lookupTableIds);
                         extra.putLong(KEY_REMOTE_ID, resourceId);
                         extra.putString(KEY_ACCOUNT, accountName);
                         extra.putBoolean(KEY_SYNC, mSync);
+                        extra.putLongArray(KEY_DEFAULT_FORM_IDS, defaultFormIDArray);
 
-                        if (!isCanceled())
+                        if (!isCanceled() && startLayerFill) {
                             mQueue.add(new NGWVectorLayerFillTask(extra));
+                        }
+                        if (!startLayerFill) {
+//                            if (getLayer() instanceof  NGWVectorLayer)
+//                                ((NGWVectorLayer)getLayer()).saveWithNewFormId(defaultFormID);
+                            //addFormToLayer(mLayerPath, mRemoteId, defaultFormID);
+                            extra.putString(LayerFillService.KEY_MESSAGE, "form proccesed");
+                            subTaskWasRunned = false;
+                        }
                     } else {
                         extra.putSerializable(LayerFillService.KEY_PATH, dataFile);
                         extra.putBoolean(LayerFillService.KEY_DELETE_SRC_FILE, true);
+                        extra.putLongArray(KEY_DEFAULT_FORM_IDS, defaultFormIDArray);
 
-                        if (!isCanceled())
+                        if (!isCanceled() && startLayerFill) {
                             mQueue.add(new VectorLayerFormFillTask(extra));
+                        }
+                        if (!startLayerFill) {
+//                            if (getLayer() instanceof  NGWVectorLayer)
+//                                ((NGWVectorLayer)getLayer()).saveWithNewFormId(defaultFormID);
+                            //addFormToLayer(mLayerPath, mRemoteId, defaultFormID);
+                            extra.putString(LayerFillService.KEY_MESSAGE, "form proccesed");
+                            subTaskWasRunned = false;
+                        }
                     }
                 }
             } catch (AccountsException | JSONException | IOException | URISyntaxException | RuntimeException e) {
@@ -664,7 +727,8 @@ public class LayerFillService extends Service implements IProgressor {
                 VectorLayer vectorLayer = (VectorLayer) mLayer;
                 if (null == vectorLayer)
                     return false;
-                File meta = new File(mPath.getParentFile(), NGFP_META);
+                String formPrefix = vectorLayer.getId() + "_";
+                File meta = new File(mPath.getParentFile(),formPrefix +  NGFP_META);
 
                 if (meta.exists()) {
                     String jsonText = FileUtil.readFromFile(meta);
@@ -751,6 +815,8 @@ public class LayerFillService extends Service implements IProgressor {
             isPointz = false;
             mLayer = new NGWVectorLayerUI(mLayerGroup.getContext(), mLayerPath);
             ((NGWVectorLayerUI) mLayer).setRemoteId(bundle.getLong(KEY_REMOTE_ID));
+            //((NGWVectorLayerUI) mLayer).setDefaultFormId(bundle.getLongArray(KEY_DEFAULT_FORM_IDS));
+            ((NGWVectorLayerUI) mLayer).setAccountName(bundle.getString(KEY_ACCOUNT));
             ((NGWVectorLayerUI) mLayer).setAccountName(bundle.getString(KEY_ACCOUNT));
             initLayer();
 

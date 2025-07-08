@@ -82,8 +82,8 @@ public class NGWVectorLayerUI
 
 
     @Override
-    public void showEditForm(Context context, long featureId, GeoGeometry geometry) {
-        LayerUtil.showEditForm(this, context, featureId, geometry);
+    public void showEditForm(Context context, long featureId, GeoGeometry geometry,long mFormId) {
+        LayerUtil.showEditForm(this, context, featureId, geometry, mFormId);
     }
 
 
@@ -108,7 +108,6 @@ public class NGWVectorLayerUI
 
                 for (int i = 0; i < map.getLayerCount(); i++) {
                     if (map.getLayer(i) instanceof NGWVectorLayer) {
-                        form = new File(map.getLayer(i).getPath(), ConstantsUI.FILE_FORM);
                         if (form.exists()) {
                             ArrayList<String> otherIds = LayerUtil.fillLookupTableIds(form);
                             lookupTableIds.removeAll(otherIds);
