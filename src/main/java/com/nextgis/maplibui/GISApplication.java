@@ -480,4 +480,25 @@ public abstract class GISApplication extends Application
         return errorCode;
     }
 
+    @Override
+    public void reloadLayerByID(int id){
+        if (mMap != null)
+            mMap.reloadLayerByID(id);
+    }
+
+    @Override
+    public void deleteLayerByID(int id){
+        if (mMap != null)
+            mMap.deleteLayerByID(id);
+    }
+
+
+    @Override
+    public void addLayerByID(int id){
+        if (mMap != null)
+            mMap.addLayerByID(id);
+    }
+
+
+
 }

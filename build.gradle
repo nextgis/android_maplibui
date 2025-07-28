@@ -99,4 +99,7 @@ dependencies {
     implementation project(':easypicker-module')
     implementation 'com.github.barsrb:hyperlog-android:master-SNAPSHOT'
 
+
+    implementation 'org.maplibre.gl:android-sdk:11.8.5'
+
 }
