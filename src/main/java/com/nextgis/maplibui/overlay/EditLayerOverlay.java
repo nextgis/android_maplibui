@@ -275,6 +275,12 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
     }
 
 
+    public void updateGeometryFromMaplibre(GeoGeometry geometry) {
+        setHasEdits(true);
+        fillGeometryFromMaplibre(geometry);
+        //updateMap();
+    }
+
     protected void update() {
         setHasEdits(true);
         fillGeometry();
@@ -453,8 +459,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
     }
 
 
-    public void setOverlayPoint(MotionEvent event) {
-        GeoPoint mapPoint = mMap.screenToMap(new GeoPoint(event.getX(), event.getY()));
+    public void setOverlayPoint(double x, double y) {
+        GeoPoint mapPoint = mMap.screenToMap(new GeoPoint(x, y));
         mapPoint.setCRS(GeoConstants.CRS_WEB_MERCATOR);
         mapPoint.project(GeoConstants.CRS_WGS84);
         mOverlayPoint.setCoordinates(mapPoint);
@@ -747,6 +753,10 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         }
     }
 
+
+    protected void fillGeometryFromMaplibre(GeoGeometry geometry) {
+        mFeature.setGeometry(geometry);
+    }
 
     protected void fillGeometry() {
         GeoGeometry geometry;
