@@ -100,6 +100,6 @@ dependencies {
     implementation 'com.github.barsrb:hyperlog-android:master-SNAPSHOT'
 
 
-    implementation 'org.maplibre.gl:android-sdk:11.8.5'
+    implementation 'org.maplibre.gl:android-sdk:11.13.0'
 
 }
