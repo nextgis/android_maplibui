@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
+import com.hypertrack.hyperlog.HyperLog;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
@@ -95,6 +96,29 @@ public final class LayerUtil {
         //check custom form
         String formPrefix = mFormId + "_";
         File form = new File(layer.getPath(), formPrefix+ ConstantsUI.FILE_FORM);
+
+        try {
+
+        if (!form.exists()){ //try to find file
+            // try to search
+            String newDefForm = findFormJsonPrefix(layer.getPath().toString());
+            if (newDefForm != null) {
+
+                File metaCheck = new File(layer.getPath(), newDefForm + "_" + LayerFillService.NGFP_META);
+                if (metaCheck.exists()){
+
+                    form = new File(layer.getPath(), newDefForm + "_" + ConstantsUI.FILE_FORM);
+                    formPrefix = newDefForm;
+                }
+            } else {
+                // nothing
+            }
+
+        }
+        } catch (Exception exception){
+            HyperLog.exception(Constants.TAG, exception);
+        }
+
         if (form.exists()) {
             //show custom form
             intent = new Intent(context, FormBuilderModifyAttributesActivity.class);
@@ -114,6 +138,30 @@ public final class LayerUtil {
             intent.putExtra(KEY_GEOMETRY, geometry);
 
         ((Activity) context).startActivityForResult(intent, IVectorLayerUI.MODIFY_REQUEST);
+    }
+
+
+    public static String findFormJsonPrefix(String directoryPath) {
+        File dir = new File(directoryPath);
+
+        if (!dir.exists() || !dir.isDirectory()) {
+            return null; // no folder or not a folder
+        }
+
+        File[] files = dir.listFiles();
+        if (files == null) {
+            return null;
+        }
+
+        for (File file : files) {
+            if (file.isFile() && file.getName().endsWith("_form.json")) {
+                String fileName = file.getName();
+                return fileName.substring(0, fileName.length() - "_form.json".length());
+            }
+        }
+
+        return null; // не найден
+
     }
 
     public static void shareTrackAsGPX(NGActivity activity, String creator, String[] tracksId) {

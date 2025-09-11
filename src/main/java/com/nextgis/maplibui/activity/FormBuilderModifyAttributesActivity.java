@@ -45,6 +45,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.keenfin.easypicker.PhotoPicker;
 import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoEnvelope;
@@ -55,6 +56,7 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.datasource.GeoPolygon;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.VectorLayer;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
@@ -94,6 +96,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.nextgis.maplib.util.Constants.JSON_TYPE_KEY;
+import static com.nextgis.maplib.util.NetworkUtil.getUserAgent;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ALBUM_ELEMENTS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_AVERAGING_VALUE;
@@ -618,6 +621,8 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
             appendData(mLayer, mPreferences, mTable, mRow, control, element);
 
             control.init(element, fields, savedState, featureCursor, mSharedPreferences, mTranslations);
+            if (control instanceof PhotoPicker)
+                ((PhotoPicker)control).setUserAgent( getUserAgent(Constants.MAPLIB_USER_AGENT_PART));
             control.addToLayout(layout);
             if (mIsViewOnly)
                 control.setEnabled(false);

@@ -34,9 +34,11 @@ import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.keenfin.easypicker.PhotoPicker;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.map.VectorLayer;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IControl;
 import com.nextgis.maplibui.api.IFormControl;
@@ -54,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.nextgis.maplib.util.Constants.JSON_TYPE_KEY;
+import static com.nextgis.maplib.util.NetworkUtil.getUserAgent;
 import static com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity.appendData;
 import static com.nextgis.maplibui.activity.FormBuilderModifyAttributesActivity.getControl;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
@@ -207,6 +210,8 @@ public class Tabs extends LinearLayout implements IFormControl
                     savedState.putBoolean("<tabs&", true);
             }
             control.init(element, fields, savedState, featureCursor, mSharedPreferences, mTranslations);
+            if (control instanceof PhotoPicker)
+                ((PhotoGallery)control).setUserAgent( getUserAgent(Constants.MAPLIB_USER_AGENT_PART));
             control.addToLayout(layout);
             if (mIsViewOnly)
                 control.setEnabled(false);

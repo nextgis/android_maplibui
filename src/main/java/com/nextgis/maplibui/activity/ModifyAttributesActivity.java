@@ -120,6 +120,7 @@ import static com.nextgis.maplib.util.Constants.FIELD_GEOM;
 import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplib.util.Constants.TAG;
+import static com.nextgis.maplib.util.NetworkUtil.getUserAgent;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_ADDED_POINT;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
@@ -436,6 +437,8 @@ public class ModifyAttributesActivity
                 control = (PhotoGallery) getLayoutInflater().inflate(R.layout.formtemplate_photo_disabled, layout, false);
             control.init(mLayer, mFeatureId);
             control.init(null, null, null, null, null, null);
+            if (control instanceof  PhotoPicker)
+                (control).setUserAgent( getUserAgent(Constants.MAPLIB_USER_AGENT_PART));;
             control.addToLayout(layout);
             mFields.put(control.getFieldName(), control);
 

@@ -163,9 +163,9 @@ public class LocalResourceSelectDialog
 
 
         if (isThemeDark()) {
-            setIcon(com.google.android.material.R.drawable.abc_ic_menu_selectall_mtrl_alpha);
+            setIcon(R.drawable.ic_android_select_all);
         } else {
-            setIcon(com.google.android.material.R.drawable.abc_ic_menu_selectall_mtrl_alpha);
+            setIcon(R.drawable.ic_android_select_all);
         }
 
         setTitle(R.string.select);
