@@ -44,6 +44,7 @@ import android.view.ViewGroup;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.util.ControlHelper;
 
@@ -269,7 +270,8 @@ public class Sign extends View implements IFormControl {
     @Override
     public void init(JSONObject element, List<Field> fields, Bundle savedState,
                      Cursor featureCursor, SharedPreferences lastValue,
-                     Map<String, Map<String, String>> translations) {
+                     Map<String, Map<String, String>> translations,
+                     final ModifyAttributesActivity modifyAttributesActivity) {
         init();
     }
 

@@ -448,4 +448,7 @@
 
     <string name="login_entering_text">to see data collection projects available for you. Sign up to get NextGIS Account.</string>
 
+    <string name="error_load_parent">Cannot access required data. Probably a permission problem. Notify the administrator.</string>
+    <string name="error">Error</string>
+
 </resources>

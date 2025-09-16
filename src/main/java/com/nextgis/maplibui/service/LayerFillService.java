@@ -94,6 +94,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import static com.nextgis.maplib.util.Constants.MESSAGE_ALERT_INTENT;
 import static com.nextgis.maplib.util.Constants.MESSAGE_EXTRA;
+import static com.nextgis.maplib.util.Constants.MESSAGE_EXTRA_IS_PARENTFILL;
 import static com.nextgis.maplib.util.Constants.MESSAGE_TITLE_EXTRA;
 import static com.nextgis.maplib.util.NetworkUtil.configureSSLdefault;
 import static com.nextgis.maplib.util.NetworkUtil.getUserAgent;
@@ -199,6 +200,7 @@ public class LayerFillService extends Service implements IProgressor {
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
                 Bundle resultData = msg.getData();
+
                 Toast.makeText(LayerFillService.this, resultData.getString(BUNDLE_MSG_KEY), Toast.LENGTH_LONG).show();
             }
         };
@@ -230,7 +232,23 @@ public class LayerFillService extends Service implements IProgressor {
                                 mQueue.add(new VectorLayerFillTask(extra));
                                 break;
                             case VECTOR_LAYER_WITH_FORM:
-                                mQueue.add(new UnzipForm(extra));
+                                try {
+                                    mQueue.add(new UnzipForm(extra));
+
+                                } catch (Exception ex){
+                                    ex.printStackTrace();
+                                    //notifyError("Error on start fill form");
+
+                                    Intent msg = new Intent(MESSAGE_ALERT_INTENT);
+                                    msg.putExtra(MESSAGE_EXTRA, getString(R.string.error_load_parent));
+                                    msg.putExtra(MESSAGE_EXTRA_IS_PARENTFILL, true);
+
+                                    //msg.putExtra(MESSAGE_TITLE_EXTRA, getResources().getString(R.string.map_load_exception_title));
+                                    msg.putExtra(MESSAGE_TITLE_EXTRA, getResources().getString(R.string.error));
+                                    sendBroadcast(msg);
+
+                                    return START_NOT_STICKY;
+                                }
                                 break;
                             case TMS_LAYER:
                                 mQueue.add(new LocalTMSFillTask(extra));

@@ -27,6 +27,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +39,9 @@ import java.util.Map;
  * Interface for formbuilder controls
  */
 public interface IFormControl extends IControl {
-    void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, SharedPreferences lastValue, Map<String, Map<String, String>> translations) throws JSONException;
+    void init(JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor,
+              SharedPreferences lastValue, Map<String,
+                      Map<String, String>> translations, final ModifyAttributesActivity modifyAttributesActivity) throws JSONException;
 
     void saveLastValue(SharedPreferences preferences);
 

@@ -42,6 +42,7 @@ import android.widget.DatePicker;
 import android.widget.TimePicker;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.util.ControlHelper;
 
@@ -175,7 +176,8 @@ public class DateTime
             Bundle savedState,
             Cursor featureCursor,
             SharedPreferences preferences,
-            Map<String, Map<String, String>> translations)
+            Map<String, Map<String, String>> translations,
+            final ModifyAttributesActivity modifyAttributesActivity)
             throws JSONException
     {
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);

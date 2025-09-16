@@ -43,6 +43,7 @@ import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FeatureAttachments;
 import com.nextgis.maplib.util.NGException;
 import com.nextgis.maplibui.GISApplication;
+import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.api.IFormControl;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -91,7 +92,8 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
                      Bundle savedState,
                      Cursor featureCursor,
                      SharedPreferences preferences,
-                     Map<String, Map<String, String>> translations) throws JSONException {
+                     Map<String, Map<String, String>> translations,
+                     final ModifyAttributesActivity modifyAttributesActivity) throws JSONException {
         mAdapter = (PhotoAdapter) getAdapter();
 
         if (element != null) {

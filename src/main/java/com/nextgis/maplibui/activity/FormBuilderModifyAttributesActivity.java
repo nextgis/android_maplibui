@@ -23,6 +23,7 @@
 
 package com.nextgis.maplibui.activity;
 
+import android.accounts.AccountManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -54,6 +55,8 @@ import com.nextgis.maplib.datasource.GeoMultiPoint;
 import com.nextgis.maplib.datasource.GeoMultiPolygon;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.datasource.GeoPolygon;
+import com.nextgis.maplib.datasource.ngw.Connection;
+import com.nextgis.maplib.datasource.ngw.Connections;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
@@ -63,6 +66,7 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IControl;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.control.PhotoGallery;
+import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
 import com.nextgis.maplibui.formcontrol.AutoTextEdit;
 import com.nextgis.maplibui.formcontrol.Averaging;
 import com.nextgis.maplibui.formcontrol.Checkbox;
@@ -89,6 +93,7 @@ import org.json.JSONTokener;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -420,8 +425,8 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                 String fieldY = attributes.optString(JSON_FIELD_NAME_KEY + "_lat");
                 attributes.put(JSON_FIELD_NAME_KEY, fieldY);
                 element.put(JSON_TYPE_KEY, type + "_lat");
-                control = getControl(this, element, mLayer, mFeatureId, mGeometry, mIsViewOnly);
-                addToLayout(control, element, fields, savedState, featureCursor, layout);
+                control = getControl(this, element, mLayer, mFeatureId, mGeometry, mIsViewOnly, this);
+                addToLayout(control, element, fields, savedState, featureCursor, layout, this);
 
                 attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
                 String fieldX = attributes.optString(JSON_FIELD_NAME_KEY + "_long");
@@ -429,12 +434,12 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                 element.put(JSON_TYPE_KEY, type + "_lon");
             }
 
-            control = getControl(this, element, mLayer, mFeatureId, mGeometry, mIsViewOnly);
+            control = getControl(this, element, mLayer, mFeatureId, mGeometry, mIsViewOnly, this);
             if (type.equals(JSON_TABS_KEY))
                 ((Tabs) control).init(mLayer, mFeatureId, mGeometry, mTable, mRow, mSharedPreferences,
                                       mPreferences, getSupportFragmentManager(), mIsViewOnly);
 
-            addToLayout(control, element, fields, savedState, featureCursor, layout);
+            addToLayout(control, element, fields, savedState, featureCursor, layout, this);
         }
 
         if (null != featureCursor) {
@@ -445,7 +450,8 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
     }
 
     public static IFormControl getControl(Context context, JSONObject element, VectorLayer layer, long feature,
-                                          GeoGeometry geometry, boolean isViewOnly) throws JSONException {
+                                          GeoGeometry geometry, boolean isViewOnly, final ModifyAttributesActivity modifyAttributesActivity) throws JSONException {
+
         String type = element.getString(JSON_TYPE_KEY);
         IFormControl control = null;
 
@@ -498,7 +504,25 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                     control = (PhotoGallery) View.inflate(context, R.layout.formtemplate_photo_disabled, null);
                 else
                     control = (PhotoGallery) View.inflate(context, R.layout.formtemplate_photo, null);
+
+                AccountManager accountManager = AccountManager.get(context);
+                Connections connections = SelectNGWResourceDialog.fillConnections(context, accountManager);
+                Connection found = null;
+                if (layer instanceof NGWVectorLayer) {
+                    for (int i = 0; i < connections.getChildrenCount(); i++) {
+                        if (connections.getChild(i).getName().equals((((NGWVectorLayer) layer).getAccountName()))) {
+                            found = (Connection) connections.getChild(i);
+                        }
+                    }
+                }
+
                 ((PhotoGallery) control).init(layer, feature);
+
+                if (found != null)
+                    ((PhotoPicker) control).setLoginPass(found.getLogin(), found.getPassword());
+
+                modifyAttributesActivity.photoPickerWeakReference = new WeakReference<>((PhotoPicker) control);
+
                 break;
 
             case JSON_SIGN_VALUE:
@@ -616,11 +640,11 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
     }
 
     protected void addToLayout(IFormControl control, JSONObject element, List<Field> fields, Bundle savedState,
-                               Cursor featureCursor, LinearLayout layout) throws JSONException {
+                               Cursor featureCursor, LinearLayout layout, final ModifyAttributesActivity modifyAttributesActivity) throws JSONException {
         if (null != control) {
             appendData(mLayer, mPreferences, mTable, mRow, control, element);
 
-            control.init(element, fields, savedState, featureCursor, mSharedPreferences, mTranslations);
+            control.init(element, fields, savedState, featureCursor, mSharedPreferences, mTranslations, modifyAttributesActivity);
             if (control instanceof PhotoPicker)
                 ((PhotoPicker)control).setUserAgent( getUserAgent(Constants.MAPLIB_USER_AGENT_PART));
             control.addToLayout(layout);

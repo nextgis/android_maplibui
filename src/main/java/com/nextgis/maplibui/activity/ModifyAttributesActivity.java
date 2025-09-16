@@ -162,7 +162,7 @@ public class ModifyAttributesActivity
     private int mBeepId;
 
     MessageReceiver messageReceiver;
-    WeakReference<PhotoPicker> photoPickerWeakReference = new WeakReference<>(null);
+    public WeakReference<PhotoPicker> photoPickerWeakReference = new WeakReference<>(null);
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -436,7 +436,7 @@ public class ModifyAttributesActivity
             if (mIsViewOnly)
                 control = (PhotoGallery) getLayoutInflater().inflate(R.layout.formtemplate_photo_disabled, layout, false);
             control.init(mLayer, mFeatureId);
-            control.init(null, null, null, null, null, null);
+            control.init(null, null, null, null, null, null, this);
             if (control instanceof  PhotoPicker)
                 (control).setUserAgent( getUserAgent(Constants.MAPLIB_USER_AGENT_PART));;
             control.addToLayout(layout);

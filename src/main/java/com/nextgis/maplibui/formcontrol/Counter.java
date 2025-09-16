@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.util.AttributeSet;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.util.ControlHelper;
 
@@ -73,7 +74,8 @@ public class Counter extends TextEdit
                      Bundle savedState,
                      Cursor featureCursor,
                      SharedPreferences preferences,
-                     Map<String, Map<String, String>> translations) throws JSONException{
+                     Map<String, Map<String, String>> translations,
+                     final ModifyAttributesActivity modifyAttributesActivity) throws JSONException{
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = ControlHelper.getFieldName(attributes.getString(JSON_FIELD_NAME_KEY));

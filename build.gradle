@@ -26,8 +26,8 @@ apply plugin: 'com.android.library'
 android {
     defaultConfig {
         minSdkVersion 26
-        compileSdk 34
-        targetSdkVersion 34
+        compileSdk 36
+        targetSdkVersion 36
         def props = new Properties()
         file("../local.properties").withInputStream { props.load(it) }
 
@@ -95,7 +95,7 @@ dependencies {
     implementation 'com.github.oli107:material-range-bar:1.4.6'
     //implementation 'com.hypertrack:hyperlog:0.0.9'
 
-    implementation 'androidx.work:work-runtime:2.9.0'
+    implementation 'androidx.work:work-runtime:2.10.4'
     implementation project(':easypicker-module')
     implementation 'com.github.barsrb:hyperlog-android:master-SNAPSHOT'
 

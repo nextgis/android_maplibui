@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.api.IFormControl;
 
 import org.json.JSONException;
@@ -55,7 +56,8 @@ public class Space extends FrameLayout implements IFormControl {
     @Override
     public void init(JSONObject element, List<Field> fields, Bundle savedState,
                      Cursor featureCursor, SharedPreferences preferences,
-                     Map<String, Map<String, String>> translations) throws JSONException {
+                     Map<String, Map<String, String>> translations,
+                     final ModifyAttributesActivity modifyAttributesActivity) throws JSONException {
     }
 
     @Override

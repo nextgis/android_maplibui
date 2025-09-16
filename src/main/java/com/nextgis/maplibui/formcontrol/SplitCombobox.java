@@ -41,6 +41,7 @@ import android.widget.LinearLayout;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.util.ControlHelper;
 
@@ -91,7 +92,8 @@ public class SplitCombobox extends FrameLayout implements IFormControl
                      Bundle savedState,
                      Cursor featureCursor,
                      SharedPreferences preferences,
-                     Map<String, Map<String, String>> translations) throws JSONException{
+                     Map<String, Map<String, String>> translations,
+                     final ModifyAttributesActivity modifyAttributesActivity) throws JSONException{
         mTitles = new LinearLayout(getContext());
         mTitles.setOrientation(HORIZONTAL);
         mSpinners = new LinearLayout(getContext());

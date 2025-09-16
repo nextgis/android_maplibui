@@ -435,5 +435,6 @@
     <string name="login_requred_header">Нужно войти</string>
 
     <string name="login_entering_text">чтобы увидеть список доступных вам проектов по сбору данных. Зарегистрируйтесь, чтобы получить учетную запись.</string>
-
+    <string name="error_load_parent">Не могу получить данные. Возможно нет доступа. Свяжитесь с администратором.</string>
+    <string name="error">Ошибка</string>
 </resources>

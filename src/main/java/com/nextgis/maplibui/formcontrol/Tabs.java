@@ -40,6 +40,7 @@ import com.nextgis.maplib.datasource.GeoGeometry;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.api.IControl;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.control.GreyLine;
@@ -116,7 +117,8 @@ public class Tabs extends LinearLayout implements IFormControl
                      Bundle savedState,
                      Cursor featureCursor,
                      SharedPreferences preferences,
-                     Map<String, Map<String, String>> translations) throws JSONException {
+                     Map<String, Map<String, String>> translations,
+                     final ModifyAttributesActivity modifyAttributesActivity) throws JSONException {
         mTranslations = translations;
         mFields = new HashMap<>();
         mTabs = new ArrayList<>();
@@ -140,19 +142,19 @@ public class Tabs extends LinearLayout implements IFormControl
                     String fieldY = attributes.optString(JSON_FIELD_NAME_KEY + "_lat");
                     attributes.put(JSON_FIELD_NAME_KEY, fieldY);
                     element.put(JSON_TYPE_KEY, type + "_lat");
-                    IFormControl control = getControl(getContext(), element, mLayer, mFeatureId, mGeometry, mIsViewOnly);
-                    addToLayout(control, element, fields, savedState, featureCursor, layout);
+                    IFormControl control = getControl(getContext(), element, mLayer, mFeatureId, mGeometry, mIsViewOnly, modifyAttributesActivity);
+                    addToLayout(control, element, fields, savedState, featureCursor, layout,modifyAttributesActivity);
 
                     attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
                     String fieldX = attributes.optString(JSON_FIELD_NAME_KEY + "_long");
                     attributes.put(JSON_FIELD_NAME_KEY, fieldX);
                     element.put(JSON_TYPE_KEY, type + "_lon");
                 }
-                IFormControl control = getControl(getContext(), element, mLayer, mFeatureId, mGeometry, mIsViewOnly);
+                IFormControl control = getControl(getContext(), element, mLayer, mFeatureId, mGeometry, mIsViewOnly, modifyAttributesActivity);
                 if (control instanceof Tabs) {
                     ((Tabs) control).init(mLayer, mFeatureId, mGeometry, mTable, mRow, mSharedPreferences, mPreferences, mFragmentManager, mIsViewOnly);
                 }
-                addToLayout(control, element, fields, savedState, featureCursor, layout);
+                addToLayout(control, element, fields, savedState, featureCursor, layout, modifyAttributesActivity);
             }
 
             TabFragment fragment = new TabFragment();
@@ -200,7 +202,8 @@ public class Tabs extends LinearLayout implements IFormControl
         });
     }
 
-    protected void addToLayout(IFormControl control, JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor, LinearLayout layout)
+    protected void addToLayout(IFormControl control, JSONObject element, List<Field> fields, Bundle savedState, Cursor featureCursor,
+                               LinearLayout layout, ModifyAttributesActivity modifyAttributesActivity)
             throws JSONException {
         if (null != control) {
             appendData(mLayer, mPreferences, mTable, mRow, control, element);
@@ -209,7 +212,7 @@ public class Tabs extends LinearLayout implements IFormControl
                 if (savedState != null)
                     savedState.putBoolean("<tabs&", true);
             }
-            control.init(element, fields, savedState, featureCursor, mSharedPreferences, mTranslations);
+            control.init(element, fields, savedState, featureCursor, mSharedPreferences, mTranslations, modifyAttributesActivity);
             if (control instanceof PhotoPicker)
                 ((PhotoGallery)control).setUserAgent( getUserAgent(Constants.MAPLIB_USER_AGENT_PART));
             control.addToLayout(layout);
