@@ -807,7 +807,7 @@ public class ModifyAttributesActivity
         fieldName = "'" + fieldName + "'";
 
         if (null != value) {
-            Log.d(TAG, "field: " + field.getName() + " value: " + value.toString());
+            //Log.d(TAG, "field: " + field.getName() + " value: " + value.toString());
 
             if (value instanceof Long) {
                 values.put(fieldName, (Long) value);

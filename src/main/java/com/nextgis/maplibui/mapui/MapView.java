@@ -685,7 +685,7 @@ public class MapView
     public synchronized void onLayerDrawFinished(int id, float percent)
     {
         if(Constants.DEBUG_MODE) {
-            Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent + " | draw state: " + mDrawingState);
+            //Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent + " | draw state: " + mDrawingState);
         }
 
         if (mDrawingState > DRAW_STATE_drawing_noclearbk) {
