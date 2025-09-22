@@ -30,6 +30,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import com.keenfin.easypicker.AttachInfo;
@@ -168,8 +169,10 @@ public class PhotoGallery extends PhotoPicker implements IFormControl {
                                                            long featureId) {
          AccountUtil.AccountData accountData = null;
          try {
-             accountData = AccountUtil.getAccountData(layer.getContext(), ((NGWVectorLayer) layer).getAccountName());
-         } catch (IllegalStateException e) {
+             if (layer instanceof NGWVectorLayer)
+                accountData = AccountUtil.getAccountData(layer.getContext(), ((NGWVectorLayer) layer).getAccountName());
+         } catch (Exception e) {
+             Log.e("error", e.toString());
              //throw new NGException(getContext().getString(com.nextgis.maplib.R.string.error_auth));
          }
          String protocol = "https://";
