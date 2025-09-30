@@ -61,6 +61,9 @@ import com.nextgis.maplib.datasource.GeoMultiPolygon;
 import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.datasource.GeoPolygon;
 import com.nextgis.maplib.location.GpsEventSource;
+import com.nextgis.maplib.map.MLP.MLGeometryEditClass;
+import com.nextgis.maplib.map.MLP.MultiPolygonEditClass;
+import com.nextgis.maplib.map.MLP.PolygonEditClass;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
@@ -274,6 +277,29 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         clearDrawItems();
     }
 
+    public void updateActions(MLGeometryEditClass editObject) {
+        if (editObject == null)
+            return;
+
+        if (editObject instanceof PolygonEditClass){
+            PolygonEditClass polygon = (PolygonEditClass) editObject;
+            int ring = polygon.getSelectedRingIndex();
+            updateHoleAdd(ring == 0);
+            updateHoleRemove(ring > 0);
+        }
+
+        if (editObject instanceof MultiPolygonEditClass){
+            MultiPolygonEditClass mpolygon = (MultiPolygonEditClass) editObject;
+
+            int selectedRingIndex = mpolygon.getSelectedRingIndexInPolygon();
+            int selectedPolyIndex = mpolygon.getSelectedPolygonIndex();
+            updateHoleRemove(selectedRingIndex > 0);
+            updateHoleAdd(selectedRingIndex == 0);
+
+            updateAddPolygon(true);
+            updateDeletePolygon(selectedRingIndex == 0);
+        }
+    }
 
     public void updateGeometryFromMaplibre(GeoGeometry geometry) {
         setHasEdits(true);
@@ -298,6 +324,30 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         return mHasEdits;
     }
 
+
+    public void updateHoleRemove(boolean enable){
+        MenuItem item = mBottomToolbar.getMenu().findItem(R.id.menu_edit_delete_inner_ring);
+        if (item!= null)
+            ControlHelper.setEnabled(item, enable);
+    }
+
+    public void updateHoleAdd(boolean enable){
+        MenuItem item = mBottomToolbar.getMenu().findItem(R.id.menu_edit_add_new_inner_ring);
+        if (item!= null)
+            ControlHelper.setEnabled(item, enable);
+    }
+
+    public void updateAddPolygon(boolean enable){
+        MenuItem item = mBottomToolbar.getMenu().findItem(R.id.menu_edit_add_new_polygon);
+        if (item!= null)
+            ControlHelper.setEnabled(item, enable);
+    }
+
+    public void updateDeletePolygon(boolean enable){
+        MenuItem item = mBottomToolbar.getMenu().findItem(R.id.menu_edit_delete_polygon);
+        if (item!= null)
+            ControlHelper.setEnabled(item, enable);
+    }
 
     public void setHasEdits(boolean hasEdits) {
         mHasEdits = hasEdits;
@@ -786,7 +836,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
             case GeoConstants.GTMultiPolygon:
                 geometry = new GeoMultiPolygon();
                 for (DrawItem drawItem : mDrawItems)
-                    ((GeoMultiPolygon) geometry).add(getBaseGeometry(mMap, GeoConstants.GTPolygon, drawItem));
+                    ((GeoMultiPolygon) geometry).add(getBaseGeometry(mMap, GeoConstants.GTMultiPolygon, drawItem));
                 break;
             default:
                 geometry = null;
