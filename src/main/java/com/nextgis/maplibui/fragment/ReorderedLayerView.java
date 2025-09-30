@@ -235,7 +235,7 @@ public class ReorderedLayerView
 
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
-        paint.setColor(getResources().getColor(com.google.android.material.R.color.background_floating_material_light));
+        paint.setColor(getResources().getColor(R.color.white));
         Rect rect = new Rect(0, 0, v.getWidth(), v.getHeight());
         canvas.drawRect(rect, paint);
 
