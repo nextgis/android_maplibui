@@ -206,7 +206,8 @@ public class RebuildCacheService extends IntentService implements IProgressor
             try {
                 thread.join(); // Wait for the thread to finish
             } catch (InterruptedException e) {
-                Log.e("TAG", e.getMessage());
+
+                Log.e("TAG", e.getMessage() == null? "null on InterruptedException" : e.getMessage());
             }
             thread = null; // Clean up
         }
