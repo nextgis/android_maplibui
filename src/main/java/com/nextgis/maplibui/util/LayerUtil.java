@@ -106,10 +106,16 @@ public final class LayerUtil {
 
                 File metaCheck = new File(layer.getPath(), newDefForm + "_" + LayerFillService.NGFP_META);
                 if (metaCheck.exists()){
-
                     form = new File(layer.getPath(), newDefForm + "_" + ConstantsUI.FILE_FORM);
                     formPrefix = newDefForm;
+                }else {
+                    File metaCheck2 = new File(layer.getPath(),  LayerFillService.NGFP_META);
+                    if (metaCheck2.exists()){
+                        form = new File(layer.getPath(),  ConstantsUI.FILE_FORM);
+                        formPrefix = newDefForm;
+                    }
                 }
+
             } else {
                 // nothing
             }
@@ -157,6 +163,13 @@ public final class LayerUtil {
             if (file.isFile() && file.getName().endsWith("_form.json")) {
                 String fileName = file.getName();
                 return fileName.substring(0, fileName.length() - "_form.json".length());
+            }
+        }
+
+        for (File file : files) {
+            if (file.isFile() && file.getName().endsWith("form.json")) {
+                String fileName = file.getName();
+                return fileName.substring(0, fileName.length() - "form.json".length());
             }
         }
 
