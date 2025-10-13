@@ -30,6 +30,7 @@ import android.graphics.PointF;
 import android.os.Bundle;
 import android.view.MotionEvent;
 
+import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoGeometryFactory;
 import com.nextgis.maplib.datasource.GeoLineString;
@@ -306,6 +307,10 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
     @Override
     public void onLayerChanged(int id) {
 
+    }
+
+    @Override
+    public void onLayerChangedFeatureId(long oldFeatureId, long newFeatureId, int layerId) {
     }
 
     @Override

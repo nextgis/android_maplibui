@@ -35,6 +35,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Scroller;
 
+import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.api.MapEventListener;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoPoint;
@@ -652,6 +653,10 @@ public class MapView
     public void onLayerChanged(int id)
     {
         drawMapDrawable();
+    }
+
+    @Override
+    public void onLayerChangedFeatureId(long oldFeatureId, long newFeatureId, int layerId) {
     }
 
 

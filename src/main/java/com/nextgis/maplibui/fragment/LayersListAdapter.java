@@ -444,6 +444,10 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
         notifyDataChanged();
     }
 
+    @Override
+    public void onLayerChangedFeatureId(long oldFeatureId, long newFeatureId, int layerId) {
+    }
+
 
     @Override
     public void onExtentChanged(float zoom, GeoPoint center) {

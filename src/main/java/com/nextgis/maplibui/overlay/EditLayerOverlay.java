@@ -49,6 +49,7 @@ import android.widget.Toast;
 
 import com.nextgis.maplib.api.GpsEventListener;
 import com.nextgis.maplib.api.IGISApplication;
+import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.Feature;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.GeoGeometry;
@@ -1357,6 +1358,10 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
     @Override
     public void onLayerChanged(int id) {
 
+    }
+
+    @Override
+    public void onLayerChangedFeatureId(long oldFeatureId, long newFeatureId, int layerId) {
     }
 
 
