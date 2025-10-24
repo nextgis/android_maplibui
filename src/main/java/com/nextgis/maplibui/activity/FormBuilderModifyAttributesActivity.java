@@ -305,7 +305,7 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
                         return;
                     }
                 } else {
-                    mColumn = null; // Явно сбрасываем mColumn, если key_list отсутствует
+                    mColumn = null; //reset mColumn,if key_list abpsent
                 }
 
                 if (metaJson.has(JSON_TRANSLATIONS_KEY) && !metaJson.isNull(JSON_TRANSLATIONS_KEY)) {

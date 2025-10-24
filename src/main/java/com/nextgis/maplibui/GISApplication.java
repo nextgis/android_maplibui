@@ -46,6 +46,7 @@ import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.ngw.SyncAdapter;
 import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.LayerFactory;
+import com.nextgis.maplib.map.MLP.AuthInterceptorNG;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.util.Constants;
@@ -103,6 +104,8 @@ public abstract class GISApplication extends Application
     String account = null;
     String errorMessage = null;
     int errorCode = 0;
+
+    static final AuthInterceptorNG interceptorNG = new AuthInterceptorNG();
 
     public boolean getIsTrackInProgress(){
         return isTrackInProgress;
@@ -499,6 +502,16 @@ public abstract class GISApplication extends Application
             mMap.addLayerByID(id);
     }
 
+
+    @Override
+    public AuthInterceptorNG getAuthInterceptor(){
+        return interceptorNG;
+    };
+
+    @Override
+    public void updateAuthPair(String layerPart, String[] authPart){
+        interceptorNG.addAuth(layerPart,authPart);
+    };
 
 
 }

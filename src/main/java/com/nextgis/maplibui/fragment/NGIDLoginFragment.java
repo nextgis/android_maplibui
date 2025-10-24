@@ -107,7 +107,6 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
             enteringText.setText(R.string.login_entering_text);
         }
 
-// Слушаем изменения текста
         mPassword.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -115,10 +114,8 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() == 0) {
-                    // Если поле пустое — убираем глазик
                     passwordLayout.setEndIconMode(TextInputLayout.END_ICON_NONE);
                 } else {
-                    // Если что-то введено — включаем глазик
                     passwordLayout.setEndIconMode(TextInputLayout.END_ICON_PASSWORD_TOGGLE);
                 }
             }

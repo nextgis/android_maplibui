@@ -303,6 +303,17 @@ public class MapViewBase
         return ret;
     }
 
+    public List<ILayer> getTMSLayersByType(int types)
+    {
+        List<ILayer> ret = new ArrayList<>();
+
+        if (mMap != null) {
+            LayerGroup.getTMSLayersByType(mMap, types, ret);
+        }
+
+        return ret;
+    }
+
 
     public void addLocalTMSLayer(Uri uri)
     {
