@@ -509,8 +509,8 @@ public abstract class GISApplication extends Application
     };
 
     @Override
-    public void updateAuthPair(String layerPart, String[] authPart){
-        interceptorNG.addAuth(layerPart,authPart);
+    public void updateAuthPair(String[] authPart){
+        interceptorNG.addAuth(authPart);
     };
 
 

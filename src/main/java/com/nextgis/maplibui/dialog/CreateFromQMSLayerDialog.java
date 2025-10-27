@@ -73,6 +73,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -242,9 +243,10 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                             mQMSLayers.setVisibility(View.GONE);
                             mProgress.setVisibility(View.VISIBLE);
 
-                            for (int i = 0; i < mChecked.size(); i++)
-                                new LoadLayer().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mChecked.get(i));
-                        } else
+                            for (int i = 0; i < mChecked.size(); i++){
+                                LoadLayer loadLayer = new LoadLayer(mContext);
+                                loadLayer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mChecked.get(i));
+                            }                        } else
                             Toast.makeText(mContext, R.string.nothing_selected, Toast.LENGTH_SHORT).show();
 
                         dialog.dismiss();
@@ -256,6 +258,13 @@ public class CreateFromQMSLayerDialog extends NGDialog {
 
     private class LoadLayer extends AsyncTask<Integer, Void, HttpResponse> {
         private Integer mLayerId;
+        private final WeakReference<Context> contextWeakReference;
+
+
+        public LoadLayer(Context context) {
+            this.contextWeakReference = new WeakReference<>(context);
+        }
+
 
         @Override
         protected HttpResponse doInBackground(Integer... params) {
@@ -280,7 +289,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
             if (response.isOk()) {
                 try {
                     new JSONObject(response.getResponseBody());
-                    createLayer(response.getResponseBody());
+                    createLayer(response.getResponseBody(), contextWeakReference.get());
                 } catch (JSONException ignored) {
                     new AlertDialog.Builder(getContext())
                             .setMessage(R.string.qms_unavailable)
@@ -307,7 +316,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 mGroupLayer.save();
         }
 
-        private void createLayer(String response) {
+        private void createLayer(String response, Context context) {
             try {
                 JSONObject remoteLayer = new JSONObject(response);
                 String layerName = remoteLayer.getString(KEY_NAME);
@@ -320,8 +329,8 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 // do we need this checks? QMS should provide correct data
                 //check if {x}, {y} or {z} present
                 if (!layerURL.contains("{x}") || !layerURL.contains("{y}") || !layerURL.contains("{z}")) {
-                    String error = layerName + ": " + mContext.getString(R.string.error_invalid_url);
-                    Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show();
+                    String error = layerName + ": " + context.getString(R.string.error_invalid_url);
+                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
