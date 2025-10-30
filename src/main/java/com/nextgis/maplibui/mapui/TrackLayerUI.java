@@ -24,6 +24,8 @@
 package com.nextgis.maplibui.mapui;
 
 import static android.content.Context.MODE_MULTI_PROCESS;
+
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -43,6 +45,8 @@ import com.nextgis.maplibui.api.ILayerUI;
 import java.io.File;
 
 public class TrackLayerUI extends TrackLayer implements ILayerUI {
+
+    public static int CODE_TRACK_LIST = 778;
     public TrackLayerUI(Context context, File path) {
         super(context, path);
         mColor = ContextCompat.getColor(mContext, R.color.accent);
@@ -63,8 +67,11 @@ public class TrackLayerUI extends TrackLayer implements ILayerUI {
     @Override
     public void changeProperties(Context context) {
         Intent tracksSettings = new Intent(context, TracksActivity.class);
-        tracksSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(tracksSettings);
+        //tracksSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (context instanceof Activity)
+            ((Activity)context).startActivityForResult(tracksSettings,CODE_TRACK_LIST );
+        else
+            context.startActivity(tracksSettings);
     }
 
 
