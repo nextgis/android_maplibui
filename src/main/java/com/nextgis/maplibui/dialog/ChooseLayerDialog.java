@@ -92,12 +92,12 @@ public class ChooseLayerDialog
             mCode = savedInstanceState.getInt(KEY_CODE);
         }
 
-        View view = View.inflate(mContext, R.layout.layout_layers, null);
+        View view = View.inflate(mContextWeakRef.get(), R.layout.layout_layers, null);
         ListView dialogListView = (ListView) view.findViewById(R.id.listView);
         dialogListView.setAdapter(mListAdapter);
         dialogListView.setOnItemClickListener(mListAdapter);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContextWeakRef.get());
         //AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle(mTitle).setView(view).setInverseBackgroundForced(true).setNegativeButton(
                 R.string.cancel, new DialogInterface.OnClickListener() {

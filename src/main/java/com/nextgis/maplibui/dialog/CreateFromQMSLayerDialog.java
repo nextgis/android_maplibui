@@ -84,6 +84,7 @@ import java.util.Queue;
 
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_NORMAL;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
+import static java.lang.Thread.interrupted;
 
 public class CreateFromQMSLayerDialog extends NGDialog {
     protected final static String QMS_URL = "https://qms.nextgis.com/api/v1";
@@ -115,6 +116,9 @@ public class CreateFromQMSLayerDialog extends NGDialog {
     protected NetworkUtil mNet;
     protected File mQMSIconsDir;
 
+
+    WeakReference<AsyncTask> task = null;
+
     public CreateFromQMSLayerDialog setLayerGroup(LayerGroup groupLayer) {
         mGroupLayer = groupLayer;
         return this;
@@ -130,8 +134,8 @@ public class CreateFromQMSLayerDialog extends NGDialog {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreateDialog(savedInstanceState);
-        mNet = new NetworkUtil(mContext);
-        mQMSIconsDir = MapUtil.prepareTempDir(mContext, "qms_icons", false);
+        mNet = new NetworkUtil(mContextWeakRef.get());
+        mQMSIconsDir = MapUtil.prepareTempDir(mContextWeakRef.get(), "qms_icons", false);
 
         if (null != savedInstanceState) {
             int id = savedInstanceState.getInt(KEY_ID);
@@ -144,20 +148,32 @@ public class CreateFromQMSLayerDialog extends NGDialog {
             }
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContextWeakRef.get());
         builder.setTitle(mTitle).setView(R.layout.list_content)
                 .setPositiveButton(R.string.add, null)
                 .setNeutralButton(R.string.new_tms, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
+                        if (task!= null && task.get()!= null){
+                            task.get().cancel(true);
+                        }
                         CreateRemoteTMSLayerDialog newFragment = new CreateRemoteTMSLayerDialog();
                         newFragment.setLayerGroup(mGroupLayer)
-                                .setTitle(mContext.getString(R.string.create_tms_layer))
+                                .setTitle(mContextWeakRef.get().getString(R.string.create_tms_layer))
                                 .setTheme(((NGActivity) getActivity()).getThemeId())
                                 .show(getActivity().getSupportFragmentManager(), "create_tms_layer");
+                        //dialog.dismiss();
                     }
                 })
-                .setNegativeButton(R.string.cancel, null);
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (task!= null && task.get()!= null){
+                            task.get().cancel(true);
+                        }
+                    }
+                });
 
         final AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
@@ -203,7 +219,9 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                     return false;
                 }
             });
-            new LoadLayersList().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            AsyncTask task1 = new LoadLayersList().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            task = new WeakReference<>(task1);
+
 
             mLayers.setItemsCanFocus(false);
             mLayers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -237,17 +255,23 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                         mProgressInfo.setText(com.nextgis.maplib.R.string.message_loading);
                         setEnabled(mPositive, false);
                         mPositive.setText(R.string.add);
-                        new LoadLayersList().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                        AsyncTask task2 =  new LoadLayersList().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                        task = new WeakReference<>(task2);
                     } else {
                         if (mChecked.size() > 0) {
                             mQMSLayers.setVisibility(View.GONE);
                             mProgress.setVisibility(View.VISIBLE);
 
                             for (int i = 0; i < mChecked.size(); i++){
-                                LoadLayer loadLayer = new LoadLayer(mContext);
+                                if (mContextWeakRef.get() == null){
+                                    dialog.dismiss();
+                                    return;
+                                }
+                                final LoadLayer loadLayer = new LoadLayer(mContextWeakRef.get());
+
                                 loadLayer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mChecked.get(i));
                             }                        } else
-                            Toast.makeText(mContext, R.string.nothing_selected, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mContextWeakRef.get(), R.string.nothing_selected, Toast.LENGTH_SHORT).show();
 
                         dialog.dismiss();
                     }
@@ -301,7 +325,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
 
             } else {
                 new AlertDialog.Builder(getContext())
-                        .setMessage(NetworkUtil.getError(mContext, response.getResponseCode()))
+                        .setMessage(NetworkUtil.getError(mContextWeakRef.get(), response.getResponseCode()))
                         .setPositiveButton(R.string.ok, null)
                         .create()
                         .show();
@@ -341,8 +365,8 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 boolean isURL = URLUtil.isValidUrl(layerURL);
 
                 if (!isURL) {
-                    String error = layerName + ": " + mContext.getString(R.string.error_invalid_url);
-                    Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show();
+                    String error = layerName + ": " + mContextWeakRef.get().getString(R.string.error_invalid_url);
+                    Toast.makeText(mContextWeakRef.get(), error, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -383,17 +407,18 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         protected void onPostExecute(HttpResponse response) {
             super.onPostExecute(response);
 
+            if (!interrupted())
             if (response.isOk()) {
                 try {
                     new JSONArray(response.getResponseBody());
                     createList(response.getResponseBody());
                 } catch (JSONException ignored) {
-                    Toast.makeText(mContext, R.string.qms_unavailable, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContextWeakRef.get(), R.string.qms_unavailable, Toast.LENGTH_SHORT).show();
                     showRetry();
                 }
             } else {
                 Toast.makeText(
-                        mContext, NetworkUtil.getError(mContext, response.getResponseCode()),
+                        mContextWeakRef.get(), NetworkUtil.getError(mContextWeakRef.get(), response.getResponseCode()),
                         Toast.LENGTH_SHORT).show();
                 showRetry();
             }
@@ -422,7 +447,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
                 e.printStackTrace();
             }
 
-            mAdapter = new LayersAdapter(mContext, mData, R.layout.item_qms_layer, new String[]{KEY_NAME}, new int[]{R.id.text1});
+            mAdapter = new LayersAdapter(mContextWeakRef.get(), mData, R.layout.item_qms_layer, new String[]{KEY_NAME}, new int[]{R.id.text1});
             mLayers.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
             mLayers.setAdapter(mAdapter);
 

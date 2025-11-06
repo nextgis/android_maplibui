@@ -85,18 +85,18 @@ public class CreateRemoteTMSLayerDialog
         //context.setTheme(android.R.style.Theme_Light_NoTitleBar);
         //LayoutInflater inflater = getActivity().getLayoutInflater();
         super.onCreateDialog(savedInstanceState);
-        View view = View.inflate(mContext, R.layout.dialog_create_tms, null);
+        View view = View.inflate(mContextWeakRef.get(), R.layout.dialog_create_tms, null);
         mCache = (Spinner) view.findViewById(R.id.layer_cache);
         mCache.setSelection(2);
 
         final ArrayAdapter<CharSequence> adapter =
-                new ArrayAdapter<>(mContext, android.R.layout.simple_spinner_item);
+                new ArrayAdapter<>(mContextWeakRef.get(), android.R.layout.simple_spinner_item);
         mSpinner = (Spinner) view.findViewById(R.id.layer_type);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinner.setAdapter(adapter);
 
-        adapter.add(mContext.getString(R.string.tmstype_osm));
-        adapter.add(mContext.getString(R.string.tmstype_normal));
+        adapter.add(mContextWeakRef.get().getString(R.string.tmstype_osm));
+        adapter.add(mContextWeakRef.get().getString(R.string.tmstype_normal));
 
         mInput = (EditText) view.findViewById(R.id.layer_name);
         mUrl = (EditText) view.findViewById(R.id.layer_url);
@@ -122,7 +122,7 @@ public class CreateRemoteTMSLayerDialog
         }
 
 //        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, mDialogTheme);
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContextWeakRef.get());
         builder.setTitle(mTitle).setView(view).setPositiveButton(
                 R.string.create, new DialogInterface.OnClickListener()
                 {
@@ -147,7 +147,7 @@ public class CreateRemoteTMSLayerDialog
                         //check if {x}, {y} or {z} present
                         if (!layerURL.contains("{x}") || !layerURL.contains("{y}") ||
                             !layerURL.contains("{z}")) {
-                            Toast.makeText(mContext, R.string.error_invalid_url, Toast.LENGTH_SHORT)
+                            Toast.makeText(mContextWeakRef.get(), R.string.error_invalid_url, Toast.LENGTH_SHORT)
                                     .show();
                             return;
                         }
@@ -159,7 +159,7 @@ public class CreateRemoteTMSLayerDialog
                         boolean isURL = URLUtil.isValidUrl(layerURL);
 
                         if (!isURL) {
-                            Toast.makeText(mContext, R.string.error_invalid_url, Toast.LENGTH_SHORT)
+                            Toast.makeText(mContextWeakRef.get(), R.string.error_invalid_url, Toast.LENGTH_SHORT)
                                     .show();
                             return;
                         }
@@ -186,7 +186,7 @@ public class CreateRemoteTMSLayerDialog
                     public void onClick(DialogInterface dialog, int which) {
                         CreateFromQMSLayerDialog newFragment = new CreateFromQMSLayerDialog();
                         newFragment.setLayerGroup(mGroupLayer)
-                                .setTitle(mContext.getString(R.string.create_qms_layer))
+                                .setTitle(mContextWeakRef.get().getString(R.string.create_qms_layer))
                                 .setTheme(((NGActivity) getActivity()).getThemeId())
                                 .show(getActivity().getSupportFragmentManager(), "create_qms_layer");
                     }

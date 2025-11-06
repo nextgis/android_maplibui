@@ -90,6 +90,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import static com.nextgis.maplibui.util.ConstantsUI.VALUE_TRACK_START;
+import static com.nextgis.maplibui.util.ConstantsUI.VALUE_TRACK_STOP;
 import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 
 @SuppressLint("MissingPermission")
@@ -350,6 +352,10 @@ public class TrackerService extends Service
                 Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT_TRACKER);
                 msg.putExtra(ConstantsUI.KEY_MESSAGE, "track not started - try again");
                 sendBroadcast(msg);
+
+                Intent msgT = new Intent(ConstantsUI.MESSAGE_INTENT_TRACK);
+                msgT.putExtra(ConstantsUI.KEY_TRACK_ACTION, VALUE_TRACK_START);
+                sendBroadcast(msgT);
             }
 
             mIsRunning = true;
@@ -375,9 +381,16 @@ public class TrackerService extends Service
         mSharedPreferencesTemp.edit().remove(ConstantsUI.TARGET_CLASS).apply();
         mSharedPreferencesTemp.edit().remove(TRACK_URI).apply();
 
-        Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT_TRACK);
+        Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT_TRACKER);
         msg.putExtra(ConstantsUI.KEY_MESSAGE_TRACK, false);
         sendBroadcast(msg);
+
+        Intent msgT = new Intent(ConstantsUI.MESSAGE_INTENT_TRACK);
+        msgT.putExtra(ConstantsUI.KEY_TRACK_ACTION, VALUE_TRACK_STOP);
+        sendBroadcast(msgT);
+
+
+
         ((GISApplication)getApplication()).setIsTrackInProgress(false);
     }
 

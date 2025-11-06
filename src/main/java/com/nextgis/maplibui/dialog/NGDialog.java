@@ -37,11 +37,13 @@ import android.widget.Button;
 
 import com.nextgis.maplibui.R;
 
+import java.lang.ref.WeakReference;
+
 public class NGDialog extends DialogFragment {
     protected final static String KEY_TITLE = "title";
     protected final static String KEY_THEME = "theme";
 
-    protected Context mContext;
+    protected WeakReference<Context> mContextWeakRef;
     protected Activity mActivity;
     protected String mTitle;
     protected int mEnabledColor, mDisabledColor;
@@ -67,11 +69,12 @@ public class NGDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         mActivity = getActivity();
-        mContext = new ContextThemeWrapper(mActivity, mTheme);
+        mContextWeakRef = new WeakReference<>( new ContextThemeWrapper(mActivity, mTheme));
         mDisabledColor = getResources().getColor(R.color.color_grey_400);
 
         int[] attrs = {android.R.attr.alertDialogStyle};
-        TypedArray ta = mContext.obtainStyledAttributes(mTheme, attrs);
+        Context ctx = mContextWeakRef.get();
+        TypedArray ta = ctx.obtainStyledAttributes(mTheme, attrs);
         try {
             mDialogTheme = ta.getResourceId(0, R.style.Theme_NextGIS_AppCompat_Light_Dialog);
         } finally {
@@ -97,20 +100,20 @@ public class NGDialog extends DialogFragment {
     @Override
     public Context getContext()
     {
-        return mContext;
+        return mContextWeakRef.get();
     }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        mContext = context;
+        mContextWeakRef = new WeakReference<>(context);
 
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mContext = null;
+        mContextWeakRef.clear();
     }
 
     @Override

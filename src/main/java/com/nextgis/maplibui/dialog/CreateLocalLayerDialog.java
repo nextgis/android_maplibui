@@ -115,20 +115,20 @@ public class CreateLocalLayerDialog
 
         View view;
         if (mLayerType < 3) {
-            view = View.inflate(mContext, R.layout.dialog_create_vector_layer, null);
+            view = View.inflate(mContextWeakRef.get(), R.layout.dialog_create_vector_layer, null);
         } else {
-            view = View.inflate(mContext, R.layout.dialog_create_local_tms, null);
+            view = View.inflate(mContextWeakRef.get(), R.layout.dialog_create_local_tms, null);
             mCache = (Spinner) view.findViewById(R.id.layer_cache);
             mCache.setSelection(2);
 
             final ArrayAdapter<CharSequence> adapter =
-                    new ArrayAdapter<>(mContext, android.R.layout.simple_spinner_item);
+                    new ArrayAdapter<>(mContextWeakRef.get(), android.R.layout.simple_spinner_item);
             mSpinner = (Spinner) view.findViewById(R.id.layer_type);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mSpinner.setAdapter(adapter);
 
-            adapter.add(mContext.getString(R.string.tmstype_osm));
-            adapter.add(mContext.getString(R.string.tmstype_normal));
+            adapter.add(mContextWeakRef.get().getString(R.string.tmstype_osm));
+            adapter.add(mContextWeakRef.get().getString(R.string.tmstype_normal));
 
             if (null != savedInstanceState) {
                 mSpinner.setSelection(savedInstanceState.getInt(KEY_TMS_TYPE, 0));
@@ -141,7 +141,7 @@ public class CreateLocalLayerDialog
         layerName.setSelection(mLayerName.length());
 
 //        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, mDialogTheme);
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContextWeakRef.get());
         builder.setTitle(mTitle).setView(view)
                 .setPositiveButton(
                         R.string.create, new DialogInterface.OnClickListener()
@@ -152,7 +152,7 @@ public class CreateLocalLayerDialog
                             {
                                 mLayerName = layerName.getText().toString();
                                 // create or connect to fill layer with features
-                                Intent intent = new Intent(mContext, LayerFillService.class);
+                                Intent intent = new Intent(mContextWeakRef.get(), LayerFillService.class);
                                 intent.setAction(LayerFillService.ACTION_ADD_TASK);
                                 intent.putExtra(LayerFillService.KEY_URI, mUri);
                                 intent.putExtra(LayerFillService.KEY_NAME, mLayerName);

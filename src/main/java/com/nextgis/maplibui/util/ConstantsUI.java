@@ -53,6 +53,10 @@ public interface ConstantsUI
 
     String MESSAGE_INTENT_TRACK = "com.nextgis.malibui.MESSAGETRACK";
 
+    String KEY_TRACK_ACTION          = "trackaction";
+    String VALUE_TRACK_START          = "trackstart";
+    String VALUE_TRACK_STOP          = "trackstop";
+
     String FILE_FORM = "form.json";
 
     int TOLERANCE_DP       = 20;

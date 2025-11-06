@@ -79,13 +79,13 @@ public class ChooseColorDialog
 
         mColorsListAdapter = new ChooseColorListAdapter(mActivity, mColors);
 
-        View view = View.inflate(mContext, R.layout.layout_layers, null);
+        View view = View.inflate(mContextWeakRef.get(), R.layout.layout_layers, null);
         ListView dialogListView = (ListView) view.findViewById(R.id.listView);
         dialogListView.setAdapter(mColorsListAdapter);
         dialogListView.setOnItemClickListener(this);
 
 //        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, mDialogTheme);
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContextWeakRef.get());
         builder.setTitle(mTitle).setView(view).setInverseBackgroundForced(true).setNegativeButton(
                 R.string.cancel, new DialogInterface.OnClickListener()
                 {

@@ -130,7 +130,7 @@ public class SelectNGWResourceDialog
             mListAdapter.setCheckState(savedInstanceState.<CheckState> getParcelableArrayList(KEY_STATES));
         }
 
-        View view = View.inflate(mContext, R.layout.layout_resources, null);
+        View view = View.inflate(mContextWeakRef.get(), R.layout.layout_resources, null);
         ListView dialogListView = (ListView) view.findViewById(R.id.listView);
         mListAdapter.setTypeMask(mTypeMask);
         dialogListView.setAdapter(mListAdapter);
@@ -140,7 +140,7 @@ public class SelectNGWResourceDialog
         mListAdapter.setPathLayout(pathView);
 
 //        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, mDialogTheme);
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContextWeakRef.get());
         builder.setTitle(mTitle)
                 .setIcon(R.drawable.ic_ngw)
                 .setView(view)
@@ -152,7 +152,7 @@ public class SelectNGWResourceDialog
                                     DialogInterface dialog,
                                     int id)
                             {
-                                createLayers(mContext);
+                                createLayers(mContextWeakRef.get());
                             }
                         })
                 .setNegativeButton(R.string.cancel, null);
@@ -231,7 +231,7 @@ public class SelectNGWResourceDialog
             if (resultCode != Activity.RESULT_CANCELED) {
                 //search new account and add it
                 Connections connections = mListAdapter.getConnections();
-                IGISApplication app = (IGISApplication) mContext.getApplicationContext();
+                IGISApplication app = (IGISApplication) mContextWeakRef.get().getApplicationContext();
 
                 for (Account account : mAccountManager.getAccountsByType(app.getAccountsType())) {
                     boolean find = false;
