@@ -1265,7 +1265,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
     }
 
 
-    public boolean notContains(GeoGeometry geometry, GeoPoint point) {
+    static public boolean notContains(GeoGeometry geometry, GeoPoint point) {
         if (geometry instanceof GeoPolygon) {
             GeoPolygon polygon = (GeoPolygon) geometry;
             if (!polygon.contains(point))
