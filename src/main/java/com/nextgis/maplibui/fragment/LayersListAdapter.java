@@ -253,9 +253,14 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                             popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(extents != null && extents.isInit());
                         } else if (layerui instanceof NGWRasterLayer) {
                             popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(true);
-                            popup.getMenu().findItem(R.id.menu_download_tiles).setVisible(true);
+                            popup.getMenu().findItem(R.id.menu_download_tiles).setVisible(
+                                    ((NGWRasterLayer)layerui).getIsOfflie() ? false : true);
                         } else if (layerui instanceof RemoteTMSLayer) {
-                            popup.getMenu().findItem(R.id.menu_download_tiles).setVisible(true);
+                            if (((RemoteTMSLayer)layerui).getIsOfflie())
+                                popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(true);
+
+                            popup.getMenu().findItem(R.id.menu_download_tiles).setVisible(
+                                    ((RemoteTMSLayer)layerui).getIsOfflie() ? false : true);
                         }
 
                         if (layerui instanceof NGWWebMapLayerUI) {
@@ -332,8 +337,18 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 //                                            }
 //                                        }
                                         else if (i == R.id.menu_edit) {
-                                            if (layerui instanceof NGWWebMapLayerUI)
-                                                ((NGWWebMapLayerUI) layerui).showLayersDialog(mMapView, mActivity);
+                                            if (layerui instanceof NGWWebMapLayerUI) {
+                                                final MapDrawable finalMapdrawable = mMap;
+                                                final Runnable updateRunnable = new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        finalMapdrawable.deleteLayerByID(((NGWWebMapLayerUI) layerui).getId());
+                                                        finalMapdrawable.addLayerByID(( ((NGWWebMapLayerUI) layerui).getId()));
+                                                    }
+                                                };
+                                                ((NGWWebMapLayerUI) layerui).showLayersDialog(mMapView, mActivity, updateRunnable);
+
+                                            }
                                             else if (mEditListener != null)
                                                 mEditListener.onLayerEdit(layer);
                                         } else if (i == R.id.menu_delete) {
@@ -341,7 +356,10 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                                         } else if (i == R.id.menu_zoom_extent) {
                                             mMap.zoomToExtent(layer.getExtents());
                                         } else if (i == R.id.menu_download_tiles) {
+
                                             GeoEnvelope env = mMap.getCurrentBounds();
+
+
 
                                             if (layer instanceof RemoteTMSLayerUI) {
                                                 RemoteTMSLayerUI remoteTMSLayer = (RemoteTMSLayerUI) layer;

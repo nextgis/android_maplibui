@@ -150,9 +150,11 @@ public class CurrentLocationOverlay extends Overlay implements GpsEventListener 
 
                 // set marker in current map and screen bounds flags
                 newPoint = mMarker.getCoordinates(GeoConstants.CRS_WEB_MERCATOR);
-                mIsInBounds = mapDrawable.getCurrentBounds().contains(newPoint);
-                GeoEnvelope screenBounds = mapDrawable.getFullScreenBounds();
-                mIsInScreenBounds = mapDrawable.screenToMap(screenBounds).contains(newPoint);
+                if (mapDrawable.getCurrentBounds() != null) {
+                    mIsInBounds = mapDrawable.getCurrentBounds().contains(newPoint);
+                    GeoEnvelope screenBounds = mapDrawable.getFullScreenBounds();
+                    mIsInScreenBounds = mapDrawable.screenToMap(screenBounds).contains(newPoint);
+                }
             }
 
             if (mIsInBounds) {

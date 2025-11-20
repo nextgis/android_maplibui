@@ -68,7 +68,7 @@ public class NGWWebMapLayerUI extends NGWWebMapLayer implements ILayerUI {
                 show(fragmentActivity.getSupportFragmentManager(), "select_zoom_levels");
     }
 
-    public void showLayersDialog(final MapView map, final Activity activity) {
+    public void showLayersDialog(final MapView map, final Activity activity, final Runnable updateRunnable) {
         CharSequence[] names = new CharSequence[mChildren.size()];
         final boolean[] visible = new boolean[mChildren.size()];
         for (int i = 0; i < mChildren.size(); i++) {
@@ -104,6 +104,11 @@ public class NGWWebMapLayerUI extends NGWWebMapLayer implements ILayerUI {
 
                             new ClearCacheTask(activity, listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR ,getPath());
                             save();
+
+                            updateRunnable.run();
+
+
+
                         }
                     }
                 });

@@ -29,6 +29,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.IBinder;
@@ -39,12 +40,15 @@ import android.util.Log;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.TileItem;
+import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.RemoteTMSLayer;
+import com.nextgis.maplib.map.TMSLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.mapui.LocalTMSLayerUI;
 import com.nextgis.maplibui.util.NotificationHelper;
 
 import java.util.ArrayList;
@@ -96,6 +100,14 @@ public class TileDownloadService extends Service {
     public void onCreate() {
         super.onCreate();
         //android.os.Debug.waitForDebugger();
+        Log.e("TTIILLE", "onCreate()");
+
+//        try {
+//            Thread.sleep(5000);
+//        } catch (Exception ex){
+//
+//        }
+
 
         if (Constants.DEBUG_MODE) {
             Log.d(Constants.TAG, "TileDownloadService.onCreate() is starting");
@@ -118,11 +130,11 @@ public class TileDownloadService extends Service {
                 .setOngoing(true)
                 .addAction(R.drawable.ic_action_cancel_dark, getString(R.string.cancel), stop);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String title = getString(R.string.download_tiles);
-            mBuilder.setContentTitle(title).setTicker(title).setWhen(System.currentTimeMillis());
-            startForeground(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            String title = getString(R.string.download_tiles);
+//            mBuilder.setContentTitle(title).setTicker(title).setWhen(System.currentTimeMillis());
+//            startForeground(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
+//        }
 
         mQueue = new ConcurrentLinkedQueue<>();
     }
@@ -134,9 +146,25 @@ public class TileDownloadService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.e("TTIILLE", "onStartCommand()");
+
+//        try {
+//            Thread.sleep(5000);
+//        } catch (Exception ex){
+//
+//        }
         if (Constants.DEBUG_MODE) {
             Log.i("TileDownloadService", "Received start id " + startId + ": " + intent);
             Log.d(Constants.TAG, "TileDownloadService.onStartCommand() is starting");
+        }
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            String title = getString(R.string.download_tiles);
+            mBuilder.setContentTitle(title).setTicker(title).setWhen(System.currentTimeMillis());
+            startForeground(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+        } else {
+            startForeground(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
         }
 
         if (intent != null) {
@@ -164,6 +192,8 @@ public class TileDownloadService extends Service {
     }
 
     protected void addDownloadTask(Intent intent) {
+        Log.e("TTIILLE", "addDownloadTask()");
+
         if (Constants.DEBUG_MODE) {
             Log.d(Constants.TAG, "Add task to download queue");
         }
@@ -175,10 +205,13 @@ public class TileDownloadService extends Service {
         GeoEnvelope env = new GeoEnvelope(dfMinX, dfMaxX, dfMinY, dfMaxY);
 
         if (intent.hasExtra(KEY_ZOOM_FROM) && intent.hasExtra(KEY_ZOOM_TO)) {
+            Log.e("TTIILLE", "KEY_ZOOM_FROM");
+
             int zoomFrom = intent.getIntExtra(KEY_ZOOM_FROM, 0);
             int zoomTo = intent.getIntExtra(KEY_ZOOM_TO, 18);
             addTask(layerPathName, env, zoomFrom, zoomTo);
         } else if (intent.hasExtra(KEY_ZOOM_LIST)) {
+            Log.e("TTIILLE", "KEY_ZOOM_LIST");
             List<Integer> zoomList = intent.getIntegerArrayListExtra(KEY_ZOOM_LIST);
             addTask(layerPathName, env, zoomList);
         }
@@ -186,6 +219,8 @@ public class TileDownloadService extends Service {
 
     // For overriding in subclasses
     protected void cancelDownload() {
+        Log.e("TTIILLE", "cancelDownload");
+
         if (Constants.DEBUG_MODE) {
             Log.d(Constants.TAG, "Cancel download queue");
         }
@@ -220,6 +255,8 @@ public class TileDownloadService extends Service {
 
     @Override
     public void onDestroy() {
+        Log.e("TTIILLE", "onDestroy");
+
         clearResources();
         if (Constants.DEBUG_MODE) {
             Log.d(Constants.TAG, "TileDownloadService.onDestroy(), service is stopped");
@@ -272,6 +309,8 @@ public class TileDownloadService extends Service {
 
                 while (!mQueue.isEmpty()) {
                     if (mIsDownloadInterrupted) {
+                        Log.e("TTIILLE", "mIsDownloadInterrupted");
+
                         break;
                     }
                     if (Constants.DEBUG_MODE) {
@@ -296,12 +335,22 @@ public class TileDownloadService extends Service {
     protected List<TileItem> getTileItems(
             GeoEnvelope bounds,
             double zoom,
-            RemoteTMSLayer tmsLayer)
+            TMSLayer tmsLayer)
     {
         return MapUtil.getTileItems(bounds, zoom, tmsLayer.getTMSType());
     }
 
     protected void download(DownloadTask task) {
+        Log.e("TTIILLE", "download(DownloadTask task)");
+
+
+
+//        try {
+//            Thread.sleep(5000);
+//        } catch (Exception ex){
+//
+//        }
+
         mIsDownloadError = false;
 
         MapBase map = MapBase.getInstance();
@@ -313,7 +362,9 @@ public class TileDownloadService extends Service {
 
         ILayer layer = map.getLayerByPathName(task.getLayerPathName());
 
-        if (layer instanceof RemoteTMSLayer) { // process only tms layers
+        if (layer instanceof RemoteTMSLayer || layer instanceof TMSLayer) { // process only tms layers
+            Log.e("TTIILLE", "layer instanceof RemoteTMSLayer");
+
             String notifyTitle = getString(R.string.download_tiles);
             mBuilder.setContentTitle(notifyTitle).setWhen(System.currentTimeMillis());
             mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
@@ -322,14 +373,14 @@ public class TileDownloadService extends Service {
             final List<TileItem> tiles = new LinkedList<>();
             int zoomCount = task.getZoomList().size();
 
+            Log.e("TTIILLE", "zoomCount" +zoomCount);
+
             sendProgressorsValues(zoomCount, 0, tmsLayer.getPath().getName());
 
             for (Integer zoom : task.getZoomList()) {
                 if (mIsDownloadInterrupted) {
                     if (Constants.DEBUG_MODE) {
-                        Log.d(
-                                Constants.TAG,
-                                "TileDownloadService.mDownloadThread is interrupted, point 01");
+                        Log.d(Constants.TAG,"TileDownloadService.mDownloadThread is interrupted, point 01");
                     }
                     return;
                 }
@@ -486,6 +537,9 @@ public class TileDownloadService extends Service {
                 Thread.currentThread().interrupt();
             }
         } else {
+            Log.e("TTIILLE", "EEELLLSSSEEEE " );
+
+            Log.e("TTIILLE", "else layer instanceof RemoteTMSLayer");
             if (Constants.DEBUG_MODE) {
                 if (layer == null) {
                     Log.d(

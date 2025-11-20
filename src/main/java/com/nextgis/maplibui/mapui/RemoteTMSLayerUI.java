@@ -55,7 +55,10 @@ public class RemoteTMSLayerUI
     @Override
     public Drawable getIcon(Context context)
     {
-        return ContextCompat.getDrawable(mContext, R.drawable.ic_raster);
+        if (getIsOfflie())
+            return ContextCompat.getDrawable(mContext, R.drawable.ic_raster_offline);
+        else
+            return ContextCompat.getDrawable(mContext, R.drawable.ic_raster);
     }
 
 

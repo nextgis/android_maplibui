@@ -837,7 +837,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
             case GeoConstants.GTMultiPolygon:
                 geometry = new GeoMultiPolygon();
                 for (DrawItem drawItem : mDrawItems)
-                    ((GeoMultiPolygon) geometry).add(getBaseGeometry(mMap, GeoConstants.GTMultiPolygon, drawItem));
+                    ((GeoMultiPolygon) geometry).add(getBaseGeometry(mMap, GeoConstants.GTPolygon, drawItem));
                 break;
             default:
                 geometry = null;

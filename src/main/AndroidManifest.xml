@@ -30,6 +30,7 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 
     <application>
@@ -106,7 +107,8 @@
             android:name="com.nextgis.maplibui.service.RebuildCacheService"
             android:enabled="true"
             android:exported="true"
-            android:foregroundServiceType="dataSync"/>
+            android:foregroundServiceType="dataSync"
+            />
 
         <service
             android:name="com.nextgis.maplibui.service.TrackerService"

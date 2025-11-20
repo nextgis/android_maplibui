@@ -23,16 +23,21 @@
 
 package com.nextgis.maplibui.dialog;
 
+import static androidx.core.content.ContextCompat.startForegroundService;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.core.content.ContextCompat;
+
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -40,12 +45,15 @@ import com.appyvet.materialrangebar.RangeBar;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
+import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.MapDrawable;
+import com.nextgis.maplib.map.RemoteTMSLayer;
 import com.nextgis.maplib.map.TMSLayer;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.mapui.RemoteTMSLayerUI;
 import com.nextgis.maplibui.service.TileDownloadService;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
@@ -156,10 +164,30 @@ public class SelectZoomLevelsDialog extends DialogFragment {
 
                         ILayer layer = map.getLayerById(layerId);
                         if (null != layer) {
+                            // create local TMS Layer - (local for maplibre - tms for system)
+                            IGISApplication app = (IGISApplication) getActivity().getApplication();
+                            LayerGroup mGroupLayer = app.getMapBase();
+
+                            RemoteTMSLayerUI remoteNewlayer = new RemoteTMSLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
+                            remoteNewlayer.setIsOfflie(true);
+                            remoteNewlayer.setName(layer.getName() + "_offline");
+                            remoteNewlayer.setURL(((RemoteTMSLayer)layer).getURL());
+                            remoteNewlayer.setTMSType(((RemoteTMSLayer)layer).getTMSType());
+                            remoteNewlayer.setVisible(true);
+                            remoteNewlayer.setMinZoom(zoomFrom);
+                            remoteNewlayer.setMaxZoom(zoomTo);
+                            remoteNewlayer.setLogin(((RemoteTMSLayer) layer).getLogin());
+                            remoteNewlayer.setPassword(((RemoteTMSLayer) layer).getPassword());
+
+                            mGroupLayer.addLayer(remoteNewlayer);
+                            mGroupLayer.save();
+
+                            Log.e("TTIILLE", "download bounds = " + env.toString());
+
                             Intent intent = new Intent(getActivity(), TileDownloadService.class);
                             intent.setAction(TileDownloadService.ACTION_ADD_TASK);
-                            intent.putExtra(ConstantsUI.KEY_LAYER_ID, layerId);
-                            intent.putExtra(TileDownloadService.KEY_PATH, layer.getPath().getName());
+                            intent.putExtra(ConstantsUI.KEY_LAYER_ID, remoteNewlayer.getId());
+                            intent.putExtra(TileDownloadService.KEY_PATH, remoteNewlayer.getPath().getName());
                             intent.putExtra(TileDownloadService.KEY_ZOOM_FROM, zoomFrom);
                             intent.putExtra(TileDownloadService.KEY_ZOOM_TO, zoomTo);
                             intent.putExtra(TileDownloadService.KEY_MINX, env.getMinX());
@@ -167,7 +195,17 @@ public class SelectZoomLevelsDialog extends DialogFragment {
                             intent.putExtra(TileDownloadService.KEY_MINY, env.getMinY());
                             intent.putExtra(TileDownloadService.KEY_MAXY, env.getMaxY());
 
-                            ContextCompat.startForegroundService(context, intent);
+                            Log.e("TTIILLE", "zoomFrom" + zoomFrom);
+                            Log.e("TTIILLE", "zoomTo" + zoomTo);
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                startForegroundService(context, intent);
+                            } else {
+                                getActivity().startService(intent);
+                            }
+
+
+                            //startForegroundService(context, intent);
                         }
 
                     }
