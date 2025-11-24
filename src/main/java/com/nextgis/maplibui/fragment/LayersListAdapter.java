@@ -34,6 +34,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,6 +51,7 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplib.map.MapDrawable;
+import com.nextgis.maplib.map.MaplibreMapInteraction;
 import com.nextgis.maplib.map.NGWLookupTable;
 import com.nextgis.maplib.map.NGWRasterLayer;
 import com.nextgis.maplib.map.RemoteTMSLayer;
@@ -447,19 +449,19 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 
     @Override
     public void onLayerAdded(int id) {
-        notifyDataChanged();
+        notifyDataChanged(false);
     }
 
 
     @Override
     public void onLayerDeleted(int id) {
-        notifyDataChanged();
+        notifyDataChanged(false);
     }
 
 
     @Override
     public void onLayerChanged(int id) {
-        notifyDataChanged();
+        notifyDataChanged(false);
     }
 
     @Override
@@ -475,7 +477,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 
     @Override
     public void onLayersReordered() {
-        notifyDataChanged();
+        notifyDataChanged(false);
     }
 
 
@@ -491,11 +493,13 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
     }
 
 
-    void notifyDataChanged() {
+    void notifyDataChanged(boolean reloadAllLayers) {
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 notifyDataSetChanged();
+//                if (reloadAllLayers)
+//                    mMap.mapFragment.get().loadLayersLite();
             }
         });
     }
@@ -507,13 +511,24 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 
 
     public void swapElements(int originalPosition, int newPosition) {
-        //Log.d(TAG,
-        //      "Original position: " + originalPosition + " Destination position: " + newPosition);
+        Log.d("SSWAPP",
+              "Original position: " + originalPosition + " Destination position: " + newPosition);
         if (null == mMap) {
             return;
         }
+
+        final ILayer iLayerFrom = (ILayer)getItem(originalPosition);
+        final ILayer iLayerTo = (ILayer)getItem(newPosition);
+
+        Log.d("SSWAPP",
+                "Original position: " + iLayerFrom.getName() + " Destination position: " + iLayerTo.getName());
+
+
+
         int newPositionFixed = getCount() - 1 - newPosition;
         mMap.moveLayer(newPositionFixed, (com.nextgis.maplib.api.ILayer) getItem(originalPosition));
+
+        mMap.updatelayerOrder(iLayerFrom, iLayerTo);
         notifyDataSetChanged();
     }
 

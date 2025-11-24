@@ -315,6 +315,20 @@ public class MapViewBase
     }
 
 
+    public List<ILayer> getAllLayers()
+    {
+        List<ILayer> ret = new ArrayList<>();
+
+        if (mMap != null) {
+            LayerGroup.getAllLayers(mMap, ret);
+        }
+
+        return ret;
+    }
+
+
+
+
     public void addLocalTMSLayer(Uri uri)
     {
         if (mMap != null) {
