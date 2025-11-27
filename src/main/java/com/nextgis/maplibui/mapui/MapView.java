@@ -103,8 +103,8 @@ public class MapView
     }
 
     public MapView(
-            Context context,
-            MapDrawable map)
+            final Context context,
+            final MapDrawable map)
     {
         super(context, map);
 

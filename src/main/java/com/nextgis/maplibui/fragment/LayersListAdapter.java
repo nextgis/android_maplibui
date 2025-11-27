@@ -77,6 +77,8 @@ import static com.nextgis.maplib.util.LayerUtil.normalizeLayerName;
 import static com.nextgis.maplibui.util.ConstantsUI.CODE_SAVE_FILE;
 import static com.nextgis.maplibui.util.ExportGeoJSONTask.ZIP_EXT;
 
+import java.lang.ref.WeakReference;
+
 
 /**
  * An adapter to show layers as list
@@ -84,8 +86,8 @@ import static com.nextgis.maplibui.util.ExportGeoJSONTask.ZIP_EXT;
 public class LayersListAdapter extends BaseAdapter implements MapEventListener {
     protected final MapView mMapView;
     protected final MapDrawable mMap;
-    protected final Context mContext;
-    protected final NGActivity mActivity;
+    //protected final Context mContext;
+    protected final WeakReference<NGActivity> mActivity;
     protected DrawerLayout mDrawer;
     protected onEdit mEditListener;
     protected View.OnClickListener mOnPencilClickListener;
@@ -99,7 +101,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
     public LayersListAdapter(NGActivity activity, MapView map) {
         mMapView = map;
         mMap = map.getMap();
-        mContext = mActivity = activity;
+        mActivity = new WeakReference<>(activity);
 
         if (null != mMap)
             mMap.addListener(this);
@@ -166,7 +168,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 
 
     private View getStandardLayerView(final ILayer layer, View view) {
-        LayoutInflater inflater = LayoutInflater.from(mContext);
+        LayoutInflater inflater = LayoutInflater.from(mActivity.get());
         View v = view;
         if (v == null || v.getId() == R.id.empty_row)
             v = inflater.inflate(R.layout.row_layer, null);
@@ -184,7 +186,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
         }
 
         ImageView ivIcon = v.findViewById(R.id.ivIcon);
-        ivIcon.setImageDrawable(layerui != null ? layerui.getIcon(mContext) : null);
+        ivIcon.setImageDrawable(layerui != null ? layerui.getIcon(mActivity.get()) : null);
 
         TextView tvPaneName = v.findViewById(R.id.tvLayerName);
         tvPaneName.setText(layer.getName());
@@ -202,7 +204,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
             ivEdited.setOnClickListener(mOnPencilClickListener);
 
         int[] attrs = new int[] { R.attr.ic_action_visibility_on, R.attr.ic_action_visibility_off};
-        TypedArray ta = mContext.obtainStyledAttributes(attrs);
+        TypedArray ta = mActivity.get().obtainStyledAttributes(attrs);
         Drawable visibilityOn = ta.getDrawable(0);
         Drawable visibilityOff = ta.getDrawable(1);
 
@@ -221,7 +223,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 
         btMore.setOnClickListener(new View.OnClickListener() {
                     public void onClick(final View arg0) {
-                        PopupMenu popup = new PopupMenu(mContext, btMore);
+                        PopupMenu popup = new PopupMenu(mActivity.get(), btMore);
                         UiUtil.setForceShowIcon(popup);
                         popup.getMenuInflater().inflate(R.menu.layer_popup, popup.getMenu());
 
@@ -233,7 +235,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 
                         if (layer instanceof VectorLayerUI) {
                             popup.getMenu().findItem(R.id.menu_send_to_ngw).setVisible(true);
-                            if (!AccountUtil.isProUser(mActivity)) {
+                            if (!AccountUtil.isProUser(mActivity.get())) {
                                 popup.getMenu().findItem(R.id.menu_send_to_ngw).setIcon(R.drawable.ic_lock_black_24dp);
                             }
                         }
@@ -276,7 +278,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                                         final int i = item.getItemId();
                                         if (i == R.id.menu_settings) {
                                             assert layerui != null;
-                                            layerui.changeProperties(mContext);
+                                            layerui.changeProperties(mActivity.get());
                                         } else if (i == R.id.menu_share  || i == R.id.menu_save ) {
                                             assert layerui != null;
 
@@ -300,17 +302,17 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                                                                 dialog.cancel();
                                                                 if (i == R.id.menu_share) {
                                                                     VectorLayer vectorLayer = (VectorLayer) layerui;
-                                                                    LayerUtil.shareLayerAsGeoJSON(mActivity, vectorLayer, true,
+                                                                    LayerUtil.shareLayerAsGeoJSON(mActivity.get(), vectorLayer, true,
                                                                             false, null, nChoise == 1);
                                                                 } else if (i == R.id.menu_save){
-                                                                    mActivity.storeLayerForSave((VectorLayer) layerui);
+                                                                    mActivity.get().storeLayerForSave((VectorLayer) layerui);
                                                                     String fileName = normalizeLayerName(((VectorLayer) layerui).getName()) + ZIP_EXT;
                                                                     Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
                                                                     intent.addCategory(Intent.CATEGORY_OPENABLE);
                                                                     intent.setType("*/*");
                                                                     intent.putExtra(Intent.EXTRA_TITLE, fileName);
-                                                                    mActivity.updateChoise(nChoise);
-                                                                    mActivity.startActivityForResult(intent, CODE_SAVE_FILE);
+                                                                    mActivity.get().updateChoise(nChoise);
+                                                                    mActivity.get().startActivityForResult(intent, CODE_SAVE_FILE);
                                                                 }
                                                             }})
                                                         .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -329,13 +331,13 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 //                                            assert layerui != null; 222
 //
 //                                            if (layerui instanceof VectorLayer) {
-//                                                mActivity.storeLayerForSave((VectorLayer) layerui);
+//                                                mActivity.get().storeLayerForSave((VectorLayer) layerui);
 //                                                String fileName = normalizeLayerName(((VectorLayer) layerui).getName()) + ZIP_EXT;
 //                                                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
 //                                                intent.addCategory(Intent.CATEGORY_OPENABLE);
 //                                                intent.setType("*/*");
 //                                                intent.putExtra(Intent.EXTRA_TITLE, fileName);
-//                                                mActivity.startActivityForResult(intent, CODE_SAVE_FILE);
+//                                                mActivity.get().startActivityForResult(intent, CODE_SAVE_FILE);
 //                                            }
 //                                        }
                                         else if (i == R.id.menu_edit) {
@@ -348,7 +350,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                                                         finalMapdrawable.addLayerByID(( ((NGWWebMapLayerUI) layerui).getId()));
                                                     }
                                                 };
-                                                ((NGWWebMapLayerUI) layerui).showLayersDialog(mMapView, mActivity, updateRunnable);
+                                                ((NGWWebMapLayerUI) layerui).showLayersDialog(mMapView, mActivity.get(), updateRunnable);
 
                                             }
                                             else if (mEditListener != null)
@@ -365,22 +367,22 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 
                                             if (layer instanceof RemoteTMSLayerUI) {
                                                 RemoteTMSLayerUI remoteTMSLayer = (RemoteTMSLayerUI) layer;
-                                                remoteTMSLayer.downloadTiles(mContext, env);
+                                                remoteTMSLayer.downloadTiles(mActivity.get(), env);
                                             } else if (layer instanceof NGWRasterLayerUI) {
                                                 NGWRasterLayerUI remoteTMSLayer = (NGWRasterLayerUI) layer;
-                                                remoteTMSLayer.downloadTiles(mContext, env);
+                                                remoteTMSLayer.downloadTiles(mActivity.get(), env);
                                             } else if (layer instanceof NGWWebMapLayerUI) {
                                                 NGWWebMapLayerUI remoteTMSLayer = (NGWWebMapLayerUI) layer;
-                                                remoteTMSLayer.downloadTiles(mContext, env);
+                                                remoteTMSLayer.downloadTiles(mActivity.get(), env);
                                             } else if (layer instanceof IVectorLayerUI) {
                                                 IVectorLayerUI vectorLayerUI = (IVectorLayerUI) layer;
                                                 vectorLayerUI.showAttributes();
                                             }
                                         } else if (i == R.id.menu_send_to_ngw) {
-                                            if (!AccountUtil.isUserExists(mActivity)) {
-                                                ControlHelper.showNoLoginDialog(mActivity);
+                                            if (!AccountUtil.isUserExists(mActivity.get())) {
+                                                ControlHelper.showNoLoginDialog(mActivity.get());
                                             } else if (layer instanceof VectorLayerUI)
-                                                ((VectorLayerUI) layer).sendToNGW(mActivity);
+                                                ((VectorLayerUI) layer).sendToNGW(mActivity.get());
                                         }
 
                                         if (mDrawer != null)
@@ -398,19 +400,19 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
     }
 
     private boolean deleteLayer(final ILayer layer) {
-        new AlertDialog.Builder(mActivity).setTitle(R.string.are_you_sure).setMessage(R.string.delete_confirm)
+        new AlertDialog.Builder(mActivity.get()).setTitle(R.string.are_you_sure).setMessage(R.string.delete_confirm)
                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                    @Override
                    public void onClick(DialogInterface dialogInterface, int i) {
                        final int position = mMap.removeLayer(layer);
-                       final View root = mActivity.getWindow().getDecorView().getRootView();
+                       final View root = mActivity.get().getWindow().getDecorView().getRootView();
                        if (root == null) {
                            layer.delete(true);
                            mMap.save();
                            return;
                        }
 
-                       String done = mActivity.getString(R.string.delete_layer_done);
+                       String done = mActivity.get().getString(R.string.delete_layer_done);
                        Snackbar snackbar = Snackbar.make(root, done, Snackbar.LENGTH_LONG)
                                                    .setAction(R.string.undo, new View.OnClickListener() {
                                                        @Override
@@ -438,7 +440,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 
                        View view = snackbar.getView();
                        TextView textView = view.findViewById(com.google.android.material.R.id.snackbar_text);
-                       textView.setTextColor(ContextCompat.getColor(mActivity, R.color.color_white));
+                       textView.setTextColor(ContextCompat.getColor(mActivity.get(), R.color.color_white));
                        snackbar.show();
                    }
                })
@@ -494,12 +496,12 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 
 
     void notifyDataChanged(boolean reloadAllLayers) {
-        mActivity.runOnUiThread(new Runnable() {
+        mActivity.get().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 notifyDataSetChanged();
-//                if (reloadAllLayers)
-//                    mMap.mapFragment.get().loadLayersLite();
+                if (reloadAllLayers)
+                    mMap.mapFragment.get().loadLayersLite();
             }
         });
     }
@@ -520,15 +522,15 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
         final ILayer iLayerFrom = (ILayer)getItem(originalPosition);
         final ILayer iLayerTo = (ILayer)getItem(newPosition);
 
-        Log.d("SSWAPP",
-                "Original position: " + iLayerFrom.getName() + " Destination position: " + iLayerTo.getName());
+//        Log.d("SSWAPP",
+//                "Original position: " + iLayerFrom.getName() + " Destination position: " + iLayerTo.getName());
 
 
 
         int newPositionFixed = getCount() - 1 - newPosition;
         mMap.moveLayer(newPositionFixed, (com.nextgis.maplib.api.ILayer) getItem(originalPosition));
 
-        mMap.updatelayerOrder(iLayerFrom, iLayerTo);
+//        mMap.updatelayerOrder(iLayerFrom, iLayerTo);
         notifyDataSetChanged();
     }
 

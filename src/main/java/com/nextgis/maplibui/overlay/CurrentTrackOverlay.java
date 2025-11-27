@@ -71,20 +71,20 @@ public class CurrentTrackOverlay
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setColor(ControlHelper.getColor(mContext, android.R.attr.colorAccent));
+        mPaint.setColor(ControlHelper.getColor(mContext.get(), android.R.attr.colorAccent));
         mPaint.setStrokeWidth(4);
 
         mTrackpoints = new ArrayList<>();
         IGISApplication app = (IGISApplication) parent.getApplication();
         String authority = app.getAuthority();
         mContentUriTracks = Uri.parse("content://" + authority + "/" + TrackLayer.TABLE_TRACKS);
-        mCursor = mContext.getContentResolver()
+        mCursor = mContext.get().getContentResolver()
                 .query(mContentUriTracks, mProjection, mSelection, null, null);
 
         if (mCursor == null)
             return;
 
-        mCursor.setNotificationUri(mContext.getContentResolver(), mContentUriTracks);
+        mCursor.setNotificationUri(mContext.get().getContentResolver(), mContentUriTracks);
         ContentObserver test = new TrackObserver(new Handler());
         mCursor.registerContentObserver(test);
     }
@@ -165,7 +165,7 @@ public class CurrentTrackOverlay
         String[] proj = new String[] {TrackLayer.FIELD_LON, TrackLayer.FIELD_LAT};
 
         try {
-            Cursor track = mContext.getContentResolver().query(Uri.withAppendedPath(mContentUriTracks, id), proj, null, null, null);
+            Cursor track = mContext.get().getContentResolver().query(Uri.withAppendedPath(mContentUriTracks, id), proj, null, null, null);
 
             if (track == null) {
                 return;

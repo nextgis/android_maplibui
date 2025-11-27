@@ -77,7 +77,7 @@ public class CurrentLocationOverlay extends Overlay implements GpsEventListener 
         super(context, mapViewOverlays);
         Activity parent = (Activity) context;
         mGpsEventSource = ((IGISApplication) parent.getApplication()).getGpsEventSource();
-        mMarkerColor = ControlHelper.getColor(mContext, android.R.attr.colorAccent);
+        mMarkerColor = ControlHelper.getColor(mContext.get(), android.R.attr.colorAccent);
 
         mTolerancePX = context.getResources().getDisplayMetrics().density * AUTOPAN_THRESHOLD;
 
@@ -225,7 +225,7 @@ public class CurrentLocationOverlay extends Overlay implements GpsEventListener 
         boolean update;
         if (location != null) {
             String provider = location.getProvider();
-            update = LocationUtil.isProviderEnabled(mContext, provider, false);
+            update = LocationUtil.isProviderEnabled(mContext.get(), provider, false);
 
             if (update) {
                 mCurrentLocation = location;
@@ -297,7 +297,7 @@ public class CurrentLocationOverlay extends Overlay implements GpsEventListener 
         boolean isStanding = mCurrentLocation == null || !mCurrentLocation.hasBearing() || !mCurrentLocation.hasSpeed() || mCurrentLocation.getSpeed() == 0;
 
         int resource = isStanding ? mStandingMarkerRes : mMovingMarkerRes;
-        Bitmap marker = BitmapFactory.decodeResource(mContext.getResources(), resource);
+        Bitmap marker = BitmapFactory.decodeResource(mContext.get().getResources(), resource);
         marker = marker.copy(Bitmap.Config.ARGB_8888, true);
 
         if (isStanding) {
@@ -340,7 +340,7 @@ public class CurrentLocationOverlay extends Overlay implements GpsEventListener 
     }
 
     private Bitmap getAccuracyMarker(int accuracy) {
-        int max = Math.max(mContext.getResources().getDisplayMetrics().widthPixels, mContext.getResources().getDisplayMetrics().heightPixels);
+        int max = Math.max(mContext.get().getResources().getDisplayMetrics().widthPixels, mContext.get().getResources().getDisplayMetrics().heightPixels);
 
         if (accuracy * 2 > max) {
             return null;

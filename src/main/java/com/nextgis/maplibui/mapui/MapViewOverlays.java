@@ -45,15 +45,15 @@ import static com.nextgis.maplibui.util.ConstantsUI.*;
 public class MapViewOverlays
         extends MapView
 {
-    protected List<Overlay> mOverlays;
+    final protected List<Overlay> mOverlays;
     protected boolean       mLockMap;
     //protected boolean mSkipNextDraw;
     //protected long mDelay;
 
 
     public MapViewOverlays(
-            Context context,
-            MapDrawable map)
+            final Context context,
+            final MapDrawable map)
     {
         super(context, map);
         mOverlays = new ArrayList<>();

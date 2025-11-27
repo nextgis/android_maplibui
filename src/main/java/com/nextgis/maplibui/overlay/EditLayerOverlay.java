@@ -143,8 +143,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
     protected GpsEventSource mGpsEventSource;
 
     public EditLayerOverlay(
-            Context context,
-            MapViewOverlays mapViewOverlays) {
+            final Context context,
+            final MapViewOverlays mapViewOverlays) {
         super(context, mapViewOverlays);
         mLayer = null;
         mMode = MODE_NONE;
@@ -170,12 +170,12 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         DrawItem.setAnchor(context, anchor);
 
         int outlineColor = Color.BLACK;
-        int fillColor = ControlHelper.getColor(mContext, android.R.attr.colorAccent);
+        int fillColor = ControlHelper.getColor(mContext.get(), android.R.attr.colorAccent);
         int selectColor = Color.RED;
-        VertexStyle vertexStyle = new VertexStyle(mContext, 255, fillColor, 5, 2.6f, selectColor, 5, 2.6f, outlineColor, 6, 3);
-        VertexStyle edgeStyle = new VertexStyle(mContext, 255, fillColor, 3, 1.6f, selectColor, 3, 1.6f, outlineColor, 4, 1.8f);
-        EditStyle lineStyle = new EditStyle(mContext, 255, fillColor, 2, selectColor, 2);
-        EditStyle polygonStyle = new EditStyle(mContext, 0, Color.TRANSPARENT, 2, Color.TRANSPARENT, 2);
+        VertexStyle vertexStyle = new VertexStyle(mContext.get(), 255, fillColor, 5, 2.6f, selectColor, 5, 2.6f, outlineColor, 6, 3);
+        VertexStyle edgeStyle = new VertexStyle(mContext.get(), 255, fillColor, 3, 1.6f, selectColor, 3, 1.6f, outlineColor, 4, 1.8f);
+        EditStyle lineStyle = new EditStyle(mContext.get(), 255, fillColor, 2, selectColor, 2);
+        EditStyle polygonStyle = new EditStyle(mContext.get(), 0, Color.TRANSPARENT, 2, Color.TRANSPARENT, 2);
         DrawItem.setVertexStyle(vertexStyle);
         DrawItem.setEdgeStyle(edgeStyle);
         DrawItem.setLineStyle(lineStyle);
@@ -483,7 +483,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
                             @Override
                             public boolean onMenuItemClick(MenuItem menuItem) {
                                 if (menuItem.getItemId() == R.id.menu_settings) {
-                                    IGISApplication app = (IGISApplication) ((Activity) mContext).getApplication();
+                                    IGISApplication app = (IGISApplication) ((Activity) mContext.get()).getApplication();
                                     app.showSettings(SettingsConstantsUI.ACTION_PREFS_LOCATION, -1, null);
                                 }
 
@@ -634,7 +634,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
 
 
     protected boolean movePointToLocation() {
-        Activity parent = (Activity) mContext;
+        Activity parent = (Activity) mContext.get();
         Location location = mGpsEventSource.getLastKnownLocation();
 
         if (null != location) {
@@ -750,13 +750,13 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         intentFilter.addAction(WalkEditService.WALKEDIT_CHANGE);
         mReceiver = new WalkEditReceiver();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            mContext.registerReceiver(mReceiver, intentFilter, Context.RECEIVER_EXPORTED);
+            mContext.get().registerReceiver(mReceiver, intentFilter, Context.RECEIVER_EXPORTED);
         } else {
-            mContext.registerReceiver(mReceiver, intentFilter);
+            mContext.get().registerReceiver(mReceiver, intentFilter);
         }
         mHasEdits = true;
 
-        if (WalkEditService.isServiceRunning(mContext))
+        if (WalkEditService.isServiceRunning(mContext.get()))
             return;
 
         // start service if not started yet
@@ -782,24 +782,24 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
                 return;
         }
 
-        Intent trackerService = new Intent(mContext, WalkEditService.class);
+        Intent trackerService = new Intent(mContext.get(), WalkEditService.class);
         trackerService.setAction(WalkEditService.ACTION_START);
         trackerService.putExtra(ConstantsUI.KEY_LAYER_ID, mLayer.getId());
         trackerService.putExtra(ConstantsUI.KEY_GEOMETRY, geometry);
         trackerService.putExtra(ConstantsUI.TARGET_CLASS, mContext.getClass().getName());
-        ContextCompat.startForegroundService(mContext, trackerService);
+        ContextCompat.startForegroundService(mContext.get(), trackerService);
     }
 
 
     public void stopGeometryByWalk() {
         // stop service
-        Intent trackerService = new Intent(mContext, WalkEditService.class);
+        Intent trackerService = new Intent(mContext.get(), WalkEditService.class);
         trackerService.setAction(WalkEditService.ACTION_STOP);
-        mContext.stopService(trackerService);
+        mContext.get().stopService(trackerService);
 
         // unregister events
         if(null != mReceiver) {
-            mContext.unregisterReceiver(mReceiver);
+            mContext.get().unregisterReceiver(mReceiver);
             mReceiver = null;
         }
     }
@@ -1394,13 +1394,13 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
 
 
     protected Bitmap getMarker() {
-        float scaledDensity = mContext.getResources().getDisplayMetrics().scaledDensity;
+        float scaledDensity = mContext.get().getResources().getDisplayMetrics().scaledDensity;
         int size = (int) (12 * scaledDensity);
         Bitmap marker = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(marker);
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         //noinspection deprecation
-        p.setColor(mContext.getResources().getColor(R.color.accent));
+        p.setColor(mContext.get().getResources().getColor(R.color.accent));
         p.setAlpha(128);
         c.drawOval(new RectF(0, 0, size * 3 / 4, size * 3 / 4), p);
         return marker;
@@ -1429,7 +1429,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         point.setLatitude(geoPoint.getY());
         point.setLongitude(geoPoint.getX());
         float distance = location.distanceTo(point);
-        String formatted = LocationUtil.formatLength(mContext, distance, 2);
+        String formatted = LocationUtil.formatLength(mContext.get(), distance, 2);
         mBottomToolbar.setTitle(formatted);
     }
 

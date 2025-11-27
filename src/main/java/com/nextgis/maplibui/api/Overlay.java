@@ -32,6 +32,8 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplibui.mapui.MapViewOverlays;
 
+import java.lang.ref.WeakReference;
+
 
 public abstract class Overlay
 {
@@ -40,15 +42,15 @@ public abstract class Overlay
     protected static final String BUNDLE_KEY_TYPE    = "type";
     protected static final String BUNDLE_KEY_VISIBLE = "is_visible";
 
-    protected Context         mContext;
+    protected WeakReference<Context>         mContext;
     protected MapViewOverlays mMapViewOverlays;
 
 
     public Overlay(
-            Context context,
-            MapViewOverlays mapViewOverlays)
+            final Context context,
+            final MapViewOverlays mapViewOverlays)
     {
-        mContext = context;
+        mContext = new WeakReference<>(context);
         mMapViewOverlays = mapViewOverlays;
     }
 

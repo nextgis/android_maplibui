@@ -48,16 +48,16 @@ public class MapViewBase
         extends View
 {
 
-    protected MapDrawable                mMap;
-    protected List<MapViewEventListener> mListeners;
+    final protected MapDrawable                mMap;
+    final protected List<MapViewEventListener> mListeners;
 
     interface OnNeedRedraw {
         public void OnDirty();
     }
 
     public MapViewBase(
-            Context context,
-            MapDrawable map)
+            final Context context,
+            final MapDrawable map)
     {
         super(context);
 
@@ -66,7 +66,7 @@ public class MapViewBase
     }
 
 
-    public MapDrawable getMap()
+    final public MapDrawable getMap()
     {
         return mMap;
     }
@@ -117,7 +117,7 @@ public class MapViewBase
     }
 
 
-    public void addListener(MapViewEventListener listener)
+    public void addListener(final MapViewEventListener listener)
     {
         if (mMap != null) {
             mMap.addListener(listener);
@@ -129,7 +129,7 @@ public class MapViewBase
     }
 
 
-    public void removeListener(MapViewEventListener listener)
+    public void removeListener(final MapViewEventListener listener)
     {
         if (mMap != null) {
             mMap.removeListener(listener);
@@ -140,7 +140,7 @@ public class MapViewBase
 
 
     @Override
-    protected void onDraw(Canvas canvas)
+    protected void onDraw(final Canvas canvas)
     {
         if (mMap != null) {
             mMap.draw(canvas, 0, 0, false);

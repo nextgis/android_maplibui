@@ -229,8 +229,6 @@ public class LayerFillProgressDialogFragment extends Fragment {
                         ngwLayer.setSyncType(Constants.SYNC_ALL);
                         ngwLayer.save();
 
-                        // убрали вопрос что делать при загрузке слоя
-                        // закоменченнное потом можно удалить
 //                        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
 //                        builder.setTitle(R.string.sync_dialog_title).setMessage(R.string.sync_dialog_message)
 //                                .setPositiveButton(R.string.auto, new DialogInterface.OnClickListener() {
