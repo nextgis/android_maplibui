@@ -41,6 +41,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue 'string', 'nextgis_accounts_auth', 'com.nextgis.account'
             resValue 'string', 'nextgis_accounts_name', 'NextGIS'
+
+            resValue 'color', 'primary', '#03a9f4'
+            resValue 'color', 'primary_dark', '#01579'
+            resValue 'color', 'accent', '#03a9f4'
+
+
+
+
         }
         debug {
             minifyEnabled false
@@ -48,6 +56,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue 'string', 'nextgis_accounts_auth', 'com.nextgis.account.debug'
             resValue 'string', 'nextgis_accounts_name', 'DEV_NextGIS'
+
+            resValue 'color', 'primary', '#299867'
+            resValue 'color', 'primary_dark', '#004A2B'
+            resValue 'color', 'accent', '#4FCE94'
+
+
         }
     }
     dataBinding {

@@ -86,7 +86,7 @@ public class MapView
                 @Override
                 public void run() {
                     mDrawingState = DRAW_STATE_drawing;
-                    setZoomAndCenter(getZoomLevel(), getMapCenter());
+                    setZoomAndCenter(mMap.zoomSaved, mMap.centerSaved);
                 }
             });
         }

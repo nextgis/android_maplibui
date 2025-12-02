@@ -155,10 +155,18 @@ public class AttributesActivity extends NGActivity {
                             map.zoomToExtent(mLayer.getFeature(mId).getGeometry().getEnvelope());
 
                         SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences(AttributesActivity.this).edit();
-                        edit.putFloat(SettingsConstantsUI.KEY_PREF_ZOOM_LEVEL, map.getZoomLevel());
-                        GeoPoint point = map.getMapCenter();
-                        edit.putLong(SettingsConstantsUI.KEY_PREF_SCROLL_X, Double.doubleToRawLongBits(point.getX()));
-                        edit.putLong(SettingsConstantsUI.KEY_PREF_SCROLL_Y, Double.doubleToRawLongBits(point.getY()));
+
+                        if (map.getMaplibreMap()!= null){
+                            edit.putFloat(SettingsConstantsUI.KEY_PREF_ZOOM_LEVEL, (float) map.getMaplibreMap().getCameraPosition().zoom);
+                            GeoPoint point2 = map.getMaplibreCenter()  ;
+                            edit.putLong(SettingsConstantsUI.KEY_PREF_SCROLL_X, Double.doubleToRawLongBits( point2.getX()));
+                            edit.putLong(SettingsConstantsUI.KEY_PREF_SCROLL_Y, Double.doubleToRawLongBits( point2.getY()));
+                        } else {
+                            edit.putFloat(SettingsConstantsUI.KEY_PREF_ZOOM_LEVEL, map.getZoomLevel());
+                            GeoPoint point = map.getMapCenter();
+                            edit.putLong(SettingsConstantsUI.KEY_PREF_SCROLL_X, Double.doubleToRawLongBits(point.getX()));
+                            edit.putLong(SettingsConstantsUI.KEY_PREF_SCROLL_Y, Double.doubleToRawLongBits(point.getY()));
+                        }
                         edit.commit();
                     }
 

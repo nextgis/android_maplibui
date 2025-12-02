@@ -182,7 +182,6 @@ public class SelectZoomLevelsDialog extends DialogFragment {
                             mGroupLayer.addLayer(remoteNewlayer);
                             mGroupLayer.save();
 
-                            Log.e("TTIILLE", "download bounds = " + env.toString());
 
                             Intent intent = new Intent(getActivity(), TileDownloadService.class);
                             intent.setAction(TileDownloadService.ACTION_ADD_TASK);
@@ -195,8 +194,6 @@ public class SelectZoomLevelsDialog extends DialogFragment {
                             intent.putExtra(TileDownloadService.KEY_MINY, env.getMinY());
                             intent.putExtra(TileDownloadService.KEY_MAXY, env.getMaxY());
 
-                            Log.e("TTIILLE", "zoomFrom" + zoomFrom);
-                            Log.e("TTIILLE", "zoomTo" + zoomTo);
 
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                 startForegroundService(context, intent);

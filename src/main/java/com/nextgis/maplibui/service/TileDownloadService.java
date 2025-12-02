@@ -100,7 +100,6 @@ public class TileDownloadService extends Service {
     public void onCreate() {
         super.onCreate();
         //android.os.Debug.waitForDebugger();
-        Log.e("TTIILLE", "onCreate()");
 
 //        try {
 //            Thread.sleep(5000);
@@ -146,7 +145,6 @@ public class TileDownloadService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.e("TTIILLE", "onStartCommand()");
 
 //        try {
 //            Thread.sleep(5000);
@@ -192,7 +190,6 @@ public class TileDownloadService extends Service {
     }
 
     protected void addDownloadTask(Intent intent) {
-        Log.e("TTIILLE", "addDownloadTask()");
 
         if (Constants.DEBUG_MODE) {
             Log.d(Constants.TAG, "Add task to download queue");
@@ -205,13 +202,11 @@ public class TileDownloadService extends Service {
         GeoEnvelope env = new GeoEnvelope(dfMinX, dfMaxX, dfMinY, dfMaxY);
 
         if (intent.hasExtra(KEY_ZOOM_FROM) && intent.hasExtra(KEY_ZOOM_TO)) {
-            Log.e("TTIILLE", "KEY_ZOOM_FROM");
 
             int zoomFrom = intent.getIntExtra(KEY_ZOOM_FROM, 0);
             int zoomTo = intent.getIntExtra(KEY_ZOOM_TO, 18);
             addTask(layerPathName, env, zoomFrom, zoomTo);
         } else if (intent.hasExtra(KEY_ZOOM_LIST)) {
-            Log.e("TTIILLE", "KEY_ZOOM_LIST");
             List<Integer> zoomList = intent.getIntegerArrayListExtra(KEY_ZOOM_LIST);
             addTask(layerPathName, env, zoomList);
         }
@@ -219,7 +214,6 @@ public class TileDownloadService extends Service {
 
     // For overriding in subclasses
     protected void cancelDownload() {
-        Log.e("TTIILLE", "cancelDownload");
 
         if (Constants.DEBUG_MODE) {
             Log.d(Constants.TAG, "Cancel download queue");
@@ -255,7 +249,6 @@ public class TileDownloadService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.e("TTIILLE", "onDestroy");
 
         clearResources();
         if (Constants.DEBUG_MODE) {
@@ -309,8 +302,6 @@ public class TileDownloadService extends Service {
 
                 while (!mQueue.isEmpty()) {
                     if (mIsDownloadInterrupted) {
-                        Log.e("TTIILLE", "mIsDownloadInterrupted");
-
                         break;
                     }
                     if (Constants.DEBUG_MODE) {
@@ -341,16 +332,6 @@ public class TileDownloadService extends Service {
     }
 
     protected void download(DownloadTask task) {
-        Log.e("TTIILLE", "download(DownloadTask task)");
-
-
-
-//        try {
-//            Thread.sleep(5000);
-//        } catch (Exception ex){
-//
-//        }
-
         mIsDownloadError = false;
 
         MapBase map = MapBase.getInstance();
@@ -363,8 +344,6 @@ public class TileDownloadService extends Service {
         ILayer layer = map.getLayerByPathName(task.getLayerPathName());
 
         if (layer instanceof RemoteTMSLayer || layer instanceof TMSLayer) { // process only tms layers
-            Log.e("TTIILLE", "layer instanceof RemoteTMSLayer");
-
             String notifyTitle = getString(R.string.download_tiles);
             mBuilder.setContentTitle(notifyTitle).setWhen(System.currentTimeMillis());
             mNotifyManager.notify(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
@@ -372,8 +351,6 @@ public class TileDownloadService extends Service {
             final RemoteTMSLayer tmsLayer = (RemoteTMSLayer) layer;
             final List<TileItem> tiles = new LinkedList<>();
             int zoomCount = task.getZoomList().size();
-
-            Log.e("TTIILLE", "zoomCount" +zoomCount);
 
             sendProgressorsValues(zoomCount, 0, tmsLayer.getPath().getName());
 
@@ -537,18 +514,13 @@ public class TileDownloadService extends Service {
                 Thread.currentThread().interrupt();
             }
         } else {
-            Log.e("TTIILLE", "EEELLLSSSEEEE " );
-
-            Log.e("TTIILLE", "else layer instanceof RemoteTMSLayer");
             if (Constants.DEBUG_MODE) {
                 if (layer == null) {
-                    Log.d(
-                            Constants.TAG,
+                    Log.d(Constants.TAG,
                             "TileDownloadService.mDownloadThread, layer == null, exit");
                     return;
                 }
-                Log.d(
-                        Constants.TAG,
+                Log.d(Constants.TAG,
                         "TileDownloadService.mDownloadThread, layer type is not TMS, layer name: "
                                 + layer.getName() + ", type: " + layer.getType() + ", exit");
             }

@@ -196,6 +196,10 @@ public class MapViewBase
         if (mMap == null) {
             return 0;
         }
+
+        if (mMap.getMaplibreMap()!= null)
+            return (float)(mMap.getMaplibreMap().getCameraPosition().zoom);
+
         return mMap.getZoomLevel();
     }
 
