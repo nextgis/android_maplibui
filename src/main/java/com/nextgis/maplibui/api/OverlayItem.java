@@ -107,8 +107,12 @@ public class OverlayItem
 
     public void updateScreenCoordinates() {
         GeoPoint mts = mMapDrawable.mapToScreen((GeoPoint) mCoordinates.copy());
-        mScreenCoordinates.x = (float) (mts.getX() - mOffsetX);
-        mScreenCoordinates.y = (float) (mts.getY() - mOffsetY);
+        mScreenCoordinates.x = (float) (mts.getX()
+        //        - mOffsetX
+        );
+        mScreenCoordinates.y = (float) (mts.getY()
+        //        - mOffsetY
+        );
     }
 
 

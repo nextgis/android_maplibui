@@ -150,7 +150,7 @@ public class AttributesActivity extends NGActivity {
                     MapDrawable map = (MapDrawable) application.getMap();
                     if (null != map) {
                         if (mLayer.getGeometryType() == GeoConstants.GTPoint || mLayer.getGeometryType() == GeoConstants.GTMultiPoint)
-                            map.zoomToExtent(mLayer.getFeature(mId).getGeometry().getEnvelope(), 18);
+                            map.zoomToExtent(mLayer.getFeature(mId).getGeometry().getEnvelope(), 18, false);
                         else
                             map.zoomToExtent(mLayer.getFeature(mId).getGeometry().getEnvelope());
 

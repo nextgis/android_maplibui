@@ -142,11 +142,11 @@ public class MapViewBase
     @Override
     protected void onDraw(final Canvas canvas)
     {
-        if (mMap != null) {
-            mMap.draw(canvas, 0, 0, false);
-        } else {
+//        if (mMap != null) {
+//            mMap.draw(canvas, 0, 0, false);
+//        } else {
             super.onDraw(canvas);
-        }
+//        }
     }
 
 
@@ -236,7 +236,7 @@ public class MapViewBase
             GeoPoint center)
     {
         if (mMap != null) {
-            mMap.setZoomAndCenter(zoom, center);
+            mMap.setZoomAndCenter(zoom, center, false);
         }
     }
 

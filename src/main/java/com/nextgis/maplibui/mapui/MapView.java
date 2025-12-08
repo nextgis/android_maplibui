@@ -163,39 +163,39 @@ public class MapView
     {
         //Log.d(TAG, "state: " + mDrawingState + ", current loc: " +  mCurrentMouseOffset.toString() + " current focus: " + mCurrentFocusLocation.toString() + " scale: "  + mScaleFactor);
 
-        if (mMap != null) {
+//        if (mMap != null) {
+//
+//            switch (mDrawingState) {
+//
+//                case DRAW_STATE_panning:
+//                case DRAW_STATE_panning_fling:
+//                    mMap.draw(canvas, -mCurrentMouseOffset.x, -mCurrentMouseOffset.y, true);
+//                    break;
+//
+//                case DRAW_STATE_zooming:
+//                    mMap.draw(
+//                            canvas, -mCurrentFocusLocation.x, -mCurrentFocusLocation.y,
+//                            (float) mScaleFactor);
+//                    break;
+////TODO: add invalidate rect to prevent flicker
+//                case DRAW_STATE_drawing_noclearbk:
+//                    mMap.draw(canvas, 0, 0, false);
+//                    break;
+//
+//                case DRAW_STATE_drawing:
+//                    mMap.draw(canvas, 0, 0, true);
+//                    break;
+//
+//                //case DRAW_STATE_none:
+//                //    break;
+//
+//                default:
+//                    break;
+//            }
 
-            switch (mDrawingState) {
-
-                case DRAW_STATE_panning:
-                case DRAW_STATE_panning_fling:
-                    mMap.draw(canvas, -mCurrentMouseOffset.x, -mCurrentMouseOffset.y, true);
-                    break;
-
-                case DRAW_STATE_zooming:
-                    mMap.draw(
-                            canvas, -mCurrentFocusLocation.x, -mCurrentFocusLocation.y,
-                            (float) mScaleFactor);
-                    break;
-//TODO: add invalidate rect to prevent flicker
-                case DRAW_STATE_drawing_noclearbk:
-                    mMap.draw(canvas, 0, 0, false);
-                    break;
-
-                case DRAW_STATE_drawing:
-                    mMap.draw(canvas, 0, 0, true);
-                    break;
-
-                //case DRAW_STATE_none:
-                //    break;
-
-                default:
-                    break;
-            }
-
-        } else {
+        //} else {
             super.onDraw(canvas);
-        }
+        //}
     }
 
 

@@ -301,7 +301,7 @@ public class LayerFillService extends Service implements IProgressor {
 
                 LayerFillTask task = mQueue.remove(0);
                 mNotifyTitle = task.getDescription();
-                Log.e("RML", "run LayerFill: " + task.mLayerName);
+//                Log.e("RML", "run LayerFill: " + task.mLayerName);
 
                 mBuilder.setWhen(System.currentTimeMillis())
                         .setContentTitle(mNotifyTitle)

@@ -88,7 +88,10 @@ import com.nextgis.maplibui.util.SettingsConstantsUI;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.nextgis.maplib.map.MPLFeaturesUtils.geoPointFromLatLng;
 import static com.nextgis.maplibui.api.DrawItem.LINE_WIDTH;
+
+import org.maplibre.android.maps.MapLibreMap;
 
 /**
  * The class for edit vector features
@@ -308,9 +311,9 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         //updateMap();
     }
 
-    protected void update() {
+    protected void update(boolean isPointPressed){
         setHasEdits(true);
-        fillGeometry();
+        fillGeometry(isPointPressed);
         updateMap();
     }
 
@@ -443,7 +446,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
                         break;
                     case GeoConstants.GTMultiPoint:
                         mBottomToolbar.inflateMenu(R.menu.edit_multipoint);
-                        updateDistance(last, null);
+                        //updateDistance(last, null);
                         break;
                     case GeoConstants.GTLineString:
                         mBottomToolbar.inflateMenu(R.menu.edit_line);
@@ -531,7 +534,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, coordinates);
         mDrawItems.add(mSelectedItem);
 
-        update();
+        update(true);
     }
 
 
@@ -565,7 +568,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         }
 
         if (result)
-            update();
+            update(false);
 
         return result;
     }
@@ -578,7 +581,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, geoPoints);
         mDrawItems.add(mSelectedItem);
 
-        update();
+        update(false);
     }
 
 
@@ -809,35 +812,39 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         mFeature.setGeometry(geometry);
     }
 
-    protected void fillGeometry() {
+    protected void fillGeometry(boolean isPointPressed) {
         GeoGeometry geometry;
+
+        GeoPoint geoPoint = mOverlayPoint.getCoordinates(GeoConstants.CRS_WEB_MERCATOR);
+
+
         if (mLayer == null || mDrawItems.isEmpty() || mSelectedItem == null)
             return;
 
         switch (mLayer.getGeometryType()) {
             case GeoConstants.GTPoint:
-                geometry = getBaseGeometry(mMap, GeoConstants.GTPoint, mSelectedItem);
+                geometry = getBaseGeometry(mMap, GeoConstants.GTPoint, mSelectedItem, geoPoint, isPointPressed);
                 break;
             case GeoConstants.GTMultiPoint:
                 geometry = new GeoMultiPoint();
                 for (DrawItem drawItem : mDrawItems)
-                    ((GeoMultiPoint) geometry).add(getBaseGeometry(mMap, GeoConstants.GTPoint, drawItem));
+                    ((GeoMultiPoint) geometry).add(getBaseGeometry(mMap, GeoConstants.GTPoint, drawItem, geoPoint, isPointPressed));
                 break;
             case GeoConstants.GTLineString:
-                geometry = getBaseGeometry(mMap, GeoConstants.GTLineString, mSelectedItem);
+                geometry = getBaseGeometry(mMap, GeoConstants.GTLineString, mSelectedItem, null, false);
                 break;
             case GeoConstants.GTMultiLineString:
                 geometry = new GeoMultiLineString();
                 for (DrawItem drawItem : mDrawItems)
-                    ((GeoMultiLineString) geometry).add(getBaseGeometry(mMap, GeoConstants.GTLineString, drawItem));
+                    ((GeoMultiLineString) geometry).add(getBaseGeometry(mMap, GeoConstants.GTLineString, drawItem, null, isPointPressed));
                 break;
             case GeoConstants.GTPolygon:
-                geometry = getBaseGeometry(mMap, GeoConstants.GTPolygon, mSelectedItem);
+                geometry = getBaseGeometry(mMap, GeoConstants.GTPolygon, mSelectedItem, null, isPointPressed);
                 break;
             case GeoConstants.GTMultiPolygon:
                 geometry = new GeoMultiPolygon();
                 for (DrawItem drawItem : mDrawItems)
-                    ((GeoMultiPolygon) geometry).add(getBaseGeometry(mMap, GeoConstants.GTPolygon, drawItem));
+                    ((GeoMultiPolygon) geometry).add(getBaseGeometry(mMap, GeoConstants.GTPolygon, drawItem, null, isPointPressed));
                 break;
             default:
                 geometry = null;
@@ -848,13 +855,25 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
     }
 
 
-    public static GeoGeometry getBaseGeometry(MapDrawable map, int geometryType, DrawItem drawItem) {
+    public static GeoGeometry getBaseGeometry(MapDrawable map, int geometryType, DrawItem drawItem,
+                                              GeoPoint geoPointChoosed, boolean isPointPressed) {
         GeoPoint[] geoPoints;
         GeoGeometry geometry;
 
         switch (geometryType) {
             case GeoConstants.GTPoint:
-                geoPoints = map.screenToMap(drawItem.getRing(0));
+                if (map.getMaplibreMap()!= null) {
+
+                    geoPoints = new GeoPoint[1];
+                    if (geoPointChoosed!= null && isPointPressed)
+                        geoPoints[0] = geoPointChoosed;
+                    else
+                        geoPoints[0] = geoPointFromLatLng(
+                            map.getMaplibreMap().getProjection().fromScreenLocation(
+                                    new PointF(drawItem.getRing(0)[0], drawItem.getRing(0)[1])));
+                }
+                else
+                    geoPoints = map.screenToMap(drawItem.getRing(0));
                 geometry = new GeoPoint(geoPoints[0].getX(), geoPoints[0].getY());
                 break;
             case GeoConstants.GTLineString:
@@ -939,7 +958,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
             if (mLayer != null) {
                 int type = mLayer.getGeometryType();
                 if (type == GeoConstants.GTPoint || type == GeoConstants.GTMultiPoint) {
-                    GeoPoint geometry = (GeoPoint) getBaseGeometry(mMap, GeoConstants.GTPoint, mSelectedItem);
+                    GeoPoint geometry = (GeoPoint) getBaseGeometry(mMap, GeoConstants.GTPoint, mSelectedItem, null, false);
                     Location last = mGpsEventSource.getLastKnownLocation();
                     updateDistance(last, geometry);
                 }
@@ -1206,7 +1225,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
 
                 if (drawItem.intersectsEdges(screenEnv)) {
                     mSelectedItem = drawItem;
-                    update();
+                    update(false);
                     return true;
                 }
             }
@@ -1331,11 +1350,11 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
             mMapViewOverlays.setLockMap(false);
             mMode = MODE_EDIT;
 
-            update();
+            update(false);
         }
 
         if (mMode == MODE_EDIT_BY_TOUCH)
-            fillGeometry();
+            fillGeometry(false);
     }
 
 

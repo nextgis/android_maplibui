@@ -78,33 +78,33 @@ public class MapViewOverlays
     @Override
     protected void onDraw(Canvas canvas)
     {
-        if (isLockMap()) {
-            mMap.draw(canvas, 0, 0, false);
-        } else {
-            super.onDraw(canvas);
-        }
-
-        if (mMap != null) {
-            switch (mDrawingState) {
-                case DRAW_STATE_drawing:
-                case DRAW_STATE_drawing_noclearbk:
-                    for (Overlay overlay : mOverlays)
-                        if (overlay.isVisible())
-                            overlay.draw(canvas, mMap);
-                    break;
-                case DRAW_STATE_panning:
-                case DRAW_STATE_panning_fling:
-                    for (Overlay overlay : mOverlays)
-                        if (overlay.isVisible())
-                            overlay.drawOnPanning(canvas, mCurrentMouseOffset);
-                    break;
-                case DRAW_STATE_zooming:
-                    for (Overlay overlay : mOverlays)
-                        if (overlay.isVisible())
-                            overlay.drawOnZooming(canvas, mCurrentFocusLocation, (float) mScaleFactor);
-                    break;
-            }
-        }
+//        if (isLockMap()) {
+//            mMap.draw(canvas, 0, 0, false);
+//        } else {
+//            super.onDraw(canvas);
+//        }
+//
+//        if (mMap != null) {
+//            switch (mDrawingState) {
+//                case DRAW_STATE_drawing:
+//                case DRAW_STATE_drawing_noclearbk:
+//                    for (Overlay overlay : mOverlays)
+//                        if (overlay.isVisible())
+//                            overlay.draw(canvas, mMap);
+//                    break;
+//                case DRAW_STATE_panning:
+//                case DRAW_STATE_panning_fling:
+//                    for (Overlay overlay : mOverlays)
+//                        if (overlay.isVisible())
+//                            overlay.drawOnPanning(canvas, mCurrentMouseOffset);
+//                    break;
+//                case DRAW_STATE_zooming:
+//                    for (Overlay overlay : mOverlays)
+//                        if (overlay.isVisible())
+//                            overlay.drawOnZooming(canvas, mCurrentFocusLocation, (float) mScaleFactor);
+//                    break;
+//            }
+//        }
     }
 
 
