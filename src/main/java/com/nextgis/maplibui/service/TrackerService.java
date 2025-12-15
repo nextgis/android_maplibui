@@ -234,6 +234,7 @@ public class TrackerService extends Service
                         return START_NOT_STICKY;
                     case ACTION_STOP:
                         removeNotification();
+                        stopTrack();
                         stopSelf();
                         return START_NOT_STICKY;
                     case ACTION_SPLIT:
@@ -348,12 +349,11 @@ public class TrackerService extends Service
                 mSharedPreferencesTemp.edit().putString(TRACK_URI, newTrack.toString()).apply();
             } else {
                 // no track created - need alert
-                Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT_TRACKER);
-                msg.putExtra(ConstantsUI.KEY_MESSAGE, "track not started - try again");
-                sendBroadcast(msg);
 
                 Intent msgT = new Intent(ConstantsUI.MESSAGE_INTENT_TRACK);
                 msgT.putExtra(ConstantsUI.KEY_TRACK_ACTION, VALUE_TRACK_START);
+                msgT.setPackage(this.getPackageName());
+
                 sendBroadcast(msgT);
             }
 
@@ -364,7 +364,9 @@ public class TrackerService extends Service
         }
 
         Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT_TRACK);
+        msg.setPackage(this.getPackageName());
         msg.putExtra(ConstantsUI.KEY_MESSAGE_TRACK, true);
+        msg.putExtra(ConstantsUI.KEY_TRACK_ACTION, VALUE_TRACK_START);
         sendBroadcast(msg);
         ((GISApplication)getApplication()).setIsTrackInProgress(true);
     }
@@ -380,15 +382,12 @@ public class TrackerService extends Service
         mSharedPreferencesTemp.edit().remove(ConstantsUI.TARGET_CLASS).apply();
         mSharedPreferencesTemp.edit().remove(TRACK_URI).apply();
 
-        Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT_TRACKER);
-        msg.putExtra(ConstantsUI.KEY_MESSAGE_TRACK, false);
-        sendBroadcast(msg);
 
         Intent msgT = new Intent(ConstantsUI.MESSAGE_INTENT_TRACK);
+        msgT.putExtra(ConstantsUI.KEY_MESSAGE_TRACK, false);
         msgT.putExtra(ConstantsUI.KEY_TRACK_ACTION, VALUE_TRACK_STOP);
+        msgT.setPackage(this.getPackageName());
         sendBroadcast(msgT);
-
-
 
         ((GISApplication)getApplication()).setIsTrackInProgress(false);
     }

@@ -47,7 +47,6 @@ public interface ConstantsUI
     String KEY_ADDED_POINT        = "added_point";
 
     String MESSAGE_INTENT = "com.nextgis.malibui.MESSAGE";
-    String MESSAGE_INTENT_TRACKER = "com.nextgis.MESSAGETRACKER";
     String TARGET_CLASS   = "target_class";
     String TARGET_EXTRAS  = "target_extras";
 
