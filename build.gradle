@@ -43,11 +43,8 @@ android {
             resValue 'string', 'nextgis_accounts_name', 'NextGIS'
 
             resValue 'color', 'primary', '#03a9f4'
-            resValue 'color', 'primary_dark', '#01579'
+            resValue 'color', 'primary_dark', '#01579b'
             resValue 'color', 'accent', '#03a9f4'
-
-
-
 
         }
         debug {
@@ -60,8 +57,6 @@ android {
             resValue 'color', 'primary', '#299867'
             resValue 'color', 'primary_dark', '#004A2B'
             resValue 'color', 'accent', '#4FCE94'
-
-
         }
     }
     dataBinding {
