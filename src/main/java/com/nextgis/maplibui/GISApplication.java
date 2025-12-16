@@ -42,6 +42,7 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.hypertrack.hyperlog.HyperLog;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.ngw.SyncAdapter;
 import com.nextgis.maplib.location.GpsEventSource;
@@ -55,6 +56,7 @@ import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.mapui.LayerFactoryUI;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
+import com.nextgis.maplibui.util.HyperLogCrashHandler;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.File;
@@ -120,6 +122,13 @@ public abstract class GISApplication extends Application
     {
         super.onCreate();
         instance = this;
+
+
+        HyperLog.initialize(this);
+
+        Thread.setDefaultUncaughtExceptionHandler(
+                new HyperLogCrashHandler()
+        );
 
         mGpsEventSource = new GpsEventSource(this);
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
