@@ -44,7 +44,7 @@ import com.nextgis.maplibui.util.ConstantsUI;
 import java.io.File;
 
 public class NGWWebMapLayerUI extends NGWWebMapLayer implements ILayerUI {
-    public NGWWebMapLayerUI(Context context, File path) {
+    public NGWWebMapLayerUI(final Context context, final File path) {
         super(context, path);
     }
 
@@ -62,8 +62,8 @@ public class NGWWebMapLayerUI extends NGWWebMapLayer implements ILayerUI {
     }
 
     public void downloadTiles(Context context, GeoEnvelope env) {
-        FragmentActivity fragmentActivity = (FragmentActivity) context;
-        SelectZoomLevelsDialog newFragment = new SelectZoomLevelsDialog();
+        final FragmentActivity fragmentActivity = (FragmentActivity) context;
+        final SelectZoomLevelsDialog newFragment = new SelectZoomLevelsDialog();
         newFragment.setEnvelope(env).setLayerId(getId()).
                 show(fragmentActivity.getSupportFragmentManager(), "select_zoom_levels");
     }
@@ -76,7 +76,7 @@ public class NGWWebMapLayerUI extends NGWWebMapLayer implements ILayerUI {
             visible[i] = mChildren.get(i).isVisible();
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle(R.string.track_list)
                 .setMultiChoiceItems(names, visible, new DialogInterface.OnMultiChoiceClickListener() {
                     @Override

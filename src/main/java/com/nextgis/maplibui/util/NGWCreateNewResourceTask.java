@@ -39,17 +39,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 
-public class NGWCreateNewResourceTask extends AsyncTask<Void, Void, HttpResponse> {
+public class  NGWCreateNewResourceTask extends AsyncTask<Void, Void, HttpResponse> {
     private Connection mConnection;
     private VectorLayer mLayer;
-    private Context mContext;
+    private WeakReference<Context> mContextRef;
     private Pair<Integer, Integer> mVer;
     private long mParentId;
     private String mName;
 
-    public NGWCreateNewResourceTask(Context context, Connection connection, long parentId) {
-        mContext = context;
+    public NGWCreateNewResourceTask(final Context context, Connection connection, long parentId) {
+        mContextRef = new WeakReference<>( context);
         mParentId = parentId;
         mConnection = connection;
     }
@@ -69,7 +70,7 @@ public class NGWCreateNewResourceTask extends AsyncTask<Void, Void, HttpResponse
         if (mConnection.connect(false)) {
             mVer = null;
             try {
-                AccountUtil.AccountData accountData = AccountUtil.getAccountData(mContext, mConnection.getName());
+                AccountUtil.AccountData accountData = AccountUtil.getAccountData(mContextRef.get(), mConnection.getName());
                 if (null == accountData.url)
                     return new HttpResponse(404);
 
@@ -83,7 +84,7 @@ public class NGWCreateNewResourceTask extends AsyncTask<Void, Void, HttpResponse
             if (mLayer != null)
                 return NGWUtil.createNewLayer(mConnection, mLayer, mParentId, null);
             else
-                return NGWUtil.createNewGroup(mContext, mConnection, mParentId, mName, null);
+                return NGWUtil.createNewGroup(mContextRef.get(), mConnection, mParentId, mName, null);
         }
 
         return new HttpResponse(NetworkUtil.ERROR_CONNECT_FAILED);
@@ -93,6 +94,8 @@ public class NGWCreateNewResourceTask extends AsyncTask<Void, Void, HttpResponse
     protected void onPostExecute(HttpResponse result)
     {
         super.onPostExecute(result);
+        if (mContextRef.get() == null)
+            return;
 
         String message;
         if (result.isOk()) {
@@ -110,15 +113,15 @@ public class NGWCreateNewResourceTask extends AsyncTask<Void, Void, HttpResponse
 
         switch (result.getResponseCode()) {
             case -999:
-                message = mContext.getString(mLayer == null
+                message = mContextRef.get().getString(mLayer == null
                                              ? R.string.message_group_created
                                              : R.string.message_layer_created);
                 break;
             default:
-                message = NetworkUtil.getError(mContext, result.getResponseCode());
+                message = NetworkUtil.getError(mContextRef.get(), result.getResponseCode());
                 break;
         }
 
-        Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
+        Toast.makeText(mContextRef.get(), message, Toast.LENGTH_LONG).show();
     }
 }

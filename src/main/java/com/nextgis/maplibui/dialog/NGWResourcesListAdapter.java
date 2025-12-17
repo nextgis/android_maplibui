@@ -55,6 +55,7 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.CheckState;
 import com.nextgis.maplibui.util.ControlHelper;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_GUEST;
@@ -67,7 +68,7 @@ public class NGWResourcesListAdapter
 {
     protected Connections             mConnections;
     protected INGWResource            mCurrentResource;
-    protected Activity                mActivity;
+    protected WeakReference<Activity>                mActivity;
     protected boolean                 mLoading;
     protected boolean                 mShowAccounts = true;
     protected boolean                 mShowCheckboxes = true;
@@ -81,9 +82,9 @@ public class NGWResourcesListAdapter
         void onAddConnection();
     }
 
-    public NGWResourcesListAdapter(Activity activity)
+    public NGWResourcesListAdapter(final Activity activity)
     {
-        mActivity = activity;
+        mActivity = new WeakReference<>(activity);
         mLoading = false;
     }
 
@@ -129,7 +130,7 @@ public class NGWResourcesListAdapter
         else if (mCurrentResource instanceof ResourceGroup)
             ((ResourceGroup) mCurrentResource).setLoadChildren(false);
 
-        NGWResourceAsyncTask task = new NGWResourceAsyncTask(mActivity, mCurrentResource);
+        final NGWResourceAsyncTask task = new NGWResourceAsyncTask(this, mActivity.get(), mCurrentResource);
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
@@ -150,7 +151,7 @@ public class NGWResourcesListAdapter
                 } else if (connection.isConnected()) {
                     notifyDataSetChanged();
                 } else {
-                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(mActivity, connection);
+                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(this,  mActivity.get(), connection);
                     task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
@@ -276,7 +277,7 @@ public class NGWResourcesListAdapter
     {
         View v = view;
         if (null == v || v.getId() != R.id.loading_row) {
-            LayoutInflater inflater = LayoutInflater.from(mActivity);
+            LayoutInflater inflater = LayoutInflater.from(mActivity.get());
             v = inflater.inflate(R.layout.row_loading, null);
             v.setId(R.id.loading_row);
         }
@@ -291,23 +292,23 @@ public class NGWResourcesListAdapter
         View v = view;
         if (null == connection) { //create add account button
             if (null == v || v.getId() != R.id.resourcegroup_row) {
-                LayoutInflater inflater = LayoutInflater.from(mActivity);
+                LayoutInflater inflater = LayoutInflater.from(mActivity.get());
                 v = inflater.inflate(R.layout.row_resourcegroup, null);
                 v.setId(R.id.resourcegroup_row);
             }
             ImageView ivIcon = v.findViewById(R.id.ivIcon);
-            ivIcon.setImageDrawable(ContextCompat.getDrawable(mActivity, R.drawable.ic_add_account));
+            ivIcon.setImageDrawable(ContextCompat.getDrawable(mActivity.get(), R.drawable.ic_add_account));
 
             TextView tvText = v.findViewById(R.id.tvName);
-            tvText.setText(mActivity.getString(R.string.ngw_account_add_item));
+            tvText.setText(mActivity.get().getString(R.string.ngw_account_add_item));
         } else {
             if (null == v || v.getId() != R.id.resourcegroup_row) {
-                LayoutInflater inflater = LayoutInflater.from(mActivity);
+                LayoutInflater inflater = LayoutInflater.from(mActivity.get());
                 v = inflater.inflate(R.layout.row_resourcegroup, null);
                 v.setId(R.id.resourcegroup_row);
             }
             ImageView ivIcon = v.findViewById(R.id.ivIcon);
-            ivIcon.setImageDrawable(ContextCompat.getDrawable(mActivity, R.drawable.ic_ngw));
+            ivIcon.setImageDrawable(ContextCompat.getDrawable(mActivity.get(), R.drawable.ic_ngw));
 
             TextView tvText = v.findViewById(R.id.tvName);
             tvText.setText(connection.getName());
@@ -328,19 +329,19 @@ public class NGWResourcesListAdapter
         TextView tvDesc;
         if (null == resource) { //create up button
             if (null == v || v.getId() != R.id.resourcegroup_row) {
-                LayoutInflater inflater = LayoutInflater.from(mActivity);
+                LayoutInflater inflater = LayoutInflater.from(mActivity.get());
                 v = inflater.inflate(R.layout.row_resourcegroup, null);
                 v.setId(R.id.resourcegroup_row);
 
                 ImageView ivIcon = v.findViewById(R.id.ivIcon);
-                ivIcon.setImageDrawable(ContextCompat.getDrawable(mActivity, R.drawable.ic_ngw_folder));
+                ivIcon.setImageDrawable(ContextCompat.getDrawable(mActivity.get(), R.drawable.ic_ngw_folder));
             }
 
             TextView tvText = v.findViewById(R.id.tvName);
-            tvText.setText(mActivity.getString(R.string.up_dots));
+            tvText.setText(mActivity.get().getString(R.string.up_dots));
 
             tvDesc = v.findViewById(R.id.tvDesc);
-            tvDesc.setText(mActivity.getString(R.string.up));
+            tvDesc.setText(mActivity.get().getString(R.string.up));
         } else {
             ImageView ivIcon;
             CheckBox checkBox1 = null, checkBox2 = null;
@@ -350,7 +351,7 @@ public class NGWResourcesListAdapter
             if (0 == (mTypeMask & resourceType) &&
                 resourceType != Connection.NGWResourceTypeResourceGroup) {
                 if (null == v || v.getId() != R.id.empty_row) {
-                    LayoutInflater inflater = LayoutInflater.from(mActivity);
+                    LayoutInflater inflater = LayoutInflater.from(mActivity.get());
                     v = inflater.inflate(R.layout.row_empty, null);
                     v.setId(R.id.empty_row);
                 }
@@ -360,30 +361,30 @@ public class NGWResourcesListAdapter
             switch (resourceType) {
                 case Connection.NGWResourceTypeResourceGroup:
                     if (null == v || v.getId() != R.id.resourcegroup_row) {
-                        LayoutInflater inflater = LayoutInflater.from(mActivity);
+                        LayoutInflater inflater = LayoutInflater.from(mActivity.get());
                         v = inflater.inflate(R.layout.row_resourcegroup, null);
                         v.setId(R.id.resourcegroup_row);
 
                         ivIcon = v.findViewById(R.id.ivIcon);
-                        ivIcon.setImageDrawable(ContextCompat.getDrawable(mActivity, R.drawable.ic_ngw_folder));
+                        ivIcon.setImageDrawable(ContextCompat.getDrawable(mActivity.get(), R.drawable.ic_ngw_folder));
                     }
 
                     tvDesc = v.findViewById(R.id.tvDesc);
-                    tvDesc.setText(mActivity.getString(R.string.resource_group));
+                    tvDesc.setText(mActivity.get().getString(R.string.resource_group));
                     break;
                 case Connection.NGWResourceTypeRasterLayer:
                 case Connection.NGWResourceTypeWMSClient:
                     if (null == v || v.getId() != R.id.ngw_layer_check_row) {
-                        LayoutInflater inflater = LayoutInflater.from(mActivity);
+                        LayoutInflater inflater = LayoutInflater.from(mActivity.get());
                         v = inflater.inflate(R.layout.row_ngwlayer_check, null);
                         v.setId(R.id.ngw_layer_check_row);
                     }
                     ivIcon = v.findViewById(R.id.ivIcon);
                     int icon = resourceType == Connection.NGWResourceTypeRasterLayer ? R.drawable.ic_raster : R.drawable.ic_ngw_wms_client;
-                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mActivity, icon));
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mActivity.get(), icon));
 
                     tvDesc = v.findViewById(R.id.tvDesc);
-                    tvDesc.setText(mActivity.getString(R.string.raster_layer));
+                    tvDesc.setText(mActivity.get().getString(R.string.raster_layer));
 
                     //add check listener
                     checkBox1 = v.findViewById(R.id.checkBox1);
@@ -411,7 +412,7 @@ public class NGWResourcesListAdapter
 //                    } else
                     if (layer.getStyleCount() > 0) {
                         if (null == v || v.getId() != R.id.ngw_layer_doublecheck_row) {
-                            LayoutInflater inflater = LayoutInflater.from(mActivity);
+                            LayoutInflater inflater = LayoutInflater.from(mActivity.get());
                             v = inflater.inflate(R.layout.row_ngwlayer_doublecheck, null);
                             v.setId(R.id.ngw_layer_doublecheck_row);
                         }
@@ -424,13 +425,13 @@ public class NGWResourcesListAdapter
                         setCheckBox(resourceType, checkBox2, id, 2);
                     } else {
                         if (null == v || v.getId() != R.id.ngw_layer_check_row) {
-                            LayoutInflater inflater = LayoutInflater.from(mActivity);
+                            LayoutInflater inflater = LayoutInflater.from(mActivity.get());
                             v = inflater.inflate(R.layout.row_ngwlayer_check, null);
                             v.setId(R.id.ngw_layer_check_row);
                         }
 
                         TextView tvType = v.findViewById(R.id.type1);
-                        tvType.setText(mActivity.getString(R.string.vector));
+                        tvType.setText(mActivity.get().getString(R.string.vector));
 
                         //add check listener
                         checkBox1 = v.findViewById(R.id.checkBox1);
@@ -439,11 +440,11 @@ public class NGWResourcesListAdapter
 
                     int vectorIcon = resourceType == Connection.NGWResourceTypeVectorLayer ? R.drawable.ic_vector : R.drawable.ic_pg_vector;
                     ivIcon = v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mActivity, vectorIcon));
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mActivity.get(), vectorIcon));
 
                     int desc = resourceType == Connection.NGWResourceTypeVectorLayer ? R.string.vector_layer : R.string.pg_layer;
                     tvDesc = v.findViewById(R.id.tvDesc);
-                    tvDesc.setText(mActivity.getString(desc));
+                    tvDesc.setText(mActivity.get().getString(desc));
                     break;
 
 //                case Connection.NGWResourceTypeCollector:
@@ -476,15 +477,15 @@ public class NGWResourcesListAdapter
 
                 case Connection.NGWResourceTypeWebMap:
                     if (null == v || v.getId() != R.id.ngw_layer_check_row) {
-                        LayoutInflater inflater = LayoutInflater.from(mActivity);
+                        LayoutInflater inflater = LayoutInflater.from(mActivity.get());
                         v = inflater.inflate(R.layout.row_ngwlayer_check, null);
                         v.setId(R.id.ngw_layer_check_row);
                     }
                     ivIcon = v.findViewById(R.id.ivIcon);
-                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mActivity, R.drawable.ic_ngw_webmap));
+                    ivIcon.setImageDrawable(ContextCompat.getDrawable(mActivity.get(), R.drawable.ic_ngw_webmap));
 
                     tvDesc = v.findViewById(R.id.tvDesc);
-                    tvDesc.setText(mActivity.getString(R.string.web_map));
+                    tvDesc.setText(mActivity.get().getString(R.string.web_map));
 
                     //add check listener
                     checkBox1 = v.findViewById(R.id.checkBox1);
@@ -544,8 +545,8 @@ public class NGWResourcesListAdapter
                             CompoundButton compoundButton,
                             boolean b)
                     {
-                        if (resourceType == Connection.NGWResourceTypePostgisLayer && !AccountUtil.isUserExists(mActivity)) {
-                            ControlHelper.showNoLoginDialog(mActivity);
+                        if (resourceType == Connection.NGWResourceTypePostgisLayer && !AccountUtil.isUserExists(mActivity.get())) {
+                            ControlHelper.showNoLoginDialog(mActivity.get());
                             compoundButton.setChecked(false);
                             return;
                         }
@@ -607,7 +608,7 @@ public class NGWResourcesListAdapter
                 } else if (connection.isConnected()) {
                     notifyDataSetChanged();
                 } else {
-                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(mActivity, connection);
+                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(this,mActivity.get(), connection);
                     task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
@@ -651,7 +652,7 @@ public class NGWResourcesListAdapter
                 if (resourceGroup.isChildrenLoaded()) {
                     notifyDataSetChanged();
                 } else {
-                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(mActivity, resourceGroup);
+                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(this, mActivity.get(), resourceGroup);
                     task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
@@ -694,7 +695,7 @@ public class NGWResourcesListAdapter
                 }
 
                 final int id = parent.getId();
-                TextView name = new TextView(mActivity);
+                TextView name = new TextView(mActivity.get());
 
                 String sName = parent.getName();
                 if (parent instanceof Connection && !mShowAccounts)
@@ -720,11 +721,11 @@ public class NGWResourcesListAdapter
                 parent = parent.getParent();
 
                 if (null != parent) {
-                    ImageView image = new ImageView(mActivity);
-                    int px = ControlHelper.dpToPx(16, mActivity.getResources());
+                    ImageView image = new ImageView(mActivity.get());
+                    int px = ControlHelper.dpToPx(16, mActivity.get().getResources());
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(px, px);
                     image.setLayoutParams(params);
-                    image.setImageDrawable(ContextCompat.getDrawable(mActivity, R.drawable.ic_next_light));
+                    image.setImageDrawable(ContextCompat.getDrawable(mActivity.get(), R.drawable.ic_next_light));
                     mLinearLayout.addView(image, 0);
                 }
             }
@@ -735,42 +736,47 @@ public class NGWResourcesListAdapter
     /**
      * A async task to execute resources functions (connect, loadChildren, etc.) asynchronously.
      */
-    protected class NGWResourceAsyncTask
+    static class NGWResourceAsyncTask
             extends AsyncTask<Void, Void, String>
     {
-        protected INGWResource mINGWResource;
-        protected Context      mContext;
+        private final WeakReference<NGWResourcesListAdapter> adapterRef;
+        private final WeakReference<Context> mActivity;
+        private final INGWResource resource;
 
 
-        public NGWResourceAsyncTask(
+        NGWResourceAsyncTask(
+                NGWResourcesListAdapter adapter,
                 Context context,
-                INGWResource INGWResource)
-        {
-            mINGWResource = INGWResource;
-            mContext = context;
+                INGWResource resource) {
+
+            adapterRef = new WeakReference<>(adapter);
+            mActivity = new WeakReference<>(context.getApplicationContext());
+            this.resource = resource;
         }
 
 
         @Override
         protected void onPreExecute()
         {
-            mLoading = true;
-            notifyDataSetChanged();
+            adapterRef.get().mLoading = true;
+            adapterRef.get().notifyDataSetChanged();
         }
 
 
         @Override
         protected String doInBackground(Void... voids)
         {
-            if (mINGWResource instanceof Connection) {
-                Connection connection = (Connection) mINGWResource;
+            if (mActivity.get() == null)
+                return "";
+            if (resource instanceof Connection) {
+                final Connection connection = (Connection) resource;
                 if (connection.connect(NGW_ACCOUNT_GUEST.equals(connection.getLogin()))) {
                     connection.loadChildren();
                 } else {
-                    return mContext.getString(com.nextgis.maplib.R.string.error_connect_failed);
+                    return mActivity.get().getString(com.nextgis.maplib.R.string.error_connect_failed);
                 }
-            } else if (mINGWResource instanceof ResourceGroup) {
-                ResourceGroup resourceGroup = (ResourceGroup) mINGWResource;
+            } else if (resource instanceof ResourceGroup) {
+                final ResourceGroup resourceGroup = (ResourceGroup) resource;
                 resourceGroup.loadChildren();
             }
             return "";
@@ -780,16 +786,16 @@ public class NGWResourcesListAdapter
         @Override
         protected void onPostExecute(String error)
         {
-            if (null != error && error.length() > 0) {
-                new AlertDialog.Builder(mActivity)
+            if (null != error && error.length() > 0 && mActivity.get() != null) {
+                new AlertDialog.Builder(mActivity.get())
                         .setMessage(error)
                         .setPositiveButton(R.string.ok, null)
                         .create()
                         .show();
                 //Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show();
             }
-            mLoading = false;
-            notifyDataSetChanged();
+            adapterRef.get().mLoading = false;
+            adapterRef.get().notifyDataSetChanged();
         }
     }
 }

@@ -62,6 +62,7 @@ import com.nextgis.maplibui.service.LayerFillService;
 import com.nextgis.maplibui.util.CheckState;
 import com.nextgis.maplibui.util.NGWCreateNewResourceTask;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,13 +85,16 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
     protected VectorLayer mLayer;
     protected LayerGroup mGroupLayer;
     protected NGWResourcesListAdapter mListAdapter;
-    protected AccountManager mAccountManager;
-    protected IGISApplication mApp;
+//    protected AccountManager mAccountManager;
+//    protected WeakReference<IGISApplication> mApp;
 
     protected Toolbar mToolbar;
     protected Button mButton;
 
     protected int mTypeMask, mTask, mPushId;
+
+    private AlertDialog mNewGroupDialog;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,8 +102,8 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
         setContentView(R.layout.activity_resources);
         setToolbar(R.id.main_toolbar);
 
-        mApp = (IGISApplication) getApplication();
-        mAccountManager = AccountManager.get(this);
+//        mApp = new WeakReference<>((IGISApplication) getApplication());
+//        mAccountManager = AccountManager.get(this);
         Log.d(TAG, "SelectNGWActivity: AccountManager.get(" + this + ")");
 
         mToolbar = findViewById(R.id.main_toolbar);
@@ -188,30 +192,30 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
         if (i == R.id.menu_new_group) {
             View view = View.inflate(this, R.layout.dialog_edittext, null);
             final EditText editText = view.findViewById(R.id.edit1);
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.new_group_name).setView(view)
                     .setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.ok, null);
 
-            final AlertDialog dialog = builder.show();
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            final AlertDialog mNewGroupDialog = builder.show();
+            mNewGroupDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Editable text = editText.getText();
+                    final Editable text = editText.getText();
                     if (text.length() < 1) {
                         Toast.makeText(v.getContext(), R.string.field_not_filled, Toast.LENGTH_SHORT).show();
                         return;
                     }
 
                     long id = getRemoteResourceId();
-                    Connection connection = getConnection();
+                    final Connection connection = getConnection();
                     if (connection != null && id != NOT_FOUND) {
                         new NGWCreateNewResourceTask(SelectNGWResourceActivity.this, connection, id).setName(text.toString()).
                                 executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         mListAdapter.refresh();
                     }
 
-                    dialog.dismiss();
+                    mNewGroupDialog.dismiss();
                 }
             });
             return true;
@@ -247,10 +251,10 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
             return false;
         }
 
-        Connections connections = mListAdapter.getConnections();
+        final Connections connections = mListAdapter.getConnections();
         for (CheckState checkState : checkStates) {
             if (checkState.isCheckState1()) { //create raster
-                INGWResource resource = connections.getResourceById(checkState.getId());
+                final INGWResource resource = connections.getResourceById(checkState.getId());
                 if (resource instanceof LayerWithStyles) {
                     LayerWithStyles layer = (LayerWithStyles) resource;
                     //1. get first style
@@ -266,9 +270,9 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     //3. create layer
                     String layerName = layer.getName();
 
-                    NGWRasterLayer newLayer;
+                    final NGWRasterLayer newLayer;
                     if (resource instanceof WebMap) {
-                        NGWWebMapLayerUI webmap = new NGWWebMapLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
+                        final NGWWebMapLayerUI webmap = new NGWWebMapLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
                         webmap.setChildren(((WebMap) resource).getChildren());
                         newLayer = webmap;
                     } else {
@@ -291,11 +295,11 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
             }
 
             if (checkState.isCheckState2()) { //create vector
-                INGWResource resource = connections.getResourceById(checkState.getId());
+                final INGWResource resource = connections.getResourceById(checkState.getId());
                 if (resource instanceof LayerWithStyles) {
-                    LayerWithStyles layer = (LayerWithStyles) resource;
+                    final LayerWithStyles layer = (LayerWithStyles) resource;
                     //1. get connection for url
-                    Connection connection = layer.getConnection();
+                    final Connection connection = layer.getConnection();
                     // create or connect to fill layer with features
                     Intent intent = new Intent(this, LayerFillService.class);
                     intent.setAction(LayerFillService.ACTION_ADD_TASK);
@@ -329,12 +333,13 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
         if (i == R.id.button1) {
             switch (mTask) {
                 case TYPE_ADD:
-                    if (createLayers())
+                    if (createLayers()) {
                         finish();
+                    }
                     break;
                 case TYPE_SELECT:
                     long id = getRemoteResourceId();
-                    Connection connection = getConnection();
+                    final Connection connection = getConnection();
                     if (connection != null && mLayer != null && id != NOT_FOUND) {
                         new NGWCreateNewResourceTask(this, connection, id).setLayer(mLayer)
                                 .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -351,7 +356,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
 
     public long getRemoteResourceId() {
         long id = NOT_FOUND;
-        INGWResource resource = mListAdapter.getCurrentResource();
+        final INGWResource resource = mListAdapter.getCurrentResource();
 
         if (resource instanceof ResourceGroup)
             id = ((ResourceGroup) resource).getRemoteId();
@@ -359,5 +364,32 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
             id = ((Connection) resource).getRootResource().getRemoteId();
 
         return id;
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        ListView listView = findViewById(R.id.listView);
+        if (listView != null) {
+            listView.setAdapter(null);
+            listView.setOnItemClickListener(null);
+        }
+
+        if (mListAdapter != null) {
+            mListAdapter.setPathLayout(null);
+        }
+
+
+        if (mNewGroupDialog != null) {
+            mNewGroupDialog.dismiss();
+            mNewGroupDialog = null;
+        }
+
+//        View decor = getWindow().getDecorView();
+//        if (decor != null) {
+//            decor.callback(null);
+//        }
+
+        super.onDestroy();
     }
 }
