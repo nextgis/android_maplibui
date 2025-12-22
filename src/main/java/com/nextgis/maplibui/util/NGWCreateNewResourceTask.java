@@ -69,6 +69,9 @@ public class  NGWCreateNewResourceTask extends AsyncTask<Void, Void, HttpRespons
     protected HttpResponse doInBackground(Void... voids) {
         if (mConnection.connect(false)) {
             mVer = null;
+
+            if (mContextRef.get() == null)
+                return new HttpResponse(401);
             try {
                 AccountUtil.AccountData accountData = AccountUtil.getAccountData(mContextRef.get(), mConnection.getName());
                 if (null == accountData.url)
@@ -122,6 +125,8 @@ public class  NGWCreateNewResourceTask extends AsyncTask<Void, Void, HttpRespons
                 break;
         }
 
-        Toast.makeText(mContextRef.get(), message, Toast.LENGTH_LONG).show();
+        if (mContextRef.get()!= null) {
+            Toast.makeText(mContextRef.get().getApplicationContext(), message, Toast.LENGTH_LONG).show();
+        }
     }
 }

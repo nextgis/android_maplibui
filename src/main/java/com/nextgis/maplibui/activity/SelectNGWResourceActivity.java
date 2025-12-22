@@ -197,7 +197,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     .setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.ok, null);
 
-            final AlertDialog mNewGroupDialog = builder.show();
+            mNewGroupDialog = builder.show();
             mNewGroupDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

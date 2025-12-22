@@ -417,6 +417,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                                                    .setAction(R.string.undo, new View.OnClickListener() {
                                                        @Override
                                                        public void onClick(View v) {
+
                                                            mMap.insertLayer(position, layer);
                                                        }
                                                    })
