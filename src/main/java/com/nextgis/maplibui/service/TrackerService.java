@@ -353,7 +353,6 @@ public class TrackerService extends Service
                 Intent msgT = new Intent(ConstantsUI.MESSAGE_INTENT_TRACK);
                 msgT.putExtra(ConstantsUI.KEY_TRACK_ACTION, VALUE_TRACK_START);
                 msgT.setPackage(this.getPackageName());
-
                 sendBroadcast(msgT);
             }
 
@@ -367,6 +366,7 @@ public class TrackerService extends Service
         msg.setPackage(this.getPackageName());
         msg.putExtra(ConstantsUI.KEY_MESSAGE_TRACK, true);
         msg.putExtra(ConstantsUI.KEY_TRACK_ACTION, VALUE_TRACK_START);
+        msg.setPackage(getPackageName());
         sendBroadcast(msg);
         ((GISApplication)getApplication()).setIsTrackInProgress(true);
     }

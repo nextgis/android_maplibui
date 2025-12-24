@@ -245,6 +245,7 @@ public class LayerFillService extends Service implements IProgressor {
 
                                     //msg.putExtra(MESSAGE_TITLE_EXTRA, getResources().getString(R.string.map_load_exception_title));
                                     msg.putExtra(MESSAGE_TITLE_EXTRA, getResources().getString(R.string.error));
+                                    msg.setPackage(getPackageName());
                                     sendBroadcast(msg);
 
                                     return START_NOT_STICKY;
@@ -269,7 +270,9 @@ public class LayerFillService extends Service implements IProgressor {
                         startNextTask();
                         break;
                     case ACTION_SHOW:
-                        mProgressIntent.putExtra(KEY_STATUS, STATUS_SHOW).putExtra(KEY_TITLE, mNotifyTitle);
+                        mProgressIntent.putExtra(KEY_STATUS, STATUS_SHOW)
+                                .putExtra(KEY_TITLE, mNotifyTitle)
+                                .setPackage(getPackageName());
                         sendBroadcast(mProgressIntent);
                         //Log.e("FFRRMM", "startCommand ACTION_SHOW broadcast " + mProgressIntent.toString());
 
@@ -311,7 +314,9 @@ public class LayerFillService extends Service implements IProgressor {
                 if (mProgressIntent.getExtras() != null)
                     mProgressIntent.getExtras().clear();
 
-                mProgressIntent.putExtra(KEY_STATUS, STATUS_START).putExtra(KEY_TITLE, mNotifyTitle);
+                mProgressIntent.putExtra(KEY_STATUS, STATUS_START)
+                        .putExtra(KEY_TITLE, mNotifyTitle)
+                        .setPackage(getPackageName());
                 sendBroadcast(mProgressIntent);
                 //Log.e("FFRRMM", "Thread send broadcast 1" + mProgressIntent.toString());
 
@@ -339,6 +344,7 @@ public class LayerFillService extends Service implements IProgressor {
                     mProgressIntent.putExtra(KEY_ACCOUNT, ((NGWVectorLayerFillTask) task).getAccountName());
                     mProgressIntent.putExtra(KEY_REMOTE_ID, task.getLayer().getId());
                 }
+                mProgressIntent.setPackage(getPackageName());
 
                 sendBroadcast(mProgressIntent);
                 //Log.e("FFRRMM", "Thread send broadcast 2" + mProgressIntent.toString());
@@ -406,7 +412,7 @@ public class LayerFillService extends Service implements IProgressor {
         if (isPointz)
             mProgressIntent.putExtra(IS_POINTS, true);
 
-
+        mProgressIntent.setPackage(getPackageName());
         sendBroadcast(mProgressIntent);
 //        Log.e("FFRRMM", "updateNotify send broadcast with mProgressMessage " + mProgressMessage);
 //
@@ -670,6 +676,7 @@ public class LayerFillService extends Service implements IProgressor {
                             if (!same) {
                                 Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT);
                                 msg.putExtra(ConstantsUI.KEY_MESSAGE, getString(R.string.ngw_different_credentials));
+                                msg.setPackage(getPackageName());
                                 sendBroadcast(msg);
                                 //Log.e("FFRRMM", "unzipform send broadcast " + msg.toString());
 
@@ -873,7 +880,6 @@ public class LayerFillService extends Service implements IProgressor {
                 ngwVectorLayer.createFromNGW(progressor);
             } catch (JSONException | IOException | SQLiteException | NGException |
                      ClassCastException e) {
-                e.printStackTrace();
                 String error = e.getLocalizedMessage();
                 if (e instanceof JSONException && e.getMessage().equals("No value for fields")){
                     error = getResources().getString(com.nextgis.maplib.R.string.error_forbidden);
@@ -889,11 +895,11 @@ public class LayerFillService extends Service implements IProgressor {
                     Intent msg = new Intent(MESSAGE_ALERT_INTENT);
                     msg.putExtra(MESSAGE_EXTRA,getBaseContext().getString(R.string.pointz_alert));
                     msg.putExtra(MESSAGE_TITLE_EXTRA,getBaseContext().getString(R.string.pointz_alert_title));
+                    msg.setPackage(getPackageName());
                     getBaseContext().sendBroadcast(msg);
                 } else notifyError(mProgressMessage);
                 return false;
             }
-
             return true;
         }
 

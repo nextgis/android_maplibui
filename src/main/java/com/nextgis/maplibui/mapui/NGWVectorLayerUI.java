@@ -92,6 +92,7 @@ public class NGWVectorLayerUI
     {
         Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT);
         msg.putExtra(ConstantsUI.KEY_MESSAGE, error);
+        msg.setPackage(getContext().getPackageName());
         getContext().sendBroadcast(msg);
         super.reportError(error);
     }

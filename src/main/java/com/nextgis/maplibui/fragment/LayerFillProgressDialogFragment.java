@@ -142,7 +142,7 @@ public class LayerFillProgressDialogFragment extends Fragment {
 
                 IntentFilter intentFilter = new IntentFilter(LayerFillService.ACTION_UPDATE);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    mActivity.get().registerReceiver(mLayerFillReceiver, intentFilter, Context.RECEIVER_EXPORTED);
+                    mActivity.get().registerReceiver(mLayerFillReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
                 } else {
                     mActivity.get().registerReceiver(mLayerFillReceiver, intentFilter);
                 }

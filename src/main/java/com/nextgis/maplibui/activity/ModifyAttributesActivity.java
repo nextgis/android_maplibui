@@ -190,7 +190,7 @@ public class ModifyAttributesActivity
             };
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(messageReceiver, getReceiverIntent(), Context.RECEIVER_EXPORTED);
+            registerReceiver(messageReceiver, getReceiverIntent(), Context.RECEIVER_NOT_EXPORTED);
         } else {
             registerReceiver(messageReceiver, getReceiverIntent());
         }

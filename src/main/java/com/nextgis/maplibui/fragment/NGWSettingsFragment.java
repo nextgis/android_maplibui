@@ -544,7 +544,7 @@ public class NGWSettingsFragment
                         IntentFilter intentFilter = new IntentFilter();
                         intentFilter.addAction(SyncAdapter.SYNC_CANCELED);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            mStyledContext.registerReceiver(broadcastReceiver, intentFilter, Context.RECEIVER_EXPORTED);
+                            mStyledContext.registerReceiver(broadcastReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
                         } else {
                             mStyledContext.registerReceiver(broadcastReceiver, intentFilter);
                         }

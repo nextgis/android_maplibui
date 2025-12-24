@@ -191,7 +191,8 @@ public class RebuildCacheService extends IntentService implements IProgressor
 
     protected void stopService() {
         mCurrentTasks = 0;
-        mProgressIntent.putExtra(KEY_PROGRESS, 0);
+        mProgressIntent.putExtra(KEY_PROGRESS, 0)
+                .setPackage(getPackageName());
         sendBroadcast(mProgressIntent);
         mLayer = null;
 
@@ -295,6 +296,7 @@ public class RebuildCacheService extends IntentService implements IProgressor
             Log.e(TAG, "error on setIntentValue:" + ex.getMessage());
 
         }
+        mProgressIntent.setPackage(getPackageName());
         sendBroadcast(mProgressIntent);
     }
 

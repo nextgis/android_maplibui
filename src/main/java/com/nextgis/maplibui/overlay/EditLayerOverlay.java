@@ -753,7 +753,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         intentFilter.addAction(WalkEditService.WALKEDIT_CHANGE);
         mReceiver = new WalkEditReceiver();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            mContext.get().registerReceiver(mReceiver, intentFilter, Context.RECEIVER_EXPORTED);
+            mContext.get().registerReceiver(mReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
         } else {
             mContext.get().registerReceiver(mReceiver, intentFilter);
         }

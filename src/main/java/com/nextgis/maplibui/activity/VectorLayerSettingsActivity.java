@@ -378,7 +378,7 @@ public class VectorLayerSettingsActivity
             if (getActivity() != null) {
                 IntentFilter intentFilter = new IntentFilter(RebuildCacheService.ACTION_UPDATE);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    getActivity().registerReceiver(mRebuildCacheReceiver, intentFilter, Context.RECEIVER_EXPORTED);
+                    getActivity().registerReceiver(mRebuildCacheReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
                 } else {
                     getActivity().registerReceiver(mRebuildCacheReceiver, intentFilter);
                 }

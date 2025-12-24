@@ -171,6 +171,7 @@ public abstract class GISApplication extends Application
                     Intent msg = new Intent(MESSAGE_ALERT_INTENT);
                     msg.putExtra(MESSAGE_EXTRA, finalWarning);
                     msg.putExtra(MESSAGE_TITLE_EXTRA, getResources().getString(R.string.map_load_exception_title));
+                    msg.setPackage(getPackageName());
                     sendBroadcast(msg);
                 }
             },1000);
