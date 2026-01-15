@@ -40,7 +40,7 @@ public class SimpleFeatureRendererUI extends RendererUI {
     public Fragment getSettingsScreen(VectorLayer vectorLayer) {
         mSettings = super.getSettingsScreen(vectorLayer);
         if (mSettings == null) {
-            mSettings = new StyleFragment();
+            mSettings = new StyleFragment(false);
             ((StyleFragment) mSettings).setStyle(mStyle);
             ((StyleFragment) mSettings).setLayer(vectorLayer);
         }

@@ -68,9 +68,10 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
     protected int mFillColor, mStrokeColor, mTextColor;
     protected Style mStyle;
     protected VectorLayer mLayer;
+    boolean isRule;
 
-    public StyleFragment() {
-
+    public StyleFragment(boolean isRule) {
+        this.isRule = isRule;
     }
 
     public void setStyle(Style style) {
@@ -89,7 +90,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
             inflateMarker(body);
         } else if (mStyle instanceof SimpleLineStyle) {
             body = inflater.inflate(R.layout.style_line, container, false);
-            inflateLine(body);
+            inflateLine(body, isRule);
         } else if (mStyle instanceof SimplePolygonStyle) {
             body = inflater.inflate(R.layout.style_polygon, container, false);
             inflatePolygon(body);
@@ -210,7 +211,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         });
     }
 
-    private void inflateLine(View v) {
+    private void inflateLine(View v, boolean isRule) {
         mStrokeColor = mStyle.getOutColor();
 
         mColorFillName = v.findViewById(R.id.color_fill_name);
@@ -248,6 +249,22 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         });
 
         Spinner type = v.findViewById(R.id.type);
+
+        if (isRule){
+            String[] types = getResources().getStringArray(R.array.line_type);
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                    getContext(),
+                    android.R.layout.simple_spinner_item,
+                    new String[]{types[0]}          // ← только первый элемент
+            );
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+            type.setAdapter(adapter);
+        }
+
+
+
         type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {

@@ -260,7 +260,7 @@ public class RuleFeatureRendererUI extends RendererUI {
                 final Style style = value == null ? mStyle : mRulesList.contains(mSelectedValue) ? mStyleRule.getStyle(mSelectedValue) : mStyle.clone();
 
                 FragmentManager fm = getActivity().getSupportFragmentManager();
-                final StyleFragment styleFragment = new StyleFragment();
+                final StyleFragment styleFragment = new StyleFragment(value != null);
                 styleFragment.setLayer(mLayer);
                 styleFragment.setStyle(style);
                 styleFragment.setTitle(com.nextgis.maplib.R.string.style);
