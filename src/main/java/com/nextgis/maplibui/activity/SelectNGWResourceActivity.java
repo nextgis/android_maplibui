@@ -257,9 +257,9 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                 final INGWResource resource = connections.getResourceById(checkState.getId());
                 if (resource instanceof LayerWithStyles) {
                     LayerWithStyles layer = (LayerWithStyles) resource;
-                    //1. get first style
+                    // get first style
                     Connection connection = layer.getConnection();
-                    //2. create tiles url
+                    // create tiles url
                     String layerURL = layer.getTMSUrl(0);
 
                     if (layerURL == null) {
@@ -267,7 +267,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                         return false;
                     }
 
-                    //3. create layer
+                    //create layer
                     String layerName = layer.getName();
 
                     final NGWRasterLayer newLayer;
@@ -298,7 +298,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                 final INGWResource resource = connections.getResourceById(checkState.getId());
                 if (resource instanceof LayerWithStyles) {
                     final LayerWithStyles layer = (LayerWithStyles) resource;
-                    //1. get connection for url
+                    // get connection for url
                     final Connection connection = layer.getConnection();
                     // create or connect to fill layer with features
                     Intent intent = new Intent(this, LayerFillService.class);

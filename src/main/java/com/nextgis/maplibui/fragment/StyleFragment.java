@@ -87,6 +87,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         mFillColor = mStyle.getColor();
         if (mStyle instanceof SimpleMarkerStyle) {
             body = inflater.inflate(R.layout.style_marker, container, false);
+            // inflate marker
             inflateMarker(body);
         } else if (mStyle instanceof SimpleLineStyle) {
             body = inflater.inflate(R.layout.style_line, container, false);
@@ -103,19 +104,19 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
     }
 
     private void inflateMarker(View v) {
-        Spinner type = v.findViewById(R.id.type);
-        type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                ((SimpleMarkerStyle) mStyle).setType(position + 1);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-        type.setSelection(((SimpleMarkerStyle) mStyle).getType() - 1);
+        //Spinner type = v.findViewById(R.id.type);
+//        type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                ((SimpleMarkerStyle) mStyle).setType(position + 1);
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
+//        type.setSelection(((SimpleMarkerStyle) mStyle).getType() - 1);
 
         Spinner textSize = v.findViewById(R.id.text_size);
         textSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

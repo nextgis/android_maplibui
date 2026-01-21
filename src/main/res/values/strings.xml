@@ -409,7 +409,7 @@
     <string name="use_keys">Use keys</string>
     <string name="use_names">Use field names instead of keys</string>
 
-    <string name="pointz_alert">You can not use {GeometryZ} type geometries in NextGIS Mobile at the moment. Strip Z coordinates from your layer\'s source and try again.</string>
+    <string name="pointz_alert">You can not use GeometryZ type geometries in NextGIS Mobile at the moment. Strip Z coordinates from your layer\'s source and try again.</string>
 
     <string name="pointz_alert_title">Error</string>
 

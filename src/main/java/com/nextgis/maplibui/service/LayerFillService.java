@@ -892,11 +892,11 @@ public class LayerFillService extends Service implements IProgressor {
 
                 setError(error, progressor);
                 if ("POINTZ".equals(e.getMessage())){
-                    Intent msg = new Intent(MESSAGE_ALERT_INTENT);
-                    msg.putExtra(MESSAGE_EXTRA,getBaseContext().getString(R.string.pointz_alert));
-                    msg.putExtra(MESSAGE_TITLE_EXTRA,getBaseContext().getString(R.string.pointz_alert_title));
-                    msg.setPackage(getPackageName());
-                    getBaseContext().sendBroadcast(msg);
+//                    Intent msg = new Intent(MESSAGE_ALERT_INTENT);
+//                    msg.putExtra(MESSAGE_EXTRA,getBaseContext().getString(R.string.pointz_alert));
+//                    msg.putExtra(MESSAGE_TITLE_EXTRA,getBaseContext().getString(R.string.pointz_alert_title));
+//                    msg.setPackage(getPackageName());
+//                    getBaseContext().sendBroadcast(msg);
                 } else notifyError(mProgressMessage);
                 return false;
             }
