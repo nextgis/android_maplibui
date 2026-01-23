@@ -108,7 +108,7 @@ public final class UiUtil {
 
     public static void save(File inputFile, String mimeType, Activity activity, Boolean showInfoDialog,
                             Intent outputData) {
-        // сохраняем в выбранное место
+        // save to choosed place
         if (outputData == null)
             return;
         try {

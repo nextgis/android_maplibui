@@ -374,7 +374,7 @@ public class NGWSettingsFragment
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     layerSync.setChecked(false);
-                                    // не вызывает onPrefChange  -так что доп проверки не нужны как с checkbox-ом
+                                    //  not call onPrefChange  -no need check as checkbox
                                 } };
                             DialogInterface.OnCancelListener cancelClick = new DialogInterface.OnCancelListener() {
                                 @Override

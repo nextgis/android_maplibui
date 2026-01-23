@@ -257,7 +257,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
             ArrayAdapter<String> adapter = new ArrayAdapter<>(
                     getContext(),
                     android.R.layout.simple_spinner_item,
-                    new String[]{types[0]}          // ← только первый элемент
+                    new String[]{types[0]}          // only 1st element
             );
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 

@@ -326,7 +326,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                                             }
                                         }
 //                                        else if (i == R.id.menu_save) {
-//                                             // запоминаем что выбрал пользователь и запускаем выбор (экспорт потом - может он и не выберет ничего )
+//                                             //
 //
 //                                            assert layerui != null; 222
 //
