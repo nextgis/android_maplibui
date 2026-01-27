@@ -45,6 +45,7 @@ import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.AccountUtil;
+import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.LayerUtil;
@@ -91,15 +92,15 @@ public class NGActivity
     protected void setCurrentThemePref()
     {
         mCurrentTheme = mIsDarkTheme ?
-                SettingsConstantsUI.KEY_PREF_DARK :
-                SettingsConstantsUI.KEY_PREF_LIGHT;
+                SettingsConstants.KEY_PREF_DARK :
+                SettingsConstants.KEY_PREF_LIGHT;
     }
 
 
     // for overriding in a subclass
     protected void refreshCurrentTheme()
     {
-        String newTheme = mPreferences.getString(SettingsConstantsUI.KEY_PREF_THEME, SettingsConstantsUI.KEY_PREF_LIGHT);
+        String newTheme = mPreferences.getString(SettingsConstantsUI.KEY_PREF_THEME, SettingsConstants.KEY_PREF_LIGHT);
 
         if (newTheme != null && !newTheme.equals(mCurrentTheme)) {
             refreshActivityView();
@@ -203,16 +204,16 @@ public class NGActivity
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK)
-        switch (requestCode) {
-            case CODE_SAVE_FILE: // save file to
-                // start to choose - export with aliases or not
-                VectorLayer layer = (VectorLayer)getLayerForSave();
-                if (layer != null) {
-                    storeLayerForSave(null);
-                    LayerUtil.shareLayerAsGeoJSON(NGActivity.this, layer, true,
-                            true, data, nChoise == 1);
-                }
-                break;
+            switch (requestCode) {
+                case CODE_SAVE_FILE: // save file to
+                    // start to choose - export with aliases or not
+                    VectorLayer layer = (VectorLayer)getLayerForSave();
+                    if (layer != null) {
+                        storeLayerForSave(null);
+                        LayerUtil.shareLayerAsGeoJSON(NGActivity.this, layer, true,
+                                true, data, nChoise == 1);
+                    }
+                    break;
         }
     }
 

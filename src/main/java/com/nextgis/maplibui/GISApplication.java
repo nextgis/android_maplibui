@@ -67,10 +67,10 @@ import static com.nextgis.maplib.util.Constants.MAP_EXT;
 import static com.nextgis.maplib.util.Constants.MESSAGE_ALERT_INTENT;
 import static com.nextgis.maplib.util.Constants.MESSAGE_EXTRA;
 import static com.nextgis.maplib.util.Constants.MESSAGE_TITLE_EXTRA;
+import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_DARK;
+import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_LIGHT;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_MAP;
-import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_DARK;
-import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_LIGHT;
-import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_NEUTRAL;
+import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_NEUTRAL;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIODICALLY;
 
@@ -89,6 +89,8 @@ public abstract class GISApplication extends Application
         implements IGISApplication {
 
     static private IGISApplication instance;
+
+    static public boolean needUpdateBackground = false;
 
     static public IGISApplication getInstance(){
         return instance;

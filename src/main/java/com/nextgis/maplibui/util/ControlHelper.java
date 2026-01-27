@@ -67,6 +67,7 @@ import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.LayerUtil;
 import com.nextgis.maplib.util.LocationUtil;
 import com.nextgis.maplib.util.MapUtil;
+import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGIDLoginActivity;
 
@@ -231,8 +232,8 @@ public final class ControlHelper
     public static boolean isDarkTheme(Context context)
     {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(SettingsConstantsUI.KEY_PREF_THEME, SettingsConstantsUI.KEY_PREF_LIGHT)
-                .equals(SettingsConstantsUI.KEY_PREF_DARK);
+                .getString(SettingsConstantsUI.KEY_PREF_THEME, SettingsConstants.KEY_PREF_LIGHT)
+                .equals(SettingsConstants.KEY_PREF_DARK);
     }
 
     public static Drawable tintDrawable(

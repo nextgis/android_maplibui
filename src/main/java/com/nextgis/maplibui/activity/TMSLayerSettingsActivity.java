@@ -80,9 +80,9 @@ public class TMSLayerSettingsActivity
         if (null == mRasterLayer)
             return;
 
-        boolean changes = mStyleFragment.saveSettings();
+        //boolean changes = mStyleFragment.saveSettings();
         mRasterLayer.setName(mLayerName);
-        changes = changes || mLayerMaxZoom != mRasterLayer.getMaxZoom() || mLayerMinZoom != mRasterLayer.getMinZoom();
+        boolean changes = mLayerMaxZoom != mRasterLayer.getMaxZoom() || mLayerMinZoom != mRasterLayer.getMinZoom();
         mRasterLayer.setMinZoom(mLayerMinZoom);
         mRasterLayer.setMaxZoom(mLayerMaxZoom);
         mRasterLayer.save();
@@ -92,15 +92,20 @@ public class TMSLayerSettingsActivity
 
     @Override
     void addFragments() {
-        mStyleFragment = new StyleFragment();
-        mStyleFragment.setLayer(mLayer);
-        mAdapter.addFragment(mStyleFragment, com.nextgis.maplib.R.string.style);
+
+//        mStyleFragment = new StyleFragment();
+//        mStyleFragment.setLayer(mLayer);
+//        mAdapter.addFragment(mStyleFragment, com.nextgis.maplib.R.string.style);
+
         LayerGeneralSettingsFragment generalSettingsFragment = new LayerGeneralSettingsFragment();
         generalSettingsFragment.setRoot(mLayer, this);
         mAdapter.addFragment(generalSettingsFragment, com.nextgis.maplib.R.string.general);
-        CacheFragment cacheFragment = new CacheFragment();
-        cacheFragment.setLayer(mLayer);
-        mAdapter.addFragment(cacheFragment, com.nextgis.maplib.R.string.cache);
+
+        // no need  on maplibre raster layers
+//        CacheFragment cacheFragment = new CacheFragment();
+//        cacheFragment.setLayer(mLayer);
+//        mAdapter.addFragment(cacheFragment, com.nextgis.maplib.R.string.cache);
+
     }
 
     public static class StyleFragment extends Fragment implements SeekBar.OnSeekBarChangeListener {
