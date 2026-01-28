@@ -21,12 +21,15 @@
 
 package com.nextgis.maplibui.display;
 
+import static com.nextgis.maplibui.util.ControlHelper.isDarkTheme;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.app.AlertDialog;
@@ -288,6 +291,12 @@ public class RuleFeatureRendererUI extends RendererUI {
                         styleFragment.dismiss();
                     }
                 });
+
+                styleFragment.setStyle(
+                        DialogFragment.STYLE_NORMAL,
+                        isDarkTheme(getContext())
+                                ? R.style.Theme_NextGIS_AppCompat_Dark
+                                : R.style.Theme_NextGIS_AppCompat_Light);
                 styleFragment.show(fm, STYLE_DIALOG_FRAGMENT);
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();

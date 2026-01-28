@@ -23,6 +23,7 @@
 
 package com.nextgis.maplibui.dialog;
 
+import static com.nextgis.maplibui.util.ControlHelper.isDarkTheme;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
@@ -111,6 +112,15 @@ public class StyledDialogFragment
 
         // StyledDialogFragment themes. These are fixed. To change the colors see colors.xml
         // Or use setThemeResId()
+
+        if (null != mThemeResId) {
+            mContext = new ContextThemeWrapper(getActivity(), mThemeResId);
+        } else {
+            // ⬇️ theme from Activity
+            mContext = new ContextThemeWrapper(getActivity(), getActivity().getTheme());
+        }
+        mIsThemeDark = isDarkTheme(getContext());
+
         if (null != mThemeResId) {
             mContext = new ContextThemeWrapper(getActivity(), mThemeResId);
         } else if (mIsThemeDark) {

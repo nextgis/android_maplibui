@@ -28,6 +28,9 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -37,6 +40,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
@@ -175,7 +181,48 @@ public class TracksActivity extends NGActivity implements ActionMode.Callback {
     public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
         MenuInflater inflater = actionMode.getMenuInflater();
         inflater.inflate(R.menu.action_tracks, menu);
+
+        // WA white icons - remove after normal theme be applied
+        for (int i = 0; i < menu.size(); i++) {
+            Drawable icon = menu.getItem(i).getIcon();
+            if (icon != null) {
+                icon.mutate().setTint(Color.WHITE);
+            }
+        }
+
+        // WA - white back button - remove after normal theme be applied
+        View closeBtn = findViewById(androidx.appcompat.R.id.action_mode_close_button);
+        if (closeBtn instanceof ImageView) {
+            ((ImageView) closeBtn).setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+        }
+
+        // Search  TextView with selected number
+        View cabContainer = getWindow().getDecorView().findViewWithTag("action_mode_bar"); // иногда tag = "action_mode_bar"
+        if (cabContainer == null) {
+            // or search on root view
+            cabContainer = findViewById(android.R.id.content).getRootView();
+        }
+
+        if (cabContainer instanceof ViewGroup) {
+            setTitleTextColorRecursive((ViewGroup) cabContainer, Color.WHITE);
+        }
+
         return true;
+    }
+
+    private void setTitleTextColorRecursive(ViewGroup parent, int color) {
+        for (int i = 0; i < parent.getChildCount(); i++) {
+            View child = parent.getChildAt(i);
+            if (child instanceof TextView) {
+                TextView tv = (TextView) child;
+                CharSequence text = tv.getText();
+                if (text != null && (text.toString().matches("\\d+") || text.toString().contains("selected"))) {
+                    tv.setTextColor(color);
+                }
+            } else if (child instanceof ViewGroup) {
+                setTitleTextColorRecursive((ViewGroup) child, color);
+            }
+        }
     }
 
     @Override
