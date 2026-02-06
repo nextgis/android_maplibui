@@ -46,6 +46,8 @@ public interface ConstantsUI
     String KEY_VIEW_ONLY        = "view_only";
     String KEY_ADDED_POINT        = "added_point";
 
+    String MESSAGE_INTENT_STYLING = "com.nextgis.malibui.MESSAGE.STYLING";
+
     String MESSAGE_INTENT = "com.nextgis.malibui.MESSAGE";
     String TARGET_CLASS   = "target_class";
     String TARGET_EXTRAS  = "target_extras";

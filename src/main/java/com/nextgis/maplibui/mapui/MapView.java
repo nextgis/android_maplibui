@@ -656,6 +656,11 @@ public class MapView
     }
 
     @Override
+    public void onLayerVisibleChanged(int id) {
+
+    }
+
+    @Override
     public void onLayerChangedFeatureId(long oldFeatureId, long newFeatureId, int layerId) {
     }
 

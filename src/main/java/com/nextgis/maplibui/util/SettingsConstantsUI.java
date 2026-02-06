@@ -56,7 +56,7 @@ public interface SettingsConstantsUI
     String KEY_PREF_OFFLINE_SYNC_ON     = "offline_sync_on";
 
 
-    String OSM_URL = "https://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+    String OSM_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 
     /**
      * preference pages

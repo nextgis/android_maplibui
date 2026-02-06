@@ -452,19 +452,24 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 
     @Override
     public void onLayerAdded(int id) {
-        notifyDataChanged(false);
+        notifyDataChanged(false, false);
     }
 
 
     @Override
     public void onLayerDeleted(int id) {
-        notifyDataChanged(false);
+        notifyDataChanged(false, false);
     }
 
 
     @Override
     public void onLayerChanged(int id) {
-        notifyDataChanged(false);
+        notifyDataChanged(false, false);
+    }
+
+    @Override
+    public void onLayerVisibleChanged(int id) {
+        notifyDataChanged(false, true);
     }
 
     @Override
@@ -480,7 +485,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
 
     @Override
     public void onLayersReordered() {
-        notifyDataChanged(false);
+        notifyDataChanged(false, false);
     }
 
 
@@ -496,12 +501,12 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
     }
 
 
-    void notifyDataChanged(boolean reloadAllLayers) {
+    void notifyDataChanged(boolean reloadAllLayers, boolean skipMaplibre) {
         mActivity.get().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 notifyDataSetChanged();
-                if (reloadAllLayers)
+                if (reloadAllLayers && !skipMaplibre)
                     mMap.mapFragment.get().loadLayersLite();
             }
         });
@@ -523,8 +528,8 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
         final ILayer iLayerFrom = (ILayer)getItem(originalPosition);
         final ILayer iLayerTo = (ILayer)getItem(newPosition);
 
-//        Log.d("SSWAPP",
-//                "Original position: " + iLayerFrom.getName() + " Destination position: " + iLayerTo.getName());
+        Log.d("SSWAPP",
+                "Original position: " + iLayerFrom.getName() + " Destination position: " + iLayerTo.getName());
 
 
 

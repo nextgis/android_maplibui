@@ -1387,6 +1387,11 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
     }
 
     @Override
+    public void onLayerVisibleChanged(int id) {
+
+    }
+
+    @Override
     public void onLayerChangedFeatureId(long oldFeatureId, long newFeatureId, int layerId) {
     }
 

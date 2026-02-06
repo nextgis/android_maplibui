@@ -105,6 +105,9 @@ public abstract class GISApplication extends Application
     protected AccountManager mAccountManager;
     boolean isTrackInProgress  = false;
 
+
+    boolean isStylingInProgress  = false;
+
     String account = null;
     String errorMessage = null;
     int errorCode = 0;
@@ -526,4 +529,14 @@ public abstract class GISApplication extends Application
     };
 
 
+    @Override
+    public boolean getGetingStyleInProgress() {
+        return isStylingInProgress;
+    }
+
+    @Override
+    public void setGetingStyleInProgress(boolean value) {
+        isStylingInProgress = value;
+
+    }
 }

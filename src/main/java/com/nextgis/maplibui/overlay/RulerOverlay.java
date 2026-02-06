@@ -310,6 +310,11 @@ public class RulerOverlay extends Overlay implements MapViewEventListener {
     }
 
     @Override
+    public void onLayerVisibleChanged(int id) {
+
+    }
+
+    @Override
     public void onLayerChangedFeatureId(long oldFeatureId, long newFeatureId, int layerId) {
     }
 

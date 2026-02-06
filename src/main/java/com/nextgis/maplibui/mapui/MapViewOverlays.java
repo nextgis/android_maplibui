@@ -251,7 +251,6 @@ public class MapViewOverlays
         };
     }
 
-
     @Override
     public void onLayerChanged(int id) {
         super.onLayerChanged(id);
@@ -259,6 +258,17 @@ public class MapViewOverlays
         mMap.reloadFillLayerStyleToMaplibre(id); // todo change to update ony item - feature id
         mMap.checkLayerVisibility(id);
     }
+
+
+    @Override
+    public void onLayerVisibleChanged(int id) {
+        super.onLayerChanged(id);
+
+        //mMap.reloadFillLayerStyleToMaplibre(id); // todo change to update ony item - feature id
+        mMap.checkLayerVisibility(id);
+    }
+
+
 
     @Override
     public void onLayerChangedFeatureId( long oldFeatureId, long newFeatureId,int layerId ){
