@@ -185,12 +185,19 @@ public class LayerFillService extends Service implements IProgressor {
         intent.setAction(ACTION_SHOW);
         PendingIntent show = PendingIntent.getService(this, 0, intent, flag);
 
+
+        boolean isSamsung =
+                Build.MANUFACTURER != null &&
+                        Build.MANUFACTURER.equalsIgnoreCase("samsung");
+
         mBuilder = createBuilder(this,com.nextgis.maplib.R.string.start_fill_layer);
         mBuilder.setSmallIcon(icon).setLargeIcon(largeIcon)
                 .setAutoCancel(false)
                 .setOngoing(true)
                 .setContentIntent(show)
                 .addAction(R.drawable.ic_action_cancel_dark, getString(R.string.tracks_stop), stop);
+        if (isSamsung)
+            mBuilder.setOnlyAlertOnce(true);
         mIsCanceled = false;
 
         mQueue = new LinkedList<>();
