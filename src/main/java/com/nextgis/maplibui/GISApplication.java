@@ -539,4 +539,10 @@ public abstract class GISApplication extends Application
         isStylingInProgress = value;
 
     }
+
+    public void deleteFeature(Long selectedFeatureId, int layerdID){
+        if (mMap!= null){
+            mMap.deleteFeature(selectedFeatureId, layerdID);
+        }
+    }
 }

@@ -45,6 +45,7 @@ public interface ConstantsUI
     String KEY_META_PATH        = "meta_path";
     String KEY_VIEW_ONLY        = "view_only";
     String KEY_ADDED_POINT        = "added_point";
+    String KEY_BATTERY    = "msg_battery";
 
     String MESSAGE_INTENT = "com.nextgis.malibui.MESSAGE";
     String TARGET_CLASS   = "target_class";

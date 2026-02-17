@@ -51,6 +51,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.provider.Settings;
 
 import androidx.annotation.NonNull;
@@ -75,7 +76,6 @@ import com.nextgis.maplib.util.PermissionUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.GISApplication;
 import com.nextgis.maplibui.R;
-import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.NotificationHelper;
 
@@ -196,6 +196,28 @@ public class TrackerService extends Service
 
             };
         }
+    }
+
+
+    public static Pair<Integer, Integer> start_stop_tracking_GetIconWithTitle(Context context) {
+        Intent trackerServiceIntent = new Intent(context, TrackerService.class);
+        trackerServiceIntent.putExtra(ConstantsUI.TARGET_CLASS, context.getClass().getName());
+
+        int title = R.string.track_start, icon = R.drawable.ic_action_maps_directions_walk;
+        if (isTrackerServiceRunning(context)) {
+            trackerServiceIntent.setAction(TrackerService.ACTION_STOP);
+            context.startService(trackerServiceIntent);
+        } else if (hasUnfinishedTracks(context)) {
+            trackerServiceIntent.setAction(TrackerService.ACTION_STOP);
+            context.startService(trackerServiceIntent);
+            trackerServiceIntent.setAction(null);
+            context.startService(trackerServiceIntent);
+        } else {
+            context.startService(trackerServiceIntent);
+            title = R.string.track_stop;
+            icon = R.drawable.ic_action_maps_directions_walk_rec;
+        }
+        return new Pair<>(icon, title);
     }
 
 
@@ -332,10 +354,6 @@ public class TrackerService extends Service
         mValues.put(TrackLayer.FIELD_START, started);
         mValues.put(TrackLayer.FIELD_VISIBLE, true);
 
-//        Intent msgTr = new Intent(ConstantsUI.MESSAGE_INTENT_TRACKER);
-//        msgTr.putExtra(ConstantsUI.KEY_MESSAGE, "track not started - try again");
-//        sendBroadcast(msgTr);
-
         Intent msgTr = new Intent("com.example.ACTION_TRACKER_MESSAGE");
         msgTr.putExtra(ConstantsUI.KEY_MESSAGE, "track not started - try again");
         getApplicationContext().sendBroadcast(msgTr);
@@ -362,13 +380,22 @@ public class TrackerService extends Service
 
         }
 
+        boolean batteryOK = checkIsBatteryPermOK();
+
         Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT_TRACK);
         msg.setPackage(this.getPackageName());
         msg.putExtra(ConstantsUI.KEY_MESSAGE_TRACK, true);
+        if (!batteryOK)
+            msg.putExtra(ConstantsUI.KEY_BATTERY, false);
         msg.putExtra(ConstantsUI.KEY_TRACK_ACTION, VALUE_TRACK_START);
         msg.setPackage(getPackageName());
         sendBroadcast(msg);
         ((GISApplication)getApplication()).setIsTrackInProgress(true);
+    }
+
+    public boolean checkIsBatteryPermOK(){
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        return  pm.isIgnoringBatteryOptimizations(getPackageName());
     }
 
     private void stopTrack() {
@@ -391,6 +418,7 @@ public class TrackerService extends Service
 
         ((GISApplication)getApplication()).setIsTrackInProgress(false);
     }
+
 
 
     public static void closeTracks(Context context, IGISApplication app) {
@@ -742,26 +770,7 @@ public class TrackerService extends Service
         return String.format("%X", uuid.hashCode());
     }
 
-    public static Pair<Integer, Integer> controlAndGetIconWithTitle(Context context) {
-        Intent trackerService = new Intent(context, TrackerService.class);
-        trackerService.putExtra(ConstantsUI.TARGET_CLASS, context.getClass().getName());
 
-        int title = R.string.track_start, icon = R.drawable.ic_action_maps_directions_walk;
-        if (isTrackerServiceRunning(context)) {
-            trackerService.setAction(TrackerService.ACTION_STOP);
-            context.startService(trackerService);
-        } else if (hasUnfinishedTracks(context)) {
-            trackerService.setAction(TrackerService.ACTION_STOP);
-            context.startService(trackerService);
-            trackerService.setAction(null);
-            context.startService(trackerService);
-        } else {
-            context.startService(trackerService);
-            title = R.string.track_stop;
-            icon = R.drawable.ic_action_maps_directions_walk_rec;
-        }
-        return new Pair<>(icon, title);
-    }
 
     public static void showBackgroundDialog(final Activity context, final BackgroundPermissionCallback listener) {
         int okButton = R.string.ok;

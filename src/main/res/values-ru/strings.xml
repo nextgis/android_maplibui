@@ -437,4 +437,10 @@
     <string name="login_entering_text">чтобы увидеть список доступных вам проектов по сбору данных. Зарегистрируйтесь, чтобы получить учетную запись.</string>
     <string name="error_load_parent">Не могу получить данные. Возможно нет доступа. Свяжитесь с администратором.</string>
     <string name="error">Ошибка</string>
+
+    <string name="battery_optimization_title">Отключение энергосбережения</string>
+    <string name="battery_optimization">Для записи трека в фоновом режиме желательно отключить оптимизацию энергопотребления для NextGIS Mobile</string>
+    <string name="battery_optimization_turnoff">Отключить</string>
+
+
 </resources>

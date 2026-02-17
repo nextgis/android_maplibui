@@ -65,6 +65,7 @@ import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplibui.GISApplication;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.fragment.BottomToolbar;
@@ -188,6 +189,10 @@ public class AttributesActivity extends NGActivity {
                                         return;
                                     if (event != DISMISS_EVENT_ACTION) {
                                         mLayer.deleteAddChanges(mId);
+
+                                        ((GISApplication) getApplication()).deleteFeature(mId, mLayerId);
+                                        ///mMapRef.get()!!.map!!.deleteFeature(selectedFeatureId, layer.id)
+
                                         try {
                                             onDeleteData(mId);
                                         } catch (Exception ex){
