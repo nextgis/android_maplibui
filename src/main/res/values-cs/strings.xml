@@ -80,7 +80,7 @@
     <string name="auto_sync_summary">Synchronizace v pravidelných intervalech</string>
     <string name="sync_interval">Interval synchronizace</string>
     <string name="actions">Akce</string>
-    <string name="sync_layers">Set layers</string>
+    <string name="customize_ngw_map_layers">Set layers</string>
     <string name="sync_layers_summary">Kontrola vrstev pro synchronizaci na server</string>
     <string name="layer_group">Skupina</string>
     <string name="layer_ngw_raster">NGW Rastr</string>

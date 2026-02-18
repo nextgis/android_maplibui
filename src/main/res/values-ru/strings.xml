@@ -81,7 +81,7 @@
     <string name="auto_sync_summary">Синхронизация через заданный интервал</string>
     <string name="sync_interval">Интервал синхронизации</string>
     <string name="actions">Действия</string>
-    <string name="sync_layers">Настроить слои</string>
+    <string name="customize_ngw_map_layers">Настроить слои</string>
     <string name="sync_layers_summary">Проверка слоёв для синхронизации</string>
     <string name="layer_group">Группа</string>
     <string name="layer_ngw_raster">Растр NGW</string>

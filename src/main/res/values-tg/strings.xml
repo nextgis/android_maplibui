@@ -73,7 +73,7 @@
     <string name="auto_sync_summary">ҳамоҳангсозӣ фосилавӣ</string>
     <string name="sync_interval">Фосилаи ҳамоҳангсозӣ</string>
     <string name="actions">Амалҳо</string>
-    <string name="sync_layers">Танзимоти қабат</string>
+    <string name="customize_ngw_map_layers">Танзимоти қабат</string>
     <string name="sync_layers_summary">Тафтиши қабатҳои синхронизатсия</string>
     <string name="layer_group">Гурӯҳ</string>
     <string name="layer_ngw_raster">Растер NGW</string>

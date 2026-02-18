@@ -23,7 +23,6 @@
 
 package com.nextgis.maplibui.fragment;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -51,7 +50,6 @@ import com.nextgis.maplib.datasource.GeoPoint;
 import com.nextgis.maplib.map.Layer;
 import com.nextgis.maplib.map.LocalTMSLayer;
 import com.nextgis.maplib.map.MapDrawable;
-import com.nextgis.maplib.map.MaplibreMapInteraction;
 import com.nextgis.maplib.map.NGWLookupTable;
 import com.nextgis.maplib.map.NGWRasterLayer;
 import com.nextgis.maplib.map.RemoteTMSLayer;
@@ -270,7 +268,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                         if (layerui instanceof NGWWebMapLayerUI) {
                             popup.getMenu().findItem(R.id.menu_zoom_extent).setVisible(false);
                             popup.getMenu().findItem(R.id.menu_edit).setVisible(true);
-                            popup.getMenu().findItem(R.id.menu_edit).setTitle(R.string.sync_layers);
+                            popup.getMenu().findItem(R.id.menu_edit).setTitle(R.string.customize_ngw_map_layers);
                         }
 
                         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -347,6 +345,9 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
                                                     @Override
                                                     public void run() {
                                                         finalMapdrawable.deleteLayerByID(((NGWWebMapLayerUI) layerui).getId());
+
+                                                        finalMapdrawable.recreateNGWWebMapSourceById(((NGWWebMapLayerUI) layerui).getPath().toString(),
+                                                                ((NGWWebMapLayerUI) layerui).getId());
                                                         finalMapdrawable.addLayerByID(( ((NGWWebMapLayerUI) layerui).getId()));
                                                     }
                                                 };

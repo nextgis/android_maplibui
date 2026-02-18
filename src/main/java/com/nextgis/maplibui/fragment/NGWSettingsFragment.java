@@ -29,7 +29,6 @@ import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -41,7 +40,6 @@ import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -411,7 +409,7 @@ public class NGWSettingsFragment
 
                 if (null == layersCategory) {
                     layersCategory = new PreferenceCategory(mStyledContext);
-                    layersCategory.setTitle(R.string.sync_layers);
+                    layersCategory.setTitle(R.string.customize_ngw_map_layers);
                     layersCategory.setSummary(R.string.sync_layers_summary);
                     screen.addPreference(layersCategory);
                 }
