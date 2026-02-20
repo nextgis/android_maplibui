@@ -776,8 +776,10 @@ public class NGWResourcesListAdapter
                         .show();
                 //Toast.makeText(mContext, error, Toast.LENGTH_SHORT).show();
             }
-            adapterRef.get().mLoading = false;
-            adapterRef.get().notifyDataSetChanged();
+            if (adapterRef.get() != null) {
+                adapterRef.get().mLoading = false;
+                adapterRef.get().notifyDataSetChanged();
+            }
         }
     }//                case Connection.NGWResourceTypeCollector:
 //                    CollectorResource collectorResource = (CollectorResource) resource;

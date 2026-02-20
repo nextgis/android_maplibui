@@ -150,10 +150,12 @@ public class AttributesActivity extends NGActivity {
                     IGISApplication application = (IGISApplication) getApplication();
                     MapDrawable map = (MapDrawable) application.getMap();
                     if (null != map) {
-                        if (mLayer.getGeometryType() == GeoConstants.GTPoint || mLayer.getGeometryType() == GeoConstants.GTMultiPoint)
-                            map.zoomToExtent(mLayer.getFeature(mId).getGeometry().getEnvelope(), 18, false);
-                        else
-                            map.zoomToExtent(mLayer.getFeature(mId).getGeometry().getEnvelope());
+
+                        map.zoomToLatLng(mLayer.getFeature(mId).getGeometry().getEnvelope());
+//                        if (mLayer.getGeometryType() == GeoConstants.GTPoint || mLayer.getGeometryType() == GeoConstants.GTMultiPoint)
+//                            map.zoomToExtent(mLayer.getFeature(mId).getGeometry().getEnvelope(), 18, true);
+//                        else
+//                            map.zoomToExtent(mLayer.getFeature(mId).getGeometry().getEnvelope());
 
                         SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences(AttributesActivity.this).edit();
 
