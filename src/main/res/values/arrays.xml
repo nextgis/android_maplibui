@@ -185,7 +185,7 @@
     <string-array name="line_type" translatable="false">
         <item>@string/type_solid</item>
         <item>@string/type_dash</item>
-<!--        <item>@string/type_edge</item>-->
+        <item>@string/type_edge</item>
     </string-array>
     <string-array name="marker_type" translatable="false">
         <item>@string/type_point</item>
