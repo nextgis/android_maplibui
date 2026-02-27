@@ -455,4 +455,6 @@
     <string name="battery_optimization">To record a track in the background, it is advisable to disable power optimization for NextGIS Mobile.</string>
     <string name="battery_optimization_turnoff">Disable</string>
 
+    <string name="sync_no_layers">No layers for synchronization</string>
+
 </resources>

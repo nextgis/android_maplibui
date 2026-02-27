@@ -442,5 +442,6 @@
     <string name="battery_optimization">Для записи трека в фоновом режиме желательно отключить оптимизацию энергопотребления для NextGIS Mobile</string>
     <string name="battery_optimization_turnoff">Отключить</string>
 
+    <string name="sync_no_layers">Нет слоёв для синхронизации</string>
 
 </resources>
