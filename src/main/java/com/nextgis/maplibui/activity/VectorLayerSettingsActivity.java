@@ -436,11 +436,15 @@ public class VectorLayerSettingsActivity
                         DialogInterface.OnClickListener yesClick = new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                ngwLayer.setSyncType(Constants.SYNC_ALL); } };
+                                ngwLayer.setSyncType(Constants.SYNC_ALL);
+                                ngwLayer.save();
+                                direction.setEnabled(checked);
+                            } };
                         DialogInterface.OnClickListener noClick = new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                enabled.setChecked(false); } };
+                                enabled.setChecked(false);
+                            } };
                         DialogInterface.OnCancelListener cancelClick = new DialogInterface.OnCancelListener() {
                             @Override
                             public void onCancel(DialogInterface dialog) {
@@ -451,7 +455,10 @@ public class VectorLayerSettingsActivity
                         DialogInterface.OnClickListener yesClick = new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                ngwLayer.setSyncType(Constants.SYNC_NONE); } };
+                                ngwLayer.setSyncType(Constants.SYNC_NONE);
+                                ngwLayer.save();
+                                direction.setEnabled(checked);
+                            } };
                         DialogInterface.OnClickListener noClick = new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -463,8 +470,7 @@ public class VectorLayerSettingsActivity
                         showAttentionTurnSyncOff(compoundButton.getContext(), yesClick, noClick , cancelClick);
 
                     }
-                    ngwLayer.save();
-                    direction.setEnabled(checked);
+
                 }
             });
 

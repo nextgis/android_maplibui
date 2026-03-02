@@ -443,5 +443,6 @@
     <string name="battery_optimization_turnoff">Отключить</string>
 
     <string name="sync_no_layers">Нет слоёв для синхронизации</string>
+    <string name="edit_invisible">Для редактирования слоя сделайте его видимым</string>
 
 </resources>

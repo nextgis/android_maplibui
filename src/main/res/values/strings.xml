@@ -456,5 +456,6 @@
     <string name="battery_optimization_turnoff">Disable</string>
 
     <string name="sync_no_layers">No layers for synchronization</string>
+    <string name="edit_invisible">To edit layer make it visible</string>
 
 </resources>

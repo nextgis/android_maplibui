@@ -367,7 +367,10 @@ public class NGWSettingsFragment
                             DialogInterface.OnClickListener yesClick = new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    ngwLayer.setSyncType(Constants.SYNC_ALL); } };
+                                    ngwLayer.setSyncType(Constants.SYNC_ALL);
+                                    ngwLayer.save();
+                                } };
+
                             DialogInterface.OnClickListener noClick = new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -383,7 +386,9 @@ public class NGWSettingsFragment
                             DialogInterface.OnClickListener yesClick = new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    ngwLayer.setSyncType(Constants.SYNC_NONE); } };
+                                    ngwLayer.setSyncType(Constants.SYNC_NONE);
+                                    ngwLayer.save();
+                                } };
                             DialogInterface.OnClickListener noClick = new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -402,7 +407,7 @@ public class NGWSettingsFragment
 //                        } else {
 //                            ngwLayer.setSyncType(Constants.SYNC_NONE);
 //                        }
-                        ngwLayer.save();
+//                        ngwLayer.save();
                         return true;
                     }
                 });
