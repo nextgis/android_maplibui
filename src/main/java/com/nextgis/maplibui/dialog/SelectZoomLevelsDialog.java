@@ -149,8 +149,16 @@ public class SelectZoomLevelsDialog extends DialogFragment {
         });
         rangebar.setRangePinsByIndices(left, right);
 
+        float zoom = 0;
+        if (map.getMaplibreMap() != null )
+            zoom = (float) map.getMaplibreMap().getCameraPosition().zoom;
+        else
+            zoom = map.getZoomLevel();
+
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(String.format(getString(R.string.current_zoom), map.getZoomLevel())).setView(view).setPositiveButton(
+        builder.setTitle(
+                String.format(getString(R.string.current_zoom),zoom))
+                .setView(view).setPositiveButton(
                 R.string.start, new DialogInterface.OnClickListener() {
                     public void onClick(
                             DialogInterface dialog,

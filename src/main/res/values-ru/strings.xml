@@ -210,7 +210,7 @@
     <string name="menu_download_tiles">Загрузить тайлы</string>
     <string name="select_zoom_levels_to_download">Выберите масштабные уровни для загрузки тайлов в текущем окне</string>
     <string name="start">Начать</string>
-    <string name="current_zoom">Текущий зум %1$.2f</string>
+    <string name="current_zoom">Текущий зум %1$.1f</string>
     <string name="download_complete">Загрузка завершена</string>
     <string name="download_in_progress">Загрузка…</string>
     <string name="cancel_download">Загрузка отменена</string>
@@ -358,7 +358,7 @@
     <string name="delete_confirm">Подтвердите удаление объекта.</string>
     <string name="no_activity_found">Не найдено подходящего приложения</string>
     <string name="fb_form">Форма</string>
-    <string name="trackpoints_stats">Всего точек: %1$d\nСинхронизировано: %2$d\Время последней точки: %3$s</string>
+    <string name="trackpoints_stats">Всего точек: %1$d\nСинхронизировано: %2$d\nВремя последней точки: %3$s</string>
     <string name="stats">Статистика</string>
     <string name="no_permission">Нет разрешений на запись</string>
     <string name="no_permission_granted">Не хватает разрешений</string>

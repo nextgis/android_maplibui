@@ -499,7 +499,7 @@ public class ModifyAttributesActivity
 
 
     @Override
-    protected void onResume()
+    public void onResume()
     {
         if (null != findViewById(R.id.location_panel)) {
             IGISApplication app = (IGISApplication) getApplication();

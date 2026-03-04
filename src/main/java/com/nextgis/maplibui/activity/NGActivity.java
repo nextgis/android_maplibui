@@ -168,7 +168,7 @@ public class NGActivity
 
 
     @Override
-    protected void onResume()
+    public void onResume()
     {
         refreshCurrentTheme();
         super.onResume();
@@ -225,4 +225,8 @@ public class NGActivity
         return layerToSave.get();
     }
 
+
+    public void refreshLayersFrarment(){
+
+    }
 }

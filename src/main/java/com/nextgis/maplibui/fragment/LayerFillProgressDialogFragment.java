@@ -38,6 +38,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
@@ -49,6 +50,7 @@ import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.service.LayerFillService;
 
 import java.lang.ref.WeakReference;
@@ -235,6 +237,11 @@ public class LayerFillProgressDialogFragment extends Fragment {
                         NGWSettingsFragment.setAccountSyncEnabled(account, app.getAuthority(), true);
                         ngwLayer.setSyncType(Constants.SYNC_ALL);
                         ngwLayer.save();
+
+                        if (mActivity.get()!= null )
+                            ((NGActivity)mActivity.get()).refreshLayersFrarment();
+
+
 
 //                        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
 //                        builder.setTitle(R.string.sync_dialog_title).setMessage(R.string.sync_dialog_message)

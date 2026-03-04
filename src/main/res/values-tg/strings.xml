@@ -202,7 +202,7 @@
     <string name="menu_download_tiles">Зеркашӣ сафолҳои</string>
     <string name="select_zoom_levels_to_download">Сатҳи миқёсро барои боркунии сафҳаҳо дар равзанаи ҷорӣ интихоб кунед</string>
     <string name="start">Оғоз</string>
-    <string name="current_zoom">Ҷойгиркунии зум %1$.2f</string>
+    <string name="current_zoom">Ҷойгиркунии зум %1$.1f</string>
     <string name="download_complete">Боркунӣ ба анҷом расид</string>
     <string name="download_in_progress">Боркунӣ…</string>
     <string name="cancel_download">ЗБоркунӣ бекор карда шуд</string>
@@ -347,7 +347,7 @@
     <string name="delete_confirm">Тозакунии объектро тасдиқ кунед</string>
     <string name="no_activity_found">Ягон барномаи мувофиқ ёфт нашуд</string>
     <string name="fb_form">Шакл</string>
-    <string name="trackpoints_stats">Нуқтаҳои умумӣ: %1$d\nСинхронизатсия: %2$d\Вақти охирин: %3$s</string>
+    <string name="trackpoints_stats">Нуқтаҳои умумӣ: %1$d\nСинхронизатсия: %2$d\nВақти охирин: %3$s</string>
     <string name="stats">Омор</string>
     <string name="no_permission">Бе иҷозати навиштан</string>
     <string name="no_permission_granted">Ҳуқуқи шумо кофӣ нест</string>
