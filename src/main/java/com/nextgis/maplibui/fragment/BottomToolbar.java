@@ -72,7 +72,7 @@ public class BottomToolbar
     @Override
     public void inflateMenu(@MenuRes int resId) {
         super.inflateMenu(resId);
-        Menu menu = getMenu();
+        final Menu menu = getMenu();
         MenuItem item = menu.getItem(0);
         int size = item.getIcon().getIntrinsicWidth() + ControlHelper.dpToPx(30, getResources());
         int width = getWidth();

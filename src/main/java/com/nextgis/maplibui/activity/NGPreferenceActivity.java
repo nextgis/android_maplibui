@@ -31,6 +31,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
 
+import android.os.Looper;
 import android.util.Log;
 import android.view.MenuItem;
 import com.nextgis.maplibui.R;
@@ -164,12 +165,31 @@ public abstract class NGPreferenceActivity
     protected void onStart()
     {
         super.onStart();
+        new android.os.Handler(Looper.getMainLooper()).post(this::safeInvalidatePreferences);
+        //invalidatePreferences();
+    }
+
+
+    private void safeInvalidatePreferences() {
+        FragmentManager fm = getSupportFragmentManager();
+        // Проверяем headers
+        NGPreferenceHeaderFragment headers = (NGPreferenceHeaderFragment) fm.findFragmentByTag(getPreferenceHeaderFragmentTag());
+        if (headers != null && !headers.isAdded()) {
+            return; // или повторить post
+        }
+        // Проверяем settings
+        NGPreferenceSettingsFragment settings = (NGPreferenceSettingsFragment) fm.findFragmentByTag(getPreferenceSettingsFragmentTag());
+        if (settings != null && !settings.isAdded()) {
+            return; // или повторить post
+        }
         invalidatePreferences();
     }
 
 
     public void invalidatePreferences()
     {
+
+
         for (OnInvalidatePreferencesListener listener : mListeners) {
             listener.onInvalidatePreferences();
         }
@@ -200,26 +220,23 @@ public abstract class NGPreferenceActivity
     }
 
 
-    public void replaceSettingsFragment(Bundle args)
-    {
+    public void replaceSettingsFragment(Bundle args) {
         FragmentManager fm = getSupportFragmentManager();
 
-        NGPreferenceSettingsFragment fragment = null;
-        if (args != null)
-            fragment = (NGPreferenceSettingsFragment) fm.findFragmentByTag(
-                args.getString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT)
-                //getPreferenceSettingsFragmentTag()
-        );
+        String subScreenKey = null;
+        String tag = getPreferenceSettingsFragmentTag(); // default
+        if (null != args) {
+            subScreenKey = args.getString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT);
+            if (subScreenKey != null) {
+                tag = subScreenKey; // используем key как tag для субскринов
+            }
+        }
+
+        NGPreferenceSettingsFragment fragment = (NGPreferenceSettingsFragment) fm.findFragmentByTag(tag);
         if (null != fragment) {
             removeListener(fragment);
         }
 
-        String subScreenKey = null;
-        if (null != args) {
-            subScreenKey = args.getString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT);
-        }
-
-        String tag = getPreferenceSettingsFragmentTag();
         fragment = getNewPreferenceSettingsFragment(subScreenKey);
         addListener(fragment);
 
@@ -230,10 +247,45 @@ public abstract class NGPreferenceActivity
         FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.setting_fragment, fragment, tag);
         if (!isMultiPane(this)) {
-            ft.addToBackStack(tag);
+            ft.addToBackStack(tag); // backstack с тем же tag
         }
         ft.commit();
     }
+
+//    public void replaceSettingsFragment(Bundle args)
+//    {
+//        FragmentManager fm = getSupportFragmentManager();
+//
+//        NGPreferenceSettingsFragment fragment = null;
+//        if (args != null)
+//            fragment = (NGPreferenceSettingsFragment) fm.findFragmentByTag(
+//                args.getString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT)
+//                //getPreferenceSettingsFragmentTag()
+//        );
+//        if (null != fragment) {
+//            removeListener(fragment);
+//        }
+//
+//        String subScreenKey = null;
+//        if (null != args) {
+//            subScreenKey = args.getString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT);
+//        }
+//
+//        String tag = getPreferenceSettingsFragmentTag();
+//        fragment = getNewPreferenceSettingsFragment(subScreenKey);
+//        addListener(fragment);
+//
+//        if (null != args) {
+//            fragment.setArguments(args);
+//        }
+//
+//        FragmentTransaction ft = fm.beginTransaction();
+//        ft.replace(R.id.setting_fragment, fragment, tag);
+//        if (!isMultiPane(this)) {
+//            ft.addToBackStack(tag);
+//        }
+//        ft.commit();
+//    }
 
 
     @Override
@@ -274,5 +326,17 @@ public abstract class NGPreferenceActivity
     public interface OnInvalidatePreferencesListener
     {
         void onInvalidatePreferences();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (mListeners != null) {
+            mListeners = null;
+        }
+
+
+
     }
 }

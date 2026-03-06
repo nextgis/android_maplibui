@@ -127,7 +127,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
 
     protected MapDrawable mMap;
     protected Toolbar mTopToolbar;
-    protected BottomToolbar mBottomToolbar;
+    public BottomToolbar mBottomToolbar;
 
     protected VectorLayer mLayer;
     protected Feature mFeature;

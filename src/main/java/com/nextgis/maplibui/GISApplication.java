@@ -61,6 +61,8 @@ import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.nextgis.maplib.util.Constants.MAP_EXT;
@@ -74,8 +76,14 @@ import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_NEUTRAL;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIODICALLY;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+
+//import leakcanary.LeakCanary;
+//import shark.AndroidReferenceMatchers;
+//import shark.ReferenceMatcher;
+
 
 /**
  * This is a base application class. Each application should inherited their base application from
@@ -204,6 +212,59 @@ public abstract class GISApplication extends Application
 
             SyncAdapter.setSyncPeriod(this, params, period);
         }
+
+//        if (BuildConfig.DEBUG) {
+//            // Базовые исключения Android + твои кастомные
+//            List<ReferenceMatcher> matchers = new ArrayList<>(
+//                    AndroidReferenceMatchers.getAppDefaults()
+//            );
+//
+//            matchers.add(
+//                    AndroidReferenceMatchers.staticFieldLeak(
+//                            "android.view.ViewRootImpl",
+//                            "ViewRootImpl.mContext",
+//                            "Отложенная очистка ViewRootImpl → DecorContext → destroyed Activity " +
+//                                    "(системное поведение Android 12+, не утечка приложения)",
+//                            buildMirror -> buildMirror.getSdkInt() >= 31
+//                    )
+//            );
+//
+//            // Опционально: ещё одно частое поле, если утечка идёт через mWindow
+//            matchers.add(
+//                    AndroidReferenceMatchers.staticFieldLeak(
+//                            "android.view.ViewRootImpl",
+//                            "mWindowSession",
+//                            "ViewRootImpl.mWindowSession → возможный системный retained объект",
+//                            buildMirror -> buildMirror.getSdkInt() >= 31
+//                    )
+//            );
+//
+//            // Добавляем исключение для отложенного ViewRootImpl (очень частый случай на Android 12+)
+//            matchers.add( AndroidReferenceMatchers.staticFieldLeak(
+//                            "android.view.ViewRootImpl",
+//                            "mContext",
+//                            "Отложенная очистка ViewRootImpl после onDestroy " +
+//                                    "(системное поведение Android 12–16+, не настоящая утечка приложения)",
+//                    buildMirror -> buildMirror.getSdkInt() >= 31
+//
+//                    )
+//            );
+//
+//            // Можно добавить и другие, если нужно, например:
+//            // matchers.add(ReferenceMatcher.instanceFieldLeak("android.view.ViewRootImpl", "mWindowSession", ...));
+//
+//            LeakCanary.Config config = LeakCanary.getConfig().newBuilder()
+//                    .referenceMatchers(matchers)
+//                    .retainedVisibleThreshold(3)           // опционально
+//                    .build();
+//
+//            LeakCanary.setConfig(config);
+//
+//            // Опционально: отключить авто-уведомления, если утечек слишком много
+//            // AppWatcher.config = AppWatcher.getConfig().copy(watchActivities = false);
+//        }
+
+
     }
 
     protected int getThemeId(boolean isDark){

@@ -34,6 +34,8 @@ import androidx.preference.PreferenceGroupAdapter;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.PreferenceViewHolder;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -71,6 +73,13 @@ public abstract class NGPreferenceFragment
     @Override
     public void onInvalidatePreferences()
     {
+
+        if (!isAdded() || getContext() == null) {
+            // Отложить
+            new android.os.Handler(Looper.getMainLooper()).post(this::onInvalidatePreferences);
+            return;
+        }
+
         PreferenceScreen screen = getPreferenceScreen();
         if (null != screen) {
             screen.removeAll();

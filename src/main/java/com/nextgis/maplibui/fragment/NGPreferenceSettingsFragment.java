@@ -24,6 +24,8 @@
 package com.nextgis.maplibui.fragment;
 
 import android.os.Bundle;
+
+import com.nextgis.maplibui.activity.NGPreferenceActivity;
 import com.nextgis.maplibui.util.ConstantsUI;
 
 
@@ -54,5 +56,13 @@ public abstract class NGPreferenceSettingsFragment
             return args.getString(ConstantsUI.PREF_SCREEN_TITLE);
         }
         return null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        if (getActivity() instanceof NGPreferenceActivity)
+            ((NGPreferenceActivity)getActivity()).removeListener(this);
     }
 }

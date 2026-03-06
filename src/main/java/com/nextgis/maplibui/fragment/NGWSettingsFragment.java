@@ -633,6 +633,10 @@ public class NGWSettingsFragment
         return out;
     }
 
+    @Override
+    public void onInvalidatePreferences() {
+        super.onInvalidatePreferences();
+    }
 
     // for overriding in a subclass
     protected void onDeleteAccount()

@@ -95,4 +95,12 @@ public class NGIDSettingsFragment
                     }
                 });
     }
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (getActivity() instanceof  NGPreferenceActivity)
+            ((NGPreferenceActivity)getActivity()).removeListener(this);
+    }
 }

@@ -70,7 +70,7 @@ import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.fragment.BottomToolbar;
 import com.nextgis.maplibui.util.ConstantsUI;
-import com.nextgis.maplibui.util.MatrixTableAdapter;
+//import com.nextgis.maplibui.util.MatrixTableAdapter;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 import com.nextgis.maplibui.adapter.attributes.ICellCLickListener;
 import com.nextgis.maplibui.adapter.attributes.TableViewAdapter;
