@@ -420,7 +420,7 @@
     <string name="action_devinfo">Информация об устройстве</string>
     <string name="error_account_create">Не удалось добавить аккаунт (NGW) в хранилище.</string>
     <string name="delete_object">Удалить объект?</string>
-    <string name="help_custom_auth_server"><a href="https://docs.nextgis.ru/docs_ngid/source/index.html">Справка</a></string>
+    <string name="help_custom_auth_server"><a href="https://docs.nextgis.ru/docs_ngmobile/source/auth.html#ngidop">Справка</a></string>
     <string name="ng_server">Облако NextGIS</string>
     <string name="custom_server">Другой сервер NextGIS ID</string>
     <string name="delete_confirm_feature">Подтвердите удаление объекта.</string>

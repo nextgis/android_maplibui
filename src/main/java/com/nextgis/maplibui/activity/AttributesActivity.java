@@ -79,6 +79,9 @@ import com.nextgis.maplibui.adapter.attributes.TableViewModel;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.List;
 import static com.nextgis.maplib.util.Constants.FIELD_ID;
@@ -108,7 +111,7 @@ public class AttributesActivity extends NGActivity {
 
     List<Long> ids;
 
-    Map<Long, Feature> featureMap;
+    LinkedHashMap<Long, Feature> featureMap;
     List<Field> fields;
 
     boolean firstLoadStart = true;
@@ -480,8 +483,10 @@ public class AttributesActivity extends NGActivity {
             publishProgress(0);
 
 
-            if (ids == null)
+            if (ids == null) {
                 ids = mLayer.query(null);
+                Collections.sort(ids);
+            }
             if (featureMap == null)
                 featureMap = mLayer.getFeatures();
             if (fields == null)

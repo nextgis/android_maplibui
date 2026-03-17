@@ -210,7 +210,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     long id = getRemoteResourceId();
                     final Connection connection = getConnection();
                     if (connection != null && id != NOT_FOUND) {
-                        new NGWCreateNewResourceTask(SelectNGWResourceActivity.this, connection, id).setName(text.toString()).
+                        new NGWCreateNewResourceTask(getApplicationContext(), connection, id).setName(text.toString()).
                                 executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         mListAdapter.refresh();
                     }
@@ -341,7 +341,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     long id = getRemoteResourceId();
                     final Connection connection = getConnection();
                     if (connection != null && mLayer != null && id != NOT_FOUND) {
-                        new NGWCreateNewResourceTask(this, connection, id).setLayer(mLayer)
+                        new NGWCreateNewResourceTask(getApplicationContext(), connection, id).setLayer(mLayer)
                                 .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         finish();
                     }

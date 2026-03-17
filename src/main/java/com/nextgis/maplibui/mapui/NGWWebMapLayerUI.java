@@ -55,6 +55,11 @@ public class NGWWebMapLayerUI extends NGWWebMapLayer implements ILayerUI {
 
     @Override
     public void changeProperties(Context context) {
+//        if (context instanceof NGActivity){
+//            ((NGActivity)context).startLayerPropFragment( TMSLayerSettingsFragment2.Companion.newInstance(getId()));
+//        }
+
+
         Intent settings = new Intent(context, TMSLayerSettingsActivity.class);
         settings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         settings.putExtra(ConstantsUI.KEY_LAYER_ID, getId());

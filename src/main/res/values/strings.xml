@@ -423,7 +423,7 @@
     <string name="action_devinfo">Device Info</string>
     <string name="delete_object">Delete object?</string>
 
-    <string name="help_custom_auth_server"><a href="https://docs.nextgis.com/docs_ngid/source/toc.html">Help</a></string>
+    <string name="help_custom_auth_server"><a href="https://docs.nextgis.com/docs_ngmobile/source/auth.html#via-on-premise-ngidop">Help</a></string>
 
     <string name="ng_server">NextGIS Cloud</string>
     <string name="custom_server">NextGIS ID from custom server</string>
