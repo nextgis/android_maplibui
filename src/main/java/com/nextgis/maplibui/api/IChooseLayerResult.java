@@ -33,5 +33,6 @@ public interface IChooseLayerResult
 {
     void onFinishChooseLayerDialog(
             int code,
-            ILayer layer);
+            ILayer layer,
+            Boolean useCreatePoint);
 }

@@ -94,7 +94,7 @@
     <string name="sync_interval">Synchronization interval</string>
     <string name="actions">Actions</string>
     <string name="customize_ngw_map_layers">Set layers</string>
-    <string name="sync_layers_summary">Check layers to synchronize with server</string>
+    <string name="sync_layers_summary">Synchronized layers:</string>
     <string name="layer_group">Group</string>
     <string name="layer_ngw_raster">NGW Raster</string>
     <string name="layer_ngw_vector">NGW Layer</string>

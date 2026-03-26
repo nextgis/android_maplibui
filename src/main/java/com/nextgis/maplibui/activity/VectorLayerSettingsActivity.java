@@ -73,6 +73,7 @@ import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LayerUtil;
+import com.nextgis.maplibui.GISApplication;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.display.RendererUI;
 import com.nextgis.maplibui.display.RuleFeatureRendererUI;
@@ -538,7 +539,10 @@ public class VectorLayerSettingsActivity
                     if (interval == NOT_FOUND) {
                         ContentResolver.removePeriodicSync(account, app.getAuthority(), bundle);
                     } else {
-                        ContentResolver.addPeriodicSync(account, app.getAuthority(), bundle, interval);
+                        ((GISApplication)getContext().getApplicationContext()).setSyncPeriod(account,interval,bundle);
+
+                        // no need -
+                        //ContentResolver.addPeriodicSync(account, app.getAuthority(), bundle, interval);
                     }
                 }
 

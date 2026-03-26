@@ -44,22 +44,20 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.TrackerService;
 import com.nextgis.maplibui.util.LayerUtil;
 import com.nextgis.maplibui.util.TrackView;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 import static com.nextgis.maplib.map.TrackLayer.getSelection;
 import static com.nextgis.maplibui.service.TrackerService.isTrackerServiceRunning;
+import static com.nextgis.maplibui.util.ControlHelper.isDarkTheme;
 
 public class TracksActivity extends NGActivity implements ActionMode.Callback {
     private final static String BUNDLE_ACTION_MODE = "IS_IN_ACTION_MODE";
@@ -183,10 +181,11 @@ public class TracksActivity extends NGActivity implements ActionMode.Callback {
         inflater.inflate(R.menu.action_tracks, menu);
 
         // WA white icons - remove after normal theme be applied
+        boolean isDarkTheme = isDarkTheme(this);
         for (int i = 0; i < menu.size(); i++) {
             Drawable icon = menu.getItem(i).getIcon();
             if (icon != null) {
-                icon.mutate().setTint(Color.WHITE);
+                icon.mutate().setTint(isDarkTheme ? Color.WHITE: Color.BLACK);
             }
         }
 

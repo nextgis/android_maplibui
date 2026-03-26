@@ -119,7 +119,7 @@ public class AttributesActivity extends NGActivity {
     String [] data0row ;
     String [] data0Column;
 
-     final Object syncAdapterChanges = new Object();
+    final Object syncAdapterChanges = new Object();
 
     //search part - result here
     String[][] dataResult;
@@ -269,6 +269,65 @@ public class AttributesActivity extends NGActivity {
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent dataIntent) {
+        super.onActivityResult(requestCode, resultCode, dataIntent);
+
+        if (resultCode == RESULT_OK && requestCode ==  IVectorLayerUI.MODIFY_REQUEST){
+            // reload edited field
+        }
+
+        if (resultCode == RESULT_OK && requestCode == IVectorLayerUI.MODIFY_REQUEST) {
+
+            if (mId == null || data == null || data0Column == null)
+                return;
+
+            final String idStr = String.valueOf(mId);
+
+            // page
+            int rowIndex = -1;
+            for (int i = 0; i < data0Column.length; i++) {
+                if (idStr.equals(data0Column[i])) {
+                    rowIndex = i;
+                    break;
+                }
+            }
+
+            if (rowIndex == -1)
+                return;
+
+            // updated feature
+            Feature feature = mLayer.getFeature(mId);
+            if (feature == null)
+                return;
+
+            // refresh data
+            data[rowIndex][0] = idStr;
+
+            for (int j = 0; j < fields.size(); j++) {
+                data[rowIndex][j + 1] =
+                        feature.getFieldValueAsString(fields.get(j).getName());
+            }
+
+            // refresh filter
+            if (!TextUtils.isEmpty(searchText) && dataResult != null && dataColumnResult != null) {
+                for (int i = 0; i < dataColumnResult.length; i++) {
+                    if (idStr.equals(dataColumnResult[i])) {
+                        dataResult[i][0] = idStr;
+                        for (int j = 0; j < fields.size(); j++) {
+                            dataResult[i][j + 1] =
+                                    feature.getFieldValueAsString(fields.get(j).getName());
+                        }
+                        break;
+                    }
+                }
+            }
+            // update UI
+            if (mTableView.getAdapter() != null) {
+                mTableView.getAdapter().notifyDataSetChanged();
+            }
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -112,6 +112,7 @@ public class RebuildCacheService extends IntentService implements IProgressor
 
     @Override
     public void onCreate() {
+        super.onCreate();
         mNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         mProgressIntent = new Intent(ACTION_UPDATE);

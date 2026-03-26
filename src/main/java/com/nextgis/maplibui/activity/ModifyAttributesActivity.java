@@ -548,6 +548,7 @@ public class ModifyAttributesActivity
                     .setNegativeButton(R.string.discard, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+
                             finish();
                         }
                     })
@@ -804,7 +805,7 @@ public class ModifyAttributesActivity
         }
 
         Object value = control.getValue();
-        fieldName = "'" + fieldName + "'";
+        //fieldName = "'" + fieldName + "'"; // no need
 
         if (null != value) {
             //Log.d(TAG, "field: " + field.getName() + " value: " + value.toString());

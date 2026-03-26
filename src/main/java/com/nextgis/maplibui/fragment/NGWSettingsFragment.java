@@ -56,6 +56,7 @@ import com.nextgis.maplib.map.MapContentProviderHelper;
 import com.nextgis.maplib.map.NGWVectorLayer;
 import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplibui.GISApplication;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGPreferenceActivity;
 import com.nextgis.maplibui.activity.NGWLoginActivity;
@@ -305,7 +306,11 @@ public class NGWSettingsFragment
                 if (interval == NOT_FOUND) {
                     ContentResolver.removePeriodicSync(account, application.getAuthority(), bundle);
                 } else {
-                    ContentResolver.addPeriodicSync(account, application.getAuthority(), bundle, interval);
+
+                    ((GISApplication)getContext().getApplicationContext()).setSyncPeriod(account,interval,bundle);
+
+                    // no need
+                    // ContentResolver.addPeriodicSync(account, application.getAuthority(), bundle, interval);
                 }
 
                 return true;

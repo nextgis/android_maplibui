@@ -57,7 +57,12 @@ public class ChooseLayerDialog
 
     protected final static String KEY_LAYERS_IDS = "ids";
     protected final static String KEY_CODE       = "code";
+    boolean useCreatePoint = false;
 
+    public ChooseLayerDialog(boolean useCreatePoint){
+        super();
+        this.useCreatePoint = useCreatePoint;
+    }
 
     public ChooseLayerDialog setLayerList(List<ILayer> list)
     {
@@ -132,9 +137,8 @@ public class ChooseLayerDialog
     {
         IChooseLayerResult activity = (IChooseLayerResult) mActivity;
         if (null != activity) {
-            activity.onFinishChooseLayerDialog(mCode, layer);
+            activity.onFinishChooseLayerDialog(mCode, layer, useCreatePoint);
         }
-
         dismiss();
     }
 
