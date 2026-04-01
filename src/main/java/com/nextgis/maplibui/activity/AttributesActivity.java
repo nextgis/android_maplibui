@@ -67,6 +67,7 @@ import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.GISApplication;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.adapter.attributes.Cell;
 import com.nextgis.maplibui.api.IVectorLayerUI;
 import com.nextgis.maplibui.fragment.BottomToolbar;
 import com.nextgis.maplibui.util.ConstantsUI;
@@ -97,7 +98,8 @@ public class AttributesActivity extends NGActivity {
 
     protected VectorLayer mLayer;
     protected BottomToolbar mToolbar;
-    protected Long mId;
+    protected Long selectedRowId; // selected Row in table
+    protected Long selectedFeatureId; // selected FeatureID
     protected int mLayerId;
 
 
@@ -154,7 +156,7 @@ public class AttributesActivity extends NGActivity {
                     MapDrawable map = (MapDrawable) application.getMap();
                     if (null != map) {
 
-                        map.zoomToLatLng(mLayer.getFeature(mId).getGeometry().getEnvelope());
+                        map.zoomToLatLng(mLayer.getFeature(selectedFeatureId).getGeometry().getEnvelope());
 //                        if (mLayer.getGeometryType() == GeoConstants.GTPoint || mLayer.getGeometryType() == GeoConstants.GTMultiPoint)
 //                            map.zoomToExtent(mLayer.getFeature(mId).getGeometry().getEnvelope(), 18, true);
 //                        else
@@ -193,13 +195,13 @@ public class AttributesActivity extends NGActivity {
                                     if (event == DISMISS_EVENT_MANUAL)
                                         return;
                                     if (event != DISMISS_EVENT_ACTION) {
-                                        mLayer.deleteAddChanges(mId);
+                                        mLayer.deleteAddChanges(selectedFeatureId);
 
-                                        ((GISApplication) getApplication()).deleteFeature(mId, mLayerId);
+                                        ((GISApplication) getApplication()).deleteFeature(selectedFeatureId, mLayerId);
                                         ///mMapRef.get()!!.map!!.deleteFeature(selectedFeatureId, layer.id)
 
                                         try {
-                                            onDeleteData(mId);
+                                            onDeleteData(selectedFeatureId);
                                         } catch (Exception ex){
 
                                         }
@@ -236,15 +238,7 @@ public class AttributesActivity extends NGActivity {
 
                     return true;
                 } else if (i == R.id.menu_edit) {
-//                    long defid = -1;
-//                    if (mLayer instanceof NGWVectorLayer){
-//                        if (((NGWVectorLayer) mLayer).getDefaultFormId() != null &&
-//                                ((NGWVectorLayer) mLayer).getDefaultFormId().length > 0)
-//                            defid = ((NGWVectorLayer) mLayer).getDefaultFormId()[0];
-//                    }
-
-
-                    ((IVectorLayerUI) mLayer).showEditForm(AttributesActivity.this, mId, null, -1); //defid);
+                    ((IVectorLayerUI) mLayer).showEditForm(AttributesActivity.this, selectedFeatureId, null, -1); //defid);
                     return true;
                 }
 
@@ -273,16 +267,12 @@ public class AttributesActivity extends NGActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent dataIntent) {
         super.onActivityResult(requestCode, resultCode, dataIntent);
 
-        if (resultCode == RESULT_OK && requestCode ==  IVectorLayerUI.MODIFY_REQUEST){
-            // reload edited field
-        }
-
         if (resultCode == RESULT_OK && requestCode == IVectorLayerUI.MODIFY_REQUEST) {
 
-            if (mId == null || data == null || data0Column == null)
+            if (selectedFeatureId == null || data == null || data0Column == null)
                 return;
 
-            final String idStr = String.valueOf(mId);
+            final String idStr = String.valueOf(selectedFeatureId);
 
             // page
             int rowIndex = -1;
@@ -295,11 +285,16 @@ public class AttributesActivity extends NGActivity {
 
             if (rowIndex == -1)
                 return;
+            Log.e("TTBBLL", "onActivityResult rowIndex = " + rowIndex);
 
+            // dd
             // updated feature
-            Feature feature = mLayer.getFeature(mId);
+            Feature feature = mLayer.getFeature(selectedFeatureId);
             if (feature == null)
                 return;
+
+            Log.e("TTBBLL", "onActivityResult featureID= " + selectedFeatureId);
+
 
             // refresh data
             data[rowIndex][0] = idStr;
@@ -310,23 +305,38 @@ public class AttributesActivity extends NGActivity {
             }
 
             // refresh filter
-            if (!TextUtils.isEmpty(searchText) && dataResult != null && dataColumnResult != null) {
-                for (int i = 0; i < dataColumnResult.length; i++) {
-                    if (idStr.equals(dataColumnResult[i])) {
-                        dataResult[i][0] = idStr;
-                        for (int j = 0; j < fields.size(); j++) {
-                            dataResult[i][j + 1] =
-                                    feature.getFieldValueAsString(fields.get(j).getName());
-                        }
-                        break;
-                    }
-                }
-            }
+            if (!TextUtils.isEmpty(searchText) && dataResult != null && dataColumnResult != null)
+                onPerformSearch(searchText);
+
             // update UI
             if (mTableView.getAdapter() != null) {
-                mTableView.getAdapter().notifyDataSetChanged();
+                //mTableView.getAdapter().notifyDataSetChanged();
+                ((TableViewAdapter)mTableView.getAdapter()).setData(getCellLists (data));
+                //((TableViewAdapter)mTableView.getAdapter()).updateRowCells(rowIndex, data[rowIndex]);
+
+                if (mTableView.getCellRecyclerView().getAdapter()!= null)
+                    mTableView.getCellRecyclerView().getAdapter().notifyItemChanged(rowIndex);
+                if (mTableView.getRowHeaderRecyclerView().getAdapter() != null)
+                    mTableView.getRowHeaderRecyclerView().getAdapter().notifyItemChanged(rowIndex);
             }
         }
+    }
+
+    public List<List<Cell>> getCellLists(String[][] data) {
+        List<List<Cell>> list = new ArrayList<>();
+
+        for (int i = 0; i < data.length; i++) {
+            List<Cell> row = new ArrayList<>();
+
+            String fid = data[i][0];
+            for (int j = 0; j < data[i].length; j++) {
+                row.add(new Cell(fid, data[i][j]));
+            }
+
+            list.add(row);
+        }
+
+        return list;
     }
 
     @Override
@@ -417,9 +427,14 @@ public class AttributesActivity extends NGActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        if (!firstLoadStart)
+            return;
+
         final IGISApplication application = (IGISApplication) getApplication();
         final MapBase map = application.getMap();
         if (null != map) {
+            firstLoadStart = false;
             final ILayer layer = map.getLayerById(mLayerId);
             if (null != layer && layer instanceof VectorLayer) {
                 mLayer = (VectorLayer) layer;
@@ -438,14 +453,14 @@ public class AttributesActivity extends NGActivity {
                     @Override
                     public void onCellClick(View view, int row) {
                         if (view != null && view instanceof AppCompatTextView) {
-                            final Long id = parseLong((String) view.getTag());
-                            if (id != null) {
-                                mId = id;
-                                final String featureName = String.format(getString(R.string.feature_n), id);
+                            final Long fid = parseLong((String) view.getTag());
+                            if (fid != null) {
+                                selectedFeatureId = fid;
+                                final String featureName = String.format(getString(R.string.feature_n), selectedFeatureId);
                                 mToolbar.setTitle(featureName);
                                 String labelField = mLayer.getPreferences().getString(SettingsConstantsUI.KEY_PREF_LAYER_LABEL, FIELD_ID);
                                 if (!labelField.equals(FIELD_ID)) {
-                                    final Feature feature = mLayer.getFeature(id);
+                                    final Feature feature = mLayer.getFeature(selectedFeatureId);
                                     if (feature != null) {
                                         mToolbar.setSubtitle(featureName);
                                         final String featureNameTitle = feature.getFieldValueAsString(labelField);
@@ -597,9 +612,9 @@ public class AttributesActivity extends NGActivity {
                 mTableView.setAdapter(tableViewAdapter);
 
                 tableViewAdapter.setAllItems(
-                    tableViewModel.getColumnHeaderList(),
-                    tableViewModel.getRowHeaderList(),
-                    tableViewModel.getCellList());
+                        tableViewModel.getColumnHeaderList(),
+                        tableViewModel.getRowHeaderList(),
+                        tableViewModel.getCellList());
             }
             final Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
             toolbar.setSubtitle(mLayer.getName());
@@ -623,8 +638,8 @@ public class AttributesActivity extends NGActivity {
         public String[] get0Row() {
             final String[] data = new String[fields.size() + 1];
             data[0] = FIELD_ID;
-                for (int i = 0; i < fields.size(); i++)
-                    data[i + 1] = fields.get(i).getAlias();
+            for (int i = 0; i < fields.size(); i++)
+                data[i + 1] = fields.get(i).getAlias();
             return data;
         }
 

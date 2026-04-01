@@ -24,6 +24,7 @@
 
 package com.nextgis.maplibui.adapter.attributes.holder;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -49,6 +50,7 @@ public class CellViewHolder extends AbstractViewHolder {
     }
 
     public void setCell(@Nullable Cell cell) {
+        Log.e("TTBBLL", "setCell " + cell.getData() + "  tag id =  " + cell.getId());
         cell_textview.setText(cell.getData());
         cell_textview.setTag(cell.getId());
         cell_container.getLayoutParams().width = LinearLayout.LayoutParams.WRAP_CONTENT;

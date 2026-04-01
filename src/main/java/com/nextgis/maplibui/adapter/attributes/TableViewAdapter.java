@@ -38,12 +38,34 @@ import com.nextgis.maplibui.adapter.attributes.holder.CellViewHolder;
 import com.nextgis.maplibui.adapter.attributes.holder.ColumnHeaderViewHolder;
 import com.nextgis.maplibui.adapter.attributes.holder.RowHeaderViewHolder;
 
+import java.util.List;
+
 public class TableViewAdapter extends AbstractTableAdapter<ColumnHeader, RowHeader, Cell> {
 
     private static final String LOG_TAG = TableViewAdapter.class.getSimpleName();
 
     @NonNull
     private final TableViewModel mTableViewModel;
+
+    private List<List<Cell>> mData;
+
+//    public void updateRowCells(int fId, String[] rowData){
+//        final String fIdStr = String.valueOf(fId);
+//        for (int i = 0; i < mCellItems.size(); i++) {
+//            if (mCellItems.get(i).get(0).getId().equals(fIdStr)){
+//                // row find!!!
+//                for (int j = 0; j < mCellItems.get(i).size(); j++){
+//                    mCellItems.get(i).set(j, new Cell(fIdStr, rowData[j]));
+//                }
+//            }
+//        }
+//
+//    }
+
+    public void setData(List<List<Cell>> data) {
+        this.mData = data;
+        setCellItems(data);
+    }
 
     public TableViewAdapter(@NonNull TableViewModel tableViewModel) {
         super();
@@ -72,6 +94,7 @@ public class TableViewAdapter extends AbstractTableAdapter<ColumnHeader, RowHead
                 layout = inflater.inflate(R.layout.table_view_cell_layout, parent, false);
 
                 // Create a Cell ViewHolder
+                Log.e("TTBBLL", "AbstractViewHolder Create a Cell ViewHolder");
                 return new CellViewHolder(layout);
         }
     }
@@ -94,6 +117,7 @@ public class TableViewAdapter extends AbstractTableAdapter<ColumnHeader, RowHead
     public void onBindCellViewHolder(@NonNull AbstractViewHolder holder, @Nullable Cell cellItemModel, int
             columnPosition, int rowPosition) {
 
+        Log.e("TTBBLL", "AbstractViewHolder onBindCellViewHolder ");
         switch (holder.getItemViewType()) {
             default:
                 // Get the holder to update cell item text
@@ -221,6 +245,6 @@ public class TableViewAdapter extends AbstractTableAdapter<ColumnHeader, RowHead
 
     @Override
     public int getCellItemViewType(int column) {
-                return 0;
+        return 0;
     }
 }

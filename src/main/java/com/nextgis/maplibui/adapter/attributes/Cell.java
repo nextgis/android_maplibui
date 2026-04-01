@@ -45,6 +45,7 @@ public class Cell implements ISortableModel, IFilterableModel {
         this.mFilterKeyword = data;
     }
 
+
     /**
      * This is necessary for sorting process.
      * See ISortableModel
