@@ -210,6 +210,7 @@ public class WalkEditService extends Service implements LocationListener
     private void sendGeometryBroadcast() {
         Intent broadcastIntent = new Intent(WALKEDIT_CHANGE);
         broadcastIntent.putExtra(ConstantsUI.KEY_GEOMETRY, mGeometry);
+        broadcastIntent.setPackage(getApplicationContext().getPackageName());
         sendBroadcast(broadcastIntent);
     }
 

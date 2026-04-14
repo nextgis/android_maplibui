@@ -58,10 +58,12 @@ public class ChooseLayerDialog
     protected final static String KEY_LAYERS_IDS = "ids";
     protected final static String KEY_CODE       = "code";
     boolean useCreatePoint = false;
+    boolean startFillByWalk = false;
 
-    public ChooseLayerDialog(boolean useCreatePoint){
+    public ChooseLayerDialog(boolean useCreatePoint, boolean startFillByWalk){
         super();
         this.useCreatePoint = useCreatePoint;
+        this.startFillByWalk = startFillByWalk;
     }
 
     public ChooseLayerDialog setLayerList(List<ILayer> list)
@@ -137,7 +139,7 @@ public class ChooseLayerDialog
     {
         IChooseLayerResult activity = (IChooseLayerResult) mActivity;
         if (null != activity) {
-            activity.onFinishChooseLayerDialog(mCode, layer, useCreatePoint);
+            activity.onFinishChooseLayerDialog(mCode, layer, useCreatePoint,startFillByWalk);
         }
         dismiss();
     }

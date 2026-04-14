@@ -145,16 +145,16 @@ public class SelectNGWResourceDialog
                 .setIcon(R.drawable.ic_ngw)
                 .setView(view)
                 .setInverseBackgroundForced(true)
-                .setPositiveButton(
-                        R.string.add, new DialogInterface.OnClickListener()
-                        {
-                            public void onClick(
-                                    DialogInterface dialog,
-                                    int id)
-                            {
-                                createLayers(mContextWeakRef.get());
-                            }
-                        })
+//                .setPositiveButton(
+//                        R.string.add, new DialogInterface.OnClickListener()
+//                        {
+//                            public void onClick(
+//                                    DialogInterface dialog,
+//                                    int id)
+//                            {
+//                                createLayers(mContextWeakRef.get());
+//                            }
+//                        })
                 .setNegativeButton(R.string.cancel, null);
 
         // Create the AlertDialog object and return it

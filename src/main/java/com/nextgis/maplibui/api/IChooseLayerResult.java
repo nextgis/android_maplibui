@@ -34,5 +34,6 @@ public interface IChooseLayerResult
     void onFinishChooseLayerDialog(
             int code,
             ILayer layer,
-            Boolean useCreatePoint);
+            boolean useCreatePoint,
+            boolean startFillByWalk);
 }

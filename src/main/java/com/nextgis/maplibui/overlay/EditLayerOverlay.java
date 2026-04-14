@@ -407,9 +407,9 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
                 ControlHelper.setEnabled(item, moreThanMin);
             }
 
-//            item = mBottomToolbar.getMenu().findItem(R.id.menu_edit_by_walk);
-//            if (item != null)
-//                ControlHelper.setEnabled(item, !hasEdits);
+             item = mBottomToolbar.getMenu().findItem(R.id.menu_edit_by_walk);
+            if (item != null)
+                ControlHelper.setEnabled(item, !hasEdits);
         }
     }
 
@@ -565,9 +565,9 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         } else if (id == R.id.menu_edit_delete_point) {
             result = deletePoint();
         }
-//        else if (id == R.id.menu_edit_by_walk) {
-//            result = true;
-//        }
+        else if (id == R.id.menu_edit_by_walk) {
+            result = true;
+        }
         else if (id == R.id.menu_edit_by_touch) {
             result = true;
         }
