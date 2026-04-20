@@ -75,6 +75,7 @@ public class SelectNGWResourceDialog
     protected AlertDialog             mDialog;
     protected AccountManager          mAccountManager;
     protected NGWResourcesListAdapter.OnConnectionListener mConnectionListener;
+    boolean skipSubLoad = false;
 
     protected final static String KEY_MASK        = "mask";
     protected final static String KEY_ID          = "id";
@@ -83,6 +84,11 @@ public class SelectNGWResourceDialog
     protected final static String KEY_STATES      = "states";
 
     protected final static int ADD_ACCOUNT_CODE = 777;
+
+
+    public SelectNGWResourceDialog(boolean skipSubLoad){
+        this.skipSubLoad = skipSubLoad;
+    }
 
 
     public SelectNGWResourceDialog setLayerGroup(LayerGroup groupLayer)
@@ -111,7 +117,7 @@ public class SelectNGWResourceDialog
         if (null == savedInstanceState) {
             //first launch, lets fill connections array
             Connections connections = fillConnections(getActivity(), mAccountManager);
-            mListAdapter.setConnections(connections);
+            mListAdapter.setConnections(connections, skipSubLoad);
             mListAdapter.setCurrentResourceId(connections.getId());
             mListAdapter.setCheckState(new ArrayList<CheckState>());
         } else {
@@ -125,7 +131,7 @@ public class SelectNGWResourceDialog
                 }
             }
 
-            mListAdapter.setConnections((Connections) savedInstanceState.getParcelable(KEY_CONNECTIONS));
+            mListAdapter.setConnections((Connections) savedInstanceState.getParcelable(KEY_CONNECTIONS), skipSubLoad);
             mListAdapter.setCurrentResourceId(savedInstanceState.getInt(KEY_RESOURCE_ID));
             mListAdapter.setCheckState(savedInstanceState.<CheckState> getParcelableArrayList(KEY_STATES));
         }

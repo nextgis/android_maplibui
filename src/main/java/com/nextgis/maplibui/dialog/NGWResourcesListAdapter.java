@@ -31,7 +31,6 @@ import android.os.AsyncTask;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,7 +42,6 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 import com.nextgis.maplib.datasource.ngw.Connection;
@@ -54,6 +52,7 @@ import com.nextgis.maplib.datasource.ngw.Resource;
 import com.nextgis.maplib.datasource.ngw.ResourceGroup;
 import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.SelectNGWResourceActivity;
 import com.nextgis.maplibui.util.CheckState;
 import com.nextgis.maplibui.util.ControlHelper;
 
@@ -78,6 +77,7 @@ public class NGWResourcesListAdapter
     protected int                     mTypeMask;
     protected List<CheckState>        mCheckState;
     protected OnConnectionListener mConnectionListener;
+    boolean skipSubLoad = false;
 
     public interface OnConnectionListener {
         void onConnectionSelected(Connection connection);
@@ -111,9 +111,10 @@ public class NGWResourcesListAdapter
         mTypeMask = typeMask;
     }
 
-    public void setConnections(Connections connections)
+    public void setConnections(Connections connections, boolean skipSubLoad)
     {
         mConnections = connections;
+        this.skipSubLoad = skipSubLoad;
     }
 
     public Connections getConnections()
@@ -130,7 +131,7 @@ public class NGWResourcesListAdapter
         else if (mCurrentResource instanceof ResourceGroup)
             ((ResourceGroup) mCurrentResource).setLoadChildren(false);
 
-        final NGWResourceAsyncTask task = new NGWResourceAsyncTask(this, mActivity.get(), mCurrentResource);
+        final NGWResourceAsyncTask task = new NGWResourceAsyncTask(this, mActivity.get(), mCurrentResource, skipSubLoad, mActivity.get());
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
@@ -151,7 +152,7 @@ public class NGWResourcesListAdapter
                 } else if (connection.isConnected()) {
                     notifyDataSetChanged();
                 } else {
-                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(this,  mActivity.get(), connection);
+                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(this,  mActivity.get(), connection, skipSubLoad, mActivity.get());
                     task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
@@ -592,7 +593,7 @@ public class NGWResourcesListAdapter
                 } else if (connection.isConnected()) {
                     notifyDataSetChanged();
                 } else {
-                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(this,mActivity.get(), connection);
+                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(this,mActivity.get(), connection, skipSubLoad, mActivity.get());
                     task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
@@ -636,7 +637,7 @@ public class NGWResourcesListAdapter
                 if (resourceGroup.isChildrenLoaded()) {
                     notifyDataSetChanged();
                 } else {
-                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(this, mActivity.get(), resourceGroup);
+                    NGWResourceAsyncTask task = new NGWResourceAsyncTask(this, mActivity.get(), resourceGroup, skipSubLoad, mActivity.get());
                     task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
             }
@@ -722,18 +723,23 @@ public class NGWResourcesListAdapter
             extends AsyncTask<Void, Void, String>
     {
         private final WeakReference<NGWResourcesListAdapter> adapterRef;
-        private final WeakReference<Context> mActivity;
+        private final WeakReference<Context> mContext;
+        private final WeakReference<Activity> mActivity;
         private final INGWResource resource;
+        boolean skipSubLoad = false;
 
 
         NGWResourceAsyncTask(
                 NGWResourcesListAdapter adapter,
                 Context context,
-                INGWResource resource) {
-
+                INGWResource resource,
+                boolean skipSubLoad,
+                Activity activity) {
             adapterRef = new WeakReference<>(adapter);
-            mActivity = new WeakReference<>(context.getApplicationContext());
+            mContext = new WeakReference<>(context.getApplicationContext());
+            mActivity= new WeakReference<>(activity);
             this.resource = resource;
+            this.skipSubLoad = skipSubLoad;
         }
 
 
@@ -742,24 +748,26 @@ public class NGWResourcesListAdapter
         {
             adapterRef.get().mLoading = true;
             adapterRef.get().notifyDataSetChanged();
+            if (mActivity.get() instanceof SelectNGWResourceActivity)
+                ((SelectNGWResourceActivity) mActivity.get()).disableButton();
         }
 
 
         @Override
         protected String doInBackground(Void... voids)
         {
-            if (mActivity.get() == null)
+            if (mContext.get() == null)
                 return "";
             if (resource instanceof Connection) {
                 final Connection connection = (Connection) resource;
                 if (connection.connect(NGW_ACCOUNT_GUEST.equals(connection.getLogin()))) {
-                    connection.loadChildren();
+                    connection.loadChildren(skipSubLoad);
                 } else {
-                    return mActivity.get().getString(com.nextgis.maplib.R.string.error_connect_failed);
+                    return mContext.get().getString(com.nextgis.maplib.R.string.error_connect_failed);
                 }
             } else if (resource instanceof ResourceGroup) {
                 final ResourceGroup resourceGroup = (ResourceGroup) resource;
-                resourceGroup.loadChildren();
+                resourceGroup.loadChildren(skipSubLoad);
             }
             return "";
         }
@@ -768,8 +776,8 @@ public class NGWResourcesListAdapter
         @Override
         protected void onPostExecute(String error)
         {
-            if (null != error && error.length() > 0 && mActivity.get() != null) {
-                new AlertDialog.Builder(mActivity.get())
+            if (null != error && error.length() > 0 && mContext.get() != null) {
+                new AlertDialog.Builder(mContext.get())
                         .setMessage(error)
                         .setPositiveButton(R.string.ok, null)
                         .create()
@@ -780,6 +788,10 @@ public class NGWResourcesListAdapter
                 adapterRef.get().mLoading = false;
                 adapterRef.get().notifyDataSetChanged();
             }
+
+            if (mActivity.get() != null && mActivity.get() instanceof  SelectNGWResourceActivity)
+                ((SelectNGWResourceActivity) mActivity.get()).enableButton();
+
         }
     }//                case Connection.NGWResourceTypeCollector:
 //                    CollectorResource collectorResource = (CollectorResource) resource;

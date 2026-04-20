@@ -112,7 +112,7 @@ public class VectorLayerUI
     }
 
     public void sendToNGW(final NGActivity activity) {
-        final SelectNGWResourceDialog selectAccountDialog = new SelectNGWResourceDialog();
+        final SelectNGWResourceDialog selectAccountDialog = new SelectNGWResourceDialog(true);
         selectAccountDialog.setConnectionListener(new NGWResourcesListAdapter.OnConnectionListener() {
             @Override
             public void onConnectionSelected(final Connection connection) {
@@ -123,6 +123,8 @@ public class VectorLayerUI
                 intent.putExtra(SelectNGWResourceActivity.KEY_CONNECTIONS, connections);
                 intent.putExtra(SelectNGWResourceActivity.KEY_RESOURCE_ID, connections.getChild(0).getId());
                 intent.putExtra(SelectNGWResourceActivity.KEY_PUSH_ID, VectorLayerUI.this.getId());
+                intent.putExtra(SelectNGWResourceActivity.KEY_SKIPSUBLOAD, true);
+
                 activity.startActivity(intent);
                 selectAccountDialog.dismiss();
             }

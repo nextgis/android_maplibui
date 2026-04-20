@@ -37,6 +37,7 @@ import androidx.core.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
 import com.nextgis.maplib.datasource.GeoEnvelope;
 import com.nextgis.maplib.datasource.TileItem;
@@ -49,6 +50,7 @@ import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.mapui.LocalTMSLayerUI;
+import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.NotificationHelper;
 
 import java.util.ArrayList;
@@ -66,6 +68,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import static com.nextgis.maplib.util.Constants.DRAWING_SEPARATE_THREADS;
 import static com.nextgis.maplib.util.Constants.KEEP_ALIVE_TIME;
 import static com.nextgis.maplib.util.Constants.KEEP_ALIVE_TIME_UNIT;
+import static com.nextgis.maplib.util.Constants.MESSAGE_INTENT_RELOAD;
+import static com.nextgis.maplib.util.Constants.MESSAGE_INTENT_STYLING;
 import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 
 /**
@@ -201,14 +205,15 @@ public class TileDownloadService extends Service {
         double dfMaxY = intent.getDoubleExtra(KEY_MAXY, GeoConstants.MERCATOR_MAX);
         GeoEnvelope env = new GeoEnvelope(dfMinX, dfMaxX, dfMinY, dfMaxY);
 
-        if (intent.hasExtra(KEY_ZOOM_FROM) && intent.hasExtra(KEY_ZOOM_TO)) {
+        int layerid = intent.getIntExtra(ConstantsUI.KEY_LAYER_ID, -1);
 
+        if (intent.hasExtra(KEY_ZOOM_FROM) && intent.hasExtra(KEY_ZOOM_TO)) {
             int zoomFrom = intent.getIntExtra(KEY_ZOOM_FROM, 0);
             int zoomTo = intent.getIntExtra(KEY_ZOOM_TO, 18);
-            addTask(layerPathName, env, zoomFrom, zoomTo);
+            addTask(layerPathName, env, zoomFrom, zoomTo, layerid);
         } else if (intent.hasExtra(KEY_ZOOM_LIST)) {
             List<Integer> zoomList = intent.getIntegerArrayListExtra(KEY_ZOOM_LIST);
-            addTask(layerPathName, env, zoomList);
+            addTask(layerPathName, env, zoomList, layerid);
         }
     }
 
@@ -261,19 +266,20 @@ public class TileDownloadService extends Service {
             String layerPathName,
             GeoEnvelope env,
             int zoomFrom,
-            int zoomTo)
+            int zoomTo, int layerid)
     {
         List<Integer> zoomList = new ArrayList<>(zoomTo - zoomFrom + 1);
         for (int zoom = zoomFrom; zoom < zoomTo + 1; ++zoom) {
             zoomList.add(zoom);
         }
-        addTask(layerPathName, env, zoomList);
+        addTask(layerPathName, env, zoomList, layerid);
     }
 
     protected void addTask(
             String layerPathName,
             GeoEnvelope env,
-            List<Integer> zoomList)
+            List<Integer> zoomList,
+            int layerid)
     {
         DownloadTask task = new DownloadTask(layerPathName, env, zoomList);
         mQueue.add(task);
@@ -284,12 +290,12 @@ public class TileDownloadService extends Service {
                         Constants.TAG,
                         "TileDownloadService.addTask(), create and run download thread");
             }
-            mDownloadThread = createDownloadThread();
+            mDownloadThread = createDownloadThread(layerid);
             mDownloadThread.start();
         }
     }
 
-    private Thread createDownloadThread() {
+    private Thread createDownloadThread(int layerid) {
         mIsDownloadInterrupted = false;
         return new Thread(new Runnable()
         {
@@ -313,6 +319,13 @@ public class TileDownloadService extends Service {
 
                 cancelNotification();
                 stopSelf();
+
+
+                ((IGISApplication)getApplication()).setLayerToRefresh(layerid);
+                Intent msg = new Intent(MESSAGE_INTENT_RELOAD);
+                msg.putExtra( ConstantsUI.KEY_LAYER_ID, layerid);
+                msg.setPackage(getApplicationContext().getPackageName());
+                getApplication().sendBroadcast(msg);
 
                 if (Constants.DEBUG_MODE) {
                     Log.d(Constants.TAG, "TileDownloadService.stopSelf() is performed");

@@ -49,7 +49,7 @@ public class  NGWCreateNewResourceTask extends AsyncTask<Void, Void, HttpRespons
     private long mParentId;
     private String mName;
 
-    public NGWCreateNewResourceTask(final Context context, Connection connection, long parentId) {
+    public NGWCreateNewResourceTask(final Context context, Connection connection, long parentId, boolean skipSubLoad) {
         mContextRef = new WeakReference<>( context);
         mParentId = parentId;
         mConnection = connection;

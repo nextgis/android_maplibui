@@ -320,7 +320,7 @@
     <string name="error_export_geojson">Can not create geojson output</string>
     <string name="attributes">Features table</string>
     <string name="error_cache">Bad cache, try rebuild it in layer settings</string>
-    <string name="menu_send_to_ngw">Send to NextGIS</string>
+    <string name="menu_send_to_ngw">Send to WEB GIS</string>
     <string name="commercial">Available in commercial version</string>
     <string name="clear_layer">Delete all features</string>
     <string name="are_you_sure">Are you sure?</string>

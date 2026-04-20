@@ -45,6 +45,7 @@ import android.util.Log;
 
 import com.hypertrack.hyperlog.HyperLog;
 import com.nextgis.maplib.api.IGISApplication;
+import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.datasource.ngw.SyncAdapter;
 import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.LayerFactory;
@@ -211,6 +212,14 @@ public abstract class GISApplication extends Application
 
             SyncAdapter.setSyncPeriod(this, params, period);
         }
+
+
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                //resetSyncTime();
+//            }
+//        }, 2000);
 
     }
 
@@ -574,5 +583,48 @@ public abstract class GISApplication extends Application
             }
         }
         ContentResolver.addPeriodicSync(account, getAuthority(), bundle, interval);
+    }
+
+
+    public void resetSyncTime(){
+
+        AccountManager mAccountManager = AccountManager.get(this);
+        for (Account account : mAccountManager.getAccountsByType(getAccountsType())) {
+
+            // search sync settings // def if NO
+            String prefValue = "" + Constants.DEFAULT_SYNC_PERIOD;
+            List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, getAuthority());
+            if (null != syncs && !syncs.isEmpty()) {
+                for (PeriodicSync sync : syncs) {
+                    Bundle bundle = sync.extras;
+                    String value = bundle.getString(KEY_PREF_SYNC_PERIOD);
+                    if (value != null) {
+                        prefValue = value;
+                        break;
+                    }
+                }
+            }
+
+
+            for (PeriodicSync p : syncs) {
+
+                Bundle bundleDelete = new Bundle();
+                bundleDelete.putString(KEY_PREF_SYNC_PERIOD, String.valueOf(p.period));
+                ContentResolver.removePeriodicSync(account, getAuthority(), bundleDelete);
+
+                if (p.extras.containsKey("sync_period")){
+                    Bundle bundleDelete2 = new Bundle();
+                    bundleDelete2.putString(KEY_PREF_SYNC_PERIOD, p.extras.getString("sync_period"));
+                    ContentResolver.removePeriodicSync(account, getAuthority(), bundleDelete2);
+                }
+            }
+
+
+            Bundle bundle = new Bundle();
+            bundle.putString(KEY_PREF_SYNC_PERIOD, prefValue);
+            long interval = Long.parseLong(prefValue);
+            setSyncPeriod(account, interval, bundle);
+
+        }
     }
 }

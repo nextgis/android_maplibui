@@ -83,7 +83,7 @@ public class LayerFactoryUI
                 startNGWResourceActivity(context, (Connection) connections.getChild(0), layerGroup);
             } else {
                 NGActivity fragmentActivity = (NGActivity) context;
-                final SelectNGWResourceDialog newFragment = new SelectNGWResourceDialog();
+                final SelectNGWResourceDialog newFragment = new SelectNGWResourceDialog(false);
                 newFragment.setLayerGroup(layerGroup)
                         .setTypeMask(
                                 Connection.NGWResourceTypePostgisLayer |

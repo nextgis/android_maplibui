@@ -64,8 +64,13 @@ import com.nextgis.maplibui.util.NGWCreateNewResourceTask;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import static com.nextgis.maplib.datasource.ngw.Connection.NGWResourceTypeVectorLayer;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
@@ -81,6 +86,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
     public final static String KEY_GROUP_ID    = "group_id";
     public final static String KEY_PUSH_ID     = "local_id";
     protected final static String KEY_STATES   = "states";
+    public final static String KEY_SKIPSUBLOAD = "skipsubload";
 
     protected VectorLayer mLayer;
     protected LayerGroup mGroupLayer;
@@ -92,6 +98,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
     protected Button mButton;
 
     protected int mTypeMask, mTask, mPushId;
+    boolean skipSubLoad = false;
 
     private AlertDialog mNewGroupDialog;
 
@@ -108,7 +115,10 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
 
         mToolbar = findViewById(R.id.main_toolbar);
         mButton = findViewById(R.id.button1);
+
         mButton.setOnClickListener(this);
+        mButton.setEnabled(false);
+
 
         mListAdapter = new NGWResourcesListAdapter(this);
         mListAdapter.setShowAccounts(false);
@@ -120,13 +130,13 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
 
         if (mTask == TYPE_ADD) {
             mTypeMask = Connection.NGWResourceTypePostgisLayer |
-                    Connection.NGWResourceTypeVectorLayer | Connection.NGWResourceTypeRasterLayer |
+                    NGWResourceTypeVectorLayer | Connection.NGWResourceTypeRasterLayer |
                     Connection.NGWResourceTypeWMSClient | Connection.NGWResourceTypeWebMap
                     //| Connection.NGWResourceTypeCollector
             ;
         } else {
             mTypeMask = Connection.NGWResourceTypeResourceGroup | Connection.NGWResourceTypePostgisLayer |
-                    Connection.NGWResourceTypeVectorLayer | Connection.NGWResourceTypeRasterLayer |
+                    NGWResourceTypeVectorLayer | Connection.NGWResourceTypeRasterLayer |
                     Connection.NGWResourceTypeWMSClient | Connection.NGWResourceTypeWebMap
                     //| Connection.NGWResourceTypeCollector
             ;
@@ -139,11 +149,12 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                 bundle = getIntent().getExtras();
 
         if (bundle != null) {
+            skipSubLoad =   bundle.getBoolean(KEY_SKIPSUBLOAD, false);
             mTask = bundle.getInt(KEY_TASK);
             id = bundle.getInt(KEY_GROUP_ID, id);
             mPushId = bundle.getInt(KEY_PUSH_ID, mPushId);
             mTypeMask = bundle.getInt(KEY_MASK, mTypeMask);
-            mListAdapter.setConnections((Connections) bundle.getParcelable(KEY_CONNECTIONS));
+            mListAdapter.setConnections((Connections) bundle.getParcelable(KEY_CONNECTIONS), skipSubLoad);
             mListAdapter.setCurrentResourceId(bundle.getInt(KEY_RESOURCE_ID));
 
             ArrayList<CheckState> states = bundle.getParcelableArrayList(KEY_STATES);
@@ -186,6 +197,20 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
         return true;
     }
 
+    public void enableButton(){
+        if (mButton != null) {
+            mButton.setEnabled(true);
+            mButton.setBackground(getDrawable(R.drawable.dark_button));
+        }
+    }
+
+    public void disableButton(){
+        if (mButton != null) {
+            mButton.setEnabled(false);
+            mButton.setBackground(getDrawable(R.drawable.grey_button));
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int i = item.getItemId();
@@ -210,7 +235,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     long id = getRemoteResourceId();
                     final Connection connection = getConnection();
                     if (connection != null && id != NOT_FOUND) {
-                        new NGWCreateNewResourceTask(getApplicationContext(), connection, id).setName(text.toString()).
+                        new NGWCreateNewResourceTask(getApplicationContext(), connection, id, skipSubLoad).setName(text.toString()).
                                 executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         mListAdapter.refresh();
                     }
@@ -319,8 +344,6 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                 }
             }
 
-//            if (checkState.isCheckState3()) { //create form
-//            }
         }
 
         mGroupLayer.save();
@@ -341,13 +364,65 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     long id = getRemoteResourceId();
                     final Connection connection = getConnection();
                     if (connection != null && mLayer != null && id != NOT_FOUND) {
-                        new NGWCreateNewResourceTask(getApplicationContext(), connection, id).setLayer(mLayer)
+
+                        List<String> names = new ArrayList<>();
+//                        for (i = 0; i < connection.getChildrenCount(); i++ ){
+//                            if (connection.getChild(i).getType()== NGWResourceTypeVectorLayer)
+//                                names.add(connection.getChild(i).getName());
+//                        }
+
+
+                        if (mListAdapter.getCurrentResource()!= null)
+                            for (i = 0; i < mListAdapter.getCurrentResource().getChildrenCount(); i++ ){
+                                if (mListAdapter.getCurrentResource().getChild(i).getType()== NGWResourceTypeVectorLayer)
+                                    names.add(mListAdapter.getCurrentResource().getChild(i).getName());
+                            }
+
+                        String nameToSend = getUniqueName(mLayer.getName(), names);
+
+                        if (!nameToSend.equals(mLayer.getName())){
+                            mLayer.setName(nameToSend);
+                            mLayer.save();
+                        }
+//
+                        new NGWCreateNewResourceTask(getApplicationContext(), connection, id, true).setLayer(mLayer)
                                 .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         finish();
                     }
                     break;
             }
         }
+    }
+
+    private static final Pattern PATTERN = Pattern.compile("^(.*) \\((\\d+)\\)$");
+
+    public static String getUniqueName(String originalName, List<String> existingNames) {
+        Set<String> existing = new HashSet<>(existingNames);
+
+        String baseName = originalName;
+        int counter = 0;
+
+        // check ' (number)' at end of original name
+        Matcher matcher = PATTERN.matcher(originalName);
+        if (matcher.matches()) {
+            baseName = matcher.group(1);
+            counter = Integer.parseInt(matcher.group(2));
+        }
+
+        String newName = originalName;
+
+        // if not contains - return original
+        if (!existing.contains(newName)) {
+            return newName;
+        }
+
+        // increment counter while new name exists
+        while (existing.contains(newName)) {
+            counter++;
+            newName = baseName + " (" + counter + ")";
+        }
+
+        return newName;
     }
 
     public Connection getConnection() {
