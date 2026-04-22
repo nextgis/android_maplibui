@@ -539,7 +539,7 @@ public class VectorLayerSettingsActivity
                     if (interval == NOT_FOUND) {
                         ContentResolver.removePeriodicSync(account, app.getAuthority(), bundle);
                     } else {
-                        ((GISApplication)getContext().getApplicationContext()).setSyncPeriod(account,interval,bundle);
+                        ((GISApplication)getContext().getApplicationContext()).setSyncPeriod(account,interval,bundle, true);
 
                         // no need -
                         //ContentResolver.addPeriodicSync(account, app.getAuthority(), bundle, interval);

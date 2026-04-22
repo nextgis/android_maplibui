@@ -65,12 +65,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static com.nextgis.maplib.util.Constants.MAP_EXT;
 import static com.nextgis.maplib.util.Constants.MESSAGE_ALERT_INTENT;
 import static com.nextgis.maplib.util.Constants.MESSAGE_EXTRA;
 import static com.nextgis.maplib.util.Constants.MESSAGE_TITLE_EXTRA;
+import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_DARK;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_LIGHT;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_MAP;
@@ -79,6 +81,10 @@ import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIODICALLY;
 
 import androidx.core.content.ContextCompat;
+
+import org.maplibre.android.MapLibre;
+import org.maplibre.android.MapStrictMode;
+import org.maplibre.android.WellKnownTileServer;
 
 //import leakcanary.LeakCanary;
 //import shark.AndroidReferenceMatchers;
@@ -119,6 +125,8 @@ public abstract class GISApplication extends Application
     String account = null;
     String errorMessage = null;
     int errorCode = 0;
+
+    List<Integer> layersToRefresh = new ArrayList<>();
 
     static final AuthInterceptorNG interceptorNG = new AuthInterceptorNG();
 
@@ -214,13 +222,20 @@ public abstract class GISApplication extends Application
         }
 
 
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                //resetSyncTime();
-//            }
-//        }, 2000);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                resetSyncTime();
+            }
+        }, 2000);
 
+        initializeMapbox();
+    }
+
+    private void initializeMapbox() {
+        MapLibre.getInstance(this, "sjdkfhjkdshfkjhsdkjf", WellKnownTileServer.MapTiler);
+        //TileLoadingMeasurementUtils.setUpTileLoadingMeasurement();
+        MapStrictMode.setStrictModeEnabled(true);
     }
 
     protected int getThemeId(boolean isDark){
@@ -263,6 +278,8 @@ public abstract class GISApplication extends Application
         mMap = new MapDrawable(bkBitmap, this, mapFullPath, getLayerFactory());
         mMap.setName(mapName);
         mMap.load();
+
+        checkTracksLayerExist();
 
         return mMap;
     }
@@ -563,51 +580,45 @@ public abstract class GISApplication extends Application
         }
     }
 
-    public  void setSyncPeriod(final Account account,
-                               long interval,
-                               Bundle bundle){
-        // clear all intervals  ALL !!!!
-        List<PeriodicSync> periodicSyncsList = ContentResolver.getPeriodicSyncs(account, getAuthority());
-//        Log.e("SyncCheck", "FORDEL Количество синхронизаций для : " + account.name);
-//        Log.e("SyncCheck", "FORDEL Количество синхронизаций: " + periodicSyncsList.size());
-        for (PeriodicSync p : periodicSyncsList) {
-            Log.d("SyncCheck", "FORDEL Период: " + p.period + " сек, Extras: " + p.extras);
-            Bundle bundleDelete = new Bundle();
-            bundleDelete.putString(KEY_PREF_SYNC_PERIOD, String.valueOf(p.period));
-            ContentResolver.removePeriodicSync(account, getAuthority(), bundleDelete);
 
-            if (p.extras.containsKey("sync_period")){
-                Bundle bundleDelete2 = new Bundle();
-                bundleDelete2.putString(KEY_PREF_SYNC_PERIOD, p.extras.getString("sync_period"));
-                ContentResolver.removePeriodicSync(account, getAuthority(), bundleDelete2);
-            }
+    @Override
+    public void setLayerToRefresh(int id) {
+        synchronized (layersToRefresh){
+            layersToRefresh.add(id);
         }
-        ContentResolver.addPeriodicSync(account, getAuthority(), bundle, interval);
+    }
+
+    @Override
+    public void removeLayerToRefresh(int id) {
+        try {
+            synchronized (layersToRefresh) {
+                layersToRefresh.removeIf(integer -> id == integer);
+            }
+        } catch (Exception ex){
+            Log.e(TAG, Objects.requireNonNull(ex.getMessage()));
+        }
+    }
+
+    @Override
+    public List<Integer> getlayersToRefresh() {
+        try {
+            synchronized (layersToRefresh) {
+                return new ArrayList<>(layersToRefresh);
+            }
+        } catch (Exception ex){
+            Log.e(TAG, Objects.requireNonNull(ex.getMessage()));
+            return new ArrayList<>();
+        }
     }
 
 
-    public void resetSyncTime(){
-
-        AccountManager mAccountManager = AccountManager.get(this);
-        for (Account account : mAccountManager.getAccountsByType(getAccountsType())) {
-
-            // search sync settings // def if NO
-            String prefValue = "" + Constants.DEFAULT_SYNC_PERIOD;
-            List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, getAuthority());
-            if (null != syncs && !syncs.isEmpty()) {
-                for (PeriodicSync sync : syncs) {
-                    Bundle bundle = sync.extras;
-                    String value = bundle.getString(KEY_PREF_SYNC_PERIOD);
-                    if (value != null) {
-                        prefValue = value;
-                        break;
-                    }
-                }
-            }
-
-
-            for (PeriodicSync p : syncs) {
-
+    public  void setSyncPeriod(final Account account,
+                               long interval,
+                               Bundle bundle, boolean deleteExisting){
+        List<PeriodicSync> periodicSyncsList = ContentResolver.getPeriodicSyncs(account, getAuthority());
+        if (deleteExisting)
+            for (PeriodicSync p : periodicSyncsList) {
+                Log.d("SSYNC", "FORDEL Период: " + p.period + " сек, Extras: " + p.extras);
                 Bundle bundleDelete = new Bundle();
                 bundleDelete.putString(KEY_PREF_SYNC_PERIOD, String.valueOf(p.period));
                 ContentResolver.removePeriodicSync(account, getAuthority(), bundleDelete);
@@ -618,12 +629,51 @@ public abstract class GISApplication extends Application
                     ContentResolver.removePeriodicSync(account, getAuthority(), bundleDelete2);
                 }
             }
+        ContentResolver.addPeriodicSync(account, getAuthority(), bundle, interval);
+    }
 
 
+    public void resetSyncTime(){
+
+        AccountManager mAccountManager = AccountManager.get(this);
+        for (Account account : mAccountManager.getAccountsByType(getAccountsType())) {
+            Log.d("SSYNC", "Reset for : " + account.name + " account");
+
+            // search sync settings // def if NO
+            String prefValue = "" + Constants.DEFAULT_SYNC_PERIOD;
+            List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, getAuthority());
+            if (null != syncs && !syncs.isEmpty()) {
+                for (PeriodicSync sync : syncs) {
+                    Bundle bundle = sync.extras;
+                    String value = bundle.getString(KEY_PREF_SYNC_PERIOD);
+                    if (value != null) {
+                        Log.d("SSYNC", " prefValue=  : " + prefValue);
+                        prefValue = value;
+                        break;
+                    }
+                }
+            } else {
+                Log.d("SSYNC", "Reset for : " + account.name + " account = NO ITEMS");
+            }
+
+
+            List<PeriodicSync> syncsToDelete =
+                    ContentResolver.getPeriodicSyncs(account, getAuthority());
+            for (PeriodicSync sync : syncsToDelete) {
+                Log.d("SSYNC", "delete " + sync.toString());
+                ContentResolver.removePeriodicSync(
+                        account,
+                        getAuthority(),
+                        sync.extras
+                );
+            }
+
+
+            Log.d("SSYNC", "add again " + prefValue);
             Bundle bundle = new Bundle();
             bundle.putString(KEY_PREF_SYNC_PERIOD, prefValue);
             long interval = Long.parseLong(prefValue);
-            setSyncPeriod(account, interval, bundle);
+            setSyncPeriod(account, interval, bundle, false);
 
         }
     }

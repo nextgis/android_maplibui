@@ -307,7 +307,7 @@ public class NGWSettingsFragment
                     ContentResolver.removePeriodicSync(account, application.getAuthority(), bundle);
                 } else {
 
-                    ((GISApplication)getContext().getApplicationContext()).setSyncPeriod(account,interval,bundle);
+                    ((GISApplication)getContext().getApplicationContext()).setSyncPeriod(account,interval,bundle, true);
 
                     // no need
                     // ContentResolver.addPeriodicSync(account, application.getAuthority(), bundle, interval);
