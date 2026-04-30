@@ -352,7 +352,8 @@ public class CreateFromQMSLayerDialog extends NGDialog {
 
                 // do we need this checks? QMS should provide correct data
                 //check if {x}, {y} or {z} present
-                if (!layerURL.contains("{x}") || !layerURL.contains("{y}") || !layerURL.contains("{z}")) {
+                if ( (!layerURL.contains("{x}") || !layerURL.contains("{y}") || !layerURL.contains("{z}"))
+                        && !layerURL.contains("{q}")) {
                     String error = layerName + ": " + context.getString(R.string.error_invalid_url);
                     Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
                     return;
@@ -364,7 +365,7 @@ public class CreateFromQMSLayerDialog extends NGDialog {
 
                 boolean isURL = URLUtil.isValidUrl(layerURL);
 
-                if (!isURL) {
+                if (!isURL && !layerURL.contains("{q}")) {
                     String error = layerName + ": " + mContextWeakRef.get().getString(R.string.error_invalid_url);
                     Toast.makeText(mContextWeakRef.get(), error, Toast.LENGTH_SHORT).show();
                     return;
