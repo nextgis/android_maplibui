@@ -508,7 +508,7 @@ public class LayersListAdapter extends BaseAdapter implements MapEventListener {
             public void run() {
                 notifyDataSetChanged();
                 if (reloadAllLayers && !skipMaplibre)
-                    mMap.mapFragment.get().loadLayersLite();
+                    mMap.mapContext.get().loadLayersLite();
             }
         });
     }

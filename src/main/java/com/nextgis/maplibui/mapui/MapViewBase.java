@@ -236,7 +236,7 @@ public class MapViewBase
             GeoPoint center)
     {
         if (mMap != null) {
-            mMap.setZoomAndCenter(zoom, center, false);
+            mMap.setZoomAndCenter(zoom, center, false, 800);
         }
     }
 

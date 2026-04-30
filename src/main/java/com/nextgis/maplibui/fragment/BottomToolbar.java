@@ -23,11 +23,13 @@
 
 package com.nextgis.maplibui.fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import androidx.annotation.MenuRes;
 import androidx.core.view.MenuItemCompat;
 import androidx.appcompat.widget.Toolbar;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -76,6 +78,8 @@ public class BottomToolbar
         MenuItem item = menu.getItem(0);
         int size = item.getIcon().getIntrinsicWidth() + ControlHelper.dpToPx(30, getResources());
         int width = getWidth();
+        if (width == 0)
+            width = getContext().getResources().getDisplayMetrics().widthPixels;
 
         for (int i = 0; i < menu.size(); i++) {
             item = menu.getItem(i);

@@ -259,7 +259,9 @@ public abstract class GISApplication extends Application
     @Override
     public MapBase getMap()
     {
+        Log.d("MMAAPP", "getMap" );
         if (null != mMap) {
+            Log.d("MMAAPP", "getMap null != mMap" );
             return mMap;
         }
 
@@ -276,6 +278,7 @@ public abstract class GISApplication extends Application
 
         final Bitmap bkBitmap = getMapBackground();
         mMap = new MapDrawable(bkBitmap, this, mapFullPath, getLayerFactory());
+        Log.e("MMAAPP", "getMap mMap created");
         mMap.setName(mapName);
         mMap.load();
 
