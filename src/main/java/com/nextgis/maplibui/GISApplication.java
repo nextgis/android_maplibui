@@ -278,7 +278,7 @@ public abstract class GISApplication extends Application
 
         final Bitmap bkBitmap = getMapBackground();
         mMap = new MapDrawable(bkBitmap, this, mapFullPath, getLayerFactory());
-        Log.e("MMAAPP", "getMap mMap created");
+        Log.d("WWALK", "getMap mMap created");
         mMap.setName(mapName);
         mMap.load();
 

@@ -532,11 +532,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
 
         float[] coordinates = new float[]{mOverlayPoint.getScreenX(), mOverlayPoint.getScreenY()};
         mSelectedItem = new DrawItem(DrawItem.TYPE_VERTEX, coordinates);
-
-
-
-       mDrawItems.add(mSelectedItem);
-
+        mDrawItems.add(mSelectedItem);
         update(true);
     }
 
@@ -1442,6 +1438,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
             return;
         GeoGeometry geometry = to == null ? mFeature.getGeometry() : to;
         boolean mode = mMode != MODE_EDIT && mMode != MODE_CHANGE;
+        if (mLayer == null)
+            return;
         int type = mLayer.getGeometryType();
         boolean valid = type == GeoConstants.GTPoint || type == GeoConstants.GTMultiPoint;
         if (geometry == null || location == null || mode || !valid)
@@ -1502,6 +1500,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
     }
 
     public void setGeometryFromWalkEdit(GeoGeometry geometry) {
+        if (mDrawItems == null || mSelectedItem == null)
+            return;
         int selectedGeometry = mDrawItems.indexOf(mSelectedItem);
         int selectedRing = mSelectedItem.getSelectedRingId();
 
