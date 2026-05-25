@@ -41,6 +41,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.SwitchCompat;
@@ -194,6 +196,18 @@ public class ModifyAttributesActivity
         } else {
             registerReceiver(messageReceiver, getReceiverIntent());
         }
+        getOnBackPressedDispatcher().addCallback(
+                this,
+                new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        if (!checkEdits()) {
+                            setEnabled(false);
+                            getOnBackPressedDispatcher().onBackPressed();
+                        }
+                    }
+                }
+        );
     }
 
     protected void createLocationPanelView(final IGISApplication app)
@@ -575,7 +589,7 @@ public class ModifyAttributesActivity
             return true;
         } else if (id == R.id.menu_settings) {
             final IGISApplication app = (IGISApplication) getApplication();
-            app.showSettings(SettingsConstantsUI.ACTION_PREFS_GENERAL, -1, null);
+            app.showSettings(SettingsConstantsUI.ACTION_PREFS_GENERAL, -1, this);
             return true;
         } else if (id == R.id.menu_apply) {
             if (saveFeature())

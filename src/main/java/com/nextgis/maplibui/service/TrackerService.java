@@ -220,11 +220,22 @@ public class TrackerService extends Service
         return new Pair<>(icon, title);
     }
 
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (!mIsRunning) {
+            // Минимальное уведомление-заглушка
+            NotificationCompat.Builder builder = createBuilder(this, R.string.sync_started);
+            builder.setSmallIcon(mSmallIcon)
+                    .setLargeIcon(mLargeIcon)
+                    .setTicker("Starting tracker...")
+                    .setWhen(System.currentTimeMillis())
+                    .setAutoCancel(false)
+                    .setContentTitle("Tracker Service")
+                    .setContentText("Starting...")
+                    .setOngoing(true);
+            startForeground(TRACK_NOTIFICATION_ID, builder.build());
+        }
         String targetActivity = "";
-
         if (intent != null) {
             targetActivity = intent.getStringExtra(ConstantsUI.TARGET_CLASS);
             String action = intent.getAction();
@@ -296,8 +307,12 @@ public class TrackerService extends Service
 
             String provider = LocationManager.GPS_PROVIDER;
             if (mLocationManager.getAllProviders().contains(provider)) {
-                mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
-
+                Log.d("TRACCK", "track resister with " + minTime + " " + minDistance );
+                mLocationManager.requestLocationUpdates(provider,
+                        minTime, minDistance,
+                        //0,0,
+                        this);
+                Log.d("TRACCK", "Tracker  requestUpdates " + provider );
                 if (Constants.DEBUG_MODE)
                     Log.d(Constants.TAG, "Tracker service request location updates for " + provider);
             }
@@ -305,9 +320,7 @@ public class TrackerService extends Service
             provider = LocationManager.NETWORK_PROVIDER;
             if (mLocationManager.getAllProviders().contains(provider)) {
                 mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
-
-                if (Constants.DEBUG_MODE)
-                    Log.d(Constants.TAG, "Tracker service request location updates for " + provider);
+                Log.d("TRACCK", "Tracker  requestUpdates " + provider );
             }
 
             NotificationHelper.showLocationInfo(this);
@@ -543,19 +556,20 @@ public class TrackerService extends Service
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.d(Constants.TAG, "tracker - onLocationChanged");
-
+        Log.d("TRACCK", "TrackerService   onLocationChanged" );
         if (isFilteredAllow(location)) {
-
             boolean update = LocationUtil.isProviderEnabled(this, location.getProvider(), true);
-            if (!mIsRunning || !update)
+            if (!mIsRunning || !update) {
+                Log.d("TRACCK", "TrackerService onLocationChanged return if (!mIsRunning || !update)" );
                 return;
-            if (mHasGPSFix && !location.getProvider().equals(LocationManager.GPS_PROVIDER))
+            }
+            if (mHasGPSFix && !location.getProvider().equals(LocationManager.GPS_PROVIDER)) {
+                Log.d("TRACCK", "TrackerService onLocationChanged return if (mHasGPSFix && !location.getProvider().equals(LocationManager.GPS_PROVIDER)" );
                 return;
+            }
             String fixType = location.hasAltitude() ? "3d" : "2d";
-
-//        counter ++;
-//        Log.d(Constants.TAG, "tracker - onLocationChanged save point # " + counter);
+//          counter ++;
+//          Log.d(Constants.TAG, "tracker - onLocationChanged save point # " + counter);
             mValues.clear();
             mValues.put(TrackLayer.FIELD_SESSION, mTrackId);
 
@@ -574,9 +588,12 @@ public class TrackerService extends Service
             mValues.put(TrackLayer.FIELD_TIMESTAMP, location.getTime());
             try {
                 getContentResolver().insert(mContentUriTrackPoints, mValues);
+                Log.d("TRACCK", "TrackerService onLocationChanged point INSERTED" );
             } catch (Exception ignored) {
+                Log.d("TRACCK", "TrackerService onLocationChanged point INSERTED FAIL"  );
                 Log.e(TrackerService.class.getName(), "onLocation EXCEPTION!!" + ignored.getMessage());
             }
+            ((GISApplication)getApplication()).updateLocation(location);
         }
     }
 
@@ -849,10 +866,15 @@ public class TrackerService extends Service
     boolean isFilteredAllow(Location location) {
 //        if (location == null)
 //            return false
-        if (location.getAccuracy() > 50.0f)
+        if (location.getAccuracy() > 50.0f) {
+            Log.d("TRACCK", "TrackerService   isFilteredAllow  return  > 50.0f" );
             return false;
+        }
         if (location.getSpeed() > 300.0f) // about 1000 kilometers per hour
+        {
+            Log.d("TRACCK", "TrackerService   isFilteredAllow  return  > 300.0f" );
             return false;
+        }
         return true;
     }
 

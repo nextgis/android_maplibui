@@ -195,11 +195,13 @@ public class WalkEditService extends Service implements LocationListener
         String provider = LocationManager.GPS_PROVIDER;
         if (mLocationManager.getAllProviders().contains(provider)) {
             mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
+            Log.d("TRACCK", "Tracker  requestUpdates " + provider );
         }
 
         provider = LocationManager.NETWORK_PROVIDER;
         if (mLocationManager.getAllProviders().contains(provider)) {
             mLocationManager.requestLocationUpdates(provider, minTime, minDistance, this);
+            Log.d("TRACCK", "Tracker  requestUpdates " + provider );
         }
 
         NotificationHelper.showLocationInfo(this);

@@ -428,6 +428,7 @@
     <string name="allow">"Разрешить"</string>
     <string name="deny">"Отклонить"</string>
 
+    <string name="permissions">Разрешения</string>
     <string name="account_permissions">NextGIS Mobile нужен доступ к контактам для создания и управления учетными записями на устройстве для синхронизации с вашей Веб-ГИС</string>
     <string name="no_contancts_access">Вы не сможете использовать NGW аккаунт без доступа к контактам</string>
 
@@ -445,4 +446,5 @@
     <string name="sync_no_layers">Нет слоёв для синхронизации</string>
     <string name="edit_invisible">Для редактирования слоя сделайте его видимым</string>
 
+    <string name="location_permissions_ext">NextGIS Mobile нужен доступ к локации, чтобы показать ваше местоположение на карте.</string>
 </resources>

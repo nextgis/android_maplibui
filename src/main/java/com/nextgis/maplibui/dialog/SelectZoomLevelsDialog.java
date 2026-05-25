@@ -187,9 +187,10 @@ public class SelectZoomLevelsDialog extends DialogFragment {
                             remoteNewlayer.setLogin(((RemoteTMSLayer) layer).getLogin());
                             remoteNewlayer.setPassword(((RemoteTMSLayer) layer).getPassword());
 
-                            mGroupLayer.addLayer(remoteNewlayer);
+                            //mGroupLayer.addLayer(remoteNewlayer);
+                            ((IGISApplication)getContext().getApplicationContext()).setPostponedLayerId(layer.getId());
+                            mGroupLayer.insertLayer(mGroupLayer.getIndex(layer) +1 , remoteNewlayer);
                             mGroupLayer.save();
-
 
                             Intent intent = new Intent(getActivity(), TileDownloadService.class);
                             intent.setAction(TileDownloadService.ACTION_ADD_TASK);
@@ -208,8 +209,6 @@ public class SelectZoomLevelsDialog extends DialogFragment {
                             } else {
                                 getActivity().startService(intent);
                             }
-
-
                             //startForegroundService(context, intent);
                         }
 

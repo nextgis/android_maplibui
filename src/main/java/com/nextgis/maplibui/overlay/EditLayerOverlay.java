@@ -89,8 +89,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.nextgis.maplib.map.MPLFeaturesUtils.geoPointFromLatLng;
+import static com.nextgis.maplib.map.MPLFeaturesUtils.getNullableValue;
 import static com.nextgis.maplibui.api.DrawItem.LINE_WIDTH;
 
+import org.maplibre.android.geometry.LatLng;
 import org.maplibre.android.maps.MapLibreMap;
 
 /**
@@ -576,6 +578,7 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
 
 
     public void createNewGeometry() {
+        Log.d("PPOOINTT", "EditOverlay - createNewGEometry");
         clearDrawItems();
 
         float[] geoPoints = getNewGeometry(mLayer.getGeometryType(), mTolerancePX, mMap);
@@ -589,7 +592,21 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
     public static float[] getNewGeometry(int geometryType, float tolerance, MapDrawable map) {
         float[] geoPoints;
         float add = tolerance * 2;
+
         GeoPoint center = map.getFullScreenBounds().getCenter();
+        LatLng centerLatLng = map.maplibreMap.get().getCameraPosition().target;
+
+        if (centerLatLng !=null) {
+//            Log.d("PPOOINTT", "EditOverlay - createNewGEometry centerLatLng not null");
+//            Log.d("PPOOINTT", "EditOverlay - createNewGEometry centerLatLng is " + centerLatLng.getLatitude() + " " + centerLatLng.getLongitude());
+
+            center = new GeoPoint(centerLatLng.getLongitude(), centerLatLng.getLatitude());
+            center.setCRS( GeoConstants.CRS_WGS84);
+            center.project(GeoConstants.CRS_WEB_MERCATOR);
+        } else {
+//            Log.d("PPOOINTT", "EditOverlay - createNewGEometry centerLatLng is null");
+//            Log.d("PPOOINTT", "EditOverlay - createNewGEometry center is " + center.getX() + " " + center.getY());
+        }
 
         switch (geometryType) {
             case GeoConstants.GTPoint:
@@ -1436,30 +1453,35 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
     private void updateDistance(Location location, GeoPoint to) {
         if (mFeature == null)
             return;
-        GeoGeometry geometry = to == null ? mFeature.getGeometry() : to;
-        boolean mode = mMode != MODE_EDIT && mMode != MODE_CHANGE;
-        if (mLayer == null)
-            return;
-        int type = mLayer.getGeometryType();
-        boolean valid = type == GeoConstants.GTPoint || type == GeoConstants.GTMultiPoint;
-        if (geometry == null || location == null || mode || !valid)
-            return;
-        GeoPoint geoPoint;
-        geometry = geometry.copy();
-        if (to == null && type == GeoConstants.GTMultiPoint) {
-            int selectedGeometry = mDrawItems.indexOf(mSelectedItem);
-            if (geometry instanceof GeoMultiPoint)
-                geometry = ((GeoMultiPoint) geometry).get(selectedGeometry);
-        }
 
-        geoPoint = (GeoPoint) geometry;
-        geoPoint.project(GeoConstants.CRS_WGS84);
-        Location point = new Location(LocationManager.GPS_PROVIDER);
-        point.setLatitude(geoPoint.getY());
-        point.setLongitude(geoPoint.getX());
-        float distance = location.distanceTo(point);
-        String formatted = LocationUtil.formatLength(mContext.get(), distance, 2);
-        mBottomToolbar.setTitle(formatted);
+        try {
+            GeoGeometry geometry = to == null ? mFeature.getGeometry() : to;
+            boolean mode = mMode != MODE_EDIT && mMode != MODE_CHANGE;
+            if (mLayer == null)
+                return;
+            int type = mLayer.getGeometryType();
+            boolean valid = type == GeoConstants.GTPoint || type == GeoConstants.GTMultiPoint;
+            if (geometry == null || location == null || mode || !valid)
+                return;
+            GeoPoint geoPoint;
+            geometry = geometry.copy();
+            if (to == null && type == GeoConstants.GTMultiPoint) {
+                int selectedGeometry = mDrawItems.indexOf(mSelectedItem);
+                if (geometry instanceof GeoMultiPoint)
+                    geometry = ((GeoMultiPoint) geometry).get(selectedGeometry);
+            }
+
+            geoPoint = (GeoPoint) geometry;
+            geoPoint.project(GeoConstants.CRS_WGS84);
+            Location point = new Location(LocationManager.GPS_PROVIDER);
+            point.setLatitude(geoPoint.getY());
+            point.setLongitude(geoPoint.getX());
+            float distance = location.distanceTo(point);
+            String formatted = LocationUtil.formatLength(mContext.get(), distance, 2);
+            mBottomToolbar.setTitle(formatted);
+        } catch (Exception ex){
+            Log.e("DISTANCE", "distance fail" + ex.getMessage());
+        }
     }
 
     public void onResume() {
@@ -1494,7 +1516,6 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
             } catch (Exception ex){
                 Log.e("tag", ex.getMessage());
             }
-            setGeometryFromWalkEdit(geometry);
             mMapViewOverlays.postInvalidate();
         }
     }

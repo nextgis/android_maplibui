@@ -78,17 +78,16 @@ public class CurrentTrackOverlay
         IGISApplication app = (IGISApplication) parent.getApplication();
         String authority = app.getAuthority();
         mContentUriTracks = Uri.parse("content://" + authority + "/" + TrackLayer.TABLE_TRACKS);
-        mCursor = mContext.get().getContentResolver()
-                .query(mContentUriTracks, mProjection, mSelection, null, null);
 
-        if (mCursor == null)
-            return;
-
-        mCursor.setNotificationUri(mContext.get().getContentResolver(), mContentUriTracks);
-        ContentObserver test = new TrackObserver(new Handler());
-        mCursor.registerContentObserver(test);
+//        mCursor = mContext.get().getContentResolver()
+//                .query(mContentUriTracks, mProjection, mSelection, null, null);
+//
+//        if (mCursor == null)
+//            return;
+//        mCursor.setNotificationUri(mContext.get().getContentResolver(), mContentUriTracks);
+//        ContentObserver test = new TrackObserver(new Handler());
+//        mCursor.registerContentObserver(test);
     }
-
 
     @Override
     public void drawOnPanning(

@@ -25,6 +25,7 @@ package com.nextgis.maplibui;
 import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
@@ -35,6 +36,7 @@ import android.content.PeriodicSync;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -377,6 +379,50 @@ public abstract class GISApplication extends Application
     }
 
     @Override
+    public AccountManagerFuture<Boolean> removeAccount(Account account, AccountManagerCallback<Boolean> callback) {
+        AccountManagerFuture<Boolean> bool = new AccountManagerFuture<Boolean>() {
+            @Override
+            public boolean cancel(boolean mayInterruptIfRunning) {
+                return false;
+            }
+
+            @Override
+            public boolean isCancelled() {
+                return false;
+            }
+
+            @Override
+            public boolean isDone() {
+                return false;
+            }
+
+            @Override
+            public Boolean getResult() throws OperationCanceledException, IOException, AuthenticatorException {
+                return null;
+            }
+
+            @Override
+            public Boolean getResult(long timeout, TimeUnit unit) throws OperationCanceledException, IOException, AuthenticatorException {
+                return null;
+            }
+        };
+
+        if(!PermissionUtil.hasPermission(this, ConstantsUI.PERMISSION_MANAGE_ACCOUNTS)){
+            return bool;
+        }
+
+        if (!isAccountManagerValid())
+            return bool;
+
+        try {
+            return mAccountManager.removeAccount(account, callback, new Handler());
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+        return bool;
+    }
+
+    @Override
     public String getAccountUrl(Account account) {
         return getAccountUserData(account, "url").toLowerCase();
     }
@@ -417,9 +463,7 @@ public abstract class GISApplication extends Application
      */
     protected void onFirstRun()
     {
-
     }
-
 
     @Override
     public boolean addAccount(String name, String url, String login, String password, String token) {
@@ -538,7 +582,7 @@ public abstract class GISApplication extends Application
     @Override
     public void reloadLayerByID(int id){
         if (mMap != null)
-            mMap.reloadLayerByID(id);
+            mMap.reloadLayerByID(id, null);
     }
 
     @Override
@@ -553,7 +597,6 @@ public abstract class GISApplication extends Application
         if (mMap != null)
             mMap.addLayerByID(id);
     }
-
 
     @Override
     public AuthInterceptorNG getAuthInterceptor(){
@@ -679,5 +722,11 @@ public abstract class GISApplication extends Application
             setSyncPeriod(account, interval, bundle, false);
 
         }
+    }
+
+    @Override
+    public void updateLocation(Location location) {
+        if (mGpsEventSource != null)
+            mGpsEventSource.setLastLocationFromTracker(location);
     }
 }

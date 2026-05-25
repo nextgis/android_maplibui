@@ -169,10 +169,33 @@ public class LayerFillService extends Service implements IProgressor {
     protected Handler mHandler;
     protected Intent mProgressIntent;
 
+    private boolean isForeground = false;
+
     protected static final String BUNDLE_MSG_KEY = "error_message";
+
+    private void showForegroundNotification() {
+        int icon = R.drawable.ic_notification_download;
+        Bitmap largeIcon = NotificationHelper.getLargeIcon(icon, getResources());
+
+        NotificationCompat.Builder builder = createBuilder(this, R.string.sync_started);
+        builder.setSmallIcon(icon)
+                .setLargeIcon(largeIcon)
+                .setTicker(getString(R.string.start_fill_layer))
+                .setWhen(System.currentTimeMillis())
+                .setAutoCancel(false)
+                .setContentTitle(getString(R.string.start_fill_layer))
+                .setContentText(getString(R.string.processing))
+                .setOngoing(true);
+
+        startForeground(FILL_NOTIFICATION_ID, builder.build());
+        isForeground = true;
+    }
 
     @Override
     public void onCreate() {
+
+        showForegroundNotification();
+
         mNotifyManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         int icon = R.drawable.ic_notification_download;
         Bitmap largeIcon = NotificationHelper.getLargeIcon(icon, getResources());
@@ -184,8 +207,6 @@ public class LayerFillService extends Service implements IProgressor {
         PendingIntent stop = PendingIntent.getService(this, 0, intent, flag);
         intent.setAction(ACTION_SHOW);
         PendingIntent show = PendingIntent.getService(this, 0, intent, flag);
-
-
         boolean isSamsung =
                 Build.MANUFACTURER != null &&
                         Build.MANUFACTURER.equalsIgnoreCase("samsung");
@@ -221,6 +242,10 @@ public class LayerFillService extends Service implements IProgressor {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (!isForeground) {
+            showForegroundNotification();
+        }
+
         if (Constants.DEBUG_MODE)
             Log.i("LayerFillService", "Received start id " + startId + ": " + intent);
         if (intent != null) {

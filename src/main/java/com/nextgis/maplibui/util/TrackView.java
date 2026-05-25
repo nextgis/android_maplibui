@@ -52,7 +52,7 @@ import java.util.ArrayList;
 public class TrackView extends ListView implements LoaderManager.LoaderCallbacks<Cursor> {
     protected static final String BUNDLE_SELECTED_ITEMS_ID = "selected_items";
 
-    private static final int TRACKS_ID = 0;
+    public static final int TRACKS_ID = 0;
 
     private Context mContext;
     private ArrayList<String> mSelectedIds;
@@ -107,8 +107,10 @@ public class TrackView extends ListView implements LoaderManager.LoaderCallbacks
 
             String[] from = new String[]{TrackLayer.FIELD_NAME, TrackLayer.FIELD_VISIBLE};
             int[] to = new int[]{R.id.tv_name, R.id.iv_visibility};
-            mTrackAdapter = new TrackAdapter(
-                    context, R.layout.row_track, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+//            mTrackAdapter = new TrackAdapter(
+//                    context, R.layout.row_track, null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+
+            mTrackAdapter = new TrackAdapter(context, R.layout.row_track, null, from, to, 0);
             setAdapter(mTrackAdapter);
 
             activity.getSupportLoaderManager().initLoader(TRACKS_ID, null, this);

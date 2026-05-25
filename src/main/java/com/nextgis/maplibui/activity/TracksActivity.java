@@ -58,6 +58,7 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 import static com.nextgis.maplib.map.TrackLayer.getSelection;
 import static com.nextgis.maplibui.service.TrackerService.isTrackerServiceRunning;
 import static com.nextgis.maplibui.util.ControlHelper.isDarkTheme;
+import static com.nextgis.maplibui.util.TrackView.TRACKS_ID;
 
 public class TracksActivity extends NGActivity implements ActionMode.Callback {
     private final static String BUNDLE_ACTION_MODE = "IS_IN_ACTION_MODE";
@@ -243,6 +244,7 @@ public class TracksActivity extends NGActivity implements ActionMode.Callback {
             String selection = getSelection(mTracks.getSelectedItemsCount());
             String[] args = mTracks.getSelectedItemsIds();
             getContentResolver().delete(mContentUriTracks, selection, args);
+            refreshTracksList();
             closeActionMode();
         } else if (id == R.id.menu_select_all) {
             mTracks.selectAll();
@@ -311,5 +313,9 @@ public class TracksActivity extends NGActivity implements ActionMode.Callback {
             findViewById(R.id.tv_empty_list).setVisibility(View.VISIBLE);
         else
             findViewById(R.id.tv_empty_list).setVisibility(View.GONE);
+    }
+
+    private void refreshTracksList() {
+        getSupportLoaderManager().restartLoader(TRACKS_ID, null, mTracks);
     }
 }
