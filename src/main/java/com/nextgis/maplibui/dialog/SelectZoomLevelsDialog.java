@@ -235,7 +235,8 @@ public class SelectZoomLevelsDialog extends DialogFragment {
             if (task != null && task.isCancelled())
                 return total;
 
-            total += MapUtil.getTileCount(task, envelope, zoom, layer.getTMSType());
+            //total += MapUtil.getTileCount(task, envelope, zoom, layer.getTMSType());
+            total += MapUtil.getTileCount(envelope, zoom);
         }
 
         return total;

@@ -89,6 +89,8 @@ public class TileDownloadService extends Service {
     public static final String ACTION_STOP     = "tile_download_stop";
     public static final String ACTION_ADD_TASK = "add_tile_download_task";
 
+    protected boolean mForegroundStarted = false;
+
     protected NotificationManager        mNotifyManager;
     protected NotificationCompat.Builder mBuilder;
 
@@ -150,23 +152,15 @@ public class TileDownloadService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-//        try {
-//            Thread.sleep(5000);
-//        } catch (Exception ex){
-//
-//        }
-        if (Constants.DEBUG_MODE) {
-            Log.i("TileDownloadService", "Received start id " + startId + ": " + intent);
-            Log.d(Constants.TAG, "TileDownloadService.onStartCommand() is starting");
-        }
-
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            String title = getString(R.string.download_tiles);
-            mBuilder.setContentTitle(title).setTicker(title).setWhen(System.currentTimeMillis());
-            startForeground(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
-        } else {
-            startForeground(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
+        if (!mForegroundStarted) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                String title = getString(R.string.download_tiles);
+                mBuilder.setContentTitle(title).setTicker(title).setWhen(System.currentTimeMillis());
+                startForeground(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+            } else {
+                startForeground(TILE_DOWNLOAD_NOTIFICATION_ID, mBuilder.build());
+            }
+            mForegroundStarted = true;
         }
 
         if (intent != null) {
@@ -228,8 +222,10 @@ public class TileDownloadService extends Service {
     }
 
     protected void cancelNotification() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             stopForeground(true);
+            stopSelf();
+        }
         else
             mNotifyManager.cancel(TILE_DOWNLOAD_NOTIFICATION_ID);
     }
@@ -254,7 +250,12 @@ public class TileDownloadService extends Service {
 
     @Override
     public void onDestroy() {
+        mForegroundStarted = false;
+        try {
+            stopForeground(true);
+        } catch (Exception ex){
 
+        }
         clearResources();
         if (Constants.DEBUG_MODE) {
             Log.d(Constants.TAG, "TileDownloadService.onDestroy(), service is stopped");

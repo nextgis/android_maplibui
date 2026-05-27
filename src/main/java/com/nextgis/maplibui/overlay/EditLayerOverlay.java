@@ -431,8 +431,8 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
                 clearAll();
                 break;
             case MODE_HIGHLIGHT:
-                if (mFeature != null)
-                    mLayer.showFeature(mFeature.getId());
+//                if (mFeature != null)
+//                    mLayer.showFeature(mFeature.getId());
                 break;
             case MODE_EDIT:
                 if (mFeature == null)
