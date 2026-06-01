@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
+import static com.nextgis.maplib.util.LayerUtil.getColumnIndexSafely;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_MAX_STRING_COUNT_KEY;
@@ -107,7 +108,7 @@ public class TextEdit extends AppCompatEditText
         if (ControlHelper.hasKey(savedState, mFieldName))
             value = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
         else if (null != featureCursor) { // feature exists
-            column = featureCursor.getColumnIndex(mFieldName);
+            column = getColumnIndexSafely(featureCursor, mFieldName);
             if (column >= 0)
                 value = featureCursor.getString(column);
         } else {    // new feature

@@ -55,6 +55,7 @@ import java.util.Map;
 
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
+import static com.nextgis.maplib.util.LayerUtil.getColumnIndexSafely;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DEFAULT_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
@@ -148,7 +149,7 @@ public class SplitCombobox extends FrameLayout implements IFormControl
         if (ControlHelper.hasKey(savedState, mFieldName))
             lastValue = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
         else if (null != featureCursor) {
-                int column = featureCursor.getColumnIndex(mFieldName);
+                int column = getColumnIndexSafely(featureCursor, mFieldName); //featureCursor.getColumnIndex(mFieldName);
                 if (column >= 0)
                     lastValue = featureCursor.getString(column);
         } else if (mIsShowLast)

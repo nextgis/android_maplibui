@@ -61,6 +61,7 @@ import java.util.Map;
 import static com.nextgis.maplib.util.GeoConstants.FTDate;
 import static com.nextgis.maplib.util.GeoConstants.FTDateTime;
 import static com.nextgis.maplib.util.GeoConstants.FTTime;
+import static com.nextgis.maplib.util.LayerUtil.getColumnIndexSafely;
 import static com.nextgis.maplibui.control.DateTime.TYPE_DATE;
 import static com.nextgis.maplibui.control.DateTime.TYPE_DATE_TIME;
 import static com.nextgis.maplibui.control.DateTime.TYPE_TIME;
@@ -218,7 +219,7 @@ public class DateTime
             timestamp = savedState.getLong(ControlHelper.getSavedStateKey(mFieldName));
             mValue = timestamp;
         } else if (null != featureCursor) { // feature exists
-            int column = featureCursor.getColumnIndex(mFieldName);
+            int column = getColumnIndexSafely(featureCursor, mFieldName); // featureCursor.getColumnIndex(mFieldName);
             if (column >= 0) {
                 timestamp = featureCursor.getLong(column);
                 mValue = timestamp;

@@ -49,6 +49,7 @@ import org.json.JSONObject;
 import java.util.List;
 import java.util.Map;
 
+import static com.nextgis.maplib.util.LayerUtil.getColumnIndexSafely;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_HIDDEN_KEY;
@@ -83,7 +84,7 @@ public class Distance extends LinearLayout implements IFormControl {
 
         String value;
         if (null != featureCursor) { // feature exists
-            int column = featureCursor.getColumnIndex(mFieldName);
+            int column = getColumnIndexSafely(featureCursor, mFieldName); //featureCursor.getColumnIndex(mFieldName);
             if (column >= 0)
                 mValue = featureCursor.getDouble(column);
             value = getFormattedValue();
