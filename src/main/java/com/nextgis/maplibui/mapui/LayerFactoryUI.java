@@ -210,6 +210,7 @@ public class LayerFactoryUI
             NGActivity fragmentActivity = (NGActivity) context;
             CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
             newFragment.setLayerGroup(groupLayer)
+                    .setNGFPopenForm()
                     .setLayerType(LayerFillService.VECTOR_LAYER_WITH_FORM)
                     .setUri(uri)
                     .setLayerName(layerName)

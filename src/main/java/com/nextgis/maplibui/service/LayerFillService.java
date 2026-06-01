@@ -134,6 +134,7 @@ public class LayerFillService extends Service implements IProgressor {
     public static final String KEY_START_LAYER_FILL = "start_layer_fill";
     public static final String KEY_PATH = "path";
     public static final String KEY_LAYER_PATH = "layer_path";
+    public static final String KEY_IS_NGFP_OPEN = "isNgfpOpen";
     public static final String KEY_MIN_ZOOM = "min_zoom";
     public static final String KEY_MAX_ZOOM = "max_zoom";
     public static final String KEY_VISIBLE = "visible";
@@ -177,13 +178,13 @@ public class LayerFillService extends Service implements IProgressor {
         int icon = R.drawable.ic_notification_download;
         Bitmap largeIcon = NotificationHelper.getLargeIcon(icon, getResources());
 
-        NotificationCompat.Builder builder = createBuilder(this, R.string.sync_started);
+        NotificationCompat.Builder builder = createBuilder(this, com.nextgis.maplib.R.string.sync_started);
         builder.setSmallIcon(icon)
                 .setLargeIcon(largeIcon)
-                .setTicker(getString(R.string.start_fill_layer))
+                .setTicker(getString(com.nextgis.maplib.R.string.start_fill_layer ))
                 .setWhen(System.currentTimeMillis())
                 .setAutoCancel(false)
-                .setContentTitle(getString(R.string.start_fill_layer))
+                .setContentTitle(getString(com.nextgis.maplib.R.string.start_fill_layer))
                 .setContentText(getString(R.string.processing))
                 .setOngoing(true);
 
@@ -567,13 +568,16 @@ public class LayerFillService extends Service implements IProgressor {
         long mRemoteId;
         String mAccount;
         boolean startLayerFill; // false if fill second form from layer - no need to create layer
+        boolean isNGFPOpen = false;
 
-        UnzipForm(Bundle bundle) {
+
+                UnzipForm(Bundle bundle) {
             super(bundle);
             mSync = bundle.getBoolean(KEY_SYNC, true);
             mRemoteId = bundle.getLong(KEY_REMOTE_ID, -1);
             mAccount = bundle.getString(KEY_ACCOUNT, "");
             startLayerFill = bundle.getBoolean(KEY_START_LAYER_FILL, true);
+            isNGFPOpen  = bundle.getBoolean(KEY_IS_NGFP_OPEN, false);
         }
 
         @Override
@@ -739,6 +743,7 @@ public class LayerFillService extends Service implements IProgressor {
                             subTaskWasRunned = false;
                         }
                     } else {
+                        extra.putBoolean(LayerFillService.KEY_IS_NGFP_OPEN, isNGFPOpen);
                         extra.putSerializable(LayerFillService.KEY_PATH, dataFile);
                         extra.putBoolean(LayerFillService.KEY_DELETE_SRC_FILE, true);
                         extra.putLongArray(KEY_DEFAULT_FORM_IDS, defaultFormIDArray);
@@ -769,12 +774,14 @@ public class LayerFillService extends Service implements IProgressor {
     private class VectorLayerFormFillTask extends LayerFillTask {
         File mPath;
         boolean mDeletePath;
+        boolean isOpenNGFP = false;
 
         VectorLayerFormFillTask(Bundle bundle) {
             super(bundle);
             mPath = (File) bundle.getSerializable(KEY_PATH);
             mDeletePath = bundle.getBoolean(KEY_DELETE_SRC_FILE, false);
             mLayer = new VectorLayerUI(mLayerGroup.getContext(), mLayerPath);
+            isOpenNGFP =  bundle.getBoolean(KEY_IS_NGFP_OPEN);
             initLayer();
         }
 
@@ -784,7 +791,7 @@ public class LayerFillService extends Service implements IProgressor {
                 VectorLayer vectorLayer = (VectorLayer) mLayer;
                 if (null == vectorLayer)
                     return false;
-                String formPrefix = vectorLayer.getId() + "_";
+                String formPrefix = (isOpenNGFP ? "-1" :vectorLayer.getId()) + "_";
                 File meta = new File(mPath.getParentFile(),formPrefix +  NGFP_META);
 
                 if (meta.exists()) {

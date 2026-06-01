@@ -224,7 +224,7 @@ public class TrackerService extends Service
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (!mIsRunning) {
             // Минимальное уведомление-заглушка
-            NotificationCompat.Builder builder = createBuilder(this, R.string.sync_started);
+            NotificationCompat.Builder builder = createBuilder(this, com.nextgis.maplib.R.string.sync_started);
             builder.setSmallIcon(mSmallIcon)
                     .setLargeIcon(mLargeIcon)
                     .setTicker("Starting tracker...")

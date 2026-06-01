@@ -48,6 +48,7 @@ import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -411,7 +412,9 @@ public class ModifyAttributesActivity
                     if (mIsViewOnly) {
                         textEdit.setEnabled(false);
                     }
+                    // textEdit.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED | InputType.TYPE_CLASS_NUMBER);
                     control = textEdit;
+
                     break;
                 case GeoConstants.FTDate:
                 case GeoConstants.FTTime:

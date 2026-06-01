@@ -81,17 +81,17 @@ public class TextEdit
 
             case GeoConstants.FTInteger:
                 setSingleLine(true);
-                setInputType(InputType.TYPE_CLASS_NUMBER);
+                setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED );
                 break;
 
             case GeoConstants.FTLong:
                 setSingleLine(true);
-                setInputType(InputType.TYPE_CLASS_NUMBER);
+                setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED );
                 break;
 
             case GeoConstants.FTReal:
                 setSingleLine(true);
-                setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED );
                 break;
         }
     }

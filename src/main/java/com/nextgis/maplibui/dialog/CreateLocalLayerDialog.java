@@ -63,6 +63,7 @@ public class CreateLocalLayerDialog
     protected int        mLayerType;
     protected String     mLayerName;
     protected Spinner    mSpinner, mCache;
+    protected boolean isNGFPopenForm = false;
 
 
     public CreateLocalLayerDialog setLayerName(String layerName)
@@ -82,6 +83,12 @@ public class CreateLocalLayerDialog
     public CreateLocalLayerDialog setLayerType(int layerType)
     {
         mLayerType = layerType;
+        return this;
+    }
+
+    public CreateLocalLayerDialog setNGFPopenForm()
+    {
+        isNGFPopenForm = true;
         return this;
     }
 
@@ -157,6 +164,7 @@ public class CreateLocalLayerDialog
                                 intent.putExtra(LayerFillService.KEY_URI, mUri);
                                 intent.putExtra(LayerFillService.KEY_NAME, mLayerName);
                                 intent.putExtra(LayerFillService.KEY_INPUT_TYPE, mLayerType);
+                                intent.putExtra(LayerFillService.KEY_IS_NGFP_OPEN, isNGFPopenForm);
                                 intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, mGroupLayer.getId());
 
                                 if (mSpinner != null)

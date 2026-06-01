@@ -66,6 +66,7 @@ public class NGWLoginFragment
 {
     private static final String PASSWORD_HINT = "••••••••••";
     protected static final String ENDING = ".nextgis.com";
+    protected static final String ENDING_RU = ".nextgis.ru";
     protected static final String DEFAULT_ACCOUNT = "administrator";
 
     protected EditText mURL, mLogin, mPassword;
