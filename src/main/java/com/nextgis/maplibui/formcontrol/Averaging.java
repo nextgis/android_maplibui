@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static com.nextgis.maplib.util.LayerUtil.getColumnIndexSafely;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
 
@@ -84,7 +85,7 @@ public class Averaging extends LinearLayout implements IFormControl, View.OnClic
         mMeasures = attributes.getLong(MEASUREMENT_COUNT);
 
         if (null != featureCursor) { // feature exists
-            int column = featureCursor.getColumnIndex(mFieldName);
+            int column = getColumnIndexSafely(featureCursor, mFieldName); // featureCursor.getColumnIndex(mFieldName);
             if (column >= 0)
                 mValue = featureCursor.getDouble(column);
         } else if (ControlHelper.hasKey(savedState, mFieldName)) {

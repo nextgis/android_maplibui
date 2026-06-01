@@ -123,6 +123,7 @@ import static com.nextgis.maplib.util.Constants.FIELD_GEOM;
 import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplib.util.Constants.TAG;
+import static com.nextgis.maplib.util.LayerUtil.getColumnIndexSafely;
 import static com.nextgis.maplib.util.NetworkUtil.getUserAgent;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_ADDED_POINT;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
@@ -623,7 +624,7 @@ public class ModifyAttributesActivity
                 return false;
 
             for (Map.Entry<String, IControl> field : mFields.entrySet()) {
-                int column = featureCursor.getColumnIndex(field.getKey());
+                int column = getColumnIndexSafely(featureCursor, field.getKey()); // featureCursor.getColumnIndex(field.getKey());
                 if (column >= 0) {
                     IControl control = field.getValue();
                     String saved = featureCursor.getString(column);

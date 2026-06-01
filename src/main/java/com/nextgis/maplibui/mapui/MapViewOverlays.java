@@ -272,6 +272,8 @@ public class MapViewOverlays
 
     @Override
     public void onLayerChangedFeatureId( long oldFeatureId, long newFeatureId,int layerId ){
+
+        Log.d("SELECC", "MapViewOverlays onLayerChangedFeatureId " + oldFeatureId + " to " + newFeatureId);
         mMap.changeFeatureId(oldFeatureId,newFeatureId, layerId);
     }
 }

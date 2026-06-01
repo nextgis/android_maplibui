@@ -51,6 +51,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.nextgis.maplib.util.LayerUtil.getColumnIndexSafely;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DEFAULT_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_LEVEL1_KEY;
@@ -108,8 +109,8 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
             lastValue = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
             subLastValue = savedState.getString(ControlHelper.getSavedStateKey(mSubFieldName));
         } else if (null != featureCursor) {
-            int column = featureCursor.getColumnIndex(mFieldName);
-            int subColumn = featureCursor.getColumnIndex(mSubFieldName);
+            int column = getColumnIndexSafely(featureCursor, mFieldName); // featureCursor.getColumnIndex(mFieldName);
+            int subColumn = getColumnIndexSafely(featureCursor, mSubFieldName );// featureCursor.getColumnIndex(mSubFieldName);
             if (column >= 0)
                 lastValue = featureCursor.getString(column);
             if (subColumn >= 0)

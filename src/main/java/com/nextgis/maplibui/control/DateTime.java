@@ -46,6 +46,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import static com.nextgis.maplib.util.Constants.TAG;
+import static com.nextgis.maplib.util.LayerUtil.getColumnIndexSafely;
 
 public class DateTime
         extends AppCompatTextView
@@ -268,7 +269,7 @@ public class DateTime
         if (ControlHelper.hasKey(savedState, mFieldName)) {
             mValue = savedState.getLong(ControlHelper.getSavedStateKey(mFieldName));
         } else if (null != featureCursor) {
-            int column = featureCursor.getColumnIndex(mFieldName);
+            int column = getColumnIndexSafely(featureCursor, mFieldName); //featureCursor.getColumnIndex(mFieldName);
             if (column >= 0) {
                 mValue = featureCursor.getLong(column);
             }
