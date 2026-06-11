@@ -48,6 +48,19 @@ import java.lang.reflect.Method;
 
 public final class UiUtil {
 
+
+    public static void showSimpleOKAlert(final Activity activity, String text){
+        new AlertDialog.Builder(activity)
+                .setMessage(text)
+                .setPositiveButton(R.string.ok, null)
+                .create()
+                .show();
+    }
+
+    public static void showSimpleToast(final Activity activity, String text){
+        Toast.makeText(activity, text , Toast.LENGTH_LONG).show();
+    }
+
     // Thanks to https://stackoverflow.com/a/41562794
     public static void setForceShowIcon(PopupMenu popupMenu) {
         try {

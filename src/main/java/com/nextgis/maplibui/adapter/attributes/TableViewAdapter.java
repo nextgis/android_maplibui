@@ -94,7 +94,6 @@ public class TableViewAdapter extends AbstractTableAdapter<ColumnHeader, RowHead
                 layout = inflater.inflate(R.layout.table_view_cell_layout, parent, false);
 
                 // Create a Cell ViewHolder
-                Log.e("TTBBLL", "AbstractViewHolder Create a Cell ViewHolder");
                 return new CellViewHolder(layout);
         }
     }

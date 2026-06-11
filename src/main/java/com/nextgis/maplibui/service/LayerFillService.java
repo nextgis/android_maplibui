@@ -366,7 +366,7 @@ public class LayerFillService extends Service implements IProgressor {
                 mProgressIntent.putExtra(KEY_RESULT, result && !mIsCanceled);
                 mProgressIntent.putExtra(KEY_TOTAL, mQueue.size());
 
-                if (result) {
+                if (result && task.getLayer() != null) {
                     mLayerGroup.addLayer(task.getLayer());
                     mLayerGroup.save();
                 } else

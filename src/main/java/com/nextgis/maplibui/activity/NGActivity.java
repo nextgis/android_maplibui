@@ -231,6 +231,9 @@ public class NGActivity
 
     }
 
+    public void refreshLayersFrarmentNew(){
+    }
+
     // move settings to fragment lately
 //    public void startLayerPropFragment(Fragment fragment){
 //        // override on descendant

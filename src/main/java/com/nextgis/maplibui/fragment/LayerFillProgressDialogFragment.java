@@ -238,8 +238,10 @@ public class LayerFillProgressDialogFragment extends Fragment {
                         ngwLayer.setSyncType(Constants.SYNC_ALL);
                         ngwLayer.save();
 
-                        if (mActivity.get()!= null )
-                            ((NGActivity)mActivity.get()).refreshLayersFrarment();
+                        if (mActivity.get()!= null ) {
+                            ((NGActivity) mActivity.get()).refreshLayersFrarment();
+                            ((NGActivity) mActivity.get()).refreshLayersFrarmentNew();
+                        }
 
 
 
