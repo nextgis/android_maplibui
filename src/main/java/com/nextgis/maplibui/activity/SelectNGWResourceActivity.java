@@ -45,6 +45,7 @@ import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.datasource.ngw.Connections;
 import com.nextgis.maplib.datasource.ngw.INGWResource;
 import com.nextgis.maplib.datasource.ngw.LayerWithStyles;
+import com.nextgis.maplib.datasource.ngw.Resource;
 import com.nextgis.maplib.datasource.ngw.ResourceGroup;
 import com.nextgis.maplib.datasource.ngw.WebMap;
 import com.nextgis.maplib.map.LayerGroup;
@@ -74,6 +75,7 @@ import static com.nextgis.maplib.datasource.ngw.Connection.NGWResourceTypeVector
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
+import static com.nextgis.maplib.util.NGWUtil.hasWritePerm;
 
 public class SelectNGWResourceActivity extends NGActivity implements View.OnClickListener {
     public final static int TYPE_ADD = 10;
@@ -322,6 +324,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
             if (checkState.isCheckState2()) { //create vector
                 final INGWResource resource = connections.getResourceById(checkState.getId());
                 if (resource instanceof LayerWithStyles) {
+                    boolean writePerm = hasWritePerm((Resource) resource);
                     final LayerWithStyles layer = (LayerWithStyles) resource;
                     // get connection for url
                     final Connection connection = layer.getConnection();
@@ -333,6 +336,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     intent.putExtra(LayerFillService.KEY_REMOTE_ID, layer.getRemoteId());
                     intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, mGroupLayer.getId());
                     intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.NGW_LAYER);
+                    intent.putExtra(LayerFillService.KEY_WRITE_PERM, writePerm);
 
                     if (layer.getFormCount() > 0) {
                         String path = NGWUtil.getFormUrl(connection.getURL(), layer.getFormId(0));

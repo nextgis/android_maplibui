@@ -26,14 +26,23 @@ import static com.nextgis.maplib.util.Constants.TAG;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import androidx.core.app.ShareCompat;
 import androidx.core.content.FileProvider;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
+
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nextgis.maplib.util.FileUtil;
@@ -165,4 +174,56 @@ public final class UiUtil {
             Log.e(TAG, exception.getMessage());
         }
     }
+
+    static public void showNoEditPermAlert(Activity activity){
+        new androidx.appcompat.app.AlertDialog.Builder(activity)
+                .setMessage(com.nextgis.maplib.R.string.layer_not_editable)
+                .setPositiveButton(com.nextgis.maplibui.R.string.ok, null)
+                .create()
+                .show();
+    }
+
+//    static public void showNoEditPermAlert(Context context){
+    // future
+
+//        TextView textView = new TextView(context);
+//        textView.setPadding(dpToPx(context, 16), dpToPx(context, 16),
+//                dpToPx(context, 16), dpToPx(context, 16));
+//        textView.setTextSize(16);
+//        textView.setTextColor(Color.BLACK);
+//        textView.setMovementMethod(LinkMovementMethod.getInstance()); // Важно для кликов
+//
+//        String fullText = context.getString(com.nextgis.maplib.R.string.layer_not_editable)
+//                + " " + context.getString(com.nextgis.maplib.R.string.layer_not_editable_url);
+//        String clickablePart = context.getString(com.nextgis.maplib.R.string.layer_not_editable_url);
+//        final String url = "https://my.nextgis.com/login?next=contactee7806f0-9685-4487-bab8-569846ee18ff";
+//
+//        SpannableString spannableString = new SpannableString(fullText);
+//
+//        int startIndex = fullText.indexOf(clickablePart);
+//        int endIndex = startIndex + clickablePart.length();
+//
+//        ClickableSpan clickableSpan = new ClickableSpan() {
+//            @Override
+//            public void onClick(View widget) {
+//                android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
+//                intent.setData(android.net.Uri.parse(url));
+//                context.startActivity(intent);
+//            }
+//        };
+//        spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+//        textView.setText(spannableString);
+//
+//        new androidx.appcompat.app.AlertDialog.Builder(context)
+//                .setView(textView)
+//                .setPositiveButton(com.nextgis.maplibui.R.string.ok, null)
+//                .create()
+//                .show();
+//    }
+
+    public static int dpToPx(Context context, int dp) {
+        float density = context.getResources().getDisplayMetrics().density;
+        return Math.round(dp * density);
+    }
+
 }

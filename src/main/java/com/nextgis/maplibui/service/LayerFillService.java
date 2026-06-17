@@ -148,6 +148,8 @@ public class LayerFillService extends Service implements IProgressor {
     public static final String KEY_TMS_TYPE   = "tms_type";
     public static final String KEY_TMS_CACHE   = "tms_cache";
 
+    public static final String KEY_WRITE_PERM = "write_perm";
+
     public static final String NGFP_META = "ngfp_meta.json";
     protected final static String NGFP_FILE_META = "meta.json";
     protected final static String NGFP_FILE_DATA = "data.geojson";
@@ -366,9 +368,11 @@ public class LayerFillService extends Service implements IProgressor {
                 mProgressIntent.putExtra(KEY_RESULT, result && !mIsCanceled);
                 mProgressIntent.putExtra(KEY_TOTAL, mQueue.size());
 
-                if (result && task.getLayer() != null) {
-                    mLayerGroup.addLayer(task.getLayer());
-                    mLayerGroup.save();
+                if (result ) {
+                    if (task.getLayer() != null) {
+                        mLayerGroup.addLayer(task.getLayer());
+                        mLayerGroup.save();
+                    }
                 } else
                     task.cancel();
 
@@ -475,6 +479,7 @@ public class LayerFillService extends Service implements IProgressor {
         protected Layer mLayer;
         public boolean subTaskWasRunned = true;
         public long[] defaultFormIDArray = null;
+        public  boolean isWritePerm = true;
 
         LayerFillTask(Bundle bundle) {
             mUri = bundle.getParcelable(KEY_URI);
@@ -485,6 +490,7 @@ public class LayerFillService extends Service implements IProgressor {
             mMinZoom = bundle.getFloat(KEY_MIN_ZOOM, GeoConstants.DEFAULT_MIN_ZOOM);
             mMaxZoom = bundle.getFloat(KEY_MAX_ZOOM, GeoConstants.DEFAULT_MAX_ZOOM);
             mVisible = bundle.getBoolean(KEY_VISIBLE, true);
+            isWritePerm = bundle.getBoolean(KEY_WRITE_PERM, true);
 
             Serializable serializable = bundle.getSerializable(KEY_DEFAULT_FORM_IDS);
             if (serializable instanceof ArrayList<?>) {
@@ -570,8 +576,7 @@ public class LayerFillService extends Service implements IProgressor {
         boolean startLayerFill; // false if fill second form from layer - no need to create layer
         boolean isNGFPOpen = false;
 
-
-                UnzipForm(Bundle bundle) {
+        UnzipForm(Bundle bundle) {
             super(bundle);
             mSync = bundle.getBoolean(KEY_SYNC, true);
             mRemoteId = bundle.getLong(KEY_REMOTE_ID, -1);
@@ -631,7 +636,7 @@ public class LayerFillService extends Service implements IProgressor {
                         FileUtil.unzipEntry(zis, ze, buffer, mLayerPath);
                         nIncrement += ze.getSize();
                         zis.closeEntry();
-                        progressor.setValue(nIncrement);
+                        progressor.setValue( nIncrement >  nSize? 0:  nIncrement);
                     }
                     zis.close();
                     progressor.setMessage(null);
@@ -656,6 +661,7 @@ public class LayerFillService extends Service implements IProgressor {
                     Bundle extra = new Bundle();
                     extra.putSerializable(KEY_LAYER_PATH, mLayerPath);
                     extra.putString(KEY_NAME, mLayerName);
+                    extra.putBoolean(KEY_WRITE_PERM, isWritePerm);
 
                     long resourceId = mRemoteId;
                     String accountName = mAccount;
@@ -731,6 +737,7 @@ public class LayerFillService extends Service implements IProgressor {
                         extra.putString(KEY_ACCOUNT, accountName);
                         extra.putBoolean(KEY_SYNC, mSync);
                         extra.putLongArray(KEY_DEFAULT_FORM_IDS, defaultFormIDArray);
+                        extra.putBoolean(KEY_WRITE_PERM, isWritePerm);
 
                         if (!isCanceled() && startLayerFill) {
                             mQueue.add(new NGWVectorLayerFillTask(extra));
@@ -879,6 +886,16 @@ public class LayerFillService extends Service implements IProgressor {
             isPointz = false;
             mLayer = new NGWVectorLayerUI(mLayerGroup.getContext(), mLayerPath);
             ((NGWVectorLayerUI) mLayer).setRemoteId(bundle.getLong(KEY_REMOTE_ID));
+
+            boolean isWritePerm = bundle.getBoolean(KEY_WRITE_PERM, true);
+
+            if  (isWritePerm == false) {
+                // no write perm - we should turn off editing and sync to server
+                ((NGWVectorLayerUI) mLayer).setIsEditable(isWritePerm);
+                ((NGWVectorLayerUI)mLayer).setSyncDirection(2);
+                ((NGWVectorLayerUI) mLayer).save();
+            }
+
             //((NGWVectorLayerUI) mLayer).setDefaultFormId(bundle.getLongArray(KEY_DEFAULT_FORM_IDS));
             ((NGWVectorLayerUI) mLayer).setAccountName(bundle.getString(KEY_ACCOUNT));
             ((NGWVectorLayerUI) mLayer).setAccountName(bundle.getString(KEY_ACCOUNT));

@@ -45,6 +45,7 @@ import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.datasource.ngw.Connections;
 import com.nextgis.maplib.datasource.ngw.INGWResource;
 import com.nextgis.maplib.datasource.ngw.LayerWithStyles;
+import com.nextgis.maplib.datasource.ngw.Resource;
 import com.nextgis.maplib.datasource.ngw.WebMap;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
@@ -63,6 +64,7 @@ import java.util.List;
 
 import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
+import static com.nextgis.maplib.util.NGWUtil.hasWritePerm;
 
 
 public class SelectNGWResourceDialog
@@ -325,6 +327,7 @@ public class SelectNGWResourceDialog
             if (checkState.isCheckState2()) { //create vector
                 INGWResource resource = connections.getResourceById(checkState.getId());
                 if (resource instanceof LayerWithStyles) {
+                    boolean writePerm = hasWritePerm((Resource) resource);
                     LayerWithStyles layer = (LayerWithStyles) resource;
                     //1. get connection for url
                     Connection connection = layer.getConnection();
@@ -336,6 +339,7 @@ public class SelectNGWResourceDialog
                     intent.putExtra(LayerFillService.KEY_REMOTE_ID, layer.getRemoteId());
                     intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, mGroupLayer.getId());
                     intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.NGW_LAYER);
+                    intent.putExtra(LayerFillService.KEY_WRITE_PERM, writePerm);
 
                     LayerFillProgressDialogFragment.startFill(intent);
                 }

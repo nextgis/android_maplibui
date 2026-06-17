@@ -186,7 +186,12 @@ public class LayerFillProgressDialogFragment extends Fragment {
 
                     mProgressDialog.setIndeterminate(false);
                     setDialogInfo(title, message);
-                    mProgressDialog.setMax(intent.getIntExtra(LayerFillService.KEY_TOTAL, 0));
+                    //Log.e("XXX", "progress max+ " + intent.getIntExtra(LayerFillService.KEY_TOTAL, 0));
+                    int max = intent.getIntExtra(LayerFillService.KEY_TOTAL, 0);
+                    if (max == 0)
+                        max = 1;
+                    mProgressDialog.setMax(max);
+                    //Log.e("XXX", "progress + " + intent.getIntExtra(LayerFillService.KEY_PROGRESS, 0));
                     mProgressDialog.setProgress(intent.getIntExtra(LayerFillService.KEY_PROGRESS, 0));
                     break;
                 case LayerFillService.STATUS_STOP:

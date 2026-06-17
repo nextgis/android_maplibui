@@ -102,7 +102,7 @@ public final class NotificationHelper {
             }
 
             if (context instanceof Activity)
-                return showLocationDialog(context, title, info);
+                return showLocationDialog((Activity) context, title, info);
             else
                 showLocationNotification(context, title, info);
         }
@@ -131,14 +131,14 @@ public final class NotificationHelper {
         return new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID);
     }
 
-    private static AlertDialog showLocationDialog(final Context context, String title, String info) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    private static AlertDialog showLocationDialog(final Activity activity, String title, String info) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle(title).setMessage(info)
                 .setPositiveButton(R.string.action_settings,
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
-                                context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                                activity.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                             }
                         })
                 .setNegativeButton(android.R.string.cancel, null)
@@ -146,7 +146,7 @@ public final class NotificationHelper {
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int id) {
-                                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+                                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(activity).edit();
                                 editor.putBoolean(SettingsConstantsUI.KEY_PREF_SHOW_GEO_DIALOG, false).apply();
                             }
                         });

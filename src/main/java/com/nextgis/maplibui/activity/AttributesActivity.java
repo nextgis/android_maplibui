@@ -87,6 +87,7 @@ import java.util.Map;
 import java.util.List;
 import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.TAG;
+import static com.nextgis.maplibui.util.UiUtil.showNoEditPermAlert;
 
 public class AttributesActivity extends NGActivity {
 
@@ -238,6 +239,11 @@ public class AttributesActivity extends NGActivity {
 
                     return true;
                 } else if (i == R.id.menu_edit) {
+                    if (!mLayer.isEditable()){
+                        showNoEditPermAlert(AttributesActivity.this);
+                        return true;
+                    }
+
                     ((IVectorLayerUI) mLayer).showEditForm(AttributesActivity.this, selectedFeatureId, null, -1); //defid);
                     return true;
                 }

@@ -776,8 +776,8 @@ public class NGWResourcesListAdapter
         @Override
         protected void onPostExecute(String error)
         {
-            if (null != error && error.length() > 0 && mContext.get() != null) {
-                new AlertDialog.Builder(mContext.get())
+            if (null != error && error.length() > 0 && mActivity.get() != null) {
+                new AlertDialog.Builder(mActivity.get())
                         .setMessage(error)
                         .setPositiveButton(R.string.ok, null)
                         .create()

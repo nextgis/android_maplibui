@@ -266,7 +266,7 @@ public class SplitCombobox extends FrameLayout implements IFormControl
             sign.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ControlHelper.showNoLoginDialog(getContext());
+                    ControlHelper.showNoLoginDialog(ControlHelper.getActivity(getContext()));
                 }
             });
 

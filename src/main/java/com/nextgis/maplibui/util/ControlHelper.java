@@ -529,16 +529,15 @@ public final class ControlHelper
         }
     }
 
-
-    public static void showNoLoginDialog(final Context context) {
-        AlertDialog builder = new AlertDialog.Builder(context)
+    public static void showNoLoginDialog(final Activity activity) {
+        AlertDialog builder = new AlertDialog.Builder(activity)
                 .setTitle(R.string.login_requred_header)
                 .setMessage(R.string.login_requred)
                 .setPositiveButton(R.string.login, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent intent = new Intent(context, NGIDLoginActivity.class);
-                        context.startActivity(intent);
+                        Intent intent = new Intent(activity, NGIDLoginActivity.class);
+                        activity.startActivity(intent);
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null)

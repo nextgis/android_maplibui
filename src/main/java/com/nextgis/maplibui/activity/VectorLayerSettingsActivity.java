@@ -93,6 +93,7 @@ import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplibui.util.LayerUtil.getGeometryName;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
+import static com.nextgis.maplibui.util.UiUtil.showNoEditPermAlert;
 
 /**
  * Vector layer settings activity. Include common settings (layer name) and renderer settings.
@@ -479,7 +480,11 @@ public class VectorLayerSettingsActivity
             direction.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                    ngwLayer.setSyncDirection(i + 1);
+//                    if (ngwLayer!= null && !ngwLayer.isEditable()){
+//                        showNoEditPermAlert(getActivity());
+//                    }
+//                    else
+                        ngwLayer.setSyncDirection(i + 1);
                 }
 
                 @Override
@@ -552,12 +557,17 @@ public class VectorLayerSettingsActivity
                 }
             });
 
+            if (!ngwLayer.isEditable()) {
+                direction.setEnabled(false);
+                direction.setBackgroundColor(getContext().getColor(R.color.bg_line));
+            }
+
             if (!AccountUtil.isUserExists(v.getContext())) {
                 v.findViewById(R.id.overlay).setVisibility(View.VISIBLE);
                 v.findViewById(R.id.locked).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        ControlHelper.showNoLoginDialog(getContext());
+                        ControlHelper.showNoLoginDialog(requireActivity());
                     }
                 });
             }
