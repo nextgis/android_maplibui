@@ -239,8 +239,8 @@ public class AttributesActivity extends NGActivity {
 
                     return true;
                 } else if (i == R.id.menu_edit) {
-                    if (!mLayer.isEditable()){
-                        showNoEditPermAlert(AttributesActivity.this);
+                    if (mLayer instanceof NGWVectorLayer &&  !mLayer.isEditable()){
+                        showNoEditPermAlert(AttributesActivity.this, com.nextgis.maplib.R.string.layer_not_editable,((NGWVectorLayer)mLayer).getAccountName());
                         return true;
                     }
 

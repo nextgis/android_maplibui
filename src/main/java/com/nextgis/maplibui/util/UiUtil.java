@@ -175,51 +175,90 @@ public final class UiUtil {
         }
     }
 
-    static public void showNoEditPermAlert(Activity activity){
-        new androidx.appcompat.app.AlertDialog.Builder(activity)
-                .setMessage(com.nextgis.maplib.R.string.layer_not_editable)
+//    static public void showNoEditPermAlert(Activity activity){
+//        new androidx.appcompat.app.AlertDialog.Builder(activity)
+//                .setMessage(com.nextgis.maplib.R.string.layer_not_editable)
+//                .setPositiveButton(com.nextgis.maplibui.R.string.ok, null)
+//                .create()
+//                .show();
+//    }
+
+    static public void showNoEditPermAlert(Context context , int textResID , String accountName){
+
+        TextView textView = new TextView(context);
+        textView.setPadding(dpToPx(context, 16), dpToPx(context, 16),
+                dpToPx(context, 16), dpToPx(context, 16));
+        textView.setTextSize(16);
+        textView.setTextColor(Color.BLACK);
+        textView.setMovementMethod(LinkMovementMethod.getInstance()); // Важно для кликов
+
+        String fullText = context.getString(textResID)
+                + " " + context.getString(com.nextgis.maplib.R.string.layer_not_editable_url);
+        String clickablePart = context.getString(com.nextgis.maplib.R.string.layer_not_editable_url);
+
+        final String url = "https://" + accountName +  "/redirect/contact-administrator";
+
+        SpannableString spannableString = new SpannableString(fullText);
+
+        int startIndex = fullText.indexOf(clickablePart);
+        int endIndex = startIndex + clickablePart.length();
+
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
+                intent.setData(android.net.Uri.parse(url));
+                context.startActivity(intent);
+            }
+        };
+        spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        textView.setText(spannableString);
+
+        new androidx.appcompat.app.AlertDialog.Builder(context)
+                .setView(textView)
                 .setPositiveButton(com.nextgis.maplibui.R.string.ok, null)
                 .create()
                 .show();
     }
 
-//    static public void showNoEditPermAlert(Context context){
-    // future
 
-//        TextView textView = new TextView(context);
-//        textView.setPadding(dpToPx(context, 16), dpToPx(context, 16),
-//                dpToPx(context, 16), dpToPx(context, 16));
-//        textView.setTextSize(16);
-//        textView.setTextColor(Color.BLACK);
-//        textView.setMovementMethod(LinkMovementMethod.getInstance()); // Важно для кликов
-//
-//        String fullText = context.getString(com.nextgis.maplib.R.string.layer_not_editable)
-//                + " " + context.getString(com.nextgis.maplib.R.string.layer_not_editable_url);
-//        String clickablePart = context.getString(com.nextgis.maplib.R.string.layer_not_editable_url);
-//        final String url = "https://my.nextgis.com/login?next=contactee7806f0-9685-4487-bab8-569846ee18ff";
-//
-//        SpannableString spannableString = new SpannableString(fullText);
-//
-//        int startIndex = fullText.indexOf(clickablePart);
-//        int endIndex = startIndex + clickablePart.length();
-//
-//        ClickableSpan clickableSpan = new ClickableSpan() {
-//            @Override
-//            public void onClick(View widget) {
-//                android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
-//                intent.setData(android.net.Uri.parse(url));
-//                context.startActivity(intent);
-//            }
-//        };
-//        spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-//        textView.setText(spannableString);
-//
-//        new androidx.appcompat.app.AlertDialog.Builder(context)
-//                .setView(textView)
-//                .setPositiveButton(com.nextgis.maplibui.R.string.ok, null)
-//                .create()
-//                .show();
-//    }
+    static public void showNoAddPermAlert(Context context , String accountName){
+
+        TextView textView = new TextView(context);
+        textView.setPadding(dpToPx(context, 16), dpToPx(context, 16),
+                dpToPx(context, 16), dpToPx(context, 16));
+        textView.setTextSize(16);
+        textView.setTextColor(Color.BLACK);
+        textView.setMovementMethod(LinkMovementMethod.getInstance()); // Важно для кликов
+
+        String fullText = context.getString(com.nextgis.maplib.R.string.layer_not_editable)
+                + " " + context.getString(com.nextgis.maplib.R.string.layer_not_editable_url);
+        String clickablePart = context.getString(com.nextgis.maplib.R.string.layer_not_editable_url);
+
+        final String url = "https://" + accountName +  "/redirect/contact-administrator";
+
+        SpannableString spannableString = new SpannableString(fullText);
+
+        int startIndex = fullText.indexOf(clickablePart);
+        int endIndex = startIndex + clickablePart.length();
+
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View widget) {
+                android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
+                intent.setData(android.net.Uri.parse(url));
+                context.startActivity(intent);
+            }
+        };
+        spannableString.setSpan(clickableSpan, startIndex, endIndex, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        textView.setText(spannableString);
+
+        new androidx.appcompat.app.AlertDialog.Builder(context)
+                .setView(textView)
+                .setPositiveButton(com.nextgis.maplibui.R.string.ok, null)
+                .create()
+                .show();
+    }
 
     public static int dpToPx(Context context, int dp) {
         float density = context.getResources().getDisplayMetrics().density;
