@@ -21,6 +21,10 @@
 
 package com.nextgis.maplibui.formcontrol;
 
+import static androidx.databinding.adapters.TextViewBindingAdapter.setText;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_KEY;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -32,6 +36,7 @@ import android.widget.FrameLayout;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.api.IFormControl;
+import com.nextgis.maplibui.util.ControlHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,6 +63,8 @@ public class Space extends FrameLayout implements IFormControl {
                      Cursor featureCursor, SharedPreferences preferences,
                      Map<String, Map<String, String>> translations,
                      final ModifyAttributesActivity modifyAttributesActivity) throws JSONException {
+        JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+        //setText(ControlHelper.translate(attributes.getString(JSON_TEXT_KEY), translations));
     }
 
     @Override
