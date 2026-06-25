@@ -45,7 +45,7 @@ public class  NGWCreateNewResourceTask extends AsyncTask<Void, Void, HttpRespons
     private Connection mConnection;
     private VectorLayer mLayer;
     private WeakReference<Context> mContextRef;
-    private Pair<Integer, Integer> mVer;
+//    private Pair<Integer, Integer> mVer;
     private long mParentId;
     private String mName;
 
@@ -68,21 +68,21 @@ public class  NGWCreateNewResourceTask extends AsyncTask<Void, Void, HttpRespons
     @Override
     protected HttpResponse doInBackground(Void... voids) {
         if (mConnection.connect(false)) {
-            mVer = null;
+//            mVer = null;
 
             if (mContextRef.get() == null)
                 return new HttpResponse(401);
-            try {
-                AccountUtil.AccountData accountData = AccountUtil.getAccountData(mContextRef.get(), mConnection.getName());
-                if (null == accountData.url)
-                    return new HttpResponse(404);
-
-                mVer = NGWUtil.getNgwVersion(accountData.url, accountData.login, accountData.password);
-            } catch (IllegalStateException e) {
-                return new HttpResponse(401);
-            } catch (JSONException | IOException | NumberFormatException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                AccountUtil.AccountData accountData = AccountUtil.getAccountData(mContextRef.get(), mConnection.getName());
+//                if (null == accountData.url)
+//                    return new HttpResponse(404);
+//
+//                //mVer = NGWUtil.getNgwVersion(accountData.url, accountData.login, accountData.password);
+//            } catch (IllegalStateException e) {
+//                return new HttpResponse(401);
+//            } catch (JSONException | IOException | NumberFormatException e) {
+//                e.printStackTrace();
+//            }
 
             if (mLayer != null)
                 return NGWUtil.createNewLayer(mConnection, mLayer, mParentId, null);
@@ -106,7 +106,7 @@ public class  NGWCreateNewResourceTask extends AsyncTask<Void, Void, HttpRespons
                 JSONObject obj = new JSONObject(result.getResponseBody());
                 Long id = obj.getLong(Constants.JSON_ID_KEY);
                 if (mLayer != null)
-                    mLayer.toNGW(id, mConnection.getName(), Constants.SYNC_ALL, mVer);
+                    mLayer.toNGW(id, mConnection.getName(), Constants.SYNC_ALL);
                 result.setResponseCode(-999);
             } catch (JSONException e) {
                 result.setResponseCode(500);
