@@ -23,17 +23,25 @@
 
 package com.nextgis.maplibui.formcontrol;
 
+import static android.widget.Toast.LENGTH_LONG;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatRadioButton;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
+import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.control.GreyLine;
@@ -60,6 +68,8 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
     protected String              mFieldName;
     protected boolean             mIsShowLast;
     protected Map<String, String> mAliasValueMap;
+
+    boolean useDisabledClick = false;
 
     public RadioGroup(Context context) {
         super(context);
@@ -121,6 +131,20 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
         if (getChildAt(position) != null)
             check(getChildAt(position).getId());
         setOrientation(RadioGroup.VERTICAL);
+
+        if (!ControlHelper.isEnabled(fields, mFieldName)) {
+            useDisabledClick = true;
+            setEnabled(false);
+            //setTextColor(Color.GRAY);
+            setBackgroundColor(Color.LTGRAY);
+            setOnClickListener( view -> {
+                AlertDialog dialog = new AlertDialog.Builder(getContext())
+                        .setMessage(R.string.form_trouble)
+                        .setPositiveButton(R.string.ok, null)
+                        .show();
+            });
+        }
+
     }
 
     @Override
@@ -159,6 +183,26 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
     @Override
     public void saveState(Bundle outState) {
         outState.putString(ControlHelper.getSavedStateKey(mFieldName), (String) getValue());
+    }
+
+    private OnClickListener mCustomClickListener;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (  useDisabledClick &&   event.getAction() == MotionEvent.ACTION_UP) {
+            // Вызываем клик при отжатии пальца
+            if (mCustomClickListener != null) {
+                mCustomClickListener.onClick(this);
+            }
+            return true; // Говорим, что обработали
+        }
+        return super.onTouchEvent(event);
+    }
+
+    // Переопределяем setOnClickListener, чтобы сохранить наш слушатель
+    @Override
+    public void setOnClickListener(OnClickListener l) {
+        mCustomClickListener = l;
     }
 
 }

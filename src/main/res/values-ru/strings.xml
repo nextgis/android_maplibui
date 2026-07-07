@@ -119,6 +119,10 @@
     <string name="thirty_minutes">30 минут</string>
     <string name="one_hour">1 час</string>
     <string name="two_hours">2 часа</string>
+    <string name="six_hours">6 часов</string>
+    <string name="twelve_hours">12 часов</string>
+    <string name="one_day">1 день</string>
+
     <string name="sync_set_interval">Установить интервал синхронизации</string>
     <string name="last_sync_time">Обновлено %1$s в %2$s</string>
     <string name="ngw_different_credentials">Существующая учетная запись отличается от введенных параметров. Будет использоваться существующая учетная запись.</string>
@@ -447,4 +451,11 @@
     <string name="edit_invisible">Для редактирования слоя сделайте его видимым</string>
 
     <string name="location_permissions_ext">NextGIS Mobile нужен доступ к локации, чтобы показать ваше местоположение на карте.</string>
+
+    <string name="layers_exists">"Эти слои уже добавлены на устройство: "</string>
+    <string name="layer_exists">"Этот слой уже добавлен на устройство: "</string>
+    <string name="layer_add_anyway">"Всё равно добавить?"</string>
+    <string name="layer_adding">"Добавление слоя"</string>
+    <string name="form_trouble">"Не совпадает структура формы и слоя. Отредактируйте форму или слой в Веб ГИС."</string>
+
 </resources>

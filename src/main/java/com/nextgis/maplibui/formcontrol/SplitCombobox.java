@@ -26,10 +26,13 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -37,6 +40,7 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.AccountUtil;
@@ -55,6 +59,7 @@ import java.util.Map;
 
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
+import static android.widget.Toast.LENGTH_LONG;
 import static com.nextgis.maplib.util.LayerUtil.getColumnIndexSafely;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DEFAULT_KEY;
@@ -78,6 +83,8 @@ public class SplitCombobox extends FrameLayout implements IFormControl
     protected AppCompatTextView   mTitle2;
     protected LinearLayout        mTitles;
     protected LinearLayout        mSpinners;
+
+    boolean useDisabledClick = false;
 
     public SplitCombobox(Context context) {
         super(context);
@@ -226,6 +233,20 @@ public class SplitCombobox extends FrameLayout implements IFormControl
         float minHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14, getResources().getDisplayMetrics());
         mSpinner.setPadding(0, (int) minHeight, 0, (int) minHeight);
         mSpinner2.setPadding(0, (int) minHeight, 0, (int) minHeight);
+
+        if (!ControlHelper.isEnabled(fields, mFieldName)) {
+            useDisabledClick = true;
+            setEnabled(false);
+            //setTextColor(Color.GRAY);
+            setBackgroundColor(Color.LTGRAY);
+            setOnClickListener( view -> {
+                AlertDialog dialog = new AlertDialog.Builder(getContext())
+                        .setMessage(R.string.form_trouble)
+                        .setPositiveButton(R.string.ok, null)
+                        .show();
+            });
+        }
+
     }
 
 
@@ -297,4 +318,25 @@ public class SplitCombobox extends FrameLayout implements IFormControl
         mSpinner.setEnabled(enabled);
         mSpinner2.setEnabled(enabled);
     }
+
+    private OnClickListener mCustomClickListener;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (  useDisabledClick &&   event.getAction() == MotionEvent.ACTION_UP) {
+            // Вызываем клик при отжатии пальца
+            if (mCustomClickListener != null) {
+                mCustomClickListener.onClick(this);
+            }
+            return true; // Говорим, что обработали
+        }
+        return super.onTouchEvent(event);
+    }
+
+    // Переопределяем setOnClickListener, чтобы сохранить наш слушатель
+    @Override
+    public void setOnClickListener(OnClickListener l) {
+        mCustomClickListener = l;
+    }
+
 }

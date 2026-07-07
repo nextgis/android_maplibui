@@ -135,6 +135,10 @@
     <string name="thirty_minutes">30 minutes</string>
     <string name="one_hour">1 hour</string>
     <string name="two_hours">2 hours</string>
+    <string name="six_hours">6 hours</string>
+    <string name="twelve_hours">12 hours</string>
+    <string name="one_day">1 day</string>
+
     <string name="sync_set_interval">Set synchronization interval</string>
     <string name="last_sync_time">Synced %1$s at %2$s</string>
     <string name="ngw_different_credentials">Existing account differs the one from form. The existing account will be used.</string>
@@ -459,4 +463,12 @@
     <string name="edit_invisible">To edit layer make it visible</string>
 
     <string name="location_permissions_ext">NextGIS Mobile requires location permission to show your location on the map.</string>
+
+    <string name="layers_exists">"These layers have already been added to the device: "</string>
+    <string name="layer_exists">"This layer has already been added to the device: "</string>
+    <string name="layer_add_anyway">"Add it anyway?: "</string>
+    <string name="layer_adding">"Adding layer"</string>
+
+    <string name="form_trouble">"The form and layer structures do not match. Edit the form or layer in Web GIS."</string>
+
 </resources>

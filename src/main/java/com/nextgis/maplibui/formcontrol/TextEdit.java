@@ -23,23 +23,32 @@
 
 package com.nextgis.maplibui.formcontrol;
 
+import static android.widget.Toast.LENGTH_LONG;
+
 import android.accounts.Account;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.SyncStateContract;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatEditText;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.GISApplication;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.util.ControlHelper;
@@ -70,6 +79,8 @@ public class TextEdit extends AppCompatEditText
 
     protected boolean mIsShowLast;
     protected String mFieldName;
+
+    boolean useDisabledClick = false;
 
     public TextEdit(Context context) {
         super(context);
@@ -179,6 +190,19 @@ public class TextEdit extends AppCompatEditText
                     break;
             }
         }
+
+        if (!ControlHelper.isEnabled(fields, mFieldName)) {
+            useDisabledClick = true;
+            setEnabled(false);
+            setTextColor(Color.GRAY);
+            setBackgroundColor(Color.LTGRAY);
+            setOnClickListener( view -> {
+                AlertDialog dialog = new AlertDialog.Builder(getContext())
+                        .setMessage(R.string.form_trouble)
+                        .setPositiveButton(R.string.ok, null)
+                        .show();
+            });
+        }
     }
 
     @Override
@@ -211,4 +235,24 @@ public class TextEdit extends AppCompatEditText
         outState.putString(ControlHelper.getSavedStateKey(mFieldName), getText().toString());
     }
 
+
+    private OnClickListener mCustomClickListener;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (  useDisabledClick &&   event.getAction() == MotionEvent.ACTION_UP) {
+            // Вызываем клик при отжатии пальца
+            if (mCustomClickListener != null) {
+                mCustomClickListener.onClick(this);
+            }
+            return true; // Говорим, что обработали
+        }
+        return super.onTouchEvent(event);
+    }
+
+    // Переопределяем setOnClickListener, чтобы сохранить наш слушатель
+    @Override
+    public void setOnClickListener(OnClickListener l) {
+            mCustomClickListener = l;
+    }
 }

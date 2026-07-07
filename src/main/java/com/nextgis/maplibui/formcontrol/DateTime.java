@@ -23,6 +23,8 @@
 
 package com.nextgis.maplibui.formcontrol;
 
+import static android.widget.Toast.LENGTH_LONG;
+
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -31,17 +33,23 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
+import android.widget.Toast;
+
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.util.ControlHelper;
@@ -86,6 +94,8 @@ public class DateTime
 
     protected Calendar mCalendar = Calendar.getInstance();
     protected Long mValue = Calendar.getInstance().getTimeInMillis();
+
+    boolean useDisabledClick = false;
 
     android.app.TimePickerDialog.OnTimeSetListener onTimeSetListener = new android.app.TimePickerDialog.OnTimeSetListener() {
         @Override
@@ -242,6 +252,20 @@ public class DateTime
 
         String pattern = mDateFormat.toLocalizedPattern();
         setHint(pattern);
+
+        if (!ControlHelper.isEnabled(fields, mFieldName)) {
+            useDisabledClick = true;
+            setEnabled(false);
+            setTextColor(Color.GRAY);
+            setBackgroundColor(Color.LTGRAY);
+            setOnClickListener( view -> {
+                AlertDialog dialog = new AlertDialog.Builder(getContext())
+                        .setMessage(R.string.form_trouble)
+                        .setPositiveButton(R.string.ok, null)
+                        .show();
+            });
+        }
+
     }
 
 
@@ -363,5 +387,25 @@ public class DateTime
         outState.putLong(ControlHelper.getSavedStateKey(mFieldName), mCalendar.getTimeInMillis());
         if (datePickerDialog != null)
             datePickerDialog.dismiss();
+    }
+
+    private OnClickListener mCustomClickListener;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (  useDisabledClick &&   event.getAction() == MotionEvent.ACTION_UP) {
+            // Вызываем клик при отжатии пальца
+            if (mCustomClickListener != null) {
+                mCustomClickListener.onClick(this);
+            }
+            return true; // Говорим, что обработали
+        }
+        return super.onTouchEvent(event);
+    }
+
+    // Переопределяем setOnClickListener, чтобы сохранить наш слушатель
+    @Override
+    public void setOnClickListener(OnClickListener l) {
+        mCustomClickListener = l;
     }
 }

@@ -21,20 +21,25 @@
 
 package com.nextgis.maplibui.formcontrol;
 
+import static android.widget.Toast.LENGTH_LONG;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;
 import android.text.InputType;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplibui.R;
@@ -61,6 +66,7 @@ public class Averaging extends LinearLayout implements IFormControl, View.OnClic
     protected long mMeasures = 1;
     protected long mDoneMeasures = 0;
     protected Double mValue = 0.0;
+    boolean useDisabledClick = false;
 
     public Averaging(Context context) {
         super(context);
@@ -93,6 +99,19 @@ public class Averaging extends LinearLayout implements IFormControl, View.OnClic
         } else {    // new feature
             mValue = 0.0;
         }
+
+        if (!ControlHelper.isEnabled(fields, mFieldName)) {
+            useDisabledClick = true;
+            setEnabled(false);
+            setBackgroundColor(Color.LTGRAY);
+            setOnClickListener( view -> {
+                AlertDialog dialog = new AlertDialog.Builder(getContext())
+                        .setMessage(R.string.form_trouble)
+                        .setPositiveButton(R.string.ok, null)
+                        .show();
+            });
+        }
+
 
         setEnabled(false);
         setValue();
@@ -165,4 +184,25 @@ public class Averaging extends LinearLayout implements IFormControl, View.OnClic
         });
         builder.create().show();
     }
+
+    private OnClickListener mCustomClickListener;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (  useDisabledClick &&   event.getAction() == MotionEvent.ACTION_UP) {
+            // Вызываем клик при отжатии пальца
+            if (mCustomClickListener != null) {
+                mCustomClickListener.onClick(this);
+            }
+            return true; // Говорим, что обработали
+        }
+        return super.onTouchEvent(event);
+    }
+
+    // Переопределяем setOnClickListener, чтобы сохранить наш слушатель
+    @Override
+    public void setOnClickListener(OnClickListener l) {
+        mCustomClickListener = l;
+    }
+
 }

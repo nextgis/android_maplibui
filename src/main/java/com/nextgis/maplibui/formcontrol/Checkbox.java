@@ -21,15 +21,23 @@
 
 package com.nextgis.maplibui.formcontrol;
 
+import static android.widget.Toast.LENGTH_LONG;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Field;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.api.IFormControl;
 import com.nextgis.maplibui.util.ControlHelper;
@@ -49,6 +57,8 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_KEY;
 public class Checkbox extends AppCompatCheckBox implements IFormControl {
     protected String mFieldName;
     protected boolean mIsShowLast;
+
+    boolean useDisabledClick = false;
 
     public Checkbox(Context context) {
         super(context);
@@ -92,6 +102,20 @@ public class Checkbox extends AppCompatCheckBox implements IFormControl {
         setChecked(value);
         setText(ControlHelper.translate(attributes.getString(JSON_TEXT_KEY), translations));
         setEnabled(ControlHelper.isEnabled(fields, mFieldName));
+
+        if (!ControlHelper.isEnabled(fields, mFieldName)) {
+            useDisabledClick = true;
+            setEnabled(false);
+            setTextColor(Color.GRAY);
+            setBackgroundColor(Color.LTGRAY);
+            setOnClickListener( view -> {
+                AlertDialog dialog = new AlertDialog.Builder(getContext())
+                        .setMessage(R.string.form_trouble)
+                        .setPositiveButton(R.string.ok, null)
+                        .show();
+            });
+        }
+
     }
 
     public String getFieldName() {
@@ -123,4 +147,23 @@ public class Checkbox extends AppCompatCheckBox implements IFormControl {
         return mIsShowLast;
     }
 
+    private OnClickListener mCustomClickListener;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (  useDisabledClick &&   event.getAction() == MotionEvent.ACTION_UP) {
+            // Вызываем клик при отжатии пальца
+            if (mCustomClickListener != null) {
+                mCustomClickListener.onClick(this);
+            }
+            return true; // Говорим, что обработали
+        }
+        return super.onTouchEvent(event);
+    }
+
+    // Переопределяем setOnClickListener, чтобы сохранить наш слушатель
+    @Override
+    public void setOnClickListener(OnClickListener l) {
+        mCustomClickListener = l;
+    }
 }

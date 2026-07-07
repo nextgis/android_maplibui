@@ -63,8 +63,6 @@ public class Space extends FrameLayout implements IFormControl {
                      Cursor featureCursor, SharedPreferences preferences,
                      Map<String, Map<String, String>> translations,
                      final ModifyAttributesActivity modifyAttributesActivity) throws JSONException {
-        JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
-        //setText(ControlHelper.translate(attributes.getString(JSON_TEXT_KEY), translations));
     }
 
     @Override

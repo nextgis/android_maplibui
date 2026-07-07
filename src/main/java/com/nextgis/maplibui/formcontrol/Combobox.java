@@ -23,16 +23,23 @@
 
 package com.nextgis.maplibui.formcontrol;
 
+import static android.widget.Toast.LENGTH_LONG;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.SyncStateContract;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.map.MapBase;
@@ -66,6 +73,7 @@ public class Combobox extends AppCompatSpinner implements IFormControl
     protected String              mFieldName;
     protected boolean             mIsShowLast;
     protected Map<String, String> mAliasValueMap;
+    boolean useDisabledClick = false;
 
     public Combobox(Context context) {
         super(context);
@@ -166,6 +174,19 @@ public class Combobox extends AppCompatSpinner implements IFormControl
         float minHeight = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, 14, getResources().getDisplayMetrics());
         setPadding(0, (int) minHeight, 0, (int) minHeight);
+
+        if (!ControlHelper.isEnabled(fields, mFieldName)) {
+            useDisabledClick = true;
+            setEnabled(false);
+            setBackgroundColor(Color.LTGRAY);
+            setOnClickListener( view -> {
+                AlertDialog dialog = new AlertDialog.Builder(getContext())
+                        .setMessage(R.string.form_trouble)
+                        .setPositiveButton(R.string.ok, null)
+                        .show();
+            });
+        }
+
     }
 
 
@@ -205,5 +226,25 @@ public class Combobox extends AppCompatSpinner implements IFormControl
     @Override
     public void saveState(Bundle outState) {
         outState.putString(ControlHelper.getSavedStateKey(mFieldName), (String) getValue());
+    }
+
+    private OnClickListener mCustomClickListener;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (  useDisabledClick &&   event.getAction() == MotionEvent.ACTION_UP) {
+            // Вызываем клик при отжатии пальца
+            if (mCustomClickListener != null) {
+                mCustomClickListener.onClick(this);
+            }
+            return true; // Говорим, что обработали
+        }
+        return super.onTouchEvent(event);
+    }
+
+    // Переопределяем setOnClickListener, чтобы сохранить наш слушатель
+    @Override
+    public void setOnClickListener(OnClickListener l) {
+        mCustomClickListener = l;
     }
 }

@@ -62,15 +62,21 @@ import com.nextgis.maplibui.activity.NGPreferenceActivity;
 import com.nextgis.maplibui.activity.NGWLoginActivity;
 import com.nextgis.maplibui.activity.NGWSettingsActivity;
 import com.nextgis.maplibui.api.ILayerUI;
+import com.nextgis.maplibui.mapui.SyncAccountWorker;
 import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.nextgis.maplib.util.AccountUtil.getSyncPeriodForAccount;
+import static com.nextgis.maplib.util.AccountUtil.saveSyncPeriodForAccount;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
+import static com.nextgis.maplibui.GISApplication.getAccountSyncTime;
 import static com.nextgis.maplibui.activity.VectorLayerSettingsActivity.showAttentionTurnSyncOff;
 import static com.nextgis.maplibui.activity.VectorLayerSettingsActivity.showAttentionTurnSyncOn;
+import static com.nextgis.maplibui.mapui.SyncAccountWorker.removeSchedule;
+import static com.nextgis.maplibui.mapui.SyncAccountWorker.schedule;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.ACTION_PREFS_NGW;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
 
@@ -200,7 +206,7 @@ public class NGWSettingsFragment
                     Object newValue)
             {
                 boolean isChecked = (boolean) newValue;
-                setAccountSyncEnabled(account, application.getAuthority(), isChecked);
+                setAccountSyncEnabled(getContext(),  account, application.getAuthority(), isChecked);
                 return true;
             }
         });
@@ -228,6 +234,7 @@ public class NGWSettingsFragment
 
     // for overriding in a subclass
     public static void setAccountSyncEnabled(
+            Context context,
             Account account,
             String authority,
             boolean isEnabled)
@@ -236,7 +243,13 @@ public class NGWSettingsFragment
             return;
         }
 
-        ContentResolver.setSyncAutomatically(account, authority, isEnabled);
+        if (!isEnabled)
+            SyncAccountWorker.removeSchedule(context, account.name);
+        else {
+            long period =  getAccountSyncTime(account,  (GISApplication)context.getApplicationContext());
+            SyncAccountWorker.schedule(context, account.name, period);
+        }
+        //ContentResolver.setSyncAutomatically(account, authority, isEnabled);
     }
 
 
@@ -244,18 +257,25 @@ public class NGWSettingsFragment
     protected void addPeriodicSyncTime(
             final IGISApplication application,
             final Account account,
-            PreferenceGroup syncCategory)
-    {
+            PreferenceGroup syncCategory)    {
+
+
+        long period = 0;
+        period = getSyncPeriodForAccount(application.getSelfContext(), account.name, 0);
 
         String prefValue = "" + Constants.DEFAULT_SYNC_PERIOD;
-        List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, application.getAuthority());
-        if (null != syncs && !syncs.isEmpty()) {
-            for (PeriodicSync sync : syncs) {
-                Bundle bundle = sync.extras;
-                String value = bundle.getString(KEY_PREF_SYNC_PERIOD);
-                if (value != null) {
-                    prefValue = value;
-                    break;
+        if (period != 0){
+            prefValue = "" + period;
+        } else  {
+            List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, application.getAuthority());
+            if (null != syncs && !syncs.isEmpty()) {
+                for (PeriodicSync sync : syncs) {
+                    Bundle bundle = sync.extras;
+                    String value = bundle.getString(KEY_PREF_SYNC_PERIOD);
+                    if (value != null) {
+                        prefValue = value;
+                        break;
+                    }
                 }
             }
         }
@@ -307,8 +327,11 @@ public class NGWSettingsFragment
                     ContentResolver.removePeriodicSync(account, application.getAuthority(), bundle);
                 } else {
 
-                    ((GISApplication)getContext().getApplicationContext()).setSyncPeriod(account,interval,bundle, true);
+                    long period = interval;
+                    saveSyncPeriodForAccount(getContext(), account.name, period );
+                    schedule(getContext(), account.name, period);
 
+//                    ((GISApplication)getContext().getApplicationContext()).setSyncPeriod(account,interval,bundle, true);
                     // no need
                     // ContentResolver.addPeriodicSync(account, application.getAuthority(), bundle, interval);
                 }
@@ -561,7 +584,8 @@ public class NGWSettingsFragment
                                 AccountUtil.isSyncActive(account, application.getAuthority());
 
                         ContentResolver.removePeriodicSync(account, application.getAuthority(), Bundle.EMPTY);
-                        ContentResolver.setSyncAutomatically(account, application.getAuthority(), false);
+                        removeSchedule(application.getSelfContext(), account.name);
+                        //ContentResolver.setSyncAutomatically(account, application.getAuthority(), false);
 
                         ContentResolver.cancelSync(account, application.getAuthority());
 
@@ -678,17 +702,17 @@ public class NGWSettingsFragment
     public static CharSequence[] getPeriodTitles(Context context)
     {
         return new CharSequence[] {
-                context.getString(R.string.five_minutes),
-                context.getString(R.string.ten_minutes),
-                context.getString(R.string.fifteen_minutes),
-                context.getString(R.string.thirty_minutes),
                 context.getString(R.string.one_hour),
-                context.getString(R.string.two_hours)};
+                context.getString(R.string.two_hours),
+                context.getString(R.string.six_hours),
+                context.getString(R.string.twelve_hours),
+                context.getString(R.string.one_day)};
     }
 
 
     public static CharSequence[] getPeriodValues()
     {
-        return new CharSequence[] {"300", "600", "900", "1800", "3600", "7200"};
+        return new CharSequence[] {"3600", "7200", "21600", "43200", "86400" };
+
     }
 }

@@ -239,7 +239,7 @@ public class LayerFillProgressDialogFragment extends Fragment {
                         final Account account = app.getAccount(ngwLayer.getAccountName());
 
 
-                        NGWSettingsFragment.setAccountSyncEnabled(account, app.getAuthority(), true);
+                        NGWSettingsFragment.setAccountSyncEnabled(ngwLayer.getContext(), account, app.getAuthority(), true);
                         ngwLayer.setSyncType(Constants.SYNC_ALL);
                         ngwLayer.save();
 

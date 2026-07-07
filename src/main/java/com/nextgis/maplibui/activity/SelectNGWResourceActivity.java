@@ -23,6 +23,7 @@ package com.nextgis.maplibui.activity;
 
 import android.accounts.AccountManager;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -41,6 +42,7 @@ import android.widget.Toast;
 
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.ILayer;
+import com.nextgis.maplib.api.INGWLayer;
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.datasource.ngw.Connections;
 import com.nextgis.maplib.datasource.ngw.INGWResource;
@@ -50,6 +52,7 @@ import com.nextgis.maplib.datasource.ngw.ResourceGroup;
 import com.nextgis.maplib.datasource.ngw.WebMap;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapBase;
+import com.nextgis.maplib.map.MapContentProviderHelper;
 import com.nextgis.maplib.map.NGWRasterLayer;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.GeoConstants;
@@ -347,11 +350,53 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     LayerFillProgressDialogFragment.startFill(intent);
                 }
             }
-
         }
 
         mGroupLayer.save();
         return true;
+    }
+
+    public List<LayerWithStyles> hasExistingLayers() {
+        if (mGroupLayer == null)
+            return null;
+
+        List<CheckState> checkStates = mListAdapter.getCheckState();
+        if (checkStates.size() == 0) {
+            return null;
+        }
+
+        final Connections connections = mListAdapter.getConnections();
+        Connection connection = getConnection();
+
+        MapContentProviderHelper mapContentProviderHelper =(MapContentProviderHelper) MapBase.getInstance();
+
+        List<ILayer> layersToCheck = new ArrayList<>();
+        for (int i = 0; i < mapContentProviderHelper.getLayerCount(); i++) {
+            ILayer layer = mapContentProviderHelper.getLayer(i);
+            if (layer instanceof INGWLayer && connection.getName().equals(((INGWLayer)layer).getAccountName())) {
+                layersToCheck.add(layer);
+            }
+        }
+
+        List<LayerWithStyles> layersAlreadyExist = new ArrayList<>();
+        for (CheckState checkState : checkStates) {
+            if (checkState.isCheckState1()) { //create raster
+            }
+
+            if (checkState.isCheckState2()) { //create vector
+                final INGWResource resource = connections.getResourceById(checkState.getId());
+                if (resource instanceof LayerWithStyles) {
+                    final LayerWithStyles layer = (LayerWithStyles) resource;
+                    for (ILayer layerToCheck: layersToCheck){
+                        if (layerToCheck.getName().equals(layer.getName())) {
+                            layersAlreadyExist.add(layer);
+                        }
+                    }
+                }
+            }
+
+        }
+        return layersAlreadyExist;
     }
 
     @Override
@@ -360,8 +405,33 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
         if (i == R.id.button1) {
             switch (mTask) {
                 case TYPE_ADD:
-                    if (createLayers()) {
-                        finish();
+                    List<LayerWithStyles> existingLayers =  hasExistingLayers();
+                    if (existingLayers == null || existingLayers.isEmpty()){
+                        if (createLayers()) {
+                            finish();
+                        }
+                    } else {
+                        String msg = new String();
+                        for (LayerWithStyles layerWithStyles : existingLayers){
+                            msg = msg + layerWithStyles.getName() + ", ";
+                        }
+                        if (msg.endsWith(", "))
+                            msg = msg.substring(0, msg.length() - 2);
+                        int resID = existingLayers.size() > 1 ? R.string.layers_exists : R.string.layer_exists;
+
+                        androidx.appcompat.app.AlertDialog.Builder dialog = new androidx.appcompat.app.AlertDialog.Builder(this);
+                        dialog.setTitle(R.string.layer_adding)
+                                .setMessage( getString(resID) + msg.trim() + "\n" + getString(R.string.layer_add_anyway))
+                                .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        if (createLayers()) {
+                                            finish();
+                                        }
+                                    }
+                                })
+                                .setNegativeButton(R.string.cancel, null)
+                                .show();
                     }
                     break;
                 case TYPE_SELECT:

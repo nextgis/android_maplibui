@@ -89,8 +89,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.nextgis.maplib.util.AccountUtil.saveSyncPeriodForAccount;
 import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
+import static com.nextgis.maplibui.GISApplication.getAccountSyncTime;
+import static com.nextgis.maplibui.mapui.SyncAccountWorker.schedule;
 import static com.nextgis.maplibui.util.LayerUtil.getGeometryName;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
 import static com.nextgis.maplibui.util.UiUtil.showNoEditPermAlert;
@@ -500,7 +503,7 @@ public class VectorLayerSettingsActivity
             auto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                    NGWSettingsFragment.setAccountSyncEnabled(account, app.getAuthority(), checked);
+                    NGWSettingsFragment.setAccountSyncEnabled(getContext(), account, app.getAuthority(), checked);
                     period.setEnabled(checked);
                 }
             });
@@ -544,7 +547,13 @@ public class VectorLayerSettingsActivity
                     if (interval == NOT_FOUND) {
                         ContentResolver.removePeriodicSync(account, app.getAuthority(), bundle);
                     } else {
-                        ((GISApplication)getContext().getApplicationContext()).setSyncPeriod(account,interval,bundle, true);
+
+                        long period = interval;
+                        saveSyncPeriodForAccount(getContext(), account.name, period );
+                        schedule(getContext(), account.name, period);
+
+
+//                        ((GISApplication)getContext().getApplicationContext()).setSyncPeriod(account,interval,bundle, true);
 
                         // no need -
                         //ContentResolver.addPeriodicSync(account, app.getAuthority(), bundle, interval);
