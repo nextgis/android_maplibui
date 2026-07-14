@@ -727,7 +727,9 @@ public abstract class GISApplication extends Application
         for (Account account : mAccountManager.getAccountsByType(getAccountsType())) {
             Log.d("SSYNC", "Reset for : " + account.name + " account");
 
-            boolean syncEnabled = isAccountSyncEnabled(account, this.getAuthority());
+            boolean syncEnabled = isAccountSyncEnabled(this, account, this.getAuthority());
+            ContentResolver.setSyncAutomatically(account, getAuthority(), false);
+
 
             if (!syncEnabled)
                 continue;
@@ -739,8 +741,7 @@ public abstract class GISApplication extends Application
             if (period == 0) {
                 // search sync settings // def if NO
                 String prefValue = null;
-                List<PeriodicSync> syncs =
-                        ContentResolver.getPeriodicSyncs(account, getAuthority());
+                List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, getAuthority());
                 if (null != syncs && !syncs.isEmpty()) {
                     for (PeriodicSync sync : syncs) {
                         Bundle bundle = sync.extras;
@@ -786,7 +787,7 @@ public abstract class GISApplication extends Application
 //            long interval = Long.parseLong(prefValue);
 //            setSyncPeriod(account, interval, bundle, false);
 
-            ContentResolver.setSyncAutomatically(account, getAuthority(), false);
+
 
 
         }

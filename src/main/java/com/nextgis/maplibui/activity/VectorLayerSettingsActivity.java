@@ -498,7 +498,7 @@ public class VectorLayerSettingsActivity
 
             final Spinner period = v.findViewById(R.id.sync_interval);
             CheckBox auto = v.findViewById(R.id.sync_auto);
-            boolean isAccountSyncEnabled = NGWSettingsFragment.isAccountSyncEnabled(account, app.getAuthority());
+            boolean isAccountSyncEnabled = NGWSettingsFragment.isAccountSyncEnabled(getContext(),  account, app.getAuthority());
             auto.setChecked(isAccountSyncEnabled);
             auto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override

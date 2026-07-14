@@ -32,8 +32,10 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.hypertrack.hyperlog.HyperLog;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.datasource.ngw.SyncAdapter;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplibui.GISApplication;
 
 import org.json.JSONArray;
@@ -121,6 +123,7 @@ public class SyncAccountWorker  extends Worker {
 
         Log.e("SYNC2S", "doWork performSync for " + accountName );
 
+        HyperLog.v(Constants.TAG, "xxx SyncAccountWorker syncAdapter.onPerformSync for" + selectedAccount.name );
         syncAdapter.onPerformSync(selectedAccount,
                     bundle,
                     ((GISApplication)getApplicationContext()).getAuthority(),

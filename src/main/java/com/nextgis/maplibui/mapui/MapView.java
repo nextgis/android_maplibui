@@ -427,8 +427,8 @@ public class MapView
         mScroller.forceFinished(true);
 
         mScroller.fling(
-                (int) x, (int) y, -(int) velocityX, -(int) velocityY, (int) bounds.getMinX(),
-                (int) bounds.getMaxX(), (int) bounds.getMinY(), (int) bounds.getMaxY());
+                (int) x, (int) y, -(int) velocityX, -(int) velocityY, (int) bounds.getMinX().floatValue(),
+                (int) bounds.getMaxX().floatValue(), (int) bounds.getMinY().floatValue(), (int) bounds.getMaxY().floatValue());
 
         //Log.d(Constants.TAG, "Fling");
 
