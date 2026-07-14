@@ -898,7 +898,6 @@ public class LayerFillService extends Service implements IProgressor {
 
             //((NGWVectorLayerUI) mLayer).setDefaultFormId(bundle.getLongArray(KEY_DEFAULT_FORM_IDS));
             ((NGWVectorLayerUI) mLayer).setAccountName(bundle.getString(KEY_ACCOUNT));
-            ((NGWVectorLayerUI) mLayer).setAccountName(bundle.getString(KEY_ACCOUNT));
             initLayer();
 
             if (bundle.containsKey(KEY_LOOKUP_ID))
