@@ -196,7 +196,7 @@ public class NGWSettingsFragment
         enablePeriodicSync.setPersistent(false);
         enablePeriodicSync.setTitle(R.string.auto_sync);
 
-        boolean isAccountSyncEnabled = isAccountSyncEnabled(account, application.getAuthority());
+        boolean isAccountSyncEnabled = isAccountSyncEnabled(getContext(), account, application.getAuthority());
         enablePeriodicSync.setChecked(isAccountSyncEnabled);
         enablePeriodicSync.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
         {
@@ -225,9 +225,14 @@ public class NGWSettingsFragment
 
     // for overriding in a subclass
     public static boolean isAccountSyncEnabled(
+            Context context,
             Account account,
             String authority)
     {
+        long period = getSyncPeriodForAccount(context, account.name, 0);
+        if (period  != 0L){
+            return true;
+        }
         return null != account && ContentResolver.getSyncAutomatically(account, authority);
     }
 
@@ -243,10 +248,16 @@ public class NGWSettingsFragment
             return;
         }
 
-        if (!isEnabled)
+        if (!isEnabled) {
             SyncAccountWorker.removeSchedule(context, account.name);
+            saveSyncPeriodForAccount(context, account.name, 0 );
+        }
+
         else {
             long period =  getAccountSyncTime(account,  (GISApplication)context.getApplicationContext());
+
+            saveSyncPeriodForAccount(context, account.name, period);
+
             SyncAccountWorker.schedule(context, account.name, period);
         }
         //ContentResolver.setSyncAutomatically(account, authority, isEnabled);
@@ -285,23 +296,31 @@ public class NGWSettingsFragment
 
         final ListPreference timeInterval = new ListPreference(mStyledContext);
         timeInterval.setIconSpaceReserved(false);
-        timeInterval.setKey(KEY_PREF_SYNC_PERIOD);
+        timeInterval.setKey(KEY_PREF_SYNC_PERIOD + "_" + account.name);
         timeInterval.setTitle(R.string.sync_interval);
+
         timeInterval.setDialogTitle(R.string.sync_set_interval);
         timeInterval.setEntries(keys);
         timeInterval.setEntryValues(values);
 
         // set default values
-        timeInterval.setValueIndex(4);
-        timeInterval.setSummary(keys[4]);
-
+//        timeInterval.setValueIndex(4);
+//        timeInterval.setSummary(keys[4]);
+        boolean isWasSet = false;
         for (int i = 0; i < values.length; i++) {
             if (values[i].equals(prefValue)) {
-                timeInterval.setValueIndex(i);
+                timeInterval.setValue(values[i].toString());
+//                timeInterval.setValueIndex(i);
                 timeInterval.setSummary(keys[i]);
+                isWasSet = true;
                 break;
             }
         }
+        if (!isWasSet){
+            timeInterval.setValueIndex(0);
+            timeInterval.setSummary(keys[0]);
+        }
+
 
         timeInterval.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
         {
@@ -325,6 +344,7 @@ public class NGWSettingsFragment
 
                 if (interval == NOT_FOUND) {
                     ContentResolver.removePeriodicSync(account, application.getAuthority(), bundle);
+                    saveSyncPeriodForAccount(getContext(), account.name, 0 );
                 } else {
 
                     long period = interval;
@@ -584,6 +604,7 @@ public class NGWSettingsFragment
                                 AccountUtil.isSyncActive(account, application.getAuthority());
 
                         ContentResolver.removePeriodicSync(account, application.getAuthority(), Bundle.EMPTY);
+                        saveSyncPeriodForAccount(getContext(), account.name, 0 );
                         removeSchedule(application.getSelfContext(), account.name);
                         //ContentResolver.setSyncAutomatically(account, application.getAuthority(), false);
 
