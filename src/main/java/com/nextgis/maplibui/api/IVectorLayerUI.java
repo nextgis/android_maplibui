@@ -32,7 +32,7 @@ import com.nextgis.maplib.datasource.GeoGeometry;
  */
 public interface IVectorLayerUI extends ILayerUI
 {
-    int MODIFY_REQUEST = 1;
+    final int MODIFY_REQUEST = 1;
     /**
      * This method executed, when the form need to be shown
      * @param context activity context

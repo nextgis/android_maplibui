@@ -66,7 +66,7 @@ public class SyncAccountWorker  extends Worker {
 
     public static void schedule(Context context, String accountName, long secUpdateInterval) {
 
-        Log.e("SYNC2S", "schedule for " + accountName + " with " + secUpdateInterval);
+        Log.d("SYNC2S", "schedule for " + accountName + " with " + secUpdateInterval);
 
         Data data = new Data.Builder()
                 .putString(WORKER_ACCOUNT_NAME, accountName)
@@ -95,7 +95,7 @@ public class SyncAccountWorker  extends Worker {
     @Override
     public Result doWork() {
         String accountName = getInputData().getString(WORKER_ACCOUNT_NAME);
-        Log.e("SYNC2S", "doWork " + accountName );
+        Log.d("SYNC2S", "doWork " + accountName );
 
         if (TextUtils.isEmpty(accountName))
             return Result.failure();
@@ -121,7 +121,7 @@ public class SyncAccountWorker  extends Worker {
 
         Bundle bundle = new Bundle();
 
-        Log.e("SYNC2S", "doWork performSync for " + accountName );
+        Log.d("SYNC2S", "doWork performSync for " + accountName );
 
         HyperLog.v(Constants.TAG, "xxx SyncAccountWorker syncAdapter.onPerformSync for" + selectedAccount.name );
         syncAdapter.onPerformSync(selectedAccount,

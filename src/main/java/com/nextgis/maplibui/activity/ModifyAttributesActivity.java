@@ -125,6 +125,7 @@ import static com.nextgis.maplib.util.Constants.NOT_FOUND;
 import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplib.util.LayerUtil.getColumnIndexSafely;
 import static com.nextgis.maplib.util.NetworkUtil.getUserAgent;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_ADDED_OTHERS;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_ADDED_POINT;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
@@ -630,8 +631,9 @@ public class ModifyAttributesActivity
                     String saved = featureCursor.getString(column);
                     Object modified = control.getValue();
                     if (modified != null)
-                        result = !modified.equals(saved);
-                    else result = saved != null;
+                        result = !modified.toString().equals(saved);
+                    else
+                        result = saved != null;
                 }
 
                 if (result)
@@ -754,8 +756,13 @@ public class ModifyAttributesActivity
         putSign();
         Intent data = new Intent();
         data.putExtra(ConstantsUI.KEY_FEATURE_ID, mFeatureId);
-        if (geoGeometry != null && geoGeometry instanceof GeoPoint)
-            data.putExtra(KEY_ADDED_POINT, new double[]{ ((GeoPoint)geoGeometry).getX(), ((GeoPoint)geoGeometry).getY() });
+        if (geoGeometry != null) {
+            if (geoGeometry instanceof GeoPoint)
+                data.putExtra(KEY_ADDED_POINT, new double[]{ ((GeoPoint)geoGeometry).getX(), ((GeoPoint)geoGeometry).getY() });
+            else
+                data.putExtra(KEY_ADDED_OTHERS, "others");
+        }
+
         setResult(RESULT_OK, data);
         return !error;
     }

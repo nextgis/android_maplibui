@@ -88,6 +88,8 @@ import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIODICALLY;
 
 import androidx.core.content.ContextCompat;
+import androidx.work.Configuration;
+import androidx.work.WorkManager;
 
 import org.maplibre.android.MapLibre;
 import org.maplibre.android.MapStrictMode;
@@ -227,14 +229,22 @@ public abstract class GISApplication extends Application
 //
 //            SyncAdapter.setSyncPeriod(this, params, period);
 //        }
-
-
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 resetSyncTime();
             }
         }, 2000);
+
+        try {
+            WorkManager.getInstance(this); // если уже инициализирован (главный процесс) — не упадёт
+        } catch (IllegalStateException e) {
+            // не инициализирован (например, процесс :tracks) — инициализируем сами
+            Configuration config = new Configuration.Builder()
+                    .setMinimumLoggingLevel(android.util.Log.INFO)
+                    .build();
+            WorkManager.initialize(this, config);
+        }
 
         initializeMapbox();
     }
