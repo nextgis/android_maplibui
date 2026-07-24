@@ -49,6 +49,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -58,6 +59,7 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -97,6 +99,8 @@ import com.nextgis.maplibui.control.TextEdit;
 import com.nextgis.maplibui.control.TextLabel;
 import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
 import com.nextgis.maplibui.formcontrol.AutoTextEdit;
+import com.nextgis.maplibui.formcontrol.DoubleCombobox;
+import com.nextgis.maplibui.formcontrol.DoubleComboboxValue;
 import com.nextgis.maplibui.formcontrol.Sign;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
@@ -630,8 +634,10 @@ public class ModifyAttributesActivity
                     IControl control = field.getValue();
                     String saved = featureCursor.getString(column);
                     Object modified = control.getValue();
-                    if (modified != null)
-                        result = !modified.toString().equals(saved);
+
+                    if (modified != null) {
+                        result = checkIsNoChanges(control,  modified, saved, featureCursor);
+                    }
                     else
                         result = saved != null;
                 }
@@ -646,6 +652,52 @@ public class ModifyAttributesActivity
         return result;
     }
 
+    boolean checkIsNoChanges(IControl  control, Object modified, String saved, Cursor featureCursor){
+        // saved null always
+
+        if (control instanceof DoubleCombobox){
+
+            try {
+
+                Object value1 = ((DoubleComboboxValue) modified).mValue;
+                Object value2Sub = ((DoubleComboboxValue) modified).mSubValue;
+                int column1 = getColumnIndexSafely(featureCursor, ((DoubleComboboxValue) modified).mFieldName); // featureCursor.getColumnIndex(field.getKey());
+                int column2Sub = getColumnIndexSafely(featureCursor, ((DoubleComboboxValue) modified).mSubFieldName); // featureCursor.getColumnIndex(field.getKey());
+
+
+                String saved1 = featureCursor.getString(column1);
+                String saved2 = featureCursor.getString(column2Sub);
+
+                if (saved1 == null && TextUtils.isEmpty(value1.toString()))
+                    return false;
+                if (saved2 == null && TextUtils.isEmpty(value2Sub.toString()))
+                    return false;
+
+
+
+                if (saved1.equals(value1) && saved2.equals(value2Sub))
+                    return false;
+                else
+                    return true;
+            } catch (Exception ex){
+                return true;
+            }
+        }
+
+        if (modified instanceof Double){
+            Double doubleSaved = Double.valueOf(saved);
+            return !modified.equals(doubleSaved);
+        }
+
+        if (saved == null && control instanceof EditText && TextUtils.isEmpty( modified.toString()))
+            return  false;
+
+        if (saved == null &&  ((control instanceof DateTime || control instanceof com.nextgis.maplibui.formcontrol.DateTime)
+                && modified instanceof Long &&  (((Long) modified).equals(0L))))
+            return  false;
+
+        return !modified.toString().equals(saved);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
