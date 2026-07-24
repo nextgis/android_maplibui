@@ -21,6 +21,9 @@
 
 package com.nextgis.maplibui.fragment;
 
+import static android.view.View.GONE;
+import static com.nextgis.maplib.display.Style.SIZES;
+
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import androidx.appcompat.widget.SwitchCompat;
@@ -59,7 +62,7 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class StyleFragment extends StyledDialogFragment implements View.OnClickListener {
     protected ImageView mColorFillImage, mColorStrokeImage, mColorTextImage;
-    protected TextView mColorFillName, mColorStrokeName, mColorTextName;
+    protected TextView mColorFillName, mColorStrokeName, mColorTextName, mTextAlignmentCaption;
     protected LinearLayout mColorText;
     protected EditText mEditText;
     protected Spinner mField, mTextSize, mTextAlignment;
@@ -92,9 +95,11 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         } else if (mStyle instanceof SimpleLineStyle) {
             body = inflater.inflate(R.layout.style_line, container, false);
             inflateLine(body, isRule);
+            inflateTextColorAndSize(body);
         } else if (mStyle instanceof SimplePolygonStyle) {
             body = inflater.inflate(R.layout.style_polygon, container, false);
             inflatePolygon(body);
+            inflateTextColorAndSize(body);
         }
 
         inflateText(body);
@@ -122,7 +127,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         textSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                ((SimpleMarkerStyle) mStyle).setTextSize(SimpleMarkerStyle.SIZES.get(position));
+                ( mStyle).setTextSize(SIZES.get(position));
             }
 
             @Override
@@ -130,8 +135,8 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
 
             }
         });
-        float size = ((SimpleMarkerStyle) mStyle).getTextSize();
-        textSize.setSelection(SimpleMarkerStyle.SIZES.indexOf(size));
+        float size = (mStyle).getTextSize();
+        textSize.setSelection(SIZES.indexOf(size));
 
         Spinner textAlignment = v.findViewById(R.id.text_alignment);
         textAlignment.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -171,7 +176,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         });
 
         mStrokeColor = mStyle.getOutColor();
-        mTextColor = ((SimpleMarkerStyle) mStyle).getTextColor();
+        mTextColor = (mStyle).getTextColor();
         mColorFillName = v.findViewById(R.id.color_fill_name);
         mColorFillImage = v.findViewById(R.id.color_fill_ring);
         mColorStrokeName = v.findViewById(R.id.color_stroke_name);
@@ -210,6 +215,38 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
                 } catch (Exception ignored) { }
             }
         });
+    }
+
+    private void inflateTextColorAndSize(View v) {
+
+        Spinner textSize = v.findViewById(R.id.text_size);
+        textSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                ( mStyle).setTextSize(SIZES.get(position));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        float size = (mStyle).getTextSize();
+        textSize.setSelection(SIZES.indexOf(size));
+
+        mStrokeColor = mStyle.getOutColor();
+        mTextColor = (mStyle).getTextColor();
+        mColorFillName = v.findViewById(R.id.color_fill_name);
+        mColorFillImage = v.findViewById(R.id.color_fill_ring);
+        mColorStrokeName = v.findViewById(R.id.color_stroke_name);
+        mColorStrokeImage = v.findViewById(R.id.color_stroke_ring);
+        mColorTextName = v.findViewById(R.id.color_text_name);
+        mColorTextImage = v.findViewById(R.id.color_text_ring);
+
+        mColorText = v.findViewById(R.id.color_text);
+        mColorText.setOnClickListener(this);
+        setTextColor(mTextColor);
+
     }
 
     private void inflateLine(View v, boolean isRule) {
@@ -334,28 +371,29 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
 
         final ITextStyle style = (ITextStyle) mStyle;
         mTextEnabled = body.findViewById(R.id.text_enabled);
-        if (mStyle instanceof SimpleMarkerStyle) {
-            body.findViewById(R.id.tsize).setVisibility(View.VISIBLE);
-        }
-
+        body.findViewById(R.id.tsize).setVisibility(View.VISIBLE);
         mNotHardcoded = body.findViewById(R.id.not_hardcoded);
         mTextSize = body.findViewById(R.id.text_size);
         mTextAlignment = body.findViewById(R.id.text_alignment);
+        mTextAlignmentCaption = body.findViewById(R.id.text_alignment_caption);
         mEditText = body.findViewById(R.id.text);
         mEditText.setText(style.getText());
         mField = body.findViewById(R.id.field);
 
         String field = style.getField();
+        if (mStyle instanceof SimpleLineStyle || mStyle instanceof SimplePolygonStyle) {
+            // no text alingnment
+            mTextAlignment.setVisibility(GONE);
+            mTextAlignmentCaption.setVisibility(GONE);
+        }
 
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
             }
 
             @Override
@@ -414,8 +452,8 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
         mNotHardcoded.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mEditText.setVisibility(isChecked ? View.GONE : View.VISIBLE);
-                mField.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                mEditText.setVisibility(isChecked ? GONE : View.VISIBLE);
+                mField.setVisibility(isChecked ? View.VISIBLE : GONE);
                 style.setField(isChecked ? mFields.get(mField.getSelectedItemPosition()).getName(): null);
             }
         });
@@ -518,9 +556,7 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
                 public void onOk(AmbilWarnaDialog dialog, int color) {
                     mTextColor = color;
                     setTextColor(color);
-
-                    if (mStyle instanceof SimpleMarkerStyle)
-                        ((SimpleMarkerStyle) mStyle).setTextColor(color);
+                    (mStyle).setTextColor(color);
                 }
 
                 @Override

@@ -139,16 +139,16 @@ public class LayerFactoryUI
         if (context instanceof NGActivity) {
             NGActivity fragmentActivity = (NGActivity) context;
 
-            if (ext.equals(".ngrc")) {
-                Intent intent = new Intent(context, LayerFillService.class);
-                intent.setAction(LayerFillService.ACTION_ADD_TASK);
-                intent.putExtra(LayerFillService.KEY_URI, uri);
-                intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.TMS_LAYER);
-                intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, groupLayer.getId());
-
-                LayerFillProgressDialogFragment.startFill(intent);
-                return;
-            }
+//            if (ext.equals(".ngrc")) {
+//                Intent intent = new Intent(context, LayerFillService.class);
+//                intent.setAction(LayerFillService.ACTION_ADD_TASK);
+//                intent.putExtra(LayerFillService.KEY_URI, uri);
+//                intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.TMS_LAYER);
+//                intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, groupLayer.getId());
+//
+//                LayerFillProgressDialogFragment.startFill(intent);
+//                return;
+//            }
 
             AtomicReference<Uri> temp = new AtomicReference<>(uri);
             if (MapUtil.isZippedGeoJSON(context, temp)) {

@@ -57,6 +57,7 @@ import java.util.Map;
 import static com.nextgis.maplib.util.LayerUtil.getColumnIndexSafely;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
+import static com.nextgis.maplibui.util.UiUtil.showFormNeedCorrection;
 
 @SuppressLint("ViewConstructor")
 public class Averaging extends LinearLayout implements IFormControl, View.OnClickListener {
@@ -100,23 +101,22 @@ public class Averaging extends LinearLayout implements IFormControl, View.OnClic
             mValue = 0.0;
         }
 
+        Button average = findViewById(R.id.average);
         if (!ControlHelper.isEnabled(fields, mFieldName)) {
             useDisabledClick = true;
             setEnabled(false);
             setBackgroundColor(Color.LTGRAY);
-            setOnClickListener( view -> {
+            average.setOnClickListener( view -> {
                 AlertDialog dialog = new AlertDialog.Builder(getContext())
                         .setMessage(R.string.form_trouble)
                         .setPositiveButton(R.string.ok, null)
                         .show();
             });
-        }
-
+        } else
+            average.setOnClickListener(this);
 
         setEnabled(false);
         setValue();
-        Button average = findViewById(R.id.average);
-        average.setOnClickListener(this);
     }
 
     private void setValue() {
@@ -185,24 +185,13 @@ public class Averaging extends LinearLayout implements IFormControl, View.OnClic
         builder.create().show();
     }
 
-    private OnClickListener mCustomClickListener;
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (  useDisabledClick &&   event.getAction() == MotionEvent.ACTION_UP) {
-            // Вызываем клик при отжатии пальца
-            if (mCustomClickListener != null) {
-                mCustomClickListener.onClick(this);
-            }
-            return true; // Говорим, что обработали
-        }
-        return super.onTouchEvent(event);
-    }
-
-    // Переопределяем setOnClickListener, чтобы сохранить наш слушатель
-    @Override
-    public void setOnClickListener(OnClickListener l) {
-        mCustomClickListener = l;
+        if (useDisabledClick && event.getAction() == MotionEvent.ACTION_UP){
+            showFormNeedCorrection(getContext());
+            return true;
+        } else
+            return  super.onTouchEvent(event);
     }
 
 }

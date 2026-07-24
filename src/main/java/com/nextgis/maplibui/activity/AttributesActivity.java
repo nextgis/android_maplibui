@@ -25,6 +25,7 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -37,6 +38,7 @@ import android.preference.PreferenceManager;
 import com.evrencoskun.tableview.TableView;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
@@ -182,61 +184,65 @@ public class AttributesActivity extends NGActivity {
                     finish();
                     return true;
                 } else if (i == R.id.menu_delete) {
-                    Snackbar snackbar = Snackbar.make(findViewById(R.id.container), getString(R.string.delete_item_done), Snackbar.LENGTH_LONG)
-                            .setAction(R.string.undo, new View.OnClickListener() {
+                    new AlertDialog.Builder( AttributesActivity.this).setTitle(R.string.are_you_sure).setMessage(R.string.delete_confirm)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                 @Override
-                                public void onClick(View view) {
-
-                                }
-                            })
-                            .setCallback(new Snackbar.Callback() {
-                                @Override
-                                public void onDismissed(Snackbar snackbar, int event) {
-                                    super.onDismissed(snackbar, event);
-                                    if (event == DISMISS_EVENT_MANUAL)
-                                        return;
-                                    if (event != DISMISS_EVENT_ACTION) {
-                                        mLayer.deleteAddChanges(selectedFeatureId);
-
-                                        ((GISApplication) getApplication()).deleteFeature(selectedFeatureId, mLayerId);
-                                        ///mMapRef.get()!!.map!!.deleteFeature(selectedFeatureId, layer.id)
-
-                                        try {
-                                            onDeleteData(selectedFeatureId);
-                                        } catch (Exception ex){
-
-                                        }
-
-                                        if (selectedRow != -1) {
-                                            mTableView.getAdapter().removeRow(selectedRow, true);
-                                            selectedRow = -1;
-
-                                            new Handler().postDelayed(new Runnable() {
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    Snackbar snackbar = Snackbar.make(findViewById(R.id.container), getString(R.string.delete_item_done), Snackbar.LENGTH_LONG)
+                                            .setAction(R.string.undo, new View.OnClickListener() {
                                                 @Override
-                                                public void run() {
-                                                    try {
-                                                        mTableView.getSelectionHandler().clearSelection();
-                                                    }catch (Exception ex){
-                                                        Log.e(TAG, ex.getMessage());
+                                                public void onClick(View view) {
+                                                }
+                                            })
+                                            .setCallback(new Snackbar.Callback() {
+                                                @Override
+                                                public void onDismissed(Snackbar snackbar, int event) {
+                                                    super.onDismissed(snackbar, event);
+                                                    if (event == DISMISS_EVENT_MANUAL)
+                                                        return;
+                                                    if (event != DISMISS_EVENT_ACTION) {
+                                                        mLayer.deleteAddChanges(selectedFeatureId);
+
+                                                        ((GISApplication) getApplication()).deleteFeature(selectedFeatureId, mLayerId);
+                                                        ///mMapRef.get()!!.map!!.deleteFeature(selectedFeatureId, layer.id)
+
+                                                        try {
+                                                            onDeleteData(selectedFeatureId);
+                                                        } catch (Exception ex){
+                                                        }
+
+                                                        if (selectedRow != -1) {
+                                                            mTableView.getAdapter().removeRow(selectedRow, true);
+                                                            selectedRow = -1;
+
+                                                            new Handler().postDelayed(new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    try {
+                                                                        mTableView.getSelectionHandler().clearSelection();
+                                                                    }catch (Exception ex){
+                                                                        Log.e(TAG, ex.getMessage());
+                                                                    }
+                                                                }
+                                                            }, 100);
+                                                        }
                                                     }
                                                 }
-                                            }, 100);
-                                        }
-                                    }
+
+                                                @Override
+                                                public void onShown(Snackbar snackbar) {
+                                                    super.onShown(snackbar);
+                                                }
+                                            });
+
+                                    View view = snackbar.getView();
+                                    TextView textView = (TextView) view.findViewById(com.google.android.material.R.id.snackbar_text);
+                                    textView.setTextColor(ContextCompat.getColor(view.getContext(), com.nextgis.maplibui.R.color.color_white));
+                                    snackbar.show();
+                                    mToolbar.setVisibility(View.GONE);
                                 }
-
-                                @Override
-                                public void onShown(Snackbar snackbar) {
-                                    super.onShown(snackbar);
-                                }
-                            });
-
-                    View view = snackbar.getView();
-                    TextView textView = (TextView) view.findViewById(com.google.android.material.R.id.snackbar_text);
-                    textView.setTextColor(ContextCompat.getColor(view.getContext(), com.nextgis.maplibui.R.color.color_white));
-                    snackbar.show();
-                    mToolbar.setVisibility(View.GONE);
-
+                            })
+                            .setNegativeButton(R.string.cancel, null).show();
                     return true;
                 } else if (i == R.id.menu_edit) {
                     if (mLayer instanceof NGWVectorLayer &&  !mLayer.isEditable()){

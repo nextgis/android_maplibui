@@ -25,10 +25,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import androidx.appcompat.widget.AppCompatEditText;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -53,6 +55,7 @@ import static com.nextgis.maplib.util.LayerUtil.getColumnIndexSafely;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_HIDDEN_KEY;
+import static com.nextgis.maplibui.util.UiUtil.showFormNeedCorrection;
 
 @SuppressLint("ViewConstructor")
 public class Distance extends LinearLayout implements IFormControl {
@@ -60,6 +63,7 @@ public class Distance extends LinearLayout implements IFormControl {
     protected double mValue;
     protected String mFieldName;
     protected Location mLocation;
+    boolean useDisabledClick = false;
 
     public Distance(Context context) {
         super(context);
@@ -103,6 +107,16 @@ public class Distance extends LinearLayout implements IFormControl {
                 ((AppCompatEditText) findViewById(R.id.distance)).setText(getFormattedValue());
             }
         });
+
+        if (!ControlHelper.isEnabled(fields, mFieldName)) {
+            useDisabledClick = true;
+            (findViewById(R.id.distance)).setBackgroundColor(Color.LTGRAY);
+            findViewById(R.id.refresh).
+            setOnClickListener( view -> {
+                showFormNeedCorrection(view.getContext());
+            });
+        }
+
     }
 
     @SuppressLint("MissingPermission")
@@ -168,4 +182,15 @@ public class Distance extends LinearLayout implements IFormControl {
         super.setEnabled(enabled);
         findViewById(R.id.refresh).setEnabled(enabled);
     }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (useDisabledClick && event.getAction() == MotionEvent.ACTION_UP){
+            showFormNeedCorrection(getContext());
+            return true;
+        } else
+            return  super.onTouchEvent(event);
+    }
+
+
 }

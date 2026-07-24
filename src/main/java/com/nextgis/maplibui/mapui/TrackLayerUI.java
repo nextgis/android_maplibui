@@ -49,7 +49,7 @@ public class TrackLayerUI extends TrackLayer implements ILayerUI {
     public static int CODE_TRACK_LIST = 778;
     public TrackLayerUI(Context context, File path) {
         super(context, path);
-        mColor = ContextCompat.getColor(mContext, R.color.accent);
+        mColor = ContextCompat.getColor(mContext, R.color.blue);
         ((TrackRenderer) mRenderer).setEndingMarker(R.drawable.ic_track_flag);
     }
 

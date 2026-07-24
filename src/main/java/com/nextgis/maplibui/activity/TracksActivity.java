@@ -45,6 +45,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.nextgis.maplib.api.IGISApplication;
+import com.nextgis.maplib.api.INGWLayer;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.service.TrackerService;
@@ -264,7 +265,8 @@ public class TracksActivity extends NGActivity implements ActionMode.Callback {
             AmbilWarnaDialog dialog = new AmbilWarnaDialog(this, initColor, new AmbilWarnaDialog.OnAmbilWarnaListener() {
                 @Override
                 public void onOk(AmbilWarnaDialog dialog, int color) {
-                    changeColor(color);
+                    changeColor(color, null);
+                    refreshTracksList();
                 }
 
                 @Override
@@ -276,22 +278,39 @@ public class TracksActivity extends NGActivity implements ActionMode.Callback {
         return true;
     }
 
+    public void onColorChangeClick(Integer trackId){
+        int initColor = 0;
+        initColor = TrackLayer.getColor(this, mContentUriTracks, trackId);
+
+        AmbilWarnaDialog dialog = new AmbilWarnaDialog(this, initColor, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+            @Override
+            public void onOk(AmbilWarnaDialog dialog, int color) {
+                changeColor(color, trackId);
+                refreshTracksList();
+            }
+
+            @Override
+            public void onCancel(AmbilWarnaDialog dialog) { }
+        });
+        dialog.show();
+    }
+
     protected void changeVisibility(boolean visible) {
         ContentValues cv = new ContentValues();
         cv.put(TrackLayer.FIELD_VISIBLE, visible);
-        update(cv);
+        update(cv, null);
     }
 
 
-    protected void changeColor(int color) {
+    protected void changeColor(int color, Integer trackId) {
         ContentValues cv = new ContentValues();
         cv.put(TrackLayer.FIELD_COLOR, color);
-        update(cv);
+        update(cv, trackId);
     }
 
-    protected void update(ContentValues cv) {
-        String selection = getSelection(mTracks.getSelectedItemsCount());
-        String[] args = mTracks.getSelectedItemsIds();
+    protected void update(ContentValues cv, Integer trackId) {
+        String selection = getSelection(trackId == null? mTracks.getSelectedItemsCount() : 1  );
+        String[] args = trackId == null ?  mTracks.getSelectedItemsIds() : new String[]{String.valueOf(trackId)};
         getContentResolver().update(mContentUriTracks, cv, selection, args);
     }
 

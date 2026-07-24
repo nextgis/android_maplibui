@@ -25,7 +25,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.Cursor;
+import android.graphics.Outline;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -37,6 +39,7 @@ import androidx.loader.content.Loader;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.widget.AdapterView;
 import android.widget.CheckedTextView;
 import android.widget.ImageView;
@@ -46,6 +49,7 @@ import android.widget.SimpleCursorAdapter;
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.map.TrackLayer;
 import com.nextgis.maplibui.R;
+import com.nextgis.maplibui.activity.TracksActivity;
 
 import java.util.ArrayList;
 
@@ -229,6 +233,30 @@ public class TrackView extends ListView implements LoaderManager.LoaderCallbacks
         public void bindView(View view, Context context, Cursor cursor) {
 
             final Integer id = cursor.getInt(0);
+
+            final View colorSample = view.findViewById(R.id.iv_colorSample);
+            int initColor = TrackLayer.getColor(context, mContentUriTracks, id);
+            colorSample.setBackgroundColor(initColor);
+
+
+            colorSample.setOutlineProvider(new ViewOutlineProvider() {
+                @Override
+                public void getOutline(View view, Outline outline) {
+                    outline.setOval(0, 0, view.getWidth(), view.getHeight());
+                }
+            });
+            colorSample.setClipToOutline(true);
+
+
+            colorSample.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if (context instanceof TracksActivity)
+                        ((TracksActivity)context).onColorChangeClick(id);
+                }
+            });
+
             final ImageView visibility = (ImageView) view.findViewById(R.id.iv_visibility);
             visibility.setImageDrawable(cursor.getInt(2) != 0 ? mVisibilityOn : mVisibilityOff);
             visibility.setOnClickListener(new OnClickListener() {
@@ -236,6 +264,7 @@ public class TrackView extends ListView implements LoaderManager.LoaderCallbacks
                 public void onClick(View v) {
                     boolean isVisible = visibility.getDrawable().equals(mVisibilityOn);
                     updateRecord(id, !isVisible);
+                    updateVisibleFlag(!isVisible, v);
                 }
             });
 
@@ -248,6 +277,13 @@ public class TrackView extends ListView implements LoaderManager.LoaderCallbacks
             ContentValues cv = new ContentValues();
             cv.put(TrackLayer.FIELD_VISIBLE, visibility);
             mContext.getContentResolver().update(Uri.withAppendedPath(mContentUriTracks, id + ""), cv, null, null);
+
+        }
+
+        private void updateVisibleFlag(boolean visibilityBoolean, View view) {
+            final ImageView visibility = (ImageView) view.findViewById(R.id.iv_visibility);
+            visibility.setImageDrawable(visibilityBoolean? mVisibilityOn : mVisibilityOff);
+
         }
     }
 }

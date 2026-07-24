@@ -77,6 +77,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DATE_TYPE_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_KEY;
+import static com.nextgis.maplibui.util.UiUtil.showFormNeedCorrection;
 
 
 public class DateTime
@@ -258,16 +259,8 @@ public class DateTime
             setEnabled(false);
             setTextColor(Color.GRAY);
             setBackgroundColor(Color.LTGRAY);
-            setOnClickListener( view -> {
-                AlertDialog dialog = new AlertDialog.Builder(getContext())
-                        .setMessage(R.string.form_trouble)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
-            });
         }
-
     }
-
 
     protected long parseDateTime(
             String value,
@@ -389,23 +382,13 @@ public class DateTime
             datePickerDialog.dismiss();
     }
 
-    private OnClickListener mCustomClickListener;
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (  useDisabledClick &&   event.getAction() == MotionEvent.ACTION_UP) {
-            // Вызываем клик при отжатии пальца
-            if (mCustomClickListener != null) {
-                mCustomClickListener.onClick(this);
-            }
-            return true; // Говорим, что обработали
-        }
-        return super.onTouchEvent(event);
+        if (useDisabledClick && event.getAction() == MotionEvent.ACTION_UP){
+            showFormNeedCorrection(getContext());
+            return true;
+        } else
+            return  super.onTouchEvent(event);
     }
 
-    // Переопределяем setOnClickListener, чтобы сохранить наш слушатель
-    @Override
-    public void setOnClickListener(OnClickListener l) {
-        mCustomClickListener = l;
-    }
 }

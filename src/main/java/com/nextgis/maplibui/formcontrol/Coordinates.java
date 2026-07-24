@@ -52,6 +52,7 @@ import java.util.Map;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_HIDDEN_KEY;
+import static com.nextgis.maplibui.util.UiUtil.showFormNeedCorrection;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -105,12 +106,6 @@ public class Coordinates extends TextEdit
             setEnabled(false);
             setTextColor(Color.GRAY);
             setBackgroundColor(Color.LTGRAY);
-            setOnClickListener( view -> {
-                AlertDialog dialog = new AlertDialog.Builder(getContext())
-                        .setMessage(R.string.form_trouble)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
-            });
         }
 
     }
@@ -162,24 +157,14 @@ public class Coordinates extends TextEdit
     public boolean isLat() {
         return mIsLat;
     }
-    private OnClickListener mCustomClickListener;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (  useDisabledClick &&   event.getAction() == MotionEvent.ACTION_UP) {
-            // Вызываем клик при отжатии пальца
-            if (mCustomClickListener != null) {
-                mCustomClickListener.onClick(this);
-            }
-            return true; // Говорим, что обработали
-        }
-        return super.onTouchEvent(event);
-    }
-
-    // Переопределяем setOnClickListener, чтобы сохранить наш слушатель
-    @Override
-    public void setOnClickListener(OnClickListener l) {
-        mCustomClickListener = l;
+        if (useDisabledClick && event.getAction() == MotionEvent.ACTION_UP){
+            showFormNeedCorrection(getContext());
+            return true;
+        } else
+            return  super.onTouchEvent(event);
     }
 
 }

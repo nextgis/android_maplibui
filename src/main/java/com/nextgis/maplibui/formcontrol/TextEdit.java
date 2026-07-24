@@ -69,6 +69,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_KEY;
 import static com.nextgis.maplibui.util.NGIDUtils.PREF_FIRST_NAME;
 import static com.nextgis.maplibui.util.NGIDUtils.PREF_LAST_NAME;
 import static com.nextgis.maplibui.util.NGIDUtils.PREF_USERNAME;
+import static com.nextgis.maplibui.util.UiUtil.showFormNeedCorrection;
 
 @SuppressLint("ViewConstructor")
 public class TextEdit extends AppCompatEditText
@@ -196,12 +197,6 @@ public class TextEdit extends AppCompatEditText
             setEnabled(false);
             setTextColor(Color.GRAY);
             setBackgroundColor(Color.LTGRAY);
-            setOnClickListener( view -> {
-                AlertDialog dialog = new AlertDialog.Builder(getContext())
-                        .setMessage(R.string.form_trouble)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
-            });
         }
     }
 
@@ -235,24 +230,13 @@ public class TextEdit extends AppCompatEditText
         outState.putString(ControlHelper.getSavedStateKey(mFieldName), getText().toString());
     }
 
-
-    private OnClickListener mCustomClickListener;
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (  useDisabledClick &&   event.getAction() == MotionEvent.ACTION_UP) {
-            // Вызываем клик при отжатии пальца
-            if (mCustomClickListener != null) {
-                mCustomClickListener.onClick(this);
-            }
-            return true; // Говорим, что обработали
-        }
-        return super.onTouchEvent(event);
+        if (useDisabledClick && event.getAction() == MotionEvent.ACTION_UP){
+            showFormNeedCorrection(getContext());
+            return true;
+        } else
+            return  super.onTouchEvent(event);
     }
 
-    // Переопределяем setOnClickListener, чтобы сохранить наш слушатель
-    @Override
-    public void setOnClickListener(OnClickListener l) {
-            mCustomClickListener = l;
-    }
 }

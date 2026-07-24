@@ -62,6 +62,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_ALIAS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_NAME_KEY;
+import static com.nextgis.maplibui.util.UiUtil.showFormNeedCorrection;
 
 public class RadioGroup extends android.widget.RadioGroup implements IFormControl
 {
@@ -134,15 +135,7 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
 
         if (!ControlHelper.isEnabled(fields, mFieldName)) {
             useDisabledClick = true;
-            setEnabled(false);
-            //setTextColor(Color.GRAY);
             setBackgroundColor(Color.LTGRAY);
-            setOnClickListener( view -> {
-                AlertDialog dialog = new AlertDialog.Builder(getContext())
-                        .setMessage(R.string.form_trouble)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
-            });
         }
 
     }
@@ -185,24 +178,13 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
         outState.putString(ControlHelper.getSavedStateKey(mFieldName), (String) getValue());
     }
 
-    private OnClickListener mCustomClickListener;
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (  useDisabledClick &&   event.getAction() == MotionEvent.ACTION_UP) {
-            // Вызываем клик при отжатии пальца
-            if (mCustomClickListener != null) {
-                mCustomClickListener.onClick(this);
-            }
-            return true; // Говорим, что обработали
-        }
-        return super.onTouchEvent(event);
-    }
-
-    // Переопределяем setOnClickListener, чтобы сохранить наш слушатель
-    @Override
-    public void setOnClickListener(OnClickListener l) {
-        mCustomClickListener = l;
+        if (useDisabledClick && event.getAction() == MotionEvent.ACTION_UP){
+            showFormNeedCorrection(getContext());
+            return true;
+        } else
+            return  super.onTouchEvent(event);
     }
 
 }

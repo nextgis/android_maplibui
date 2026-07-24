@@ -265,4 +265,10 @@ public final class UiUtil {
         return Math.round(dp * density);
     }
 
+    static public void showFormNeedCorrection(Context context) {
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setMessage(R.string.form_trouble)
+                .setPositiveButton(R.string.ok, null)
+                .show();
+    }
 }

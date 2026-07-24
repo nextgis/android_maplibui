@@ -49,4 +49,15 @@
         android:paddingStart="8dp"
         tools:ignore="ContentDescription"/>
 
+    <View
+        android:id="@+id/iv_colorSample"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_gravity="center_vertical"
+        android:paddingEnd="16dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="16dp"
+        android:paddingStart="8dp"
+        tools:ignore="ContentDescription"/>
+
 </LinearLayout>

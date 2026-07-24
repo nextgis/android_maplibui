@@ -67,6 +67,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_NGW_ID_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_ALIAS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_NAME_KEY;
+import static com.nextgis.maplibui.util.UiUtil.showFormNeedCorrection;
 
 public class Combobox extends AppCompatSpinner implements IFormControl
 {
@@ -179,16 +180,8 @@ public class Combobox extends AppCompatSpinner implements IFormControl
             useDisabledClick = true;
             setEnabled(false);
             setBackgroundColor(Color.LTGRAY);
-            setOnClickListener( view -> {
-                AlertDialog dialog = new AlertDialog.Builder(getContext())
-                        .setMessage(R.string.form_trouble)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
-            });
         }
-
     }
-
 
     @Override
     public void saveLastValue(SharedPreferences preferences) {
@@ -228,23 +221,13 @@ public class Combobox extends AppCompatSpinner implements IFormControl
         outState.putString(ControlHelper.getSavedStateKey(mFieldName), (String) getValue());
     }
 
-    private OnClickListener mCustomClickListener;
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (  useDisabledClick &&   event.getAction() == MotionEvent.ACTION_UP) {
-            // Вызываем клик при отжатии пальца
-            if (mCustomClickListener != null) {
-                mCustomClickListener.onClick(this);
-            }
-            return true; // Говорим, что обработали
-        }
-        return super.onTouchEvent(event);
+        if (useDisabledClick && event.getAction() == MotionEvent.ACTION_UP){
+            showFormNeedCorrection(getContext());
+            return true;
+        } else
+            return  super.onTouchEvent(event);
     }
 
-    // Переопределяем setOnClickListener, чтобы сохранить наш слушатель
-    @Override
-    public void setOnClickListener(OnClickListener l) {
-        mCustomClickListener = l;
-    }
 }

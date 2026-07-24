@@ -66,6 +66,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_LEVEL2_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_ALIAS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_NAME_KEY;
+import static com.nextgis.maplibui.util.UiUtil.showFormNeedCorrection;
 
 
 public class DoubleCombobox extends AppCompatSpinner implements IFormControl
@@ -192,7 +193,8 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
         setPadding(0, (int) minHeight, 0, (int) minHeight);
         mSubCombobox.setPadding(0, (int) minHeight, 0, (int) minHeight);
 
-        setOnItemSelectedListener(
+        if (ControlHelper.isEnabled(fields, mFieldName))
+            setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener()
                 {
                     public void onItemSelected(
@@ -232,14 +234,8 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
             setEnabled(false);
             //setTextColor(Color.GRAY);
             setBackgroundColor(Color.LTGRAY);
-            setOnClickListener( view -> {
-                AlertDialog dialog = new AlertDialog.Builder(getContext())
-                        .setMessage(R.string.form_trouble)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
-            });
+            mSubCombobox.setBackgroundColor(Color.LTGRAY);
         }
-
     }
 
     @Override
@@ -304,24 +300,14 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
         outState.putString(ControlHelper.getSavedStateKey(mFieldName), result.mValue);
         outState.putString(ControlHelper.getSavedStateKey(mSubFieldName), result.mSubValue);
     }
-    private OnClickListener mCustomClickListener;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (  useDisabledClick &&   event.getAction() == MotionEvent.ACTION_UP) {
-            // Вызываем клик при отжатии пальца
-            if (mCustomClickListener != null) {
-                mCustomClickListener.onClick(this);
-            }
-            return true; // Говорим, что обработали
-        }
-        return super.onTouchEvent(event);
-    }
-
-    // Переопределяем setOnClickListener, чтобы сохранить наш слушатель
-    @Override
-    public void setOnClickListener(OnClickListener l) {
-        mCustomClickListener = l;
+        if (useDisabledClick && event.getAction() == MotionEvent.ACTION_UP){
+            showFormNeedCorrection(getContext());
+            return true;
+        } else
+            return  super.onTouchEvent(event);
     }
 
 }

@@ -70,6 +70,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_ALIAS2_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_ALIAS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_VALUE_NAME_KEY;
+import static com.nextgis.maplibui.util.UiUtil.showFormNeedCorrection;
 
 public class SplitCombobox extends FrameLayout implements IFormControl
 {
@@ -236,15 +237,15 @@ public class SplitCombobox extends FrameLayout implements IFormControl
 
         if (!ControlHelper.isEnabled(fields, mFieldName)) {
             useDisabledClick = true;
-            setEnabled(false);
+            //setEnabled(false);
             //setTextColor(Color.GRAY);
             setBackgroundColor(Color.LTGRAY);
-            setOnClickListener( view -> {
-                AlertDialog dialog = new AlertDialog.Builder(getContext())
-                        .setMessage(R.string.form_trouble)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
-            });
+//            setOnClickListener( view -> {
+//                AlertDialog dialog = new AlertDialog.Builder(getContext())
+//                        .setMessage(R.string.form_trouble)
+//                        .setPositiveButton(R.string.ok, null)
+//                        .show();
+//            });
         }
 
     }
@@ -284,12 +285,13 @@ public class SplitCombobox extends FrameLayout implements IFormControl
             ImageView sign = new ImageView(getContext());
             sign.setImageResource(R.drawable.ic_lock_black_24dp);
             sign.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            sign.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ControlHelper.showNoLoginDialog(ControlHelper.getActivity(getContext()));
-                }
-            });
+            if (!useDisabledClick)
+                sign.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ControlHelper.showNoLoginDialog(ControlHelper.getActivity(getContext()));
+                    }
+                });
 
             splash.addView(sign);
             addView(splash);
@@ -319,24 +321,13 @@ public class SplitCombobox extends FrameLayout implements IFormControl
         mSpinner2.setEnabled(enabled);
     }
 
-    private OnClickListener mCustomClickListener;
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (  useDisabledClick &&   event.getAction() == MotionEvent.ACTION_UP) {
-            // Вызываем клик при отжатии пальца
-            if (mCustomClickListener != null) {
-                mCustomClickListener.onClick(this);
-            }
-            return true; // Говорим, что обработали
-        }
-        return super.onTouchEvent(event);
-    }
-
-    // Переопределяем setOnClickListener, чтобы сохранить наш слушатель
-    @Override
-    public void setOnClickListener(OnClickListener l) {
-        mCustomClickListener = l;
+        if (useDisabledClick && event.getAction() == MotionEvent.ACTION_UP){
+            showFormNeedCorrection(getContext());
+            return true;
+        } else
+            return  super.onTouchEvent(event);
     }
 
 }
