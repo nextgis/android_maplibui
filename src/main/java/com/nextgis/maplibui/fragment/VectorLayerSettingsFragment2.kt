@@ -464,10 +464,10 @@ class VectorLayerSettingsFragment2
 //            val periodSpinner = view.findViewById<Spinner>(R.id.sync_interval)
 //            val autoCheck = view.findViewById<CheckBox>(R.id.sync_auto)
 //
-//            val isAccountSyncEnabled = NGWSettingsFragment.isAccountSyncEnabled(account, app.authority)
-//            autoCheck.isChecked = isAccountSyncEnabled
+//            val isAccountAutoSyncEnabled = NGWSettingsFragment.isAccountAutoSyncEnabled(account, app.authority)
+//            autoCheck.isChecked = isAccountAutoSyncEnabled
 //            autoCheck.setOnCheckedChangeListener { _, checked ->
-//                NGWSettingsFragment.setAccountSyncEnabled(account, app.authority, checked)
+//                NGWSettingsFragment.setAccountAutoSyncEnabled(account, app.authority, checked)
 //                periodSpinner.isEnabled = checked
 //            }
 //
@@ -542,7 +542,7 @@ class VectorLayerSettingsFragment2
 //    }
 //
 //    class GeneralFragment : LayerGeneralSettingsFragment() {
-//        // просто алиас — используем уже готовый фрагмент общих настроек
+
 //    }
 //
 //    companion object {

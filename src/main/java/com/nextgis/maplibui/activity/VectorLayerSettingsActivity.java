@@ -26,6 +26,7 @@ package com.nextgis.maplibui.activity;
 import android.accounts.Account;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -73,7 +74,6 @@ import com.nextgis.maplib.util.AccountUtil;
 import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplib.util.LayerUtil;
-import com.nextgis.maplibui.GISApplication;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.display.RendererUI;
 import com.nextgis.maplibui.display.RuleFeatureRendererUI;
@@ -89,14 +89,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.nextgis.maplib.util.AccountUtil.getSyncPeriodForAccount;
 import static com.nextgis.maplib.util.AccountUtil.saveSyncPeriodForAccount;
 import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
-import static com.nextgis.maplibui.GISApplication.getAccountSyncTime;
 import static com.nextgis.maplibui.mapui.SyncAccountWorker.schedule;
 import static com.nextgis.maplibui.util.LayerUtil.getGeometryName;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
-import static com.nextgis.maplibui.util.UiUtil.showNoEditPermAlert;
 
 /**
  * Vector layer settings activity. Include common settings (layer name) and renderer settings.
@@ -496,28 +495,36 @@ public class VectorLayerSettingsActivity
                 }
             });
 
-            final Spinner period = v.findViewById(R.id.sync_interval);
+            final Spinner periodSpiner = v.findViewById(R.id.sync_interval);
             CheckBox auto = v.findViewById(R.id.sync_auto);
-            boolean isAccountSyncEnabled = NGWSettingsFragment.isAccountSyncEnabled(getContext(),  account, app.getAuthority());
+            boolean isAccountSyncEnabled = NGWSettingsFragment.isAccountAutoSyncEnabled(getContext(),  account, app.getAuthority());
             auto.setChecked(isAccountSyncEnabled);
             auto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                    NGWSettingsFragment.setAccountSyncEnabled(getContext(), account, app.getAuthority(), checked);
-                    period.setEnabled(checked);
+                    NGWSettingsFragment.setAccountAutoSyncEnabled(getContext(), account, app.getAuthority(), checked);
+                    periodSpiner.setEnabled(checked);
                 }
             });
 
-            period.setEnabled(auto.isChecked());
+            periodSpiner.setEnabled(auto.isChecked());
+
+            long  period = 0;
+            period = getSyncPeriodForAccount(getContext(), account.name, 0);
+
             String prefValue = "" + Constants.DEFAULT_SYNC_PERIOD;
-            List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, app.getAuthority());
-            if (null != syncs && !syncs.isEmpty()) {
-                for (PeriodicSync sync : syncs) {
-                    Bundle bundle = sync.extras;
-                    String savedPeriod = bundle.getString(KEY_PREF_SYNC_PERIOD);
-                    if (savedPeriod != null) {
-                        prefValue = savedPeriod;
-                        break;
+            if (period != 0){
+                prefValue = "" + period;
+            } else  {
+                List<PeriodicSync> syncs = ContentResolver.getPeriodicSyncs(account, app.getAuthority());
+                if (null != syncs && !syncs.isEmpty()) {
+                    for (PeriodicSync sync : syncs) {
+                        Bundle bundle = sync.extras;
+                        String value = bundle.getString(KEY_PREF_SYNC_PERIOD);
+                        if (value != null) {
+                            prefValue = value;
+                            break;
+                        }
                     }
                 }
             }
@@ -526,20 +533,30 @@ public class VectorLayerSettingsActivity
             final CharSequence[] values = NGWSettingsFragment.getPeriodValues();
 
             SpinnerAdapter adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, keys);
-            period.setAdapter(adapter);
-            period.setSelection(4);
+            periodSpiner.setAdapter(adapter);
+            periodSpiner.setSelection(4);
 
             for (int i = 0; i < values.length; i++) {
                 if (values[i].equals(prefValue)) {
-                    period.setSelection(i);
+                    periodSpiner.setSelection(i);
                     break;
                 }
             }
 
-            period.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            periodSpiner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                    if (!NGWSettingsFragment.isAccountAutoSyncEnabled(getContext(),  account, app.getAuthority()))
+                        return;
+
                     String value = values[i].toString();
+
+                    String savedPeriod = getSyncPeriodForAccount(getContext(), account.name, 0) + "";
+                    if (value.equals(savedPeriod)) // same value choosed
+                        return;
+
+
                     long interval = Long.parseLong(value);
                     Bundle bundle = new Bundle();
                     bundle.putString(KEY_PREF_SYNC_PERIOD, value);
@@ -551,18 +568,11 @@ public class VectorLayerSettingsActivity
                         long period = interval;
                         saveSyncPeriodForAccount(getContext(), account.name, period );
                         schedule(getContext(), account.name, period);
-
-
-//                        ((GISApplication)getContext().getApplicationContext()).setSyncPeriod(account,interval,bundle, true);
-
-                        // no need -
-                        //ContentResolver.addPeriodicSync(account, app.getAuthority(), bundle, interval);
                     }
                 }
 
                 @Override
                 public void onNothingSelected(AdapterView<?> adapterView) {
-
                 }
             });
 

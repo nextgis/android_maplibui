@@ -96,6 +96,7 @@ import static com.nextgis.maplib.util.Constants.MESSAGE_ALERT_INTENT;
 import static com.nextgis.maplib.util.Constants.MESSAGE_EXTRA;
 import static com.nextgis.maplib.util.Constants.MESSAGE_EXTRA_IS_PARENTFILL;
 import static com.nextgis.maplib.util.Constants.MESSAGE_TITLE_EXTRA;
+import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_MBTILES_RASTER;
 import static com.nextgis.maplib.util.NetworkUtil.configureSSLdefault;
 import static com.nextgis.maplib.util.NetworkUtil.getUserAgent;
 import static com.nextgis.maplibui.util.ConstantsUI.FILE_FORM;
@@ -135,6 +136,7 @@ public class LayerFillService extends Service implements IProgressor {
     public static final String KEY_PATH = "path";
     public static final String KEY_LAYER_PATH = "layer_path";
     public static final String KEY_IS_NGFP_OPEN = "isNgfpOpen";
+    public static final String KEY_IS_MBTILES_DIRECT_OPEN = "isDirectOpen";
     public static final String KEY_MIN_ZOOM = "min_zoom";
     public static final String KEY_MAX_ZOOM = "max_zoom";
     public static final String KEY_VISIBLE = "visible";
@@ -477,6 +479,7 @@ public class LayerFillService extends Service implements IProgressor {
         boolean mVisible;
         Uri mUri;
         protected Layer mLayer;
+        boolean isDirectMBtilesLoad = false;
         public boolean subTaskWasRunned = true;
         public long[] defaultFormIDArray = null;
         public  boolean isWritePerm = true;
@@ -484,6 +487,7 @@ public class LayerFillService extends Service implements IProgressor {
         LayerFillTask(Bundle bundle) {
             mUri = bundle.getParcelable(KEY_URI);
             mLayerName = bundle.getString(KEY_NAME);
+            isDirectMBtilesLoad = bundle.getBoolean(KEY_IS_MBTILES_DIRECT_OPEN, false);
             mLayerPath = bundle.containsKey(KEY_LAYER_PATH) ?
                     (File) bundle.getSerializable(KEY_LAYER_PATH) :
                     mLayerGroup.createLayerStorage();
@@ -840,6 +844,7 @@ public class LayerFillService extends Service implements IProgressor {
             super(bundle);
             mLayer = new LocalTMSLayerUI(mLayerGroup.getContext(), mLayerPath);
             mIsNgrc = !bundle.containsKey(KEY_TMS_TYPE);
+            isDirectMBtilesLoad = bundle.getBoolean(KEY_IS_MBTILES_DIRECT_OPEN, false);
             ((LocalTMSLayerUI) mLayer).setCacheSizeMultiply(bundle.getInt(KEY_TMS_CACHE));
 
             if (!mIsNgrc) { // it's zip
@@ -855,6 +860,11 @@ public class LayerFillService extends Service implements IProgressor {
                 TMSLayer tmsLayer = (TMSLayer) mLayer;
                 if (null == tmsLayer)
                     return false;
+
+                if (tmsLayer.getTMSType()==TMSTYPE_MBTILES_RASTER){
+                    tmsLayer.fillFromMBTiles(mUri, progressor, isDirectMBtilesLoad);
+                    return true;
+                }
 
                 if (mIsNgrc)
                     tmsLayer.fillFromNgrc(mUri, progressor);

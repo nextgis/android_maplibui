@@ -37,9 +37,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -47,8 +45,6 @@ import android.util.Log;
 
 import com.hypertrack.hyperlog.HyperLog;
 import com.nextgis.maplib.api.IGISApplication;
-import com.nextgis.maplib.datasource.ngw.Connection;
-import com.nextgis.maplib.datasource.ngw.SyncAdapter;
 import com.nextgis.maplib.location.GpsEventSource;
 import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.MLP.AuthInterceptorNG;
@@ -83,9 +79,8 @@ import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_DARK;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_LIGHT;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_MAP;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_NEUTRAL;
-import static com.nextgis.maplibui.fragment.NGWSettingsFragment.isAccountSyncEnabled;
+import static com.nextgis.maplibui.fragment.NGWSettingsFragment.isAccountAutoSyncEnabled;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
-import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIODICALLY;
 
 import androidx.core.content.ContextCompat;
 import androidx.work.Configuration;
@@ -237,9 +232,8 @@ public abstract class GISApplication extends Application
         }, 2000);
 
         try {
-            WorkManager.getInstance(this); // если уже инициализирован (главный процесс) — не упадёт
+            WorkManager.getInstance(this);
         } catch (IllegalStateException e) {
-            // не инициализирован (например, процесс :tracks) — инициализируем сами
             Configuration config = new Configuration.Builder()
                     .setMinimumLoggingLevel(android.util.Log.INFO)
                     .build();
@@ -737,7 +731,7 @@ public abstract class GISApplication extends Application
         for (Account account : mAccountManager.getAccountsByType(getAccountsType())) {
             Log.d("SSYNC", "Reset for : " + account.name + " account");
 
-            boolean syncEnabled = isAccountSyncEnabled(this, account, this.getAuthority());
+            boolean syncEnabled = isAccountAutoSyncEnabled(this, account, this.getAuthority());
             ContentResolver.setSyncAutomatically(account, getAuthority(), false);
 
 

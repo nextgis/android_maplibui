@@ -117,7 +117,7 @@ dependencies {
     implementation 'com.github.barsrb:hyperlog-android:master-SNAPSHOT'
 
 
-    implementation 'org.maplibre.gl:android-sdk:13.0.2'
+    implementation 'org.maplibre.gl:android-sdk:13.4.1'
     implementation 'com.squareup.okhttp3:okhttp:5.3.2'
     implementation 'androidx.core:core-ktx:1.18.0'
 

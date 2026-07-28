@@ -34,9 +34,11 @@ import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.datasource.ngw.Connections;
 import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
+import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.NGWLookupTable;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.MapUtil;
+import com.nextgis.maplibui.GISApplication;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGActivity;
 import com.nextgis.maplibui.activity.SelectNGWResourceActivity;
@@ -66,6 +68,8 @@ import static com.nextgis.maplib.util.Constants.LAYERTYPE_NGW_WEBMAP;
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_REMOTE_TMS;
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_TRACKS;
 import static com.nextgis.maplib.util.Constants.TAG;
+import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_MBTILES_RASTER;
+import static com.nextgis.maplibui.service.LayerFillService.TMS_LAYER;
 
 
 public class LayerFactoryUI
@@ -150,15 +154,36 @@ public class LayerFactoryUI
 //                return;
 //            }
 
+
             AtomicReference<Uri> temp = new AtomicReference<>(uri);
-            if (MapUtil.isZippedGeoJSON(context, temp)) {
+
+            if (MapUtil.isZippedWithExtension(context, temp, ".mbtiles")
+                    || ext.equals(".mbtiles") ){
+                // create or connect to fill layer with features
+                Intent intent = new Intent(context, LayerFillService.class);
+                intent.setAction(LayerFillService.ACTION_ADD_TASK);
+                intent.putExtra(LayerFillService.KEY_URI, temp.get());
+                intent.putExtra(LayerFillService.KEY_NAME, layerName);
+                intent.putExtra(LayerFillService.KEY_INPUT_TYPE, TMS_LAYER);
+                intent.putExtra(LayerFillService.KEY_IS_MBTILES_DIRECT_OPEN, ext.equals("mbtiles"));
+                intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID,
+                        ((MapDrawable)((GISApplication)context.getApplicationContext()).getMap()).getId());
+                intent.putExtra(LayerFillService.KEY_TMS_TYPE, TMSTYPE_MBTILES_RASTER);
+                LayerFillProgressDialogFragment.startFill(intent);
+                return;
+            }
+
+
+
+
+            if (MapUtil.isZippedWithExtension(context, temp, ".geojson")) {
                 createNewVectorLayer(context, groupLayer, temp.get());
                 return;
             }
 
             CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
             newFragment.setLayerGroup(groupLayer)
-                    .setLayerType(LayerFillService.TMS_LAYER)
+                    .setLayerType(TMS_LAYER)
                     .setUri(uri)
                     .setLayerName(layerName)
                     .setTitle(context.getString(R.string.create_tms_layer))

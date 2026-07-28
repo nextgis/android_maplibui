@@ -47,6 +47,7 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceScreen;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.INGWLayer;
@@ -93,6 +94,7 @@ public class NGWSettingsFragment
 
     protected OnDeleteAccountListener mOnDeleteAccountListener;
 
+    ListPreference timeInteval = null;
 
     @Override
     public void createPreferences(PreferenceScreen screen)
@@ -153,8 +155,9 @@ public class NGWSettingsFragment
         addAutoSyncProperty(appContext, account, syncCategory);
 
         // add time for periodic sync
-        addPeriodicSyncTime(appContext, account, syncCategory);
+        timeInteval =  addPeriodicSyncTime(appContext, account, syncCategory);
 
+        updateTimeIntervalEnabled(isAccountAutoSyncEnabled(getContext(), account, ((IGISApplication)getContext().getApplicationContext()).getAuthority()));
         // add account layers
         addAccountLayers(screen, appContext, account);
 
@@ -196,8 +199,9 @@ public class NGWSettingsFragment
         enablePeriodicSync.setPersistent(false);
         enablePeriodicSync.setTitle(R.string.auto_sync);
 
-        boolean isAccountSyncEnabled = isAccountSyncEnabled(getContext(), account, application.getAuthority());
-        enablePeriodicSync.setChecked(isAccountSyncEnabled);
+        boolean isAccountAutoSyncEnabled = isAccountAutoSyncEnabled(getContext(), account, application.getAuthority());
+
+        enablePeriodicSync.setChecked(isAccountAutoSyncEnabled);
         enablePeriodicSync.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener()
         {
             @Override
@@ -206,7 +210,8 @@ public class NGWSettingsFragment
                     Object newValue)
             {
                 boolean isChecked = (boolean) newValue;
-                setAccountSyncEnabled(getContext(),  account, application.getAuthority(), isChecked);
+                setAccountAutoSyncEnabled(getContext(),  account, application.getAuthority(), isChecked);
+                updateTimeIntervalEnabled(isChecked);
                 return true;
             }
         });
@@ -214,7 +219,8 @@ public class NGWSettingsFragment
         long timeStamp = sharedPreferences.getLong(
                 com.nextgis.maplib.util.SettingsConstants.KEY_PREF_LAST_SYNC_TIMESTAMP
                         + accountNameHash, 0);
-        if (isAccountSyncEnabled && timeStamp > 0) {
+
+        if (isAccountAutoSyncEnabled && timeStamp > 0) {
             enablePeriodicSync.setSummary(ControlHelper.getSyncTime(mStyledContext, timeStamp));
         } else {
             enablePeriodicSync.setSummary(R.string.auto_sync_summary);
@@ -224,26 +230,29 @@ public class NGWSettingsFragment
 
 
     // for overriding in a subclass
-    public static boolean isAccountSyncEnabled(
+    // AutoSync
+    public static boolean isAccountAutoSyncEnabled(
             Context context,
             Account account,
-            String authority)
-    {
+            String authority){
         long period = getSyncPeriodForAccount(context, account.name, 0);
         if (period  != 0L){
             return true;
         }
-        return null != account && ContentResolver.getSyncAutomatically(account, authority);
+        // remove ContentResolver part after most old app versions gone
+        // change to false
+        return null != account &&
+                ContentResolver.getSyncAutomatically(account, authority);
     }
 
 
+    // AutoSync
     // for overriding in a subclass
-    public static void setAccountSyncEnabled(
+    public static void setAccountAutoSyncEnabled(
             Context context,
             Account account,
             String authority,
-            boolean isEnabled)
-    {
+            boolean isEnabled){
         if (null == account) {
             return;
         }
@@ -257,15 +266,20 @@ public class NGWSettingsFragment
             long period =  getAccountSyncTime(account,  (GISApplication)context.getApplicationContext());
 
             saveSyncPeriodForAccount(context, account.name, period);
-
             SyncAccountWorker.schedule(context, account.name, period);
         }
         //ContentResolver.setSyncAutomatically(account, authority, isEnabled);
     }
 
+    public void updateTimeIntervalEnabled(boolean newValue){
+        if (timeInteval!= null){
+            timeInteval.setEnabled(newValue);
+        }
+    }
+
 
     // for overriding in a subclass
-    protected void addPeriodicSyncTime(
+    protected ListPreference addPeriodicSyncTime(
             final IGISApplication application,
             final Account account,
             PreferenceGroup syncCategory)    {
@@ -329,6 +343,10 @@ public class NGWSettingsFragment
                     Preference preference,
                     Object newValue)
             {
+
+                if (!isAccountAutoSyncEnabled(getContext(), account, application.getAuthority()))
+                    return true;
+
                 String value =(String) newValue;
                 long interval = Long.parseLong(value);
 
@@ -361,9 +379,7 @@ public class NGWSettingsFragment
         });
 
         syncCategory.addPreference(timeInterval);
-        // TODO 3.0
-        // crash on Android 2.3.6
-//        timeInterval.setDependency(KEY_SYNC);
+        return timeInterval;
     }
 
 

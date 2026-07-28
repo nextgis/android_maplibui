@@ -38,11 +38,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
+
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -239,7 +237,7 @@ public class LayerFillProgressDialogFragment extends Fragment {
                         final Account account = app.getAccount(ngwLayer.getAccountName());
 
 
-                        NGWSettingsFragment.setAccountSyncEnabled(ngwLayer.getContext(), account, app.getAuthority(), true);
+                        NGWSettingsFragment.setAccountAutoSyncEnabled(ngwLayer.getContext(), account, app.getAuthority(), true);
                         ngwLayer.setSyncType(Constants.SYNC_ALL);
                         ngwLayer.save();
 
@@ -255,7 +253,7 @@ public class LayerFillProgressDialogFragment extends Fragment {
 //                                .setPositiveButton(R.string.auto, new DialogInterface.OnClickListener() {
 //                                    @Override
 //                                    public void onClick(DialogInterface dialogInterface, int i) {
-//                                        NGWSettingsFragment.setAccountSyncEnabled(account, app.getAuthority(), true);
+//                                        NGWSettingsFragment.setAccountAutoSyncEnabled(account, app.getAuthority(), true);
 //                                        ngwLayer.setSyncType(Constants.SYNC_ALL);
 //                                        ngwLayer.save();
 //                                    }

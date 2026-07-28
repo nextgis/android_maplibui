@@ -202,6 +202,17 @@ public class DateTime
                     myMinute = mCalendar.get(Calendar.MINUTE);
 
                     datePickerDialog.getDatePicker().init(year, month, day, null);
+
+                    Calendar minCal = Calendar.getInstance();
+                    minCal.set(1, Calendar.JANUARY, 1); // минимально возможный "разумный" год
+                    datePickerDialog.getDatePicker().setMinDate(minCal.getTimeInMillis());
+
+
+                    Calendar maxCal = Calendar.getInstance();
+                    maxCal.set(2200, Calendar.DECEMBER, 31);
+                    datePickerDialog.getDatePicker(). setMaxDate(maxCal.getTimeInMillis());
+
+
                     datePickerDialog.show();
                 } else {
                     int hour = mCalendar.get(Calendar.HOUR_OF_DAY);

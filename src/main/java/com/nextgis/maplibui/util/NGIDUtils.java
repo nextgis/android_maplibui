@@ -268,7 +268,7 @@ public final class NGIDUtils {
                 String host = "";
                 int start = ngwurl.indexOf("://");
                 if (start != -1) {
-                    start += 3; // пропустить "://"
+                    start += 3; // skip "://"
                     int end = ngwurl.indexOf('/', start);
                     host = (end != -1) ? ngwurl.substring(start, end) : ngwurl.substring(start);
                 }

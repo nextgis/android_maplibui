@@ -172,15 +172,14 @@ public abstract class NGPreferenceActivity
 
     private void safeInvalidatePreferences() {
         FragmentManager fm = getSupportFragmentManager();
-        // Проверяем headers
+
         NGPreferenceHeaderFragment headers = (NGPreferenceHeaderFragment) fm.findFragmentByTag(getPreferenceHeaderFragmentTag());
         if (headers != null && !headers.isAdded()) {
-            return; // или повторить post
+            return; //
         }
-        // Проверяем settings
         NGPreferenceSettingsFragment settings = (NGPreferenceSettingsFragment) fm.findFragmentByTag(getPreferenceSettingsFragmentTag());
         if (settings != null && !settings.isAdded()) {
-            return; // или повторить post
+            return; //
         }
         invalidatePreferences();
     }
