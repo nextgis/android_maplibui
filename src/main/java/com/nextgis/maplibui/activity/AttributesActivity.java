@@ -46,6 +46,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -89,6 +90,7 @@ import java.util.Map;
 import java.util.List;
 import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.TAG;
+import static com.nextgis.maplib.util.GeoConstants.FTString;
 import static com.nextgis.maplibui.util.UiUtil.showNoEditPermAlert;
 
 public class AttributesActivity extends NGActivity {
@@ -123,6 +125,8 @@ public class AttributesActivity extends NGActivity {
     String [][] data ;
     String [] data0row ;
     String [] data0Column;
+
+    int [] data0rowAlignment ;
 
     final Object syncAdapterChanges = new Object();
 
@@ -297,16 +301,13 @@ public class AttributesActivity extends NGActivity {
 
             if (rowIndex == -1)
                 return;
-            Log.e("TTBBLL", "onActivityResult rowIndex = " + rowIndex);
+
 
             // dd
             // updated feature
             Feature feature = mLayer.getFeature(selectedFeatureId);
             if (feature == null)
                 return;
-
-            Log.e("TTBBLL", "onActivityResult featureID= " + selectedFeatureId);
-
 
             // refresh data
             data[rowIndex][0] = idStr;
@@ -459,7 +460,7 @@ public class AttributesActivity extends NGActivity {
 
 
                 final TableViewModel tableViewModel = new TableViewModel(0, 0, new String[0][], new String[0], new String[0]);
-                final TableViewAdapter tableViewAdapter = new TableViewAdapter(tableViewModel);
+                final TableViewAdapter tableViewAdapter = new TableViewAdapter(tableViewModel, data0rowAlignment);
 
                 final ICellCLickListener iCellCLickListener = new ICellCLickListener() {
                     @Override
@@ -587,6 +588,9 @@ public class AttributesActivity extends NGActivity {
             if (data0row == null)
                 data0row = get0Row();
 
+            if (data0rowAlignment == null)
+                data0rowAlignment = get0RowAlignment();
+
             if (data0Column == null)
                 data0Column = get0Column();
 
@@ -617,7 +621,7 @@ public class AttributesActivity extends NGActivity {
             if (!TextUtils.isEmpty(filterText))
                 rowsSize =  searchedResultLenght;
             final TableViewModel tableViewModel = new TableViewModel(lenght, rowsSize, dataToShow, data0row, data0ColumnToShow);
-            final TableViewAdapter tableViewAdapter = new TableViewAdapter(tableViewModel);
+            final TableViewAdapter tableViewAdapter = new TableViewAdapter(tableViewModel, data0rowAlignment);
 
 
             synchronized (syncAdapterChanges) {
@@ -641,7 +645,7 @@ public class AttributesActivity extends NGActivity {
 
             if (data.length == 0){
                 if (mContextRef.get() != null)
-                    Toast.makeText((Activity)mContextRef.get(), "no data in layer", Toast.LENGTH_LONG).show();
+                    Toast.makeText((Activity)mContextRef.get(), R.string.no_data_in_layer, Toast.LENGTH_LONG).show();
             }
             if (firstLoadStart)
                 firstLoadStart = false;
@@ -654,6 +658,22 @@ public class AttributesActivity extends NGActivity {
                 data[i + 1] = fields.get(i).getAlias();
             return data;
         }
+
+        public int[] get0RowAlignment() {
+            final int[] data = new int[fields.size() + 1];
+            data[0] = 0;
+            for (int i = 0; i < fields.size(); i++) {
+
+                int alignment = Gravity.END;
+                int type = fields.get(i).getType();
+                if (type == FTString)
+                    alignment = Gravity.START;
+
+                data[i + 1] = alignment;
+            }
+            return data;
+        }
+
 
         public String[] get0Column(){
             final String[] data0col = new String[ids.size()];

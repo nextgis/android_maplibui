@@ -471,4 +471,6 @@
 
     <string name="form_trouble">"The form and layer structures do not match. Edit the form or layer in Web GIS."</string>
 
+
+    <string name="no_data_in_layer">No any data in layer</string>
 </resources>

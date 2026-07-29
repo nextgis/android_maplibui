@@ -345,7 +345,7 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
 
         List<String> items = mTable.get(mColumn);
         if (items == null || items.isEmpty()) {
-            Log.e("FormBuilder", "Empty or null list for column: " + mColumn);
+//            Log.d("FormBuilder", "Empty or null list for column: " + mColumn);
             Toast.makeText(this, "R.string.error_empty_list", Toast.LENGTH_SHORT).show();
             mRow = -1;
             listener.onRowChosen();

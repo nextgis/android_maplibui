@@ -49,26 +49,16 @@ public class TableViewAdapter extends AbstractTableAdapter<ColumnHeader, RowHead
 
     private List<List<Cell>> mData;
 
-//    public void updateRowCells(int fId, String[] rowData){
-//        final String fIdStr = String.valueOf(fId);
-//        for (int i = 0; i < mCellItems.size(); i++) {
-//            if (mCellItems.get(i).get(0).getId().equals(fIdStr)){
-//                // row find!!!
-//                for (int j = 0; j < mCellItems.get(i).size(); j++){
-//                    mCellItems.get(i).set(j, new Cell(fIdStr, rowData[j]));
-//                }
-//            }
-//        }
-//
-//    }
+    int [] data0rowAlignment ;
 
     public void setData(List<List<Cell>> data) {
         this.mData = data;
         setCellItems(data);
     }
 
-    public TableViewAdapter(@NonNull TableViewModel tableViewModel) {
+    public TableViewAdapter(@NonNull TableViewModel tableViewModel, int [] data0rowAlignment ) {
         super();
+        this.data0rowAlignment =  data0rowAlignment;
         this.mTableViewModel = tableViewModel;
     }
 
@@ -113,15 +103,17 @@ public class TableViewAdapter extends AbstractTableAdapter<ColumnHeader, RowHead
      * @see #onCreateCellViewHolder(ViewGroup, int) ;
      */
     @Override
-    public void onBindCellViewHolder(@NonNull AbstractViewHolder holder, @Nullable Cell cellItemModel, int
-            columnPosition, int rowPosition) {
+    public void onBindCellViewHolder(@NonNull AbstractViewHolder holder,
+                                     @Nullable Cell cellItemModel,
+                                     int columnPosition,
+                                     int rowPosition) {
 
         Log.e("TTBBLL", "AbstractViewHolder onBindCellViewHolder ");
         switch (holder.getItemViewType()) {
             default:
                 // Get the holder to update cell item text
                 CellViewHolder viewHolder = (CellViewHolder) holder;
-                viewHolder.setCell(cellItemModel);
+                viewHolder.setCell(cellItemModel, data0rowAlignment[columnPosition]);
                 break;
         }
     }

@@ -234,7 +234,7 @@ public class LayerFillService extends Service implements IProgressor {
                 super.handleMessage(msg);
                 Bundle resultData = msg.getData();
 
-                Toast.makeText(LayerFillService.this, resultData.getString(BUNDLE_MSG_KEY), Toast.LENGTH_LONG).show();
+                Toast.makeText(LayerFillService.this.getApplicationContext(), resultData.getString(BUNDLE_MSG_KEY), Toast.LENGTH_LONG).show();
             }
         };
 

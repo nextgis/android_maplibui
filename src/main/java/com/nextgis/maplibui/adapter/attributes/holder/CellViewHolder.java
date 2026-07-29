@@ -49,11 +49,12 @@ public class CellViewHolder extends AbstractViewHolder {
         cell_container = itemView.findViewById(R.id.cell_container);
     }
 
-    public void setCell(@Nullable Cell cell) {
+    public void setCell(@Nullable Cell cell, int alignment) {
         Log.e("TTBBLL", "setCell " + cell.getData() + "  tag id =  " + cell.getId());
         cell_textview.setText(cell.getData());
         cell_textview.setTag(cell.getId());
         cell_container.getLayoutParams().width = LinearLayout.LayoutParams.WRAP_CONTENT;
         cell_textview.requestLayout();
+        cell_textview.setGravity(alignment);
     }
 }
