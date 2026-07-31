@@ -204,11 +204,20 @@ public class DrawItem {
     }
 
     public void setSelectedPointCoordinates(float x, float y) {
+        if (mSelectedRing < 0 || mSelectedRing >= mDrawItemsVertex.size()) {
+            return;
+        }
+
         float[] points = mDrawItemsVertex.get(mSelectedRing);
-        if (null != points && mSelectedPoint >= 0 && mSelectedPoint < points.length - 1) {
+
+        if (points != null &&
+                mSelectedPoint >= 0 &&
+                mSelectedPoint + 1 < points.length) {
+
             points[mSelectedPoint] = x;
             points[mSelectedPoint + 1] = y;
         }
+
     }
 
     public PointF getSelectedPoint() {
