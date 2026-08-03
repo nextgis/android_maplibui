@@ -69,6 +69,7 @@ import static com.nextgis.maplib.util.Constants.LAYERTYPE_REMOTE_TMS;
 import static com.nextgis.maplib.util.Constants.LAYERTYPE_TRACKS;
 import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_MBTILES_RASTER;
+import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_NORMAL;
 import static com.nextgis.maplibui.service.LayerFillService.TMS_LAYER;
 
 
@@ -141,22 +142,8 @@ public class LayerFactoryUI
             layerName = layerName.substring(0, lastPeriodPos);
         }
         if (context instanceof NGActivity) {
-            NGActivity fragmentActivity = (NGActivity) context;
-
-//            if (ext.equals(".ngrc")) {
-//                Intent intent = new Intent(context, LayerFillService.class);
-//                intent.setAction(LayerFillService.ACTION_ADD_TASK);
-//                intent.putExtra(LayerFillService.KEY_URI, uri);
-//                intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.TMS_LAYER);
-//                intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, groupLayer.getId());
-//
-//                LayerFillProgressDialogFragment.startFill(intent);
-//                return;
-//            }
-
 
             AtomicReference<Uri> temp = new AtomicReference<>(uri);
-
             if (MapUtil.isZippedWithExtension(context, temp, ".mbtiles")
                     || ext.equals(".mbtiles") ){
                 // create or connect to fill layer with features
@@ -173,23 +160,33 @@ public class LayerFactoryUI
                 return;
             }
 
-
-
-
             if (MapUtil.isZippedWithExtension(context, temp, ".geojson")) {
                 createNewVectorLayer(context, groupLayer, temp.get());
                 return;
             }
 
-            CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
-            newFragment.setLayerGroup(groupLayer)
-                    .setLayerType(TMS_LAYER)
-                    .setUri(uri)
-                    .setLayerName(layerName)
-                    .setTitle(context.getString(R.string.create_tms_layer))
-                    .setTheme(fragmentActivity.getThemeId())
-                    .show(fragmentActivity.getSupportFragmentManager(), "create_tms_layer");
+            Intent intent = new Intent(context, LayerFillService.class);
+            intent.setAction(LayerFillService.ACTION_ADD_TASK);
+            intent.putExtra(LayerFillService.KEY_URI, temp.get());
+            intent.putExtra(LayerFillService.KEY_NAME, layerName);
+            intent.putExtra(LayerFillService.KEY_INPUT_TYPE, TMS_LAYER);
+            intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, ((MapDrawable)((GISApplication)context.getApplicationContext()).getMap()).getId());
+
+            // TMSTYPE_NORMAL - deafult tms type
+            intent.putExtra(LayerFillService.KEY_TMS_TYPE, TMSTYPE_NORMAL);
+            LayerFillProgressDialogFragment.startFill(intent);
         }
+
+        // remove ask - now we try to open directly - default tms type 1 (tileTmsType == TMSTYPE_NORMAL  tileSet.setScheme( "tms")
+        // or load from config.json in zip file (or ngrc)
+//            CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
+//            newFragment.setLayerGroup(groupLayer)
+//                    .setLayerType(TMS_LAYER)
+//                    .setUri(uri)
+//                    .setLayerName(layerName)
+//                    .setTitle(context.getString(R.string.create_tms_layer))
+//                    .setTheme(fragmentActivity.getThemeId())
+//                    .show(fragmentActivity.getSupportFragmentManager(), "create_tms_layer");
     }
 
 
