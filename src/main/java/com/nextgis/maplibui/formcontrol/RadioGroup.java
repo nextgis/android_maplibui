@@ -31,6 +31,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatRadioButton;
 import android.util.AttributeSet;
@@ -69,8 +70,10 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
     protected String              mFieldName;
     protected boolean             mIsShowLast;
     protected Map<String, String> mAliasValueMap;
-
     boolean useDisabledClick = false;
+
+
+    public boolean userMakeChange = false;
 
     public RadioGroup(Context context) {
         super(context);
@@ -137,6 +140,13 @@ public class RadioGroup extends android.widget.RadioGroup implements IFormContro
             useDisabledClick = true;
             setBackgroundColor(Color.LTGRAY);
         }
+        setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(@NonNull android.widget.RadioGroup radioGroup, int i) {
+                userMakeChange = true;
+            }
+
+        });
 
     }
 

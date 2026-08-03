@@ -78,6 +78,9 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
 
     protected boolean mIsShowLast;
 
+    public boolean userMakeChange = false;
+    public boolean skip1call = false;
+
     protected Map<String, String>              mAliasValueMap;
     protected Map<String, Map<String, String>> mSubAliasValueMaps;
     protected Map<String, AliasList>           mAliasSubListMap;
@@ -221,6 +224,11 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
                         if (mFirstShow) {
                             mFirstShow = false;
                         }
+
+                        if (skip1call)
+                            userMakeChange = true;
+                        else
+                            skip1call=true;
                     }
 
 

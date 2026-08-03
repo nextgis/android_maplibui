@@ -99,9 +99,16 @@ import com.nextgis.maplibui.control.TextEdit;
 import com.nextgis.maplibui.control.TextLabel;
 import com.nextgis.maplibui.dialog.SelectNGWResourceDialog;
 import com.nextgis.maplibui.formcontrol.AutoTextEdit;
+import com.nextgis.maplibui.formcontrol.Averaging;
+import com.nextgis.maplibui.formcontrol.Checkbox;
+import com.nextgis.maplibui.formcontrol.Combobox;
+import com.nextgis.maplibui.formcontrol.Coordinates;
+import com.nextgis.maplibui.formcontrol.Distance;
 import com.nextgis.maplibui.formcontrol.DoubleCombobox;
 import com.nextgis.maplibui.formcontrol.DoubleComboboxValue;
+import com.nextgis.maplibui.formcontrol.RadioGroup;
 import com.nextgis.maplibui.formcontrol.Sign;
+import com.nextgis.maplibui.formcontrol.SplitCombobox;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.NotificationHelper;
@@ -655,8 +662,42 @@ public class ModifyAttributesActivity
     boolean checkIsNoChanges(IControl  control, Object modified, String saved, Cursor featureCursor){
         // saved null always
 
+        if (control instanceof Checkbox &&
+                !((Checkbox)control).userMakeChange)
+            return false;
+
+        if (control instanceof Combobox &&
+                !((Combobox)control).userMakeChange)
+            return false;
+
+        if (control instanceof RadioGroup &&
+                !((RadioGroup)control).userMakeChange)
+            return false;
+
+        if (control instanceof Distance){
+            try {
+                int columnSaved = getColumnIndexSafely(featureCursor, control.getFieldName()); // featureCursor.getColumnIndex(field.getKey());
+                Double savedDouble = featureCursor.getDouble(columnSaved);
+                return !((double) modified == savedDouble);
+            }
+            catch (Exception ex){
+
+            }
+        }
+
+
+        if (control instanceof SplitCombobox){
+            if ( !((SplitCombobox)control).userMakeChange1 && !((SplitCombobox)control).userMakeChange2 )
+                return false;
+        }
+
+        if (control instanceof Coordinates)
+            return false; // read only control
+
         if (control instanceof DoubleCombobox){
 
+            if (!((DoubleCombobox) control).userMakeChange)
+                return false;
             try {
 
                 Object value1 = ((DoubleComboboxValue) modified).mValue;
@@ -683,9 +724,12 @@ public class ModifyAttributesActivity
                 return true;
             }
         }
+        if (control instanceof Averaging && !((Averaging)control).userMakeChange)
+            return false;
+
 
         if (modified instanceof Double){
-            Double doubleSaved = Double.valueOf(saved);
+            Double doubleSaved = TextUtils.isEmpty(saved) ? null : Double.valueOf(saved);
             return !modified.equals(doubleSaved);
         }
 

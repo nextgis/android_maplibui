@@ -69,6 +69,9 @@ public class Averaging extends LinearLayout implements IFormControl, View.OnClic
     protected Double mValue = 0.0;
     boolean useDisabledClick = false;
 
+    public boolean userMakeChange = false;
+
+
     public Averaging(Context context) {
         super(context);
     }
@@ -116,10 +119,12 @@ public class Averaging extends LinearLayout implements IFormControl, View.OnClic
             average.setOnClickListener(this);
 
         setEnabled(false);
-        setValue();
+        setValue(false);
     }
 
-    private void setValue() {
+    private void setValue(boolean userSetValue) {
+        if(userSetValue)
+            userMakeChange = true;
         EditText strValue = findViewById(R.id.value);
         strValue.setText(String.format(Locale.getDefault(), "%f", mValue));
     }
@@ -178,7 +183,7 @@ public class Averaging extends LinearLayout implements IFormControl, View.OnClic
                     createDialog();
                 } else {
                     mValue /= mMeasures;
-                    setValue();
+                    setValue(true);
                 }
             }
         });

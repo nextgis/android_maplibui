@@ -87,6 +87,13 @@ public class SplitCombobox extends FrameLayout implements IFormControl
 
     boolean useDisabledClick = false;
 
+
+    public boolean userMakeChange1 = false;
+    public boolean skip1call1 = false;
+
+    public boolean userMakeChange2 = false;
+    public boolean skip1call2 = false;
+
     public SplitCombobox(Context context) {
         super(context);
     }
@@ -125,6 +132,10 @@ public class SplitCombobox extends FrameLayout implements IFormControl
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 mSpinner2.setSelection(i, true);
+                if (skip1call1)
+                    userMakeChange1 = true;
+                else
+                    skip1call1=true;
             }
 
             @Override
@@ -136,6 +147,10 @@ public class SplitCombobox extends FrameLayout implements IFormControl
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 mSpinner.setSelection(i, true);
+                if (skip1call2)
+                    userMakeChange2 = true;
+                else
+                    skip1call2=true;
             }
 
             @Override

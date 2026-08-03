@@ -37,7 +37,9 @@ import androidx.appcompat.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -75,6 +77,9 @@ public class Combobox extends AppCompatSpinner implements IFormControl
     protected boolean             mIsShowLast;
     protected Map<String, String> mAliasValueMap;
     boolean useDisabledClick = false;
+
+    public boolean userMakeChange = false;
+    public boolean skip1call = false;
 
     public Combobox(Context context) {
         super(context);
@@ -181,6 +186,20 @@ public class Combobox extends AppCompatSpinner implements IFormControl
             setEnabled(false);
             setBackgroundColor(Color.LTGRAY);
         }
+        setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if (skip1call)
+                    userMakeChange = true;
+                else
+                    skip1call=true;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
     @Override

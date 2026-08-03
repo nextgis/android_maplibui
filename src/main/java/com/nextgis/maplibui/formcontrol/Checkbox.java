@@ -29,11 +29,13 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Field;
@@ -60,6 +62,9 @@ public class Checkbox extends AppCompatCheckBox implements IFormControl {
     protected boolean mIsShowLast;
 
     boolean useDisabledClick = false;
+
+    public boolean userMakeChange = false;
+    public boolean skip1call = false;
 
     public Checkbox(Context context) {
         super(context);
@@ -110,6 +115,16 @@ public class Checkbox extends AppCompatCheckBox implements IFormControl {
             setTextColor(Color.GRAY);
             setBackgroundColor(Color.LTGRAY);
         }
+
+        setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(@NonNull CompoundButton compoundButton, boolean b) {
+                if (skip1call)
+                    userMakeChange = true;
+                else
+                    skip1call=true;
+            }
+        });
     }
 
     public String getFieldName() {
