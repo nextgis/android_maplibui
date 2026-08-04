@@ -64,7 +64,6 @@ public class Checkbox extends AppCompatCheckBox implements IFormControl {
     boolean useDisabledClick = false;
 
     public boolean userMakeChange = false;
-    public boolean skip1call = false;
 
     public Checkbox(Context context) {
         super(context);
@@ -119,10 +118,7 @@ public class Checkbox extends AppCompatCheckBox implements IFormControl {
         setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(@NonNull CompoundButton compoundButton, boolean b) {
-                if (skip1call)
-                    userMakeChange = true;
-                else
-                    skip1call=true;
+                userMakeChange = true;
             }
         });
     }

@@ -78,8 +78,11 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
 
     protected boolean mIsShowLast;
 
-    public boolean userMakeChange = false;
-    public boolean skip1call = false;
+    public boolean userMakeChange1 = false;
+    public boolean skip1call1 = false;
+
+    public boolean userMakeChange2 = false;
+    public boolean skip1call2 = false;
 
     protected Map<String, String>              mAliasValueMap;
     protected Map<String, Map<String, String>> mSubAliasValueMaps;
@@ -225,10 +228,10 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
                             mFirstShow = false;
                         }
 
-                        if (skip1call)
-                            userMakeChange = true;
+                        if (skip1call1)
+                            userMakeChange1 = true;
                         else
-                            skip1call=true;
+                            skip1call1=true;
                     }
 
 
@@ -236,6 +239,22 @@ public class DoubleCombobox extends AppCompatSpinner implements IFormControl
                     {
                     }
                 });
+
+
+        mSubCombobox.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if (skip1call2)
+                    userMakeChange2 = true;
+                else
+                    skip1call2=true;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
 
         if (!ControlHelper.isEnabled(fields, mFieldName)) {
             useDisabledClick = true;

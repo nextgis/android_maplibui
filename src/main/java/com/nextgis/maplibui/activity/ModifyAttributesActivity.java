@@ -696,7 +696,7 @@ public class ModifyAttributesActivity
 
         if (control instanceof DoubleCombobox){
 
-            if (!((DoubleCombobox) control).userMakeChange)
+            if (!((DoubleCombobox) control).userMakeChange1 && !((DoubleCombobox) control).userMakeChange2)
                 return false;
             try {
 
