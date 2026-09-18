@@ -70,6 +70,8 @@ import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplib.util.SettingsConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.NGIDLoginActivity;
+import com.nextgis.maplibui.control.DateTime;
+import com.nextgis.maplibui.control.TextEdit;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -444,7 +446,7 @@ public final class ControlHelper
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
-    public static void setClearAction(final EditText target)
+    public static void setClearAction(final TextView target, final boolean isTextValue)
     {
         target.setOnTouchListener(new View.OnTouchListener()
         {
@@ -465,7 +467,17 @@ public final class ControlHelper
                         // clicked on clear icon
                         target.setText("");
                         target.clearFocus();
-                        return false;
+                        if (target instanceof TextEdit )
+                            ((TextEdit)target).setClearedToNull(isTextValue);
+                        if (target instanceof com.nextgis.maplibui.formcontrol.TextEdit )
+                            ((com.nextgis.maplibui.formcontrol.TextEdit)target).setClearedToNull(isTextValue);
+
+                        if (target instanceof DateTime)
+                            ((DateTime)target).clearValueToNull();
+                        if (target instanceof com.nextgis.maplibui.formcontrol.DateTime)
+                            ((com.nextgis.maplibui.formcontrol.DateTime)target).clearValueToNull();
+
+                        return true;
                     }
                 }
                 return false;

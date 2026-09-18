@@ -192,6 +192,9 @@ public class DateTime
             final ModifyAttributesActivity modifyAttributesActivity)
             throws JSONException
     {
+
+        ControlHelper.setClearAction(this, true);
+
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = ControlHelper.getFieldName(attributes.getString(JSON_FIELD_NAME_KEY));
         mIsShowLast = ControlHelper.isSaveLastValue(attributes);
@@ -232,8 +235,16 @@ public class DateTime
         } else if (null != featureCursor) { // feature exists
             int column = getColumnIndexSafely(featureCursor, mFieldName); // featureCursor.getColumnIndex(mFieldName);
             if (column >= 0) {
-                timestamp = featureCursor.getLong(column);
-                mValue = timestamp;
+                if (featureCursor.isNull(column)) {
+                    mValue = null;
+                    timestamp = 0;
+                }
+                else {
+                    timestamp = featureCursor.getLong(column);
+                    mValue = timestamp;
+                }
+
+                //mValue = timestamp;
             }
         } else {    // new feature
             if (attributes.has(JSON_TEXT_KEY) && !TextUtils.isEmpty(
@@ -246,13 +257,21 @@ public class DateTime
         }
 
         mCalendar.setTimeInMillis(timestamp);
-        setText(mDateFormat.format(mCalendar.getTime()));
+
+        String text = "";
+        if (mValue != null)
+            text = mDateFormat.format(mCalendar.getTime());
+
+        setText(text);
         setSingleLine(true);
         setFocusable(false);
         setOnClickListener(getDateUpdateWatcher(mPickerType));
 
-        String pattern = mDateFormat.toLocalizedPattern();
-        setHint(pattern);
+//        String pattern = mDateFormat.toLocalizedPattern();
+//        setHint(pattern);
+
+        setHint("NULL");
+        setHintTextColor(getContext().getResources().getColor(R.color.color_grey_500));
 
         if (!ControlHelper.isEnabled(fields, mFieldName)) {
             useDisabledClick = true;
@@ -260,6 +279,8 @@ public class DateTime
             setTextColor(Color.GRAY);
             setBackgroundColor(Color.LTGRAY);
         }
+
+
     }
 
     protected long parseDateTime(
@@ -380,7 +401,8 @@ public class DateTime
     @Override
     public Object getValue()
     {
-        return mCalendar.getTimeInMillis();
+        return mValue;
+        // return mCalendar.getTimeInMillis();
     }
 
 
@@ -398,6 +420,10 @@ public class DateTime
             return true;
         } else
             return  super.onTouchEvent(event);
+    }
+
+    public void clearValueToNull(){
+        mValue = null;
     }
 
 }

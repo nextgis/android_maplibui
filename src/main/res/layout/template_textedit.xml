@@ -27,4 +27,5 @@
     android:layout_height="wrap_content"
     android:drawableEnd="?attr/ic_cancel"
     android:drawablePadding="8dp"
-    android:drawableRight="?attr/ic_cancel"/>
+    android:drawableRight="?attr/ic_cancel"
+    />

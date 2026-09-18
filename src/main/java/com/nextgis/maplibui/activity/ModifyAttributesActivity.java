@@ -928,7 +928,45 @@ public class ModifyAttributesActivity
         Object value = control.getValue();
         //fieldName = "'" + fieldName + "'"; // no need
 
-        if (null != value) {
+
+        boolean skip = false;
+        if ((value == null || value.equals(""))
+                &&
+                (field.getType() == GeoConstants.FTLong ||
+                        field.getType() == GeoConstants.FTReal ||
+                        field.getType() == GeoConstants.FTInteger ||
+                        field.getType() == GeoConstants.FTDate ||
+                        field.getType() == GeoConstants.FTDateTime ||
+                        field.getType() == GeoConstants.FTTime )
+        ){
+            // null with numbers - set null
+            // skip changes ?
+            // values.put(fieldName);
+            skip = true;
+        }
+
+        if ((value == null || value.equals("")) &&
+                (field.getType() == GeoConstants.FTString)
+                && (control instanceof  TextEdit)
+                && ((TextEdit)control).showNullHint){
+            skip = true;
+        }
+
+
+        if ((value == null || value.equals("")) &&
+                (field.getType() == GeoConstants.FTString)
+                && ( control instanceof  DateTime ||  control instanceof  com.nextgis.maplibui.formcontrol.DateTime)){
+            skip = true;
+        }
+
+        if ((value == null || value.equals("")) &&
+                (field.getType() == GeoConstants.FTString)
+                && (control instanceof  com.nextgis.maplibui.formcontrol.TextEdit)
+                && ((com.nextgis.maplibui.formcontrol.TextEdit)control).showNullHint){
+            skip = true;
+        }
+
+        if (null != value && !skip) {
             //Log.d(TAG, "field: " + field.getName() + " value: " + value.toString());
 
             if (value instanceof Long) {
@@ -943,6 +981,9 @@ public class ModifyAttributesActivity
                 values.put(fieldName, (Float) value);
             }
         }
+
+        if (skip)
+            values.putNull(fieldName);
 
         return value;
     }

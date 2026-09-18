@@ -45,6 +45,7 @@ import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.map.MapBase;
 import com.nextgis.maplib.map.MapContentProviderHelper;
 import com.nextgis.maplib.map.NGWLookupTable;
+import com.nextgis.maplib.util.GeoConstants;
 import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.activity.ModifyAttributesActivity;
 import com.nextgis.maplibui.api.IFormControl;
@@ -102,7 +103,8 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
                      SharedPreferences preferences,
                      Map<String, Map<String, String>> translations,
                      final ModifyAttributesActivity modifyAttributesActivity) throws JSONException{
-        ControlHelper.setClearAction(this);
+
+        ControlHelper.setClearAction(this, false);
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = ControlHelper.getFieldName(attributes.getString(JSON_FIELD_NAME_KEY));

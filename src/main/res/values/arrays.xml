@@ -110,6 +110,19 @@
         <item>1</item>
         <item>3</item>
     </string-array>
+
+
+    <string-array name="gpu_render_type" translatable="false">
+        <item>Vulkan</item>
+        <item>OpenGL</item>
+    </string-array>
+
+    <string-array name="gpu_render_type_val"
+        translatable="false">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
     <string-array name="current_location_mode" translatable="false">
         <item>@string/location_hide</item>
         <item>@string/location_marker</item>

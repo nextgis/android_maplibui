@@ -37,6 +37,7 @@ import android.widget.DatePicker;
 import android.widget.TimePicker;
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ISimpleControl;
 import com.nextgis.maplibui.util.ControlHelper;
 import java.text.DateFormat;
@@ -254,6 +255,9 @@ public class DateTime
             Bundle savedState,
             Cursor featureCursor)
     {
+
+        ControlHelper.setClearAction(this, true);
+
         if (null != field) {
             mFieldName = field.getName();
         }
@@ -282,21 +286,27 @@ public class DateTime
         } else if (null != featureCursor) {
             int column = getColumnIndexSafely(featureCursor, mFieldName); //featureCursor.getColumnIndex(mFieldName);
             if (column >= 0) {
-                mValue = featureCursor.getLong(column);
+                if (featureCursor.isNull(column))
+                    mValue = null;
+                else
+                    mValue = featureCursor.getLong(column);
             }
         }
 
         if (null != mValue) {
             text = getText();
-        }
+        } else
+            text = "";
 
         setText(text);
         setSingleLine(true);
         setFocusable(false);
         setOnClickListener(getDateUpdateWatcher(mPickerType));
 
-        String pattern = mDateFormat.toLocalizedPattern();
-        setHint(pattern);
+        //String pattern = mDateFormat.toLocalizedPattern();
+        //setHint(pattern);
+        setHint("NULL");
+        setHintTextColor(getContext().getResources().getColor(R.color.color_grey_500));
     }
 
 
@@ -348,5 +358,9 @@ public class DateTime
 
         String pattern = mDateFormat.toLocalizedPattern();
         setHint(pattern);
+    }
+
+    public void clearValueToNull(){
+        mValue = null;
     }
 }

@@ -21,9 +21,11 @@
   -->
 
 <com.nextgis.maplibui.formcontrol.DateTime
-    style="@style/DatePickSpinner"
+    style="@style/CloseStyle"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-    android:textColor="?attr/control_disabled"/>
+    android:textColor="?attr/control_disabled"
+    android:drawableRight="?attr/DatePickSpinnerBackground"
+    />

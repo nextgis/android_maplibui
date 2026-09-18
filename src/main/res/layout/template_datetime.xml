@@ -23,4 +23,6 @@
 <com.nextgis.maplibui.control.DateTime xmlns:android="http://schemas.android.com/apk/res/android"
                                        android:layout_width="match_parent"
                                        android:layout_height="wrap_content"
-                                       style="@style/DatePickSpinner"/>
+                                        android:drawableRight="?attr/DatePickSpinnerBackground"
+                                       style="@style/CloseStyle"
+    />

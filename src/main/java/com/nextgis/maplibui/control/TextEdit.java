@@ -29,12 +29,16 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import androidx.appcompat.widget.AppCompatEditText;
+
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
 import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.util.GeoConstants;
+import com.nextgis.maplibui.R;
 import com.nextgis.maplibui.api.ISimpleControl;
 import com.nextgis.maplibui.util.ControlHelper;
 
@@ -44,6 +48,10 @@ public class TextEdit
         implements ISimpleControl
 {
     String mFieldName;
+
+    public boolean showNullHint = false; // for Text value - show null when value was deleted (by clear cross) and now value is null
+    // if value clead by delete key - it empty value - "" - not null
+
 
     public TextEdit(Context context) {
         super(context);
@@ -58,23 +66,66 @@ public class TextEdit
     }
 
     @Override
-    public void init(Field field,
-                     Bundle savedState,
-                     Cursor featureCursor){
-        ControlHelper.setClearAction(this);
+    public void init(final Field field,
+                     final Bundle savedState,
+                     final Cursor featureCursor){
+        ControlHelper.setClearAction(this, field.getType() == GeoConstants.FTString);
+        addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s,int start,int count,int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s,int start,int before,int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length() > 0 && field.getType() == GeoConstants.FTString)
+                    setClearedToEmpty();
+            }
+        });
 
         mFieldName = field.getName();
-        String text = "";
+        String text = null;
 
+        //boolean isNull = false;
         if (ControlHelper.hasKey(savedState, mFieldName))
             text = savedState.getString(ControlHelper.getSavedStateKey(mFieldName));
         else if (null != featureCursor) {
             int column = getColumnIndexSafely(featureCursor, mFieldName); //featureCursor.getColumnIndex(mFieldName);
-            if (column >= 0)
+            if (column >= 0) {
                 text = featureCursor.getString(column);
+//                if (featureCursor.isNull(column))
+//                    isNull = true;
+            }
+        }
+//        else { // no key no cursor = check for types for null
+//            if ( (field.getType() == GeoConstants.FTLong ||
+//                    field.getType() == GeoConstants.FTReal ||
+//                    field.getType() == GeoConstants.FTInteger))
+//                isNull = true;
+//        }
+
+        // null hint for numbers
+        if ( (field.getType() == GeoConstants.FTLong ||
+                field.getType() == GeoConstants.FTReal ||
+                field.getType() == GeoConstants.FTInteger)) {
+            setHint("NULL");
         }
 
+        if (text == null && field.getType() == GeoConstants.FTString) {
+            setHint("NULL");
+        }
+
+        setHintTextColor(getContext().getResources().getColor(R.color.color_grey_500));
+
+        if (text == null)
+            showNullHint = true;
+
         setText(text);
+//        if (isNull) {
+//            setHint("NULL");
+//            setHintTextColor(getContext().getResources().getColor(R.color.color_grey_500));
+//        }
 
         switch (field.getType()) {
 
@@ -120,5 +171,17 @@ public class TextEdit
     public Object getValue()
     {
         return getText().toString();
+    }
+
+    public void setClearedToNull(boolean isTextValue){
+        if (isTextValue){
+            setHint("NULL");
+            showNullHint = true;
+        }
+    }
+
+    public void setClearedToEmpty(){
+        setHint("");
+        showNullHint = false;
     }
 }

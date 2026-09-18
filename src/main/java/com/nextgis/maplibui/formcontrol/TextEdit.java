@@ -38,8 +38,11 @@ import android.provider.SyncStateContract;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatEditText;
+
+import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
@@ -83,6 +86,8 @@ public class TextEdit extends AppCompatEditText
 
     boolean useDisabledClick = false;
 
+    public boolean showNullHint = false; // for Text value - show null when value was deleted (by clear cross) and now value is null
+
     public TextEdit(Context context) {
         super(context);
     }
@@ -108,7 +113,8 @@ public class TextEdit extends AppCompatEditText
                      SharedPreferences preferences,
                      Map<String, Map<String, String>> translations,
                      final ModifyAttributesActivity modifyAttributesActivity) throws JSONException{
-        ControlHelper.setClearAction(this);
+
+        ControlHelper.setClearAction(this, false);
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = ControlHelper.getFieldName(attributes.getString(JSON_FIELD_NAME_KEY));
@@ -173,6 +179,24 @@ public class TextEdit extends AppCompatEditText
             }
         }
 
+        final int ffieldType = fieldType;
+        ControlHelper.setClearAction(this, ffieldType == GeoConstants.FTString);
+        addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s,int start,int count,int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s,int start,int before,int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length() > 0 && ffieldType == GeoConstants.FTString)
+                    setClearedToEmpty();
+            }
+        });
+
+
+
         boolean onlyFigures = attributes.getBoolean(JSON_ONLY_FIGURES_KEY);
         if (onlyFigures) {
             //check field type
@@ -191,6 +215,21 @@ public class TextEdit extends AppCompatEditText
                     break;
             }
         }
+
+        if ( (fieldType == GeoConstants.FTLong ||
+                fieldType == GeoConstants.FTReal ||
+                fieldType == GeoConstants.FTInteger)) {
+            setHint("NULL");
+        }
+
+        if (value == null && fieldType == GeoConstants.FTString) {
+            setHint("NULL");
+        }
+
+        setHintTextColor(getContext().getResources().getColor(R.color.color_grey_500));
+
+        if (value == null)
+            showNullHint = true;
 
         if (!ControlHelper.isEnabled(fields, mFieldName)) {
             useDisabledClick = true;
@@ -237,6 +276,20 @@ public class TextEdit extends AppCompatEditText
             return true;
         } else
             return  super.onTouchEvent(event);
+    }
+
+
+    public void setClearedToNull(boolean isTextValue){
+        if (isTextValue){
+            setHint("NULL");
+            showNullHint = true;
+        }
+
+    }
+
+    public void setClearedToEmpty(){
+        setHint("");
+        showNullHint = false;
     }
 
 }
