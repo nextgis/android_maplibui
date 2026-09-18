@@ -52,6 +52,8 @@ public interface SettingsConstantsUI
     String KEY_PREF_LAYER_LABEL          = "layer_label";
     String KEY_PREF_SHOW_GEO_DIALOG      = "show_geo_dialog";
 
+    String KEY_PREF_GPU_TYPE     = "use_opengl_key"; //from app
+
 
     String KEY_PREF_OFFLINE_SYNC_ON     = "offline_sync_on";
 

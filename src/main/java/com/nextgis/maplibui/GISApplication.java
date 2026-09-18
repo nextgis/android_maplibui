@@ -22,6 +22,8 @@
 
 package com.nextgis.maplibui;
 
+import static android.widget.Toast.LENGTH_LONG;
+
 import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -42,6 +44,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.hypertrack.hyperlog.HyperLog;
 import com.nextgis.maplib.api.IGISApplication;
@@ -80,6 +83,7 @@ import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_LIGHT;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_MAP;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_NEUTRAL;
 import static com.nextgis.maplibui.fragment.NGWSettingsFragment.isAccountAutoSyncEnabled;
+import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_GPU_TYPE;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
 
 import androidx.core.content.ContextCompat;
@@ -88,6 +92,7 @@ import androidx.work.WorkManager;
 
 import org.maplibre.android.MapLibre;
 import org.maplibre.android.MapStrictMode;
+import org.maplibre.android.RenderingEngine;
 import org.maplibre.android.WellKnownTileServer;
 
 //import leakcanary.LeakCanary;
@@ -244,9 +249,27 @@ public abstract class GISApplication extends Application
     }
 
     private void initializeMapbox() {
-        MapLibre.getInstance(this, "sjdkfhjkdshfkjhsdkjf", WellKnownTileServer.MapTiler);
+
+        RenderingEngine.Type rType = RenderingEngine.Type.VULKAN;
+        try{
+            mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            String renderType = mSharedPreferences.getString(KEY_PREF_GPU_TYPE, "0");
+            rType = renderType.equals("1") ? RenderingEngine.Type.OPENGL : RenderingEngine.Type.VULKAN ;
+        } catch (Exception ex){
+            Toast.makeText(this, ex.getMessage(), LENGTH_LONG).show();
+        }
+
+        MapLibre.getInstance(this, "sjdkfhjkdshfkjhsdkjf",
+                WellKnownTileServer.MapTiler,
+                rType);
+
         //TileLoadingMeasurementUtils.setUpTileLoadingMeasurement();
         MapStrictMode.setStrictModeEnabled(true);
+
+        RenderingEngine.Type type =
+                RenderingEngine.getCurrentType();
+        Log.e("MAPLIBRE", type.toString());
+
     }
 
     protected int getThemeId(boolean isDark){
@@ -783,7 +806,7 @@ public abstract class GISApplication extends Application
                 saveSyncPeriodForAccount(this, account.name, period);
             }
 
-            SyncAccountWorker.schedule(this, account.name, period);
+            SyncAccountWorker.schedulePeriodic(this, account.name, period);
 
 //            Log.d("SSYNC", "add again " + prefValue);
 //            Bundle bundle = new Bundle();
