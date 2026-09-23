@@ -459,4 +459,6 @@
     <string name="form_trouble">"Не совпадает структура формы и слоя. Отредактируйте форму или слой в Веб ГИС."</string>
     <string name="no_data_in_layer">В слое нет данных</string>
     <string name="recording">Запись</string>
+    <string name="no_geometry">Геометрия отсуствует</string>
+
 </resources>

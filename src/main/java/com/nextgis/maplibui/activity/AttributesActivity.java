@@ -21,6 +21,8 @@
 
 package com.nextgis.maplibui.activity;
 
+import static android.widget.Toast.LENGTH_LONG;
+
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
@@ -162,6 +164,11 @@ public class AttributesActivity extends NGActivity {
                     IGISApplication application = (IGISApplication) getApplication();
                     MapDrawable map = (MapDrawable) application.getMap();
                     if (null != map) {
+
+                        if (mLayer.getFeature(selectedFeatureId).getGeometry() == null){
+                            Toast.makeText(application.getSelfContext(), application.getSelfContext().getString(R.string.no_geometry), LENGTH_LONG).show();
+                            return true;
+                        }
 
                         map.zoomToLatLng(mLayer.getFeature(selectedFeatureId).getGeometry().getEnvelope());
 //                        if (mLayer.getGeometryType() == GeoConstants.GTPoint || mLayer.getGeometryType() == GeoConstants.GTMultiPoint)
@@ -408,7 +415,7 @@ public class AttributesActivity extends NGActivity {
             loadBigDataTask = new LoadBigData(this, mLayer, progressText, text);
             loadBigDataTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else{
-            Toast.makeText(this, R.string.loading_data_inprogress, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.loading_data_inprogress, LENGTH_LONG).show();
         }
     }
 
@@ -570,14 +577,22 @@ public class AttributesActivity extends NGActivity {
             publishProgress(0);
 
 
-            if (ids == null) {
-                ids = mLayer.query(null);
-                Collections.sort(ids);
-            }
+
             if (featureMap == null)
                 featureMap = mLayer.getFeatures();
+
+
+
+            if (ids == null) {
+                ids = new ArrayList<>();
+                ids.addAll(featureMap.keySet());
+                Collections.sort(ids);
+            }
+
+
             if (fields == null)
                 fields = mLayer.getFields();
+
 
             if (featureMap == null)
                 return "";
@@ -640,12 +655,12 @@ public class AttributesActivity extends NGActivity {
             if (nullFeatureExist){
                 nullFeatureExist = false;
                 if (mContextRef.get() != null)
-                    Toast.makeText((Activity)mContextRef.get(), R.string.error_cache, Toast.LENGTH_LONG).show();
+                    Toast.makeText((Activity)mContextRef.get(), R.string.error_cache, LENGTH_LONG).show();
             }
 
             if (data.length == 0){
                 if (mContextRef.get() != null)
-                    Toast.makeText((Activity)mContextRef.get(), R.string.no_data_in_layer, Toast.LENGTH_LONG).show();
+                    Toast.makeText((Activity)mContextRef.get(), R.string.no_data_in_layer, LENGTH_LONG).show();
             }
             if (firstLoadStart)
                 firstLoadStart = false;
