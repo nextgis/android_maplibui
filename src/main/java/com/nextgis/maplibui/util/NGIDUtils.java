@@ -76,6 +76,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 public final class NGIDUtils {
     public static final String NGID_MY = "https://my.nextgis.com";
+    public static final String NGID_MY_SIGNUP = "https://my.nextgis.com/signup/0";
     private static final String OAUTH_URL = "/oauth2/token/";
     private static final String OAUTH_NEW = "grant_type=password&username=%s&password=%s&client_id=%s";
     private static final String OAUTH_REFRESH = "grant_type=refresh_token&client_id=%s&refresh_token=%s";

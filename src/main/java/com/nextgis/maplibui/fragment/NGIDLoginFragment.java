@@ -182,7 +182,7 @@ public class NGIDLoginFragment extends Fragment implements View.OnClickListener 
                 }
             });
         } else if (v.getId() == R.id.signup) {
-            Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(NGIDUtils.NGID_MY));
+            Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(NGIDUtils.NGID_MY_SIGNUP));
             startActivity(browser);
         } else if (v.getId() == R.id.onpremiseButton) {
             createDialog();
