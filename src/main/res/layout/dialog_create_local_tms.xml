@@ -51,28 +51,50 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="?android:attr/textColorPrimary"/>
 
-        <Spinner
-            android:id="@+id/layer_type"
+        <RadioGroup
+            android:id="@+id/radioGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:prompt="@string/layer_type"/>
+            android:orientation="vertical">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:background="?attr/colorPrimary"
-            android:padding="2dp"
-            android:text="@string/tms_layer_cache_size"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:attr/textColorPrimary"/>
+            <RadioButton
+                android:id="@+id/radioButton1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tmstype_osm"
+                android:checked="true" />
 
-        <Spinner
-            android:id="@+id/layer_cache"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/tms_tile_cache_size"
-            android:entryValues="@array/tms_tile_cache_size_val"
-            android:prompt="@string/layer_type"/>
+            <RadioButton
+                android:id="@+id/radioButton2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tmstype_normal"
+                />
+        </RadioGroup>
+
+
+<!--        <Spinner-->
+<!--            android:id="@+id/layer_type"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:prompt="@string/layer_type"/>-->
+
+<!--        <TextView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_margin="5dp"-->
+<!--            android:background="?attr/colorPrimary"-->
+<!--            android:padding="2dp"-->
+<!--            android:text="@string/tms_layer_cache_size"-->
+<!--            android:textAppearance="?android:attr/textAppearanceMedium"-->
+<!--            android:textColor="?android:attr/textColorPrimary"/>-->
+
+<!--        <Spinner-->
+<!--            android:id="@+id/layer_cache"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:entries="@array/tms_tile_cache_size"-->
+<!--            android:entryValues="@array/tms_tile_cache_size_val"-->
+<!--            android:prompt="@string/layer_type"/>-->
     </LinearLayout>
 </ScrollView>

@@ -70,6 +70,7 @@ import static com.nextgis.maplib.util.Constants.LAYERTYPE_TRACKS;
 import static com.nextgis.maplib.util.Constants.TAG;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_MBTILES_RASTER;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_NORMAL;
+import static com.nextgis.maplib.util.MapUtil.isHasMapnikConfigFile;
 import static com.nextgis.maplibui.service.LayerFillService.TMS_LAYER;
 
 
@@ -134,8 +135,7 @@ public class LayerFactoryUI
             final Uri uri)
     {
         String ext = "zip";
-        String layerName =
-                FileUtil.getFileNameByUri(context, uri, context.getString(R.string.new_layer));
+        String layerName =  FileUtil.getFileNameByUri(context, uri, context.getString(R.string.new_layer));
         final int lastPeriodPos = layerName.lastIndexOf('.');
         if (lastPeriodPos > 0) {
             ext = layerName.substring(lastPeriodPos).toLowerCase();
@@ -165,6 +165,20 @@ public class LayerFactoryUI
                 return;
             }
 
+           // if no def mapnik.json - need ask for TMS type
+            if (!isHasMapnikConfigFile(context, temp)){
+                NGActivity fragmentActivity = (NGActivity) context;
+                CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
+                newFragment.setLayerGroup(groupLayer)
+                    .setLayerType(TMS_LAYER)
+                    .setUri(uri)
+                    .setLayerName(layerName)
+                    .setTitle(context.getString(R.string.create_tms_layer))
+                    .setTheme(fragmentActivity.getThemeId())
+                    .show(fragmentActivity.getSupportFragmentManager(), "create_tms_layer");
+                return;
+            }
+
             Intent intent = new Intent(context, LayerFillService.class);
             intent.setAction(LayerFillService.ACTION_ADD_TASK);
             intent.putExtra(LayerFillService.KEY_URI, temp.get());
@@ -176,17 +190,6 @@ public class LayerFactoryUI
             intent.putExtra(LayerFillService.KEY_TMS_TYPE, TMSTYPE_NORMAL);
             LayerFillProgressDialogFragment.startFill(intent);
         }
-
-        // remove ask - now we try to open directly - default tms type 1 (tileTmsType == TMSTYPE_NORMAL  tileSet.setScheme( "tms")
-        // or load from config.json in zip file (or ngrc)
-//            CreateLocalLayerDialog newFragment = new CreateLocalLayerDialog();
-//            newFragment.setLayerGroup(groupLayer)
-//                    .setLayerType(TMS_LAYER)
-//                    .setUri(uri)
-//                    .setLayerName(layerName)
-//                    .setTitle(context.getString(R.string.create_tms_layer))
-//                    .setTheme(fragmentActivity.getThemeId())
-//                    .show(fragmentActivity.getSupportFragmentManager(), "create_tms_layer");
     }
 
 

@@ -33,6 +33,7 @@ import androidx.annotation.NonNull;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 
 import com.nextgis.maplib.api.ILayer;
@@ -62,7 +63,8 @@ public class CreateLocalLayerDialog
     protected LayerGroup mGroupLayer;
     protected int        mLayerType;
     protected String     mLayerName;
-    protected Spinner    mSpinner, mCache;
+//    protected Spinner    mSpinner;
+            //mCache;
     protected boolean isNGFPopenForm = false;
 
 
@@ -125,27 +127,29 @@ public class CreateLocalLayerDialog
             view = View.inflate(mContextWeakRef.get(), R.layout.dialog_create_vector_layer, null);
         } else {
             view = View.inflate(mContextWeakRef.get(), R.layout.dialog_create_local_tms, null);
-            mCache = (Spinner) view.findViewById(R.id.layer_cache);
-            mCache.setSelection(2);
+//            mCache = (Spinner) view.findViewById(R.id.layer_cache);
+//            mCache.setSelection(2);
 
             final ArrayAdapter<CharSequence> adapter =
                     new ArrayAdapter<>(mContextWeakRef.get(), android.R.layout.simple_spinner_item);
-            mSpinner = (Spinner) view.findViewById(R.id.layer_type);
+//            mSpinner = (Spinner) view.findViewById(R.id.layer_type);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            mSpinner.setAdapter(adapter);
+//            mSpinner.setAdapter(adapter);
 
             adapter.add(mContextWeakRef.get().getString(R.string.tmstype_osm));
             adapter.add(mContextWeakRef.get().getString(R.string.tmstype_normal));
 
             if (null != savedInstanceState) {
-                mSpinner.setSelection(savedInstanceState.getInt(KEY_TMS_TYPE, 0));
-                mCache.setSelection(savedInstanceState.getInt(KEY_CACHE, 0));
+//                mSpinner.setSelection(savedInstanceState.getInt(KEY_TMS_TYPE, 0));
+//                mCache.setSelection(savedInstanceState.getInt(KEY_CACHE, 0));
             }
         }
 
         final EditText layerName = (EditText) view.findViewById(R.id.layer_name);
         layerName.setText(mLayerName);
         layerName.setSelection(mLayerName.length());
+
+        final RadioGroup radioGroup = view.findViewById(R.id.radioGroup);
 
 //        AlertDialog.Builder builder = new AlertDialog.Builder(mContext, mDialogTheme);
         AlertDialog.Builder builder = new AlertDialog.Builder(mContextWeakRef.get());
@@ -166,19 +170,25 @@ public class CreateLocalLayerDialog
                                 intent.putExtra(LayerFillService.KEY_INPUT_TYPE, mLayerType);
                                 intent.putExtra(LayerFillService.KEY_IS_NGFP_OPEN, isNGFPopenForm);
                                 intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, mGroupLayer.getId());
+                                int checkedId = radioGroup.getCheckedRadioButtonId();
 
-                                if (mSpinner != null)
-                                    intent.putExtra(LayerFillService.KEY_TMS_TYPE, getTmsType());
+//                                if (checkedId == R.id.radioButton1) {
+//                                 } else if (checkedId == R.id.radioButton2) {
+//                                 }
 
-                                if (mCache != null)
-                                    intent.putExtra(LayerFillService.KEY_TMS_CACHE, mCache.getSelectedItemPosition());
+                                intent.putExtra(LayerFillService.KEY_TMS_TYPE,
+                                            checkedId == R.id.radioButton1 ? TMSTYPE_OSM : TMSTYPE_NORMAL);
 
+//                                if (mSpinner != null)
+//                                    intent.putExtra(LayerFillService.KEY_TMS_TYPE, getTmsType());
+
+//                                if (mCache != null)
+//                                    intent.putExtra(LayerFillService.KEY_TMS_CACHE, mCache.getSelectedItemPosition());
                                 LayerFillProgressDialogFragment.startFill(intent);
                             }
-
-                            private int getTmsType() {
-                                return mSpinner.getSelectedItemPosition() == 0 ? TMSTYPE_OSM : TMSTYPE_NORMAL;
-                            }
+//                            private int getTmsType() {
+//                                return mSpinner.getSelectedItemPosition() == 0 ? TMSTYPE_OSM : TMSTYPE_NORMAL;
+//                            }
                         }
                 )
                 .setNegativeButton(R.string.cancel, null);
@@ -188,7 +198,6 @@ public class CreateLocalLayerDialog
         return dialog;
     }
 
-
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
@@ -196,11 +205,10 @@ public class CreateLocalLayerDialog
         outState.putString(LayerFillService.KEY_NAME, mLayerName);
         outState.putParcelable(KEY_URI, mUri);
         outState.putInt(KEY_LAYER_TYPE, mLayerType);
-        if (mSpinner != null)
-            outState.putInt(KEY_TMS_TYPE, mSpinner.getSelectedItemPosition());
-        if (mCache != null)
-            outState.putInt(KEY_CACHE, mCache.getSelectedItemPosition());
-
+//        if (mSpinner != null)
+//            outState.putInt(KEY_TMS_TYPE, mSpinner.getSelectedItemPosition());
+//        if (mCache != null)
+//            outState.putInt(KEY_CACHE, mCache.getSelectedItemPosition());
         super.onSaveInstanceState(outState);
     }
 }
