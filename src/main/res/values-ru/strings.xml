@@ -51,6 +51,12 @@
     <string name="error_login">Неправильное имя или пароль</string>
     <string name="error_webgis_not_found">Веб ГИС не найдена</string>
     <string name="ngw_layer_add">Добавить из Веб ГИС</string>
+
+    <string name="data_proposal">Заказать данные</string>
+    <string name="data_proposal_menu">Нужны данные?</string>
+    <string name="data_title">Нужны данные для вашей территории?</string>
+    <string name="data_text">В нашем сервисе <a href="https://data.nextgis.com/">data.nextgis.com</a> вы можете заказать и получить данные на любую территорию. Есть данные базовой карты, рельеф, ландшафты, дороги, дома и многое другое.\nДанные предоставляются в форматах пригодных для загрузки в NextGIS Mobile.</string>
+
     <string name="ngw_accounts">Веб ГИС</string>
     <string name="ngid_account_new">Зарегистрироваться</string>
 

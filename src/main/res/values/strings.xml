@@ -52,6 +52,17 @@
     <string name="error_webgis_not_found">Web GIS not found</string>
 
     <string name="ngw_layer_add">Add from Web GIS</string>
+
+    <string name="data_proposal_menu">Need data?</string>
+    <string name="data_proposal">Order data</string>
+
+    <string name="data_title">Need data for your area?</string>
+
+    <string name="data_text">With our <a href="https://data.nextgis.com/">data.nextgis.com</a> service, you can order and obtain spatial data for any area. You can get basemap data, elevation data, landscapes, roads, buildings, and much more.\nThe data is provided in formats suitable for use in NextGIS Mobile.</string>
+
+
+
+
     <string name="ngw_account_already_exists">Account already exist</string>
     <string name="ngw_accounts">Web GIS</string>
 
