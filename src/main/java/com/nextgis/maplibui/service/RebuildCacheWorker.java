@@ -25,7 +25,7 @@ public class RebuildCacheWorker extends Worker  {
     }
 
     public static void schedule(Context context, int layerId) {
-        Log.d(Constants.TAG, "RebuildCacheWorker schedule with ");
+        Log.d(Constants.TAG, "RebuildCacheWorker schedulePeriodic with ");
 
         Constraints constraints = new Constraints.Builder()
                 .build();

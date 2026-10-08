@@ -26,7 +26,6 @@ package com.nextgis.maplibui.activity;
 import android.accounts.Account;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -93,7 +92,7 @@ import static com.nextgis.maplib.util.AccountUtil.getSyncPeriodForAccount;
 import static com.nextgis.maplib.util.AccountUtil.saveSyncPeriodForAccount;
 import static com.nextgis.maplib.util.Constants.FIELD_ID;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
-import static com.nextgis.maplibui.mapui.SyncAccountWorker.schedule;
+import static com.nextgis.maplibui.mapui.SyncAccountWorker.schedulePeriodic;
 import static com.nextgis.maplibui.util.LayerUtil.getGeometryName;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
 
@@ -567,7 +566,7 @@ public class VectorLayerSettingsActivity
 
                         long period = interval;
                         saveSyncPeriodForAccount(getContext(), account.name, period );
-                        schedule(getContext(), account.name, period);
+                        schedulePeriodic(getContext(), account.name, period);
                     }
                 }
 

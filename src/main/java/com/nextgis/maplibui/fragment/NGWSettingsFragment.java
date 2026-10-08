@@ -47,7 +47,6 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceScreen;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.nextgis.maplib.api.IGISApplication;
 import com.nextgis.maplib.api.INGWLayer;
@@ -77,7 +76,7 @@ import static com.nextgis.maplibui.GISApplication.getAccountSyncTime;
 import static com.nextgis.maplibui.activity.VectorLayerSettingsActivity.showAttentionTurnSyncOff;
 import static com.nextgis.maplibui.activity.VectorLayerSettingsActivity.showAttentionTurnSyncOn;
 import static com.nextgis.maplibui.mapui.SyncAccountWorker.removeSchedule;
-import static com.nextgis.maplibui.mapui.SyncAccountWorker.schedule;
+import static com.nextgis.maplibui.mapui.SyncAccountWorker.schedulePeriodic;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.ACTION_PREFS_NGW;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
 
@@ -266,8 +265,9 @@ public class NGWSettingsFragment
             long period =  getAccountSyncTime(account,  (GISApplication)context.getApplicationContext());
 
             saveSyncPeriodForAccount(context, account.name, period);
-            SyncAccountWorker.schedule(context, account.name, period);
+            SyncAccountWorker.schedulePeriodic(context, account.name, period);
         }
+        // move sync to Worker
         //ContentResolver.setSyncAutomatically(account, authority, isEnabled);
     }
 
@@ -367,9 +367,10 @@ public class NGWSettingsFragment
 
                     long period = interval;
                     saveSyncPeriodForAccount(getContext(), account.name, period );
-                    schedule(getContext(), account.name, period);
+                    schedulePeriodic(getContext(), account.name, period);
 
-//                    ((GISApplication)getContext().getApplicationContext()).setSyncPeriod(account,interval,bundle, true);
+                    // move sync to worker
+                    // ((GISApplication)getContext().getApplicationContext()).setSyncPeriod(account,interval,bundle, true);
                     // no need
                     // ContentResolver.addPeriodicSync(account, application.getAuthority(), bundle, interval);
                 }

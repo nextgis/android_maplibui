@@ -21,7 +21,7 @@
 //
 //    companion object {
 //
-//        fun schedule(context: Context?, layerId: Int) {
+//        fun schedulePeriodic(context: Context?, layerId: Int) {
 //            val constraints: Constraints = Builder()
 //                .build()
 //            val myData = Data.Builder()

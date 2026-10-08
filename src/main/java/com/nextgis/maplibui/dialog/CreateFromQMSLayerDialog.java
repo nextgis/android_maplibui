@@ -387,39 +387,42 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         }
     }
 
-    private class LoadLayersList extends AsyncTask<Void, Void, HttpResponse> {
+    private class LoadLayersList extends AsyncTask<Void, Void, String> {
         private SimpleAdapter mAdapter;
 
         @Override
-        protected HttpResponse doInBackground(Void... params) {
+        protected String doInBackground(Void... params) {
             if (!mNet.isNetworkAvailable())
-                return new HttpResponse(NetworkUtil.ERROR_NETWORK_UNAVAILABLE);
+                return new HttpResponse(NetworkUtil.ERROR_NETWORK_UNAVAILABLE).getResponseBody();
 
             try {
-                return NetworkUtil.get(QMS_GEOSERVICE_LIST_URL, null, null, false);
+                return NetworkUtil.get(QMS_GEOSERVICE_LIST_URL, null, null, false)
+                        .getResponseBody();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            return new HttpResponse(NetworkUtil.ERROR_DOWNLOAD_DATA);
+            return new HttpResponse(NetworkUtil.ERROR_DOWNLOAD_DATA).getResponseBody();
         }
 
         @Override
-        protected void onPostExecute(HttpResponse response) {
+        protected void onPostExecute(String response) {
             super.onPostExecute(response);
 
             if (!interrupted())
-            if (response.isOk()) {
+            if (response != null) {
                 try {
-                    new JSONArray(response.getResponseBody());
-                    createList(response.getResponseBody());
+                    new JSONArray(response);
+                    createList(response);
                 } catch (JSONException ignored) {
                     Toast.makeText(mContextWeakRef.get(), R.string.qms_unavailable, Toast.LENGTH_SHORT).show();
                     showRetry();
                 }
             } else {
                 Toast.makeText(
-                        mContextWeakRef.get(), NetworkUtil.getError(mContextWeakRef.get(), response.getResponseCode()),
+                        mContextWeakRef.get(),
+                        mContextWeakRef.get().getString(com.nextgis.maplib.R.string.error_connect_failed),
+                        //NetworkUtil.getError(mContextWeakRef.get(), response.getResponseCode()),
                         Toast.LENGTH_SHORT).show();
                 showRetry();
             }

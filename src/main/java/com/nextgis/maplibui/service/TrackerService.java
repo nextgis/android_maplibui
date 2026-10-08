@@ -29,6 +29,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -232,8 +233,21 @@ public class TrackerService extends Service
                     .setAutoCancel(false)
                     .setContentTitle("Tracker Service")
                     .setContentText("Starting...")
+                    //.setStyle(progressStyle)
+                    .setShortCriticalText(getString(R.string.recording))
+                    .setRequestPromotedOngoing(true)
                     .setOngoing(true);
-            startForeground(TRACK_NOTIFICATION_ID, builder.build());
+
+
+            Notification notification = builder.build();//notification.flags & Notification.FLAG_PROMOTED_ONGOING
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+//                Log.d("dd", notification.hasPromotableCharacteristics() + " promo");
+//            }
+            startForeground(TRACK_NOTIFICATION_ID, notification);
+            boolean promoted =
+                    (notification.flags & Notification.FLAG_PROMOTED_ONGOING) != 0;
+            Log.e("dd", promoted + "");
+
         }
         String targetActivity = "";
         if (intent != null) {
@@ -486,7 +500,10 @@ public class TrackerService extends Service
                 .setAutoCancel(false)
                 .setContentTitle(title)
                 .setContentText(mTicker)
-                .setOngoing(true);
+                .setOngoing(true)
+                .setShortCriticalText(getString(R.string.recording))
+                .setRequestPromotedOngoing(true);
+
 
         int resource = R.drawable.ic_location;
         builder.addAction(resource, getString(R.string.tracks_open), mOpenActivity);

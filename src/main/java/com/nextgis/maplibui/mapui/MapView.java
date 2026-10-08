@@ -257,9 +257,7 @@ public class MapView
             GeoPoint newCenterPt = env.getCenter();
             GeoPoint newCenterPtMap = mMap.screenToMap(newCenterPt);
 
-            if(Constants.DEBUG_MODE) {
-                Log.d(TAG, "zoomStop: setZoomAndCenter");
-            }
+            Log.d(TAG, "zoomStop: setZoomAndCenter");
 
             setZoomAndCenter(zoom, newCenterPtMap);
         }
@@ -334,22 +332,13 @@ public class MapView
         //Log.d(Constants.TAG, "panStop state: " + mDrawingState);
 
         if (mDrawingState == DRAW_STATE_panning && mMap != null) {
-
             float x = mCurrentMouseOffset.x;
             float y = mCurrentMouseOffset.y;
-
-            if(Constants.DEBUG_MODE) {
-                Log.d(TAG, "panStop x - " + x + " y - " + y);
-            }
-
+            Log.d(TAG, "panStop x - " + x + " y - " + y);
             GeoEnvelope bounds = mMap.getFullScreenBounds();
             bounds.offset(x, y);
             GeoEnvelope mapBounds = mMap.screenToMap(bounds);
-
             GeoPoint pt = mapBounds.getCenter();
-
-            //Log.d(TAG, "panStop: setZoomAndCenter");
-
             setZoomAndCenter(getZoomLevel(), pt);
 
             for (MapViewEventListener listener : mListeners) {
@@ -357,10 +346,8 @@ public class MapView
                     listener.panStop();
                 }
             }
-
         }
     }
-
 
     // delegate the event to the gesture detector
     @Override
@@ -690,14 +677,9 @@ public class MapView
         }
     }
 
-
     @Override
     public synchronized void onLayerDrawFinished(int id, float percent)
     {
-        if(Constants.DEBUG_MODE) {
-            //Log.d(TAG, "onLayerDrawFinished: " + id + " percent " + percent + " | draw state: " + mDrawingState);
-        }
-
         if (mDrawingState > DRAW_STATE_drawing_noclearbk) {
             return;
         }
@@ -715,13 +697,10 @@ public class MapView
         }
     }
 
-
     @Override
     public void onLayerDrawStarted()
     {
-
     }
-
 
     public void panTo(GeoPoint center)
     {

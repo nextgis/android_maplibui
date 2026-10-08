@@ -32,7 +32,10 @@ import android.accounts.AccountManagerFuture;
 import android.accounts.AuthenticatorException;
 import android.accounts.OperationCanceledException;
 import android.app.Application;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.PeriodicSync;
 import android.content.SharedPreferences;
@@ -61,6 +64,7 @@ import com.nextgis.maplibui.mapui.SyncAccountWorker;
 import com.nextgis.maplibui.util.ConstantsUI;
 import com.nextgis.maplibui.util.ControlHelper;
 import com.nextgis.maplibui.util.HyperLogCrashHandler;
+import com.nextgis.maplibui.util.NotificationHelper;
 import com.nextgis.maplibui.util.SettingsConstantsUI;
 
 import java.io.File;
@@ -83,9 +87,11 @@ import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_LIGHT;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_MAP;
 import static com.nextgis.maplib.util.SettingsConstants.KEY_PREF_NEUTRAL;
 import static com.nextgis.maplibui.fragment.NGWSettingsFragment.isAccountAutoSyncEnabled;
+import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_GPU_TYPE;
 import static com.nextgis.maplibui.util.SettingsConstantsUI.KEY_PREF_SYNC_PERIOD;
 
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
@@ -353,14 +359,14 @@ public abstract class GISApplication extends Application
                 if (account == null) {
                     continue;
                 }
-                if(Constants.DEBUG_MODE)
-                    Log.d(Constants.TAG, "getAccount check account: " + account.toString());
+                Log.d(Constants.TAG, "getAccount check account: " + account.toString());
                 if (account.name.equals(accountName)) {
                     return account;
                 }
             }
         }
         catch (SecurityException e){
+            HyperLog.v(Constants.TAG, "getAccount exception: " + e.getMessage());
             e.printStackTrace();
         }
         return null;
