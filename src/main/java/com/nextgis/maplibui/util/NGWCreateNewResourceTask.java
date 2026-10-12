@@ -21,10 +21,19 @@
 
 package com.nextgis.maplibui.util;
 
+import static com.nextgis.maplib.util.Constants.MESSAGE_ALERT_INTENT;
+import static com.nextgis.maplib.util.Constants.MESSAGE_EXTRA;
+import static com.nextgis.maplib.util.Constants.MESSAGE_TITLE_EXTRA;
+import static com.nextgis.maplib.util.NetworkUtil.ERROR_PAYMENT;
+
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Pair;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.nextgis.maplib.datasource.ngw.Connection;
 import com.nextgis.maplib.map.VectorLayer;
@@ -125,7 +134,14 @@ public class  NGWCreateNewResourceTask extends AsyncTask<Void, Void, HttpRespons
                 break;
         }
 
-        if (mContextRef.get()!= null) {
+        // 402 processing - max layers on NGW free plan
+        if (result.getResponseCode() == ERROR_PAYMENT ){
+            Intent msg = new Intent(MESSAGE_ALERT_INTENT);
+            msg.putExtra(MESSAGE_EXTRA,  mContextRef.get().getString(R.string.free_plan_maximum));
+            msg.putExtra(MESSAGE_TITLE_EXTRA, "");
+            msg.setPackage(mContextRef.get().getPackageName());
+            mContextRef.get().sendBroadcast(msg);
+        } else if (mContextRef.get()!= null) {
             Toast.makeText(mContextRef.get().getApplicationContext(), message, Toast.LENGTH_LONG).show();
         }
     }

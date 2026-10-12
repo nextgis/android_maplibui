@@ -27,7 +27,8 @@
     <string name="ok">OK</string>
     <string name="create">Создать</string>
     <string name="cancel">Отменить</string>
-    <string name="osm">OpenStreetMap Standard aka Mapnik</string>
+    <string name="cancel2">Отмена</string>
+   <string name="osm">OpenStreetMap Standard aka Mapnik</string>
     <string name="layer_name">Имя слоя</string>
     <string name="layer_url">URL слоя</string>
     <string name="layer_url_hint">Пример: http://{a,b,c}.tile.openstreetmap.org/{z}/{x}/{y}.png</string>
@@ -39,6 +40,7 @@
     <string name="tmstype_normal">TMS (OSGeo)</string>
     <string name="error_invalid_url">Неправильный URL</string>
     <string name="qms_unavailable">Сервер геосервисов недоступен</string>
+    <string name="free_plan_maximum">После загрузки количество слоёв составит 16, но на текущем плане доступно только 15. Удалите лишние слои или &lt;a href="https://my.nextgis.com/subscription/"&gt;оформите подписку&lt;/a&gt; для полного снятия ограничения.</string>
     <string name="nextgis_web">NextGIS</string>
     <string name="ngw_url">NextGIS Web URL</string>
     <string name="password">Пароль</string>
@@ -55,7 +57,7 @@
     <string name="data_proposal">Заказать данные</string>
     <string name="data_proposal_menu">Нужны данные?</string>
     <string name="data_title">Нужны данные для вашей территории?</string>
-    <string name="data_text">В нашем сервисе <a href="https://data.nextgis.com/">data.nextgis.com</a> вы можете заказать и получить данные на любую территорию. Есть данные базовой карты, рельеф, ландшафты, дороги, дома и многое другое.\nДанные предоставляются в форматах пригодных для загрузки в NextGIS Mobile.</string>
+    <string name="data_text">В нашем сервисе &lt;a href="https://data.nextgis.com/"&gt;data.nextgis.com&lt;/a&gt; вы можете заказать и получить данные на любую территорию. Есть данные базовой карты, рельеф, ландшафты, дороги, дома и многое другое.\nДанные предоставляются в форматах пригодных для загрузки в NextGIS Mobile.</string>
 
     <string name="ngw_accounts">Веб ГИС</string>
     <string name="ngid_account_new">Зарегистрироваться</string>

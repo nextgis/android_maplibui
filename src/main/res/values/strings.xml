@@ -27,6 +27,7 @@
     <string name="ok">OK</string>
     <string name="create">Create</string>
     <string name="cancel">Cancel</string>
+    <string name="cancel2">Cancel</string>
     <string name="discard">Discard</string>
     <string name="osm">OpenStreetMap Standard aka Mapnik</string>
     <string name="layer_name">Layer name</string>
@@ -40,6 +41,7 @@
     <string name="tmstype_normal">TMS (OSGeo spec.)</string>
     <string name="error_invalid_url">URL is invalid</string>
     <string name="qms_unavailable">Geoservice server is unavailable</string>
+    <string name="free_plan_maximum">After the upload, the total number of layers will be 16, but your current plan allows only 15. Remove some layers or  &lt;a href="https://my.nextgis.com/subscription/"&gt;subscribe&lt;/a&gt; to remove the limit entirely.</string>
     <string name="nextgis_web">NextGIS</string>
     <string name="ngw_url">NextGIS Web URL</string>
     <string name="password">Password</string>
@@ -58,9 +60,7 @@
 
     <string name="data_title">Need data for your area?</string>
 
-    <string name="data_text">With our <a href="https://data.nextgis.com/">data.nextgis.com</a> service, you can order and obtain spatial data for any area. You can get basemap data, elevation data, landscapes, roads, buildings, and much more.\nThe data is provided in formats suitable for use in NextGIS Mobile.</string>
-
-
+    <string name="data_text">With our &lt;a href="https://data.nextgis.com/"&gt;data.nextgis.com&lt;/a&gt; service, you can order and obtain spatial data for any area. You can get basemap data, elevation data, landscapes, roads, buildings, and much more.\nThe data is provided in formats suitable for use in NextGIS Mobile.</string>
 
 
     <string name="ngw_account_already_exists">Account already exist</string>
