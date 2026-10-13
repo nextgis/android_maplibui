@@ -90,7 +90,7 @@ public class NGIDSettingsHeaderFragment
         Preference newAccount = new Preference(mStyledContext);
         newAccount.setIconSpaceReserved(false);
         newAccount.setTitle(R.string.ngid_account_new);
-        Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(NGIDUtils.NGID_MY_SIGNUP));
         newAccount.setIntent(browser);
 
         if (null != screen) {

@@ -88,7 +88,7 @@
     <string name="vector_layer">Vector layer</string>
     <string name="pg_layer">PostGIS layer</string>
     <string name="credentials_opt">Credentials (optional)</string>
-    <string name="layer_type_optional">Tile layer type (optional)</string>
+    <string name="layer_type_optional">Tile scheme</string>
     <string name="sync">Synchronization</string>
     <string name="sync_enable">Enable sync</string>
     <string name="sync_enabled">Sync enabled</string>

@@ -83,7 +83,7 @@
     <string name="vector_layer">Векторный слой</string>
     <string name="pg_layer">Слой PostGIS</string>
     <string name="credentials_opt">Имя/пароль (опционально)</string>
-    <string name="layer_type_optional">Тип тайлового слоя (опционально)</string>
+    <string name="layer_type_optional">Тайловая схема</string>
     <string name="sync">Синхронизация</string>
     <string name="auto_sync">Автоматическая синхронизация</string>
     <string name="auto_sync_summary">Синхронизация через заданный интервал</string>
