@@ -351,4 +351,28 @@
         <item name="android:dividerHeight">1dp</item>
         <item name="android:divider">@android:color/darker_gray</item>
     </style>
+
+    <style name="status_panel">
+        <item name="android:textViewStyle">@style/status_panel_text</item>
+    </style>
+
+    <style name="status_panel_text"
+        parent="TextAppearance.AppCompat.Medium">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:drawablePadding">2dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+
+    <style name="status_panel_text_land"
+        parent="status_panel_text">
+        <item name="android:singleLine">true</item>
+    </style>
+
+
 </resources>
