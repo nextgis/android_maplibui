@@ -22,7 +22,7 @@
  */
 
 apply plugin: 'com.android.library'
-apply plugin: 'org.jetbrains.kotlin.android'
+//apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     defaultConfig {
@@ -62,9 +62,12 @@ android {
     dataBinding {
         enabled = true
     }
+
     buildFeatures {
         viewBinding = true
+        dataBinding = true
         buildConfig = true
+        resValues = true
     }
 
     compileOptions {
@@ -73,9 +76,9 @@ android {
     }
     namespace 'com.nextgis.maplibui'
 
-    kotlinOptions {
-        jvmTarget = '21'
-    }
+//    kotlinOptions {
+//        jvmTarget = '21'
+//    }
     lint {
         targetSdk 37
     }
