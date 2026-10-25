@@ -170,7 +170,7 @@ public class CreateLocalLayerDialog
                                 intent.putExtra(LayerFillService.KEY_INPUT_TYPE, mLayerType);
                                 intent.putExtra(LayerFillService.KEY_IS_NGFP_OPEN, isNGFPopenForm);
                                 intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, mGroupLayer.getId());
-                                int checkedId = radioGroup.getCheckedRadioButtonId();
+                                int checkedId = radioGroup == null? 0: radioGroup.getCheckedRadioButtonId();
 
 //                                if (checkedId == R.id.radioButton1) {
 //                                 } else if (checkedId == R.id.radioButton2) {
