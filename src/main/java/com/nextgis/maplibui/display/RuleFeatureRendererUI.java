@@ -43,6 +43,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nextgis.maplib.datasource.Field;
@@ -103,6 +104,9 @@ public class RuleFeatureRendererUI extends RendererUI {
         private ListView mRulesListView;
         private List<Field> mFields;
 
+        private int mSelectedIndex = -1;          // вместо mSelectedValue как признака выбора
+        private final List<String> mValues = new ArrayList<>();  // реальные значения (могут быть null)
+
         public RuleStyleFragment() {
 
         }
@@ -120,7 +124,7 @@ public class RuleFeatureRendererUI extends RendererUI {
             defaultStyle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showStyleDialog(null);
+                    showStyleDialog(null, true);
                 }
             });
 
@@ -135,7 +139,7 @@ public class RuleFeatureRendererUI extends RendererUI {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     mSelectedValue = mRulesAdapter.getItem(position);
-                    showStyleDialog(mSelectedValue);
+                    showStyleDialog(mSelectedValue, false );
                 }
             });
 
@@ -210,31 +214,52 @@ public class RuleFeatureRendererUI extends RendererUI {
             newRule.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle(R.string.value).setSingleChoiceItems(mData, -1, mSelectedField, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (mData.moveToPosition(which))
-                                        mSelectedValue = mData.getString(1);
-                                }
-                            })
-                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (mSelectedValue != null)
-                                        showStyleDialog(mSelectedValue);
-                                    else
-                                        Toast.makeText(getContext(), R.string.nothing_selected, Toast.LENGTH_SHORT).show();
-                                }
-                            }).setNegativeButton(android.R.string.cancel, null);
-
-                    mSelectedValue = null;
-                    builder.create().show();
+                    showValueDialog();
                 }
             });
 
             setListViewHeightBasedOnChildren();
             return v;
+        }
+
+        private void showValueDialog() {
+            mValues.clear();
+            if (mData != null && mData.moveToFirst()) {
+                do {
+                    mValues.add(mData.isNull(1) ? null : mData.getString(1));
+                } while (mData.moveToNext());
+            }
+
+            final String nullLabel = "(null)";
+            final CharSequence[] labels = new CharSequence[mValues.size()];
+            for (int i = 0; i < mValues.size(); i++) {
+                String v = mValues.get(i);
+                labels[i] = (v == null) ? nullLabel : v;
+            }
+
+            mSelectedIndex = -1;
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.value)
+                    .setSingleChoiceItems(labels, -1, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mSelectedIndex = which;
+                        }
+                    })
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (mSelectedIndex >= 0) {
+                                showStyleDialog(mValues.get(mSelectedIndex), false);
+                            } else {
+                                Toast.makeText(getContext(), R.string.nothing_selected,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, null);
+            builder.create().show();
         }
 
         private int getPositionForField(String field) {
@@ -258,12 +283,13 @@ public class RuleFeatureRendererUI extends RendererUI {
             mStyleRule.setKey(mSelectedField);
         }
 
-        private void showStyleDialog(final String value) {
+        private void showStyleDialog(final String value, boolean isLoadDefaultStyle) {
             try {
-                final Style style = value == null ? mStyle : mRulesList.contains(mSelectedValue) ? mStyleRule.getStyle(mSelectedValue) : mStyle.clone();
+                mSelectedValue = value;
+                final Style style = isLoadDefaultStyle  ? mStyle : mRulesList.contains(mSelectedValue) ? mStyleRule.getStyle(mSelectedValue) : mStyle.clone();
 
                 FragmentManager fm = getActivity().getSupportFragmentManager();
-                final StyleFragment styleFragment = new StyleFragment(value != null);
+                final StyleFragment styleFragment = new StyleFragment(true , isLoadDefaultStyle );
                 styleFragment.setLayer(mLayer);
                 styleFragment.setStyle(style);
                 styleFragment.setTitle(com.nextgis.maplib.R.string.style);
@@ -271,7 +297,7 @@ public class RuleFeatureRendererUI extends RendererUI {
                 styleFragment.setOnPositiveClickedListener(new StyledDialogFragment.OnPositiveClickedListener() {
                     @Override
                     public void onPositiveClicked() {
-                        if (value != null) {
+                        //if (value != null) { // now null is allow
                             if (!mRulesList.contains(mSelectedValue)) {
                                 mRulesList.add(mSelectedValue);
                                 mRulesAdapter.notifyDataSetChanged();
@@ -279,7 +305,7 @@ public class RuleFeatureRendererUI extends RendererUI {
                             }
 
                             mStyleRule.setStyle(mSelectedValue, style);
-                        }
+                        //}
 
                         styleFragment.dismiss();
                     }
@@ -332,6 +358,7 @@ public class RuleFeatureRendererUI extends RendererUI {
             super.onCreate(savedInstanceState);
         }
 
+
         private class RulesAdapter extends ArrayAdapter<String> {
 
             RulesAdapter(Context context) {
@@ -341,19 +368,29 @@ public class RuleFeatureRendererUI extends RendererUI {
             @NonNull
             @Override
             public View getView(final int position, View convertView, @NonNull ViewGroup parent) {
-                View view = super.getView(position, convertView, parent);
-                final ImageButton remove = (ImageButton) view.findViewById(R.id.rule_remove);
+                View view = convertView;
+                if (view == null) {
+                    view = LayoutInflater.from(getContext())
+                            .inflate(R.layout.rule_item, parent, false);
+                }
+
+                // null show as  "(null)"
+                TextView text = (TextView) view.findViewById(android.R.id.text1);
+                String item = getItem(position);
+                text.setText(item == null ? getContext().getString(R.string.null_value) : item);
+
+                // del rule
+                ImageButton remove = (ImageButton) view.findViewById(R.id.rule_remove);
                 remove.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String value = getItem(position);
-                        mRulesList.remove(value);
+                        String value = getItem(position);   // may be null
+                        mRulesList.remove(position);        // remove(int): remove line
                         mRulesAdapter.notifyDataSetChanged();
                         setListViewHeightBasedOnChildren();
-                        mStyleRule.removeStyle(value);
+                        mStyleRule.removeStyle(value);      // null as value allow now
                     }
                 });
-
                 return view;
             }
         }

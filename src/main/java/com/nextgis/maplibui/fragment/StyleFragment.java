@@ -73,8 +73,8 @@ public class StyleFragment extends StyledDialogFragment implements View.OnClickL
     protected VectorLayer mLayer;
     boolean isRule;
 
-    public StyleFragment(boolean isRule) {
-        this.isRule = isRule;
+    public StyleFragment(boolean isRule, boolean isDefaultStyle) {
+        this.isRule = isDefaultStyle;
     }
 
     public void setStyle(Style style) {

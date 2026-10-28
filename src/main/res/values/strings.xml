@@ -485,5 +485,6 @@
     <string name="recording">Record</string>
 
     <string name="no_geometry">Geometry is missing</string>
+    <string name="null_value">(null)</string>
 
 </resources>
