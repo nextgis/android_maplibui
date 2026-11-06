@@ -135,6 +135,10 @@ public abstract class GISApplication extends Application
     boolean isTrackInProgress  = false;
 
 
+    Integer savedLayerId = null;
+    Long savedFeatureId = null;
+
+
     boolean isStylingInProgress  = false;
 
     String account = null;
@@ -274,7 +278,7 @@ public abstract class GISApplication extends Application
 
         RenderingEngine.Type type =
                 RenderingEngine.getCurrentType();
-        Log.e("MAPLIBRE", type.toString());
+//        Log.e("MAPLIBRE", type.toString());
 
     }
 
@@ -830,5 +834,28 @@ public abstract class GISApplication extends Application
     public void updateLocation(Location location) {
         if (mGpsEventSource != null)
             mGpsEventSource.setLastLocationFromTracker(location);
+    }
+
+    @Override
+    public void saveSelectionObj(int layerId, long featureId){
+        savedLayerId = layerId;
+        savedFeatureId = featureId;
+    }
+
+    @Override
+    public long[] loadSelection(){
+        int size = (savedLayerId != null && savedFeatureId != null) ? 2 : 0;
+        long result[] = new long[size];
+        if (size == 2){
+            result[0] = savedLayerId;
+            result[1] = savedFeatureId;
+        }
+        return result;
+    }
+
+    @Override
+    public void clearSavedSelection(){
+        savedFeatureId = null;
+        savedLayerId = null;
     }
 }

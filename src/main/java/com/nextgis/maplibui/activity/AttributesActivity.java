@@ -171,10 +171,8 @@ public class AttributesActivity extends NGActivity {
                         }
 
                         map.zoomToLatLng(mLayer.getFeature(selectedFeatureId).getGeometry().getEnvelope());
-//                        if (mLayer.getGeometryType() == GeoConstants.GTPoint || mLayer.getGeometryType() == GeoConstants.GTMultiPoint)
-//                            map.zoomToExtent(mLayer.getFeature(mId).getGeometry().getEnvelope(), 18, true);
-//                        else
-//                            map.zoomToExtent(mLayer.getFeature(mId).getGeometry().getEnvelope());
+                        application.saveSelectionObj(mLayer.getId(), selectedFeatureId);
+                        // map.startFeatureSelectionForView(mLayer, mLayer.getFeature(selectedFeatureId));
 
                         SharedPreferences.Editor edit = PreferenceManager.getDefaultSharedPreferences(AttributesActivity.this).edit();
 

@@ -23,49 +23,6 @@ package com.nextgis.maplibui.fragment
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import android.accounts.Account
-import android.content.BroadcastReceiver
-import android.content.ContentResolver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.content.PeriodicSync
-import android.os.Build
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
-import android.widget.*
-import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
-import com.nextgis.maplib.api.IGISApplication
-import com.nextgis.maplib.api.IRenderer
-import com.nextgis.maplib.datasource.Field
-import com.nextgis.maplib.display.FieldStyleRule
-import com.nextgis.maplib.display.RuleFeatureRenderer
-import com.nextgis.maplib.display.SimpleFeatureRenderer
-import com.nextgis.maplib.display.Style
-import com.nextgis.maplib.map.NGWVectorLayer
-import com.nextgis.maplib.map.VectorLayer
-import com.nextgis.maplib.util.AccountUtil
-import com.nextgis.maplib.util.Constants
-import com.nextgis.maplib.util.GeoConstants
-import com.nextgis.maplib.util.LayerUtil
-import com.nextgis.maplibui.R
-import com.nextgis.maplibui.display.RendererUI
-import com.nextgis.maplibui.display.RuleFeatureRendererUI
-import com.nextgis.maplibui.display.SimpleFeatureRendererUI
-import com.nextgis.maplibui.service.RebuildCacheService
-import com.nextgis.maplibui.util.ConstantsUI
-import com.nextgis.maplibui.util.ControlHelper
-import com.nextgis.maplibui.util.LayerUtil.getGeometryName
-import com.nextgis.maplibui.util.SettingsConstantsUI
 
 class VectorLayerSettingsFragment2
 //    : LayerSettingsFragment2(), View.OnClickListener

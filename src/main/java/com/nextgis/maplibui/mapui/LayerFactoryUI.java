@@ -36,6 +36,7 @@ import com.nextgis.maplib.map.LayerFactory;
 import com.nextgis.maplib.map.LayerGroup;
 import com.nextgis.maplib.map.MapDrawable;
 import com.nextgis.maplib.map.NGWLookupTable;
+import com.nextgis.maplib.util.Constants;
 import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplibui.GISApplication;
@@ -52,9 +53,15 @@ import com.nextgis.maplibui.service.LayerFillService;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static com.nextgis.maplib.util.Constants.CONFIG;
 import static com.nextgis.maplib.util.Constants.JSON_TYPE_KEY;
@@ -142,9 +149,13 @@ public class LayerFactoryUI
             layerName = layerName.substring(0, lastPeriodPos);
         }
         if (context instanceof NGActivity) {
-
             AtomicReference<Uri> temp = new AtomicReference<>(uri);
-            if (MapUtil.isZippedWithExtension(context, temp, ".mbtiles")
+            if (MapUtil.isZippedWithExtension(context, temp, ".geojson", true)) {
+                createNewVectorLayer(context, groupLayer, temp.get());
+                return;
+            }
+
+            if (MapUtil.isZippedWithExtension(context, temp, ".mbtiles", false)
                     || ext.equals(".mbtiles") ){
                 // create or connect to fill layer with features
                 Intent intent = new Intent(context, LayerFillService.class);
@@ -160,10 +171,6 @@ public class LayerFactoryUI
                 return;
             }
 
-            if (MapUtil.isZippedWithExtension(context, temp, ".geojson")) {
-                createNewVectorLayer(context, groupLayer, temp.get());
-                return;
-            }
 
            // if no def mapnik.json - need ask for TMS type
             if (!isHasMapnikConfigFile(context, temp)){

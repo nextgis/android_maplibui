@@ -38,6 +38,7 @@ import com.nextgis.maplib.datasource.Field;
 import com.nextgis.maplib.map.VectorLayer;
 import com.nextgis.maplib.util.AttachItem;
 import com.nextgis.maplib.util.Constants;
+import com.nextgis.maplib.util.FileUtil;
 import com.nextgis.maplib.util.GeoJSONUtil;
 import com.nextgis.maplib.util.MapUtil;
 import com.nextgis.maplib.util.PermissionUtil;
@@ -53,7 +54,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -128,6 +131,8 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
 
     @Override
     protected Object doInBackground(Void... voids) {
+        Map<String, String> aliases = new HashMap<>();
+
         HyperLog.v(Constants.TAG, "ExportGeoJSONTask: start doInBackground");
         try {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && !PermissionUtil.hasPermission(mLayer.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -188,6 +193,7 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
                     properties.put(Constants.FIELD_ID, feature.getId());
                     ArrayList<String> existingFiles = new ArrayList<>();
                     for (Field field : feature.getFields()) {
+                        aliases.put(field.getName(), field.getAlias());
                         Object value = feature.getFieldValue(field.getName());
                         if (value != null) {
                             if (field.getType() == FTDateTime || field.getType() == FTDate || field.getType() == FTTime)
@@ -246,9 +252,52 @@ public class ExportGeoJSONTask extends AsyncTask<Void, Integer, Object> {
             buffer = obj.toString().getBytes();
             zos.putNextEntry(new ZipEntry(mLayer.getName() + ".geojson"));
             zos.write(buffer);
+            zos.closeEntry();
+
+            File configFile = mLayer.getFileName();
+            if (configFile != null && configFile.exists()) {
+                try {
+                    JSONObject config = new JSONObject(FileUtil.readFromFile(configFile));
+                    if (config.has(Constants.JSON_RENDERERPROPS_KEY)) {
+                        JSONObject rendererProps = config.getJSONObject(Constants.JSON_RENDERERPROPS_KEY);
+                        String rendererPropsString = rendererProps.toString();
+
+                        if (useAliases) {
+                            // need change some config keys to names - cos in resulting geojson will be no field keys
+                            // change feature signs if exists
+                            for (Map.Entry<String, String> entry: aliases.entrySet()){
+                                rendererPropsString = rendererPropsString.replace("\"value\":\"" + entry.getKey() + "\"",
+                                        "\"value\":\"" + entry.getValue() + "\"");
+                            }
+                            // change rules fields
+                            for (Map.Entry<String, String> entry: aliases.entrySet()){
+                                rendererPropsString = rendererPropsString.replace("\"field\":\"" + entry.getKey() + "\"",
+                                        "\"field\":\"" + entry.getValue() + "\"");
+                            }
+                        }
+                        for (Map.Entry<String, String> entry: aliases.entrySet()){
+                            rendererPropsString = rendererPropsString.replace("\"value\":\"" + "_id" + "\"",
+                                    "\"value\":\"" + "_fixed_id" + "\"");
+                        }
+                        // change rules fields
+                        for (Map.Entry<String, String> entry: aliases.entrySet()){
+                            rendererPropsString = rendererPropsString.replace("\"field\":\"" + "_id" + "\"",
+                                    "\"field\":\"" + "_fixed_id" + "\"");
+                        }
+
+                        String styleFileName = mLayer.getName() + ".ngmstyle.json";
+                        zos.putNextEntry(new ZipEntry(styleFileName));
+                        zos.write(rendererPropsString.getBytes());
+                        zos.closeEntry();
+                        HyperLog.v(Constants.TAG, "ExportGeoJSONTask: added style file: " + styleFileName);
+                    }
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                    HyperLog.v(Constants.TAG, "ExportGeoJSONTask: error reading config file: " + e.getMessage());
+                }
+            }
 
             HyperLog.v(Constants.TAG, "ExportGeoJSONTask: close entry and streams");
-            zos.closeEntry();
             zos.close();
             fos.close();
 

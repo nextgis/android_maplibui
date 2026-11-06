@@ -304,7 +304,10 @@ public class RuleFeatureRendererUI extends RendererUI {
                                 setListViewHeightBasedOnChildren();
                             }
 
-                            mStyleRule.setStyle(mSelectedValue, style);
+                            if (!isLoadDefaultStyle)
+                                mStyleRule.setStyle(mSelectedValue, style);
+                            else
+                                mStyle = style;
                         //}
 
                         styleFragment.dismiss();
