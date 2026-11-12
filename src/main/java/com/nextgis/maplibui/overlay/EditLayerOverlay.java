@@ -538,6 +538,10 @@ public class EditLayerOverlay extends Overlay implements MapViewEventListener, G
         update(true);
     }
 
+    public OverlayItem getOverlayPoint (){
+        return mOverlayPoint;
+    }
+
 
     public boolean onOptionsItemSelected(int id) {
         if (mLayer == null || mSelectedItem == null)

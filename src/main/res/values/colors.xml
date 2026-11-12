@@ -28,6 +28,7 @@
     <color name="color_half">#77000000</color>
     <color name="color_white">#ffffff</color>
     <color name="color_transparent">#00FFFFFF</color>
+    <color name="color_transparent2">#00000000</color>
 
     <!--Grey color palette, http://www.google.co.uk/design/spec/style/color.html#color-color-palette -->
     <color name="color_grey_000">@color/color_white</color>
