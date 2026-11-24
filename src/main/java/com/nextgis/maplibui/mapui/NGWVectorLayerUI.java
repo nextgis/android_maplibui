@@ -82,7 +82,7 @@ public class NGWVectorLayerUI
 
 
     @Override
-    public void showEditForm(Context context, long featureId, GeoGeometry geometry,long mFormId) {
+    public void  showEditForm(Context context, long featureId, GeoGeometry geometry,long mFormId) {
         LayerUtil.showEditForm(this, context, featureId, geometry, mFormId);
     }
 

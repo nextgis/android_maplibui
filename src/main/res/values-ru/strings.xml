@@ -469,4 +469,6 @@
     <string name="recording">Запись</string>
     <string name="no_geometry">Геометрия отсуствует</string>
 
+    <string name="forms_title">Выбрать формы</string>
+    <string name="raster_title">Выберите стили</string>
 </resources>

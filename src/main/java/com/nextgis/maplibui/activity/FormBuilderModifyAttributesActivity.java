@@ -105,17 +105,21 @@ import static com.nextgis.maplib.util.NetworkUtil.getUserAgent;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ALBUM_ELEMENTS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_ATTRIBUTES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_AVERAGING_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_CAPTION_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_CHECKBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_COMBOBOX_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_COORDINATES_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_COUNTER_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DATE_TIME_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_DEFAULT_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DISTANCE_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_DOUBLE_COMBOBOX_VALUE;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_ELEMENTS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_FIELD_NAME_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_KEY_LIST_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_KEY_LIST_SAVED_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_LISTS_KEY;
+import static com.nextgis.maplibui.util.ConstantsUI.JSON_PAGES_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_PHOTO_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_PORTRAIT_ELEMENTS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_RADIO_GROUP_VALUE;
@@ -127,6 +131,7 @@ import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_EDIT_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TEXT_LABEL_VALUE;
 import static com.nextgis.maplibui.util.ConstantsUI.JSON_TRANSLATIONS_KEY;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_IS_FORM_JSONTYPE;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_META_PATH;
 import static com.nextgis.maplibui.util.NGIDUtils.PREF_FIRST_NAME;
 import static com.nextgis.maplibui.util.NGIDUtils.PREF_LAST_NAME;
@@ -193,55 +198,66 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
     protected void fillControls(LinearLayout layout, Bundle savedState) {
         //TODO: add location control via fragment only defined by user space
         Bundle extras = getIntent().getExtras();
-
+        boolean isJsonTypeForm = extras.getBoolean(KEY_IS_FORM_JSONTYPE, true);
         if (mTable == null) {
             fillTable(layout, savedState, extras);
             return;
         }
-
         try {
             File form = (File) extras.getSerializable(KEY_FORM_PATH);
-
             int orientation = getResources().getConfiguration().orientation;
             boolean isLand = orientation == Configuration.ORIENTATION_LANDSCAPE;
 
             String formString = FileUtil.readFromFile(form);
             Object json = new JSONTokener(formString).nextValue();
-            if (json instanceof JSONArray) {
-                JSONArray elements = new JSONArray(formString);
-                if (elements.length() > 0)
-                    fillTabControls(layout, savedState, elements);
-            } else {
-                JSONObject jsonFormContents = new JSONObject(formString);
-                JSONArray tabs = jsonFormContents.getJSONArray(JSON_TABS_KEY);
 
-                for (int i = 0; i < tabs.length(); i++) {
-                    JSONObject tab = tabs.getJSONObject(i);
-                    JSONArray elements = null;
+            if (isJsonTypeForm) {
+                JSONObject jsonObject = new JSONObject(formString);
+                JSONObject forbuilder = jsonObject.optJSONObject("formbuilder_form");
+                JSONObject value = forbuilder.optJSONObject("value");
+                JSONArray tabs = value.getJSONArray("items");
 
-                    if (isLand && !tab.isNull(JSON_ALBUM_ELEMENTS_KEY)) {
-                        elements = tab.getJSONArray(JSON_ALBUM_ELEMENTS_KEY);
-                    }
+                if (tabs.length() > 0)
+                    fillTabControls(layout, savedState, tabs, isJsonTypeForm);
+            }
+            else {
+                if (json instanceof JSONArray) {
+                    JSONArray elements = new JSONArray(formString);
+                    if (elements.length() > 0)
+                        fillTabControls(layout, savedState, elements, isJsonTypeForm);
+                } else {
+                    JSONObject jsonFormContents = new JSONObject(formString);
+                    JSONArray tabs = jsonFormContents.getJSONArray(JSON_TABS_KEY);
 
-                    if (null == elements) {
-                        if (!isLand && !tab.isNull(JSON_PORTRAIT_ELEMENTS_KEY)) {
-                            elements = tab.getJSONArray(JSON_PORTRAIT_ELEMENTS_KEY);
-                        }
-                    }
+                    for (int i = 0; i < tabs.length(); i++) {
+                        JSONObject tab = tabs.getJSONObject(i);
+                        JSONArray elements = null;
 
-                    if (null == elements) {
-                        if (!tab.isNull(JSON_ALBUM_ELEMENTS_KEY)) {
+                        if (isLand && !tab.isNull(JSON_ALBUM_ELEMENTS_KEY)) {
                             elements = tab.getJSONArray(JSON_ALBUM_ELEMENTS_KEY);
                         }
 
-                        if (!tab.isNull(JSON_PORTRAIT_ELEMENTS_KEY)) {
-                            elements = tab.getJSONArray(JSON_ALBUM_ELEMENTS_KEY);
+                        if (null == elements) {
+                            if (!isLand && !tab.isNull(JSON_PORTRAIT_ELEMENTS_KEY)) {
+                                elements = tab.getJSONArray(JSON_PORTRAIT_ELEMENTS_KEY);
+                            }
+                        }
+
+                        if (null == elements) {
+                            if (!tab.isNull(JSON_ALBUM_ELEMENTS_KEY)) {
+                                elements = tab.getJSONArray(JSON_ALBUM_ELEMENTS_KEY);
+                            }
+
+                            if (!tab.isNull(JSON_PORTRAIT_ELEMENTS_KEY)) {
+                                elements = tab.getJSONArray(JSON_ALBUM_ELEMENTS_KEY);
+                            }
+                        }
+
+                        if (null != elements && elements.length() > 0) {
+                            fillTabControls(layout, savedState, elements, isJsonTypeForm);
                         }
                     }
 
-                    if (null != elements && elements.length() > 0) {
-                        fillTabControls(layout, savedState, elements);
-                    }
                 }
             }
         } catch (JSONException | IOException e) {
@@ -253,90 +269,96 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
     private void fillTable(final LinearLayout layout, final Bundle savedState, Bundle extras) {
         mTable = new HashMap<>();
         mTranslations = new HashMap<>();
-        mMeta = (File) extras.getSerializable(KEY_META_PATH);
-        if (mMeta != null && mMeta.exists()) {
-            try {
-                String metaString = FileUtil.readFromFile(mMeta);
-                final JSONObject metaJson = new JSONObject(metaString);
-                if (metaJson.has(JSON_LISTS_KEY) && !metaJson.isNull(JSON_LISTS_KEY)) {
-                    JSONObject lists = metaJson.getJSONObject(JSON_LISTS_KEY);
-                    Iterator<String> i = lists.keys();
-                    while (i.hasNext()) {
-                        String key = i.next();
-                        JSONArray list = lists.getJSONArray(key);
-                        List<String> value = new ArrayList<>();
-                        for (int j = 0; j < list.length(); j++)
-                            value.add(list.getString(j));
-                        mTable.put(key, value);
-                    }
-                }
-
-                if (metaJson.has(JSON_KEY_LIST_KEY) && !metaJson.isNull(JSON_KEY_LIST_KEY)) {
-                    mColumn = metaJson.getString(JSON_KEY_LIST_KEY);
-                    List<String> columnList = mTable.get(mColumn);
-                    if (mColumn == null || columnList == null || columnList.isEmpty()) {
-                        Toast.makeText(this, "R.string.error_invalid_column", Toast.LENGTH_SHORT).show();
-                        mColumn = null; // Сбрасываем mColumn, чтобы избежать ошибок
-                        fillControls(layout, savedState);
-                        return;
+        boolean isJsonTypeForm = extras.getBoolean(KEY_IS_FORM_JSONTYPE, true);
+        if (isJsonTypeForm) {
+            mColumn = null; //reset mColumn,if key_list abpsent
+            fillControls(layout, savedState);
+        } else {
+            mMeta = (File) extras.getSerializable(KEY_META_PATH);
+            if (mMeta != null && mMeta.exists()) {
+                try {
+                    String metaString = FileUtil.readFromFile(mMeta);
+                    final JSONObject metaJson = new JSONObject(metaString);
+                    if (metaJson.has(JSON_LISTS_KEY) && !metaJson.isNull(JSON_LISTS_KEY)) {
+                        JSONObject lists = metaJson.getJSONObject(JSON_LISTS_KEY);
+                        Iterator<String> i = lists.keys();
+                        while (i.hasNext()) {
+                            String key = i.next();
+                            JSONArray list = lists.getJSONArray(key);
+                            List<String> value = new ArrayList<>();
+                            for (int j = 0; j < list.length(); j++)
+                                value.add(list.getString(j));
+                            mTable.put(key, value);
+                        }
                     }
 
-                    if (metaJson.has(JSON_KEY_LIST_SAVED_KEY)) {
-                        mRow = metaJson.getInt(JSON_KEY_LIST_SAVED_KEY);
-                        if (mRow >= columnList.size() || mRow < 0) {
-                            Toast.makeText(this, "R.string.error_invalid_row", Toast.LENGTH_SHORT).show();
-                            mRow = -1;
+                    if (metaJson.has(JSON_KEY_LIST_KEY) && !metaJson.isNull(JSON_KEY_LIST_KEY)) {
+                        mColumn = metaJson.getString(JSON_KEY_LIST_KEY);
+                        List<String> columnList = mTable.get(mColumn);
+                        if (mColumn == null || columnList == null || columnList.isEmpty()) {
+                            Toast.makeText(this, "R.string.error_invalid_column", Toast.LENGTH_SHORT).show();
+                            mColumn = null; // Сбрасываем mColumn, чтобы избежать ошибок
+                            fillControls(layout, savedState);
+                            return;
+                        }
+
+                        if (metaJson.has(JSON_KEY_LIST_SAVED_KEY)) {
+                            mRow = metaJson.getInt(JSON_KEY_LIST_SAVED_KEY);
+                            if (mRow >= columnList.size() || mRow < 0) {
+                                Toast.makeText(this, "R.string.error_invalid_row", Toast.LENGTH_SHORT).show();
+                                mRow = -1;
+                            }
+                        } else {
+                            askForRow(new OnAskRowListener() {
+                                @Override
+                                public void onRowChosen() {
+                                    if (mRow == -1)
+                                        finish();
+                                    else {
+                                        try {
+                                            metaJson.put(JSON_KEY_LIST_SAVED_KEY, mRow);
+                                            FileUtil.writeToFile(mMeta, metaJson.toString());
+                                        } catch (JSONException | IOException ignored) {
+                                        }
+                                        fillControls(layout, savedState);
+                                    }
+                                }
+                            });
+                            return;
                         }
                     } else {
-                        askForRow(new OnAskRowListener() {
-                            @Override
-                            public void onRowChosen() {
-                                if (mRow == -1)
-                                    finish();
-                                else {
-                                    try {
-                                        metaJson.put(JSON_KEY_LIST_SAVED_KEY, mRow);
-                                        FileUtil.writeToFile(mMeta, metaJson.toString());
-                                    } catch (JSONException | IOException ignored) {}
-                                    fillControls(layout, savedState);
-                                }
-                            }
-                        });
-                        return;
+                        mColumn = null; //reset mColumn,if key_list abpsent
                     }
-                } else {
-                    mColumn = null; //reset mColumn,if key_list abpsent
-                }
 
-                if (metaJson.has(JSON_TRANSLATIONS_KEY) && !metaJson.isNull(JSON_TRANSLATIONS_KEY)) {
-                    JSONArray translations = metaJson.getJSONArray(JSON_TRANSLATIONS_KEY);
-                    if (translations != null) {
-                        for (int i = 0; i < translations.length(); i++) {
-                            JSONObject translation = translations.getJSONObject(i);
-                            String translationKey = null;
-                            Map<String, String> mappings = new HashMap<>();
-                            for (Iterator<String> iter = translation.keys(); iter.hasNext(); ) {
-                                String key = iter.next();
-                                String value = translation.getString(key);
-                                if (key.equals("key")) {
-                                    translationKey = value;
-                                } else {
-                                    mappings.put(key, value);
+                    if (metaJson.has(JSON_TRANSLATIONS_KEY) && !metaJson.isNull(JSON_TRANSLATIONS_KEY)) {
+                        JSONArray translations = metaJson.getJSONArray(JSON_TRANSLATIONS_KEY);
+                        if (translations != null) {
+                            for (int i = 0; i < translations.length(); i++) {
+                                JSONObject translation = translations.getJSONObject(i);
+                                String translationKey = null;
+                                Map<String, String> mappings = new HashMap<>();
+                                for (Iterator<String> iter = translation.keys(); iter.hasNext(); ) {
+                                    String key = iter.next();
+                                    String value = translation.getString(key);
+                                    if (key.equals("key")) {
+                                        translationKey = value;
+                                    } else {
+                                        mappings.put(key, value);
+                                    }
                                 }
+                                if (translationKey != null)
+                                    mTranslations.put(translationKey, mappings);
                             }
-                            if (translationKey != null)
-                                mTranslations.put(translationKey, mappings);
                         }
                     }
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, R.string.error_form_create, Toast.LENGTH_SHORT).show();
+                    finish();
                 }
-            } catch (IOException | JSONException e) {
-                e.printStackTrace();
-                Toast.makeText(this, R.string.error_form_create, Toast.LENGTH_SHORT).show();
-                finish();
             }
+            fillControls(layout, savedState);
         }
-
-        fillControls(layout, savedState);
     }
 
     private void askForRow(final OnAskRowListener listener) {
@@ -345,7 +367,6 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
 
         List<String> items = mTable.get(mColumn);
         if (items == null || items.isEmpty()) {
-//            Log.d("FormBuilder", "Empty or null list for column: " + mColumn);
             Toast.makeText(this, "R.string.error_empty_list", Toast.LENGTH_SHORT).show();
             mRow = -1;
             listener.onRowChosen();
@@ -411,43 +432,309 @@ public class FormBuilderModifyAttributesActivity extends ModifyAttributesActivit
     protected void fillTabControls(
             LinearLayout layout,
             Bundle savedState,
-            JSONArray elements)
+            JSONArray elements,
+            boolean isJsonTypeForm)
             throws JSONException {
-
         Cursor featureCursor = getFeatureCursor();
         List<Field> fields = mLayer.getFields();
-        for (int i = 0; i < elements.length(); i++) {
-            IFormControl control;
-            JSONObject element = elements.getJSONObject(i);
-            String type = element.optString(JSON_TYPE_KEY);
-            if (type.equals(JSON_COORDINATES_VALUE)) {
-                JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
-                String fieldY = attributes.optString(JSON_FIELD_NAME_KEY + "_lat");
-                attributes.put(JSON_FIELD_NAME_KEY, fieldY);
-                element.put(JSON_TYPE_KEY, type + "_lat");
+        if (isJsonTypeForm){
+            for (int i = 0; i < elements.length(); i++) {
+                IFormControl control;
+                JSONObject element = convertToLegacyElement(elements.getJSONObject(i)); //convertToLegacyElement - convert to old format - change to new after some time
+                String type = element.optString(JSON_TYPE_KEY);
+
+                if (type.equals(JSON_COORDINATES_VALUE)) {
+                    JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+                    String fieldY = attributes.optString(JSON_FIELD_NAME_KEY + "_lat");
+                    attributes.put(JSON_FIELD_NAME_KEY, fieldY);
+                    element.put(JSON_TYPE_KEY, type + "_lat");
+                    control = getControl(this, element, mLayer, mFeatureId, mGeometry, mIsViewOnly, this);
+                    addToLayout(control, element, fields, savedState, featureCursor, layout, this);
+
+                    attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+                    String fieldX = attributes.optString(JSON_FIELD_NAME_KEY + "_long");
+                    attributes.put(JSON_FIELD_NAME_KEY, fieldX);
+                    element.put(JSON_TYPE_KEY, type + "_lon");
+                }
+
                 control = getControl(this, element, mLayer, mFeatureId, mGeometry, mIsViewOnly, this);
+                if (type.equals(JSON_TABS_KEY))
+                    ((Tabs) control).init(mLayer, mFeatureId, mGeometry, mTable, mRow, mSharedPreferences,
+                            mPreferences, getSupportFragmentManager(), mIsViewOnly);
+
                 addToLayout(control, element, fields, savedState, featureCursor, layout, this);
-
-                attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
-                String fieldX = attributes.optString(JSON_FIELD_NAME_KEY + "_long");
-                attributes.put(JSON_FIELD_NAME_KEY, fieldX);
-                element.put(JSON_TYPE_KEY, type + "_lon");
             }
-
-            control = getControl(this, element, mLayer, mFeatureId, mGeometry, mIsViewOnly, this);
-            if (type.equals(JSON_TABS_KEY))
-                ((Tabs) control).init(mLayer, mFeatureId, mGeometry, mTable, mRow, mSharedPreferences,
-                                      mPreferences, getSupportFragmentManager(), mIsViewOnly);
-
-            addToLayout(control, element, fields, savedState, featureCursor, layout, this);
         }
 
+            // old parse
+
+//            for (int i = 0; i < elements.length(); i++) {
+//                IFormControl control;
+//                JSONObject element = elements.getJSONObject(i);
+//                String type = element.optString(JSON_TYPE_KEY);
+//                if (type.equals(JSON_COORDINATES_VALUE)) {
+//                    JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+//                    String fieldY = attributes.optString(JSON_FIELD_NAME_KEY + "_lat");
+//                    attributes.put(JSON_FIELD_NAME_KEY, fieldY);
+//                    element.put(JSON_TYPE_KEY, type + "_lat");
+//                    control = getControl(this, element, mLayer, mFeatureId, mGeometry, mIsViewOnly, this);
+//                    addToLayout(control, element, fields, savedState, featureCursor, layout, this);
+//
+//                    attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+//                    String fieldX = attributes.optString(JSON_FIELD_NAME_KEY + "_long");
+//                    attributes.put(JSON_FIELD_NAME_KEY, fieldX);
+//                    element.put(JSON_TYPE_KEY, type + "_lon");
+//                }
+//
+//                control = getControl(this, element, mLayer, mFeatureId, mGeometry, mIsViewOnly, this);
+//                if (type.equals(JSON_TABS_KEY))
+//                    ((Tabs) control).init(mLayer, mFeatureId, mGeometry, mTable, mRow, mSharedPreferences,
+//                            mPreferences, getSupportFragmentManager(), mIsViewOnly);
+//
+//                addToLayout(control, element, fields, savedState, featureCursor, layout, this);
+//            }
+        //}
+        else {
+            for (int i = 0; i < elements.length(); i++) {
+                IFormControl control;
+                JSONObject element = elements.getJSONObject(i);
+                String type = element.optString(JSON_TYPE_KEY);
+                if (type.equals(JSON_COORDINATES_VALUE)) {
+                    JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+                    String fieldY = attributes.optString(JSON_FIELD_NAME_KEY + "_lat");
+                    attributes.put(JSON_FIELD_NAME_KEY, fieldY);
+                    element.put(JSON_TYPE_KEY, type + "_lat");
+                    control = getControl(this, element, mLayer, mFeatureId, mGeometry, mIsViewOnly, this);
+                    addToLayout(control, element, fields, savedState, featureCursor, layout, this);
+
+                    attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
+                    String fieldX = attributes.optString(JSON_FIELD_NAME_KEY + "_long");
+                    attributes.put(JSON_FIELD_NAME_KEY, fieldX);
+                    element.put(JSON_TYPE_KEY, type + "_lon");
+                }
+
+                control = getControl(this, element, mLayer, mFeatureId, mGeometry, mIsViewOnly, this);
+                if (type.equals(JSON_TABS_KEY))
+                    ((Tabs) control).init(mLayer, mFeatureId, mGeometry, mTable, mRow, mSharedPreferences,
+                            mPreferences, getSupportFragmentManager(), mIsViewOnly);
+                addToLayout(control, element, fields, savedState, featureCursor, layout, this);
+            }
+        }
         if (null != featureCursor) {
             featureCursor.close();
         }
-
         layout.requestLayout();
     }
+
+
+    private static final Map<String, String> NEW_TO_LEGACY_TYPE = new HashMap<>();
+    static {
+        // map  new - old form elements naming
+        NEW_TO_LEGACY_TYPE.put("label",         "text_label");
+        NEW_TO_LEGACY_TYPE.put("tabs",          "tabs");
+        NEW_TO_LEGACY_TYPE.put("spacer",        "space");
+        NEW_TO_LEGACY_TYPE.put("textbox",       "text_edit");
+        NEW_TO_LEGACY_TYPE.put("checkbox",      "checkbox");
+        NEW_TO_LEGACY_TYPE.put("system",        "text_edit");
+        NEW_TO_LEGACY_TYPE.put("datetime",      "date_time");
+        NEW_TO_LEGACY_TYPE.put("radio",         "radio_group");
+        NEW_TO_LEGACY_TYPE.put("dropdown",      "combobox");
+        NEW_TO_LEGACY_TYPE.put("dropdown_dual", "split_combobox");
+        NEW_TO_LEGACY_TYPE.put("cascade",       "double_combobox");
+        NEW_TO_LEGACY_TYPE.put("coordinates",   "coordinates");
+        NEW_TO_LEGACY_TYPE.put("distance",      "distance");
+        NEW_TO_LEGACY_TYPE.put("average",       "average_counter");
+        NEW_TO_LEGACY_TYPE.put("photo",         "photo");
+    }
+
+    /** convert new format to ngfp like . */
+    private static JSONObject convertToLegacyElement(JSONObject src) throws JSONException {
+
+//        Log.e("JSSON", src.toString());
+        if (src.has(JSON_ATTRIBUTES_KEY)) {
+//            Log.e("JSSON", "ALready old");
+            return src;
+        }
+
+        String newType = src.optString(JSON_TYPE_KEY);
+        String legacyType = NEW_TO_LEGACY_TYPE.get(newType);
+        if (legacyType == null) {
+            Log.e("JSSON", "Unknown type !!!!!!");
+            return src; // неизвестный тип — не трогаем
+        }
+
+        JSONObject a = new JSONObject();
+        if ("tabs".equals(newType)) {
+            JSONArray pages = new JSONArray();
+            JSONArray tabs = src.optJSONArray("tabs");
+
+            for (int i = 0; tabs != null && i < tabs.length(); i++) {
+                JSONObject tab = tabs.getJSONObject(i);
+
+                JSONObject page = new JSONObject();
+                page.put(JSON_CAPTION_KEY, tab.optString("title"));
+                if (tab.optBoolean("active", false)) {
+                    page.put(JSON_DEFAULT_KEY, true);
+                }
+
+                JSONArray elements = new JSONArray();
+                JSONArray items = tab.optJSONArray("items");
+                for (int j = 0; items != null && j < items.length(); j++) {
+                    elements.put(convertToLegacyElement(items.getJSONObject(j))); // рекурсия
+                }
+                page.put(JSON_ELEMENTS_KEY, elements);
+                pages.put(page);
+            }
+
+            JSONObject result = new JSONObject();
+            result.put(JSON_TYPE_KEY, legacyType);                 // "tabs"
+            result.put(JSON_ATTRIBUTES_KEY, new JSONObject());     // "attributes": {}
+            result.put(JSON_PAGES_KEY, pages);
+            return result;
+        }
+
+        switch (newType) {
+            case "label":
+                a.put("text", src.optString("label"));
+                break;
+
+            case "spacer":
+                break;
+
+//            case "tabs": tabs in root - process completely
+
+            case "textbox":
+                a.put("field", src.optString("field"));
+                a.put("last", src.optBoolean("remember", false));
+                a.put("text", src.optString("initial", ""));
+                a.put("max_string_count", src.optInt("max_lines", 1));
+                a.put("ngid_login", false);
+                a.put("ngw_login", false);
+                a.put("only_figures", src.optBoolean("only_figures", false));
+                break;
+
+            case "system": {
+                String system = src.optString("system");
+                a.put("field", src.optString("field"));
+                a.put("last", false);
+                a.put("text", "");
+                a.put("max_string_count", 1);
+                a.put("ngid_login", "ngid_username".equals(system));
+                a.put("ngw_login", "ngw_username".equals(system));
+                a.put("only_figures", false);
+                break;
+            }
+
+            case "checkbox":
+                a.put("field", src.optString("field"));
+                a.put("last", src.optBoolean("remember", false));
+                a.put("init_value", src.optBoolean("initial", false));
+                a.put("text", src.optString("label"));
+                break;
+
+            case "datetime": {
+                a.put("field", src.optString("field"));
+                a.put("last", src.optBoolean("remember", false));
+                int dateType;
+                switch (src.optString("datetime", "date")) {
+                    case "time":     dateType = 1; break;
+                    case "datetime": dateType = 2; break;
+                    default:         dateType = 0; // "date"
+                }
+                a.put("date_type", dateType);
+                // old "datetime":
+                break;
+            }
+
+            case "radio":
+                a.put("field", src.optString("field"));
+                a.put("last", src.optBoolean("remember", false));
+                a.put("values", convertOptions(src.optJSONArray("options"), false, null));
+                break;
+
+            case "dropdown":
+                a.put("field", src.optString("field"));
+                a.put("last", src.optBoolean("remember", false));
+                a.put("input_search", src.optBoolean("search", false));
+                a.put("allow_adding_values", src.optBoolean("free_input", false));
+                a.put("values", convertOptions(src.optJSONArray("options"), false, null));
+                break;
+
+            case "dropdown_dual": {
+                a.put("field", src.optString("field"));
+                a.put("last", src.optBoolean("remember", false));
+                a.put("label1", src.optString("label_first"));
+                a.put("label2", src.optString("label_second"));
+                JSONArray values = new JSONArray();
+                JSONArray options = src.optJSONArray("options");
+                for (int i = 0; options != null && i < options.length(); i++) {
+                    JSONObject o = options.getJSONObject(i);
+                    JSONObject v = new JSONObject();
+                    v.put("name", o.optString("value"));
+                    v.put("alias", o.optString("first"));
+                    v.put("alias2", o.optString("second"));
+                    v.put("default", o.optBoolean("initial", false));
+                    values.put(v);
+                }
+                a.put("values", values);
+                break;
+            }
+
+            case "cascade":
+                a.put("field_level1", src.optString("field_primary"));
+                a.put("field_level2", src.optString("field_secondary"));
+                a.put("last", src.optBoolean("remember", false));
+                a.put("values", convertOptions(src.optJSONArray("options"), true, "items"));
+                break;
+
+            case "coordinates":
+                a.put("field_lat", src.optString("field_lat"));
+                a.put("field_long", src.optString("field_lon"));
+                a.put("hidden", src.optBoolean("hidden", false));
+                a.put("crs", 0);
+                a.put("format", 0);
+                break;
+
+            case "distance":
+                a.put("field", src.optString("field"));
+                break;
+
+            case "average":
+                a.put("field", src.optString("field"));
+                a.put("num_values", src.optInt("samples", 2));
+                break;
+
+            case "photo":
+                a.put("gallery_size", src.optInt("max_count", 1));
+                a.put("comment", src.optString("comment", ""));
+                break;
+        }
+
+        JSONObject result = new JSONObject();
+        result.put(JSON_TYPE_KEY, legacyType);
+        result.put(JSON_ATTRIBUTES_KEY, a);
+
+        Log.e("JSSON", "result = " + result.toString());
+        return result;
+    }
+
+    private static JSONArray convertOptions(JSONArray options, boolean nested, String childKey)
+            throws JSONException {
+        JSONArray values = new JSONArray();
+        for (int i = 0; options != null && i < options.length(); i++) {
+            JSONObject o = options.getJSONObject(i);
+            JSONObject v = new JSONObject();
+            v.put("name", o.optString("value"));
+            v.put("alias", o.optString("label"));
+            v.put("default", o.optBoolean("initial", false));
+            if (nested) {
+                v.put("values", convertOptions(o.optJSONArray(childKey), false, null));
+            }
+            values.put(v);
+        }
+        return values;
+    }
+
 
     public static IFormControl getControl(Context context, JSONObject element, VectorLayer layer, long feature,
                                           GeoGeometry geometry, boolean isViewOnly, final ModifyAttributesActivity modifyAttributesActivity) throws JSONException {

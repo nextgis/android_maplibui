@@ -487,4 +487,7 @@
     <string name="no_geometry">Geometry is missing</string>
     <string name="null_value">(null)</string>
 
+    <string name="forms_title">Choose Forms to add</string>
+    <string name="raster_title">Choose Styles</string>
+
 </resources>

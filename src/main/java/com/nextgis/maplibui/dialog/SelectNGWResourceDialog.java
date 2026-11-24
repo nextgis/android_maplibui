@@ -153,16 +153,6 @@ public class SelectNGWResourceDialog
                 .setIcon(R.drawable.ic_ngw)
                 .setView(view)
                 .setInverseBackgroundForced(true)
-//                .setPositiveButton(
-//                        R.string.add, new DialogInterface.OnClickListener()
-//                        {
-//                            public void onClick(
-//                                    DialogInterface dialog,
-//                                    int id)
-//                            {
-//                                createLayers(mContextWeakRef.get());
-//                            }
-//                        })
                 .setNegativeButton(R.string.cancel, null);
 
         // Create the AlertDialog object and return it
@@ -266,86 +256,8 @@ public class SelectNGWResourceDialog
         }
     }
 
-
     public void updateSelectButton() {
         boolean active = mListAdapter.getCheckState().size() > 0;
         setEnabled(mDialog.getButton(AlertDialog.BUTTON_POSITIVE), active);
     }
-
-
-    public void createLayers(Context context) {
-        if (mGroupLayer == null)
-            return;
-
-        setEnabled(mDialog.getButton(AlertDialog.BUTTON_POSITIVE), false);
-        setEnabled(mDialog.getButton(AlertDialog.BUTTON_NEGATIVE), false);
-
-        List<CheckState> checkStates = mListAdapter.getCheckState();
-        Connections connections = mListAdapter.getConnections();
-        for (CheckState checkState : checkStates) {
-            if (checkState.isCheckState1()) { //create raster
-
-                INGWResource resource = connections.getResourceById(checkState.getId());
-                if (resource instanceof LayerWithStyles) {
-                    LayerWithStyles layer = (LayerWithStyles) resource;
-                    //1. get first style
-                    Connection connection = layer.getConnection();
-                    //2. create tiles url
-                    String layerURL = layer.getTMSUrl(0);
-
-                    if (layerURL == null) {
-                        Toast.makeText(
-                                context, getString(com.nextgis.maplib.R.string.error_layer_create),
-                                Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    //3. create layer
-                    String layerName = layer.getName();
-
-                    NGWRasterLayer newLayer;
-                    if (resource instanceof WebMap) {
-                        NGWWebMapLayerUI webmap = new NGWWebMapLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
-                        webmap.setChildren(((WebMap) resource).getChildren());
-                        newLayer = webmap;
-                    } else
-                        newLayer = new NGWRasterLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
-
-                    newLayer.setName(layerName);
-                    newLayer.setURL(layerURL);
-                    newLayer.setTMSType(TMSTYPE_OSM);
-                    newLayer.setVisible(true);
-                    newLayer.setAccountName(connection.getName());
-                    newLayer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
-                    newLayer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
-
-                    mGroupLayer.addLayer(newLayer);
-                    mGroupLayer.save();
-                }
-            }
-
-            if (checkState.isCheckState2()) { //create vector
-                INGWResource resource = connections.getResourceById(checkState.getId());
-                if (resource instanceof LayerWithStyles) {
-                    boolean writePerm = hasWritePerm((Resource) resource);
-                    LayerWithStyles layer = (LayerWithStyles) resource;
-                    //1. get connection for url
-                    Connection connection = layer.getConnection();
-                    // create or connect to fill layer with features
-                    Intent intent = new Intent(context, LayerFillService.class);
-                    intent.setAction(LayerFillService.ACTION_ADD_TASK);
-                    intent.putExtra(LayerFillService.KEY_NAME, layer.getName());
-                    intent.putExtra(LayerFillService.KEY_ACCOUNT, connection.getName());
-                    intent.putExtra(LayerFillService.KEY_REMOTE_ID, layer.getRemoteId());
-                    intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, mGroupLayer.getId());
-                    intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.NGW_LAYER);
-                    intent.putExtra(LayerFillService.KEY_WRITE_PERM, writePerm);
-
-                    LayerFillProgressDialogFragment.startFill(intent);
-                }
-            }
-        }
-        mGroupLayer.save();
-    }
-
 }

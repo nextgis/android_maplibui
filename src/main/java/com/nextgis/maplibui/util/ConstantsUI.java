@@ -42,6 +42,7 @@ public interface ConstantsUI
     String KEY_GEOMETRY         = "geometry";
     String KEY_GEOMETRY_CHANGED = "geometry_changed";
     String KEY_FORM_PATH        = "form_path";
+    String KEY_IS_FORM_JSONTYPE = "form_json_type"; // // secornd format fopr Form - json (ngfp type file - old format )
     String KEY_META_PATH        = "meta_path";
     String KEY_VIEW_ONLY        = "view_only";
     String KEY_ADDED_POINT        = "added_point";
@@ -59,6 +60,8 @@ public interface ConstantsUI
     String VALUE_TRACK_STOP          = "trackstop";
 
     String FILE_FORM = "form.json";
+
+    String FILE_FORM_SECOND_PREFIX = "json_"; // store form in json file (next of NGFP file format. ngfp - old format now)
 
     int TOLERANCE_DP       = 20;
     int MIN_ZOOM_LEVEL     = 18;

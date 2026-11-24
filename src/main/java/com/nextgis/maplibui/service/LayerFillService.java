@@ -39,6 +39,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Parcelable;
 import android.os.Process;
 import androidx.core.app.NotificationCompat;
 import android.text.TextUtils;
@@ -77,6 +78,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -85,8 +87,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -100,6 +105,7 @@ import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_MBTILES_RASTER;
 import static com.nextgis.maplib.util.NetworkUtil.configureSSLdefault;
 import static com.nextgis.maplib.util.NetworkUtil.getUserAgent;
 import static com.nextgis.maplibui.util.ConstantsUI.FILE_FORM;
+import static com.nextgis.maplibui.util.ConstantsUI.FILE_FORM_SECOND_PREFIX;
 import static com.nextgis.maplibui.util.NotificationHelper.createBuilder;
 
 /**
@@ -131,7 +137,11 @@ public class LayerFillService extends Service implements IProgressor {
     public static final String KEY_RESULT = "result";
     public static final String KEY_SYNC = "sync";
     public static final String KEY_URI = "uri";
-    public static final String KEY_DEFAULT_FORM_IDS = "default_form_ids"; // id of form to donwload
+
+    public static final String KEY_URI_FORMS_IDS = "uri_forms_ids";
+    public static final String KEY_URI_FORMS_NAMES = "uri_forms_names";
+    public static final String KEY_URI_FORMS_URIS = "uri_forms_uris";
+
     public static final String KEY_START_LAYER_FILL = "start_layer_fill";
     public static final String KEY_PATH = "path";
     public static final String KEY_LAYER_PATH = "layer_path";
@@ -150,6 +160,7 @@ public class LayerFillService extends Service implements IProgressor {
     public static final String KEY_TMS_TYPE   = "tms_type";
     public static final String KEY_TMS_CACHE   = "tms_cache";
 
+    public static final String KEY_USE_JSON_FORM_DIRECT_DOWNLOAD = "json_direct_form_download";
     public static final String KEY_WRITE_PERM = "write_perm";
 
     public static final String NGFP_META = "ngfp_meta.json";
@@ -262,16 +273,14 @@ public class LayerFillService extends Service implements IProgressor {
                         mLayerGroup = (LayerGroup) MapBase.getInstance().getLayerById(layerGroupId);
 
                         int layerType = intent.getIntExtra(KEY_INPUT_TYPE, Constants.NOT_FOUND);
-                        Bundle extra = intent.getExtras();
 
                         switch (layerType) {
                             case VECTOR_LAYER:
-                                mQueue.add(new VectorLayerFillTask(extra));
+                                mQueue.add(new VectorLayerFillTask(intent));
                                 break;
                             case VECTOR_LAYER_WITH_FORM:
                                 try {
-                                    mQueue.add(new UnzipForm(extra));
-
+                                    mQueue.add(new UnzipForm(intent));
                                 } catch (Exception ex){
                                     ex.printStackTrace();
                                     //notifyError("Error on start fill form");
@@ -280,7 +289,6 @@ public class LayerFillService extends Service implements IProgressor {
                                     msg.putExtra(MESSAGE_EXTRA, getString(R.string.error_load_parent));
                                     msg.putExtra(MESSAGE_EXTRA_IS_PARENTFILL, true);
 
-                                    //msg.putExtra(MESSAGE_TITLE_EXTRA, getResources().getString(R.string.map_load_exception_title));
                                     msg.putExtra(MESSAGE_TITLE_EXTRA, getResources().getString(R.string.error));
                                     msg.setPackage(getPackageName());
                                     sendBroadcast(msg);
@@ -289,10 +297,10 @@ public class LayerFillService extends Service implements IProgressor {
                                 }
                                 break;
                             case TMS_LAYER:
-                                mQueue.add(new LocalTMSFillTask(extra));
+                                mQueue.add(new LocalTMSFillTask(intent));
                                 break;
                             case NGW_LAYER:
-                                mQueue.add(new NGWVectorLayerFillTask(extra));
+                                mQueue.add(new NGWVectorLayerFillTask(intent));
                                 break;
                         }
 
@@ -481,35 +489,40 @@ public class LayerFillService extends Service implements IProgressor {
         protected Layer mLayer;
         boolean isDirectMBtilesLoad = false;
         public boolean subTaskWasRunned = true;
-        public long[] defaultFormIDArray = null;
+
+        Map<Long, Uri> formsMapUris = new HashMap<>();
+        Map<Long, String> formsMap = new HashMap<>();
+
         public  boolean isWritePerm = true;
 
-        LayerFillTask(Bundle bundle) {
-            mUri = bundle.getParcelable(KEY_URI);
-            mLayerName = bundle.getString(KEY_NAME);
-            isDirectMBtilesLoad = bundle.getBoolean(KEY_IS_MBTILES_DIRECT_OPEN, false);
-            mLayerPath = bundle.containsKey(KEY_LAYER_PATH) ?
-                    (File) bundle.getSerializable(KEY_LAYER_PATH) :
-                    mLayerGroup.createLayerStorage();
-            mMinZoom = bundle.getFloat(KEY_MIN_ZOOM, GeoConstants.DEFAULT_MIN_ZOOM);
-            mMaxZoom = bundle.getFloat(KEY_MAX_ZOOM, GeoConstants.DEFAULT_MAX_ZOOM);
-            mVisible = bundle.getBoolean(KEY_VISIBLE, true);
-            isWritePerm = bundle.getBoolean(KEY_WRITE_PERM, true);
+        LayerFillTask(Intent intent) {
+            mUri = intent.getExtras().getParcelable(KEY_URI);
 
-            Serializable serializable = bundle.getSerializable(KEY_DEFAULT_FORM_IDS);
-            if (serializable instanceof ArrayList<?>) {
+            if (intent != null) {
+                long[] ids = intent.getLongArrayExtra(KEY_URI_FORMS_IDS);
+                ArrayList<String> names = intent.getStringArrayListExtra(KEY_URI_FORMS_NAMES);
 
-                ArrayList<Long> idsList = (ArrayList<Long>) serializable;
+                ArrayList<Uri> uris = Build.VERSION.SDK_INT >= 33
+                        ? intent.getParcelableArrayListExtra(KEY_URI_FORMS_URIS, Uri.class)
+                        : intent.getParcelableArrayListExtra(KEY_URI_FORMS_URIS);
 
-                long[] idsArray = new long[idsList.size()];
-                for (int i = 0; i < idsList.size(); i++) {
-                    idsArray[i] = idsList.get(i);
+                if (ids != null && names != null && ids.length == names.size()) {
+                    for (int i = 0; i < ids.length; i++) {
+                        formsMap.put(ids[i], names.get(i));
+                        formsMapUris.put(ids[i], uris.get(i));
+                    }
                 }
-
-                defaultFormIDArray = idsArray;
             }
 
-            //defaultFormIDArray = bundle.getSerializable(KEY_DEFAULT_FORM_IDS);
+            mLayerName = intent.getExtras().getString(KEY_NAME);
+            isDirectMBtilesLoad = intent.getExtras().getBoolean(KEY_IS_MBTILES_DIRECT_OPEN, false);
+            mLayerPath = intent.getExtras().containsKey(KEY_LAYER_PATH) ?
+                    (File) intent.getExtras().getSerializable(KEY_LAYER_PATH) :
+                    mLayerGroup.createLayerStorage();
+            mMinZoom = intent.getExtras().getFloat(KEY_MIN_ZOOM, GeoConstants.DEFAULT_MIN_ZOOM);
+            mMaxZoom = intent.getExtras().getFloat(KEY_MAX_ZOOM, GeoConstants.DEFAULT_MAX_ZOOM);
+            mVisible = intent.getExtras().getBoolean(KEY_VISIBLE, true);
+            isWritePerm = intent.getExtras().getBoolean(KEY_WRITE_PERM, true);
         }
 
         void initLayer() {
@@ -548,8 +561,8 @@ public class LayerFillService extends Service implements IProgressor {
     }
 
     private class VectorLayerFillTask extends LayerFillTask{
-        VectorLayerFillTask(Bundle bundle) {
-            super(bundle);
+        VectorLayerFillTask(Intent intent) {
+            super(intent);
             mLayer = new VectorLayerUI(mLayerGroup.getContext(), mLayerPath);
             initLayer();
         }
@@ -568,7 +581,6 @@ public class LayerFillService extends Service implements IProgressor {
                 notifyError(mProgressMessage);
                 return false;
             }
-
             return true;
         }
     }
@@ -579,205 +591,217 @@ public class LayerFillService extends Service implements IProgressor {
         String mAccount;
         boolean startLayerFill; // false if fill second form from layer - no need to create layer
         boolean isNGFPOpen = false;
+        boolean isUseDirectJsonFormDownload = false;
 
-        UnzipForm(Bundle bundle) {
-            super(bundle);
-            mSync = bundle.getBoolean(KEY_SYNC, true);
-            mRemoteId = bundle.getLong(KEY_REMOTE_ID, -1);
-            mAccount = bundle.getString(KEY_ACCOUNT, "");
-            startLayerFill = bundle.getBoolean(KEY_START_LAYER_FILL, true);
-            isNGFPOpen  = bundle.getBoolean(KEY_IS_NGFP_OPEN, false);
+        UnzipForm(Intent intent) {
+            super(intent);
+            mSync = intent.getExtras().getBoolean(KEY_SYNC, true);
+            mRemoteId = intent.getExtras().getLong(KEY_REMOTE_ID, -1);
+            mAccount = intent.getExtras().getString(KEY_ACCOUNT, "");
+            startLayerFill = intent.getExtras().getBoolean(KEY_START_LAYER_FILL, true);
+            isNGFPOpen  = intent.getExtras().getBoolean(KEY_IS_NGFP_OPEN, false);
+            isUseDirectJsonFormDownload = intent.getExtras().getBoolean(KEY_USE_JSON_FORM_DIRECT_DOWNLOAD, false);
         }
 
         @Override
         public boolean execute(IProgressor progressor) {
             try {
-                InputStream inputStream;
-                String url = mUri.toString();
-                if (NetworkUtil.isValidUri(url)) {
-                    HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-
-                    if (connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM && mUri.getScheme().equals("http")) {
-                        url = url.replace("http", "https");
-                        configureSSLdefault();
-                        connection = (HttpsURLConnection) new URL(url).openConnection();
-                    } else {
-                        connection = (HttpURLConnection) new URL(url).openConnection();; // we need this due to getResponseCode() makes actual connection and it becomes immutable
-                    }
-
-                    connection.setRequestProperty("User-Agent",getUserAgent(Constants.MAPLIB_USER_AGENT_PART));
-
-                    connection.setRequestProperty("connection", "keep-alive");
-                    try {
-                        AccountUtil.AccountData accountData = AccountUtil.getAccountData(getApplicationContext(), mAccount);
-                        String basicAuth = NetworkUtil.getHTTPBaseAuth(accountData.login, accountData.password);
-                        if (null != basicAuth)
-                            connection.setRequestProperty ("Authorization", basicAuth);
-                    } catch (IllegalStateException e) {
-                        e.printStackTrace();
-                        setError(e.getLocalizedMessage(), progressor);
-                        notifyError(mProgressMessage);
-                        return false;
-                    }
-//                    inputStream = new URL(url).openStream();
-                    inputStream = connection.getInputStream();
-                } else
-                    inputStream = getContentResolver().openInputStream(mUri);
-
-                if (inputStream != null) {
-                    int nSize = inputStream.available();
-                    int nIncrement = 0;
-                    byte[] buffer = new byte[Constants.IO_BUFFER_SIZE];
-                    progressor.setMax(nSize);
-                    progressor.setMessage(getString(com.nextgis.maplib.R.string.message_loading));
-
-                    ZipInputStream zis = new ZipInputStream(inputStream);
-                    ZipEntry ze;
-                    while ((ze = zis.getNextEntry()) != null) {
-                        if (isCanceled())
-                            return false;
-
-                        FileUtil.unzipEntry(zis, ze, buffer, mLayerPath);
-                        nIncrement += ze.getSize();
-                        zis.closeEntry();
-                        progressor.setValue( nIncrement >  nSize? 0:  nIncrement);
-                    }
-                    zis.close();
-                    progressor.setMessage(null);
-
-                    //read meta.json
-
                     long defaultFormID = -1;
-                    if (defaultFormIDArray != null && defaultFormIDArray.length > 0)
-                        defaultFormID = defaultFormIDArray[0];
+                    String formPrefix = defaultFormID + "_";
+                    InputStream inputStream;
 
-                    String formPrefix =  defaultFormID + "_";
+                    String url = "";
+                    if (mUri != null)
+                        url = mUri.toString();
 
-                    File formFile = new File(mLayerPath, FILE_FORM); // rename formfile
-                    formFile.renameTo(formFile = new File(formFile.getParentFile(), formPrefix + FILE_FORM));
-                    File meta = new File(mLayerPath, NGFP_FILE_META);
-                    // prevent overwrite meta.json by layer save routine
-                    //noinspection ResultOfMethodCallIgnored
-                    meta.renameTo(meta = new File(meta.getParentFile(), formPrefix + LayerFillService.NGFP_META));
-                    String jsonText = FileUtil.readFromFile(meta);
-                    JSONObject metaJson = new JSONObject(jsonText);
-                    File dataFile = new File(mLayerPath, NGFP_FILE_DATA);
-                    Bundle extra = new Bundle();
-                    extra.putSerializable(KEY_LAYER_PATH, mLayerPath);
-                    extra.putString(KEY_NAME, mLayerName);
-                    extra.putBoolean(KEY_WRITE_PERM, isWritePerm);
+                    if (NetworkUtil.isValidUri(url)) {
+                        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
 
-                    long resourceId = mRemoteId;
-                    String accountName = mAccount;
-                    //read if this local or remote source
-                    boolean isNgwConnection = !metaJson.isNull(ConstantsUI.JSON_NGW_CONNECTION_KEY);
-                    if (isNgwConnection) {
-                        JSONObject connection = metaJson.getJSONObject(ConstantsUI.JSON_NGW_CONNECTION_KEY);
-                        //read url
-                        url = connection.getString("url");
-                        url = NGWUtil.getServerUrl(url);
-                        //read login
-                        String login = connection.getString("login");
-                        //read password
-                        String password = connection.getString("password");
-                        //read id
-                        resourceId = connection.getLong("id");
-
-                        metaJson.remove(ConstantsUI.JSON_NGW_CONNECTION_KEY);
-                        FileUtil.writeToFile(meta, metaJson.toString());
-
-                        //check account exist and try to create
-                        URI uri = new URI(url);
-                        if (uri.getHost() != null && uri.getHost().length() > 0) {
-                            accountName += uri.getHost();
+                        if (connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM && mUri.getScheme().equals("http")) {
+                            url = url.replace("http", "https");
+                            configureSSLdefault();
+                            connection = (HttpsURLConnection) new URL(url).openConnection();
+                        } else {
+                            connection = (HttpURLConnection) new URL(url).openConnection();
+                            ; // we need this due to getResponseCode() makes actual connection and it becomes immutable
                         }
-                        if (uri.getPort() != 80 && uri.getPort() > 0) {
-                            accountName += ":" + uri.getPort();
+                        connection.setRequestProperty("User-Agent", getUserAgent(Constants.MAPLIB_USER_AGENT_PART));
+                        connection.setRequestProperty("connection", "keep-alive");
+                        try {
+                            AccountUtil.AccountData accountData = AccountUtil.getAccountData(getApplicationContext(), mAccount);
+                            String basicAuth = NetworkUtil.getHTTPBaseAuth(accountData.login, accountData.password);
+                            if (null != basicAuth)
+                                connection.setRequestProperty("Authorization", basicAuth);
+                        } catch (IllegalStateException e) {
+                            e.printStackTrace();
+                            setError(e.getLocalizedMessage(), progressor);
+                            notifyError(mProgressMessage);
+                            return false;
                         }
-                        if (uri.getPath() != null && uri.getPath().length() > 0) {
-                            accountName += uri.getPath();
-                        }
+                        inputStream = connection.getInputStream();
+                    } else
+                        inputStream = getContentResolver().openInputStream(mUri);
 
-                        IGISApplication app = (IGISApplication) getApplicationContext();
-                        Account account = app.getAccount(accountName);
-                        if (null == account) {
-                            //create account
-                            if (!app.addAccount(accountName, url, login, password, "ngw")) {
-                                throw new AccountsException(getString(R.string.ngw_account_already_exists));
+                    if (inputStream != null) {
+                        int nSize = inputStream.available();
+                        int nIncrement = 0;
+                        byte[] buffer = new byte[Constants.IO_BUFFER_SIZE];
+                        progressor.setMax(nSize);
+                        progressor.setMessage(getString(com.nextgis.maplib.R.string.message_loading));
+
+                        if (isUseDirectJsonFormDownload) {
+                            // download json file
+                            if (!mLayerPath.exists() && !mLayerPath.mkdirs()) {
+                                throw new IOException("Cannot create directory: " + mLayerPath.getAbsolutePath());
+                            }
+                            // Имя файла
+                            File outputFile = new File(mLayerPath, FILE_FORM_SECOND_PREFIX + formPrefix + ConstantsUI.FILE_FORM);
+                            FileOutputStream output = new FileOutputStream(outputFile);
+                            byte[] buffer1 = new byte[8192];
+                            int bytesRead;
+
+                            while ((bytesRead = inputStream.read(buffer1)) != -1) {
+                                output.write(buffer1, 0, bytesRead);
                             }
                         } else {
-                            //compare login/password and report differences
-                            String savedPassword = app.getAccountPassword(account);
-                            String savedLogin = app.getAccountLogin(account);
-                            boolean same = false;
-                            if (savedPassword != null && savedLogin != null)
-                                same = savedPassword.equals(password) && savedLogin.equals(login);
-                            else {
-                                if (savedLogin == null)
-                                    same = login == null;
-                                if (savedPassword == null)
-                                    same = password == null;
+                            ZipInputStream zis = new ZipInputStream(inputStream);
+                            ZipEntry ze;
+                            while ((ze = zis.getNextEntry()) != null) {
+                                if (isCanceled())
+                                    return false;
+                                FileUtil.unzipEntry(zis, ze, buffer, mLayerPath);
+                                nIncrement += ze.getSize();
+                                zis.closeEntry();
+                                progressor.setValue(nIncrement > nSize ? 0 : nIncrement);
                             }
+                            zis.close();
+                            progressor.setMessage(null);
+                        }
+                        //read meta.json
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(KEY_LAYER_PATH, mLayerPath);
+                        bundle.putString(KEY_NAME, mLayerName);
+                        bundle.putBoolean(KEY_WRITE_PERM, isWritePerm);
+                        File dataFile = new File(mLayerPath, NGFP_FILE_DATA);
 
-                            if (!same) {
-                                Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT);
-                                msg.putExtra(ConstantsUI.KEY_MESSAGE, getString(R.string.ngw_different_credentials));
-                                msg.setPackage(getPackageName());
-                                sendBroadcast(msg);
-                                //Log.e("FFRRMM", "unzipform send broadcast " + msg.toString());
+                        long resourceId = mRemoteId;
+                        String accountName = mAccount;
+                        //read if this local or remote source
 
+                        boolean isNgwConnection = false;
+                        if (!isUseDirectJsonFormDownload) {
+                            File formFile = new File(mLayerPath, FILE_FORM); // rename formfile
+                            formFile.renameTo(formFile = new File(formFile.getParentFile(), formPrefix + FILE_FORM));
+                            File meta = new File(mLayerPath, NGFP_FILE_META);
+                            // prevent overwrite meta.json by layer save routine
+                            //noinspection ResultOfMethodCallIgnored
+                            meta.renameTo(meta = new File(meta.getParentFile(), formPrefix + LayerFillService.NGFP_META));
+                            String jsonText = FileUtil.readFromFile(meta);
+                            JSONObject metaJson = new JSONObject(jsonText);
+
+                            isNgwConnection = !metaJson.isNull(ConstantsUI.JSON_NGW_CONNECTION_KEY);
+                            if (isNgwConnection) {
+                                JSONObject connection = metaJson.getJSONObject(ConstantsUI.JSON_NGW_CONNECTION_KEY);
+                                //read url
+                                url = connection.getString("url");
+                                url = NGWUtil.getServerUrl(url);
+                                //read login
+                                String login = connection.getString("login");
+                                //read password
+                                String password = connection.getString("password");
+                                //read id
+                                resourceId = connection.getLong("id");
+
+                                metaJson.remove(ConstantsUI.JSON_NGW_CONNECTION_KEY);
+                                FileUtil.writeToFile(meta, metaJson.toString());
+
+                                //check account exist and try to create
+                                URI uri = new URI(url);
+                                if (uri.getHost() != null && uri.getHost().length() > 0) {
+                                    accountName += uri.getHost();
+                                }
+                                if (uri.getPort() != 80 && uri.getPort() > 0) {
+                                    accountName += ":" + uri.getPort();
+                                }
+                                if (uri.getPath() != null && uri.getPath().length() > 0) {
+                                    accountName += uri.getPath();
+                                }
+
+                                IGISApplication app = (IGISApplication) getApplicationContext();
+                                Account account = app.getAccount(accountName);
+                                if (null == account) {
+                                    //create account
+                                    if (!app.addAccount(accountName, url, login, password, "ngw")) {
+                                        throw new AccountsException(getString(R.string.ngw_account_already_exists));
+                                    }
+                                } else {
+                                    //compare login/password and report differences
+                                    String savedPassword = app.getAccountPassword(account);
+                                    String savedLogin = app.getAccountLogin(account);
+                                    boolean same = false;
+                                    if (savedPassword != null && savedLogin != null)
+                                        same = savedPassword.equals(password) && savedLogin.equals(login);
+                                    else {
+                                        if (savedLogin == null)
+                                            same = login == null;
+                                        if (savedPassword == null)
+                                            same = password == null;
+                                    }
+                                    if (!same) {
+                                        Intent msg = new Intent(ConstantsUI.MESSAGE_INTENT);
+                                        msg.putExtra(ConstantsUI.KEY_MESSAGE, getString(R.string.ngw_different_credentials));
+                                        msg.setPackage(getPackageName());
+                                        sendBroadcast(msg);
+                                    }
+                                }
+                            }
+                        }
+
+                        isNgwConnection = isNgwConnection || mRemoteId > -1;
+                        if (isNgwConnection) {
+                            FileUtil.deleteRecursive(dataFile);
+
+                            File form = new File(mLayerPath, (isUseDirectJsonFormDownload ? FILE_FORM_SECOND_PREFIX : "") + formPrefix + FILE_FORM);
+                            ArrayList<String> lookupTableIds = LayerUtil.fillLookupTableIds(form);
+
+                            bundle.putStringArrayList(KEY_LOOKUP_ID, lookupTableIds);
+                            bundle.putLong(KEY_REMOTE_ID, resourceId);
+                            bundle.putString(KEY_ACCOUNT, accountName);
+                            bundle.putBoolean(KEY_SYNC, mSync);
+                            //extra.putLongArray(KEY_DEFAULT_FORM_IDS, defaultFormIDArray);
+                            bundle.putBoolean(KEY_WRITE_PERM, isWritePerm);
+
+                            if (!isCanceled() && startLayerFill) {
+                                Intent intent = new Intent();
+                                intent.putExtras(bundle);
+                                mQueue.add(new NGWVectorLayerFillTask(intent));
+                            }
+                            if (!startLayerFill) {
+                                bundle.putString(LayerFillService.KEY_MESSAGE, "form proccesed");
+                                subTaskWasRunned = false;
+                            }
+                        } else {
+                            bundle.putBoolean(LayerFillService.KEY_IS_NGFP_OPEN, isNGFPOpen);
+                            bundle.putSerializable(LayerFillService.KEY_PATH, dataFile);
+                            bundle.putBoolean(LayerFillService.KEY_DELETE_SRC_FILE, true);
+
+                            Intent intent = new Intent();
+                            intent.putExtras(bundle);
+                            if (!isCanceled() && startLayerFill) {
+                                mQueue.add(new VectorLayerFormFillTask(intent));
+                            }
+                            if (!startLayerFill) {
+                                intent.getExtras().putString(LayerFillService.KEY_MESSAGE, "form proccesed");
+                                subTaskWasRunned = false;
                             }
                         }
                     }
-
-                    isNgwConnection = isNgwConnection || mRemoteId > -1;
-                    if (isNgwConnection) {
-                        FileUtil.deleteRecursive(dataFile);
-                        File form = new File(mLayerPath, formPrefix + FILE_FORM);
-                        ArrayList<String> lookupTableIds = LayerUtil.fillLookupTableIds(form);
-
-                        extra.putStringArrayList(KEY_LOOKUP_ID, lookupTableIds);
-                        extra.putLong(KEY_REMOTE_ID, resourceId);
-                        extra.putString(KEY_ACCOUNT, accountName);
-                        extra.putBoolean(KEY_SYNC, mSync);
-                        extra.putLongArray(KEY_DEFAULT_FORM_IDS, defaultFormIDArray);
-                        extra.putBoolean(KEY_WRITE_PERM, isWritePerm);
-
-                        if (!isCanceled() && startLayerFill) {
-                            mQueue.add(new NGWVectorLayerFillTask(extra));
-                        }
-                        if (!startLayerFill) {
-//                            if (getLayer() instanceof  NGWVectorLayer)
-//                                ((NGWVectorLayer)getLayer()).saveWithNewFormId(defaultFormID);
-                            //addFormToLayer(mLayerPath, mRemoteId, defaultFormID);
-                            extra.putString(LayerFillService.KEY_MESSAGE, "form proccesed");
-                            subTaskWasRunned = false;
-                        }
-                    } else {
-                        extra.putBoolean(LayerFillService.KEY_IS_NGFP_OPEN, isNGFPOpen);
-                        extra.putSerializable(LayerFillService.KEY_PATH, dataFile);
-                        extra.putBoolean(LayerFillService.KEY_DELETE_SRC_FILE, true);
-                        extra.putLongArray(KEY_DEFAULT_FORM_IDS, defaultFormIDArray);
-
-                        if (!isCanceled() && startLayerFill) {
-                            mQueue.add(new VectorLayerFormFillTask(extra));
-                        }
-                        if (!startLayerFill) {
-//                            if (getLayer() instanceof  NGWVectorLayer)
-//                                ((NGWVectorLayer)getLayer()).saveWithNewFormId(defaultFormID);
-                            //addFormToLayer(mLayerPath, mRemoteId, defaultFormID);
-                            extra.putString(LayerFillService.KEY_MESSAGE, "form proccesed");
-                            subTaskWasRunned = false;
-                        }
-                    }
-                }
             } catch (AccountsException | JSONException | IOException | URISyntaxException | RuntimeException e) {
                 e.printStackTrace();
                 setError(e.getLocalizedMessage(), progressor);
                 notifyError(mProgressMessage);
                 return false;
             }
-
             return true;
         }
     }
@@ -787,12 +811,12 @@ public class LayerFillService extends Service implements IProgressor {
         boolean mDeletePath;
         boolean isOpenNGFP = false;
 
-        VectorLayerFormFillTask(Bundle bundle) {
-            super(bundle);
-            mPath = (File) bundle.getSerializable(KEY_PATH);
-            mDeletePath = bundle.getBoolean(KEY_DELETE_SRC_FILE, false);
+        VectorLayerFormFillTask(Intent intent) {
+            super(intent);
+            mPath = (File) intent.getExtras().getSerializable(KEY_PATH);
+            mDeletePath = intent.getExtras().getBoolean(KEY_DELETE_SRC_FILE, false);
             mLayer = new VectorLayerUI(mLayerGroup.getContext(), mLayerPath);
-            isOpenNGFP =  bundle.getBoolean(KEY_IS_NGFP_OPEN);
+            isOpenNGFP =  intent.getExtras().getBoolean(KEY_IS_NGFP_OPEN);
             initLayer();
         }
 
@@ -803,11 +827,29 @@ public class LayerFillService extends Service implements IProgressor {
                 if (null == vectorLayer)
                     return false;
                 String formPrefix = (isOpenNGFP ? "-1" :vectorLayer.getId()) + "_";
-                File meta = new File(mPath.getParentFile(),formPrefix +  NGFP_META);
+                File form = new File(vectorLayer.getPath(), FILE_FORM_SECOND_PREFIX + formPrefix+ ConstantsUI.FILE_FORM);
+                JSONObject metaJson = null;
+                if (!form.exists()) {
+                    File meta = new File(mPath.getParentFile(),formPrefix +  NGFP_META);
+                    if (meta.exists()) {
+                        String jsonText = FileUtil.readFromFile(meta);
+                        metaJson = new JSONObject(jsonText);
+                    }
+                } else {
+                        String jsonText = FileUtil.readFromFile(form);
+                        JSONObject allJson = new JSONObject(jsonText);
+                        if (allJson.has("resource")){
+                            JSONObject idObj = allJson.getJSONObject("resource");
+                            if (idObj.has("formbuilder_form")){
+                                JSONObject formbuilder = allJson.getJSONObject("formbuilder_form");
+                                if (formbuilder.has("value")){
+                                    metaJson = formbuilder.getJSONObject("value");
+                                }
+                            }
+                        }
+                }
 
-                if (meta.exists()) {
-                    String jsonText = FileUtil.readFromFile(meta);
-                    JSONObject metaJson = new JSONObject(jsonText);
+                if (metaJson != null) {
                     //read fields
                     List<Field> fields = NGWUtil.getFieldsFromJson(metaJson.getJSONArray(NGWUtil.NGWKEY_FIELDS));
                     //read geometry type
@@ -840,15 +882,15 @@ public class LayerFillService extends Service implements IProgressor {
     private class LocalTMSFillTask extends LayerFillTask{
         boolean mIsNgrc;
 
-        LocalTMSFillTask(Bundle bundle) {
-            super(bundle);
+        LocalTMSFillTask(Intent intent) {
+            super(intent);
             mLayer = new LocalTMSLayerUI(mLayerGroup.getContext(), mLayerPath);
-            mIsNgrc = !bundle.containsKey(KEY_TMS_TYPE);
-            isDirectMBtilesLoad = bundle.getBoolean(KEY_IS_MBTILES_DIRECT_OPEN, false);
-            ((LocalTMSLayerUI) mLayer).setCacheSizeMultiply(bundle.getInt(KEY_TMS_CACHE));
+            mIsNgrc = !intent.getExtras().containsKey(KEY_TMS_TYPE);
+            isDirectMBtilesLoad = intent.getExtras().getBoolean(KEY_IS_MBTILES_DIRECT_OPEN, false);
+            ((LocalTMSLayerUI) mLayer).setCacheSizeMultiply(intent.getExtras().getInt(KEY_TMS_CACHE));
 
             if (!mIsNgrc) { // it's zip
-                ((LocalTMSLayerUI) mLayer).setTMSType(bundle.getInt(KEY_TMS_TYPE));
+                ((LocalTMSLayerUI) mLayer).setTMSType(intent.getExtras().getInt(KEY_TMS_TYPE));
                 initLayer();
             } else
                 mLayerName = mUri.getLastPathSegment();
@@ -891,13 +933,13 @@ public class LayerFillService extends Service implements IProgressor {
         private boolean mShowSyncDialog;
 
 
-        NGWVectorLayerFillTask(Bundle bundle) {
-            super(bundle);
+        NGWVectorLayerFillTask(Intent intent) {
+            super(intent);
             isPointz = false;
             mLayer = new NGWVectorLayerUI(mLayerGroup.getContext(), mLayerPath);
-            ((NGWVectorLayerUI) mLayer).setRemoteId(bundle.getLong(KEY_REMOTE_ID));
+            ((NGWVectorLayerUI) mLayer).setRemoteId(intent.getExtras().getLong(KEY_REMOTE_ID));
 
-            boolean isWritePerm = bundle.getBoolean(KEY_WRITE_PERM, true);
+            boolean isWritePerm = intent.getExtras().getBoolean(KEY_WRITE_PERM, true);
 
             if  (isWritePerm == false) {
                 // no write perm - we should turn off editing and sync to server
@@ -907,19 +949,19 @@ public class LayerFillService extends Service implements IProgressor {
             }
 
             //((NGWVectorLayerUI) mLayer).setDefaultFormId(bundle.getLongArray(KEY_DEFAULT_FORM_IDS));
-            ((NGWVectorLayerUI) mLayer).setAccountName(bundle.getString(KEY_ACCOUNT));
+            ((NGWVectorLayerUI) mLayer).setAccountName(intent.getExtras().getString(KEY_ACCOUNT));
             initLayer();
 
-            if (bundle.containsKey(KEY_LOOKUP_ID))
-                mLookupIds = bundle.getStringArrayList(KEY_LOOKUP_ID);
+            if (intent.getExtras().containsKey(KEY_LOOKUP_ID))
+                mLookupIds = intent.getExtras().getStringArrayList(KEY_LOOKUP_ID);
 
-            mShowSyncDialog = bundle.getBoolean(KEY_SYNC, true);
+            mShowSyncDialog = intent.getExtras().getBoolean(KEY_SYNC, true);
 
             for (int i = 0; i < mLayerGroup.getLayerCount(); i++) {
                 if (mLayerGroup.getLayer(i) instanceof NGWLookupTable) {
                     NGWLookupTable table = (NGWLookupTable) mLayerGroup.getLayer(i);
                     String id = table.getRemoteId() + "";
-                    if (table.getAccountName().equals(bundle.getString(KEY_ACCOUNT)) && mLookupIds.contains(id))
+                    if (table.getAccountName().equals(intent.getExtras().getString(KEY_ACCOUNT)) && mLookupIds.contains(id))
                         mLookupIds.remove(id);
                 }
             }

@@ -50,10 +50,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static com.nextgis.maplibui.util.ConstantsUI.FILE_FORM_SECOND_PREFIX;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FEATURE_ID;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_FORM_PATH;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_GEOMETRY_CHANGED;
+import static com.nextgis.maplibui.util.ConstantsUI.KEY_IS_FORM_JSONTYPE;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_LAYER_ID;
 import static com.nextgis.maplibui.util.ConstantsUI.KEY_META_PATH;
 
@@ -62,18 +64,21 @@ import static com.nextgis.maplibui.util.ConstantsUI.KEY_META_PATH;
  */
 public final class LayerUtil {
     public static ArrayList<String> fillLookupTableIds(File path) throws IOException, JSONException {
-        String formText = FileUtil.readFromFile(path);
-        JSONArray formJson = new JSONArray(formText);
         ArrayList<String> lookupTableIds = new ArrayList<>();
+        try {
+            String formText = FileUtil.readFromFile(path);
+            JSONArray formJson = new JSONArray(formText);
 
-        for (int i = 0; i < formJson.length(); i++) {
-            JSONObject element = formJson.getJSONObject(i);
-            if (ConstantsUI.JSON_COMBOBOX_VALUE.equals(element.optString(Constants.JSON_TYPE_KEY))) {
-                element = element.getJSONObject(ConstantsUI.JSON_ATTRIBUTES_KEY);
-                if (element.has(ConstantsUI.JSON_NGW_ID_KEY))
-                    if (element.getLong(ConstantsUI.JSON_NGW_ID_KEY) != -1)
-                        lookupTableIds.add(element.getLong(ConstantsUI.JSON_NGW_ID_KEY) + "");
+            for (int i = 0; i < formJson.length(); i++) {
+                JSONObject element = formJson.getJSONObject(i);
+                if (ConstantsUI.JSON_COMBOBOX_VALUE.equals(element.optString(Constants.JSON_TYPE_KEY))) {
+                    element = element.getJSONObject(ConstantsUI.JSON_ATTRIBUTES_KEY);
+                    if (element.has(ConstantsUI.JSON_NGW_ID_KEY))
+                        if (element.getLong(ConstantsUI.JSON_NGW_ID_KEY) != -1)
+                            lookupTableIds.add(element.getLong(ConstantsUI.JSON_NGW_ID_KEY) + "");
+                }
             }
+        }catch (Exception exception){
         }
 
         return lookupTableIds;
@@ -95,7 +100,14 @@ public final class LayerUtil {
         Intent intent;
         //check custom form
         String formPrefix = mFormId + "_";
-        File form = new File(layer.getPath(), formPrefix+ ConstantsUI.FILE_FORM);
+
+        // new file  format
+        File form = new File(layer.getPath(), FILE_FORM_SECOND_PREFIX + formPrefix+ ConstantsUI.FILE_FORM);
+        boolean isJsonForm = true;
+        if (!form.exists()) {
+            form = new File(layer.getPath(), formPrefix + ConstantsUI.FILE_FORM);
+            isJsonForm = false;
+        }
 
         try {
 
@@ -129,6 +141,8 @@ public final class LayerUtil {
             //show custom form
             intent = new Intent(context, FormBuilderModifyAttributesActivity.class);
             intent.putExtra(KEY_FORM_PATH, form);
+            intent.putExtra(KEY_IS_FORM_JSONTYPE, isJsonForm);
+
             File meta = new File(layer.getPath(), formPrefix + LayerFillService.NGFP_META);
             if (meta.exists())
                 intent.putExtra(KEY_META_PATH, meta);
@@ -160,14 +174,14 @@ public final class LayerUtil {
         }
 
         for (File file : files) {
-            if (file.isFile() && file.getName().endsWith("_form.json")) {
+            if (file.isFile() && file.getName().endsWith("_form.json") && !file.getName().startsWith(FILE_FORM_SECOND_PREFIX)) {
                 String fileName = file.getName();
                 return fileName.substring(0, fileName.length() - "_form.json".length());
             }
         }
 
         for (File file : files) {
-            if (file.isFile() && file.getName().endsWith("form.json")) {
+            if (file.isFile() && file.getName().endsWith("form.json") && !file.getName().startsWith(FILE_FORM_SECOND_PREFIX)) {
                 String fileName = file.getName();
                 return fileName.substring(0, fileName.length() - "form.json".length());
             }

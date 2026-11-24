@@ -45,6 +45,7 @@ import com.nextgis.maplibui.service.LayerFillService;
 
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_NORMAL;
 import static com.nextgis.maplib.util.GeoConstants.TMSTYPE_OSM;
+import static com.nextgis.maplibui.service.LayerFillService.KEY_URI;
 
 
 /**
@@ -54,7 +55,6 @@ public class CreateLocalLayerDialog
         extends NGDialog
 {
     protected final static String KEY_ID         = "id";
-    protected final static String KEY_URI        = "uri";
     protected final static String KEY_LAYER_TYPE = "layer_type";
     protected final static String KEY_TMS_TYPE   = "tms";
     protected final static String KEY_CACHE      = "cache";
@@ -165,16 +165,12 @@ public class CreateLocalLayerDialog
                                 // create or connect to fill layer with features
                                 Intent intent = new Intent(mContextWeakRef.get(), LayerFillService.class);
                                 intent.setAction(LayerFillService.ACTION_ADD_TASK);
-                                intent.putExtra(LayerFillService.KEY_URI, mUri);
+                                intent.putExtra(KEY_URI, mUri);
                                 intent.putExtra(LayerFillService.KEY_NAME, mLayerName);
                                 intent.putExtra(LayerFillService.KEY_INPUT_TYPE, mLayerType);
                                 intent.putExtra(LayerFillService.KEY_IS_NGFP_OPEN, isNGFPopenForm);
                                 intent.putExtra(LayerFillService.KEY_LAYER_GROUP_ID, mGroupLayer.getId());
                                 int checkedId = radioGroup == null? 0: radioGroup.getCheckedRadioButtonId();
-
-//                                if (checkedId == R.id.radioButton1) {
-//                                 } else if (checkedId == R.id.radioButton2) {
-//                                 }
 
                                 intent.putExtra(LayerFillService.KEY_TMS_TYPE,
                                             checkedId == R.id.radioButton1 ? TMSTYPE_OSM : TMSTYPE_NORMAL);

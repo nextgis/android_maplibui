@@ -289,37 +289,40 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     LayerWithStyles layer = (LayerWithStyles) resource;
                     // get first style
                     Connection connection = layer.getConnection();
-                    // create tiles url
-                    String layerURL = layer.getTMSUrl(0);
 
-                    if (layerURL == null) {
-                        Toast.makeText(this, getString(com.nextgis.maplib.R.string.error_layer_create), Toast.LENGTH_SHORT).show();
-                        return false;
+                    //get selected raster for checkState
+                    List<NGWResourcesListAdapter.Option> selectedRaterList = mListAdapter.choosedOptionsRaster.get(checkState.getId());
+
+                    for (NGWResourcesListAdapter.Option option : selectedRaterList){
+                        // create tiles url
+                        String layerURL = layer.getTMSUrlByRemoteId(option.resId);
+
+                        if (layerURL == null) {
+                            Toast.makeText(this, getString(com.nextgis.maplib.R.string.error_layer_create), Toast.LENGTH_SHORT).show();
+                            return false;
+                        }
+
+                        //create layer
+                        final NGWRasterLayer newLayer;
+                        if (resource instanceof WebMap) {
+                            final NGWWebMapLayerUI webmap = new NGWWebMapLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
+                            webmap.setChildren(((WebMap) resource).getChildren());
+                            newLayer = webmap;
+                        } else {
+                            newLayer = new NGWRasterLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
+                            newLayer.getExtents().set(layer.getExtent());
+                        }
+
+                        newLayer.setName(option.resName);
+                        newLayer.setRemoteId(layer.getRemoteId());
+                        newLayer.setURL(layerURL);
+                        newLayer.setTMSType(TMSTYPE_OSM);
+                        newLayer.setVisible(true);
+                        newLayer.setAccountName(connection.getName());
+                        newLayer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
+                        newLayer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
+                        mGroupLayer.addLayer(newLayer);
                     }
-
-                    //create layer
-                    String layerName = layer.getName();
-
-                    final NGWRasterLayer newLayer;
-                    if (resource instanceof WebMap) {
-                        final NGWWebMapLayerUI webmap = new NGWWebMapLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
-                        webmap.setChildren(((WebMap) resource).getChildren());
-                        newLayer = webmap;
-                    } else {
-                        newLayer = new NGWRasterLayerUI(mGroupLayer.getContext(), mGroupLayer.createLayerStorage());
-                        newLayer.getExtents().set(layer.getExtent());
-                    }
-
-                    newLayer.setName(layerName);
-                    newLayer.setRemoteId(layer.getRemoteId());
-                    newLayer.setURL(layerURL);
-                    newLayer.setTMSType(TMSTYPE_OSM);
-                    newLayer.setVisible(true);
-                    newLayer.setAccountName(connection.getName());
-                    newLayer.setMinZoom(GeoConstants.DEFAULT_MIN_ZOOM);
-                    newLayer.setMaxZoom(GeoConstants.DEFAULT_MAX_ZOOM);
-
-                    mGroupLayer.addLayer(newLayer);
                     mGroupLayer.save();
                 }
             }
@@ -331,6 +334,7 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     final LayerWithStyles layer = (LayerWithStyles) resource;
                     // get connection for url
                     final Connection connection = layer.getConnection();
+
                     // create or connect to fill layer with features
                     Intent intent = new Intent(this, LayerFillService.class);
                     intent.setAction(LayerFillService.ACTION_ADD_TASK);
@@ -341,12 +345,22 @@ public class SelectNGWResourceActivity extends NGActivity implements View.OnClic
                     intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.NGW_LAYER);
                     intent.putExtra(LayerFillService.KEY_WRITE_PERM, writePerm);
 
-                    if (layer.getFormCount() > 0) {
-                        String path = NGWUtil.getFormUrl(connection.getURL(), layer.getFormId(0));
+                    boolean downloadNewJsonForm = true;
+
+                    //get selected raster for checkState
+                    List<NGWResourcesListAdapter.Option> selectedFormsList = mListAdapter.choosedOptionsForms.get(checkState.getId());
+
+                    long id = -1;
+                    if (selectedFormsList != null && !selectedFormsList.isEmpty())
+                        id = selectedFormsList.get(0).resId;
+                    else if (layer.getFormCount() > 0 )
+                        id = layer.getFormId(0);
+                    if (id > -1) {
+                        String path = NGWUtil.getFormUrlJSONType(connection.getURL(), id);
                         intent.putExtra(LayerFillService.KEY_URI, Uri.parse(path));
                         intent.putExtra(LayerFillService.KEY_INPUT_TYPE, LayerFillService.VECTOR_LAYER_WITH_FORM);
+                        intent.putExtra(LayerFillService.KEY_USE_JSON_FORM_DIRECT_DOWNLOAD, downloadNewJsonForm);
                     }
-
                     LayerFillProgressDialogFragment.startFill(intent);
                 }
             }

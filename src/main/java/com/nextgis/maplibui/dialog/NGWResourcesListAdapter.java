@@ -25,6 +25,7 @@ package com.nextgis.maplibui.dialog;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 
@@ -57,7 +58,11 @@ import com.nextgis.maplibui.util.CheckState;
 import com.nextgis.maplibui.util.ControlHelper;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.nextgis.maplib.util.Constants.NGW_ACCOUNT_GUEST;
 import static com.nextgis.maplib.util.Constants.NOT_FOUND;
@@ -79,6 +84,29 @@ public class NGWResourcesListAdapter
     protected OnConnectionListener mConnectionListener;
     boolean skipSubLoad = false;
 
+    public Map<Integer, List<Option>> choosedOptionsRaster = new HashMap<>();
+    public Map<Integer, List<Option>> choosedOptionsForms = new HashMap<>();
+
+    // additional options - for raster layers and forms (case - more than one r/f for one layer)
+    public static class Option {
+        public final Long resId;
+        public final String resName;
+        public Option(Long resId, String resName) {
+            this.resId = resId; this.resName = resName; }
+    }
+
+    public interface OnOptionsListener {
+        List<Option> getOptions(int resourceId, int checkNo);                 // откуда брать пары
+        void onOptionsSelected(int resourceId, int checkNo, List<Option> selected); // сохранить выбор
+        void onOptionsCleared(int resourceId, int checkNo);                   // галку сняли, выбор можно стереть
+    }
+
+    protected OnOptionsListener mOptionsListener = null;
+
+    public void setOptionsListener(OnOptionsListener l) {
+        mOptionsListener = l;
+    }
+
     public interface OnConnectionListener {
         void onConnectionSelected(Connection connection);
         void onAddConnection();
@@ -88,6 +116,63 @@ public class NGWResourcesListAdapter
     {
         mActivity = new WeakReference<>(activity);
         mLoading = false;
+
+
+        setOptionsListener(new OnOptionsListener() {
+            @Override
+            public List<Option> getOptions(int resourceId, int checkNo) {
+
+                List<Option> options = new ArrayList<>();
+
+                INGWResource ingwResource = mCurrentResource.getResourceById(resourceId);
+                if (ingwResource != null){
+                    if (ingwResource instanceof  LayerWithStyles){
+                        LayerWithStyles layer = (LayerWithStyles)ingwResource;
+                        if (checkNo == 1){
+                            // raster
+                            Map<Long ,String> mapRasters = layer.getStyles();
+                            if (mapRasters != null ) {
+                                for (Map.Entry<Long, String> entry : mapRasters.entrySet()) {
+                                    options.add(new Option(
+                                            entry.getKey(),
+                                            entry.getValue()
+                                    ));
+                                }
+                            }
+                        } else if (checkNo == 2){
+                            // forms
+                            Map<Long ,String> mapForms = layer.getForms();
+                            if (mapForms != null ) {
+                                for (Map.Entry<Long, String> entry : mapForms.entrySet()) {
+                                    options.add(new Option(
+                                            entry.getKey(),
+                                            entry.getValue()
+                                    ));
+                                }
+                            }
+                        }
+                    }
+                }
+                return options;
+            }
+
+            @Override
+            public void onOptionsSelected(int resourceId, int checkNo, List<Option> selected) {
+                if (checkNo == 1)
+                    choosedOptionsRaster.put(resourceId, selected);
+                else
+                    choosedOptionsForms.put(resourceId, selected);
+            }
+
+            @Override
+            public void onOptionsCleared(int resourceId, int checkNo) {
+                if (checkNo == 1)
+                    choosedOptionsRaster.remove(resourceId);
+                else
+                    choosedOptionsForms.remove(resourceId);
+            }
+        });
+
     }
 
     public void setShowAccounts(boolean show) {
@@ -480,97 +565,178 @@ public class NGWResourcesListAdapter
         return v;
     }
 
-
     public void setCheckBox(
             final int resourceType,
             final CheckBox checkBox,
             final int id,
             final int checkNo)
     {
-//        Log.e("CRVV", "setCheckBox resourceType" + resourceType + " id " + id + " checkNo " + checkNo);
         checkBox.setOnCheckedChangeListener(null);
 
+        CheckState current = findState(id);
+        boolean checked = false;
+        if (current != null)
+            checked = checkNo == 1 ? current.isCheckState1() : current.isCheckState2();
+        checkBox.setChecked(checked);
 
-//        Log.e("CRVV", "mCheckStates ----- ");
-//        for (CheckState state : mCheckState) {
-//            Log.e("CRVV", "state id " + state.getId());
-//            Log.e("CRVV", "state 1 " + state.isCheckState1()) ;
-//            Log.e("CRVV", "state 2 " + state.isCheckState2()) ;
-//        }
-//        Log.e("CRVV", "mCheckStates ----- END");
-        for (CheckState state : mCheckState) {
-            if (checkNo == 1) {
-//                Log.e("CRVV", "setCheckBox checkNo" + checkNo);
-                if (state.getId() == id && state.isCheckState1()) {
-//                    Log.e("CRVV", "checkBox.setChecked(true)");
-                    checkBox.setChecked(true);
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton button, boolean b) {
+                if (b) {
+                    if (resourceType == Connection.NGWResourceTypePostgisLayer
+                            && !AccountUtil.isUserExists(mActivity.get())) {
+                        ControlHelper.showNoLoginDialog(mActivity.get());
+                        revertToUnchecked(button);
+                        return;
+                    }
+
+
+                    final List<Option> options = mOptionsListener.getOptions(id, checkNo);
+                    if (options.size() > 1) { // if one option - just check
+                        revertToUnchecked(button);
+                        if (checkNo == 1)
+                            showOptionsDialogForRasters(id, checkNo, checkNo == 1? R.string.raster_title : R.string.forms_title );
+                        else
+                            showOptionsDialogForForms(id, checkNo, checkNo == 1? R.string.raster_title : R.string.forms_title );
+                    } else {
+                        applyCheck(id, checkNo, true);
+                    }
+
                 } else {
-                    checkBox.setChecked(false);
-//                    Log.e("CRVV", "checkBox.setChecked(false)");
+                    applyCheck(id, checkNo, false);
+                    if (mOptionsListener != null)
+                        mOptionsListener.onOptionsCleared(id, checkNo);
                 }
-            } else if (checkNo == 2) {
-//                Log.e("CRVV", "setCheckBox checkNo" + checkNo);
-                if (state.getId() == id && state.isCheckState2()) {
-                    checkBox.setChecked(true);
-//                    Log.e("CRVV", "checkBox.setChecked(true)");
-                } else {
-                    checkBox.setChecked(false);
-//                    Log.e("CRVV", "checkBox.setChecked(false)");
-                }
-    //            } else if (checkNo == 3) {
-    //                if (state.getId() == id && state.isCheckState3()) {
-    //                    checkBox.setChecked(true);
-    //                }
             }
+        });
     }
 
-        checkBox.setOnCheckedChangeListener(
-                new CompoundButton.OnCheckedChangeListener()
-                {
-                    @Override
-                    public void onCheckedChanged(
-                            CompoundButton compoundButton,
-                            boolean b) {
+    private void revertToUnchecked(CompoundButton button) {
+        CompoundButton.OnCheckedChangeListener l = null;
+        button.setOnCheckedChangeListener(null);
+        button.setChecked(false);
+        // listener be back at next getView/setCheckBox
+        // anywhere - applyCheck + notifyDataSetChanged after dialog
+    }
 
-                        if (resourceType == Connection.NGWResourceTypePostgisLayer && !AccountUtil.isUserExists(mActivity.get())) {
-                            ControlHelper.showNoLoginDialog(mActivity.get());
-                            compoundButton.setChecked(false);
-                            return;
-                        }
+    private CheckState findState(int id) {
+        for (CheckState state : mCheckState)
+            if (state.getId() == id)
+                return state;
+        return null;
+    }
 
-                        CheckState checkedState = null;
-                        for (CheckState state : mCheckState) {
-                            if (state.getId() == id) {
-                                checkedState = state;
-                                break;
+    private void applyCheck(int id, int checkNo, boolean value) {
+        CheckState state = findState(id);
+        if (state == null) {
+            if (!value)
+                return;
+            mCheckState.add(new CheckState(id, checkNo == 1, checkNo == 2));
+            return;
+        }
+        if (checkNo == 1)
+            state.setCheckState1(value);
+        else if (checkNo == 2)
+            state.setCheckState2(value);
+
+        if (!state.isCheckState1() && !state.isCheckState2())
+            mCheckState.remove(state);
+    }
+
+    private void showOptionsDialogForRasters(final int id, final int checkNo, int titleResId) {
+        final Activity activity = mActivity.get();
+        if (activity == null || mOptionsListener == null)
+            return;
+
+        final List<Option> options = mOptionsListener.getOptions(id, checkNo);
+        if (options == null || options.isEmpty())
+            return;
+
+        String[] titles = new String[options.size()];
+
+        final boolean[] selected = new boolean[options.size()];
+
+        for (int i = 0; i < options.size(); i++) {
+            titles[i] = options.get(i).resName;
+            selected[i] = false;
+        }
+        selected[0] = true; // first selected by default
+
+        new AlertDialog.Builder(activity)
+                .setTitle(titleResId )
+                .setMultiChoiceItems(titles, selected,
+                        new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface d, int which, boolean isChecked) {
+                                selected[which] = isChecked;
                             }
-                        }
+                        })
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface d, int which) {
+                        List<Option> result = new ArrayList<>();
+                        for (int i = 0; i < selected.length; i++)
+                            if (selected[i])
+                                result.add(options.get(i));
 
-                        switch (checkNo) {
-                            case 1:
-                                if (checkedState != null)
-                                    checkedState.setCheckState1(b);
-                                else
-                                    mCheckState.add(new CheckState(id, true, false));//, false));
-                                break;
-                            case 2:
-                                if (checkedState != null)
-                                    checkedState.setCheckState2(b);
-                                else
-                                    mCheckState.add(new CheckState(id, false, true));//, false));
-                                break;
-//                            case 3:
-//                                if (checkedState != null)
-//                                    checkedState.setCheckState3(b);
-//                                else
-//                                    mCheckState.add(new CheckState(id, false, false, true));
-//                                break;
-                        }
+                        if (result.isEmpty())
+                            return; // no select - no check
 
-                        if (checkedState != null && !checkedState.isCheckState1() && !checkedState.isCheckState2())// && !checkedState.isCheckState3())
-                            mCheckState.remove(checkedState);
+                        applyCheck(id, checkNo, true);
+                        mOptionsListener.onOptionsSelected(id, checkNo, result);
+                        notifyDataSetChanged(); // redraw checks from  mCheckState
                     }
-                });
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        notifyDataSetChanged(); // redraw checks from  mCheckState
+                    }
+                })
+                .show();
+    }
+
+    private void showOptionsDialogForForms(final int id, final int checkNo, int titleResId) {
+        final Activity activity = mActivity.get();
+        if (activity == null || mOptionsListener == null)
+            return;
+
+        final List<Option> options = mOptionsListener.getOptions(id, checkNo);
+
+        String[] titles = new String[options.size()];
+        for (int i = 0; i < options.size(); i++) {
+            titles[i] = options.get(i).resName;
+        }
+
+        final int[] selected = { 0 }; // default 1 case
+
+        new AlertDialog.Builder(activity)
+                .setTitle(titleResId)
+                .setSingleChoiceItems(titles, selected[0],
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface d, int which) {
+                                selected[0] = which;
+                            }
+                        })
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface d, int which) {
+                        List<Option> result = new ArrayList<>();
+                        result.add(options.get(selected[0]));
+
+                        applyCheck(id, checkNo, true);
+                        mOptionsListener.onOptionsSelected(id, checkNo, result);
+                        notifyDataSetChanged(); //  redraw checks from  mCheckState
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        notifyDataSetChanged(); //
+                    }
+                })
+                .show();
     }
 
 
