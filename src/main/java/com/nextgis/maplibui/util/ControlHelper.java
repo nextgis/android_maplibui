@@ -49,6 +49,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -451,6 +453,8 @@ public final class ControlHelper
         target.setOnTouchListener(new View.OnTouchListener()
         {
             final int RIGHT = 2;
+            final int LEFT = 0;
+
 
             @Override
             public boolean onTouch(
@@ -458,12 +462,19 @@ public final class ControlHelper
                     MotionEvent event)
             {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    int leftEdgeOfRightDrawable =
-                            view.getRight() - target.getCompoundDrawables()[RIGHT].getBounds()
-                                    .width();
+
+                    boolean isRtl = ViewCompat.getLayoutDirection(target) == ViewCompat.LAYOUT_DIRECTION_RTL;
+                    int drawableIndex = isRtl ? LEFT : RIGHT;
+                    Drawable drawable = target.getCompoundDrawables()[drawableIndex];
+                    int leftEdgeOfDrawable = view.getRight() - drawable.getBounds().width();
+
+
+//                    int leftEdgeOfRightDrawable =
+//                            view.getRight() - target.getCompoundDrawables()[RIGHT].getBounds()
+//                                    .width();
                     // when EditBox has padding, adjust leftEdge like
                     // leftEdgeOfRightDrawable -= getResources().getDimension(R.dimen.edittext_padding_left_right);
-                    if (event.getRawX() >= leftEdgeOfRightDrawable) {
+                    if (event.getRawX() >= leftEdgeOfDrawable) {
                         // clicked on clear icon
                         target.setText("");
                         target.clearFocus();

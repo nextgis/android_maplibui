@@ -33,6 +33,8 @@ import android.os.Handler;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.view.ViewCompat;
+
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -656,8 +658,15 @@ public class CreateFromQMSLayerDialog extends NGDialog {
         }
 
         private void setIcon(TextView view, String path) {
+            final int RIGHT = 2;
+            final int LEFT = 0;
+
+            boolean isRtl = ViewCompat.getLayoutDirection(view) == ViewCompat.LAYOUT_DIRECTION_RTL;
+            int drawableIndex = isRtl ? LEFT : RIGHT;
+
             Drawable icon = Drawable.createFromPath(path);
-            Drawable checkbox = view.getCompoundDrawables()[2];
+
+            Drawable checkbox = view.getCompoundDrawables()[drawableIndex];
 
             if (icon != null)
                 icon.setBounds(0, 0, checkbox.getIntrinsicWidth(), checkbox.getIntrinsicHeight());
