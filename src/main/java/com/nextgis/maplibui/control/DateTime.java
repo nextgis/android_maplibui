@@ -256,7 +256,7 @@ public class DateTime
             Cursor featureCursor)
     {
 
-        ControlHelper.setClearAction(this, true);
+        ControlHelper.setClearAction(this, true, true);
 
         if (null != field) {
             mFieldName = field.getName();

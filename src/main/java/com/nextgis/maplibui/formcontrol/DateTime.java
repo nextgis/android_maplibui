@@ -193,7 +193,7 @@ public class DateTime
             throws JSONException
     {
 
-        ControlHelper.setClearAction(this, true);
+        ControlHelper.setClearAction(this, true, true );
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = ControlHelper.getFieldName(attributes.getString(JSON_FIELD_NAME_KEY));

@@ -27,5 +27,5 @@
     android:layout_height="wrap_content"
     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
     android:textColor="?attr/control_disabled"
-    android:drawableRight="?attr/DatePickSpinnerBackground"
+    android:drawableEnd="?attr/DatePickSpinnerBackground"
     />

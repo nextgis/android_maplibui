@@ -448,48 +448,55 @@ public final class ControlHelper
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
-    public static void setClearAction(final TextView target, final boolean isTextValue)
+    public static void setClearAction (final TextView target, final boolean isTextValue, boolean isDateTimeRTL)
     {
-        target.setOnTouchListener(new View.OnTouchListener()
-        {
-            final int RIGHT = 2;
-            final int LEFT = 0;
-
+        // isDateTimeRTL - skip  rtl behav - process as ususal - todo - repair it lately
+        target.setOnTouchListener(new View.OnTouchListener() {
+//            final int RIGHT = 2;
+//            final int LEFT = 0;
 
             @Override
             public boolean onTouch(
                     View view,
-                    MotionEvent event)
-            {
+                    MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
 
                     boolean isRtl = ViewCompat.getLayoutDirection(target) == ViewCompat.LAYOUT_DIRECTION_RTL;
-                    int drawableIndex = isRtl ? LEFT : RIGHT;
-                    Drawable drawable = target.getCompoundDrawables()[drawableIndex];
-                    int leftEdgeOfDrawable = view.getRight() - drawable.getBounds().width();
-
-
-//                    int leftEdgeOfRightDrawable =
-//                            view.getRight() - target.getCompoundDrawables()[RIGHT].getBounds()
-//                                    .width();
-                    // when EditBox has padding, adjust leftEdge like
-                    // leftEdgeOfRightDrawable -= getResources().getDimension(R.dimen.edittext_padding_left_right);
-                    if (event.getRawX() >= leftEdgeOfDrawable) {
-                        // clicked on clear icon
-                        target.setText("");
-                        target.clearFocus();
-                        if (target instanceof TextEdit )
-                            ((TextEdit)target).setClearedToNull(isTextValue);
-                        if (target instanceof com.nextgis.maplibui.formcontrol.TextEdit )
-                            ((com.nextgis.maplibui.formcontrol.TextEdit)target).setClearedToNull(isTextValue);
-
-                        if (target instanceof DateTime)
-                            ((DateTime)target).clearValueToNull();
-                        if (target instanceof com.nextgis.maplibui.formcontrol.DateTime)
-                            ((com.nextgis.maplibui.formcontrol.DateTime)target).clearValueToNull();
-
-                        return true;
+                    Drawable endDrawable = target.getCompoundDrawablesRelative()[2];
+                    if (endDrawable == null) {
+                        return false;
                     }
+
+
+                    int drawableWidth = endDrawable.getBounds().width();
+                    float x = event.getRawX();
+
+                    boolean hit;
+                    if (isRtl && !isDateTimeRTL) {
+                        // icon at left
+                        hit = x <= target.getPaddingLeft() + drawableWidth;
+                    } else {
+                        // icon at right
+                        hit = x >= view.getWidth() - drawableWidth;
+                    }
+
+                    if (!hit) {
+                        return false;
+                    }
+
+                    target.setText("");
+                    target.clearFocus();
+                    if (target instanceof TextEdit)
+                        ((TextEdit) target).setClearedToNull(isTextValue);
+                    if (target instanceof com.nextgis.maplibui.formcontrol.TextEdit)
+                        ((com.nextgis.maplibui.formcontrol.TextEdit) target).setClearedToNull(isTextValue);
+
+                    if (target instanceof DateTime)
+                        ((DateTime) target).clearValueToNull();
+                    if (target instanceof com.nextgis.maplibui.formcontrol.DateTime)
+                        ((com.nextgis.maplibui.formcontrol.DateTime) target).clearValueToNull();
+
+                    return true;
                 }
                 return false;
             }

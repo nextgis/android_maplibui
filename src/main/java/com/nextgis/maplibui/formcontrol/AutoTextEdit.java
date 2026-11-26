@@ -104,7 +104,7 @@ public class AutoTextEdit extends AppCompatAutoCompleteTextView implements IForm
                      Map<String, Map<String, String>> translations,
                      final ModifyAttributesActivity modifyAttributesActivity) throws JSONException{
 
-        ControlHelper.setClearAction(this, false);
+        ControlHelper.setClearAction(this, false, false);
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = ControlHelper.getFieldName(attributes.getString(JSON_FIELD_NAME_KEY));

@@ -69,7 +69,7 @@ public class TextEdit
     public void init(final Field field,
                      final Bundle savedState,
                      final Cursor featureCursor){
-        ControlHelper.setClearAction(this, field.getType() == GeoConstants.FTString);
+        ControlHelper.setClearAction(this, field.getType() == GeoConstants.FTString, false);
         addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s,int start,int count,int after) {}

@@ -114,7 +114,7 @@ public class TextEdit extends AppCompatEditText
                      Map<String, Map<String, String>> translations,
                      final ModifyAttributesActivity modifyAttributesActivity) throws JSONException{
 
-        ControlHelper.setClearAction(this, false);
+        ControlHelper.setClearAction(this, false, false);
 
         JSONObject attributes = element.getJSONObject(JSON_ATTRIBUTES_KEY);
         mFieldName = ControlHelper.getFieldName(attributes.getString(JSON_FIELD_NAME_KEY));
@@ -180,7 +180,7 @@ public class TextEdit extends AppCompatEditText
         }
 
         final int ffieldType = fieldType;
-        ControlHelper.setClearAction(this, ffieldType == GeoConstants.FTString);
+        ControlHelper.setClearAction(this, ffieldType == GeoConstants.FTString, false);
         addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s,int start,int count,int after) {}

@@ -100,6 +100,8 @@
 
         <item name="DatePickSpinnerBackground">@drawable/ic_spinner_calendar_light</item>
         <item name="CloseStyleBackground">@drawable/ic_background_cancel_light</item>
+<!--        <item name="CloseStyleBackground">@drawable/background_cancel_light_rtled</item>-->
+
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
         <item name="android:listSeparatorTextViewStyle">@style/ListSeparatorTextView</item>
     </style>
@@ -147,6 +149,7 @@
 
         <item name="DatePickSpinnerBackground">@drawable/ic_spinner_calendar_dark</item>
         <item name="CloseStyleBackground">@drawable/ic_background_cancel_dark</item>
+        <!--        <item name="CloseStyleBackground">@drawable/background_cancel_light_rtled_dark</item>-->
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
         <item name="android:listSeparatorTextViewStyle">@style/ListSeparatorTextView</item>
         <item name="actionModeBackground">@drawable/action_mode</item>
